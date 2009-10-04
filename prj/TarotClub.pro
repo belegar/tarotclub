@@ -1,7 +1,16 @@
-UI_DIR  = windows/ui
+# TarotClub project file
+
+# directories for temp files
+UI_DIR  = ./ui
+UI_HEADERS_DIR = ./include
+UI_SOURCES_DIR = ./src
+OBJECTS_DIR = ./obj
+DESTDIR = ./bin
+
+# Qt build configuration
+VPATH += $${PWD}/../src
 QT      += xml network
-DESTDIR = ../bin
-RESOURCES = resources/resources.qrc
+RESOURCES = $${PWD}/../src/resources/resources.qrc
 CONFIG += qt warn_on static
 
 win32 {
@@ -11,50 +20,17 @@ win32 {
     RC_FILE = icon.rc
 }
 
+# generated
+HEADERS = ui_AboutUI.h
 
-HEADERS	= windows/AboutWindow.h \
-	windows/MainWindow.h \
-	windows/OptionsWindow.h \
-	windows/AvatarsWindow.h \
-	windows/ResultWindow.h \
-    windows/ScoresDock.h \
-    windows/InfosDock.h \
-    windows/ChatDock.h \
-	windows/Tapis.h \
-	windows/TextBox.h \
-	ConfigFile.h \
-	Game.h \
-	defines.h \
-    textes.h \
-	base/Jeu.h \
-	base/Deck.h \
-    base/Card.h \
-	base/Player.h \
-    base/Client.h \
-    base/Bot.h
-        
-FORMS   =   windows/ui/AboutUI.ui \
-            windows/ui/ResultUI.ui \
-            windows/ui/OptionsUI.ui \
-            windows/ui/NetClientUI.ui \
-            windows/ui/AvatarsUI.ui
+HEADERS	+=  AboutWindow.h MainWindow.h OptionsWindow.h AvatarsWindow.h \
+            ResultWindow.h ScoresDock.h InfosDock.h ChatDock.h \
+            Tapis.h TextBox.h ConfigFile.h Game.h Jeu.h \
+            Deck.h Card.h Player.h Client.h Bot.h
 
-SOURCES	= windows/AboutWindow.cpp \
-	windows/MainWindow.cpp \
-	windows/OptionsWindow.cpp \
-	windows/AvatarsWindow.cpp \
-	windows/ResultWindow.cpp \
-    windows/ScoresDock.cpp \
-    windows/InfosDock.cpp \
-    windows/ChatDock.cpp \
-	windows/Tapis.cpp \
-	windows/TextBox.cpp \
-	ConfigFile.cpp \
-	Game.cpp \
-	main.cpp \
-    base/Jeu.cpp \
-	base/Deck.cpp \
-    base/Card.cpp \
-	base/Player.cpp \
-    base/Client.cpp \
-    base/Bot.cpp
+FORMS = AboutUI.ui ResultUI.ui OptionsUI.ui NetClientUI.ui AvatarsUI.ui
+
+SOURCES	=   AboutWindow.cpp MainWindow.cpp OptionsWindow.cpp AvatarsWindow.cpp \
+            ResultWindow.cpp ScoresDock.cpp InfosDock.cpp ChatDock.cpp \
+            Tapis.cpp TextBox.cpp ConfigFile.cpp Game.cpp main.cpp Jeu.cpp \
+            Deck.cpp Card.cpp Player.cpp Client.cpp Bot.cpp
