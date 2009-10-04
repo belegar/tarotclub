@@ -1,0 +1,82 @@
+Tarot Club 1.3.0
+
++ nouvelle fonctionnalité
+~ bug corrigé
+- fonctionnalité supprimée
+
+* version 1.3.0 <Dragon Ball>
+  -------------------------------
+    + Nouveau système de dock windows pour afficher des informations
+    + Dock window pour le chat durant les parties réseau
+    + Compatible complètement avec Qt 4.3.0 (plus de Q3Support)
+    + Architecture client/serveur complète avec serveur dédié indépendant
+    + Support de bots prévu dès la conception
+
+* version 1.2.1 <Tschaï>
+  -------------------------------
+	+ Traduction anglaise
+    + Sélection de la langue dans les options
+    + Exécutable plus petit grâce à UPX (http://upx.sourceforge.net/)
+
+* version 1.2.0 <Tschaï>
+  -------------------------------
+	+ Le jeu en réseau
+    + Splash screen au démarrage
+    + Choix du tapis de jeu
+    + Refonte du système de sauvegarde
+    + Nouvelle version de fichier XML de préférences
+    + Passage à Qt 4.0.1
+    + Abandon de Visual C++ au profit de MinGW (Windows)
+    ~ Modification du choix des avatars
+    - Abandon (temporaire) des scripts Lua
+
+* version 1.1.3 <Winnie>
+  -------------------------------
+	+ Nouvelle donnée de l'API : cartesJoueurs[]
+	+ Nouveau fichier d'IA : contribution de Hervé BENOIT
+	~ Correction de l'appartenance des cartes
+	~ Changement de l'icône de l'exécutable (Windows seulement)
+	~ Passage à Lua 5.0.2
+	~ Séparation du code du moteur de jeu et du code de l'interface
+	~ Passage à 65000 donnes différentes
+	~ Changements dans le menu
+	~ Bug de sauvegarde des avatars corrigé
+
+* version 1.1.2 <Winnie>
+  -------------------------------
+	+ Le Chien s'affiche rangé par couleur
+	+ Portage du code de Qt 2.3 à Qt 3.2.1
+	+ Changements des Id des cartes
+	+ Les scripts Lua doivent maintenant être dans des fonctions
+	+ Donnes numérotées et possibilité de fournir une donne précise
+	~ Console Lua améliorée
+	~ L'ordinateur produit un chien valide (sans Roi ni atouts)
+
+* version 1.1.1 <Winnie>
+  -------------------------------
+  	+ Nouvelles fonctions de l'API :
+	+ println() : affiche un message dans la console
+	+ maitre() : retourne la position du maitre
+	+ place() : (retourne : nord, sud, etc.)
+	+ des variables globales pour accéder cartes déjà jouées etc.
+
+* version 1.1 <Winnie>
+  -------------------------------
+  	+ Une console Lua permet de visualiser les messages d'erreurs
+  	+ Nouvelle option : visualisation du pli précédent
+  	+ Indication du joueur qui joue : plus de boule mais la boite du joueur est cerclées de rouge
+  	+ Le nom des joueurs s'affiche également dans la table des scores
+  	+ La taille de la fenêtre s'adapte à la résolution de l'écran
+	+ Le nom des joueurs est limité à 10 caractères
+	+ Nouvelle option pour modifier les temps de pause dans le séquençage du jeu
+	~ Le Chelem est maintenant convenablement détecté
+	~ Le chien n'est pas affiché en cas de Garde sans ou de Garde Contre
+	~ Chemins relatifs changés en absolus : on peut maintenant démarrer TarotClub depuis n'importe quel emplacement
+	~ Quelques bugs corrigés et des simplifications de code
+	~ Classe Deck complètement refondue : + simple et ne fait plus planter le jeu
+
+* version 1.0 <Teddy>
+  -------------------------------
+	+ Version initiale
+
+(end of HISTORY)

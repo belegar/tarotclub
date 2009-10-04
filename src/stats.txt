@@ -1,0 +1,16 @@
+stats.atouts : 6
+stats.bouts : 2
+stats.atoutsMajeurs : 1
+stats.rois : 1
+stats.dames : 1
+stats.cavaliers : 1
+stats.valets : 0
+stats.mariages : 0
+stats.longues : 1
+stats.coupes : 0
+stats.singletons : 2
+stats.sequences : 0
+stats.petit : 1
+stats.vingtEtUn : 0
+stats.excuse : 1
+-----------------------------------

@@ -1,0 +1,10 @@
+choix du deck de cartes
+passage d'un joueur à l'autre par un click
+sauvegarder le contexte QMainWindow pour mémoriser la position des dockwindows
+mettre les traductions dans le fichier de ressources et permettre le changement dynamique
+des langues.
+
+Installeur :
+Mettre les messages de désinstallation en multilangues
+
+

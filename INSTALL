@@ -1,0 +1,18 @@
+Installation de Tarot Club
+---------------------------
+
+* Windows
+==========
+
+Suivre les étapes à l'aide de l'installeur. Un raccourci vers 
+l'exécutable est créé sur le bureau et dans le menu Démarrer.
+
+
+* Linux et Mac
+===============
+
+Décompresser l'archive et exécuter le programme 'TarotClub' situé 
+dans le répertoire bin. Attention, il faut posséder la librairie 
+Qt 4.3.0 minimum. Mettre à jour votre distribution en conséquence ou 
+télécharger la librairie directement sur le site de l'éditeur :
+http://www.trolltech.com

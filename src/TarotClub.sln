@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TarotClub", "TarotClub.vcproj", "{72D59E4C-0CA0-4548-9E1F-CDE2C75C1BDA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TarotClubServer", "server\TarotClubServer.vcproj", "{BDBBAB2E-6F20-4C09-8FD7-A866107A104A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72D59E4C-0CA0-4548-9E1F-CDE2C75C1BDA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{72D59E4C-0CA0-4548-9E1F-CDE2C75C1BDA}.Debug|Win32.Build.0 = Debug|Win32
+		{72D59E4C-0CA0-4548-9E1F-CDE2C75C1BDA}.Release|Win32.ActiveCfg = Release|Win32
+		{72D59E4C-0CA0-4548-9E1F-CDE2C75C1BDA}.Release|Win32.Build.0 = Release|Win32
+		{BDBBAB2E-6F20-4C09-8FD7-A866107A104A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BDBBAB2E-6F20-4C09-8FD7-A866107A104A}.Debug|Win32.Build.0 = Debug|Win32
+		{BDBBAB2E-6F20-4C09-8FD7-A866107A104A}.Release|Win32.ActiveCfg = Release|Win32
+		{BDBBAB2E-6F20-4C09-8FD7-A866107A104A}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
