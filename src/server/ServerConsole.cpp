@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - ServerConsole.cpp
  *=============================================================================
- * Console avec commandes permettant de contrôler le serveur de jeu
+ * Console avec commandes permettant de contrÃ´ler le serveur de jeu
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org

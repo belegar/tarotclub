@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - Client.cpp
  *=============================================================================
- * Classe modÈlisant un client connectÈ ‡ une partie serveur.
+ * Classe mod√©lisant un client connect√© √† une partie serveur.
  *=============================================================================
- * Tarot Club est un jeu de Tarot franÁais
+ * Tarot Club est un jeu de Tarot fran√ßais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -32,12 +32,12 @@ using namespace std;
 #endif // _DEBUG
 
 #include "Client.h"
-#include "../defines.h"
+#include "defines.h"
 
 /*****************************************************************************/
 Client::Client() : Player()
 {
-   // …vÈnements sur le socket
+   // √âv√©nements sur le socket
    connect( &socket, SIGNAL(readyRead()),this, SLOT(socketReadData()));
    connect( &socket, SIGNAL(disconnected()),this, SLOT(socketClosed()));
    connect( &socket, SIGNAL(connected()),this, SLOT(socketConnected()));
@@ -134,7 +134,7 @@ void Client::razStats()
 }
 /*****************************************************************************/
 /**
- * DÈcide de l'enchËre
+ * D√©cide de l'ench√®re
  */
 Contrat Client::calculEnchere()
 {
@@ -161,7 +161,7 @@ Contrat Client::calculEnchere()
    }
 
    // Chaque atout vaut deux points
-   // Chaque atout majeur vaut 1 point supplÈmentaire
+   // Chaque atout majeur vaut 1 point suppl√©mentaire
    total += stats.atouts * 2;
    total += stats.atoutsMajeurs * 2;
    total += stats.rois * 6;
@@ -174,7 +174,7 @@ Contrat Client::calculEnchere()
    total += stats.singletons * 3;
    total += stats.sequences * 4;
 
-   // on dÈcide de l'enchËre :
+   // on d√©cide de l'ench√®re :
    if( total <= 35 ) {
       cont = PASSE;
    } else if( total >= 36  && total <= 50 ) {
@@ -226,7 +226,7 @@ void Client::choixChien( Deck *deckChien )
          for( j=0; j<k; j++ ) {
             cdeck = myDeck.at( j );
             if( cdeck->getType() == CARTE && cdeck->getValue() < 14 ) {
-               // ok, on procËde ‡ l'Èchange
+               // ok, on proc√®de √† l'√©change
                myDeck.removeAll( cdeck );
                myDeck.append( c );
                deckChien->removeAll( c );
@@ -246,7 +246,7 @@ void Client::choixChien( Deck *deckChien )
 
 
 #ifndef QT_NO_DEBUG
-// contenu du chien aprËs
+// contenu du chien apr√®s
    f.open("chien_apres.txt");
 
    for( i=0; i<deckChien->count(); i++) {
@@ -376,15 +376,15 @@ void Client::updateStats()
          stats.dames++;    // dame sans roi
       }
 
-      // test des sÈquences :
-      count = 0;  // longueur de la sÈquence
-      flag = 0;   // couleur trouvÈe : on est dans la sÈquence
+      // test des s√©quences :
+      count = 0;  // longueur de la s√©quence
+      flag = 0;   // couleur trouv√©e : on est dans la s√©quence
       longue = 0;
 
       for( k=0; k<14; k++ ) {
          if( distr[k] == 1 ) {
             longue++;
-            // dÈbut d'une sÈquence
+            // d√©but d'une s√©quence
             if( flag == 0 ) {
                flag = 1;
                count++;
@@ -406,7 +406,7 @@ void Client::updateStats()
 
 
 #ifndef QT_NO_DEBUG
-   // Affichage avant le mÈlange
+   // Affichage avant le m√©lange
    ofstream f("stats.txt");
    
    if (f.is_open())
@@ -442,7 +442,7 @@ void Client::updateStats()
 }
 /*****************************************************************************/
 /**
- * Retourne la premiËre carte valide dans la main du joueur
+ * Retourne la premi√®re carte valide dans la main du joueur
  */
 Card *Client::play()
 {
@@ -472,7 +472,7 @@ void Client::sendMessage( const QString &message )
    // On ajoute le nick avant le message
    msg = identity.name + "> " + message;
    
-   // PrÈparation de la trame
+   // Pr√©paration de la trame
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_CLIENT_MSG
@@ -487,7 +487,7 @@ void Client::sendMessage( const QString &message )
 }
 /*****************************************************************************/
 /**
- * Demande au serveur de dÈmarrer une nouvelle donne
+ * Demande au serveur de d√©marrer une nouvelle donne
  */
 void Client::sendStart()
 {
@@ -505,7 +505,7 @@ void Client::sendStart()
 }
 /*****************************************************************************/
 /**
- * Le client envoie son choix d'enchËre
+ * Le client envoie son choix d'ench√®re
  */
 void Client::sendEnchere( Contrat c )
 {
@@ -548,7 +548,7 @@ void Client::sendChien()
 }
 /*****************************************************************************/
 /**
- * On envoie la carte jouÈe
+ * On envoie la carte jou√©e
  */
 void Client::sendCard( Card *c )
 {
@@ -567,7 +567,7 @@ void Client::sendCard( Card *c )
 }
 /*****************************************************************************/
 /**
- * Demande au serveur de dÈmarrer une nouvelle donne
+ * Demande au serveur de d√©marrer une nouvelle donne
  */
 void Client::sendVuChien()
 {
@@ -585,7 +585,7 @@ void Client::sendVuChien()
 }
 /*****************************************************************************/
 /**
- * On prÈvient le serveur qu'on a bien vu toutes les cartes du pli
+ * On pr√©vient le serveur qu'on a bien vu toutes les cartes du pli
  */
 void Client::sendVuPli()
 {
@@ -639,7 +639,7 @@ void Client::socketReadData()
          trameEnPlus = false;
       }
 
-      // On dÈcode le trame reÁue
+      // On d√©code le trame re√ßue
       doAction( in );
       blockSize = 0;
    }
@@ -647,7 +647,7 @@ void Client::socketReadData()
 }
 /*****************************************************************************/
 /**
- * On agit en fonction du type de bloc reÁu
+ * On agit en fonction du type de bloc re√ßu
  */
 void Client::doAction( QDataStream &in )
 {
@@ -657,7 +657,7 @@ void Client::doAction( QDataStream &in )
    switch( type ) {
 
       /**
-       * On reÁoit un message de quelqu'un
+       * On re√ßoit un message de quelqu'un
        */
       case NET_MESSAGE:
       {
@@ -668,7 +668,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * Le serveur nous demande notre identitÈ
+       * Le serveur nous demande notre identit√©
        */
       case NET_IDENTIFICATION:
       {
@@ -677,7 +677,7 @@ void Client::doAction( QDataStream &in )
          QDataStream out( &block, QIODevice::WriteOnly );
          out.setVersion( 5 );
          out << (quint16)0 << (quint8)NET_CLIENT_INFOS
-             << QString( TAROT_VERSION ) // version de TarotClub pour de futurs tests de compatibilitÈ
+             << QString( TAROT_VERSION ) // version de TarotClub pour de futurs tests de compatibilit√©
              << identity.name
              << fi.fileName()
              << identity.quote
@@ -691,7 +691,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * On reÁoit la liste des joueurs qui sont connectÈs
+       * On re√ßoit la liste des joueurs qui sont connect√©s
        */
       case NET_LISTE_JOUEURS:
       {
@@ -712,7 +712,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * On reÁoit ses cartes et les paramËtres du jeu
+       * On re√ßoit ses cartes et les param√®tres du jeu
        */
       case NET_RECEPTION_CARTES:
       {
@@ -745,7 +745,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * Le serveur nous indique ‡ qui est le tour
+       * Le serveur nous indique √† qui est le tour
        */
       case NET_SELECTION_JOUEUR:
       {
@@ -758,19 +758,19 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * Le serveur nous demande notre enchËre
+       * Le serveur nous demande notre ench√®re
        */
       case NET_DEMANDE_ENCHERE:
       {
          quint8 c;
          
-         in >> c; // contrat le plus ÈlevÈ annoncÈ prÈcÈdemment
+         in >> c; // contrat le plus √©lev√© annonc√© pr√©c√©demment
          emit sgnlChoixEnchere((Contrat)c);
          break;
       }
 
       /**
-       * On reÁoit l'enchËre proposÈe par un joueur
+       * On re√ßoit l'ench√®re propos√©e par un joueur
        */
       case NET_ENCHERE_JOUEUR:
       {
@@ -821,7 +821,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * On commence ‡ jouer cette donne
+       * On commence √† jouer cette donne
        */
       case NET_DEPART_DONNE:
       {
@@ -839,7 +839,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * C'est ‡ notre tour de jouer
+       * C'est √† notre tour de jouer
        */
       case NET_JOUE_CARTE:
       {
@@ -848,7 +848,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * On reÁoit la carte jouÈe par un joueur
+       * On re√ßoit la carte jou√©e par un joueur
        */
       case NET_MONTRE_CARTE:
       {
@@ -872,7 +872,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * On prÈvient la fin de cette donne, on affiche les scores
+       * On pr√©vient la fin de cette donne, on affiche les scores
        */
       case NET_FIN_DONNE:
       {
@@ -904,7 +904,7 @@ void Client::doAction( QDataStream &in )
       }
 
       /**
-       * Tous les joueurs ont passÈ, le serveur nous demande si on veut redistribuer
+       * Tous les joueurs ont pass√©, le serveur nous demande si on veut redistribuer
        */
       case NET_SERVER_REDIST:
       {
@@ -913,7 +913,7 @@ void Client::doAction( QDataStream &in )
       }
 
       default:
-         emit sgnlMessage( "Paquet reÁu non valide." );
+         emit sgnlMessage( "Paquet re√ßu non valide." );
          break;
    }
 }
@@ -925,7 +925,7 @@ void Client::connectToHost( const QString &hostName, quint16 port )
 /*****************************************************************************/
 void Client::socketConnected()
 {
-   emit sgnlMessage( identity.name + tr(" est connectÈ.") );
+   emit sgnlMessage( identity.name + tr(" est connect√©.") );
 }
 /*****************************************************************************/
 void Client::socketHostFound()
@@ -935,7 +935,7 @@ void Client::socketHostFound()
 /*****************************************************************************/
 void Client::socketClosed()
 {
-   emit sgnlMessage( tr("Le serveur a mis fin ‡ la connexion.") );
+   emit sgnlMessage( tr("Le serveur a mis fin √† la connexion.") );
 }
 /*****************************************************************************/
 void Client::socketError( QAbstractSocket::SocketError code )
@@ -944,13 +944,13 @@ void Client::socketError( QAbstractSocket::SocketError code )
 
    switch( code ) {
       case QAbstractSocket::ConnectionRefusedError:
-         message = tr("Erreur rÈseau : connexion refusÈe.");
+         message = tr("Erreur r√©seau : connexion refus√©e.");
          break;
       case QAbstractSocket::HostNotFoundError:
-         message = tr("Erreur rÈseau : serveur introuvable.");
+         message = tr("Erreur r√©seau : serveur introuvable.");
          break;
       default:
-         message = tr("Erreur rÈseau : la transmission de donnÈes a ÈchouÈ.");
+         message = tr("Erreur r√©seau : la transmission de donn√©es a √©chou√©.");
          break;
    }
    emit sgnlMessage( message );

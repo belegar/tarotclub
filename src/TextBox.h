@@ -3,7 +3,7 @@
  *=============================================================================
  * Two text box classes to show names and bids on canvas
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -58,7 +58,7 @@ public:
 
 /*****************************************************************************/
 /**
- * Widget avancé avec des icônes
+ * Widget avancÃ© avec des icÃ´nes
  */
 class PlayerBox : public TextBox
 {

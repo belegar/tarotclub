@@ -3,7 +3,7 @@
  *=============================================================================
  * AvatarsWindow : choix d'un avatar
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -32,7 +32,7 @@
 #include <QDialog>
 
 // Includes locales
-#include "ui/ui_AvatarsUI.h"
+#include <ui_AvatarsUI.h>
 
 /*****************************************************************************/
 class AvatarsWindow : public QDialog

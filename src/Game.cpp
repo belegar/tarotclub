@@ -3,7 +3,7 @@
  *=============================================================================
  * Derived class from MainWindow class. Central class for the game engine.
  *=============================================================================
- * Tarot Club est un jeu de Tarot fran�ais
+ * Tarot Club est un jeu de Tarot franï¿œais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -29,7 +29,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include "Game.h"
-#include "base/Jeu.h"
+#include "Jeu.h"
 
 #define CARD_NORMAL		522
 #define CARD_SELECTED	502
@@ -58,13 +58,13 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()) );
 
 /*
-   // Fenêtre réseau (client)
+   // FenÃªtre rÃ©seau (client)
    connect( clientWindow, SIGNAL(sgnlExit()), this, SLOT(slotClientWndExit()));
    connect( clientWindow, SIGNAL(sgnlSendMessage(const QString &)), this, SLOT(slotClientMessage(const QString &)));
    connect( clientWindow, SIGNAL(sgnlConnection(const QString &)), this, SLOT(slotClientConnexion(const QString &)));
    connect( clientWindow, SIGNAL(sgnlDeconnection()), this, SLOT(slotClientDeconnexion()));
 */
-   // Connexion des événements sur le client
+   // Connexion des Ã©vÃ©nements sur le client
    connect( &client, SIGNAL(sgnlMessage(const QString &)), chatDock, SLOT(message(const QString &)));
    connect( &client, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
    connect( &client, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
@@ -129,7 +129,7 @@ void Game::slotNewLocalGame()
    }
    tapis->setFilter(AUCUN);
    sequence = DISTRIBUTION;
-   statusBar()->showMessage( "Cliquez sur le tapis pour démarrer le tour." );
+   statusBar()->showMessage( "Cliquez sur le tapis pour dÃ©marrer le tour." );
 }
 /*****************************************************************************/
 int Game::setTheme( QString gamePath )
@@ -158,7 +158,7 @@ int Game::setTheme( QString gamePath )
          f.setFileName(image);
 
          if( f.exists() ) {
-            // On assigne une image � la carte
+            // On assigne une image ï¿œ la carte
             cardsPics[n].setPixmap( QPixmap( image ));
          } else {
             return(1);
@@ -264,7 +264,7 @@ void Game::hidePli()
 }
 /*****************************************************************************/
 /**
- * Cette fonction est appel�e � chaque fois que l'utilisateur d�place son
+ * Cette fonction est appelï¿œe ï¿œ chaque fois que l'utilisateur dï¿œplace son
  * curseur au dessus d'une carte
  */
 void Game::slotMoveCursor( GfxCard *gc )
@@ -317,7 +317,7 @@ void Game::slotClickCard(GfxCard *gc)
          return;
       }
 
-      // s�lection de la carte
+      // sï¿œlection de la carte
       if( gc->y() == CARD_NORMAL ) {
          if( client.getTailleChien() == 6 ) {
             return;
@@ -330,7 +330,7 @@ void Game::slotClickCard(GfxCard *gc)
             boutonAccepterChien->show();
          }
 
-      // d�selection de la carte
+      // dï¿œselection de la carte
       } else if( gc->y() == CARD_SELECTED ) {
          if( client.getTailleChien() == 0 ) {
             return;
@@ -419,9 +419,9 @@ void Game::setEnchere( Contrat cont )
 }
 /*****************************************************************************/
 /**
- * Pos : d�cale ou non l'affichage des cartes
+ * Pos : dï¿œcale ou non l'affichage des cartes
  * 0 : normal pour 18 cartes
- * 1 : serr�es car il y a le chien en plus
+ * 1 : serrï¿œes car il y a le chien en plus
  */
 void Game::afficheCartesJoueur( int pos )
 {
@@ -475,7 +475,7 @@ void Game::slotAfficheChien()
 void Game::slotRedist()
 {
    QMessageBox::information(this, tr("Information"),
-                   tr("Tous les joueurs ont pass�.\n"
+                   tr("Tous les joueurs ont passï¿œ.\n"
                       "Nouvelle distribution des cartes.") );
 
    razTapis();
@@ -499,7 +499,7 @@ void Game::slotPrepareChien()
    tapis->setFilter( JEU );
    // on affiche le deck du joueur + le contenu du chien
    afficheCartesJoueur(1);
-   statusBar()->showMessage(tr("S�lectionnez des cartes pour construire votre chien.") );
+   statusBar()->showMessage(tr("Sï¿œlectionnez des cartes pour construire votre chien.") );
 }
 /*****************************************************************************/
 void Game::slotDepartDonne(Place p,Contrat c)

@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - Bot.h
  *=============================================================================
- * Modélise un robot joueur. Interface vers les scripts d'IA
+ * ModÃ©lise un robot joueur. Interface vers les scripts d'IA
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org

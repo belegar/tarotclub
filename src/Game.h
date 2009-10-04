@@ -3,7 +3,7 @@
  *=============================================================================
  * Derived class from MainWindow class. Central class for the game engine.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -34,9 +34,9 @@
 
 // Game includes
 #include "defines.h"
-#include "windows/MainWindow.h"
-#include "base/Client.h"
-#include "base/Bot.h"
+#include "MainWindow.h"
+#include "Client.h"
+#include "Bot.h"
 #include "ConfigFile.h"
 
 
@@ -78,7 +78,7 @@ public slots:
    void slotClickTapis();
    void slotMoveCursor( GfxCard *c );
    
-   // événements du serveur
+   // Ã©vÃ©nements du serveur
    void slotReceptionCartes();
    void slotAfficheSelection(Place p);
    void slotChoixEnchere(Contrat c);

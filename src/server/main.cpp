@@ -31,7 +31,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
 }
 /*****************************************************************************/
 /**
- * Point d'entrée de l'application
+ * Point d'entrÃ©e de l'application
  */
 int main(int argc, char* argv[])
 {

@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - ScoresDock.cpp
  *=============================================================================
- * Fenêtre dockable affichant les scores des joueurs
+ * FenÃªtre dockable affichant les scores des joueurs
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org

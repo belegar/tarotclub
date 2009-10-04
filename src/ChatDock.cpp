@@ -76,7 +76,7 @@ void ChatDock::setPlayersList( int nombre, Identity *idents )
 		nicks += idents[i].name;
    }
 	playersList->clear();
-	// On marque le premier joueur comme étant le serveur
+	// On marque le premier joueur comme Ã©tant le serveur
 	playersList->addItems( nicks );
    QListWidgetItem *it = playersList->item(0);
 	server = it->text();

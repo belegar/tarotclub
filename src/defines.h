@@ -3,7 +3,7 @@
  *=============================================================================
  * Global types
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -60,10 +60,10 @@ enum CursorType   { FORBIDDEN, ARROW };
 #define NET_CLIENT_INFOS      0x11
 #define NET_CLIENT_DONNE      0x12
 #define NET_CLIENT_ENCHERE    0x13
-#define NET_CLIENT_VU_CHIEN   0x14  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le chien
+#define NET_CLIENT_VU_CHIEN   0x14  // tous les clients doivent prÃ©venir le serveur qu'ils ont bien vus le chien
 #define NET_CLIENT_CHIEN      0x15
 #define NET_CLIENT_CARTE      0x16
-#define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le pli  
+#define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prÃ©venir le serveur qu'ils ont bien vus le pli  
 
 // server -> client
 #define NET_MESSAGE           0x70
@@ -80,7 +80,7 @@ enum CursorType   { FORBIDDEN, ARROW };
 #define NET_MONTRE_CARTE      0x81
 #define NET_SERVER_WAIT_PLI   0x82
 #define NET_FIN_DONNE         0x83
-#define NET_SERVER_REDIST     0x84  // tous les joueurs ont passé, il faut relancer une distribution
+#define NET_SERVER_REDIST     0x84  // tous les joueurs ont passÃ©, il faut relancer une distribution
 
 /*****************************************************************************/
 
@@ -88,7 +88,7 @@ typedef struct {
    QString  name;    // nom du joueur
    QString  quote;      // citation
    QString  avatar;     // Emplacement de l'avatar
-   SexType  sex;     // homme=1, femme=0, comme à la sécu
+   SexType  sex;     // homme=1, femme=0, comme Ã  la sÃ©cu
 } Identity;
 
 typedef struct {
@@ -103,7 +103,7 @@ typedef struct {
 } GameOptions;
 
 typedef struct {
-   Place    place;      // place attribuée par le serveur
+   Place    place;      // place attribuÃ©e par le serveur
    Place    preneur;    // qui a pris
    Contrat  contrat;    // avec quel contrat
    int      nbJoueurs;  // le nombre de joueurs
@@ -138,7 +138,7 @@ typedef struct {
    int   longues;
    int   coupes;     // aucune carte dans une couleur
    int   singletons; // une seule carte dans une couleur
-   int   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+   int   sequences;  // cartes qui se suivent (au moins 5 cartes pour Ãªtre comptÃ©es)
 
    int   trefles;
    int   pics;

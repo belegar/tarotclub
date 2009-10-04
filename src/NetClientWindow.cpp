@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - NetClientWindow.cpp
  *=============================================================================
- * NetClientWindow : Gère les parties en réseau du côté client
+ * NetClientWindow : GÃ¨re les parties en rÃ©seau du cÃ´tÃ© client
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -74,7 +74,7 @@ void NetClientWindow::setPlayersList( int nombre, Identity *idents )
       nicks += idents[i].name;
 
     ui.playersList->clear();
-   // On marque le premier joueur comme étant le serveur
+   // On marque le premier joueur comme Ã©tant le serveur
    ui.playersList->insertStringList( nicks );
    server = ui.playersList->text(0);
    server.prepend( '@' );

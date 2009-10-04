@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - Bot.cpp
  *=============================================================================
- * Modélise un robot joueur. Interface vers les scripts d'IA
+ * ModÃ©lise un robot joueur. Interface vers les scripts d'IA
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -49,7 +49,7 @@ Bot::Bot() : Client()
 /*****************************************************************************/
 void Bot::message( const QString &text )
 {
-   // un bot ne sait pas répondre (encore :)
+   // un bot ne sait pas rÃ©pondre (encore :)
 }
 /*****************************************************************************/
 void Bot::slotReceptionCartes()
@@ -69,7 +69,7 @@ void Bot::slotChoixEnchere( Contrat c )
       mon_contrat = PASSE;
    }
 #ifdef _DEBUG
-   mon_contrat = PASSE; // TODO : à effacer
+   mon_contrat = PASSE; // TODO : Ã  effacer
 #endif
    sendEnchere(mon_contrat);
 

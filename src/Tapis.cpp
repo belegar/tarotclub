@@ -3,7 +3,7 @@
  *=============================================================================
  * CanvasView : visual game contents
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -34,7 +34,7 @@ Tapis::Tapis( QGraphicsScene *canvas, QWidget *parent )
     : QGraphicsView( canvas, parent )
 {
    setSceneRect( canvas->sceneRect() );
-   // appel mouseEvent dès que la souris bouge, sans appuis sur les boutons
+   // appel mouseEvent dÃ¨s que la souris bouge, sans appuis sur les boutons
    viewport()->setMouseTracking(true);
    filter = AUCUN;
 }
@@ -43,7 +43,7 @@ void Tapis::resizeEvent( QResizeEvent *e )
 {
    QSize s;
    s = e->size();
-   setSceneRect( 0, 0, s.width(), s.height() ); // TODO ?? pas vraiment sûr, à tester en redimensionnant la fenêtre
+   setSceneRect( 0, 0, s.width(), s.height() ); // TODO ?? pas vraiment sÃ»r, Ã  tester en redimensionnant la fenÃªtre
 }
 /*****************************************************************************/
 void Tapis::mousePressEvent( QMouseEvent *e )
@@ -92,7 +92,7 @@ void Tapis::mouseMoveEvent( QMouseEvent * e )
 }
 /*****************************************************************************/
 /**
- * n==0 : curseur normal avec une flèche
+ * n==0 : curseur normal avec une flÃ¨che
  * n==1 : curseur interdiction
  */
 void Tapis::setCursorType( CursorType t )

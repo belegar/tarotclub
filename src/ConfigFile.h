@@ -3,7 +3,7 @@
  *=============================================================================
  * Classe de gestion du fichier d'options en XML
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -38,7 +38,7 @@
 
 #define XML_VERSION     "1.1"
 
-// Valeurs par défaut
+// Valeurs par dÃ©faut
 #define NBPLAYERS_DEF   4
 #define TIMER1_DEF      500
 #define TIMER2_DEF      1500
@@ -50,7 +50,7 @@ class ConfigFile
 {
 
 private:
-   QString path; // répertoire racine du jeu
+   QString path; // rÃ©pertoire racine du jeu
    GameOptions options;
 
 public:

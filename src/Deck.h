@@ -3,7 +3,7 @@
  *=============================================================================
  * A deck composed of a (dynamic) list of cards.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -33,7 +33,7 @@
 
 // Game includes
 #include "Card.h"
-#include "../defines.h"
+#include "defines.h"
 
 
 /*****************************************************************************/
@@ -44,7 +44,7 @@ public:
    // Constructeurs et destructeur
    Deck();
 
-   unsigned int   shuffle( bool , unsigned int );  // Mélange le jeu
+   unsigned int   shuffle( bool , unsigned int );  // MÃ©lange le jeu
    Card           *getCardById( int );             // Renvoi un pointeur vers une carte
    void           sort();
    static bool    lessThanCards(Card *carte1, Card *carte2 );

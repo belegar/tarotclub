@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - ResultWindow.h
  *=============================================================================
- * ResultWindow : affiche le résultat d'une donne
+ * ResultWindow : affiche le rÃ©sultat d'une donne
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -32,8 +32,8 @@
 #include <QDialog>
 
 // Includes locales
-#include "../defines.h"
-#include "ui/ui_ResultUI.h"
+#include "defines.h"
+#include <ui_ResultUI.h>
 
 /*****************************************************************************/
 class ResultWindow : public QDialog

@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - NetServerWindow.h
  *=============================================================================
- * NetServerWindow : Gère les parties en réseau du côté serveur
+ * NetServerWindow : GÃ¨re les parties en rÃ©seau du cÃ´tÃ© serveur
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org

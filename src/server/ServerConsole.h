@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - ServerConsole.h
  *=============================================================================
- * Console avec commandes permettant de contrôler le serveur de jeu
+ * Console avec commandes permettant de contrÃ´ler le serveur de jeu
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -83,7 +83,7 @@ public:
    void parseCommand();
    void run();
 
-// Ci-dessous la liste des commandes supportées, toutes doivent commencer par le préfixe c_
+// Ci-dessous la liste des commandes supportÃ©es, toutes doivent commencer par le prÃ©fixe c_
    void c_exit(QStringList args);
    void c_help(QStringList args);
    void c_start(QStringList args);

@@ -3,7 +3,7 @@
  *=============================================================================
  * CanvasView : visual game contents
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -34,7 +34,7 @@
 #include <QGraphicsPixmapItem>
 
 // Game includes
-#include "../defines.h"
+#include "defines.h"
 
 /*****************************************************************************/
 class GfxCard : public QGraphicsPixmapItem

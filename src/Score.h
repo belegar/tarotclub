@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - Score.h
  *=============================================================================
- * Calcule les scores en fonction des paramètres du jeu
+ * Calcule les scores en fonction des paramÃ¨tres du jeu
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -39,25 +39,25 @@ class Score
 
 private:
    
-   Place plis[78];      // indique quelle carte a été remportée par quel joueur
+   Place plis[78];      // indique quelle carte a Ã©tÃ© remportÃ©e par quel joueur
    int   scores[5];     // les totaux des cinq joueurs (maxi)
-   bool  gagne;         // vrai si le coup est gagné par l'attaque
+   bool  gagne;         // vrai si le coup est gagnÃ© par l'attaque
    Place carteExcuse;   // A qui appartient l'excuse
 
    // Informations sur le petit au bout
-   bool  petitAuBout;   // vrai si le petit a été mené au bout
-   bool  petitAttaque;  // vrai si le petit au bout a été remporté par l'attaque
+   bool  petitAuBout;   // vrai si le petit a Ã©tÃ© menÃ© au bout
+   bool  petitAttaque;  // vrai si le petit au bout a Ã©tÃ© remportÃ© par l'attaque
    // Informations sur le Chelem
-   bool  chelemDeclare; // vrai si un Chelem a été déclaré
-   bool  chelemRealise; // vrai si le Chelem a été réalisé
-   bool  chelemDefense; // vrai si le Chelem a été réalisé par la défense
-   // Informations sur les poignées
-   bool  poigneeDefense;   // vrai si la défense a déclaré une poignée
-   bool  poigneeAttaque;   // vrai si l'attaque a déclaré une poignée
-   Poignee  typePoigneeD;  // (Défense) simple, double ou triple
+   bool  chelemDeclare; // vrai si un Chelem a Ã©tÃ© dÃ©clarÃ©
+   bool  chelemRealise; // vrai si le Chelem a Ã©tÃ© rÃ©alisÃ©
+   bool  chelemDefense; // vrai si le Chelem a Ã©tÃ© rÃ©alisÃ© par la dÃ©fense
+   // Informations sur les poignÃ©es
+   bool  poigneeDefense;   // vrai si la dÃ©fense a dÃ©clarÃ© une poignÃ©e
+   bool  poigneeAttaque;   // vrai si l'attaque a dÃ©clarÃ© une poignÃ©e
+   Poignee  typePoigneeD;  // (DÃ©fense) simple, double ou triple
    Poignee  typePoigneeA;  // (Attaque) simple, double ou triple
 
-   // Informations calculées à partir du jeu
+   // Informations calculÃ©es Ã  partir du jeu
    ScoreInfos  score_inf;
 
 public:

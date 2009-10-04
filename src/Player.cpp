@@ -3,7 +3,7 @@
  *=============================================================================
  * Base class for all players.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -76,7 +76,7 @@ Card *Player::getCardById( int i )
 }
 /*****************************************************************************/
 /**
- * Retourne true si la carte est présente dans les main du joueur, sinon false
+ * Retourne true si la carte est prÃ©sente dans les main du joueur, sinon false
  */
 bool Player::cardExists( Card *c )
 {
@@ -88,8 +88,8 @@ bool Player::cardExists( Card *c )
 }
 /*****************************************************************************/
 /**
- * Teste si la carte cVerif peut être jouée : cela dépend des cartes déjà 
- * jouées sur le tapis et des cartes dans la main du joueur
+ * Teste si la carte cVerif peut Ãªtre jouÃ©e : cela dÃ©pend des cartes dÃ©jÃ  
+ * jouÃ©es sur le tapis et des cartes dans la main du joueur
  */
 bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nbPlayers )
 {
@@ -110,33 +110,33 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
       return true;
    }
 
-   // première carte (couleur demandée)
+   // premiÃ¨re carte (couleur demandÃ©e)
    CardType type;
    CardColor   coul;
    int         val;
    //////////////
 
-   bool possedeCouleur=false; // vrai si le joueur posseède la couleur demandee
-   bool possedeAtout=false;   // vrai si le joueur possède un atout
-   bool precedentAtout=false; // vrai si un atout max précédent
+   bool possedeCouleur=false; // vrai si le joueur posseÃ¨de la couleur demandee
+   bool possedeAtout=false;   // vrai si le joueur possÃ¨de un atout
+   bool precedentAtout=false; // vrai si un atout max prÃ©cÃ©dent
    int  precAtoutMax=0;
-   int  atoutMax=0; // atout maxi possédé
+   int  atoutMax=0; // atout maxi possÃ©dÃ©
    bool ret=true;
    Card *c;
    int i,n;
 
-   // on cherche la couleur demandée
-   c = mainDeck->at( debut ); // première carte jouée à ce tour
+   // on cherche la couleur demandÃ©e
+   c = mainDeck->at( debut ); // premiÃ¨re carte jouÃ©e Ã  ce tour
 
    type = c->getType();
    coul = c->getColor();
    val  = c->getValue();
-   if( type == EXCUSE ) { // aïe, le joueur a commencé avec une excuse
-      // le joueur peut jouer n'importe quelle carte après l'excuse, c'est lui qui décide alors de la couleur
+   if( type == EXCUSE ) { // aÃ¯e, le joueur a commencÃ© avec une excuse
+      // le joueur peut jouer n'importe quelle carte aprÃ¨s l'excuse, c'est lui qui dÃ©cide alors de la couleur
       if( rang == 2 ) {
          return true;
       }
-      c = mainDeck->at( debut + 1 ); // la couleur demandée est donc la seconde carte
+      c = mainDeck->at( debut + 1 ); // la couleur demandÃ©e est donc la seconde carte
       type = c->getType();
       coul = c->getColor();
       val  = c->getValue();
@@ -146,7 +146,7 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
       return true;
    }
 
-   // Quelques indications sur les plis précédents
+   // Quelques indications sur les plis prÃ©cÃ©dents
    // On regarde s'il y a un atout
    for( i=0; i<rang-1; i++ ) {
       c = mainDeck->at( debut + i );
@@ -177,7 +177,7 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
       }
    }
 
-   // cas 1 : le type demandé est ATOUT
+   // cas 1 : le type demandÃ© est ATOUT
    if( type == ATOUT ) {
       if( cVerif->getType() == ATOUT ) {
          if( cVerif->getValue() > precAtoutMax ) {
@@ -186,7 +186,7 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
             if( atoutMax > precAtoutMax ) {
                return false;  // doit surcouper !
             } else {
-               return true;   // sinon tant pis, on doit quand même jouer la couleur demandée
+               return true;   // sinon tant pis, on doit quand mÃªme jouer la couleur demandÃ©e
             }
          }
       } else {
@@ -196,11 +196,11 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
             return true;      
          }
       }
-   } else {// cas 2 : le type demandé est CARTE
-      // le joueur possède la couleur demandée, il doit donc la jouer cela
+   } else {// cas 2 : le type demandÃ© est CARTE
+      // le joueur possÃ¨de la couleur demandÃ©e, il doit donc la jouer cela
       if( possedeCouleur == true ) {
          return false;
-      } else { // pas la couleur demandée
+      } else { // pas la couleur demandÃ©e
          if( cVerif->getType() == ATOUT ) {
             // doit-il surcouper ?
             if( precedentAtout==true ) {
@@ -220,7 +220,7 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
             if( possedeAtout == true ) {
                return false; // oui, il DOIT couper
             } else {
-               return true; // non, il peut se défausser
+               return true; // non, il peut se dÃ©fausser
             }
          }
       }

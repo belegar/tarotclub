@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - InfosDock.h
  *=============================================================================
- * Fenêtre "dockable" où sont stockées quelques informations du jeu en cours.
+ * FenÃªtre "dockable" oÃ¹ sont stockÃ©es quelques informations du jeu en cours.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -33,13 +33,13 @@
 #include <QLabel>
 
 // Includes locales
-#include "../defines.h"
+#include "defines.h"
 
 /*****************************************************************************/
 class InfosDock : public QDockWidget
 {
 private:
-   QLabel *donneTxt, *donneVar; // numéro de la donne
+   QLabel *donneTxt, *donneVar; // numÃ©ro de la donne
    QLabel *preneurTxt, *preneurVar; // preneur
    QLabel *contratTxt, *contratVar; // contrat
 

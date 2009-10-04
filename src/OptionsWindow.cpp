@@ -3,7 +3,7 @@
  *=============================================================================
  * OptionsWindow : fenêtre d'options
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -38,7 +38,7 @@ OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
    connect( ui.btnDefaut, SIGNAL(clicked()), this, SLOT(slotBtnDefaut()) );
    connect( ui.btnOk, SIGNAL(clicked()), this, SLOT(slotBtnOk()) );
 
-   // Défilement des cartes
+   // DÃ©filement des cartes
    connect( ui.slider1, SIGNAL(valueChanged(int)), this, SLOT(slider1Changed(int)) );
    connect( ui.slider2, SIGNAL(valueChanged(int)), this, SLOT(slider2Changed(int)) );
 
@@ -142,7 +142,7 @@ void OptionsWindow::slotBtnOk()
    options.langue = ui.langList->currentIndex();
    if( indexLangue != options.langue ) {
      QMessageBox::information( this, tr("Information"),
-                    tr("Vous devez redémarrer le jeu pour que le changement de langue soit actif.\n\n") );
+                    tr("Vous devez redÃ©marrer le jeu pour que le changement de langue soit actif.\n\n") );
    }
    options.tapis = tapisList[ui.scrollBarTapis->value()];
    accept();

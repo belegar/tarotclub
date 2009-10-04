@@ -32,12 +32,12 @@
     <name>AboutUI</name>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/AboutUI.ui" line="24"/>
-        <source>À propos...</source>
+        <source>Ã propos...</source>
         <translation>About...</translation>
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/AboutUI.ui" line="51"/>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot; white-space: pre-wrap; font-family:MS Shell Dlg; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Tarot Club est un jeu de Tarot français&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;Copyright (C) 2003-2005  Anthony Rabine&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;anthony@ooso.org&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;http://tarotclub.ooso.org&lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;This program is free software; you can redistribute it and/or&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;modify it under the terms of the GNU General Public License&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;as published by the Free Software Foundation; either version 2&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;of the License, or any later version.&lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;This program is distributed in the hope that it will be useful,&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;but WITHOUT ANY WARRANTY; without even the implied warranty of&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;GNU General Public License for more details.&lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;You should have received a copy of the GNU General Public License&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;along with this program; if not, write to the Free Software&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot; white-space: pre-wrap; font-family:MS Shell Dlg; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Tarot Club est un jeu de Tarot franÃ§ais&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;Copyright (C) 2003-2005  Anthony Rabine&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;anthony@ooso.org&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;http://tarotclub.ooso.org&lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;This program is free software; you can redistribute it and/or&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;modify it under the terms of the GNU General Public License&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;as published by the Free Software Foundation; either version 2&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;of the License, or any later version.&lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;This program is distributed in the hope that it will be useful,&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;but WITHOUT ANY WARRANTY; without even the implied warranty of&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;GNU General Public License for more details.&lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;You should have received a copy of the GNU General Public License&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;along with this program; if not, write to the Free Software&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;&quot;&gt;Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation></translation>
     </message>
     <message>
@@ -225,7 +225,7 @@
     <message>
         <location filename="../../windows/InfosDock.cpp" line="41"/>
         <source>Donne N&#xb0; </source>
-        <translation type="obsolete">Deal N° :</translation>
+        <translation type="obsolete">Deal NÂ° :</translation>
     </message>
     <message>
         <location filename="../../windows/InfosDock.cpp" line="45"/>
@@ -460,7 +460,7 @@
     <name>NetClientUI</name>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Tarot Club en réseau - client</source>
+        <source>Tarot Club en rÃ©seau - client</source>
         <translation type="obsolete">Tarot Club network game - client</translation>
     </message>
     <message>
@@ -500,12 +500,12 @@
     </message>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Déconnexion</source>
+        <source>DÃ©connexion</source>
         <translation type="obsolete">Deconnection</translation>
     </message>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Effacer écran</source>
+        <source>Effacer Ã©cran</source>
         <translation type="obsolete">Clear screen</translation>
     </message>
     <message>
@@ -520,7 +520,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/NetClientUI.ui" line="46"/>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot; white-space: pre-wrap; font-family:MS Shell Dlg; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Vous devez connaître l&apos;adresse IP du joueur serveur&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot; white-space: pre-wrap; font-family:MS Shell Dlg; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Vous devez connaÃ®tre l&apos;adresse IP du joueur serveur&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation></translation>
     </message>
     <message>
@@ -533,7 +533,7 @@
     <name>NetServerUI</name>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Tarot Club en réseau - serveur</source>
+        <source>Tarot Club en rÃ©seau - serveur</source>
         <translation type="obsolete">Tarot Club network game - server</translation>
     </message>
     <message>
@@ -543,12 +543,12 @@
     </message>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Démarrer le serveur</source>
+        <source>DÃ©marrer le serveur</source>
         <translation type="obsolete">Start server</translation>
     </message>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Démarrer la partie</source>
+        <source>DÃ©marrer la partie</source>
         <translation type="obsolete">Start the game</translation>
     </message>
     <message>
@@ -558,12 +558,12 @@
     </message>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Effacer écran</source>
+        <source>Effacer Ã©cran</source>
         <translation type="obsolete">Clear screen</translation>
     </message>
     <message encoding="UTF-8">
         <location filename="" line="1027423549"/>
-        <source>Déconnexion</source>
+        <source>DÃ©connexion</source>
         <translation type="obsolete">Deconnection</translation>
     </message>
     <message>
@@ -586,7 +586,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/OptionsUI.ui" line="40"/>
-        <source>Préférences</source>
+        <source>PrÃ©fÃ©rences</source>
         <translation>Preferences</translation>
     </message>
     <message>
@@ -626,8 +626,8 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/OptionsUI.ui" line="353"/>
-        <source>Français</source>
-        <translation>Français</translation>
+        <source>FranÃ§ais</source>
+        <translation>FranÃ§ais</translation>
     </message>
     <message>
         <location filename="../../windows/ui/OptionsUI.ui" line="358"/>
@@ -641,7 +641,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/OptionsUI.ui" line="52"/>
-        <source>Identité</source>
+        <source>IdentitÃ©</source>
         <translation>Identity</translation>
     </message>
     <message>
@@ -656,7 +656,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/OptionsUI.ui" line="172"/>
-        <source>Féminin</source>
+        <source>FÃ©minin</source>
         <translation>Female</translation>
     </message>
     <message>
@@ -686,7 +686,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/OptionsUI.ui" line="411"/>
-        <source>À la fin du tour</source>
+        <source>Ã la fin du tour</source>
         <translation>End of turn</translation>
     </message>
     <message>
@@ -746,7 +746,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/OptionsUI.ui" line="1191"/>
-        <source>&amp;Défaut</source>
+        <source>&amp;DÃ©faut</source>
         <translation>&amp;Default</translation>
     </message>
     <message>
@@ -796,7 +796,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ResultUI.ui" line="63"/>
-        <source>Résumé</source>
+        <source>RÃ©sumÃ©</source>
         <translation>Abstract</translation>
     </message>
     <message>
@@ -816,7 +816,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ResultUI.ui" line="112"/>
-        <source>Points réalisés :</source>
+        <source>Points rÃ©alisÃ©s :</source>
         <translation>Taker points:</translation>
     </message>
     <message>
@@ -856,8 +856,8 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ResultUI.ui" line="257"/>
-        <source>Poignée :</source>
-        <translation>Poignée:</translation>
+        <source>PoignÃ©e :</source>
+        <translation>PoignÃ©e:</translation>
     </message>
     <message>
         <location filename="../../windows/ui/ResultUI.ui" line="267"/>
@@ -866,7 +866,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ResultUI.ui" line="288"/>
-        <source>Total défense :</source>
+        <source>Total dÃ©fense :</source>
         <translation>Defense total:</translation>
     </message>
     <message>
@@ -932,12 +932,12 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ScoreUI.ui" line="538"/>
-        <source>Arrêter</source>
+        <source>ArrÃªter</source>
         <translation>Terminate</translation>
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ScoreUI.ui" line="46"/>
-        <source>Résultat</source>
+        <source>RÃ©sultat</source>
         <translation>Result</translation>
     </message>
     <message>
@@ -967,8 +967,8 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ScoreUI.ui" line="290"/>
-        <source>Poignée :</source>
-        <translation>Poignée:</translation>
+        <source>PoignÃ©e :</source>
+        <translation>PoignÃ©e:</translation>
     </message>
     <message>
         <location filename="../../windows/ui/ScoreUI.ui" line="300"/>
@@ -977,7 +977,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ScoreUI.ui" line="321"/>
-        <source>Total défense :</source>
+        <source>Total dÃ©fense :</source>
         <translation>Defense total:</translation>
     </message>
     <message>
@@ -1007,7 +1007,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ScoreUI.ui" line="96"/>
-        <source>Résumé</source>
+        <source>RÃ©sumÃ©</source>
         <translation>Abstract</translation>
     </message>
     <message>
@@ -1022,7 +1022,7 @@
     </message>
     <message encoding="UTF-8">
         <location filename="../../windows/ui/ScoreUI.ui" line="145"/>
-        <source>Points réalisés :</source>
+        <source>Points rÃ©alisÃ©s :</source>
         <translation>Taker points:</translation>
     </message>
     <message>

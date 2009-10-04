@@ -3,7 +3,7 @@
  *=============================================================================
  * Main window of the game. Contains all the widgets.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -35,7 +35,7 @@
 #include <QAction>
 
 // Includes locales
-#include "../defines.h"
+#include "defines.h"
 #include "Tapis.h"
 #include "TextBox.h"
 #include "AboutWindow.h"
@@ -70,7 +70,7 @@ protected:
    QAction    *optionsAct;
    QAction    *pliPrecAct;
 
-   // Menu Fenêtres
+   // Menu FenÃªtres
    QAction    *scoresAct;
    QAction    *infosAct;
    QAction    *chatAct;
@@ -79,11 +79,11 @@ protected:
    QGraphicsScene   *canvas;
    Tapis            *tapis;      // QCanvasView
 
-   // Autres fenêtres
+   // Autres fenÃªtres
    AboutWindow    *about;           // A propos
-   ResultWindow   *resultWindow;    // Résultat d'une donne
+   ResultWindow   *resultWindow;    // RÃ©sultat d'une donne
    OptionsWindow  *optionsWindow;   // Options
-   QDialog        *clientWindow;    // fenêtre pour joindre une partie réseau
+   QDialog        *clientWindow;    // fenÃªtre pour joindre une partie rÃ©seau
 
    // Dock windows
    ScoresDock     *scoresDock;
@@ -116,7 +116,7 @@ protected:
 public:
    MainWindow( QWidget* parent = 0, Qt::WFlags f = 0 );
 
-   // Méthodes générales de gestion des Widgets du tapis de jeu
+   // MÃ©thodes gÃ©nÃ©rales de gestion des Widgets du tapis de jeu
    Place retournePlace( Place origine, Place place_absolue );
    void  printNames( Identity *identities, Place place );
    void  colorisePreneur( Place );

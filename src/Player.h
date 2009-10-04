@@ -3,7 +3,7 @@
  *=============================================================================
  * Stores the identity of a player
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -29,21 +29,21 @@
 #define _PLAYER_H
 
 #include <QObject>
-#include "../defines.h"
-#include "../base/Deck.h"
+#include "defines.h"
+#include "Deck.h"
 
 /*****************************************************************************/
 class Player : public QObject
 {
 
 protected:
-   Identity    identity;   // identité du joueur
+   Identity    identity;   // identitÃ© du joueur
    Deck        myDeck;     // cartes en main
 
 public:
    Player();
 
-   // Opérations sur l'identité
+   // OpÃ©rations sur l'identitÃ©
    void setName( const QString & );
    void setQuote( const QString & );
    void setSex( SexType );
@@ -55,7 +55,7 @@ public:
    QString getAvatar();
    Identity *getIdentity();
 
-   // Opérations sur les cartes du joueur
+   // OpÃ©rations sur les cartes du joueur
    void tidyDeck();
    void addCard( Card * );
    void removeCard( Card * );

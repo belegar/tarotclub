@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - ResultWindow.cpp
  *=============================================================================
- * ResultWindow : affiche le résultat d'une donne
+ * ResultWindow : affiche le rÃ©sultat d'une donne
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -26,7 +26,7 @@
  */
 
 #include "ResultWindow.h"
-#include "../textes.h"
+#include "textes.h"
 
 /*****************************************************************************/
 ResultWindow::ResultWindow( QWidget* parent, Qt::WFlags fl )
@@ -39,7 +39,7 @@ void ResultWindow::setCalcul( ScoreInfos *score, GameInfos *infos )
 {
    QString result_str;
 
-	// On affiche les caractéristiques de la partie
+	// On affiche les caractÃ©ristiques de la partie
    if( infos->preneur == SUD ) {
 		ui.lblPreneur->setText(STR_SUD);
    } else if( infos->preneur == EST ) {

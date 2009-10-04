@@ -3,7 +3,7 @@
  *=============================================================================
  * Classe de gestion du fichier d'options en XML
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -55,7 +55,7 @@ bool ConfigFile::load( const QString &fileName )
    QDomDocument doc;
    QFile f( path + "/" + fileName );
 
-   // Fichier non trouvé, on en crée un par défaut et on sort
+   // Fichier non trouvÃ©, on en crÃ©e un par dÃ©faut et on sort
    if( f.open(QIODevice::ReadOnly) == false ) {
       save(fileName);
       return(true);
@@ -73,7 +73,7 @@ bool ConfigFile::load( const QString &fileName )
       return (false);
    }
 
-   // On parse les données
+   // On parse les donnÃ©es
    QDomElement child=root.firstChild().toElement();
    while(!child.isNull()) {
       //-------------------
@@ -165,13 +165,13 @@ bool ConfigFile::load( const QString &fileName )
 /*****************************************************************************/
 bool ConfigFile::save( const QString &fileName )
 {
-   // On crée le document
+   // On crÃ©e le document
    QDomDocument doc("TarotClub");
 
    doc.appendChild( doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"ISO-8859-1\"" ) );
    doc.appendChild(doc.createTextNode("\n"));
 
-   doc.appendChild(doc.createComment( QString("Généré par ")+QString("Tarot Club ")+QString(TAROT_VERSION) ) );
+   doc.appendChild(doc.createComment( QString("GÃ©nÃ©rÃ© par ")+QString("Tarot Club ")+QString(TAROT_VERSION) ) );
    doc.appendChild(doc.createTextNode("\n"));
 
    // root node
@@ -179,7 +179,7 @@ bool ConfigFile::save( const QString &fileName )
    rootNode.setAttribute("version", QString(XML_VERSION));
    doc.appendChild(rootNode);
 
-   // Paramètres généraux
+   // ParamÃ¨tres gÃ©nÃ©raux
    QDomElement generalNode = doc.createElement("general");
    rootNode.appendChild(generalNode);
 
@@ -188,12 +188,12 @@ bool ConfigFile::save( const QString &fileName )
       joueursNode.appendChild(doc.createTextNode( QString().setNum( options.nbPlayers ) ));
       generalNode.appendChild(joueursNode);
 
-      // Réglage du timing entre chaque joueur
+      // RÃ©glage du timing entre chaque joueur
       QDomElement temps1Node = doc.createElement("pause1");
       temps1Node.appendChild(doc.createTextNode( QString().setNum( options.timer1 ) ));
       generalNode.appendChild(temps1Node);
 
-      // Réglage du timing entre chaque joueur
+      // RÃ©glage du timing entre chaque joueur
       QDomElement temps2Node = doc.createElement("pause2");
       temps2Node.appendChild(doc.createTextNode( QString().setNum( options.timer2 ) ));
       generalNode.appendChild(temps2Node);
@@ -203,7 +203,7 @@ bool ConfigFile::save( const QString &fileName )
       affAvatarNode.appendChild(doc.createTextNode( QString().setNum( options.showAvatars==true?1:0 ) ));
       generalNode.appendChild(affAvatarNode);
 
-      // Port réseau
+      // Port rÃ©seau
       QDomElement portNode = doc.createElement("port");
       portNode.appendChild(doc.createTextNode( QString().setNum( options.port ) ));
       generalNode.appendChild(portNode);
@@ -218,7 +218,7 @@ bool ConfigFile::save( const QString &fileName )
       langueNode.appendChild(doc.createTextNode( QString().setNum(options.langue) ));
       generalNode.appendChild(langueNode);
 
-   // Paramètres pour chaque joueur
+   // ParamÃ¨tres pour chaque joueur
    QDomElement playerNode;
    QDomElement nameNode;
    QDomElement avatarNode;
@@ -253,10 +253,10 @@ bool ConfigFile::save( const QString &fileName )
       rootNode.appendChild(playerNode);
    }
 
-   // Sauvegarde du document DOM en mémoire
+   // Sauvegarde du document DOM en mÃ©moire
    QFile f( path + "/" + fileName );
    if(!f.open(QIODevice::WriteOnly)) {
-      return (false); // problème de création du fichier
+      return (false); // problÃ¨me de crÃ©ation du fichier
    }
 
    QString out = doc.toString();
@@ -280,7 +280,7 @@ void ConfigFile::setDefault( GameOptions *opt )
    
    opt->identities[0].name = "Moi";
    opt->identities[0].avatar = ":/images/inconnu.png";
-   opt->identities[0].quote = "L'inventeur de l'escalier habitait sûrement au premier étage.";
+   opt->identities[0].quote = "L'inventeur de l'escalier habitait sÃ»rement au premier Ã©tage.";
    opt->identities[0].sex = MALE;
 
    opt->identities[1].name = "Est";
@@ -290,7 +290,7 @@ void ConfigFile::setDefault( GameOptions *opt )
 
    opt->identities[2].name = "Nord";
    opt->identities[2].avatar = ":/images/robot.png";
-   opt->identities[2].quote = "J'ai fait un test de QI, les resultats étaient negatifs.";
+   opt->identities[2].quote = "J'ai fait un test de QI, les resultats Ã©taient negatifs.";
    opt->identities[2].sex = MALE;
 
    opt->identities[3].name = "Ouest";
@@ -300,7 +300,7 @@ void ConfigFile::setDefault( GameOptions *opt )
 
    opt->identities[4].name = "Nord-Ouest";
    opt->identities[4].avatar = ":/images/robot.png";
-   opt->identities[4].quote = "Dans le passé, il y avait plus de futur que maintenant.";
+   opt->identities[4].quote = "Dans le passÃ©, il y avait plus de futur que maintenant.";
    opt->identities[4].sex = MALE;
 
 }

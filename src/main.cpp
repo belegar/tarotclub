@@ -3,7 +3,7 @@
  *=============================================================================
  * Entry point of Tarot Club
  *=============================================================================
- * Tarot Club est un jeu de Tarot fran�ais
+ * Tarot Club est un jeu de Tarot franï¿œais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org

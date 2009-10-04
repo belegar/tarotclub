@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - Client.h
  *=============================================================================
- * Classe modélisant un client connecté à une partie serveur.
+ * Classe modÃ©lisant un client connectÃ© Ã  une partie serveur.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -33,7 +33,7 @@
 #include "Deck.h"
 #include "Player.h"
 #include "Jeu.h"
-#include "../defines.h"
+#include "defines.h"
 
 class Client : public Player
 {
@@ -41,7 +41,7 @@ class Client : public Player
 
 protected:
    QTcpSocket  socket;
-   PlayerType  type;       // Type du joueur (humain, IA, ou réseau)
+   PlayerType  type;       // Type du joueur (humain, IA, ou rÃ©seau)
    DECK_STATS  stats;      // statistiques sur les cartes en main du joueur
    GameInfos   infos;      // Informations sur le jeu en cours
    ScoreInfos  score_inf;
@@ -62,18 +62,18 @@ public:
    GameInfos *getGameInfos();
    ScoreInfos *getScoreInfos();
 
-   // opérations sur le deck principal
+   // opÃ©rations sur le deck principal
    Card *getCardMainDeck(int i);
 
-   // opérations sur le deck Chien
+   // opÃ©rations sur le deck Chien
    void  emptyChien();
    Card  *getCardChien(int i);
    void  addCardChien(Card *c);
    void  removeCardChien(Card *c);
    int   getTailleChien();
-   void  choixChien( Deck * ); // méthode qui génère un chien valide au hasard
+   void  choixChien( Deck * ); // mÃ©thode qui gÃ©nÃ¨re un chien valide au hasard
 
-   // Réseau
+   // RÃ©seau
    void connectToHost( const QString &hostName, quint16 port );
    void sendMessage( const QString &message );
    void sendEnchere( Contrat c );
@@ -98,7 +98,7 @@ signals:
    void sgnlAfficheSelection(Place);
    void sgnlChoixEnchere(Contrat);
    void sgnlAfficheEnchere(Place,Contrat); // Affiche le 'Contrat' du joueur 'Place'
-   void sgnlDepartDonne(Place,Contrat); // Place indique le preneur, Contrat indique le contrat finalement adopté
+   void sgnlDepartDonne(Place,Contrat); // Place indique le preneur, Contrat indique le contrat finalement adoptÃ©
    void sgnlAfficheChien();
    void sgnlPrepareChien();
    void sgnlRedist();

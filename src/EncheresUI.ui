@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Enchères</string>
+   <string>EnchÃšres</string>
   </property>
   <property name="modal" >
    <bool>true</bool>
@@ -89,7 +89,7 @@
       </palette>
      </property>
      <property name="title" >
-      <string>Votre enchère</string>
+      <string>Votre enchÃšre</string>
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
@@ -139,7 +139,7 @@
          <bool>false</bool>
         </property>
         <property name="text" >
-         <string>Déclarer un Chelem</string>
+         <string>DÃ©clarer un Chelem</string>
         </property>
        </widget>
       </item>

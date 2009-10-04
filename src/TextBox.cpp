@@ -3,7 +3,7 @@
  *=============================================================================
  * Two text box classes to show names and bids on canvas
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -47,14 +47,14 @@ TextBox::TextBox(int x, int y, QBrush couleur , QGraphicsScene *canvas)
 /*****************************************************************************/
 void TextBox::setText( QString mot )
 {
-	mot.truncate( 10 ); // on se limite à 10 signes pour le nom
+	mot.truncate( 10 ); // on se limite Ã  10 signes pour le nom
 	texte->setText( mot );
 
 	moveText();
 }
 /*****************************************************************************/
 /**
- * On centre le texte au milieu de la boîte
+ * On centre le texte au milieu de la boÃ®te
  */
 void TextBox::moveText()
 {
@@ -114,11 +114,11 @@ PlayerBox::PlayerBox(int x, int y, QBrush couleur , QGraphicsScene *canvas )
 	selection.setColor( QColor("red") );
 	selection.setWidth(3);
 
-	// On initialise avec les images par défaut
+	// On initialise avec les images par dÃ©faut
 	avatar = new QGraphicsPixmapItem( QPixmap( ":/images/vide.png"), 0, canvas);
 	avatar->hide();
 
-	// On les positionne à l'écran
+	// On les positionne Ã  l'Ã©cran
 	avatar->setPos( rect.x() + rect.width() + 10, rect.y()-5 );
 }
 /*****************************************************************************/

@@ -3,7 +3,7 @@
  *=============================================================================
  * AvatarsWindow : choix d'un avatar
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -52,7 +52,7 @@ QString AvatarsWindow::selectedFile()
     QString img;
     QListWidgetItem *item = ui.listWidget->currentItem();
     if( item == NULL )
-        img = ":/images/inconnu.png"; // image par défaut
+        img = ":/images/inconnu.png"; // image par dÃ©faut
     else
         img = item->text();
 
@@ -76,7 +76,7 @@ void AvatarsWindow::listAvatars( const QString &avatarsPath )
             if(im.isNull() == false ) {
                 // maintenant on teste sa taille (40x40 max)
                 if( im.width() == 40 && im.height() == 40 ) {
-                    // l'image est valide, on l'ajoute à la liste
+                    // l'image est valide, on l'ajoute Ã  la liste
                     new QListWidgetItem(fileInfo.fileName(), ui.listWidget);
                 }
             }

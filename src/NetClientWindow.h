@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - NetClientWindow.h
  *=============================================================================
- * NetClientWindow : Gère les parties en réseau du côté client
+ * NetClientWindow : GÃ¨re les parties en rÃ©seau du cÃ´tÃ© client
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org

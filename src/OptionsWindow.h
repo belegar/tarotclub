@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - OptionsWindow.h
  *=============================================================================
- * OptionsWindow : fenêtre d'options
+ * OptionsWindow : fenÃªtre d'options
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -32,9 +32,9 @@
 #include <QDialog>
 
 // Includes locales
-#include "ui/ui_OptionsUI.h"
-#include "../defines.h"
-#include "../ConfigFile.h"
+#include <ui_OptionsUI.h>
+#include "defines.h"
+#include "ConfigFile.h"
 #include "AvatarsWindow.h"
 
 /*****************************************************************************/

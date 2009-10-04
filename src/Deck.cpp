@@ -3,7 +3,7 @@
  *=============================================================================
  * A deck composed of a (dynamic) list of cards.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -45,11 +45,11 @@ Deck::Deck()
 }
 /*****************************************************************************/
 /**
- * Méthode "Quick and dirty" pour mélanger les cartes du jeu
- * Principe : on assigne à chaque carte un nombre au hasard entre 0 et 10000,
+ * MÃ©thode "Quick and dirty" pour mÃ©langer les cartes du jeu
+ * Principe : on assigne Ã  chaque carte un nombre au hasard entre 0 et 10000,
  * puis on range les cartes dans l'ordre croissant
  * si hadard == true, la graine est choisie entre 0 et 65000, sinon on 
- * utilise la graine passée en paramètre
+ * utilise la graine passÃ©e en paramÃ¨tre
  */
 unsigned int Deck::shuffle( bool hasard, unsigned int seed )
 {
@@ -69,7 +69,7 @@ unsigned int Deck::shuffle( bool hasard, unsigned int seed )
    cartesId = new int[nbCards];
 
 #ifndef QT_NO_DEBUG
-   // Affichage avant le mélange
+   // Affichage avant le mÃ©lange
    ofstream f("cartes_avant.txt");
    
    f << "Nombre de cartes : " << nbCards << endl << endl;
@@ -89,19 +89,19 @@ unsigned int Deck::shuffle( bool hasard, unsigned int seed )
    f.close();
 #endif // _DEBUG
 
-   // On assigne à chaque carte un nombre aléatoire
+   // On assigne Ã  chaque carte un nombre alÃ©atoire
    for( i=0; i<nbCards; i++) {
       cartesId[i] = qrand()%10000;
    }
 
-   // On range ensuite les cartes dans l'ordre croissant de ces nombres aléatoires
-   // Tri à bulle classique
+   // On range ensuite les cartes dans l'ordre croissant de ces nombres alÃ©atoires
+   // Tri Ã  bulle classique
    do {
       ok = 1;
       for( i=1; i<nbCards; i++) {
          if ( cartesId[i-1]>cartesId[i] ) {
             ok = 0;
-            // on échange le tableau de valeurs
+            // on Ã©change le tableau de valeurs
             temp = cartesId[i-1];
             cartesId[i-1] = cartesId[i];
             cartesId[i] = temp;
@@ -113,7 +113,7 @@ unsigned int Deck::shuffle( bool hasard, unsigned int seed )
    while(!ok);
 
 #ifndef QT_NO_DEBUG
-   // on affiche les cartes mélangées
+   // on affiche les cartes mÃ©langÃ©es
    
    f.open("cartes_apres.txt");
    f << "Nombre de cartes : " << nbCards << endl << endl;

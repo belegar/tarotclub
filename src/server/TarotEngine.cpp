@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - TarotEngine.cpp
  *=============================================================================
- * Moteur de jeu principal + serveur de jeu rÈseau
+ * Moteur de jeu principal + serveur de jeu r√©seau
  *=============================================================================
- * Tarot Club est un jeu de Tarot franÁais
+ * Tarot Club est un jeu de Tarot fran√ßais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -172,7 +172,7 @@ int TarotEngine::getConnectedNumber()
 }
 /*****************************************************************************/
 /**
- * Teste si une carte du joueur local peut Ítre jouÈe
+ * Teste si une carte du joueur local peut √™tre jou√©e
  */
 bool TarotEngine::cardIsValid( Card *c, Place p )
 {
@@ -201,32 +201,32 @@ bool TarotEngine::cardExists( Card *c, Place p )
 }
 /*****************************************************************************/
 /**
-* Calcule qui a remportÈ le pli
+* Calcule qui a remport√© le pli
 */
 Place TarotEngine::calculGagnantPli()
 {
    Card *c;
 
-   // premiËre carte
+   // premi√®re carte
    CardType type;
    CardColor coul;
    Place pl = NORD;
 
    bool flag=false; // vrai si l'entame est l'excuse
    int i, debut=0;
-   int leader = 0; // 0 est le premier joueur a jouÈ etc. jusqu'‡ 5
-   // par dÈfaut, celui qui entame est le leader (car couleur demandÈe)
+   int leader = 0; // 0 est le premier joueur a jou√© etc. jusqu'√† 5
+   // par d√©faut, celui qui entame est le leader (car couleur demand√©e)
 
-   // Ètape 1 : on cherche la couleur demandÈe
+   // √©tape 1 : on cherche la couleur demand√©e
 
-   c = mainDeck.at( infos.gameCounter - infos.nbJoueurs ); // premiËre carte jouÈe ‡ ce tour
+   c = mainDeck.at( infos.gameCounter - infos.nbJoueurs ); // premi√®re carte jou√©e √† ce tour
 
    type = c->getType();
    coul = c->getColor();
 
-    // aÔe, le joueur a commencÈ avec une excuse
+    // a√Øe, le joueur a commenc√© avec une excuse
    if( type == EXCUSE ) {
-      c = mainDeck.at( infos.gameCounter - infos.nbJoueurs + 1 ); // la couleur demandÈe est donc la seconde carte
+      c = mainDeck.at( infos.gameCounter - infos.nbJoueurs + 1 ); // la couleur demand√©e est donc la seconde carte
       flag = true;
       debut = 1;
       type = c->getType();
@@ -234,14 +234,14 @@ Place TarotEngine::calculGagnantPli()
       leader = 2;
    }
 
-   debut = debut + infos.gameCounter - infos.nbJoueurs + 1 ; // le dÈbut est dÈcalÈ si le premier pli est l'excuse
+   debut = debut + infos.gameCounter - infos.nbJoueurs + 1 ; // le d√©but est d√©cal√© si le premier pli est l'excuse
 
-   int  drapeau; // indique une coupe, donc le leader est forcÈment un atout
+   int  drapeau; // indique une coupe, donc le leader est forc√©ment un atout
    int  valLeader;
    valLeader = c->getValue();
 
    if( type == ATOUT ) {
-      drapeau = 1;   // on cherche une Èventuelle surcoupe
+      drapeau = 1;   // on cherche une √©ventuelle surcoupe
    } else {
       drapeau = 0;   // on cherche une coupe
    }
@@ -260,9 +260,9 @@ Place TarotEngine::calculGagnantPli()
             drapeau = 1;
          }
 
-      // pas de coupe dÈtectÈe
+      // pas de coupe d√©tect√©e
       } else if( c->getType() == CARTE && drapeau == 0 ) {
-         if( c->getColor() == coul) { // ahah, mÍme couleur !
+         if( c->getColor() == coul) { // ahah, m√™me couleur !
             if( c->getValue() > valLeader ) {
                valLeader = c->getValue();
                leader = i - (infos.gameCounter - infos.nbJoueurs);
@@ -304,13 +304,13 @@ void TarotEngine::nouvelleDonne()
    infos.contrat = PASSE;
    infos.gameCounter = 0;
    distribution();
-   tour = nextPlayer(donneur); // Le joueur ‡ la droite du donneur commence les enchËres
+   tour = nextPlayer(donneur); // Le joueur √† la droite du donneur commence les ench√®res
    selectPlayer(tour);
    askBid( tour, infos.contrat );
 }
 /*****************************************************************************/
 /**
- * Automate servant ‡ sÈquencer le jeu selon l'Ètat courant des variables
+ * Automate servant √† s√©quencer le jeu selon l'√©tat courant des variables
  */
 void TarotEngine::jeu()
 {  
@@ -341,7 +341,7 @@ void TarotEngine::sequenceEncheres()
 {
    if( tour == donneur ) {
       if( infos.contrat == PASSE ) {
-         // si tous les joueurs ont passÈ on s'arrÍte et on prÈvient tout le monde
+         // si tous les joueurs ont pass√© on s'arr√™te et on pr√©vient tout le monde
          sequence = VIDE;
          sendRedist();
       } else {
@@ -359,30 +359,30 @@ void TarotEngine::montreChien()
    int i;
    Card *c;
 
-   // On prÈcise quel joueur possËde le chien en fonction du contrat
+   // On pr√©cise quel joueur poss√®de le chien en fonction du contrat
    for( i=0; i<deckChien.count(); i++) {
       c = deckChien.at( i );
       if( infos.contrat != GARDE_CONTRE ) {
          c->setOwner( infos.preneur );
       } else {
-         // En cas de garde contre, le chien appartient ‡ la dÈfense
+         // En cas de garde contre, le chien appartient √† la d√©fense
          c->setOwner( HYPERSPACE );
       }
    }
 
    if( infos.contrat == GARDE_SANS || infos.contrat == GARDE_CONTRE ) {
-      // On n'affiche pas le chien et on commence la partie immÈdiatement
+      // On n'affiche pas le chien et on commence la partie imm√©diatement
       sendDepartDonne();
       jeu();
       return;
    }
    sendShowChien(); // Prise ou garde, on affiche le chien chez tout le monde
    cptVu = 0;
-   sequence = WAIT_CHIEN; // et on attend le chien ÈcartÈ par le preneur
+   sequence = WAIT_CHIEN; // et on attend le chien √©cart√© par le preneur
 }
 /*****************************************************************************/
 /**
- * Fin d'un tour, on calcule le gagnant du pli et on prÈpare la suite
+ * Fin d'un tour, on calcule le gagnant du pli et on pr√©pare la suite
  */
 bool TarotEngine::finLevee()
 {
@@ -396,7 +396,7 @@ bool TarotEngine::finLevee()
    fout << "----- tour avant : " << tour << endl;
 #endif
 
-   // On dÈtecte qui a remportÈ le pli, c'est lui qui entame le prochain tour
+   // On d√©tecte qui a remport√© le pli, c'est lui qui entame le prochain tour
    tour = calculGagnantPli();
 
    for( i = infos.gameCounter-infos.nbJoueurs; i<infos.gameCounter; i++ ) {
@@ -493,19 +493,19 @@ void TarotEngine::newConnection()
    } else {
       // Ok, il reste de la place, on connecte ce client
       if( clients.contains(SUD) == false ) {
-         clients[SUD] = client; // on ajoute ce client ‡ la liste
+         clients[SUD] = client; // on ajoute ce client √† la liste
          connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed1()));
          connect( client, SIGNAL(readyRead()), this, SLOT( readData1()));
       } else if( clients.contains(EST) == false ) {
-         clients[EST] = client; // on ajoute ce client ‡ la liste
+         clients[EST] = client; // on ajoute ce client √† la liste
          connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed2()));
          connect( client, SIGNAL(readyRead()), this, SLOT( readData2()));
       } else if( clients.contains(NORD) == false ) {
-         clients[NORD] = client; // on ajoute ce client ‡ la liste
+         clients[NORD] = client; // on ajoute ce client √† la liste
          connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed3()));
          connect( client, SIGNAL(readyRead()), this, SLOT( readData3()));
       } else if( clients.contains(OUEST) == false ) {
-         clients[OUEST] = client; // on ajoute ce client ‡ la liste
+         clients[OUEST] = client; // on ajoute ce client √† la liste
          connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed4()));
          connect( client, SIGNAL(readyRead()), this, SLOT( readData4()));
       } 
@@ -546,7 +546,7 @@ void TarotEngine::clientClosed4()
 /*****************************************************************************/
 void TarotEngine::clientClosed( Place p )
 {
-   QString message = "Le joueur " + players[p].getName() + " a quittÈ la partie.";
+   QString message = "Le joueur " + players[p].getName() + " a quitt√© la partie.";
    sendMessage( message, BROADCAST );
    sendPlayersList();
    clients.remove(p);
@@ -573,7 +573,7 @@ void TarotEngine::readData4()
 }
 /*****************************************************************************/
 /**
- * DÈcodage de la trame reÁue
+ * D√©codage de la trame re√ßue
  */
 void TarotEngine::readData( Place p )
 {
@@ -586,7 +586,7 @@ void TarotEngine::readData( Place p )
    if( clients.contains(p) ) {
       client = clients.value(p);
    } else {
-      return; // ‡ dÈfaut d'autre chose
+      return; // √† d√©faut d'autre chose
    }
 
    bytes = client->bytesAvailable();
@@ -634,7 +634,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
    if( clients.contains(p) ) {
       client = clients.value(p);
    } else {
-      return; // ‡ dÈfaut d'autre chose
+      return; // √† d√©faut d'autre chose
    }
 
    switch( type ) {
@@ -652,7 +652,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
       }
       
       /**
-       * IdentitÈ d'un client
+       * Identit√© d'un client
        */
       case NET_CLIENT_INFOS:
       {
@@ -676,7 +676,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
 #endif
 
          bool ok = false;
-         // On cherche si le nick n'existe pas dÈj‡
+         // On cherche si le nick n'existe pas d√©j√†
          for( int i=0; i<5; i++ ) {
             if( clients.contains((Place)i) == true ) {
                if( clients.value((Place)i)->state() == QAbstractSocket::ConnectedState ) {
@@ -689,8 +689,8 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          }
 
          if( ok == true ) {
-            // On prÈvient le joueur que son nick est dÈj‡ pris
-            QString message = "Votre pseudonyme \"" + ident.name + "\" existe dÈj‡ sur le serveur."+
+            // On pr√©vient le joueur que son nick est d√©j√† pris
+            QString message = "Votre pseudonyme \"" + ident.name + "\" existe d√©j√† sur le serveur."+
                " Changez le et reconnectez-vous.";
 
             // et on annule sa connexion
@@ -807,7 +807,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
 }
 /*****************************************************************************/
 /**
- * Broadcast des cartes ‡ tous les clients
+ * Broadcast des cartes √† tous les clients
  */
 void TarotEngine::sendCards( Place p, quint8 *params )
 {
@@ -838,7 +838,7 @@ void TarotEngine::askBid( Place p, Contrat c )
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_DEMANDE_ENCHERE
-       << (quint8)c   // le contrat prÈcÈdent
+       << (quint8)c   // le contrat pr√©c√©dent
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
@@ -852,8 +852,8 @@ void TarotEngine::sendBid( Place p, Contrat c )
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_ENCHERE_JOUEUR
-       << (quint8)p   // la place de celui qui vient d'enchÈrir
-       << (quint8)c   // le contrat ‡ afficher
+       << (quint8)p   // la place de celui qui vient d'ench√©rir
+       << (quint8)c   // le contrat √† afficher
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
@@ -874,8 +874,8 @@ void TarotEngine::selectPlayer( Place p )
 }
 /*****************************************************************************/
 /**
- * Affiche un message dans la fenÍtre de dialogue et l'envoi
- * ‡ tous les clients connectÈs
+ * Affiche un message dans la fen√™tre de dialogue et l'envoi
+ * √† tous les clients connect√©s
  */
 void TarotEngine::sendMessage( const QString &message, Place p )
 {
@@ -895,7 +895,7 @@ void TarotEngine::sendMessage( const QString &message, Place p )
       if( clients.contains(p) ) {
          client = clients.value(p);
       } else {
-         return; // ‡ dÈfaut d'autre chose
+         return; // √† d√©faut d'autre chose
       }
       client->write(block);
       client->flush();
@@ -903,7 +903,7 @@ void TarotEngine::sendMessage( const QString &message, Place p )
 }
 /*****************************************************************************/
 /**
- * Envoie la liste des joueurs connectÈs
+ * Envoie la liste des joueurs connect√©s
  */
 void TarotEngine::sendPlayersList()
 {
@@ -927,11 +927,11 @@ void TarotEngine::sendPlayersList()
    out << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   broadcast( block ); // clients connectÈs
+   broadcast( block ); // clients connect√©s
 }
 /*****************************************************************************/
 /**
- * On demande ‡ tous les clients de montrer le Chien
+ * On demande √† tous les clients de montrer le Chien
  */
 void TarotEngine::sendShowChien()
 {
@@ -947,7 +947,7 @@ void TarotEngine::sendShowChien()
    out << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   broadcast( block ); // clients connectÈs
+   broadcast( block ); // clients connect√©s
 }
 /*****************************************************************************/
 /**
@@ -968,7 +968,7 @@ void TarotEngine::sendDoChien()
 }
 /*****************************************************************************/
 /**
- * On envoie les paramËtres de jeu pour commencer la nouvelle partie
+ * On envoie les param√®tres de jeu pour commencer la nouvelle partie
  */
 void TarotEngine::sendDepartDonne()
 {
@@ -982,7 +982,7 @@ void TarotEngine::sendDepartDonne()
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   broadcast( block ); // clients connectÈs
+   broadcast( block ); // clients connect√©s
 }
 /*****************************************************************************/
 /**
@@ -1003,7 +1003,7 @@ void TarotEngine::sendJoueCarte()
 }
 /*****************************************************************************/
 /**
- * On broadcast la carte jouÈe par un joueur
+ * On broadcast la carte jou√©e par un joueur
  */
 void TarotEngine::sendCard( Card *c )
 {
@@ -1017,7 +1017,7 @@ void TarotEngine::sendCard( Card *c )
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   broadcast( block ); // clients connectÈs
+   broadcast( block ); // clients connect√©s
 }
 /*****************************************************************************/
 /**
@@ -1033,7 +1033,7 @@ void TarotEngine::sendRedist()
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   broadcast( block ); // clients connectÈs
+   broadcast( block ); // clients connect√©s
 }
 /*****************************************************************************/
 /**
@@ -1059,11 +1059,11 @@ void TarotEngine::sendFinDonne( ScoreInfos *score_inf )
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   broadcast( block ); // clients connectÈs
+   broadcast( block ); // clients connect√©s
 }
 /*****************************************************************************/
 /**
- * On demande aux clients d'acquitter le pli avant d'effectuer la levÈe
+ * On demande aux clients d'acquitter le pli avant d'effectuer la lev√©e
  */
 void TarotEngine::sendWaitPli()
 {
@@ -1075,7 +1075,7 @@ void TarotEngine::sendWaitPli()
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   broadcast( block ); // clients connectÈs
+   broadcast( block ); // clients connect√©s
 }
 /*****************************************************************************/
 /**

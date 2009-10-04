@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - TarotEngine.h
  *=============================================================================
- * Moteur de jeu principal + serveur de jeu réseau
+ * Moteur de jeu principal + serveur de jeu rÃ©seau
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -42,8 +42,8 @@ class TarotEngine : public QThread
    Q_OBJECT
    
 private:
-   Player      players[5]; // Données des joueurs
-   QMap<Place, QTcpSocket *> clients; // les clients connectés
+   Player      players[5]; // DonnÃ©es des joueurs
+   QMap<Place, QTcpSocket *> clients; // les clients connectÃ©s
    QTcpServer  server;
 
    QString     gamePath;
@@ -52,9 +52,9 @@ private:
    Deck        deckChien;     // le chien
    Deck        mainDeck;      // le tas principal
    Place       donneur;       // qui est le donneur ?
-   Place       tour;          // A qui le tour (d'enchérir ou de jouer)
-   Sequence    sequence;      // indique la séquence de jeu actuelle
-   bool        newGame;       // vrai si une nouvelle partie a été commencée
+   Place       tour;          // A qui le tour (d'enchÃ©rir ou de jouer)
+   Sequence    sequence;      // indique la sÃ©quence de jeu actuelle
+   bool        newGame;       // vrai si une nouvelle partie a Ã©tÃ© commencÃ©e
    int         dealNumber;
    int         cptVu;
 
@@ -85,7 +85,7 @@ public:
    void  sequenceEncheres();
    void  montreChien();
 
-   // Fonctions réseau
+   // Fonctions rÃ©seau
    void  sendCards( Place p, quint8 *params );
    void  askBid( Place p, Contrat c );
    void  sendBid( Place p, Contrat c );

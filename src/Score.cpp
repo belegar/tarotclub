@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - Score.cpp
  *=============================================================================
- * Calcule les scores en fonction des paramètres du jeu
+ * Calcule les scores en fonction des paramÃ¨tres du jeu
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -53,7 +53,7 @@ void Score::init()
 }
 /*****************************************************************************/
 /**
- * Est appelé juste avant le premier tour
+ * Est appelÃ© juste avant le premier tour
  */
 void Score::reset()
 {
@@ -123,7 +123,7 @@ ScoreInfos *Score::getScoreInfos()
 }
 /*****************************************************************************/
 /**
- * Calcule les points de la défense et de l'attaque
+ * Calcule les points de la dÃ©fense et de l'attaque
  */
 void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 {
@@ -183,7 +183,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
             }
          }
       } else {
-         // il doit rendre une carte basse à la place de son excuse
+         // il doit rendre une carte basse Ã  la place de son excuse
          if( flag==1 && n==0.5 && plis[i]==carteExcuse ) {
             flag=2;
             if( carteExcuse == infos->preneur ) {
@@ -254,14 +254,14 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 
    // On teste le Chelem
    if( score_inf.attaque == 86.5 && score_inf.defense == 4.5 ) {
-      // On arrondit, conformément aux règles du Tarot
+      // On arrondit, conformÃ©ment aux rÃ¨gles du Tarot
       score_inf.attaque = 87.0;
       score_inf.defense = 4.0;
       chelemRealise = true;
       chelemDefense = false;
 
    } else if( score_inf.attaque == 4.5 && score_inf.defense == 86.5  ) {
-      // On arrondit, conformément aux règles du Tarot
+      // On arrondit, conformÃ©ment aux rÃ¨gles du Tarot
       score_inf.attaque = 4.0;
       score_inf.defense = 87.0;
       chelemRealise = true;
@@ -283,7 +283,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 
    if( petitAuBout == true ) {
       // A qui appartient le petit au bout
-      // On prend la dernière carte du pli
+      // On prend la derniÃ¨re carte du pli
       if( plis[71] == infos->preneur ) {
          petitAttaque = true;
       }
@@ -291,7 +291,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 
    //---------------------------
    // On connait les points des 
-   // deux camps, on en déduit
+   // deux camps, on en dÃ©duit
    // donc les scores
    //---------------------------
 
@@ -335,7 +335,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
       score_inf.points_petit_au_bout = 0;
    }
 
-   // Les points des Poignées déclarées
+   // Les points des PoignÃ©es dÃ©clarÃ©es
    if( poigneeDefense == true ) {
       score_inf.points_poignee = 10+10*typePoigneeD;
       if( gagne == true ) {
@@ -350,7 +350,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
       score_inf.points_poignee = 0;
    }
 
-   // Les points des Chelem déclarés
+   // Les points des Chelem dÃ©clarÃ©s
    if( chelemDeclare == true ) {
       if( chelemRealise == true ) {
          if( chelemDefense == true ) {
@@ -371,11 +371,11 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
       score_inf.points_chelem = 0;
    }
 
-   // Le total de points pour chaque défenseur est donc de :
+   // Le total de points pour chaque dÃ©fenseur est donc de :
    score_inf.points_defense = (25 + abs(score_inf.difference) + score_inf.points_petit_au_bout )*score_inf.multiplicateur + 
                               score_inf.points_poignee + score_inf.points_chelem;
 
-   // Le preneur a rempli son contrat, il prend donc les points à la défense
+   // Le preneur a rempli son contrat, il prend donc les points Ã  la dÃ©fense
    if( gagne == true ) {
       score_inf.points_defense *= (-1);
    }

@@ -1,9 +1,9 @@
 /*=============================================================================
  * Tarot Club - textes.h
  *=============================================================================
- * Chaînes de caractères regroupées pour faciliter la traduction
+ * ChaÃ®nes de caractÃ¨res regroupÃ©es pour faciliter la traduction
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -40,8 +40,8 @@
 #define STR_OUEST    tr("Ouest")
 #define STR_NORD_O   tr("Nord ouest")
 
-#define STR_WIN      tr("Contrat réussi de ")
-#define STR_LOSE     tr("Contrat chuté de ")
+#define STR_WIN      tr("Contrat rÃ©ussi de ")
+#define STR_LOSE     tr("Contrat chutÃ© de ")
 #define STR_POINTS   tr(" points")
 
 #define STR_NEW_GAME tr("&Nouveau jeu")

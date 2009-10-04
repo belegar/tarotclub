@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Résultat</string>
+   <string>RÃ©sultat</string>
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" colspan="2" >
@@ -52,7 +52,7 @@
    <item row="1" column="0" >
     <widget class="QGroupBox" name="groupBox" >
      <property name="title" >
-      <string>Résumé</string>
+      <string>RÃ©sumÃ©</string>
      </property>
      <layout class="QGridLayout" >
       <property name="leftMargin" >
@@ -131,7 +131,7 @@
           <item>
            <widget class="QLabel" name="TextLabel5" >
             <property name="text" >
-             <string>Points réalisés :</string>
+             <string>Points rÃ©alisÃ©s :</string>
             </property>
            </widget>
           </item>
@@ -315,7 +315,7 @@
           <item>
            <widget class="QLabel" name="TextLabel5_2" >
             <property name="text" >
-             <string>Poignée :</string>
+             <string>PoignÃ©e :</string>
             </property>
             <property name="alignment" >
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -346,7 +346,7 @@
              </font>
             </property>
             <property name="text" >
-             <string>Total défense :</string>
+             <string>Total dÃ©fense :</string>
             </property>
             <property name="alignment" >
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -540,7 +540,7 @@
      <item>
       <widget class="QPushButton" name="stopButton" >
        <property name="text" >
-        <string>Arrêter</string>
+        <string>ArrÃªter</string>
        </property>
       </widget>
      </item>

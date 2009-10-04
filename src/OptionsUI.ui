@@ -47,7 +47,7 @@
      </property>
      <widget class="QWidget" name="tab_2" >
       <attribute name="title" >
-       <string>Préférences</string>
+       <string>PrÃ©fÃ©rences</string>
       </attribute>
       <layout class="QGridLayout" >
        <property name="leftMargin" >
@@ -71,7 +71,7 @@
        <item row="0" column="0" >
         <widget class="QGroupBox" name="groupBox_6" >
          <property name="title" >
-          <string>Identité</string>
+          <string>IdentitÃ©</string>
          </property>
          <layout class="QGridLayout" >
           <property name="leftMargin" >
@@ -242,7 +242,7 @@
                  <item>
                   <widget class="QRadioButton" name="sexeF" >
                    <property name="text" >
-                    <string>Féminin</string>
+                    <string>FÃ©minin</string>
                    </property>
                   </widget>
                  </item>
@@ -464,7 +464,7 @@
               </property>
               <item>
                <property name="text" >
-                <string>Français</string>
+                <string>FranÃ§ais</string>
                </property>
               </item>
               <item>
@@ -543,7 +543,7 @@
             <item>
              <widget class="QLabel" name="TextLabel2" >
               <property name="text" >
-               <string>À la fin du tour</string>
+               <string>Ã la fin du tour</string>
               </property>
              </widget>
             </item>
@@ -1534,7 +1534,7 @@
      <item>
       <widget class="QPushButton" name="btnDefaut" >
        <property name="text" >
-        <string>&amp;Défaut</string>
+        <string>&amp;DÃ©faut</string>
        </property>
       </widget>
      </item>

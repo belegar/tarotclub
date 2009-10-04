@@ -3,7 +3,7 @@
  *=============================================================================
  * Represents a Tarot cards, derivated from a Qt sprite
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
+ * Tarot Club est un jeu de Tarot franÃ§ais
  * Copyright (C) 2003-2005  Anthony Rabine
  * anthony@ooso.org
  * http://tarotclub.ooso.org
@@ -29,7 +29,7 @@
 #define _CARD_H
 
 // Game includes
-#include "../defines.h"
+#include "defines.h"
 
 /*****************************************************************************/
 class Card
