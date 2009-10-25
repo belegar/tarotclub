@@ -1,29 +1,23 @@
 /*=============================================================================
- * Tarot Club - TextBox.h
+ * TarotClub - TextBox.h
  *=============================================================================
  * Two text box classes to show names and bids on canvas
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
- * Copyright (C) 2003-2005  Anthony Rabine
- * anthony@ooso.org
- * http://tarotclub.ooso.org
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
  *
  *=============================================================================
  */
+
+#ifndef _TEXT_BOX_H
+#define _TEXT_BOX_H
 
 // Qt includes
 #include <QGraphicsRectItem>
@@ -40,20 +34,20 @@ class TextBox
 
 protected:
 
-	QGraphicsRectItem	         *boite;
-	QGraphicsSimpleTextItem		*texte;
+   QGraphicsRectItem	         *boite;
+   QGraphicsSimpleTextItem		*texte;
 
 public:
 
-	TextBox(int , int , QBrush, QGraphicsScene *);
+   TextBox(int , int , QBrush, QGraphicsScene *);
 
-	void		show();
-	void		hide();
-	void		moveText();
-	void		move( int , int );
-	int			x();
-	int			y();
-	void		setText( QString );
+   void		show();
+   void		hide();
+   void		moveText();
+   void		move( int , int );
+   int		x();
+   int		y();
+   void		setText( QString );
 };
 
 /*****************************************************************************/
@@ -64,24 +58,26 @@ class PlayerBox : public TextBox
 {
 
 private:
-	QGraphicsPixmapItem		*avatar;
+   QGraphicsPixmapItem		*avatar;
 
-	QPen				selection;	// contour grossi et en rouge
-	QPen				normal;		// contour normal, fin et en noir
+   QPen				selection;	// contour grossi et en rouge
+   QPen				normal;		// contour normal, fin et en noir
 
 public:
 
-	PlayerBox(int , int , QBrush, QGraphicsScene * );
+   PlayerBox(int , int , QBrush, QGraphicsScene * );
 
-	void		show();
-	void		hide();
-	void		setCouleur( QBrush );
-	void		setPen( int );
-	void		setAvatar( const QString & );
-	void		enableAvatar( bool );
+   void		show();
+   void		hide();
+   void		setCouleur( QBrush );
+   void		setPen( int );
+   void		setAvatar( const QString & );
+   void		enableAvatar( bool );
 //	void		afficheErreur( int );
-	
+
 };
+
+#endif // _TEXT_BOX_H
 
 //=============================================================================
 // End of file TextBox.h

@@ -1,26 +1,17 @@
 /*=============================================================================
- * Tarot Club - defines.h
+ * TarotClub - defines.h
  *=============================================================================
  * Global types
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
- * Copyright (C) 2003-2005  Anthony Rabine
- * anthony@ooso.org
- * http://tarotclub.ooso.org
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
  *
  *=============================================================================
  */
@@ -33,14 +24,14 @@
 /*****************************************************************************/
 // Game definitions
 
-#define TAROT_VERSION   "1.3.0 ALPHA"
-#define TAROT_TITRE     "Qt - Tarot Club"
-#define TAROT_VNAME     "Dragon Ball"
+#define TAROT_VERSION   "2.0.0 Alpha 1"
+#define TAROT_TITRE     "TarotClub"
+#define TAROT_VNAME     "Kritzkrieg"
 
 #define DEFAULTPORT     4269
 #define CONFIG_FILE     "/bin/config.xml"
 #define NB_LANGUES      2
-#define QT_STREAMVER    QDataStream::Qt_4_3
+#define QT_STREAMVER    QDataStream::Qt_4_5
 
 /*****************************************************************************/
 enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };

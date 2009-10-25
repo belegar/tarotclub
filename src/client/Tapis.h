@@ -1,26 +1,17 @@
 /*=============================================================================
- * Tarot Club - Tapis.h
+ * TarotClub - Tapis.h
  *=============================================================================
  * CanvasView : visual game contents
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
- * Copyright (C) 2003-2005  Anthony Rabine
- * anthony@ooso.org
- * http://tarotclub.ooso.org
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
  *
  *=============================================================================
  */
@@ -29,15 +20,17 @@
 #define TAPIS_H
 
 // Qt includes
-#include <QGraphicsScene>
-#include <QGraphicsView>
-#include <QGraphicsPixmapItem>
+#include <QtSvg>
+#include <QtGui>
+#include <QVector>
 
 // Game includes
-#include "defines.h"
+#include "../defines.h"
+#include "../Card.h"
+#include "TextBox.h"
 
 /*****************************************************************************/
-class GfxCard : public QGraphicsPixmapItem
+class GfxCard : public QGraphicsItem
 {
 
 public:
@@ -57,6 +50,30 @@ class Tapis : public QGraphicsView
 
 private:
    Filter filter;
+   QVector<GfxCard *> cardsPics;
+
+   // Graphiques
+   PlayerBox      *btNord;
+   PlayerBox      *btOuest;
+   PlayerBox      *btSud;
+   PlayerBox      *btEst;
+   PlayerBox      *btNordOuest;
+
+   TextBox        *enchNord;
+   TextBox        *enchOuest;
+   TextBox        *enchSud;
+   TextBox        *enchEst;
+   TextBox        *enchNordOuest;
+
+   QGroupBox      *groupBoutons;
+   QPushButton    *boutonPasse;
+   QPushButton    *boutonPrise;
+   QPushButton    *boutonGarde;
+   QPushButton    *boutonGardeSans;
+   QPushButton    *boutonGardeContre;
+   QCheckBox      *chelem;
+   QPushButton    *boutonAccepterChien;
+   QPushButton    *boutonPresenterPoignee;
 
 protected:
    void  mousePressEvent( QMouseEvent *e );
@@ -64,18 +81,46 @@ protected:
    void  resizeEvent( QResizeEvent * );
 
 public:
-    Tapis( QGraphicsScene *canvas, QWidget *parent );
+   Tapis(QWidget *parent);
 
-   void  setCursorType( CursorType t );
+   void setCursorType( CursorType t );
+   void setText(Place p, const QString &txt);
+   void setAvatar(Place p, const QString &file);
+   void setFilter( Filter );
+   void setNbPlayers(int n);
+   void setBackground(const QString &fichier);
+   void setAccepterChienVisible(bool v);
 
-public slots:  
-   void  setFilter( Filter );
+   GfxCard *getGfxCard(int i);
+   Card *getObjectCard(GfxCard *gc);
+
+   int loadCards();
+   void colorisePreneur( Place );
+   Place retournePlace( Place origine, Place place_absolue );
+   void printNames( Identity *identities, Place place );
+   void afficheSelection( Place );
+   void afficheCarte( GfxCard *, Place );
+   void cacheEncheres();
+   void cacheBoutons();
+   void showAvatars( bool b, int nb_players );
+   void razTapis();
+
+public slots:
+   void slotBoutton1();
+   void slotBoutton2();
+   void slotBoutton3();
+   void slotBoutton4();
+   void slotBoutton5();
+   void slotAccepteChien();
+   void slotAfficheBoutons( Contrat contrat );
+   void slotAfficheEnchere(Place enchereur,Contrat cont);
 
 signals:
-   void  sgnlViewportClicked();
-   void  sgnlClickCard( GfxCard * );
-   void  sgnlMoveCursor( GfxCard * );
-
+   void sgnlViewportClicked();
+   void sgnlClickCard( GfxCard * );
+   void sgnlMoveCursor( GfxCard * );
+   void sgnlContrat(Contrat c);
+   void sgnlAccepteChien();
 };
 
 #endif // TAPIS_H

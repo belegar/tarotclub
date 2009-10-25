@@ -1,3 +1,20 @@
+/*=============================================================================
+ * TarotClub - ChatDock.cpp
+ *=============================================================================
+ * Online chat dock window
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ *
+ *=============================================================================
+ */
 
 // Includes Qt
 #include <QDockWidget>
@@ -59,29 +76,29 @@ void ChatDock::message(const QString &message)
 /*****************************************************************************/
 void ChatDock::slotReturnPressed()
 {
-	QString message = textLine->text();
+   QString message = textLine->text();
    if( message.length() == 0 ) {
-		return;
+      return;
    }
-	emit sgnlEmitMessage(message);
-	textLine->clear();
+   emit sgnlEmitMessage(message);
+   textLine->clear();
 }
 /*****************************************************************************/
 void ChatDock::setPlayersList( int nombre, Identity *idents )
 {
-	QString server;
-	QStringList nicks;
+   QString server;
+   QStringList nicks;
 
    for( int i=0; i<nombre; i++ ) {
-		nicks += idents[i].name;
+      nicks += idents[i].name;
    }
-	playersList->clear();
-	// On marque le premier joueur comme étant le serveur
-	playersList->addItems( nicks );
+   playersList->clear();
+   // On marque le premier joueur comme étant le serveur
+   playersList->addItems( nicks );
    QListWidgetItem *it = playersList->item(0);
-	server = it->text();
-	server.prepend( '@' );
-	it->setText( server );
+   server = it->text();
+   server.prepend( '@' );
+   it->setText( server );
 }
 
 //=============================================================================

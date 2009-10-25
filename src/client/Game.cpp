@@ -1,26 +1,17 @@
 /*=============================================================================
- * Tarot Club - Game.cpp
+ * TarotClub - Game.cpp
  *=============================================================================
  * Derived class from MainWindow class. Central class for the game engine.
  *=============================================================================
- * Tarot Club est un jeu de Tarot franï¿œais
- * Copyright (C) 2003-2005  Anthony Rabine
- * anthony@ooso.org
- * http://tarotclub.ooso.org
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
  *
  *=============================================================================
  */
@@ -29,9 +20,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include "Game.h"
-#include "Jeu.h"
+#include "../Jeu.h"
 
-#define CARD_NORMAL		522
+#define CARD_NORMAL	522
 #define CARD_SELECTED	502
 
 /*****************************************************************************/
@@ -41,7 +32,7 @@ Game::Game( ConfigFile *conf ) : MainWindow()
 
    Jeu::init();
    optionsWindow->setPath( config->getPath() );
-   if( setTheme( config->getPath() ) ) {
+   if( tapis->loadCards() ) {
       exit(-1);
    }
    applyOptions();
@@ -49,27 +40,22 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( tapis, SIGNAL(sgnlViewportClicked()), this, SLOT(slotClickTapis()) );
    connect( tapis, SIGNAL(sgnlClickCard(GfxCard *)), this, SLOT(slotClickCard(GfxCard *)) );
    connect( tapis, SIGNAL(sgnlMoveCursor(GfxCard *)), this, SLOT(slotMoveCursor(GfxCard *)) );
-
-   connect( boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()) );
-   connect( boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()) );
-   connect( boutonGarde, SIGNAL(clicked()), this, SLOT(slotBoutton3()) );
-   connect( boutonGardeSans, SIGNAL(clicked()), this, SLOT(slotBoutton4()) );
-   connect( boutonGardeContre, SIGNAL(clicked()), this, SLOT(slotBoutton5()) );
-   connect( boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()) );
+   connect( tapis, SIGNAL(sgnlContrat(Contrat)), this, SLOT(slotSetEnchere(Contrat)) );
+   connect( tapis, SIGNAL(sgnlAccepteChien()), this, SLOT(slotAccepteChien()) );
 
 /*
-   // FenÃªtre rÃ©seau (client)
+   // Network window (client)
    connect( clientWindow, SIGNAL(sgnlExit()), this, SLOT(slotClientWndExit()));
    connect( clientWindow, SIGNAL(sgnlSendMessage(const QString &)), this, SLOT(slotClientMessage(const QString &)));
    connect( clientWindow, SIGNAL(sgnlConnection(const QString &)), this, SLOT(slotClientConnexion(const QString &)));
    connect( clientWindow, SIGNAL(sgnlDeconnection()), this, SLOT(slotClientDeconnexion()));
 */
-   // Connexion des Ã©vÃ©nements sur le client
+   // Client events connection
    connect( &client, SIGNAL(sgnlMessage(const QString &)), chatDock, SLOT(message(const QString &)));
    connect( &client, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
    connect( &client, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
-   connect( &client, SIGNAL(sgnlChoixEnchere(Contrat)), this, SLOT(slotChoixEnchere(Contrat)));
-   connect( &client, SIGNAL(sgnlAfficheEnchere(Place,Contrat)), this, SLOT(slotAfficheEnchere(Place,Contrat)));
+   connect( &client, SIGNAL(sgnlChoixEnchere(Contrat)), tapis, SLOT(slotAfficheBoutons(Contrat)));
+   connect( &client, SIGNAL(sgnlAfficheEnchere(Place,Contrat)), tapis, SLOT(slotAfficheEnchere(Place,Contrat)));
    connect( &client, SIGNAL(sgnlAfficheChien()), this, SLOT(slotAfficheChien()));
    connect( &client, SIGNAL(sgnlRedist()), this, SLOT(slotRedist()));
    connect( &client, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
@@ -108,117 +94,35 @@ void Game::slotNewLocalGame()
 
    newDonneAct->setEnabled(true);
    newDonneManuAct->setEnabled(true);
-
-   btOuest->show();
-   btSud->show();
-   btEst->show();
-   if( options->nbPlayers == 4 ) {
-      btNord->show();
-   }
-   if( options->nbPlayers == 5 ) {
-      btNordOuest->show();
-   }
-   
    scoresDock->clear();
    infosDock->clear();
-   client.connectToHost( "127.0.0.1", options->port ); 
+   client.connectToHost( "127.0.0.1", options->port );
    qApp->processEvents(QEventLoop::AllEvents,300);
    for( i=0; i<(options->nbPlayers-1); i++ ) {
-      bots[i].connectToHost( "127.0.0.1", options->port ); 
+      bots[i].connectToHost( "127.0.0.1", options->port );
       qApp->processEvents(QEventLoop::AllEvents,300);
    }
+   tapis->setNbPlayers(options->nbPlayers);
    tapis->setFilter(AUCUN);
    sequence = DISTRIBUTION;
    statusBar()->showMessage( "Cliquez sur le tapis pour dÃ©marrer le tour." );
 }
 /*****************************************************************************/
-int Game::setTheme( QString gamePath )
-{
-   int i,j,n;
-   QString varImg;
-   QString image;
-   QFile f;
-
-   //----- 4 couleurs
-   for( i=0; i<4; i++ ){
-      if( i==0 ) {
-         varImg = "pic";
-      } else if( i==1 ) {
-         varImg = "coeur";
-      } else if( i==2 ) {
-         varImg = "trefle";
-      } else {
-         varImg = "carreau";
-      }
-
-      // de l'as au roi (14 cartes)
-      for( j=0; j<14; j++ ) {
-         n = i*14+j;
-         image = gamePath + QString("/data/cartes/Classique/") + varImg + QString("-") + QString().setNum(j+1) + QString(".png");
-         f.setFileName(image);
-
-         if( f.exists() ) {
-            // On assigne une image ï¿œ la carte
-            cardsPics[n].setPixmap( QPixmap( image ));
-         } else {
-            return(1);
-         }
-         cardsPics[n].hide();
-         canvas->addItem( &cardsPics[n] );
-      }
-   }
-
-   //----- 21 atouts
-   for( i=56; i<77; i++) {
-      image = gamePath + QString("/data/cartes/Classique/atout-") + QString().setNum(i-55) + QString(".png");
-      f.setFileName(image);
-      if( f.exists() ) {
-         cardsPics[i].setPixmap( QPixmap( image ));
-      } else {
-         return(2);
-      }
-      cardsPics[i].hide();
-      canvas->addItem( &cardsPics[i] );
-   }
-
-   //----- L'excuse
-   image = gamePath + QString("/data/cartes/Classique/excuse.png");
-   f.setFileName(image);
-   if( f.exists() ) {
-      cardsPics[77].setPixmap( QPixmap( image ));
-   } else {
-      return(3);
-   }
-   cardsPics[77].hide();
-   canvas->addItem( &cardsPics[77] );
-
-   return 0;
-}
-/*****************************************************************************/
 void Game::applyOptions()
 {
    int i;
-
    GameOptions *options = config->getGameOptions();
-   QBrush background;
 
-   showAvatars( options->showAvatars, options->nbPlayers );
    scoresDock->setOptions( options );
 
    for(i=0; i<4; i++ ) {
       bots[i].setIdentity( &options->identities[1+i] );
    }
    client.setIdentity( &options->identities[0] );
-   printNames(options->identities, SUD);
 
-   // On teste si on a un arriere plan
-   QPixmap pm;
-   QString fichier = config->getPath() + QString("/data/" + options->tapis );
-   if( pm.load( fichier ) == false ) {
-      pm.fill( Qt::darkGreen );
-   }
-   background.setTexture( pm );
-   canvas->setBackgroundBrush( background );
+   tapis->showAvatars( options->showAvatars, options->nbPlayers );
+   tapis->printNames(options->identities, SUD);
+   tapis->setBackground(QString(":/images/" + options->tapis) );
 }
 /*****************************************************************************/
 void Game::showOptions()
@@ -258,25 +162,25 @@ void Game::hidePli()
 
    for( i = inf->gameCounter-inf->nbJoueurs; i<inf->gameCounter; i++ ) {
       c = client.getCardMainDeck(i);
-      gc = &cardsPics[c->getId()];
+      gc = tapis->getGfxCard(c->getId());
       gc->hide();
    }
 }
 /*****************************************************************************/
 /**
- * Cette fonction est appelï¿œe ï¿œ chaque fois que l'utilisateur dï¿œplace son
+ * Cette fonction est appelée à chaque fois que l'utilisateur déplace son
  * curseur au dessus d'une carte
  */
 void Game::slotMoveCursor( GfxCard *gc )
 {
-   Card *c = getCardFromPix(gc);
+   Card *c = tapis->getObjectCard(gc);
 
    if( client.cardExists( c ) == false ) {
       return;
    }
 
    if( sequence == CHIEN ) {
-      if( c->getType() == ATOUT || c->getType() == EXCUSE || 
+      if( c->getType() == ATOUT || c->getType() == EXCUSE ||
             (c->getType() == CARTE && c->getValue()==14 )) {
          tapis->setCursorType( FORBIDDEN );
       } else {
@@ -293,12 +197,12 @@ void Game::slotMoveCursor( GfxCard *gc )
 /*****************************************************************************/
 void Game::slotClickCard(GfxCard *gc)
 {
-   Card *c = getCardFromPix(gc);
-   
+   Card *c = tapis->getObjectCard(gc);
+
    if( client.cardExists( c ) == false ) {
       return;
    }
-   
+
    if( sequence == GAME ) {
       // On teste si la carte est valide
       if( client.isValid( c ) == false ) {
@@ -312,12 +216,12 @@ void Game::slotClickCard(GfxCard *gc)
 
    } else if( sequence == CHIEN ) {
 
-      if( c->getType() == ATOUT || c->getType() == EXCUSE || 
+      if( c->getType() == ATOUT || c->getType() == EXCUSE ||
          (c->getType() == CARTE && c->getValue()==14 )) {
          return;
       }
 
-      // sï¿œlection de la carte
+      // sélection de la carte
       if( gc->y() == CARD_NORMAL ) {
          if( client.getTailleChien() == 6 ) {
             return;
@@ -327,17 +231,17 @@ void Game::slotClickCard(GfxCard *gc)
          client.addCardChien(c);
 
          if( client.getTailleChien() == 6 ) {
-            boutonAccepterChien->show();
+            tapis->setAccepterChienVisible(true);
          }
 
-      // dï¿œselection de la carte
+      // désélection de la carte
       } else if( gc->y() == CARD_SELECTED ) {
          if( client.getTailleChien() == 0 ) {
             return;
          }
          gc->setPos( gc->x(), CARD_NORMAL );
          client.removeCardChien( c );
-         boutonAccepterChien->hide();
+         tapis->setAccepterChienVisible(false);
       }
    }
 }
@@ -347,7 +251,7 @@ void Game::slotReceptionCartes()
    int i;
 
    for( i=0; i<78; i++ ) {
-      cardsPics[i].hide();
+      tapis->getGfxCard(i)->hide();
    }
    afficheCartesJoueur(0);
 }
@@ -355,42 +259,7 @@ void Game::slotReceptionCartes()
 void Game::slotAfficheSelection(Place p)
 {
    tour = p;
-   afficheSelection(p);
-}
-/*****************************************************************************/
-void Game::slotChoixEnchere(Contrat c)
-{
-   afficheBoutons(c);
-}
-/*****************************************************************************/
-void Game::slotAfficheEnchere(Place p, Contrat c)
-{
-   afficheEnchere(p,c);
-}
-/*****************************************************************************/
-void Game::slotBoutton1()
-{
-   setEnchere( PASSE );
-}
-/*****************************************************************************/
-void Game::slotBoutton2()
-{
-   setEnchere( PRISE );
-}
-/*****************************************************************************/
-void Game::slotBoutton3()
-{
-   setEnchere( GARDE );
-}
-/*****************************************************************************/
-void Game::slotBoutton4()
-{
-   setEnchere( GARDE_SANS );
-}
-/*****************************************************************************/
-void Game::slotBoutton5()
-{
-   setEnchere( GARDE_CONTRE );
+   tapis->afficheSelection(p);
 }
 /*****************************************************************************/
 void Game::slotAccepteChien()
@@ -402,26 +271,26 @@ void Game::slotAccepteChien()
    for( i=0; i<client.getTailleChien(); i++) {
       c = client.getCardChien(i);
       client.removeCard(c);
-      gc = &cardsPics[c->getId()];
+      gc = tapis->getGfxCard(c->getId());
       gc->hide();
    }
-   boutonAccepterChien->hide();
+   tapis->setAccepterChienVisible(false);
    sequence = VIDE;
    tapis->setFilter( AUCUN );
    afficheCartesJoueur(0);
    client.sendChien();
 }
 /*****************************************************************************/
-void Game::setEnchere( Contrat cont )
+void Game::slotSetEnchere( Contrat cont )
 {
    client.sendEnchere( cont );
-   groupBoutons->hide();
+   tapis->cacheBoutons();
 }
 /*****************************************************************************/
 /**
- * Pos : dï¿œcale ou non l'affichage des cartes
+ * Pos : décale ou non l'affichage des cartes
  * 0 : normal pour 18 cartes
- * 1 : serrï¿œes car il y a le chien en plus
+ * 1 : serrées car il y a le chien en plus
  */
 void Game::afficheCartesJoueur( int pos )
 {
@@ -442,7 +311,7 @@ void Game::afficheCartesJoueur( int pos )
 
    for( i=0; i<client.getCardNumber(); i++ ) {
       c = client.getCard(i);
-      cgfx = &cardsPics[c->getId()];
+      cgfx = tapis->getGfxCard(c->getId());
       cgfx->setPos(x, y);
       cgfx->setZValue( i );
       cgfx->show();
@@ -462,7 +331,7 @@ void Game::slotAfficheChien()
 
    for( i=0; i<n; i++ ) {
       c = client.getCardChien(i);
-      cgfx = &cardsPics[c->getId()];
+      cgfx = tapis->getGfxCard(c->getId());
       cgfx->setPos(x, y);
       cgfx->setZValue(i);
       cgfx->show();
@@ -478,17 +347,17 @@ void Game::slotRedist()
                    tr("Tous les joueurs ont passï¿œ.\n"
                       "Nouvelle distribution des cartes.") );
 
-   razTapis();
    sequence = GAME;
    infosDock->clear();
    tapis->setFilter(AUCUN);
+   tapis->razTapis();
    client.sendStart();
 }
 /*****************************************************************************/
 void Game::slotPrepareChien()
 {
    Card *c;
-   
+
    // On ajoute le chien au deck du joueur
    for( int i=0; i<client.getTailleChien(); i++ ) {
       c = client.getCardChien( i );
@@ -506,9 +375,9 @@ void Game::slotDepartDonne(Place p,Contrat c)
 {
    infosDock->setContrat(c);
    infosDock->setPreneur( config->getGameOptions()->identities[p].name );
-   razTapis();
    sequence = GAME;
    tapis->setFilter( AUCUN );
+   tapis->razTapis();
 }
 /*****************************************************************************/
 void Game::slotJoueCarte()
@@ -519,8 +388,8 @@ void Game::slotJoueCarte()
 /*****************************************************************************/
 void Game::slotAfficheCarte(int id)
 {
-   GfxCard *gc = &cardsPics[id];
-   afficheCarte(gc,tour);
+   GfxCard *gc = tapis->getGfxCard(id);
+   tapis->afficheCarte(gc,tour);
 }
 /*****************************************************************************/
 void Game::slotFinDonne()
@@ -537,18 +406,7 @@ void Game::slotWaitPli()
    tapis->setFilter( AUCUN );
    statusBar()->showMessage(tr("Cliquez sur le tapis pour continuer.") );
 }
-/*****************************************************************************/
-Card *Game::getCardFromPix( GfxCard *gc )
-{
-   Card *c = NULL;
-   for( int i=0; i<78; i++ ) {
-      if( &cardsPics[i] == gc ) {
-         c = Jeu::getCard(i);
-         break;
-      }
-   }
-   return(c);
-}
+
 
 
 //=============================================================================

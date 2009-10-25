@@ -15,7 +15,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.46"
    sodipodi:docbase="/media/documents/Prog/qt/TarotClub-ressources/Cartes Tarot SVG"
-   sodipodi:docname="atout-2.svg"
+   sodipodi:docname="atout-02.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.0">
   <sodipodi:namedview
@@ -27,7 +27,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="11.313709"
      inkscape:cx="31.997876"
-     inkscape:cy="50.026703"
+     inkscape:cy="106.59524"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -35,10 +35,12 @@
      inkscape:window-width="820"
      inkscape:window-height="927"
      inkscape:window-x="838"
-     inkscape:window-y="91">
+     inkscape:window-y="52">
     <inkscape:grid
        type="xygrid"
-       id="grid9588" />
+       id="grid9588"
+       visible="true"
+       enabled="true" />
   </sodipodi:namedview>
   <defs
      id="defs4">
@@ -87,50 +89,6 @@
          height="187"
          width="186" />
     </pattern>
-    <inkscape:perspective
-       sodipodi:type="inkscape:persp3d"
-       inkscape:vp_x="0 : 55.999947 : 1"
-       inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_z="60.999729 : 55.999947 : 1"
-       inkscape:persp3d-origin="30.499865 : 37.333298 : 1"
-       id="perspective9586" />
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath2226">
-      <rect
-         style="fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.1397486;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect2228"
-         width="44.840599"
-         height="39.538174"
-         x="17.069874"
-         y="898.75415"
-         ry="5.6671405" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath2234">
-      <rect
-         style="fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.10009771;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect2236"
-         width="48.007229"
-         height="24.427769"
-         x="-53.070892"
-         y="914.90649"
-         ry="4.3310289"
-         transform="scale(-1,1)" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath2244">
-      <rect
-         style="fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect2246"
-         width="56.662136"
-         height="15.769323"
-         x="3"
-         y="920.36218"
-         ry="4.9913421" />
-    </clipPath>
     <radialGradient
        inkscape:collect="always"
        xlink:href="#linearGradient2893"

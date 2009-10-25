@@ -1,26 +1,17 @@
 /*=============================================================================
- * Tarot Club - Game.h
+ * TarotClub - Game.h
  *=============================================================================
  * Derived class from MainWindow class. Central class for the game engine.
  *=============================================================================
- * Tarot Club est un jeu de Tarot français
- * Copyright (C) 2003-2005  Anthony Rabine
- * anthony@ooso.org
- * http://tarotclub.ooso.org
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
  *
  *=============================================================================
  */
@@ -29,14 +20,13 @@
 #define _GAME_H
 
 // Qt includes
-#include <QGraphicsScene>
 #include <QtNetwork>
 
 // Game includes
-#include "defines.h"
+#include "../defines.h"
 #include "MainWindow.h"
-#include "Client.h"
-#include "Bot.h"
+#include "../Client.h"
+#include "../Bot.h"
 #include "ConfigFile.h"
 
 
@@ -54,7 +44,6 @@ class Game : public MainWindow
 
 private:
    ConfigFile  *config;
-   GfxCard     cardsPics[78];
    Bot         bots[4];
    Client      client;
    Sequence    sequence;
@@ -67,7 +56,7 @@ public:
    ~Game();
 
    void applyOptions();
-   int setTheme( QString gamePath );
+   int setTheme();
    void afficheCartesJoueur( int pos );
    void hidePli();
 
@@ -77,13 +66,12 @@ public slots:
    void slotClickCard(GfxCard *c);
    void slotClickTapis();
    void slotMoveCursor( GfxCard *c );
-   
+
    // événements du serveur
    void slotReceptionCartes();
    void slotAfficheSelection(Place p);
-   void slotChoixEnchere(Contrat c);
-   void slotAfficheEnchere(Place p, Contrat c);
    void slotAfficheChien();
+   void slotAccepteChien();
    void slotRedist();
    void slotPrepareChien();
    void slotDepartDonne(Place p,Contrat c);
@@ -91,16 +79,8 @@ public slots:
    void slotAfficheCarte(int id);
    void slotFinDonne();
    void slotWaitPli();
+   void slotSetEnchere( Contrat cont );
 
-   // boutons sur le tapis
-   void slotBoutton1();
-   void slotBoutton2();
-   void slotBoutton3();
-   void slotBoutton4();
-   void slotBoutton5();
-   void slotAccepteChien();
-   void setEnchere( Contrat cont );
-   
 };
 
 #endif // _GAME_H
