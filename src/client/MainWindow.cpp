@@ -79,29 +79,29 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    newLocalGameAct->setShortcut(QString("Ctrl+N"));
    newLocalGameAct->setStatusTip(STR_STATUS1);
 
-   netGameServerAct = new QAction(tr("Nouveau jeu en &réseau (serveur)"), this);
-   netGameServerAct->setShortcut(tr("Ctrl+R"));
-   netGameServerAct->setStatusTip(tr("Lance une partie en réseau (création du serveur)"));
+   netGameServerAct = new QAction(trUtf8("Nouveau jeu en &réseau (serveur)"), this);
+   netGameServerAct->setShortcut(trUtf8("Ctrl+R"));
+   netGameServerAct->setStatusTip(trUtf8("Lance une partie en réseau (création du serveur)"));
 
-   netGameClientAct = new QAction(tr("Nouveau &jeu en réseau (client)"), this);
-   netGameClientAct->setShortcut(tr("Ctrl+J"));
-   netGameClientAct->setStatusTip(tr("Lance une partie en réseau (connexion à un serveur)"));
+   netGameClientAct = new QAction(trUtf8("Nouveau &jeu en réseau (client)"), this);
+   netGameClientAct->setShortcut(trUtf8("Ctrl+J"));
+   netGameClientAct->setStatusTip(trUtf8("Lance une partie en réseau (connexion à un serveur)"));
 
-   newDonneAct = new QAction(tr("Nouvelle &donne"), this);
-   newDonneAct->setShortcut(tr("Ctrl+D"));
-   newDonneAct->setStatusTip(tr("Redistribue les cartes pour ce tour de jeu"));
+   newDonneAct = new QAction(trUtf8("Nouvelle &donne"), this);
+   newDonneAct->setShortcut(trUtf8("Ctrl+D"));
+   newDonneAct->setStatusTip(trUtf8("Redistribue les cartes pour ce tour de jeu"));
 
-   newDonneManuAct = new QAction(tr("Nouvelle donne &manuelle"), this);
-   newDonneManuAct->setShortcut(tr("Ctrl+M"));
-   newDonneManuAct->setStatusTip(tr("Redistribue les cartes avec une donne précise"));
+   newDonneManuAct = new QAction(trUtf8("Nouvelle donne &manuelle"), this);
+   newDonneManuAct->setShortcut(trUtf8("Ctrl+M"));
+   newDonneManuAct->setStatusTip(trUtf8("Redistribue les cartes avec une donne précise"));
 
-   QAction *exitAct = new QAction(tr("&Quitter"), this);
-   exitAct->setShortcut(tr("Ctrl+Q"));
-   exitAct->setStatusTip(tr("Quitte le jeu"));
+   QAction *exitAct = new QAction(trUtf8("&Quitter"), this);
+   exitAct->setShortcut(trUtf8("Ctrl+Q"));
+   exitAct->setStatusTip(trUtf8("Quitte le jeu"));
    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(quit()));
 
    // On ajoute les actions au menu 'Jeu'
-   jeu = menuBar()->addMenu(tr("Jeu"));
+   jeu = menuBar()->addMenu(trUtf8("Jeu"));
    jeu->addAction(newLocalGameAct);
    jeu->addAction(netGameServerAct);
    jeu->addAction(netGameClientAct);
@@ -114,41 +114,41 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    //------------
    // Menu Tarot
    //------------
-   optionsAct = new QAction(tr("&Options"), this);
-   optionsAct->setShortcut(tr("Ctrl+O"));
-   optionsAct->setStatusTip(tr("Options du jeu"));
+   optionsAct = new QAction(trUtf8("&Options"), this);
+   optionsAct->setShortcut(trUtf8("Ctrl+O"));
+   optionsAct->setStatusTip(trUtf8("Options du jeu"));
 
-   pliPrecAct = new QAction(tr("&Pli précédent"), this);
-   pliPrecAct->setShortcut(tr("Ctrl+P"));
-   pliPrecAct->setStatusTip(tr("Affiche le pli précédent"));
+   pliPrecAct = new QAction(trUtf8("&Pli précédent"), this);
+   pliPrecAct->setShortcut(trUtf8("Ctrl+P"));
+   pliPrecAct->setStatusTip(trUtf8("Affiche le pli précédent"));
 
    // On ajoute les actions au menu 'Tarot'
-   tarot = menuBar()->addMenu(tr("Tarot"));
+   tarot = menuBar()->addMenu(trUtf8("Tarot"));
    tarot->addAction(optionsAct);
    tarot->addAction(pliPrecAct);
 
    //---------------
    // Menu Fenêtres
    //---------------
-   scoresAct = new QAction(tr("Scores"), this);
+   scoresAct = new QAction(trUtf8("Scores"), this);
    scoresAct->setCheckable(true);
-   scoresAct->setStatusTip(tr("Montre/cache la fenêtre des scores"));
+   scoresAct->setStatusTip(trUtf8("Montre/cache la fenêtre des scores"));
    connect(scoresAct, SIGNAL(triggered()), this, SLOT(slotScoresDock()));
    scoresAct->setChecked(true);
 
-   infosAct = new QAction(tr("Informations"), this);
+   infosAct = new QAction(trUtf8("Informations"), this);
    infosAct->setCheckable(true);
-   infosAct->setStatusTip(tr("Montre/cache la fenêtre d'informations"));
+   infosAct->setStatusTip(trUtf8("Montre/cache la fenêtre d'informations"));
    connect(infosAct, SIGNAL(triggered()), this, SLOT(slotInfosDock()));
    infosAct->setChecked(true);
 
-   chatAct = new QAction(tr("Discussion"), this);
+   chatAct = new QAction(trUtf8("Discussion"), this);
    chatAct->setCheckable(true);
-   chatAct->setStatusTip(tr("Montre/cache la fenêtre de discussion"));
+   chatAct->setStatusTip(trUtf8("Montre/cache la fenêtre de discussion"));
    connect(chatAct, SIGNAL(triggered()), this, SLOT(slotChatDock()));
    chatAct->setChecked(false);
 
-   fenetres = menuBar()->addMenu(tr("Fenêtres"));
+   fenetres = menuBar()->addMenu(trUtf8("Fenêtres"));
    fenetres->addAction(scoresAct);
    fenetres->addAction(infosAct);
    fenetres->addAction(chatAct);
@@ -156,13 +156,13 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    //-----------
    // Menu Help
    //-----------
-   QAction *aboutAct = new QAction(tr("&À propos..."), this);
-   aboutAct->setShortcut(tr("Ctrl+A"));
-   aboutAct->setStatusTip(tr("À propos de Tarot Club"));
+   QAction *aboutAct = new QAction(trUtf8("&À propos..."), this);
+   aboutAct->setShortcut(trUtf8("Ctrl+A"));
+   aboutAct->setStatusTip(trUtf8("À propos de Tarot Club"));
    connect(aboutAct, SIGNAL(triggered()), about, SLOT(show()));
 
    // On ajoute les actions au menu '?'
-   help = menuBar()->addMenu(tr("?"));
+   help = menuBar()->addMenu(trUtf8("?"));
    help->addAction(aboutAct);
 
    //==============================================================

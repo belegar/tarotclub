@@ -68,7 +68,7 @@ int main( int argc, char** argv )
 
    QPixmap pixmap( ":/images/splash.png" );
    QSplashScreen splash(pixmap);
-//   splash.show();
+   splash.show();
 
    ConfigFile config(path);
    if( config.load(CONFIG_FILE) == false ) {

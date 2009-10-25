@@ -21,7 +21,7 @@
 
 /*****************************************************************************/
 ScoresDock::ScoresDock( QWidget *parent )
-    : QDockWidget( tr("Scores"), parent )
+    : QDockWidget( trUtf8("Scores"), parent )
 {
    tableScores = new QTableWidget( this );
    tableScores->setSelectionMode(QAbstractItemView::NoSelection);

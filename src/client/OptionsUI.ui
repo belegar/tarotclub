@@ -1,177 +1,125 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>OptionsUI</class>
- <widget class="QDialog" name="OptionsUI" >
-  <property name="geometry" >
+ <widget class="QDialog" name="OptionsUI">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>548</width>
-    <height>458</height>
+    <width>563</width>
+    <height>498</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Options</string>
   </property>
-  <property name="sizeGripEnabled" >
+  <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
-  <layout class="QGridLayout" >
-   <property name="leftMargin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>9</number>
    </property>
-   <property name="topMargin" >
-    <number>9</number>
-   </property>
-   <property name="rightMargin" >
-    <number>9</number>
-   </property>
-   <property name="bottomMargin" >
-    <number>9</number>
-   </property>
-   <property name="horizontalSpacing" >
+   <property name="spacing">
     <number>6</number>
    </property>
-   <property name="verticalSpacing" >
-    <number>6</number>
-   </property>
-   <item row="0" column="0" >
-    <widget class="QTabWidget" name="tabWidget" >
-     <property name="currentIndex" >
-      <number>2</number>
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>1</number>
      </property>
-     <widget class="QWidget" name="tab_2" >
-      <attribute name="title" >
-       <string>PrÃ©fÃ©rences</string>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Préférences</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <property name="leftMargin" >
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="topMargin" >
-        <number>9</number>
-       </property>
-       <property name="rightMargin" >
-        <number>9</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>9</number>
-       </property>
-       <property name="horizontalSpacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <property name="verticalSpacing" >
-        <number>6</number>
-       </property>
-       <item row="0" column="0" >
-        <widget class="QGroupBox" name="groupBox_6" >
-         <property name="title" >
-          <string>IdentitÃ©</string>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Identité</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="leftMargin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="topMargin" >
-           <number>9</number>
-          </property>
-          <property name="rightMargin" >
-           <number>9</number>
-          </property>
-          <property name="bottomMargin" >
-           <number>9</number>
-          </property>
-          <property name="horizontalSpacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="verticalSpacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" colspan="2" >
-           <layout class="QHBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="0" colspan="2">
+           <layout class="QHBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" >
-              <property name="spacing" >
+             <layout class="QVBoxLayout">
+              <property name="spacing">
                <number>6</number>
               </property>
-              <property name="leftMargin" >
-               <number>0</number>
-              </property>
-              <property name="topMargin" >
-               <number>0</number>
-              </property>
-              <property name="rightMargin" >
-               <number>0</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="pixSud" >
-                <property name="minimumSize" >
+               <widget class="QLabel" name="pixSud">
+                <property name="minimumSize">
                  <size>
                   <width>40</width>
                   <height>40</height>
                  </size>
                 </property>
-                <property name="maximumSize" >
+                <property name="maximumSize">
                  <size>
                   <width>40</width>
                   <height>40</height>
                  </size>
                 </property>
-                <property name="frameShape" >
+                <property name="frameShape">
                  <enum>QFrame::Box</enum>
                 </property>
-                <property name="frameShadow" >
+                <property name="frameShadow">
                  <enum>QFrame::Plain</enum>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string/>
                 </property>
-                <property name="scaledContents" >
+                <property name="scaledContents">
                  <bool>true</bool>
                 </property>
-                <property name="alignment" >
+                <property name="alignment">
                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="btnPixSud" >
-                <property name="minimumSize" >
+               <widget class="QPushButton" name="btnPixSud">
+                <property name="minimumSize">
                  <size>
                   <width>40</width>
                   <height>0</height>
                  </size>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string/>
                 </property>
-                <property name="icon" >
-                 <iconset resource="../../resources/resources.qrc" >:/images/fileopen.png</iconset>
+                <property name="icon">
+                 <iconset resource="../data/data.qrc">
+                  <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
                 </property>
-                <property name="autoDefault" >
+                <property name="autoDefault">
                  <bool>false</bool>
                 </property>
                </widget>
@@ -180,10 +128,10 @@
             </item>
             <item>
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -192,57 +140,36 @@
              </spacer>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_7" >
-              <property name="title" >
+             <widget class="QGroupBox" name="groupBox_7">
+              <property name="title">
                <string>Sexe</string>
               </property>
-              <layout class="QGridLayout" >
-               <property name="leftMargin" >
+              <layout class="QGridLayout">
+               <property name="margin">
                 <number>9</number>
                </property>
-               <property name="topMargin" >
-                <number>9</number>
-               </property>
-               <property name="rightMargin" >
-                <number>9</number>
-               </property>
-               <property name="bottomMargin" >
-                <number>9</number>
-               </property>
-               <property name="horizontalSpacing" >
+               <property name="spacing">
                 <number>6</number>
                </property>
-               <property name="verticalSpacing" >
-                <number>6</number>
-               </property>
-               <item row="0" column="0" >
-                <layout class="QVBoxLayout" >
-                 <property name="spacing" >
+               <item row="0" column="0">
+                <layout class="QVBoxLayout">
+                 <property name="spacing">
                   <number>6</number>
                  </property>
-                 <property name="leftMargin" >
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin" >
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin" >
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin" >
+                 <property name="margin">
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QRadioButton" name="sexeM" >
-                   <property name="text" >
+                  <widget class="QRadioButton" name="sexeM">
+                   <property name="text">
                     <string>Masculin</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QRadioButton" name="sexeF" >
-                   <property name="text" >
-                    <string>FÃ©minin</string>
+                  <widget class="QRadioButton" name="sexeF">
+                   <property name="text">
+                    <string>Féminin</string>
                    </property>
                   </widget>
                  </item>
@@ -253,12 +180,12 @@
             </item>
            </layout>
           </item>
-          <item row="1" column="0" >
+          <item row="1" column="0">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>40</width>
               <height>20</height>
@@ -266,87 +193,69 @@
             </property>
            </spacer>
           </item>
-          <item row="2" column="0" colspan="2" >
-           <layout class="QHBoxLayout" >
-            <property name="spacing" >
+          <item row="2" column="0" colspan="2">
+           <layout class="QHBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="TextLabel2_3_2" >
-              <property name="text" >
+             <widget class="QLabel" name="TextLabel2_3_2">
+              <property name="text">
                <string>Nom :</string>
               </property>
-              <property name="alignment" >
+              <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="nomJoueurSud" >
-              <property name="enabled" >
+             <widget class="QLineEdit" name="nomJoueurSud">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="maxLength" >
+              <property name="maxLength">
                <number>10</number>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="3" column="0" colspan="2" >
-           <layout class="QHBoxLayout" >
-            <property name="spacing" >
+          <item row="3" column="0" colspan="2">
+           <layout class="QHBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="TextLabel3_2_2" >
-              <property name="text" >
+             <widget class="QLabel" name="TextLabel3_2_2">
+              <property name="text">
                <string>Citation :</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="citationSud" >
-              <property name="enabled" >
+             <widget class="QLineEdit" name="citationSud">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="maxLength" >
+              <property name="maxLength">
                <number>100</number>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="4" column="1" >
+          <item row="4" column="1">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
               <height>40</height>
@@ -357,61 +266,43 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QGroupBox" name="groupBox_10" >
-         <property name="title" >
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="groupBox_10">
+         <property name="title">
           <string>Divers</string>
          </property>
-         <layout class="QVBoxLayout" >
-          <property name="spacing" >
+         <layout class="QVBoxLayout">
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="leftMargin" >
-           <number>9</number>
-          </property>
-          <property name="topMargin" >
-           <number>9</number>
-          </property>
-          <property name="rightMargin" >
-           <number>9</number>
-          </property>
-          <property name="bottomMargin" >
+          <property name="margin">
            <number>9</number>
           </property>
           <item>
-           <widget class="QCheckBox" name="afficheAvatars" >
-            <property name="text" >
+           <widget class="QCheckBox" name="afficheAvatars">
+            <property name="text">
              <string>Afficher les avatars sur le tapis</string>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" >
-            <property name="spacing" >
+           <layout class="QHBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="TextLabel1_3" >
-              <property name="text" >
+             <widget class="QLabel" name="TextLabel1_3">
+              <property name="text">
                <string>Port TCP/IP :</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="portReseau" >
-              <property name="maximum" >
+             <widget class="QSpinBox" name="portReseau">
+              <property name="maximum">
                <number>999999</number>
               </property>
              </widget>
@@ -419,56 +310,47 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" >
-            <property name="spacing" >
+           <layout class="QHBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_4" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+             <widget class="QLabel" name="label_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Langue</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="langList" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+             <widget class="QComboBox" name="langList">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="iconSize" >
+              <property name="iconSize">
                <size>
                 <width>15</width>
                 <height>15</height>
                </size>
               </property>
               <item>
-               <property name="text" >
-                <string>FranÃ§ais</string>
+               <property name="text">
+                <string>Français</string>
                </property>
               </item>
               <item>
-               <property name="text" >
+               <property name="text">
                 <string>English</string>
                </property>
               </item>
@@ -478,10 +360,10 @@
           </item>
           <item>
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
               <height>40</height>
@@ -492,162 +374,123 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QGroupBox" name="groupBox_8" >
-         <property name="title" >
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
           <string>Temps des pauses</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="leftMargin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="topMargin" >
-           <number>9</number>
-          </property>
-          <property name="rightMargin" >
-           <number>9</number>
-          </property>
-          <property name="bottomMargin" >
-           <number>9</number>
-          </property>
-          <property name="horizontalSpacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="verticalSpacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="0">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="TextLabel1" >
-              <property name="text" >
+             <widget class="QLabel" name="TextLabel1">
+              <property name="text">
                <string>Entre deux joueurs</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="TextLabel2" >
-              <property name="text" >
-               <string>Ã la fin du tour</string>
+             <widget class="QLabel" name="TextLabel2">
+              <property name="text">
+               <string>À la fin du tour</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="1" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="1">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QSlider" name="slider1" >
-              <property name="maximum" >
+             <widget class="QSlider" name="slider1">
+              <property name="maximum">
                <number>9000</number>
               </property>
-              <property name="singleStep" >
+              <property name="singleStep">
                <number>100</number>
               </property>
-              <property name="pageStep" >
+              <property name="pageStep">
                <number>100</number>
               </property>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSlider" name="slider2" >
-              <property name="maximum" >
+             <widget class="QSlider" name="slider2">
+              <property name="maximum">
                <number>9000</number>
               </property>
-              <property name="singleStep" >
+              <property name="singleStep">
                <number>100</number>
               </property>
-              <property name="pageStep" >
+              <property name="pageStep">
                <number>100</number>
               </property>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="2" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="2">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="temps1" >
-              <property name="text" >
+             <widget class="QLabel" name="temps1">
+              <property name="text">
                <string>0.0 secondes</string>
               </property>
-              <property name="scaledContents" >
+              <property name="scaledContents">
                <bool>false</bool>
               </property>
-              <property name="alignment" >
+              <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="temps2" >
-              <property name="text" >
+             <widget class="QLabel" name="temps2">
+              <property name="text">
                <string>0.0 secondes</string>
               </property>
-              <property name="scaledContents" >
+              <property name="scaledContents">
                <bool>false</bool>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="1" column="1" >
+          <item row="1" column="1">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
               <height>40</height>
@@ -658,60 +501,51 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="1" >
-        <widget class="QGroupBox" name="groupBox_9" >
-         <property name="title" >
+       <item row="1" column="1">
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
           <string>Nombre de joueurs</string>
          </property>
-         <layout class="QVBoxLayout" >
-          <property name="spacing" >
+         <layout class="QVBoxLayout">
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="leftMargin" >
-           <number>9</number>
-          </property>
-          <property name="topMargin" >
-           <number>9</number>
-          </property>
-          <property name="rightMargin" >
-           <number>9</number>
-          </property>
-          <property name="bottomMargin" >
+          <property name="margin">
            <number>9</number>
           </property>
           <item>
-           <widget class="QRadioButton" name="troisJoueurs" >
-            <property name="enabled" >
+           <widget class="QRadioButton" name="troisJoueurs">
+            <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>3 joueurs</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="quatreJoueurs" >
-            <property name="text" >
+           <widget class="QRadioButton" name="quatreJoueurs">
+            <property name="text">
              <string>4 joueurs</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="cinqJoueurs" >
-            <property name="enabled" >
+           <widget class="QRadioButton" name="cinqJoueurs">
+            <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>5 joueurs</string>
             </property>
            </widget>
           </item>
           <item>
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
               <height>40</height>
@@ -724,172 +558,122 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
        <string>Adversaires</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <property name="leftMargin" >
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="topMargin" >
-        <number>9</number>
-       </property>
-       <property name="rightMargin" >
-        <number>9</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>9</number>
-       </property>
-       <property name="horizontalSpacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <property name="verticalSpacing" >
-        <number>6</number>
-       </property>
-       <item row="0" column="0" >
-        <widget class="QGroupBox" name="groupBox_2" >
-         <property name="title" >
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
           <string>Joueur Est</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="leftMargin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>8</number>
           </property>
-          <property name="topMargin" >
-           <number>8</number>
-          </property>
-          <property name="rightMargin" >
-           <number>8</number>
-          </property>
-          <property name="bottomMargin" >
-           <number>8</number>
-          </property>
-          <property name="horizontalSpacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="verticalSpacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="2" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="2">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="pixEst" >
-              <property name="minimumSize" >
+             <widget class="QLabel" name="pixEst">
+              <property name="minimumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="maximumSize" >
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="frameShape" >
+              <property name="frameShape">
                <enum>QFrame::Box</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="scaledContents" >
+              <property name="scaledContents">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="btnPixEst" >
-              <property name="maximumSize" >
+             <widget class="QPushButton" name="btnPixEst">
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text" >
+              <property name="text">
                <string/>
               </property>
-              <property name="icon" >
-               <iconset resource="../../resources/resources.qrc" >:/images/fileopen.png</iconset>
+              <property name="icon">
+               <iconset resource="../data/data.qrc">
+                <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="1" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="1">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="nomJoueurEst" >
-              <property name="enabled" >
+             <widget class="QLineEdit" name="nomJoueurEst">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="maxLength" >
+              <property name="maxLength">
                <number>10</number>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="niveauEst" />
+             <widget class="QComboBox" name="niveauEst"/>
             </item>
            </layout>
           </item>
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="0">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_2" >
-              <property name="text" >
+             <widget class="QLabel" name="label_2">
+              <property name="text">
                <string>Nom</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_3" >
-              <property name="text" >
+             <widget class="QLabel" name="label_3">
+              <property name="text">
                <string>Niveau</string>
               </property>
              </widget>
@@ -899,307 +683,231 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QGroupBox" name="groupBox_3" >
-         <property name="title" >
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
           <string>Joueur Nord</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="leftMargin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>8</number>
           </property>
-          <property name="topMargin" >
-           <number>8</number>
-          </property>
-          <property name="rightMargin" >
-           <number>8</number>
-          </property>
-          <property name="bottomMargin" >
-           <number>8</number>
-          </property>
-          <property name="horizontalSpacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="verticalSpacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="0">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_2_2" >
-              <property name="text" >
+             <widget class="QLabel" name="label_2_2">
+              <property name="text">
                <string>Nom</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_3_2" >
-              <property name="text" >
+             <widget class="QLabel" name="label_3_2">
+              <property name="text">
                <string>Niveau</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="2" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="2">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="pixNord" >
-              <property name="minimumSize" >
+             <widget class="QLabel" name="pixNord">
+              <property name="minimumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="maximumSize" >
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="frameShape" >
+              <property name="frameShape">
                <enum>QFrame::Box</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="scaledContents" >
+              <property name="scaledContents">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="btnPixNord" >
-              <property name="maximumSize" >
+             <widget class="QPushButton" name="btnPixNord">
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text" >
+              <property name="text">
                <string/>
               </property>
-              <property name="icon" >
-               <iconset resource="../../resources/resources.qrc" >:/images/fileopen.png</iconset>
+              <property name="icon">
+               <iconset resource="../data/data.qrc">
+                <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="1" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="1">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="nomJoueurNord" >
-              <property name="enabled" >
+             <widget class="QLineEdit" name="nomJoueurNord">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="maxLength" >
+              <property name="maxLength">
                <number>10</number>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="niveauNord" />
+             <widget class="QComboBox" name="niveauNord"/>
             </item>
            </layout>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QGroupBox" name="groupBox_4" >
-         <property name="title" >
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
           <string>Joueur Ouest</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="leftMargin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>8</number>
           </property>
-          <property name="topMargin" >
-           <number>8</number>
-          </property>
-          <property name="rightMargin" >
-           <number>8</number>
-          </property>
-          <property name="bottomMargin" >
-           <number>8</number>
-          </property>
-          <property name="horizontalSpacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="verticalSpacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="0">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_2_3" >
-              <property name="text" >
+             <widget class="QLabel" name="label_2_3">
+              <property name="text">
                <string>Nom</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_3_3" >
-              <property name="text" >
+             <widget class="QLabel" name="label_3_3">
+              <property name="text">
                <string>Niveau</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="1" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="1">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="nomJoueurOuest" >
-              <property name="enabled" >
+             <widget class="QLineEdit" name="nomJoueurOuest">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="maxLength" >
+              <property name="maxLength">
                <number>10</number>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="niveauOuest" />
+             <widget class="QComboBox" name="niveauOuest"/>
             </item>
            </layout>
           </item>
-          <item row="0" column="2" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="2">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="pixOuest" >
-              <property name="minimumSize" >
+             <widget class="QLabel" name="pixOuest">
+              <property name="minimumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="maximumSize" >
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="frameShape" >
+              <property name="frameShape">
                <enum>QFrame::Box</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="scaledContents" >
+              <property name="scaledContents">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="btnPixOuest" >
-              <property name="maximumSize" >
+             <widget class="QPushButton" name="btnPixOuest">
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text" >
+              <property name="text">
                <string/>
               </property>
-              <property name="icon" >
-               <iconset resource="../../resources/resources.qrc" >:/images/fileopen.png</iconset>
+              <property name="icon">
+               <iconset resource="../data/data.qrc">
+                <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
-              <property name="autoDefault" >
+              <property name="autoDefault">
                <bool>true</bool>
               </property>
-              <property name="default" >
+              <property name="default">
                <bool>false</bool>
               </property>
              </widget>
@@ -1209,173 +917,135 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="1" >
-        <widget class="QGroupBox" name="groupBox_5" >
-         <property name="title" >
+       <item row="1" column="1">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
           <string>Joueur Nord Ouest</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="leftMargin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>8</number>
           </property>
-          <property name="topMargin" >
-           <number>8</number>
-          </property>
-          <property name="rightMargin" >
-           <number>8</number>
-          </property>
-          <property name="bottomMargin" >
-           <number>8</number>
-          </property>
-          <property name="horizontalSpacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="verticalSpacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="0">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_2_3_2" >
-              <property name="text" >
+             <widget class="QLabel" name="label_2_3_2">
+              <property name="text">
                <string>Nom</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_3_3_2" >
-              <property name="text" >
+             <widget class="QLabel" name="label_3_3_2">
+              <property name="text">
                <string>Niveau</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="2" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="2">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="pixNordOuest" >
-              <property name="minimumSize" >
+             <widget class="QLabel" name="pixNordOuest">
+              <property name="minimumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="maximumSize" >
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>40</height>
                </size>
               </property>
-              <property name="frameShape" >
+              <property name="frameShape">
                <enum>QFrame::Box</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="text" >
+              <property name="text">
                <string/>
               </property>
-              <property name="scaledContents" >
+              <property name="scaledContents">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="btnPixNordOuest" >
-              <property name="maximumSize" >
+             <widget class="QPushButton" name="btnPixNordOuest">
+              <property name="maximumSize">
                <size>
                 <width>40</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text" >
+              <property name="text">
                <string/>
               </property>
-              <property name="icon" >
-               <iconset resource="../../resources/resources.qrc" >:/images/fileopen.png</iconset>
+              <property name="icon">
+               <iconset resource="../data/data.qrc">
+                <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
-              <property name="autoDefault" >
+              <property name="autoDefault">
                <bool>true</bool>
               </property>
-              <property name="default" >
+              <property name="default">
                <bool>false</bool>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="1" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <item row="0" column="1">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="nomJoueurNordOuest" >
-              <property name="enabled" >
+             <widget class="QLineEdit" name="nomJoueurNordOuest">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="maxLength" >
+              <property name="maxLength">
                <number>10</number>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="niveauNordOuest" />
+             <widget class="QComboBox" name="niveauNordOuest"/>
             </item>
            </layout>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="2" column="1" >
+       <item row="2" column="1">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>71</height>
@@ -1385,69 +1055,57 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
        <string>Jacky touch</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <property name="leftMargin" >
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="topMargin" >
-        <number>9</number>
-       </property>
-       <property name="rightMargin" >
-        <number>9</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>9</number>
-       </property>
-       <property name="horizontalSpacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <property name="verticalSpacing" >
-        <number>6</number>
-       </property>
-       <item row="0" column="0" >
-        <widget class="QGroupBox" name="groupBox" >
-         <property name="title" >
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
           <string>Tapis de jeu</string>
          </property>
-         <layout class="QGridLayout" >
-          <item row="0" column="0" >
-           <widget class="QLabel" name="imageTapis" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <layout class="QGridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="imageTapis">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="minimumSize" >
+            <property name="minimumSize">
              <size>
               <width>100</width>
               <height>100</height>
              </size>
             </property>
-            <property name="maximumSize" >
+            <property name="maximumSize">
              <size>
               <width>100</width>
               <height>100</height>
              </size>
             </property>
-            <property name="frameShape" >
+            <property name="frameShape">
              <enum>QFrame::Box</enum>
             </property>
-            <property name="text" >
+            <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
+          <item row="0" column="1">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>40</width>
               <height>20</height>
@@ -1455,19 +1113,19 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="0" >
-           <widget class="QScrollBar" name="scrollBarTapis" >
-            <property name="orientation" >
+          <item row="1" column="0">
+           <widget class="QScrollBar" name="scrollBarTapis">
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
-          <item row="2" column="0" >
+          <item row="2" column="0">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
               <height>40</height>
@@ -1482,48 +1140,39 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <layout class="QHBoxLayout" >
-     <property name="spacing" >
+   <item row="1" column="0">
+    <layout class="QHBoxLayout">
+     <property name="spacing">
       <number>6</number>
      </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
-      <widget class="QPushButton" name="btnOk" >
-       <property name="text" >
+      <widget class="QPushButton" name="btnOk">
+       <property name="text">
         <string>&amp;Ok</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+O</string>
        </property>
-       <property name="autoDefault" >
+       <property name="autoDefault">
         <bool>true</bool>
        </property>
-       <property name="default" >
+       <property name="default">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType" >
+       <property name="sizeType">
         <enum>QSizePolicy::Expanding</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
          <height>20</height>
@@ -1532,18 +1181,18 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnDefaut" >
-       <property name="text" >
-        <string>&amp;DÃ©faut</string>
+      <widget class="QPushButton" name="btnDefaut">
+       <property name="text">
+        <string>&amp;Défaut</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnAnnuler" >
-       <property name="text" >
+      <widget class="QPushButton" name="btnAnnuler">
+       <property name="text">
         <string>A&amp;nnuler</string>
        </property>
-       <property name="autoDefault" >
+       <property name="autoDefault">
         <bool>true</bool>
        </property>
       </widget>
@@ -1552,14 +1201,14 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>btnOk</tabstop>
   <tabstop>btnDefaut</tabstop>
   <tabstop>btnAnnuler</tabstop>
  </tabstops>
  <resources>
-  <include location="../../resources/resources.qrc" />
+  <include location="../data/data.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -1568,11 +1217,11 @@
    <receiver>OptionsUI</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>77</x>
      <y>454</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>200</x>
      <y>444</y>
     </hint>
@@ -1584,11 +1233,11 @@
    <receiver>OptionsUI</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>462</x>
      <y>448</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>282</x>
      <y>441</y>
     </hint>

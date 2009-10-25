@@ -27,18 +27,18 @@
 
 /*****************************************************************************/
 InfosDock::InfosDock( QWidget *parent )
-    : QDockWidget( tr("Informations"), parent )
+    : QDockWidget( trUtf8("Informations"), parent )
 {
    // numéro de la donne
-   donneTxt = new QLabel(tr("Donne numéro "));
+   donneTxt = new QLabel(trUtf8("Donne numéro "));
    donneVar = new QLabel("");
 
    // preneur
-   preneurTxt = new QLabel(tr("Preneur "));
+   preneurTxt = new QLabel(trUtf8("Preneur "));
    preneurVar = new QLabel("");
 
    // contrat
-   contratTxt = new QLabel(tr("Contrat "));
+   contratTxt = new QLabel(trUtf8("Contrat "));
    contratVar = new QLabel("");
 
    // On place les éléments sur le widget
@@ -94,7 +94,7 @@ void InfosDock::setContrat( Contrat cont )
       mot = STR_PRISE;
    } else {
       mot = STR_PASSE;
-   } 
+   }
    contratVar->setText( "<b>" + mot + "</b>" );
 }
 

@@ -338,13 +338,13 @@ void Game::slotAfficheChien()
       x = x + 40;
    }
    sequence = MONTRE_CHIEN;
-   statusBar()->showMessage(tr("Cliquez sur le tapis une fois que vous avez vu le Chien.") );
+   statusBar()->showMessage(trUtf8("Cliquez sur le tapis une fois que vous avez vu le Chien.") );
 }
 /*****************************************************************************/
 void Game::slotRedist()
 {
-   QMessageBox::information(this, tr("Information"),
-                   tr("Tous les joueurs ont passï¿œ.\n"
+   QMessageBox::information(this, trUtf8("Information"),
+                   trUtf8("Tous les joueurs ont passï¿œ.\n"
                       "Nouvelle distribution des cartes.") );
 
    sequence = GAME;
@@ -368,7 +368,7 @@ void Game::slotPrepareChien()
    tapis->setFilter( JEU );
    // on affiche le deck du joueur + le contenu du chien
    afficheCartesJoueur(1);
-   statusBar()->showMessage(tr("Sï¿œlectionnez des cartes pour construire votre chien.") );
+   statusBar()->showMessage(trUtf8("Sï¿œlectionnez des cartes pour construire votre chien.") );
 }
 /*****************************************************************************/
 void Game::slotDepartDonne(Place p,Contrat c)
@@ -383,7 +383,7 @@ void Game::slotDepartDonne(Place p,Contrat c)
 void Game::slotJoueCarte()
 {
    tapis->setFilter( JEU );
-   statusBar()->showMessage(tr("A votre tour de jouer une carte.") );
+   statusBar()->showMessage(trUtf8("A votre tour de jouer une carte.") );
 }
 /*****************************************************************************/
 void Game::slotAfficheCarte(int id)
@@ -404,7 +404,7 @@ void Game::slotWaitPli()
 {
    sequence = SEQ_WAIT_PLI;
    tapis->setFilter( AUCUN );
-   statusBar()->showMessage(tr("Cliquez sur le tapis pour continuer.") );
+   statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer.") );
 }
 
 

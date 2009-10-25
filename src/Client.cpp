@@ -101,7 +101,7 @@ void Client::razStats()
    stats.atouts = 0;
    stats.bouts = 0;
    stats.atoutsMajeurs = 0;
-   
+
    stats.rois = 0;
    stats.dames = 0;
    stats.cavaliers = 0;
@@ -160,7 +160,7 @@ Contrat Client::calculEnchere()
    total += stats.cavaliers * 2;
    total += stats.valets;
    total += stats.mariages;
-   total += stats.longues * 5; 
+   total += stats.longues * 5;
    total += stats.coupes * 5;
    total += stats.singletons * 3;
    total += stats.sequences * 4;
@@ -191,7 +191,7 @@ void Client::choixChien( Deck *deckChien )
 
    for( i=0; i<deckChien->count(); i++) {
       c = deckChien->at(i);
-   
+
       if (f.is_open()) {
          f << "Couleur : " << c->getColor() << endl;
          f << "Type : " << c->getType() << endl;
@@ -229,7 +229,7 @@ void Client::choixChien( Deck *deckChien )
       } else {
          i++;
       }
-      
+
       if( i == 6 ) {
          ok = true;
       }
@@ -242,7 +242,7 @@ void Client::choixChien( Deck *deckChien )
 
    for( i=0; i<deckChien->count(); i++) {
       c = deckChien->at(i);
-   
+
       if (f.is_open()) {
          f << "Couleur : " << c->getColor() << endl;
          f << "Type : " << c->getType() << endl;
@@ -265,7 +265,7 @@ void Client::updateStats()
    int i, k, n, val, count, flag, longue;
    Card *c;
    CardColor coul;
-   
+
    razStats();
    n = myDeck.count();
    count = 0; // compteur
@@ -399,14 +399,14 @@ void Client::updateStats()
 #ifndef QT_NO_DEBUG
    // Affichage avant le mélange
    ofstream f("stats.txt");
-   
+
    if (f.is_open())
    {
-   
+
       f << "stats.atouts : " << stats.atouts << endl;
       f << "stats.bouts : " << stats.bouts << endl;
       f << "stats.atoutsMajeurs : " << stats.atoutsMajeurs << endl;
-      
+
       f << "stats.rois : " << stats.rois << endl;
       f << "stats.dames : " << stats.dames << endl;
       f << "stats.cavaliers : " << stats.cavaliers << endl;
@@ -423,9 +423,9 @@ void Client::updateStats()
       f << "stats.excuse : " << stats.excuse << endl;
 
       f << "-----------------------------------" << endl;
-   
+
    }
-   
+
    f.close();
 
 #endif // _DEBUG
@@ -462,7 +462,7 @@ void Client::sendMessage( const QString &message )
 
    // On ajoute le nick avant le message
    msg = identity.name + "> " + message;
-   
+
    // Préparation de la trame
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
@@ -525,11 +525,11 @@ void Client::sendChien()
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_CLIENT_CHIEN;
-   
+
    for( i=0; i<chien.count(); i++ ) {
       out << (quint8)chien.at(i)->getId();
    }
-   
+
    out << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
@@ -754,7 +754,7 @@ void Client::doAction( QDataStream &in )
       case NET_DEMANDE_ENCHERE:
       {
          quint8 c;
-         
+
          in >> c; // contrat le plus élevé annoncé précédemment
          emit sgnlChoixEnchere((Contrat)c);
          break;
@@ -772,7 +772,7 @@ void Client::doAction( QDataStream &in )
          break;
       }
 
-      
+
       /**
        * Le serveur nous montre le chien
        */
@@ -801,7 +801,7 @@ void Client::doAction( QDataStream &in )
          emit sgnlAfficheChien();
          break;
       }
-      
+
       /**
        * Le serveur nous demande de faire notre chien
        */
@@ -845,7 +845,7 @@ void Client::doAction( QDataStream &in )
       {
          quint8 id;
          quint8 tour;
-         
+
          in >> id;
          in >> tour;
          mainDeck.append(Jeu::getCard(id));
@@ -916,17 +916,17 @@ void Client::connectToHost( const QString &hostName, quint16 port )
 /*****************************************************************************/
 void Client::socketConnected()
 {
-   emit sgnlMessage( identity.name + tr(" est connecté.") );
+   emit sgnlMessage( identity.name + trUtf8(" est connecté.") );
 }
 /*****************************************************************************/
 void Client::socketHostFound()
 {
-   emit sgnlMessage( identity.name + tr(" se connecte au serveur ...") );
+   emit sgnlMessage( identity.name + trUtf8(" se connecte au serveur ...") );
 }
 /*****************************************************************************/
 void Client::socketClosed()
 {
-   emit sgnlMessage( tr("Le serveur a mis fin à la connexion.") );
+   emit sgnlMessage( trUtf8("Le serveur a mis fin à la connexion.") );
 }
 /*****************************************************************************/
 void Client::socketError( QAbstractSocket::SocketError code )
@@ -935,13 +935,13 @@ void Client::socketError( QAbstractSocket::SocketError code )
 
    switch( code ) {
       case QAbstractSocket::ConnectionRefusedError:
-         message = tr("Erreur réseau : connexion refusée.");
+         message = trUtf8("Erreur réseau : connexion refusée.");
          break;
       case QAbstractSocket::HostNotFoundError:
-         message = tr("Erreur réseau : serveur introuvable.");
+         message = trUtf8("Erreur réseau : serveur introuvable.");
          break;
       default:
-         message = tr("Erreur réseau : la transmission de données a échoué.");
+         message = trUtf8("Erreur réseau : la transmission de données a échoué.");
          break;
    }
    emit sgnlMessage( message );

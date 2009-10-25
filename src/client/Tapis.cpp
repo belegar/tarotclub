@@ -32,7 +32,7 @@ Tapis::Tapis( QWidget *parent )
    //==============================================================
    //       BOUTONS ENCHERES
    //==============================================================
-   groupBoutons = new QGroupBox( tr("Enchères"), this );
+   groupBoutons = new QGroupBox( trUtf8("Enchères"), this );
    groupBoutons->setGeometry( 20, 250, 120, 230 );
    groupBoutons->hide();
 
@@ -50,7 +50,7 @@ Tapis::Tapis( QWidget *parent )
    chelem->move(10,195);
    //==============================================================
 
-   boutonAccepterChien = new QPushButton(tr("Accepter le chien"), this);
+   boutonAccepterChien = new QPushButton(trUtf8("Accepter le chien"), this);
    boutonAccepterChien->move(800, 462);
    boutonAccepterChien->setMinimumSize( boutonAccepterChien->sizeHint() );
    boutonAccepterChien->hide();

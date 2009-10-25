@@ -27,11 +27,11 @@
 
 /*****************************************************************************/
 ChatDock::ChatDock( QWidget *parent )
-    : QDockWidget( tr("Discussion"), parent )
+    : QDockWidget( trUtf8("Discussion"), parent )
 {
    chatWindow = new QTextBrowser();
    textLine = new QLineEdit();
-   options = new QPushButton(tr("Commandes"));
+   options = new QPushButton(trUtf8("Commandes"));
    playersList = new QListWidget();
 
    QHBoxLayout *lay1 = new QHBoxLayout();

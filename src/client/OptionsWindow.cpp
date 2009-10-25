@@ -93,7 +93,7 @@ void OptionsWindow::slotScrollBarTapis( int value )
       if( im.load( path+"/data/"+tapisList[value] ) == true ) {
          ui.imageTapis->setPixmap( im );
       }
-   }  
+   }
 }
 /*****************************************************************************/
 void OptionsWindow::slotBtnOk()
@@ -132,8 +132,8 @@ void OptionsWindow::slotBtnOk()
    options.port = QString( ui.portReseau->text()).toInt();
    options.langue = ui.langList->currentIndex();
    if( indexLangue != options.langue ) {
-     QMessageBox::information( this, tr("Information"),
-                    tr("Vous devez redÃ©marrer le jeu pour que le changement de langue soit actif.\n\n") );
+     QMessageBox::information( this, trUtf8("Information"),
+                    trUtf8("Vous devez redémarrer le jeu pour que le changement de langue soit actif.\n\n") );
    }
    options.tapis = tapisList[ui.scrollBarTapis->value()];
    accept();
@@ -152,12 +152,12 @@ GameOptions *OptionsWindow::getOptions()
 /*****************************************************************************/
 void OptionsWindow::slider1Changed( int value )
 {
-   ui.temps1->setText( tr("%1 secondes").arg((float)(value/100)/10) );
+   ui.temps1->setText( trUtf8("%1 secondes").arg((float)(value/100)/10) );
 }
 /*****************************************************************************/
 void OptionsWindow::slider2Changed( int value )
 {
-   ui.temps2->setText( tr("%1 secondes").arg((float)(value/100)/10) );
+   ui.temps2->setText( trUtf8("%1 secondes").arg((float)(value/100)/10) );
 }
 /*****************************************************************************/
 /**
