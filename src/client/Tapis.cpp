@@ -151,9 +151,9 @@ int Tapis::loadCards()
          n = i*14+j;
          image = QString(":/cards/default/") + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
 
-         QGraphicsSvgItem *item = new QGraphicsSvgItem(image);
+         GfxCard *item = new GfxCard(image);
          item->hide();
-         cardsPics.insert(n, (GfxCard*)item);
+         cardsPics.insert(n, item);
          canvas->addItem(item);
       }
    }
@@ -161,17 +161,17 @@ int Tapis::loadCards()
    //----- 21 atouts
    for( i=56; i<77; i++) {
       image = QString(":/cards/default/atout-") + QString().sprintf("%02d.svg",i-55);
-      QGraphicsSvgItem *item = new QGraphicsSvgItem(image);
+      GfxCard *item = new GfxCard(image);
       item->hide();
-      cardsPics.insert(n, (GfxCard*)item);
+      cardsPics.insert(n, item);
       canvas->addItem(item);
    }
 
    //----- L'excuse
    image = QString(":/cards/default/excuse.svg");
-   QGraphicsSvgItem *item = new QGraphicsSvgItem(image);
+   GfxCard *item = new GfxCard(image);
    item->hide();
-   cardsPics.insert(n, (GfxCard*)item);
+   cardsPics.insert(n, item);
    canvas->addItem(item);
 
    return 0;
@@ -196,9 +196,8 @@ void Tapis::mousePressEvent( QMouseEvent *e )
    if( filter == JEU ) {
       list = scene()->items(e->pos());
       if ( !list.isEmpty() ) {
-         QGraphicsItem *item = list.first();
-         if( qgraphicsitem_cast<GfxCard *>(item) ) {
-            GfxCard *c = (GfxCard *)item;
+         if( list.first()->type() == GfxCard::Type ) {
+            GfxCard *c = (GfxCard *)list.first();
             emit sgnlClickCard( c );
          }
       }
@@ -219,10 +218,9 @@ void Tapis::mouseMoveEvent( QMouseEvent * e )
    list = scene()->items(e->pos());
 
    if ( !list.isEmpty() ) {
-      QGraphicsItem *item = list.first();
       // Si c'est une carte, retourne l'obet, sinon 0
-      if( qgraphicsitem_cast<GfxCard *>(item) ) {
-         GfxCard *c = (GfxCard *)item;
+      if( list.first()->type() == GfxCard::Type ) {
+         GfxCard *c = (GfxCard *)list.first();
          emit sgnlMoveCursor( c );
       }
    } else {

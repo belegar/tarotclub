@@ -30,10 +30,15 @@
 #include "TextBox.h"
 
 /*****************************************************************************/
-class GfxCard : public QGraphicsItem
+class GfxCard : public QGraphicsSvgItem
 {
 
 public:
+   GfxCard ( const QString & fileName, QGraphicsItem * parent = 0 )  :
+            QGraphicsSvgItem ( fileName, parent )
+   {
+      // nothing to do
+   }
 
    enum { Type = UserType + 1 };
    int type() const

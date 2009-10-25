@@ -294,18 +294,18 @@ void Game::slotSetEnchere( Contrat cont )
  */
 void Game::afficheCartesJoueur( int pos )
 {
-   int i, x, y, pas;
+   qreal i, x, y, pas;
    Card *c;
    GfxCard *cgfx;
 
    client.tidyDeck();
 
    if( pos == 1 ) {
-      x = 20;
-      pas = 35;
+      x = 20.0;
+      pas = 35.0;
    } else {
-      x = 50;
-      pas = 40;
+      x = 50.0;
+      pas = 40.0;
    }
    y = CARD_NORMAL;
 
