@@ -19,7 +19,7 @@
 #include <QCoreApplication>
 #include <QStringList>
 #include "ServerConsole.h"
- 
+
 /*****************************************************************************/
 ServerConsole::ServerConsole( QObject *eventObject ) : QThread()
 {
@@ -81,12 +81,12 @@ void ServerConsole::parseCommand()
 /*****************************************************************************/
 void ServerConsole::run()
 {
-   cout << ">";
+   cout << "> ";
 
-   for(;;){
+   for(;;) {
       cin.getline(line,sizeof(line));
       parseCommand();
-      cout << endl << ">";
+      cout << endl << "> ";
    }
 }
 /*****************************************************************************/

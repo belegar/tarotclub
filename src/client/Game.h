@@ -24,11 +24,11 @@
 
 // Game includes
 #include "../defines.h"
-#include "MainWindow.h"
 #include "../Client.h"
 #include "../Bot.h"
+#include "MainWindow.h"
 #include "ConfigFile.h"
-
+#include "ServerManager.h"
 
 /*****************************************************************************/
 /**
@@ -43,6 +43,7 @@ class Game : public MainWindow
    Q_OBJECT
 
 private:
+   ServerManager server;
    ConfigFile  *config;
    Bot         bots[4];
    Client      client;

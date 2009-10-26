@@ -89,8 +89,13 @@ Game::~Game()
 void Game::slotNewLocalGame()
 {
    int i;
-
    GameOptions *options = config->getGameOptions();
+
+   // Lancement de l'exécutable externe
+   if (server.isRunning() == false) {
+      server.exec();
+   }
+   //
 
    newDonneAct->setEnabled(true);
    newDonneManuAct->setEnabled(true);

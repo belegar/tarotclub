@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - InfosDock.h
+ * TarotClub - TelnetServer.h
  *=============================================================================
- * Fenêtre "dockable" où sont stockées quelques informations du jeu en cours.
+ * Telnet server to add remote game control
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -16,35 +16,38 @@
  *=============================================================================
  */
 
-#ifndef INFOSDOCK_H
-#define INFOSDOCK_H
+#ifndef _TELNETSERVER_H
+#define _TELNETSERVER_H
 
-// Includes Qt
-#include <QDockWidget>
-#include <QLabel>
-#include <ui_InfosDockUI.h>
-
-// Includes locales
+#include <QThread>
+#include <QtNetwork>
 #include "../defines.h"
+#include <iostream>
+using namespace std;
 
 /*****************************************************************************/
-class InfosDock : public QDockWidget
+class TelnetServer : public ServerConsole
 {
+   Q_OBJECT
+
 private:
-   Ui::InfosDockUI  ui;
+   QTcpServer  server;
+   QString login;
+   QString pass;
 
 public:
-   InfosDock( QWidget *parent );
+   TelnetServer(QObject *o);
 
-   void clear();
-   void setContrat( Contrat c );
-   void setPreneur( QString preneur );
-   void setDonne( int n );
+   void run();
 
+public slots:
+   void  newConnection();
+   void  clientClosed();
+   void  readData();
 };
 
-#endif // INFOSDOCK_H
+#endif // _TELNETSERVER_H
 
 //=============================================================================
-// Fin du fichier InfosDock.h
+// End of file TelnetServer.h
 //=============================================================================
