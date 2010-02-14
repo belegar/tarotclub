@@ -11,8 +11,17 @@ l'exécutable est créé sur le bureau et dans le menu Démarrer.
 * Linux et Mac
 ===============
 
+Debian/Ubuntu : utiliser le paquet .deb
+
+Autres distributions :
+
 Décompresser l'archive et exécuter le programme 'TarotClub' situé 
 dans le répertoire bin. Attention, il faut posséder la librairie 
-Qt 4.3.0 minimum. Mettre à jour votre distribution en conséquence ou 
-télécharger la librairie directement sur le site de l'éditeur :
-http://www.trolltech.com
+Qt 4.4.0 minimum. Mettre à jour votre distribution en conséquence. 
+
+
+* Mac
+===============
+
+Je n'ai pas de Mac et je n'ai aucune idée du fonctionnement d'un setup sur cet OS !
+

@@ -31,7 +31,7 @@
 #define DEFAULTPORT     4269
 #define CONFIG_FILE     "/bin/config.xml"
 #define NB_LANGUES      2
-#define QT_STREAMVER    QDataStream::Qt_4_5
+#define QT_STREAMVER    QDataStream::Qt_4_4
 
 /*****************************************************************************/
 enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };

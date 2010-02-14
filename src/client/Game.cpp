@@ -93,9 +93,8 @@ void Game::slotNewLocalGame()
 
    // Lancement de l'exécutable externe
    if (server.isRunning() == false) {
-      server.exec();
+      server.start();
    }
-   //
 
    newDonneAct->setEnabled(true);
    newDonneManuAct->setEnabled(true);

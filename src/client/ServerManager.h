@@ -25,7 +25,7 @@
 #include <QDockWidget>
 
 /*****************************************************************************/
-class ServerManager : QThread
+class ServerManager : public QThread
 {
    Q_OBJECT
 
