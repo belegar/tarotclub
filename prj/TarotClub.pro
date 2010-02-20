@@ -24,6 +24,7 @@ DESTDIR = ./bin
 # The search path to find supplied files
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/client
+VPATH += $${PWD}/../src/client/quazip
 VPATH += $${PWD}/include
 
 QT      += xml network svg
@@ -41,11 +42,14 @@ win32 {
 HEADERS	+=  AboutWindow.h MainWindow.h OptionsWindow.h AvatarsWindow.h \
             ResultWindow.h ScoresDock.h InfosDock.h ChatDock.h \
             Tapis.h TextBox.h ConfigFile.h Game.h Jeu.h \
-            Deck.h Card.h Player.h Client.h Bot.h defines.h textes.h ServerManager.h
+            Deck.h Card.h Player.h Client.h Bot.h defines.h textes.h TarotEngine.h Score.h \
+            ui_ServerManagerUI.h ui_InfosDockUI.h\
+            crypt.h  ioapi.h  quazipfile.h  quazipfileinfo.h  quazip.h  quazipnewinfo.h  unzip.h  zip.h
 
 FORMS = AboutUI.ui  AvatarsUI.ui  EncheresUI.ui  InfosDockUI.ui  NetClientUI.ui  OptionsUI.ui  ResultUI.ui  ServerManagerUI.ui
 
 SOURCES	=   AboutWindow.cpp MainWindow.cpp OptionsWindow.cpp AvatarsWindow.cpp \
             ResultWindow.cpp ScoresDock.cpp InfosDock.cpp ChatDock.cpp \
             Tapis.cpp TextBox.cpp ConfigFile.cpp Game.cpp main.cpp Jeu.cpp \
-            Deck.cpp Card.cpp Player.cpp Client.cpp Bot.cpp ServerManager.cpp
+            Deck.cpp Card.cpp Player.cpp Client.cpp Bot.cpp TarotEngine.cpp Score.cpp \
+            quazip.cpp  quazipfile.cpp  quazipnewinfo.cpp ioapi.c  unzip.c  zip.c

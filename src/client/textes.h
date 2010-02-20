@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - textes.h
  *=============================================================================
- * Chaînes de caractères regroupées pour faciliter la trUtf8aduction
+ * Chaînes de caractères regroupées pour faciliter la traduction
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,7 +23,7 @@
 #define STR_PRISE           trUtf8("Prise")
 #define STR_GARDE           trUtf8("Garde")
 #define STR_GARDE_SANS      trUtf8("Garde sans")
-#define STR_GARDE_CONTRE    trUtf8("Garde contrUtf8e")
+#define STR_GARDE_CONTRE    trUtf8("Garde contre")
 
 #define STR_SUD      trUtf8("Sud")
 #define STR_EST      trUtf8("Est")
@@ -31,12 +31,12 @@
 #define STR_OUEST    trUtf8("Ouest")
 #define STR_NORD_O   trUtf8("Nord ouest")
 
-#define STR_WIN      trUtf8("ContrUtf8at réussi de ")
-#define STR_LOSE     trUtf8("ContrUtf8at chuté de ")
+#define STR_WIN      trUtf8("Contrat réussi de ")
+#define STR_LOSE     trUtf8("Contrat chuté de ")
 #define STR_POINTS   trUtf8(" points")
 
 #define STR_NEW_GAME trUtf8("&Nouveau jeu")
-#define STR_STATUS1  trUtf8("Lance une partie solitaire contrUtf8e l'ordinateur")
+#define STR_STATUS1  trUtf8("Lance une partie solitaire contre l'ordinateur")
 
 
 

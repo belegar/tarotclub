@@ -91,6 +91,8 @@ typedef struct {
    int      langue;
    QString  tapis;
    Identity identities[5];
+   // images des cartes
+   QString  deckFilePath;
 } GameOptions;
 
 typedef struct {

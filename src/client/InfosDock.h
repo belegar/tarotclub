@@ -31,7 +31,7 @@
 class InfosDock : public QDockWidget
 {
 private:
-   Ui::DockWidget  ui;
+   Ui::infosDock  ui;
 
 public:
    InfosDock( QWidget *parent );

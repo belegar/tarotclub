@@ -31,10 +31,11 @@
 #include "AboutWindow.h"
 #include "ResultWindow.h"
 #include "OptionsWindow.h"
-#include "ui_NetClientUI.h"
 #include "ScoresDock.h"
 #include "InfosDock.h"
 #include "ChatDock.h"
+#include "ui_NetClientUI.h"
+#include "ui_ServerManagerUI.h"
 
 /*****************************************************************************/
 class MainWindow : public QMainWindow
@@ -64,6 +65,7 @@ protected:
    QAction    *scoresAct;
    QAction    *infosAct;
    QAction    *chatAct;
+   QAction    *serverAct;
 
    Tapis      *tapis;      // QCanvasView
 
@@ -77,6 +79,10 @@ protected:
    ScoresDock     *scoresDock;
    InfosDock      *infosDock;
    ChatDock       *chatDock;
+   QDockWidget    *serverDock;
+
+   Ui::NetClientUI  clientUI;
+   Ui::serverDock  serverUI;
 
 public:
    MainWindow( QWidget* parent = 0, Qt::WFlags f = 0 );
@@ -85,6 +91,7 @@ public slots:
    void  slotScoresDock(void);
    void  slotInfosDock(void);
    void  slotChatDock(void);
+   void  slotServerDock(void);
    void  closeChat();
    void  closeScores();
 };

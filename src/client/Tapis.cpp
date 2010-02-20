@@ -21,6 +21,34 @@
 #include <QMouseEvent>
 #include "textes.h"
 #include "../Jeu.h"
+#include "quazip/quazip.h"
+#include "quazip/quazipfile.h"
+
+
+
+/*****************************************************************************/
+GfxCard::GfxCard ( const QByteArray & array, QGraphicsItem * parent )
+
+{
+   QString fileName;
+   // create temporary file
+   QTemporaryFile temp;
+   if (temp.open()) {
+      temp.write(array);
+    //  strcpy(buff, temp.fileName().toStdString().c_str());
+      fileName = temp.fileName();
+      temp.close();
+      QGraphicsSvgItem ( fileName, parent );
+   }
+
+
+}
+/*****************************************************************************/
+int GfxCard::type() const
+{
+  // Enable the use of qgraphicsitem_cast with this item.
+  return Type;
+}
 
 /*****************************************************************************/
 Tapis::Tapis( QWidget *parent )
@@ -82,7 +110,7 @@ Tapis::Tapis( QWidget *parent )
    connect( boutonGardeContre, SIGNAL(clicked()), this, SLOT(slotBoutton5()) );
    connect( boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()) );
 
-   // appel mouseEvent dès que la souris bouge, sans appuis sur les boutons
+   // appelle mouseEvent dès que la souris bouge, sans appuis sur les boutons
    viewport()->setMouseTracking(true);
    filter = AUCUN;
 }
@@ -127,12 +155,24 @@ void Tapis::setAccepterChienVisible(bool v)
    }
 }
 /*****************************************************************************/
-int Tapis::loadCards()
+int Tapis::loadCards(GameOptions *opt)
 {
    int i,j,n;
    QString varImg;
    QString image;
    QGraphicsScene *canvas = scene();
+
+   // Try to open deck of images archive
+   QuaZip zip(opt->deckFilePath);
+   if(!zip.open(QuaZip::mdUnzip)) {
+      qWarning("zip.open(): %d", zip.getZipError());
+      return 1;
+   }
+   // first simple test: count number of files (a deck contains 78 cards)
+   if (zip.getEntriesCount() != 78) {
+      qWarning("Wrong number of files in archive (required 78, count: %d", zip.getEntriesCount());
+      return 2;
+   }
 
    //----- 4 couleurs
    for( i=0; i<4; i++ ){
@@ -149,31 +189,57 @@ int Tapis::loadCards()
       // de l'as au roi (14 cartes)
       for( j=0; j<14; j++ ) {
          n = i*14+j;
-         image = QString(":/cards/default/") + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
+         image = varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
+         if (zip.setCurrentFile(image) == false) {
+            return 3;
+         }
+         QuaZipFile file(&zip);
+         file.open(QIODevice::ReadOnly);
+         // ok, now we can read from the file
+         QByteArray array = file.readAll();
 
-         GfxCard *item = new GfxCard(image);
+         GfxCard *item = new GfxCard(array);
          item->hide();
          cardsPics.insert(n, item);
          canvas->addItem(item);
+
+         file.close();
       }
    }
 
    //----- 21 atouts
    for( i=56; i<77; i++) {
-      image = QString(":/cards/default/atout-") + QString().sprintf("%02d.svg",i-55);
-      GfxCard *item = new GfxCard(image);
+      image = QString("atout-") + QString().sprintf("%02d.svg",i-55);
+      if (zip.setCurrentFile(image) == false) {
+         return 4;
+      }
+      QuaZipFile file(&zip);
+      file.open(QIODevice::ReadOnly);
+      // ok, now we can read from the file
+      QByteArray array = file.readAll();
+
+      GfxCard *item = new GfxCard(array);
       item->hide();
       cardsPics.insert(n, item);
       canvas->addItem(item);
    }
 
    //----- L'excuse
-   image = QString(":/cards/default/excuse.svg");
-   GfxCard *item = new GfxCard(image);
+   image = QString("excuse.svg");
+   if (zip.setCurrentFile(image) == false) {
+      return 5;
+   }
+   QuaZipFile file(&zip);
+   file.open(QIODevice::ReadOnly);
+   // ok, now we can read from the file
+   QByteArray array = file.readAll();
+
+   GfxCard *item = new GfxCard(array);
    item->hide();
    cardsPics.insert(n, item);
    canvas->addItem(item);
 
+   zip.close();
    return 0;
 }
 /*****************************************************************************/

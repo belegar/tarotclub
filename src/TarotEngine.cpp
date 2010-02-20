@@ -19,7 +19,7 @@
 #include <QtNetwork>
 #include <QCoreApplication>
 #include "TarotEngine.h"
-#include "ServerConsole.h"
+
 
 /*****************************************************************************/
 TarotEngine::TarotEngine()
@@ -53,22 +53,24 @@ void TarotEngine::run()
 /*****************************************************************************/
 void TarotEngine::customEvent( QEvent *e )
 {
+
    if( (int)e->type() == MsgStartGame ) {
       if( newGame == true ) {
-         cout << "Game already started.";
+         emit sigPrintMessage("Game already started.");
          return;
       }
       newServerGame( DEFAULTPORT );
    } else if( (int)e->type() == MsgStopGame ) {
       if( newGame == false ) {
-         cout << "Game not started.";
+         emit sigPrintMessage("Game not started.");
          return;
       }
       closeServerGame();
    } else if( (int)e->type() == MsgExitGame ) {
       closeServerGame();
-      QCoreApplication::exit(0);
+     // QCoreApplication::exit(0);
    }
+
 }
 /*****************************************************************************/
 Place TarotEngine::nextPlayer( Place j )
@@ -103,7 +105,7 @@ void TarotEngine::newServerGame( int port )
    donneur = (Place)i;
    newGame = true;
    score.init();
-   cout << endl << "Server started" << endl;
+   emit sigPrintMessage("Server started.\r\n");
 }
 /*****************************************************************************/
 void TarotEngine::closeServerGame()
@@ -638,7 +640,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          QString message;
          in >> message;
          sendMessage( message, BROADCAST );
-         cout << "Client message: " << message.toLatin1().data() << endl;
+         emit sigPrintMessage(QString("Client message: ") + message);
          break;
       }
       
@@ -695,7 +697,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
             addPlayer( p, &ident );
             QString m = "Le joueur " + ident.name + " a rejoint la partie.";
             sendMessage( m , BROADCAST );
-            cout << m.toLatin1().data() << endl;
+            emit sigPrintMessage(m);
             sendPlayersList();
          }
          break;

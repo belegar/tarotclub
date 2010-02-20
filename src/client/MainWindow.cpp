@@ -46,7 +46,6 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    optionsWindow->hide();
 
    // Joignage d'une partie réseau
-   Ui::NetClientUI  clientUI;
    clientWindow = new QDialog( this, Qt::WindowMinMaxButtonsHint );
    clientUI.setupUi(clientWindow);
    clientWindow->hide();
@@ -67,6 +66,12 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    addDockWidget(Qt::BottomDockWidgetArea, chatDock);
    chatDock->hide();
    connect( chatDock,SIGNAL(sgnlClose()),this, SLOT(closeChat()) );
+
+   // Dock window : serveur
+   serverDock = new QDockWidget(this);
+   serverUI.setupUi(serverDock);
+   addDockWidget(Qt::RightDockWidgetArea, serverDock);
+   serverDock->show();
 
    //==============================================================
    //       MENUS
@@ -148,10 +153,17 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    connect(chatAct, SIGNAL(triggered()), this, SLOT(slotChatDock()));
    chatAct->setChecked(false);
 
+   serverAct = new QAction(trUtf8("Serveur"), this);
+   serverAct->setCheckable(true);
+   serverAct->setStatusTip(trUtf8("Montre/cache la fenêtre de serveur"));
+   connect(serverAct, SIGNAL(triggered()), this, SLOT(slotServerDock()));
+   serverAct->setChecked(true);
+
    fenetres = menuBar()->addMenu(trUtf8("Fenêtres"));
    fenetres->addAction(scoresAct);
    fenetres->addAction(infosAct);
    fenetres->addAction(chatAct);
+   fenetres->addAction(serverAct);
 
    //-----------
    // Menu Help
@@ -215,7 +227,17 @@ void MainWindow::slotChatDock(void)
      chatDock->show();
    }
 }
-
+/*****************************************************************************/
+void MainWindow::slotServerDock(void)
+{
+   if( serverDock->isVisible() == true ) {
+     serverAct->setChecked(false);
+     serverDock->hide();
+   } else {
+     serverAct->setChecked(true);
+     serverDock->show();
+   }
+}
 
 //=============================================================================
 // End of file MainWindow.cpp

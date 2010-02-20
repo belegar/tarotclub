@@ -32,11 +32,12 @@ Game::Game( ConfigFile *conf ) : MainWindow()
 
    Jeu::init();
    optionsWindow->setPath( config->getPath() );
-   if( tapis->loadCards() ) {
+   if( tapis->loadCards(config->getGameOptions()) ) {
       exit(-1);
    }
    applyOptions();
 
+   // Board clic events
    connect( tapis, SIGNAL(sgnlViewportClicked()), this, SLOT(slotClickTapis()) );
    connect( tapis, SIGNAL(sgnlClickCard(GfxCard *)), this, SLOT(slotClickCard(GfxCard *)) );
    connect( tapis, SIGNAL(sgnlMoveCursor(GfxCard *)), this, SLOT(slotMoveCursor(GfxCard *)) );
@@ -50,6 +51,9 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( clientWindow, SIGNAL(sgnlConnection(const QString &)), this, SLOT(slotClientConnexion(const QString &)));
    connect( clientWindow, SIGNAL(sgnlDeconnection()), this, SLOT(slotClientDeconnexion()));
 */
+   // Network window (server)
+   connect( &server, SIGNAL(sigPrintMessage(const QString &)), serverUI.textBrowser, SLOT(append(const QString &)) );
+
    // Client events connection
    connect( &client, SIGNAL(sgnlMessage(const QString &)), chatDock, SLOT(message(const QString &)));
    connect( &client, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
@@ -83,7 +87,7 @@ Game::Game( ConfigFile *conf ) : MainWindow()
 /*****************************************************************************/
 Game::~Game()
 {
-
+   server.exit();
 }
 /*****************************************************************************/
 void Game::slotNewLocalGame()
@@ -91,20 +95,21 @@ void Game::slotNewLocalGame()
    int i;
    GameOptions *options = config->getGameOptions();
 
-   // Lancement de l'exécutable externe
+   // Lancement du thread serveur
    if (server.isRunning() == false) {
       server.start();
    }
+   server.newServerGame(options->port);
 
    newDonneAct->setEnabled(true);
    newDonneManuAct->setEnabled(true);
    scoresDock->clear();
    infosDock->clear();
    client.connectToHost( "127.0.0.1", options->port );
-   qApp->processEvents(QEventLoop::AllEvents,300);
+   qApp->processEvents(QEventLoop::AllEvents,100);
    for( i=0; i<(options->nbPlayers-1); i++ ) {
       bots[i].connectToHost( "127.0.0.1", options->port );
-      qApp->processEvents(QEventLoop::AllEvents,300);
+      qApp->processEvents(QEventLoop::AllEvents,100);
    }
    tapis->setNbPlayers(options->nbPlayers);
    tapis->setFilter(AUCUN);

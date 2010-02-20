@@ -23,6 +23,7 @@
 #include <QtSvg>
 #include <QtGui>
 #include <QVector>
+#include <QTemporaryFile>
 
 // Game includes
 #include "../defines.h"
@@ -34,18 +35,10 @@ class GfxCard : public QGraphicsSvgItem
 {
 
 public:
-   GfxCard ( const QString & fileName, QGraphicsItem * parent = 0 )  :
-            QGraphicsSvgItem ( fileName, parent )
-   {
-      // nothing to do
-   }
+   GfxCard ( const QByteArray & array, QGraphicsItem * parent = 0 );
 
    enum { Type = UserType + 1 };
-   int type() const
-   {
-     // Enable the use of qgraphicsitem_cast with this item.
-     return Type;
-   }
+   int type() const;
 };
 /*****************************************************************************/
 class Tapis : public QGraphicsView
@@ -99,7 +92,7 @@ public:
    GfxCard *getGfxCard(int i);
    Card *getObjectCard(GfxCard *gc);
 
-   int loadCards();
+   int loadCards(GameOptions *opt);
    void colorisePreneur( Place );
    Place retournePlace( Place origine, Place place_absolue );
    void printNames( Identity *identities, Place place );

@@ -20,12 +20,40 @@
 
 #include <QtNetwork>
 #include <QMap>
-#include "../Card.h"
-#include "../Deck.h"
-#include "../Player.h"
-#include "../Score.h"
-#include "../Jeu.h"
-#include "../defines.h"
+#include <QThread>
+#include "Card.h"
+#include "Deck.h"
+#include "Player.h"
+#include "Score.h"
+#include "Jeu.h"
+#include "defines.h"
+
+enum {
+   MsgStartGame = QEvent::User+1,
+   MsgRandomDeal,
+   MsgStopGame,
+   MsgExitGame
+};
+
+
+/*****************************************************************************/
+class EvStartGame : public QEvent
+{
+public:
+   EvStartGame() : QEvent( (QEvent::Type)MsgStartGame ) {}
+};
+/*****************************************************************************/
+class EvStopGame : public QEvent
+{
+public:
+   EvStopGame() : QEvent( (QEvent::Type)MsgStopGame ) {}
+};
+/*****************************************************************************/
+class EvExitGame : public QEvent
+{
+public:
+   EvExitGame() : QEvent( (QEvent::Type)MsgExitGame ) {}
+};
 
 /*****************************************************************************/
 class TarotEngine : public QThread
@@ -95,6 +123,9 @@ public:
    void  sendFinDonne( ScoreInfos *score_inf );
    void  sendWaitPli();
    void  selectPlayer( Place p );
+
+signals:
+   void  sigPrintMessage(const QString &);
 
 public slots:
    void  newConnection();

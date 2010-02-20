@@ -110,11 +110,15 @@ bool ConfigFile::load( const QString &fileName )
             } else if(subchild.tagName() == "tapis") {
                options.tapis = subchild.text();
 
-                } else if(subchild.tagName() == "langue") {
-                  options.langue = subchild.text().toInt();
-                  if( options.langue >= NB_LANGUES ) {
-                     options.langue = 0;
-                  }
+            } else if(subchild.tagName() == "langue") {
+               options.langue = subchild.text().toInt();
+               if( options.langue >= NB_LANGUES ) {
+                  options.langue = 0;
+               }
+
+            } else if(subchild.tagName() == "deck") {
+               options.deckFilePath = subchild.text();
+
             }
             subchild = subchild.nextSibling().toElement();
          }
@@ -159,7 +163,7 @@ bool ConfigFile::save( const QString &fileName )
    // On crée le document
    QDomDocument doc("TarotClub");
 
-   doc.appendChild( doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"ISO-8859-1\"" ) );
+   doc.appendChild( doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" ) );
    doc.appendChild(doc.createTextNode("\n"));
 
    doc.appendChild(doc.createComment( QString("Généré par ")+QString("Tarot Club ")+QString(TAROT_VERSION) ) );
@@ -203,6 +207,11 @@ bool ConfigFile::save( const QString &fileName )
       QDomElement tapisNode = doc.createElement("tapis");
       tapisNode.appendChild(doc.createTextNode( options.tapis ));
       generalNode.appendChild(tapisNode);
+
+      // Deck de jeu
+      QDomElement deckNode = doc.createElement("deck");
+      deckNode.appendChild(doc.createTextNode( options.deckFilePath ));
+      generalNode.appendChild(deckNode);
 
         // Langue
       QDomElement langueNode = doc.createElement("langue");
@@ -268,6 +277,7 @@ void ConfigFile::setDefault( GameOptions *opt )
    opt->showAvatars = AVATARS_DEF;
    opt->tapis = "tapis0.png";
    opt->langue = 0;
+   opt->deckFilePath = "./default.zip";
    
    opt->identities[0].name = "Moi";
    opt->identities[0].avatar = ":/images/inconnu.png";
