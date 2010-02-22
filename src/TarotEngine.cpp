@@ -27,7 +27,6 @@ TarotEngine::TarotEngine()
 {
    qsrand(QTime(0,0,0).secsTo(QTime::currentTime())); // seed init
    
-   Jeu::init();
    QDir b = QCoreApplication::applicationDirPath();
    b.cdUp();
 

@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Tapis.h
  *=============================================================================
- * CanvasView : visual game contents
+ * visual game contents
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,6 +23,7 @@
 #include <QtSvg>
 #include <QtGui>
 #include <QVector>
+#include <QList>
 #include <QTemporaryFile>
 
 // Game includes
@@ -35,11 +36,13 @@ class GfxCard : public QGraphicsSvgItem
 {
 
 public:
-   GfxCard ( const QByteArray & array, QGraphicsItem * parent = 0 );
+   GfxCard ( const QString & fileName, QGraphicsItem * parent = 0 );
 
    enum { Type = UserType + 1 };
    int type() const;
 };
+
+
 /*****************************************************************************/
 class Tapis : public QGraphicsView
 {
@@ -49,6 +52,7 @@ class Tapis : public QGraphicsView
 private:
    Filter filter;
    QVector<GfxCard *> cardsPics;
+   QGraphicsScene scene;
 
    // Graphiques
    PlayerBox      *btNord;

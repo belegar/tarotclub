@@ -61,6 +61,7 @@ public:
    int setTheme();
    void afficheCartesJoueur( int pos );
    void hidePli();
+   void hideChien();
 
 public slots:
    void slotNewLocalGame();

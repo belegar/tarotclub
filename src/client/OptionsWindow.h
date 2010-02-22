@@ -26,7 +26,7 @@
 #include <ui_OptionsUI.h>
 #include "../defines.h"
 #include "ConfigFile.h"
-#include "AvatarsWindow.h"
+#include <ui_AvatarsUI.h>
 
 /*****************************************************************************/
 class OptionsWindow : public QDialog
@@ -40,7 +40,7 @@ private:
    QStringList    tapisList;
    int            indexLangue;
 
-   QString choixImage();
+   QString choixAvatar();
 
 
 public:

@@ -114,7 +114,7 @@ void Game::slotNewLocalGame()
    tapis->setNbPlayers(options->nbPlayers);
    tapis->setFilter(AUCUN);
    sequence = DISTRIBUTION;
-   statusBar()->showMessage( "Cliquez sur le tapis pour dÃ©marrer le tour." );
+   statusBar()->showMessage( "Cliquez sur le tapis pour démarrer le tour." );
 }
 /*****************************************************************************/
 void Game::applyOptions()
@@ -152,6 +152,7 @@ void Game::slotClickTapis()
       sequence = GAME;
    } else if( sequence == MONTRE_CHIEN ) {
       statusBar()->clearMessage();
+      hideChien();
       sequence = VIDE;
       client.sendVuChien();
    } else if( sequence == SEQ_WAIT_PLI ) {
@@ -348,6 +349,19 @@ void Game::slotAfficheChien()
    }
    sequence = MONTRE_CHIEN;
    statusBar()->showMessage(trUtf8("Cliquez sur le tapis une fois que vous avez vu le Chien.") );
+}
+/*****************************************************************************/
+void Game::hideChien()
+{
+   int i;
+   Card *c;
+   GfxCard *cgfx;
+
+   for( i=0; i<client.getTailleChien(); i++ ) {
+      c = client.getCardChien(i);
+      cgfx = tapis->getGfxCard(c->getId());
+      cgfx->hide();
+   }
 }
 /*****************************************************************************/
 void Game::slotRedist()

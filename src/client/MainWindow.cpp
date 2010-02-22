@@ -183,6 +183,7 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    setWindowTitle(QString(TAROT_TITRE) + " " + QString(TAROT_VERSION));
    tapis = new Tapis( this );
    setCentralWidget( tapis );
+   tapis->show();
 }
 /*****************************************************************************/
 void MainWindow::closeChat()

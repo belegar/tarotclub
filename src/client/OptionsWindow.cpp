@@ -160,23 +160,37 @@ void OptionsWindow::slider2Changed( int value )
    ui.temps2->setText( trUtf8("%1 secondes").arg((float)(value/100)/10) );
 }
 /*****************************************************************************/
-/**
- * Affiche la boite de dialogue de choix d'une image
- */
-QString OptionsWindow::choixImage()
+QString OptionsWindow::choixAvatar()
 {
-   QFileInfo fi;
+   QString defaultAvatar = ":/images/avatars/vide.png";
+   Ui::Avatars ui;
+   QDialog *diag = new QDialog(this);
+   ui.setupUi(diag);
 
-   AvatarsWindow *fd = new AvatarsWindow( this );
-   fd->setAttribute(Qt::WA_ShowModal, true);
-   fd->listAvatars(path + "/data/avatars");
+   // populate the list with internal avatar
+   ui.avatarsList->clear();
+   QDir dir(":/images/avatars");
+   dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+   QFileInfoList list = dir.entryInfoList();
 
-   if( fd->exec() == QDialog::Rejected ) {
-      return("");
+   // On affiche la liste des avatars
+   for(int i = 0; i < list.size(); ++i) {
+       QFileInfo fileInfo = list.at(i);
+       QListWidgetItem *item = new QListWidgetItem(ui.avatarsList);
+       item->setText(fileInfo.baseName());
+       item->setIcon(QIcon(fileInfo.absoluteFilePath()));
+       item->setData(Qt::UserRole, fileInfo.absoluteFilePath());
+       item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
    }
 
-   // On retourne le nom de l'image
-   return(path + "/data/avatars/" + fd->selectedFile());
+   if( diag->exec() == QDialog::Rejected ) {
+      return(defaultAvatar);
+   } else if (ui.avatarsList->currentItem() != NULL) {
+      // On retourne le nom de l'image
+      return(ui.avatarsList->currentItem()->data(Qt::UserRole).toString());
+   } else {
+      return(defaultAvatar);
+   }
 }
 /*****************************************************************************/
 void OptionsWindow::slotBtnPixSud()
@@ -184,7 +198,7 @@ void OptionsWindow::slotBtnPixSud()
    QString s;
    QPixmap im;
 
-   s = choixImage();
+   s = choixAvatar();
    if( im.load( s ) == false ) {
       return;
    }
@@ -197,7 +211,7 @@ void OptionsWindow::slotBtnPixEst()
    QString s;
    QPixmap im;
 
-   s = choixImage();
+   s = choixAvatar();
    if( im.load( s ) == false ) {
       return;
    }
@@ -210,7 +224,7 @@ void OptionsWindow::slotBtnPixNord()
    QString s;
    QPixmap im;
 
-   s = choixImage();
+   s = choixAvatar();
    if( im.load( s ) == false ) {
       return;
    }
@@ -223,7 +237,7 @@ void OptionsWindow::slotBtnPixOuest()
    QString s;
    QPixmap im;
 
-   s = choixImage();
+   s = choixAvatar();
    if( im.load( s ) == false ) {
       return;
    }
@@ -236,7 +250,7 @@ void OptionsWindow::slotBtnPixNordOuest()
    QString s;
    QPixmap im;
 
-   s = choixImage();
+   s = choixAvatar();
    if( im.load( s ) == false ) {
       return;
    }

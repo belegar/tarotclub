@@ -39,16 +39,16 @@ win32 {
     RC_FILE = icon.rc
 }
 
-HEADERS	+=  AboutWindow.h MainWindow.h OptionsWindow.h AvatarsWindow.h \
+HEADERS	+=  AboutWindow.h MainWindow.h OptionsWindow.h \
             ResultWindow.h ScoresDock.h InfosDock.h ChatDock.h \
             Tapis.h TextBox.h ConfigFile.h Game.h Jeu.h \
             Deck.h Card.h Player.h Client.h Bot.h defines.h textes.h TarotEngine.h Score.h \
-            ui_ServerManagerUI.h ui_InfosDockUI.h\
+            ui_ServerManagerUI.h ui_InfosDockUI.h ui_AvatarsUI.h\
             crypt.h  ioapi.h  quazipfile.h  quazipfileinfo.h  quazip.h  quazipnewinfo.h  unzip.h  zip.h
 
 FORMS = AboutUI.ui  AvatarsUI.ui  EncheresUI.ui  InfosDockUI.ui  NetClientUI.ui  OptionsUI.ui  ResultUI.ui  ServerManagerUI.ui
 
-SOURCES	=   AboutWindow.cpp MainWindow.cpp OptionsWindow.cpp AvatarsWindow.cpp \
+SOURCES	=   AboutWindow.cpp MainWindow.cpp OptionsWindow.cpp  \
             ResultWindow.cpp ScoresDock.cpp InfosDock.cpp ChatDock.cpp \
             Tapis.cpp TextBox.cpp ConfigFile.cpp Game.cpp main.cpp Jeu.cpp \
             Deck.cpp Card.cpp Player.cpp Client.cpp Bot.cpp TarotEngine.cpp Score.cpp \

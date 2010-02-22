@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Tapis.cpp
  *=============================================================================
- * CanvasView : visual game contents
+ * visual game contents
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -27,9 +27,10 @@
 
 
 /*****************************************************************************/
-GfxCard::GfxCard ( const QByteArray & array, QGraphicsItem * parent )
+GfxCard::GfxCard ( const QString & fileName, QGraphicsItem * parent ) : QGraphicsSvgItem(fileName, parent)
 
 {
+   /*
    QString fileName;
    // create temporary file
    QTemporaryFile temp;
@@ -40,7 +41,7 @@ GfxCard::GfxCard ( const QByteArray & array, QGraphicsItem * parent )
       temp.close();
       QGraphicsSvgItem ( fileName, parent );
    }
-
+*/
 
 }
 /*****************************************************************************/
@@ -49,13 +50,11 @@ int GfxCard::type() const
   // Enable the use of qgraphicsitem_cast with this item.
   return Type;
 }
-
 /*****************************************************************************/
 Tapis::Tapis( QWidget *parent )
     : QGraphicsView( parent )
 {
-   setScene(new QGraphicsScene(this));
-   QGraphicsScene *s = scene();
+   setScene(&scene);
 
    //==============================================================
    //       BOUTONS ENCHERES
@@ -86,22 +85,22 @@ Tapis::Tapis( QWidget *parent )
    //==============================================================
    //       ELEMENTS DU CANVAS
    //==============================================================
-   btNord = new PlayerBox(440, 10, QBrush(Qt::yellow), s);
-   btOuest = new PlayerBox(210, 113, QBrush(Qt::yellow), s);
-   btSud = new PlayerBox(440, 462, QBrush(Qt::yellow), s);
-   btEst = new PlayerBox(677, 113, QBrush(Qt::yellow), s);
-   btNordOuest = new PlayerBox(677, 236, QBrush(Qt::yellow), s);
+   btNord = new PlayerBox(440, 10, QBrush(Qt::yellow), &scene);
+   btOuest = new PlayerBox(210, 113, QBrush(Qt::yellow), &scene);
+   btSud = new PlayerBox(440, 462, QBrush(Qt::yellow), &scene);
+   btEst = new PlayerBox(677, 113, QBrush(Qt::yellow), &scene);
+   btNordOuest = new PlayerBox(677, 236, QBrush(Qt::yellow), &scene);
 
    btNord->show();
    btOuest->show();
    btSud->show();
    btEst->show();
 
-   enchNord = new TextBox(440, 50, QBrush(Qt::red), s);
-   enchOuest = new TextBox(210, 153, QBrush(Qt::red), s);
-   enchSud = new TextBox(440, 422, QBrush(Qt::red), s);
-   enchEst = new TextBox(677, 153, QBrush(Qt::red), s);
-   enchNordOuest = new TextBox(555, 236, QBrush(Qt::red), s);
+   enchNord = new TextBox(440, 50, QBrush(Qt::red), &scene);
+   enchOuest = new TextBox(210, 153, QBrush(Qt::red), &scene);
+   enchSud = new TextBox(440, 422, QBrush(Qt::red), &scene);
+   enchEst = new TextBox(677, 153, QBrush(Qt::red), &scene);
+   enchNordOuest = new TextBox(555, 236, QBrush(Qt::red), &scene);
 
    connect( boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()) );
    connect( boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()) );
@@ -118,15 +117,14 @@ Tapis::Tapis( QWidget *parent )
 void Tapis::setBackground(const QString &fichier)
 {
    QPixmap pm;
-   QGraphicsScene *canvas = scene();
    QBrush background;
 
    // On teste si on a un arriere plan
    if( pm.load( fichier ) == false ) {
-      pm.fill( Qt::darkGreen );
+      scene.setBackgroundBrush(Qt::darkGreen);
    }
    background.setTexture( pm );
-   canvas->setBackgroundBrush( background );
+   scene.setBackgroundBrush( background );
 }
 /*****************************************************************************/
 GfxCard *Tapis::getGfxCard(int i)
@@ -160,8 +158,7 @@ int Tapis::loadCards(GameOptions *opt)
    int i,j,n;
    QString varImg;
    QString image;
-   QGraphicsScene *canvas = scene();
-
+/*
    // Try to open deck of images archive
    QuaZip zip(opt->deckFilePath);
    if(!zip.open(QuaZip::mdUnzip)) {
@@ -173,7 +170,7 @@ int Tapis::loadCards(GameOptions *opt)
       qWarning("Wrong number of files in archive (required 78, count: %d", zip.getEntriesCount());
       return 2;
    }
-
+*/
    //----- 4 couleurs
    for( i=0; i<4; i++ ){
       if( i==0 ) {
@@ -189,30 +186,50 @@ int Tapis::loadCards(GameOptions *opt)
       // de l'as au roi (14 cartes)
       for( j=0; j<14; j++ ) {
          n = i*14+j;
-         image = varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
+         image = QString("./default/") + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
+
+         GfxCard *item = new GfxCard(image);
+         item->hide();
+         cardsPics.insert(n, item);
+         scene.addItem(item);
+/*
          if (zip.setCurrentFile(image) == false) {
             return 3;
          }
-         QuaZipFile file(&zip);
-         file.open(QIODevice::ReadOnly);
+
+      //   QuaZipFile file(&zip);
+      //   file.open(QIODevice::ReadOnly);
          // ok, now we can read from the file
-         QByteArray array = file.readAll();
+      //   QByteArray array = file.readAll();
 
-         GfxCard *item = new GfxCard(array);
-         item->hide();
-         cardsPics.insert(n, item);
-         canvas->addItem(item);
+    //     GfxCard *item = ;
 
-         file.close();
+        // cardsPics.insert(n, new GfxCard(array));
+        // scene.addItem(cardsPics.at(n));
+
+     //    cardsPics[n].load(array);
+
+      //   file.close();
+  */
       }
    }
 
    //----- 21 atouts
    for( i=56; i<77; i++) {
-      image = QString("atout-") + QString().sprintf("%02d.svg",i-55);
+      image = QString("./default/atout-") + QString().sprintf("%02d.svg",i-55);
+
+
+      GfxCard *item = new GfxCard(image);
+      item->hide();
+      cardsPics.insert(i, item);
+      scene.addItem(item);
+
+/*
+
       if (zip.setCurrentFile(image) == false) {
          return 4;
       }
+
       QuaZipFile file(&zip);
       file.open(QIODevice::ReadOnly);
       // ok, now we can read from the file
@@ -221,11 +238,21 @@ int Tapis::loadCards(GameOptions *opt)
       GfxCard *item = new GfxCard(array);
       item->hide();
       cardsPics.insert(n, item);
-      canvas->addItem(item);
+      scene.addItem(item);
+      */
+      //cardsPics.insert(n, new GfxCard(array));
+      //scene.addItem(cardsPics.at(n));
+      //cardsPics[i].load(array);
+      //file.close();
    }
 
    //----- L'excuse
-   image = QString("excuse.svg");
+   image = QString("./default/excuse.svg");
+   GfxCard *item = new GfxCard(image);
+   item->hide();
+   cardsPics.insert(77, item);
+   scene.addItem(item);
+/*
    if (zip.setCurrentFile(image) == false) {
       return 5;
    }
@@ -237,9 +264,17 @@ int Tapis::loadCards(GameOptions *opt)
    GfxCard *item = new GfxCard(array);
    item->hide();
    cardsPics.insert(n, item);
-   canvas->addItem(item);
+   scene.addItem(item);
 
+   //cardsPics.insert(n, new GfxCard(array));
+   //scene.addItem(cardsPics.at(n));
+
+   cardsPics[77].load(array);
+
+   file.close();
    zip.close();
+
+   */
    return 0;
 }
 /*****************************************************************************/
@@ -260,7 +295,7 @@ void Tapis::mousePressEvent( QMouseEvent *e )
       return;
    }
    if( filter == JEU ) {
-      list = scene()->items(e->pos());
+      list = scene.items(e->pos());
       if ( !list.isEmpty() ) {
          if( list.first()->type() == GfxCard::Type ) {
             GfxCard *c = (GfxCard *)list.first();
@@ -281,7 +316,7 @@ void Tapis::mouseMoveEvent( QMouseEvent * e )
       return;
    }
 
-   list = scene()->items(e->pos());
+   list = scene.items(e->pos());
 
    if ( !list.isEmpty() ) {
       // Si c'est une carte, retourne l'obet, sinon 0
@@ -586,7 +621,7 @@ void Tapis::slotBoutton4()
 {
    emit sgnlContrat( GARDE_SANS );
 }
-/*****************************************************************************/
+/****************setPos(x, y);*************************************************************/
 void Tapis::slotBoutton5()
 {
    emit sgnlContrat( GARDE_CONTRE );

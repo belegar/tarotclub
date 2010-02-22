@@ -115,11 +115,12 @@ bool ConfigFile::load( const QString &fileName )
                if( options.langue >= NB_LANGUES ) {
                   options.langue = 0;
                }
-
+/*
             } else if(subchild.tagName() == "deck") {
                options.deckFilePath = subchild.text();
-
+*/
             }
+
             subchild = subchild.nextSibling().toElement();
          }
       
@@ -207,12 +208,12 @@ bool ConfigFile::save( const QString &fileName )
       QDomElement tapisNode = doc.createElement("tapis");
       tapisNode.appendChild(doc.createTextNode( options.tapis ));
       generalNode.appendChild(tapisNode);
-
+/*
       // Deck de jeu
       QDomElement deckNode = doc.createElement("deck");
       deckNode.appendChild(doc.createTextNode( options.deckFilePath ));
       generalNode.appendChild(deckNode);
-
+*/
         // Langue
       QDomElement langueNode = doc.createElement("langue");
       langueNode.appendChild(doc.createTextNode( QString().setNum(options.langue) ));
@@ -277,7 +278,7 @@ void ConfigFile::setDefault( GameOptions *opt )
    opt->showAvatars = AVATARS_DEF;
    opt->tapis = "tapis0.png";
    opt->langue = 0;
-   opt->deckFilePath = "./default.zip";
+   opt->deckFilePath = "./default";
    
    opt->identities[0].name = "Moi";
    opt->identities[0].avatar = ":/images/inconnu.png";

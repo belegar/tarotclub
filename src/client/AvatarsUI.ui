@@ -1,139 +1,270 @@
-<ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Avatars</class>
- <widget class="QDialog" name="Avatars" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Avatars">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>231</width>
-    <height>363</height>
+    <width>334</width>
+    <height>323</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Avatars</string>
   </property>
-  <layout class="QGridLayout" >
-   <property name="margin" >
-    <number>8</number>
-   </property>
-   <property name="spacing" >
-    <number>6</number>
-   </property>
-   <item row="0" column="0" >
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="title" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
       <string/>
      </property>
-     <layout class="QGridLayout" >
-      <property name="margin" >
+     <layout class="QGridLayout">
+      <property name="margin">
        <number>8</number>
       </property>
-      <property name="spacing" >
+      <property name="spacing">
        <number>6</number>
       </property>
-      <item row="0" column="0" >
-       <widget class="QListWidget" name="listWidget" />
-      </item>
-      <item row="1" column="0" >
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
+      <item row="0" column="0">
+       <widget class="QListWidget" name="avatarsList">
+        <property name="locale">
+         <locale language="French" country="France"/>
         </property>
-        <property name="spacing" >
-         <number>6</number>
+        <property name="autoScroll">
+         <bool>true</bool>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropMode">
+         <enum>QAbstractItemView::DragDrop</enum>
+        </property>
+        <property name="movement">
+         <enum>QListView::Snap</enum>
+        </property>
+        <property name="resizeMode">
+         <enum>QListView::Fixed</enum>
+        </property>
+        <property name="viewMode">
+         <enum>QListView::IconMode</enum>
         </property>
         <item>
-         <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="avatarImage" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>0</hsizetype>
-              <vsizetype>0</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize" >
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="maximumSize" >
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="frameShape" >
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="text" >
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+         <property name="text">
+          <string extracomment="Hop">Alien</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/alien.png</normaloff>:/images/avatars/alien.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
         </item>
-       </layout>
+        <item>
+         <property name="text">
+          <string>Batterie</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/batterie.png</normaloff>:/images/avatars/batterie.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Bonhomme</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/bonhomme.png</normaloff>:/images/avatars/bonhomme.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Canard</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/canard.png</normaloff>:/images/avatars/canard.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Démon</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/demon.png</normaloff>:/images/avatars/demon.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Dragon</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/dragon.png</normaloff>:/images/avatars/dragon.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Fourmi</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/fourmi.png</normaloff>:/images/avatars/fourmi.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Inconnu</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/inconnu.png</normaloff>:/images/avatars/inconnu.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Oiseau</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/oiseau.png</normaloff>:/images/avatars/oiseau.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Papillon</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/papillon.png</normaloff>:/images/avatars/papillon.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pingouin</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/pingouin.png</normaloff>:/images/avatars/pingouin.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Poisson</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/poisson.png</normaloff>:/images/avatars/poisson.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pomme</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/pomme.png</normaloff>:/images/avatars/pomme.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Robot</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/robot.png</normaloff>:/images/avatars/robot.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Tigre</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../data/data.qrc">
+           <normaloff>:/images/avatars/tigre.png</normaloff>:/images/avatars/tigre.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
-      <number>6</number>
-     </property>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="okButton" >
-       <property name="text" >
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="okButton">
+       <property name="text">
         <string>&amp;OK</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="cancelButton" >
-       <property name="text" >
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
         <string>&amp;Annuler</string>
        </property>
       </widget>
@@ -142,8 +273,9 @@
    </item>
   </layout>
  </widget>
- <pixmapfunction></pixmapfunction>
- <resources/>
+ <resources>
+  <include location="../data/data.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>okButton</sender>
@@ -151,11 +283,11 @@
    <receiver>Avatars</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>112</x>
      <y>301</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>96</x>
      <y>254</y>
     </hint>
@@ -167,11 +299,11 @@
    <receiver>Avatars</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>220</x>
      <y>301</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>282</y>
     </hint>
