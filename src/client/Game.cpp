@@ -31,7 +31,6 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    config = conf;
 
    Jeu::init();
-   optionsWindow->setPath( config->getPath() );
    if( tapis->loadCards(config->getGameOptions()) ) {
       exit(-1);
    }
@@ -131,7 +130,7 @@ void Game::applyOptions()
 
    tapis->showAvatars( options->showAvatars, options->nbPlayers );
    tapis->printNames(options->identities, SUD);
-   tapis->setBackground(QString(":/images/" + options->tapis) );
+   tapis->setBackground(options->tapis);
 }
 /*****************************************************************************/
 void Game::showOptions()

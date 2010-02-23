@@ -19,6 +19,7 @@
 #include "OptionsWindow.h"
 #include <QDir>
 #include <QMessageBox>
+#include <QColorDialog>
 
 /*****************************************************************************/
 OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
@@ -29,7 +30,7 @@ OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
    connect( ui.btnDefaut, SIGNAL(clicked()), this, SLOT(slotBtnDefaut()) );
    connect( ui.btnOk, SIGNAL(clicked()), this, SLOT(slotBtnOk()) );
 
-   // DÃ©filement des cartes
+   // Défilement des cartes
    connect( ui.slider1, SIGNAL(valueChanged(int)), this, SLOT(slider1Changed(int)) );
    connect( ui.slider2, SIGNAL(valueChanged(int)), this, SLOT(slider2Changed(int)) );
 
@@ -40,8 +41,8 @@ OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
    connect( ui.btnPixOuest, SIGNAL(clicked()), this, SLOT(slotBtnPixOuest()) );
    connect( ui.btnPixNordOuest, SIGNAL(clicked()), this, SLOT(slotBtnPixNordOuest()) );
 
-   // Choix du tapis de jeux
-   connect( ui.scrollBarTapis, SIGNAL(valueChanged(int)), this, SLOT(slotScrollBarTapis(int)) );
+   // Choix de la couleur du tapis
+   connect( ui.tapisColor, SIGNAL(clicked()), this, SLOT(slotColorPicker()) );
 
    QStringList listeNiveaux;
    listeNiveaux.append("Amibe");
@@ -53,29 +54,13 @@ OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
 
 }
 /*****************************************************************************/
-void OptionsWindow::setPath( const QString &game_path )
+void OptionsWindow::slotColorPicker()
 {
-   QDir d(game_path+"/data/");
-   int max;
-
-   path = game_path;
-
-   // On cherche les tapis disponibles
-   d.setFilter( QDir::Files );
-   QFileInfoList list = d.entryInfoList();
-
-   for (int i = 0; i < list.size(); ++i) {
-      QFileInfo fi = list.at(i);
-      if( fi.suffix() == "png" ) {
-         tapisList += fi.fileName();
-      }
-   }
-   ui.scrollBarTapis->setMinimum(0);
-   max = tapisList.count();
-   if( max ) {
-      ui.scrollBarTapis->setMaximum( tapisList.count()-1 );
-   } else {
-      ui.scrollBarTapis->setMaximum(0);
+   QColor color = QColorDialog::getColor(Qt::darkGreen, this);
+   if (color.isValid()) {
+       colorName = color.name();
+       ui.tapisColor->setPalette(QPalette(color));
+       ui.tapisColor->setAutoFillBackground(true);
    }
 }
 /*****************************************************************************/
@@ -83,17 +68,6 @@ void OptionsWindow::setOptions( GameOptions *opt )
 {
    options = *opt;
    refresh();
-}
-/*****************************************************************************/
-void OptionsWindow::slotScrollBarTapis( int value )
-{
-   QPixmap im;
-
-   if( value < (int)tapisList.count() ) {
-      if( im.load( path+"/data/"+tapisList[value] ) == true ) {
-         ui.imageTapis->setPixmap( im );
-      }
-   }
 }
 /*****************************************************************************/
 void OptionsWindow::slotBtnOk()
@@ -135,7 +109,7 @@ void OptionsWindow::slotBtnOk()
      QMessageBox::information( this, trUtf8("Information"),
                     trUtf8("Vous devez redémarrer le jeu pour que le changement de langue soit actif.\n\n") );
    }
-   options.tapis = tapisList[ui.scrollBarTapis->value()];
+   options.tapis = colorName;
    accept();
 }
 /*****************************************************************************/
@@ -311,13 +285,11 @@ void OptionsWindow::refresh()
 
    ui.portReseau->setValue( options.port );
 
-   for( int i=0; i<tapisList.count(); i++ ) {
-      if( tapisList[i] == options.tapis ) {
-         ui.scrollBarTapis->setValue(i);
-         if( im.load( path+"/data/"+tapisList[i] ) == true ) {
-            ui.imageTapis->setPixmap( im );
-         }
-      }
+   QColor color(options.tapis);
+   if (color.isValid()) {
+       colorName = color.name();
+       ui.tapisColor->setPalette(QPalette(color));
+       ui.tapisColor->setAutoFillBackground(true);
    }
 }
 

@@ -116,15 +116,10 @@ Tapis::Tapis( QWidget *parent )
 /*****************************************************************************/
 void Tapis::setBackground(const QString &fichier)
 {
-   QPixmap pm;
-   QBrush background;
-
-   // On teste si on a un arriere plan
-   if( pm.load( fichier ) == false ) {
-      scene.setBackgroundBrush(Qt::darkGreen);
+   QColor color(fichier);
+   if (color.isValid()) {
+      scene.setBackgroundBrush(color);
    }
-   background.setTexture( pm );
-   scene.setBackgroundBrush( background );
 }
 /*****************************************************************************/
 GfxCard *Tapis::getGfxCard(int i)

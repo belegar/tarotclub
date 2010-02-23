@@ -24,9 +24,10 @@
 
 // Includes locales
 #include <ui_OptionsUI.h>
+#include <ui_AvatarsUI.h>
 #include "../defines.h"
 #include "ConfigFile.h"
-#include <ui_AvatarsUI.h>
+
 
 /*****************************************************************************/
 class OptionsWindow : public QDialog
@@ -35,21 +36,18 @@ class OptionsWindow : public QDialog
 
 private:
    Ui::OptionsUI  ui;
-   QString        path;
    GameOptions    options;
-   QStringList    tapisList;
-   int            indexLangue;
+   int            indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
+   QString colorName;
 
    QString choixAvatar();
-
+   void    refresh();
 
 public:
    OptionsWindow( QWidget* parent = 0, Qt::WFlags fl = 0 );
 
-   void           setPath( const QString &game_path );
    void           setOptions( GameOptions *opt );
    GameOptions    *getOptions();
-   void           refresh();
 
 public slots:
    
@@ -64,8 +62,7 @@ public slots:
    void  slotBtnPixNord();
    void  slotBtnPixOuest();
    void  slotBtnPixNordOuest();
-   void  slotScrollBarTapis( int value );
-      
+   void  slotColorPicker();
 };
 
 #endif // _OPTIONSWINDOW_H
