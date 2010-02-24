@@ -35,11 +35,6 @@
 #define STR_LOSE     trUtf8("Contrat chuté de ")
 #define STR_POINTS   trUtf8(" points")
 
-#define STR_NEW_GAME trUtf8("&Nouveau jeu")
-#define STR_STATUS1  trUtf8("Lance une partie solitaire contre l'ordinateur")
-
-
-
 
 #endif // _TEXTES_H
 

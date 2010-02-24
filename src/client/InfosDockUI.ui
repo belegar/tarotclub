@@ -27,7 +27,7 @@
       <item>
        <widget class="QLabel" name="donneVar">
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -45,7 +45,7 @@
       <item>
        <widget class="QLabel" name="preneurVar">
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -63,7 +63,7 @@
       <item>
        <widget class="QLabel" name="contratVar">
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
         </property>
        </widget>
       </item>

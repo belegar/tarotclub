@@ -39,7 +39,7 @@ Deck::Deck()
  * Méthode "Quick and dirty" pour mélanger les cartes du jeu
  * Principe : on assigne à chaque carte un nombre au hasard entre 0 et 10000,
  * puis on range les cartes dans l'ordre croissant
- * si hadard == true, la graine est choisie entre 0 et 65000, sinon on 
+ * si hasard == true, la graine est choisie entre 0 et 65000, sinon on
  * utilise la graine passée en paramètre
  */
 unsigned int Deck::shuffle( bool hasard, unsigned int seed )

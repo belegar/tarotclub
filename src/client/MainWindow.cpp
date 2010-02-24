@@ -80,17 +80,17 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    //----------
    // Menu Jeu
    //----------
-   newLocalGameAct = new QAction( STR_NEW_GAME, this);
+   newLocalGameAct = new QAction("&Nouveau jeu solitaire", this);
    newLocalGameAct->setShortcut(QString("Ctrl+N"));
-   newLocalGameAct->setStatusTip(STR_STATUS1);
+   newLocalGameAct->setStatusTip("Lance une partie solitaire contre l'ordinateur");
 
-   netGameServerAct = new QAction(trUtf8("Nouveau jeu en &réseau (serveur)"), this);
+   netGameServerAct = new QAction(trUtf8("Créer une partie en &réseau (serveur)"), this);
    netGameServerAct->setShortcut(trUtf8("Ctrl+R"));
-   netGameServerAct->setStatusTip(trUtf8("Lance une partie en réseau (création du serveur)"));
+   netGameServerAct->setStatusTip(trUtf8("Crée une partie en réseau en tant que serveur"));
 
-   netGameClientAct = new QAction(trUtf8("Nouveau &jeu en réseau (client)"), this);
+   netGameClientAct = new QAction(trUtf8("Re&joindre une partie en réseau"), this);
    netGameClientAct->setShortcut(trUtf8("Ctrl+J"));
-   netGameClientAct->setStatusTip(trUtf8("Lance une partie en réseau (connexion à un serveur)"));
+   netGameClientAct->setStatusTip(trUtf8("Connexion à un serveur sur Internet ou en réseau local"));
 
    newDonneAct = new QAction(trUtf8("Nouvelle &donne"), this);
    newDonneAct->setShortcut(trUtf8("Ctrl+D"));

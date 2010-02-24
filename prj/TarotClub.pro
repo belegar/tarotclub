@@ -1,55 +1,102 @@
-#
 # TarotClub project file
-#
 # TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
 # Copyright (C) 2003-2999 - Anthony Rabine
 # anthony@tarotclub.fr
-#
 # This file must be used under the terms of the CeCILL.
 # This source file is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.  The terms
 # are also available at
 # http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
-#
-
 # directories for temp files
-UI_DIR  = ./ui
+UI_DIR = ./ui
 UI_HEADERS_DIR = ./include
 UI_SOURCES_DIR = ./src
 OBJECTS_DIR = ./obj
 DESTDIR = ./bin
 
 # Qt build configuration
-
 # The search path to find supplied files
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/client
 VPATH += $${PWD}/../src/client/quazip
 VPATH += $${PWD}/include
-
-QT      += xml network svg
+QT += xml \
+    network \
+    svg
 RESOURCES = $${PWD}/../src/data/data.qrc
-CONFIG += qt warn_on static
+CONFIG += qt \
+    warn_on \
+    static
 INCLUDEPATH += $${PWD}/include
-
-win32 {
-    debug {
-        CONFIG += console
-    }
+win32 { 
+    debug:CONFIG += console
     RC_FILE = icon.rc
 }
-
-HEADERS	+=  AboutWindow.h MainWindow.h OptionsWindow.h \
-            ResultWindow.h ScoresDock.h InfosDock.h ChatDock.h \
-            Tapis.h TextBox.h ConfigFile.h Game.h Jeu.h \
-            Deck.h Card.h Player.h Client.h Bot.h defines.h textes.h TarotEngine.h Score.h \
-            ui_ServerManagerUI.h ui_InfosDockUI.h ui_AvatarsUI.h ui_OptionsUI.h \
-            crypt.h  ioapi.h  quazipfile.h  quazipfileinfo.h  quazip.h  quazipnewinfo.h  unzip.h  zip.h
-
-FORMS = AboutUI.ui  AvatarsUI.ui  EncheresUI.ui  InfosDockUI.ui  NetClientUI.ui  OptionsUI.ui  ResultUI.ui  ServerManagerUI.ui
-
-SOURCES	=   AboutWindow.cpp MainWindow.cpp OptionsWindow.cpp  \
-            ResultWindow.cpp ScoresDock.cpp InfosDock.cpp ChatDock.cpp \
-            Tapis.cpp TextBox.cpp ConfigFile.cpp Game.cpp main.cpp Jeu.cpp \
-            Deck.cpp Card.cpp Player.cpp Client.cpp Bot.cpp TarotEngine.cpp Score.cpp \
-            quazip.cpp  quazipfile.cpp  quazipnewinfo.cpp ioapi.c  unzip.c  zip.c
+HEADERS += AboutWindow.h \
+    MainWindow.h \
+    OptionsWindow.h \
+    ResultWindow.h \
+    ScoresDock.h \
+    InfosDock.h \
+    ChatDock.h \
+    Tapis.h \
+    TextBox.h \
+    ConfigFile.h \
+    Game.h \
+    Jeu.h \
+    Deck.h \
+    Card.h \
+    Player.h \
+    Client.h \
+    Bot.h \
+    defines.h \
+    textes.h \
+    TarotEngine.h \
+    Score.h \
+    ui_ServerManagerUI.h \
+    ui_InfosDockUI.h \
+    ui_AvatarsUI.h \
+    ui_OptionsUI.h \
+    crypt.h \
+    ioapi.h \
+    quazipfile.h \
+    quazipfileinfo.h \
+    quazip.h \
+    quazipnewinfo.h \
+    unzip.h \
+    zip.h
+FORMS = AboutUI.ui \
+    AvatarsUI.ui \
+    EncheresUI.ui \
+    InfosDockUI.ui \
+    NetClientUI.ui \
+    OptionsUI.ui \
+    ResultUI.ui \
+    ServerManagerUI.ui \
+    ../src/client/WizardClientUI.ui
+SOURCES = AboutWindow.cpp \
+    MainWindow.cpp \
+    OptionsWindow.cpp \
+    ResultWindow.cpp \
+    ScoresDock.cpp \
+    InfosDock.cpp \
+    ChatDock.cpp \
+    Tapis.cpp \
+    TextBox.cpp \
+    ConfigFile.cpp \
+    Game.cpp \
+    main.cpp \
+    Jeu.cpp \
+    Deck.cpp \
+    Card.cpp \
+    Player.cpp \
+    Client.cpp \
+    Bot.cpp \
+    TarotEngine.cpp \
+    Score.cpp \
+    quazip.cpp \
+    quazipfile.cpp \
+    quazipnewinfo.cpp \
+    ioapi.c \
+    unzip.c \
+    zip.c
