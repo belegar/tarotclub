@@ -72,8 +72,8 @@ FORMS = AboutUI.ui \
     NetClientUI.ui \
     OptionsUI.ui \
     ResultUI.ui \
-    ServerManagerUI.ui \
-    ../src/client/WizardClientUI.ui
+    ServerManagerUI.ui
+
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
