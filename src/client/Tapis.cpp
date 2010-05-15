@@ -25,23 +25,10 @@
 #include "quazip/quazipfile.h"
 
 
-
 /*****************************************************************************/
 GfxCard::GfxCard ( const QString & fileName, QGraphicsItem * parent ) : QGraphicsSvgItem(fileName, parent)
 
 {
-   /*
-   QString fileName;
-   // create temporary file
-   QTemporaryFile temp;
-   if (temp.open()) {
-      temp.write(array);
-    //  strcpy(buff, temp.fileName().toStdString().c_str());
-      fileName = temp.fileName();
-      temp.close();
-      QGraphicsSvgItem ( fileName, parent );
-   }
-*/
 
 }
 /*****************************************************************************/
@@ -59,7 +46,7 @@ Tapis::Tapis( QWidget *parent )
    //==============================================================
    //       BOUTONS ENCHERES
    //==============================================================
-   groupBoutons = new QGroupBox( trUtf8("Enchères"), this );
+   groupBoutons = new QGroupBox( trUtf8("EnchÃ¨res"), this );
    groupBoutons->setGeometry( 20, 250, 120, 230 );
    groupBoutons->hide();
 
@@ -277,7 +264,7 @@ void Tapis::resizeEvent( QResizeEvent *e )
 {
    QSize s;
    s = e->size();
-   setSceneRect( 0, 0, s.width(), s.height() ); // TODO ?? pas vraiment sûr, à tester en redimensionnant la fenêtre
+   setSceneRect( 0, 0, s.width(), s.height() ); // TODO ?? pas vraiment sÃ»r, Ã  tester en redimensionnant la fenÃªtre
 }
 /*****************************************************************************/
 void Tapis::mousePressEvent( QMouseEvent *e )
@@ -325,7 +312,7 @@ void Tapis::mouseMoveEvent( QMouseEvent * e )
 }
 /*****************************************************************************/
 /**
- * n==0 : curseur normal avec une flèche
+ * n==0 : curseur normal avec une flÃ¨che
  * n==1 : curseur interdiction
  */
 void Tapis::setCursorType( CursorType t )
@@ -437,7 +424,7 @@ void Tapis::printNames( Identity *identities, Place place )
 }
 /*****************************************************************************/
 /**
- * Affiche une carte "c" à l'emplacement "p" de la table.
+ * Affiche une carte "c" Ã  l'emplacement "p" de la table.
  * p = NORD, OUEST, SUD, EST
  */
 void Tapis::afficheCarte( GfxCard *c, Place p )
