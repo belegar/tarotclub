@@ -36,6 +36,7 @@ using namespace std;
 /**
  * Affiche sur la console les messages Qt (warnings, erreurs...)
  */
+#ifndef QT_NO_DEBUG
 void myMessageOutput(QtMsgType type, const char *msg)
 {
     switch (type) {
@@ -53,13 +54,16 @@ void myMessageOutput(QtMsgType type, const char *msg)
             abort(); // deliberately core dump
     }
 }
+#endif
 /*****************************************************************************/
 /**
  * Point d'entrée de l'application
  */
 int main( int argc, char** argv )
 {
+#ifndef QT_NO_DEBUG
    qInstallMsgHandler(myMessageOutput);
+#endif
 
    QApplication app( argc, argv );
    QDir b = qApp->applicationDirPath();
