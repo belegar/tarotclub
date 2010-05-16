@@ -25,14 +25,16 @@ QT += xml \
     svg
 
 RESOURCES = $${PWD}/../src/data/data.qrc
-CONFIG += qt \
-    warn_on \
-    static
+CONFIG +=   qt \
+            warn_on
+
 INCLUDEPATH += $${PWD}/include
 
 win32 { 
     INCLUDEPATH += $${PWD}/../lib/zlib-1.2.5
-    debug:CONFIG += console
+    debug {
+      #  CONFIG += console
+    }
     RC_FILE = icon.rc
 }
 
