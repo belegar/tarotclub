@@ -17,100 +17,61 @@
  */
 
 #include "TextBox.h"
+#include "../defines.h"
 #include <QFile>
-#include <QRectF>
-#include <QPixmap>
+#include <QtGui>
+
 
 /*****************************************************************************/
-TextBox::TextBox(int x, int y, QBrush couleur , QGraphicsScene *canvas)
+TextBox::TextBox(int x, int y, QGraphicsScene *canvas)
+   : QGraphicsRectItem( x, y, TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 0, canvas)
 {
-   boite = new QGraphicsRectItem( x, y, 115, 30, 0, canvas);
-   boite->setBrush( couleur );
-   boite->setZValue( 0 );
-
-   texte = new QGraphicsSimpleTextItem(0, canvas);
-   texte->setText("");
-   texte->setFont( QFont( "times", 14 ) );
-   texte->setZValue( 1 );
-
+   penWidth = 1;
+   penColor = Qt::black;
+   fillColor = Qt::red;
    hide();
 }
 /*****************************************************************************/
-void TextBox::setText( QString mot )
+void TextBox::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget )
 {
-   mot.truncate( 10 ); // on se limite à 10 signes pour le nom
-   texte->setText( mot );
 
-   moveText();
+   // Paint with specified color and pen
+   painter->setRenderHint(QPainter::Antialiasing);
+   painter->setPen(QPen(penColor, penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+   QLinearGradient gradient(rect().topLeft(), rect().bottomLeft());
+   gradient.setColorAt(0.0, Qt::transparent);
+   gradient.setColorAt(1.0, fillColor);
+   painter->setBrush(gradient);
+   painter->drawRoundRect(rect(), (int) (25 * rect().height()
+                                           / rect().width()), 25);
+
+   // Text inside the box
+   painter->save();
+   QFont font = painter->font();
+   font.setBold(true);
+   painter->setPen(Qt::black);
+   painter->setFont(font);
+   painter->drawText(rect(), Qt::AlignCenter, text);
+   painter->restore();
 }
-/*****************************************************************************/
-/**
- * On centre le texte au milieu de la boîte
- */
-void TextBox::moveText()
-{
-   QRectF rect, rectText;
-   int x, y;
-   int largeur, n;
 
-   rect = boite->rect();
-   x = rect.x();
-   y = rect.y();
-
-   rectText = texte->boundingRect();
-   largeur = rectText.width ();
-
-   n = (int)(rect.width()/2)  - (int)(largeur/2);
-
-   texte->setPos(x+n,y+5);
-}
-/*****************************************************************************/
-void TextBox::hide()
-{
-   boite->hide();
-   texte->hide();
-}
-/*****************************************************************************/
-void TextBox::show()
-{
-   boite->show();
-   texte->show();
-}
-/*****************************************************************************/
-int TextBox::x()
-{
-   return (int)(boite->rect().x());
-}
-/*****************************************************************************/
-int TextBox::y()
-{
-   return (int)(boite->rect().y());
-}
-/*****************************************************************************/
-void TextBox::move( int x, int y )
-{
-   boite->setPos( x, y );
-   moveText();
-}
-/*****************************************************************************/
-
-/*			*			*			*			*			*			*/
 
 /*****************************************************************************/
-PlayerBox::PlayerBox(int x, int y, QBrush couleur , QGraphicsScene *canvas )
-   : TextBox( x, y, couleur, canvas)
-{
-   QRectF rect = boite->rect();
+/*            *            *           *            *           *            */
+/*****************************************************************************/
 
-   selection.setColor( QColor("red") );
-   selection.setWidth(3);
+
+PlayerBox::PlayerBox(int x, int y, QGraphicsScene *canvas )
+   : TextBox( x, y, canvas)
+{
+   setFillColor(QColor(255, 255, 255, 127)); // transparent
 
    // On initialise avec les images par défaut
    avatar = new QGraphicsPixmapItem( QPixmap( ":/images/vide.png"), 0, canvas);
    avatar->hide();
 
    // On les positionne à l'écran
-   avatar->setPos( rect.x() + rect.width() + 10, rect.y()-5 );
+   avatar->setPos( rect().x() + rect().width() + 10, rect().y()-5 );
 }
 /*****************************************************************************/
 void PlayerBox::setAvatar( const QString &av )
@@ -131,30 +92,26 @@ void PlayerBox::enableAvatar( bool e )
       avatar->hide();
 }
 /*****************************************************************************/
-void PlayerBox::hide()
+void PlayerBox::selectPlayer(bool selected)
 {
-   boite->hide();
-   texte->hide();
+   if (selected == true) {
+      setPenWidth(2);
+      setPenColor(Qt::red);
+   } else {
+      setPenWidth(1);
+      setPenColor(Qt::black);
+   }
+   update();
 }
 /*****************************************************************************/
-void PlayerBox::show()
+void PlayerBox::highlightPlayer(bool highlighted)
 {
-   boite->show();
-   texte->show();
-}
-/*****************************************************************************/
-void PlayerBox::setCouleur( QBrush couleur )
-{
-   boite->setBrush( couleur );
-}
-/*****************************************************************************/
-void PlayerBox::setPen( int p )
-{
-   if( p == 1 )
-      boite->setPen( selection );
-   else
-      boite->setPen( normal );
-
+   if (highlighted == true) {
+      setFillColor(Qt::yellow);
+   } else {
+      setFillColor(QColor(255, 255, 255, 127)); // transparent
+   }
+   update();
 }
 
 //=============================================================================

@@ -27,27 +27,29 @@
 
 /*****************************************************************************/
 /**
- * Rectangle box + text inside, for bids
+ * Rectangle box + text inside, for bids and player nicknames
  */
-class TextBox
+class TextBox : public QGraphicsRectItem
 {
 
-protected:
-
-   QGraphicsRectItem	         *boite;
-   QGraphicsSimpleTextItem		*texte;
+private:
+   QString  text;
+   int penWidth;
+   QColor penColor;
+   QColor fillColor;
 
 public:
+   TextBox(int x, int y, QGraphicsScene *canvas);
+   void paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
 
-   TextBox(int , int , QBrush, QGraphicsScene *);
-
-   void		show();
-   void		hide();
-   void		moveText();
-   void		move( int , int );
-   int		x();
-   int		y();
-   void		setText( QString );
+   void move( int x, int y ) { setPos( x, y ); }
+   void setText( QString s ) {
+      s.truncate( 10 );
+      text = s;
+   }
+   void setPenWidth(int w) { penWidth = w; }
+   void setPenColor(QColor c) { penColor = c; }
+   void setFillColor(QColor c) { fillColor = c; }
 };
 
 /*****************************************************************************/
@@ -60,20 +62,13 @@ class PlayerBox : public TextBox
 private:
    QGraphicsPixmapItem		*avatar;
 
-   QPen				selection;	// contour grossi et en rouge
-   QPen				normal;		// contour normal, fin et en noir
-
 public:
+   PlayerBox(int x, int y, QGraphicsScene *canvas);
 
-   PlayerBox(int , int , QBrush, QGraphicsScene * );
-
-   void		show();
-   void		hide();
-   void		setCouleur( QBrush );
-   void		setPen( int );
-   void		setAvatar( const QString & );
-   void		enableAvatar( bool );
-//	void		afficheErreur( int );
+   void selectPlayer(bool selected);
+   void highlightPlayer(bool highlighted);
+   void setAvatar( const QString & );
+   void enableAvatar( bool );
 
 };
 

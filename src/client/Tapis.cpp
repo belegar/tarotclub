@@ -69,22 +69,22 @@ Tapis::Tapis( QWidget *parent )
    //==============================================================
    //       ELEMENTS DU CANVAS
    //==============================================================
-   btNord = new PlayerBox(440, 10, QBrush(Qt::yellow), &scene);
-   btOuest = new PlayerBox(210, 113, QBrush(Qt::yellow), &scene);
-   btSud = new PlayerBox(440, 462, QBrush(Qt::yellow), &scene);
-   btEst = new PlayerBox(677, 113, QBrush(Qt::yellow), &scene);
-   btNordOuest = new PlayerBox(677, 236, QBrush(Qt::yellow), &scene);
+   btNord = new PlayerBox(440, 10, &scene);
+   btOuest = new PlayerBox(210, 113, &scene);
+   btSud = new PlayerBox(440, 462, &scene);
+   btEst = new PlayerBox(677, 113, &scene);
+   btNordOuest = new PlayerBox(677, 236, &scene);
 
    btNord->show();
    btOuest->show();
    btSud->show();
    btEst->show();
 
-   enchNord = new TextBox(440, 50, QBrush(Qt::red), &scene);
-   enchOuest = new TextBox(210, 153, QBrush(Qt::red), &scene);
-   enchSud = new TextBox(440, 422, QBrush(Qt::red), &scene);
-   enchEst = new TextBox(677, 153, QBrush(Qt::red), &scene);
-   enchNordOuest = new TextBox(555, 236, QBrush(Qt::red), &scene);
+   enchNord = new TextBox(440, 50, &scene);
+   enchOuest = new TextBox(210, 153, &scene);
+   enchSud = new TextBox(440, 422, &scene);
+   enchEst = new TextBox(677, 153, &scene);
+   enchNordOuest = new TextBox(555, 236, &scene);
 
    connect( boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()) );
    connect( boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()) );
@@ -179,6 +179,8 @@ int Tapis::loadCards(GameOptions *opt)
    cardsPics.insert(77, item);
    scene.addItem(item);
 
+   setCardScale(1.5);
+
    return 0;
 }
 /*****************************************************************************/
@@ -187,6 +189,13 @@ void Tapis::resizeEvent( QResizeEvent *e )
    QSize s;
    s = e->size();
    setSceneRect( 0, 0, s.width(), s.height() );
+}
+/*****************************************************************************/
+void Tapis::setCardScale(float factor)
+{
+   for(int i=0; i<cardsPics.size(); i++) {
+      cardsPics.at(i)->setScale(factor);
+   }
 }
 /*****************************************************************************/
 void Tapis::mousePressEvent( QMouseEvent *e )
@@ -251,13 +260,13 @@ void Tapis::setCursorType( CursorType t )
 void Tapis::colorisePreneur( Place preneur )
 {
    if( preneur == SUD ) {
-      btSud->setCouleur( QBrush(Qt::green) );
+      btSud->highlightPlayer(true);
    } else if( preneur == EST ) {
-      btEst->setCouleur( QBrush(Qt::green) );
+      btEst->highlightPlayer(true);
    } else if( preneur == NORD ) {
-      btNord->setCouleur( QBrush(Qt::green) );
+      btNord->highlightPlayer(true);
    } else { // OUEST
-      btOuest->setCouleur( QBrush(Qt::green) );
+      btOuest->highlightPlayer(true);
    }
 }
 /*****************************************************************************/
@@ -346,28 +355,38 @@ void Tapis::printNames( Identity *identities, Place place )
 }
 /*****************************************************************************/
 /**
- * Affiche une carte "c" Ã  l'emplacement "p" de la table.
+ * Affiche une carte "c" à  l'emplacement "p" de la table.
  * p = NORD, OUEST, SUD, EST
  */
 void Tapis::afficheCarte( GfxCard *c, Place p )
 {
-   int x, y;
+   int x, y, height, width;
+   QRectF rect = cardsPics.at(0)->boundingRect();
+   height = rect.height();
+   width = rect.width();
 
    if( p == NORD ) {
-      x = btNord->x()+5;
-      y = btNord->y()+40;
+      x = btNord->rect().x();
+      y = btNord->rect().y();
    } else if( p == OUEST ) {
-      x = btOuest->x()+5;
-      y = btOuest->y()+40;
+      x = btOuest->rect().x();
+      y = btOuest->rect().y();
    } else if( p == SUD ) {
-      x = btSud->x()+5;
-      y = btSud->y()-206;
+      x = btSud->rect().x();
+      y = btSud->rect().y();
    } else if( p == EST ) {
-      x = btEst->x()+5;
-      y = btEst->y()+40;
+      x = btEst->rect().x();
+      y = btEst->rect().y();
    } else {// Nord Ouest
-      x = btNordOuest->x()+5;
-      y = btNordOuest->y()+40;
+      x = btNordOuest->rect().x();
+      y = btNordOuest->rect().y();
+   }
+
+   x = x + (TEXT_BOX_WIDTH - width)/4;
+   if (p == SUD) {
+      y = y - height - TEXT_BOX_HEIGHT - 40;
+   } else {
+      y = y + TEXT_BOX_HEIGHT + 10;
    }
 
    c->setPos(x,y);
@@ -376,36 +395,22 @@ void Tapis::afficheCarte( GfxCard *c, Place p )
 /*****************************************************************************/
 void Tapis::afficheSelection( Place p )
 {
+   btNord->selectPlayer(false);
+   btOuest->selectPlayer(false);
+   btEst->selectPlayer(false);
+   btSud->selectPlayer(false);
+   btNordOuest->selectPlayer(false);
+
    if( p == NORD ) {
-      btNord->setPen( 1 );
-      btOuest->setPen( 0 );
-      btEst->setPen( 0 );
-      btSud->setPen( 0 );
-      btNordOuest->setPen( 0 );
+      btNord->selectPlayer(true);
    } else if( p == OUEST ) {
-      btNord->setPen( 0 );
-      btOuest->setPen( 1 );
-      btEst->setPen( 0 );
-      btSud->setPen( 0 );
-      btNordOuest->setPen( 0 );
+      btOuest->selectPlayer(true);
    } else if( p == SUD ) {
-      btNord->setPen( 0 );
-      btOuest->setPen( 0 );
-      btEst->setPen( 0 );
-      btSud->setPen( 1 );
-      btNordOuest->setPen( 0 );
+      btSud->selectPlayer(true);
    } else if( p == EST ) {
-      btNord->setPen( 0 );
-      btOuest->setPen( 0 );
-      btEst->setPen( 1 );
-      btSud->setPen( 0 );
-      btNordOuest->setPen( 0 );
+      btEst->selectPlayer(true);
    } else {// Nord ouest
-      btNord->setPen( 0 );
-      btOuest->setPen( 0 );
-      btEst->setPen( 0 );
-      btSud->setPen( 0 );
-      btNordOuest->setPen( 1 );
+      btNordOuest->selectPlayer(true);
    }
 }
 /*****************************************************************************/
@@ -494,16 +499,17 @@ void Tapis::razTapis()
    cacheEncheres();
    groupBoutons->hide();
 
-   btSud->setCouleur( QBrush(Qt::yellow) );
-   btEst->setCouleur( QBrush(Qt::yellow) );
-   btNord->setCouleur( QBrush(Qt::yellow) );
-   btOuest->setCouleur( QBrush(Qt::yellow) );
+   btNord->highlightPlayer(false);
+   btOuest->highlightPlayer(false);
+   btEst->highlightPlayer(false);
+   btSud->highlightPlayer(false);
+   btNordOuest->highlightPlayer(false);
 
-   btNord->setPen( 0 );
-   btOuest->setPen( 0 );
-   btEst->setPen( 0 );
-   btSud->setPen( 0 );
-   btNordOuest->setPen( 0 );
+   btNord->selectPlayer(false);
+   btOuest->selectPlayer(false);
+   btEst->selectPlayer(false);
+   btSud->selectPlayer(false);
+   btNordOuest->selectPlayer(false);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton1()

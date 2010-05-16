@@ -107,7 +107,7 @@ bool ConfigFile::load( const QString &fileName )
                } else {
                   options.showAvatars = false;
                }
-            
+
             } else if(subchild.tagName() == "tapis") {
                options.tapis = subchild.text();
 
@@ -124,7 +124,7 @@ bool ConfigFile::load( const QString &fileName )
 
             subchild = subchild.nextSibling().toElement();
          }
-      
+
       //-------------------
       // Section "player"
       //-------------------
@@ -133,7 +133,7 @@ bool ConfigFile::load( const QString &fileName )
          pos = child.attribute("pos","0").toInt();
 
          QDomElement subchild = child.firstChild().toElement();
-         while(!subchild.isNull()) {            
+         while(!subchild.isNull()) {
             QString txt;
 
             if(subchild.tagName() == "name") {
@@ -151,7 +151,7 @@ bool ConfigFile::load( const QString &fileName )
 
             } else if(subchild.tagName() == "avatar") {
                options.identities[pos].avatar = subchild.text();
-            }        
+            }
             subchild = subchild.nextSibling().toElement();
          }
       }
@@ -241,7 +241,7 @@ bool ConfigFile::save( const QString &fileName )
       avatarNode = doc.createElement("avatar");
       avatarNode.appendChild(doc.createTextNode( options.identities[i].avatar ));
       playerNode.appendChild(avatarNode);
-      
+
       // sex
       sexNode = doc.createElement("sex");
       sexNode.appendChild(doc.createTextNode( QString().setNum( options.identities[i].sex ) ));
@@ -280,29 +280,29 @@ void ConfigFile::setDefault( GameOptions *opt )
    opt->tapis = "#008000";
    opt->langue = 0;
    opt->deckFilePath = "./default";
-   
+
    opt->identities[0].name = "Moi";
-   opt->identities[0].avatar = ":/images/inconnu.png";
+   opt->identities[0].avatar = ":/images/avatars/inconnu.png";
    opt->identities[0].quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
    opt->identities[0].sex = MALE;
 
    opt->identities[1].name = "Est";
-   opt->identities[1].avatar = ":/images/robot.png";
+   opt->identities[1].avatar = ":/images/avatars/robot.png";
    opt->identities[1].quote = "Plus je grossis, plus je m'aigris.";
    opt->identities[1].sex = MALE;
 
    opt->identities[2].name = "Nord";
-   opt->identities[2].avatar = ":/images/robot.png";
+   opt->identities[2].avatar = ":/images/avatars/robot.png";
    opt->identities[2].quote = QString::fromUtf8("J'ai fait un test de QI, les resultats étaient negatifs.");
    opt->identities[2].sex = MALE;
 
    opt->identities[3].name = "Ouest";
-   opt->identities[3].avatar = ":/images/robot.png";
+   opt->identities[3].avatar = ":/images/avatars/robot.png";
    opt->identities[3].quote = QString::fromUtf8("Quand on mettra les cons sur orbite, t'as pas fini de tourner.");
    opt->identities[3].sex = MALE;
 
    opt->identities[4].name = "Nord-Ouest";
-   opt->identities[4].avatar = ":/images/robot.png";
+   opt->identities[4].avatar = ":/images/avatars/robot.png";
    opt->identities[4].quote = QString::fromUtf8("Dans le passé, il y avait plus de futur que maintenant.");
    opt->identities[4].sex = MALE;
 

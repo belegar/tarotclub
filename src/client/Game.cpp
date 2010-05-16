@@ -377,7 +377,7 @@ void Game::hideChien()
 void Game::slotRedist()
 {
    QMessageBox::information(this, trUtf8("Information"),
-                   trUtf8("Tous les joueurs ont passï¿œ.\n"
+                   trUtf8("Tous les joueurs ont passé.\n"
                       "Nouvelle distribution des cartes.") );
 
    sequence = GAME;
@@ -404,13 +404,14 @@ void Game::slotPrepareChien()
    statusBar()->showMessage(trUtf8("Sï¿œlectionnez des cartes pour construire votre chien.") );
 }
 /*****************************************************************************/
-void Game::slotDepartDonne(Place p,Contrat c)
+void Game::slotDepartDonne(Place p, Contrat c)
 {
    infosDock->setContrat(c);
    infosDock->setPreneur( config->getGameOptions()->identities[p].name );
    sequence = GAME;
    tapis->setFilter( AUCUN );
    tapis->razTapis();
+   tapis->colorisePreneur(p);
 }
 /*****************************************************************************/
 void Game::slotJoueCarte()

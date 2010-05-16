@@ -34,6 +34,9 @@
 #define QT_STREAMVER    QDataStream::Qt_4_4
 #define NB_TURNS_MAX    10
 
+#define TEXT_BOX_WIDTH  115
+#define TEXT_BOX_HEIGHT 30
+
 /*****************************************************************************/
 enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };
 enum CardType     { CARTE, ATOUT, EXCUSE };

@@ -92,6 +92,7 @@ public:
    void setNbPlayers(int n);
    void setBackground(const QString &fichier);
    void setAccepterChienVisible(bool v);
+   void setCardScale(float factor);
 
    GfxCard *getGfxCard(int i);
    Card *getObjectCard(GfxCard *gc);
