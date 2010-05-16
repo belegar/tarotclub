@@ -276,7 +276,7 @@ void ConfigFile::setDefault( GameOptions *opt )
    opt->timer2 = TIMER2_DEF;
    opt->port = PORT_DEF;
    opt->showAvatars = AVATARS_DEF;
-   opt->tapis = "tapis0.png";
+   opt->tapis = "#008000";
    opt->langue = 0;
    opt->deckFilePath = "./default";
    
