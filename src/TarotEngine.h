@@ -59,7 +59,7 @@ public:
 class TarotEngine : public QThread
 {
    Q_OBJECT
-   
+
 private:
    Player      players[5]; // Données des joueurs
    QMap<Place, QTcpSocket *> clients; // les clients connectés
@@ -75,7 +75,7 @@ private:
    Sequence    sequence;      // indique la séquence de jeu actuelle
    bool        newGame;       // vrai si une nouvelle partie a été commencée
    int         dealNumber;
-   int         cptVu;
+   int         cptVu;         // counter of chien seen by clients
 
 protected:
    void customEvent( QEvent *e );
@@ -88,6 +88,7 @@ public:
 
    int   getConnectedPlayers( Identity *idents );
    int   getConnectedNumber();
+   Score *getScore();
    void  newServerGame( int port );
    void  closeServerGame();
    void  closeClients();

@@ -75,6 +75,8 @@ Game::Game( ConfigFile *conf ) : MainWindow()
 //   connect(newDonneAct, SIGNAL(triggered()), this, SLOT(slotDonneAuto()));
 //   connect(newDonneManuAct, SIGNAL(triggered()), this, SLOT(slotDonneManu()));
 
+   connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotQuitTarotClub()));
+
    // Menu Tarot
    connect(optionsAct, SIGNAL(triggered()), this, SLOT(showOptions()));
 //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
@@ -86,6 +88,15 @@ Game::Game( ConfigFile *conf ) : MainWindow()
 /*****************************************************************************/
 Game::~Game()
 {
+
+}
+/*****************************************************************************/
+/**
+ * This method allows a proper cleanup before closing the application
+ */
+void Game::slotQuitTarotClub()
+{
+   server.closeServerGame();
    server.exit();
 }
 /*****************************************************************************/
@@ -418,6 +429,8 @@ void Game::slotFinDonne()
 {
    resultWindow->setCalcul( client.getScoreInfos(), client.getGameInfos() );
    if( resultWindow->exec() == QDialog::Accepted ) {
+      // Add current turn result to total score
+      scoresDock->setNewScore(server.getScore()->getLastTurnScore(), config->getGameOptions()->nbPlayers);
       client.sendStart();
    }
 }

@@ -18,6 +18,7 @@
 
 #include "ConfigFile.h"
 #include <QtXml>
+#include <QString>
 
 /*****************************************************************************/
 ConfigFile::ConfigFile( const QString &gamePath )
@@ -282,7 +283,7 @@ void ConfigFile::setDefault( GameOptions *opt )
    
    opt->identities[0].name = "Moi";
    opt->identities[0].avatar = ":/images/inconnu.png";
-   opt->identities[0].quote = "L'inventeur de l'escalier habitait sûrement au premier étage.";
+   opt->identities[0].quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
    opt->identities[0].sex = MALE;
 
    opt->identities[1].name = "Est";
@@ -292,17 +293,17 @@ void ConfigFile::setDefault( GameOptions *opt )
 
    opt->identities[2].name = "Nord";
    opt->identities[2].avatar = ":/images/robot.png";
-   opt->identities[2].quote = "J'ai fait un test de QI, les resultats étaient negatifs.";
+   opt->identities[2].quote = QString::fromUtf8("J'ai fait un test de QI, les resultats étaient negatifs.");
    opt->identities[2].sex = MALE;
 
    opt->identities[3].name = "Ouest";
    opt->identities[3].avatar = ":/images/robot.png";
-   opt->identities[3].quote = "Quand on mettra les cons sur orbite, t'as pas fini de tourner.";
+   opt->identities[3].quote = QString::fromUtf8("Quand on mettra les cons sur orbite, t'as pas fini de tourner.");
    opt->identities[3].sex = MALE;
 
    opt->identities[4].name = "Nord-Ouest";
    opt->identities[4].avatar = ":/images/robot.png";
-   opt->identities[4].quote = "Dans le passé, il y avait plus de futur que maintenant.";
+   opt->identities[4].quote = QString::fromUtf8("Dans le passé, il y avait plus de futur que maintenant.");
    opt->identities[4].sex = MALE;
 
 }

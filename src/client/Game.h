@@ -69,6 +69,7 @@ public slots:
    void slotClickCard(GfxCard *c);
    void slotClickTapis();
    void slotMoveCursor( GfxCard *c );
+   void slotQuitTarotClub();
 
    // événements du serveur
    void slotReceptionCartes();

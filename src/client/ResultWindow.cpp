@@ -31,9 +31,9 @@ void ResultWindow::setCalcul( ScoreInfos *score, GameInfos *infos )
    QString result_str;
 
 	// On affiche les caractéristiques de la partie
-   if( infos->preneur == SUD ) {
-		ui.lblPreneur->setText(STR_SUD);
-   } else if( infos->preneur == EST ) {
+    if( infos->preneur == SUD ) {
+        ui.lblPreneur->setText(STR_SUD);
+    } else if( infos->preneur == EST ) {
 		ui.lblPreneur->setText(STR_EST);
    }else if( infos->preneur == NORD ) {
 		ui.lblPreneur->setText(STR_NORD);
@@ -64,13 +64,13 @@ void ResultWindow::setCalcul( ScoreInfos *score, GameInfos *infos )
    ui.lblResultat->setText(result_str + QString().setNum( score->difference ) + 
                            STR_POINTS + QString("</font>"));
 
-	ui.lblGains->setNum( score->difference );
-   ui.lblPetit->setNum( score->points_petit_au_bout );
-   ui.lblMultiple->setNum( score->multiplicateur );
-   ui.lblPoignee->setNum( score->points_poignee );
-   ui.lblChelem->setNum( score->points_chelem );
-   ui.lblTotalDefense->setText( QString().setNum( score->defense ) + STR_POINTS );
-	ui.lblTotalAttaque->setText( QString().setNum( score->defense*(-3) ) + STR_POINTS );
+    ui.lblGains->setNum( score->difference );
+    ui.lblPetit->setNum( score->points_petit_au_bout );
+    ui.lblMultiple->setNum( score->multiplicateur );
+    ui.lblPoignee->setNum( score->points_poignee );
+    ui.lblChelem->setNum( score->points_chelem );
+    ui.lblTotalDefense->setText( QString().setNum( score->defense ) + STR_POINTS );
+    ui.lblTotalAttaque->setText( QString().setNum( score->defense*(-3) ) + STR_POINTS );
 }
 
 

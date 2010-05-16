@@ -21,9 +21,6 @@
 #include <QMouseEvent>
 #include "textes.h"
 #include "../Jeu.h"
-#include "quazip/quazip.h"
-#include "quazip/quazipfile.h"
-
 
 /*****************************************************************************/
 GfxCard::GfxCard ( const QString & fileName, QGraphicsItem * parent ) : QGraphicsSvgItem(fileName, parent)
@@ -46,7 +43,7 @@ Tapis::Tapis( QWidget *parent )
    //==============================================================
    //       BOUTONS ENCHERES
    //==============================================================
-   groupBoutons = new QGroupBox( trUtf8("EnchÃ¨res"), this );
+   groupBoutons = new QGroupBox( trUtf8("Enchères"), this );
    groupBoutons->setGeometry( 20, 250, 120, 230 );
    groupBoutons->hide();
 
@@ -140,19 +137,7 @@ int Tapis::loadCards(GameOptions *opt)
    int i,j,n;
    QString varImg;
    QString image;
-/*
-   // Try to open deck of images archive
-   QuaZip zip(opt->deckFilePath);
-   if(!zip.open(QuaZip::mdUnzip)) {
-      qWarning("zip.open(): %d", zip.getZipError());
-      return 1;
-   }
-   // first simple test: count number of files (a deck contains 78 cards)
-   if (zip.getEntriesCount() != 78) {
-      qWarning("Wrong number of files in archive (required 78, count: %d", zip.getEntriesCount());
-      return 2;
-   }
-*/
+
    //----- 4 couleurs
    for( i=0; i<4; i++ ){
       if( i==0 ) {
@@ -168,95 +153,32 @@ int Tapis::loadCards(GameOptions *opt)
       // de l'as au roi (14 cartes)
       for( j=0; j<14; j++ ) {
          n = i*14+j;
-         image = QString("./default/") + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
+         image = QString(opt->deckFilePath + "/") + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
 
          GfxCard *item = new GfxCard(image);
          item->hide();
          cardsPics.insert(n, item);
          scene.addItem(item);
-/*
-         if (zip.setCurrentFile(image) == false) {
-            return 3;
-         }
-
-      //   QuaZipFile file(&zip);
-      //   file.open(QIODevice::ReadOnly);
-         // ok, now we can read from the file
-      //   QByteArray array = file.readAll();
-
-    //     GfxCard *item = ;
-
-        // cardsPics.insert(n, new GfxCard(array));
-        // scene.addItem(cardsPics.at(n));
-
-     //    cardsPics[n].load(array);
-
-      //   file.close();
-  */
       }
    }
 
    //----- 21 atouts
    for( i=56; i<77; i++) {
-      image = QString("./default/atout-") + QString().sprintf("%02d.svg",i-55);
-
+      image = QString(opt->deckFilePath + "/atout-") + QString().sprintf("%02d.svg",i-55);
 
       GfxCard *item = new GfxCard(image);
       item->hide();
       cardsPics.insert(i, item);
       scene.addItem(item);
-
-/*
-
-      if (zip.setCurrentFile(image) == false) {
-         return 4;
-      }
-
-      QuaZipFile file(&zip);
-      file.open(QIODevice::ReadOnly);
-      // ok, now we can read from the file
-      QByteArray array = file.readAll();
-
-      GfxCard *item = new GfxCard(array);
-      item->hide();
-      cardsPics.insert(n, item);
-      scene.addItem(item);
-      */
-      //cardsPics.insert(n, new GfxCard(array));
-      //scene.addItem(cardsPics.at(n));
-      //cardsPics[i].load(array);
-      //file.close();
    }
 
    //----- L'excuse
-   image = QString("./default/excuse.svg");
+   image = QString(opt->deckFilePath + "/excuse.svg");
    GfxCard *item = new GfxCard(image);
    item->hide();
    cardsPics.insert(77, item);
    scene.addItem(item);
-/*
-   if (zip.setCurrentFile(image) == false) {
-      return 5;
-   }
-   QuaZipFile file(&zip);
-   file.open(QIODevice::ReadOnly);
-   // ok, now we can read from the file
-   QByteArray array = file.readAll();
 
-   GfxCard *item = new GfxCard(array);
-   item->hide();
-   cardsPics.insert(n, item);
-   scene.addItem(item);
-
-   //cardsPics.insert(n, new GfxCard(array));
-   //scene.addItem(cardsPics.at(n));
-
-   cardsPics[77].load(array);
-
-   file.close();
-   zip.close();
-
-   */
    return 0;
 }
 /*****************************************************************************/
@@ -312,7 +234,7 @@ void Tapis::mouseMoveEvent( QMouseEvent * e )
 }
 /*****************************************************************************/
 /**
- * n==0 : curseur normal avec une flÃ¨che
+ * n==0 : curseur normal avec une flèche
  * n==1 : curseur interdiction
  */
 void Tapis::setCursorType( CursorType t )

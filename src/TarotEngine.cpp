@@ -26,7 +26,7 @@ TarotEngine::TarotEngine()
    : QThread()
 {
    qsrand(QTime(0,0,0).secsTo(QTime::currentTime())); // seed init
-   
+
    QDir b = QCoreApplication::applicationDirPath();
    b.cdUp();
 
@@ -42,7 +42,7 @@ TarotEngine::TarotEngine()
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
 {
-    closeClients();
+
 }
 /*****************************************************************************/
 void TarotEngine::run()
@@ -91,7 +91,7 @@ Place TarotEngine::nextPlayer( Place j )
 void TarotEngine::newServerGame( int port )
 {
    int i;
-   
+
    closeClients();
    // 5 joueurs max + une connexion en plus pour avertir aux nouveaux arrivants
    // que le serveur est plein
@@ -163,6 +163,11 @@ int TarotEngine::getConnectedNumber()
    return (n);
 }
 /*****************************************************************************/
+Score *TarotEngine::getScore()
+{
+   return &score;
+}
+/*****************************************************************************/
 /**
  * Teste si une carte du joueur local peut être jouée
  */
@@ -171,7 +176,7 @@ bool TarotEngine::cardIsValid( Card *c, Place p )
    bool ret = false;
 
    if( sequence == CHIEN ) {
-      if( c->getType() == ATOUT || c->getType() == EXCUSE || 
+      if( c->getType() == ATOUT || c->getType() == EXCUSE ||
             (c->getType() == CARTE && c->getValue()==14 )) {
          ret = false;
       } else {
@@ -305,7 +310,7 @@ void TarotEngine::nouvelleDonne()
  * Automate servant à séquencer le jeu selon l'état courant des variables
  */
 void TarotEngine::jeu()
-{  
+{
    bool ret;
 
    if( !(infos.gameCounter%infos.nbJoueurs) && infos.gameCounter ) {
@@ -404,7 +409,7 @@ bool TarotEngine::finLevee()
     fout << endl << "-----" << endl;
     f.close();
 #endif
-   
+
    if( infos.gameCounter < 72 ) {
       return true;
    } else { // fin du jeu
@@ -478,7 +483,7 @@ void TarotEngine::newConnection()
           << (quint16)0xFFFF;
       out.device()->seek(0);
       out << (quint16)( block.size() - sizeof(quint16) );
-      
+
       connect(client, SIGNAL(disconnected()), client, SLOT(deleteLater()));
       client->write(block);
       client->close();
@@ -500,7 +505,7 @@ void TarotEngine::newConnection()
          clients[OUEST] = client; // on ajoute ce client à la liste
          connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed4()));
          connect( client, SIGNAL(readyRead()), this, SLOT( readData4()));
-      } 
+      }
 
       // on envoie une demande d'infos personnelles
       QByteArray block;
@@ -619,7 +624,7 @@ void TarotEngine::readData( Place p )
 /*****************************************************************************/
 void TarotEngine::doAction( QDataStream &in, Place p )
 {
-   quint8 type;   // type de trame        
+   quint8 type;   // type de trame
    QTcpSocket *client;
    in >> type;
 
@@ -630,7 +635,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
    }
 
    switch( type ) {
-      
+
       /**
        * Message en provenance d'un client
        */
@@ -642,7 +647,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          emit sigPrintMessage(QString("Client message: ") + message);
          break;
       }
-      
+
       /**
        * Identité d'un client
        */
@@ -651,7 +656,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          Identity ident;
          QString version;
          quint8 sex;
-         
+
          in >> version;
          in >> ident.name;
          in >> ident.avatar;
@@ -727,7 +732,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          sequenceEncheres();
          break;
       }
-      
+
       case NET_CLIENT_VU_CHIEN:
          cptVu++;
          if( cptVu == infos.nbJoueurs ) {
@@ -792,7 +797,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          jeu();
          break;
       }
-      
+
       default:
          break;
    }

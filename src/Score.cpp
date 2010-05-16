@@ -26,6 +26,7 @@
 Score::Score()
 {
    init();
+   reset();
 }
 /*****************************************************************************/
 /**
@@ -33,14 +34,14 @@ Score::Score()
  */
 void Score::init()
 {
-   int i;
-
    // RAZ des totaux
-   for( i=0; i<5; i++ ) {
-      scores[i] = 0;
+   for(int i=0; i<NB_TURNS_MAX; i++ ) {
+      for(int j=0; j<5; j++) {
+         scores[i][j] = 0;
+      }
    }
+   turn = 0;
    carteExcuse = HYPERSPACE;
-   chelemDeclare = false;
 }
 /*****************************************************************************/
 /**
@@ -53,14 +54,14 @@ void Score::reset()
    }
 
    gagne = false;
-   
+
    chelemDeclare = false;
    chelemRealise = false;
    chelemDefense = false;
 
    petitAuBout = false;
    petitAttaque = false;
-   
+
    poigneeDefense = false;
    poigneeAttaque = false;
 
@@ -103,9 +104,13 @@ Place Score::getExcuse()
     return(carteExcuse);
 }
 /*****************************************************************************/
-int Score::getScore( int i )
+QList<int> Score::getLastTurnScore()
 {
-   return(scores[i]);
+   QList<int> s;
+   for(int i=0; i<5; i++) {
+      s.append(scores[turn-1][i]);
+   }
+   return(s);
 }
 /*****************************************************************************/
 ScoreInfos *Score::getScoreInfos()
@@ -122,7 +127,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
    float n;
    Card *c;
    int flag=0;
-   
+
    score_inf.bouts=0;
    score_inf.attaque = 0.0;
    score_inf.defense = 0.0;
@@ -131,7 +136,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 
 #ifndef QT_NO_DEBUG
    QString filename = "plis_";
-   
+
    char car;
    for( i=0; i<7; i++ ){
       car = qrand()%26 + 0x61;
@@ -227,7 +232,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
             if( c->getValue() == 21 || c->getValue() == 1 )
                score_inf.bouts++;
          } else if( c->getType() == EXCUSE )
-            score_inf.bouts++;       
+            score_inf.bouts++;
       }
    }
 
@@ -281,7 +286,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
    }
 
    //---------------------------
-   // On connait les points des 
+   // On connait les points des
    // deux camps, on en déduit
    // donc les scores
    //---------------------------
@@ -363,7 +368,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
    }
 
    // Le total de points pour chaque défenseur est donc de :
-   score_inf.points_defense = (25 + abs(score_inf.difference) + score_inf.points_petit_au_bout )*score_inf.multiplicateur + 
+   score_inf.points_defense = (25 + abs(score_inf.difference) + score_inf.points_petit_au_bout )*score_inf.multiplicateur +
                               score_inf.points_poignee + score_inf.points_chelem;
 
    // Le preneur a rempli son contrat, il prend donc les points à la défense
@@ -373,11 +378,12 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 
    for( i=0; i<infos->nbJoueurs; i++ ) {
       if( i == infos->preneur ) {
-         scores[i] += score_inf.points_defense * (infos->nbJoueurs-1) * (-1);
+         scores[turn][i] = score_inf.points_defense * (infos->nbJoueurs-1) * (-1);
       } else {
-         scores[i] += score_inf.points_defense;
+         scores[turn][i] = score_inf.points_defense;
       }
    }
+   turn++;
 }
 
 //=============================================================================

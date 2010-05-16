@@ -20,6 +20,7 @@
 #define _SCORE_H
 
 // Game includes
+#include <QList>
 #include "Card.h"
 #include "Deck.h"
 #include "defines.h"
@@ -29,9 +30,8 @@ class Score
 {
 
 private:
-   
+
    Place plis[78];      // indique quelle carte a été remportée par quel joueur
-   int   scores[5];     // les totaux des cinq joueurs (maxi)
    bool  gagne;         // vrai si le coup est gagné par l'attaque
    Place carteExcuse;   // A qui appartient l'excuse
 
@@ -51,6 +51,10 @@ private:
    // Informations calculées à partir du jeu
    ScoreInfos  score_inf;
 
+   // scores of each turn
+   int   turn;
+   int   scores[NB_TURNS_MAX][5];     // score of each turn players
+
 public:
    Score();
 
@@ -58,14 +62,14 @@ public:
    void  reset();
    void  setPli( int i, Place p );
    void  calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos );
-   
+
    // Mutateurs
    void  setChelemDeclare( bool );
    void  setExcuse( Place p );
 
    // Accesseurs
    Place    getExcuse();
-   int      getScore( int i );
+   QList<int>  getLastTurnScore();
    ScoreInfos  *getScoreInfos();
 
 };

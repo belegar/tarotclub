@@ -20,6 +20,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QColorDialog>
+#include <QString>
 
 /*****************************************************************************/
 OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
@@ -78,13 +79,14 @@ void OptionsWindow::slotBtnOk()
    options.identities[3].name = ui.nomJoueurOuest->text();
    options.identities[4].name = ui.nomJoueurNordOuest->text();
 
-   if( ui.troisJoueurs->isChecked() ) {
+   // TODO: three players version !
+/*   if( ui.troisJoueurs->isChecked() ) {
       options.nbPlayers = 3;
    } else if( ui.cinqJoueurs->isChecked() ) {
       options.nbPlayers = 5;
-   } else {
+   } else {*/
       options.nbPlayers = 4;
-   }
+//   }
 
    options.timer1 = ui.slider1->value();
    options.timer2 = ui.slider2->value();
@@ -245,7 +247,8 @@ void OptionsWindow::refresh()
    ui.nomJoueurOuest->setText( options.identities[3].name );
    ui.nomJoueurNordOuest->setText( options.identities[4].name );
 
-   ui.quatreJoueurs->setChecked( true );
+   // TODO: three players version !
+   //ui.quatreJoueurs->setChecked( true );
 
    ui.slider1->setValue( options.timer1 );
    ui.slider2->setValue( options.timer2 );

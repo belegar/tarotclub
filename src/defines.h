@@ -32,6 +32,7 @@
 #define CONFIG_FILE     "/bin/config.xml"
 #define NB_LANGUES      2
 #define QT_STREAMVER    QDataStream::Qt_4_4
+#define NB_TURNS_MAX    10
 
 /*****************************************************************************/
 enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };
@@ -54,7 +55,7 @@ enum CursorType   { FORBIDDEN, ARROW };
 #define NET_CLIENT_VU_CHIEN   0x14  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le chien
 #define NET_CLIENT_CHIEN      0x15
 #define NET_CLIENT_CARTE      0x16
-#define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le pli  
+#define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le pli
 
 // server -> client
 #define NET_MESSAGE           0x70
@@ -114,14 +115,14 @@ typedef struct {
    int   points_poignee;
    int   points_chelem;
    int   points_defense;
-   
+
 } ScoreInfos;
 
 typedef struct {
    int   atouts;  // nombres d'atouts , en comptant les bouts et l'excuse
    int   bouts;   // 0, 1, 2 ou 3
    int   atoutsMajeurs; // atouts >= 15
-   
+
    int   rois;
    int   dames;
    int   cavaliers;

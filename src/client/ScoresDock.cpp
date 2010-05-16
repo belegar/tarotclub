@@ -54,7 +54,7 @@ void ScoresDock::setOptions( GameOptions *options )
    tableScores->setHorizontalHeaderLabels( header );
 }
 /*****************************************************************************/
-void ScoresDock::setNewScore( int *scores, int nbJoueurs )
+void ScoresDock::setNewScore( QList<int> scores, int nbJoueurs )
 {
    int n;
 

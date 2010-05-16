@@ -23,21 +23,17 @@ VPATH += $${PWD}/include
 QT += xml \
     network \
     svg
-
 RESOURCES = $${PWD}/../src/data/data.qrc
-CONFIG +=   qt \
-            warn_on
-
+CONFIG += qt \
+    warn_on
 INCLUDEPATH += $${PWD}/include
-
 win32 { 
     INCLUDEPATH += $${PWD}/../lib/zlib-1.2.5
-    debug {
-      #  CONFIG += console
-    }
+    debug:
+    
+    # CONFIG += console
     RC_FILE = icon.rc
 }
-
 HEADERS += AboutWindow.h \
     MainWindow.h \
     OptionsWindow.h \
@@ -62,15 +58,7 @@ HEADERS += AboutWindow.h \
     ui_ServerManagerUI.h \
     ui_InfosDockUI.h \
     ui_AvatarsUI.h \
-    ui_OptionsUI.h \
-    crypt.h \
-    ioapi.h \
-    quazipfile.h \
-    quazipfileinfo.h \
-    quazip.h \
-    quazipnewinfo.h \
-    unzip.h \
-    zip.h
+    ui_OptionsUI.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -100,10 +88,4 @@ SOURCES = AboutWindow.cpp \
     Client.cpp \
     Bot.cpp \
     TarotEngine.cpp \
-    Score.cpp \
-    quazip.cpp \
-    quazipfile.cpp \
-    quazipnewinfo.cpp \
-    ioapi.c \
-    unzip.c \
-    zip.c
+    Score.cpp
