@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -12,8 +13,7 @@
    height="111.99989"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
-   sodipodi:docbase="C:\Documents and Settings\Anthony\Bureau"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="trefle-05.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.0">
@@ -24,17 +24,22 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.78431373"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.3821774"
-     inkscape:cx="46.393753"
-     inkscape:cy="57.064945"
+     inkscape:zoom="21.52871"
+     inkscape:cx="33.213041"
+     inkscape:cy="10.752732"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      showguides="false"
-     inkscape:window-width="1280"
+     inkscape:window-width="1556"
      inkscape:window-height="904"
-     inkscape:window-x="408"
-     inkscape:window-y="96" />
+     inkscape:window-x="221"
+     inkscape:window-y="85"
+     inkscape:window-maximized="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3233" />
+  </sodipodi:namedview>
   <defs
      id="defs4">
     <inkscape:perspective
@@ -121,16 +126,16 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:11.8381424px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="2.5160134"
-       y="1002.6628"
+       style="font-size:11.00164032px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:'Times New Roman,'"
+       x="2.3063333"
+       y="1007.3928"
        id="text7838"
-       transform="scale(1.0539234,0.9488356)"><tspan
+       transform="scale(1.0590307,0.94425968)"
+       sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         id="tspan7840"
-         x="2.5160134"
-         y="1002.6628"
-         style="font-size:10.91693974px;font-family:Times New Roman">4</tspan></text>
+         id="tspan3235"
+         x="2.3063333"
+         y="1007.3928">5</tspan></text>
     <g
        id="g3232"
        transform="translate(14,0)">
@@ -182,17 +187,17 @@
          ry="0" />
     </g>
     <text
-       transform="scale(1.0539234,0.9488356)"
+       transform="scale(1.0590307,0.94425968)"
        id="text7842"
-       y="1002.6628"
-       x="50.11771"
-       style="font-size:11.8381424px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       xml:space="preserve"><tspan
-         style="font-size:10.91693974px;font-family:Times New Roman"
-         y="1002.6628"
-         x="50.11771"
-         id="tspan7844"
-         sodipodi:role="line">4</tspan></text>
+       y="1007.3928"
+       x="49.991447"
+       style="font-size:11.00164032px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:'Times New Roman,'"
+       xml:space="preserve"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3237"
+         x="49.991447"
+         y="1007.3928">5</tspan></text>
     <g
        transform="matrix(1,0,0,-1,-19,1992.7244)"
        id="g3275">
@@ -245,16 +250,16 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:11.8381424px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="-7.7612619"
-       y="-1097.516"
+       style="font-size:11.00164032px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:'Times New Roman,'"
+       x="-7.6083932"
+       y="-1102.9635"
        id="text7846"
-       transform="scale(-1.0539234,-0.9488356)"><tspan
+       transform="scale(-1.0590307,-0.94425971)"
+       sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         id="tspan7848"
-         x="-7.7612619"
-         y="-1097.516"
-         style="font-size:10.91693974px;font-family:Times New Roman">4</tspan></text>
+         id="tspan3241"
+         x="-7.6083932"
+         y="-1102.9635">5</tspan></text>
     <g
        transform="matrix(1,0,0,-1,14,1992.7244)"
        id="g3247">
@@ -306,17 +311,17 @@
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linejoin:miter;stroke-miterlimit:79.19999695;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <text
-       transform="scale(-1.0539234,-0.9488356)"
+       transform="scale(-1.0590307,-0.94425969)"
        id="text7850"
-       y="-1097.516"
-       x="-55.368286"
-       style="font-size:11.8381424px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       xml:space="preserve"><tspan
-         style="font-size:10.91693974px;font-family:Times New Roman"
-         y="-1097.516"
-         x="-55.368286"
-         id="tspan7852"
-         sodipodi:role="line">4</tspan></text>
+       y="-1102.9635"
+       x="-55.29351"
+       style="font-size:11.00164032px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:'Times New Roman,'"
+       xml:space="preserve"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3239"
+         x="-55.29351"
+         y="-1102.9635">5</tspan></text>
     <g
        transform="matrix(0.1400416,0,0,0.1511618,-6.6664945,950.37043)"
        id="g2617"
