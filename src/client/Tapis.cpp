@@ -264,7 +264,7 @@ void Tapis::resizeEvent( QResizeEvent *e )
 {
    QSize s;
    s = e->size();
-   setSceneRect( 0, 0, s.width(), s.height() ); // TODO ?? pas vraiment sÃ»r, Ã  tester en redimensionnant la fenÃªtre
+   setSceneRect( 0, 0, s.width(), s.height() );
 }
 /*****************************************************************************/
 void Tapis::mousePressEvent( QMouseEvent *e )
