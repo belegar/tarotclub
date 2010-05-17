@@ -1,5 +1,7 @@
 ; Script generated with the Venis Install Wizard
 
+!include WinMessages.nsh
+
 ; Define your application name
 !define APPNAME "TarotClub"
 !define APPNAMEANDVERSION "TarotClub 2.0.0 Alpha 1"
@@ -123,8 +125,9 @@ Section "TarotClub" Section1
 	SetOutPath "$INSTDIR\"
 	File "..\prj\bin\TarotClub.exe"
 	File "TarotClub.url"
+	File "..\src\data\fonts\kanzlei.ttf"
 
-; Qt Library
+	; Qt Library
 	File "${QT_DIR}\QtCore4.dll"
 	File "${QT_DIR}\QtSvg4.dll"
 	File "${QT_DIR}\mingwm10.dll"
@@ -132,7 +135,13 @@ Section "TarotClub" Section1
 	File "${QT_DIR}\QtXml4.dll"
 	File "${QT_DIR}\QtNetwork4.dll"
 	File "${QT_DIR}\libgcc_s_dw2-1.dll"
-
+	
+	; Fonts
+	System::Call "GDI32::AddFontResourceA(t) i ('$INSTDIR\kanzlei.ttf') .s"
+	Pop $0
+	# $0 is zero if the function failed
+	SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0
+	
 	CreateShortCut "$DESKTOP\TarotClub.lnk" "$INSTDIR\TarotClub.exe"
 	CreateDirectory "$SMPROGRAMS\TarotClub"
 	CreateShortCut "$SMPROGRAMS\TarotClub\TarotClub.lnk" "$INSTDIR\TarotClub.exe"
@@ -140,6 +149,7 @@ Section "TarotClub" Section1
 	CreateShortCut "$SMPROGRAMS\TarotClub\Page Web du projet TarotClub.lnk" "$INSTDIR\TarotClub.url"
 
 SectionEnd
+
 
 Section -FinishSection
 
