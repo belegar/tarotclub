@@ -136,12 +136,6 @@ Section "TarotClub" Section1
 	File "${QT_DIR}\QtNetwork4.dll"
 	File "${QT_DIR}\libgcc_s_dw2-1.dll"
 	
-	; Fonts
-	System::Call "GDI32::AddFontResourceA(t) i ('$INSTDIR\kanzlei.ttf') .s"
-	Pop $0
-	# $0 is zero if the function failed
-	SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0
-	
 	CreateShortCut "$DESKTOP\TarotClub.lnk" "$INSTDIR\TarotClub.exe"
 	CreateDirectory "$SMPROGRAMS\TarotClub"
 	CreateShortCut "$SMPROGRAMS\TarotClub\TarotClub.lnk" "$INSTDIR\TarotClub.exe"
