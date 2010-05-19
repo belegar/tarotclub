@@ -59,11 +59,7 @@ void Bot::slotChoixEnchere( Contrat c )
    if( mon_contrat <= c ) {
       mon_contrat = PASSE;
    }
-#ifdef _DEBUG
-   mon_contrat = PASSE; // TODO : à effacer
-#endif
    sendEnchere(mon_contrat);
-
 }
 /*****************************************************************************/
 void Bot::slotAfficheEnchere( Place, Contrat )
