@@ -19,7 +19,11 @@
 #include <QtNetwork>
 #include <QCoreApplication>
 #include "TarotEngine.h"
-
+#ifndef QT_NO_DEBUG
+   #include <iostream>
+   #include <fstream>
+using namespace std;
+#endif // QT_NO_DEBUG
 
 /*****************************************************************************/
 TarotEngine::TarotEngine()
@@ -316,7 +320,38 @@ void TarotEngine::jeu()
    if( !(infos.gameCounter%infos.nbJoueurs) && infos.gameCounter ) {
       ret = finLevee();
       if( ret == false ) {
-          sendFinDonne( score.getScoreInfos() );
+#ifndef QT_NO_DEBUG
+   // generate a file with cards of all players
+   ofstream f("round_cards.txt");
+   QString l1, l2, l3;
+
+   // Card type
+   for (int j=0; j<mainDeck.size(); j++) {
+      QString n;
+      Card *c = mainDeck.at(j);
+      l1 += c->getCardName() + "\t";
+      l2 += n.setNum(c->getPoints()) + "\t";
+      l3 += n.setNum((int)c->getOwner()) + "\t";
+   }
+   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << "\n";
+
+   l1 = l2 = l3 = "";
+
+   // Card type
+   for (int j=0; j<deckChien.size(); j++) {
+      QString n;
+      Card *c = deckChien.at(j);
+      l1 += c->getCardName() + "\t";
+      l2 += n.setNum(c->getPoints()) + "\t";
+      l3 += n.setNum((int)c->getOwner()) + "\t";
+   }
+   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << "\n";
+
+   f.close();
+#endif
+
+         // end of round, send score to all players
+         sendFinDonne( score.getScoreInfos() );
       } else {
          cptVu = 0;
          sendWaitPli();
@@ -386,7 +421,7 @@ bool TarotEngine::finLevee()
    int i;
    Card *c;
 
-#ifdef _DEBUG
+#ifndef QT_NO_DEBUG
    QFile f("debug.txt");
    QTextStream fout(&f);
    f.open(QIODevice::Append | QIODevice::Text);
@@ -400,12 +435,12 @@ bool TarotEngine::finLevee()
       c = mainDeck.at(i);
       score.setPli( i, tour );
 
-#ifdef _DEBUG
+#ifndef QT_NO_DEBUG
     fout << c->getId() << " i=" << i << ", tour=" << tour << " ";
 #endif
     }
 
-#ifdef _DEBUG
+#ifndef QT_NO_DEBUG
     fout << endl << "-----" << endl;
     f.close();
 #endif
@@ -773,9 +808,6 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          }
          sequence = GAME;
          tour = donneur;
-#ifdef _DEBUG
-         tour = OUEST;
-#endif
          sendDepartDonne();
          jeu();
          break;
