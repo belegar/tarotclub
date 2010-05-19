@@ -21,6 +21,7 @@
 
 // Game includes
 #include "defines.h"
+#include <QString>
 
 /*****************************************************************************/
 class Card
@@ -60,6 +61,7 @@ public:
    int         getId();
    Place       getOwner();
    int         getValue();
+   QString     getCardName();
 
 };
 
