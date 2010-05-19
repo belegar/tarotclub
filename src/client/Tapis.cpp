@@ -22,6 +22,9 @@
 #include "textes.h"
 #include "../Jeu.h"
 
+#define NORTH_BOX_POS_X   350
+#define NORTH_BOX_POS_Y   10
+
 /*****************************************************************************/
 GfxCard::GfxCard ( const QString & fileName, QGraphicsItem * parent ) : QGraphicsSvgItem(fileName, parent)
 
@@ -44,21 +47,26 @@ Tapis::Tapis( QWidget *parent )
    //       BOUTONS ENCHERES
    //==============================================================
    groupBoutons = new QGroupBox( trUtf8("Enchères"), this );
-   groupBoutons->setGeometry( 20, 250, 120, 230 );
    groupBoutons->hide();
 
-   boutonPasse = new QPushButton(STR_PASSE, groupBoutons);
-   boutonPasse->move(10,20);
-   boutonPrise = new QPushButton(STR_PRISE, groupBoutons);
-   boutonPrise->move(10,55);
-   boutonGarde = new QPushButton(STR_GARDE, groupBoutons);
-   boutonGarde->move(10,90);
-   boutonGardeSans = new QPushButton(STR_GARDE_SANS, groupBoutons);
-   boutonGardeSans->move(10,125);
-   boutonGardeContre = new QPushButton(STR_GARDE_CONTRE, groupBoutons);
-   boutonGardeContre->move(10,160);
-   chelem = new QCheckBox( "Chelem", groupBoutons );
-   chelem->move(10,195);
+   boutonPasse = new QPushButton(STR_PASSE);
+   boutonPrise = new QPushButton(STR_PRISE);
+   boutonGarde = new QPushButton(STR_GARDE);
+   boutonGardeSans = new QPushButton(STR_GARDE_SANS);
+   boutonGardeContre = new QPushButton(STR_GARDE_CONTRE);
+   chelem = new QCheckBox("Chelem");
+
+   QVBoxLayout *vbox = new QVBoxLayout;
+   vbox->addWidget(boutonPasse);
+   vbox->addWidget(boutonPrise);
+   vbox->addWidget(boutonGarde);
+   vbox->addWidget(boutonGardeSans);
+   vbox->addWidget(boutonGardeContre);
+   vbox->addWidget(chelem);
+   groupBoutons->setLayout(vbox);
+
+   groupBoutons->move(10,300);
+
    //==============================================================
 
    boutonAccepterChien = new QPushButton(trUtf8("Accepter le chien"), this);
@@ -69,22 +77,20 @@ Tapis::Tapis( QWidget *parent )
    //==============================================================
    //       ELEMENTS DU CANVAS
    //==============================================================
-   btNord = new PlayerBox(440, 10, &scene);
-   btOuest = new PlayerBox(210, 113, &scene);
-   btSud = new PlayerBox(440, 462, &scene);
-   btEst = new PlayerBox(677, 113, &scene);
-   btNordOuest = new PlayerBox(677, 236, &scene);
+   btNord = new PlayerBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y, &scene);
+   btOuest = new PlayerBox(NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+103, &scene);
+   btSud = new PlayerBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+452, &scene);
+   btEst = new PlayerBox(NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+103, &scene);
 
    btNord->show();
    btOuest->show();
    btSud->show();
    btEst->show();
 
-   enchNord = new TextBox(440, 50, &scene);
-   enchOuest = new TextBox(210, 153, &scene);
-   enchSud = new TextBox(440, 422, &scene);
-   enchEst = new TextBox(677, 153, &scene);
-   enchNordOuest = new TextBox(555, 236, &scene);
+   enchNord = new TextBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+40, &scene);
+   enchOuest = new TextBox(NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+143, &scene);
+   enchSud = new TextBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+412, &scene);
+   enchEst = new TextBox(NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+143, &scene);
 
    connect( boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()) );
    connect( boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()) );
@@ -304,9 +310,6 @@ void Tapis::setNbPlayers(int n)
    if( n == 4 ) {
       btNord->show();
    }
-   if( n == 5 ) {
-      btNordOuest->show();
-   }
 }
 /*****************************************************************************/
 /**
@@ -377,9 +380,10 @@ void Tapis::afficheCarte( GfxCard *c, Place p )
    } else if( p == EST ) {
       x = btEst->rect().x();
       y = btEst->rect().y();
-   } else {// Nord Ouest
-      x = btNordOuest->rect().x();
-      y = btNordOuest->rect().y();
+   } else {
+      //TODO: Nord-ouest
+      x = 0;
+      y = 0;
    }
 
    x = x + (TEXT_BOX_WIDTH - width)/4;
@@ -399,7 +403,6 @@ void Tapis::afficheSelection( Place p )
    btOuest->selectPlayer(false);
    btEst->selectPlayer(false);
    btSud->selectPlayer(false);
-   btNordOuest->selectPlayer(false);
 
    if( p == NORD ) {
       btNord->selectPlayer(true);
@@ -410,7 +413,7 @@ void Tapis::afficheSelection( Place p )
    } else if( p == EST ) {
       btEst->selectPlayer(true);
    } else {// Nord ouest
-      btNordOuest->selectPlayer(true);
+      //TODO
    }
 }
 /*****************************************************************************/
@@ -485,7 +488,8 @@ void Tapis::showAvatars( bool b, int nb_players )
       btNord->enableAvatar(b);
    }
    if( nb_players > 4 ) {
-      btNordOuest->enableAvatar(b);
+      //TODO: 5 players
+      //btNordOuest->enableAvatar(b);
    }
 }
 /*****************************************************************************/
@@ -503,13 +507,11 @@ void Tapis::razTapis()
    btOuest->highlightPlayer(false);
    btEst->highlightPlayer(false);
    btSud->highlightPlayer(false);
-   btNordOuest->highlightPlayer(false);
 
    btNord->selectPlayer(false);
    btOuest->selectPlayer(false);
    btEst->selectPlayer(false);
    btSud->selectPlayer(false);
-   btNordOuest->selectPlayer(false);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton1()

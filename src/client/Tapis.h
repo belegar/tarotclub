@@ -59,13 +59,11 @@ private:
    PlayerBox      *btOuest;
    PlayerBox      *btSud;
    PlayerBox      *btEst;
-   PlayerBox      *btNordOuest;
 
    TextBox        *enchNord;
    TextBox        *enchOuest;
    TextBox        *enchSud;
    TextBox        *enchEst;
-   TextBox        *enchNordOuest;
 
    QGroupBox      *groupBoutons;
    QPushButton    *boutonPasse;
