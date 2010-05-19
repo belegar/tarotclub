@@ -21,7 +21,7 @@
 #ifndef QT_NO_DEBUG
    #include <iostream>
    #include <fstream>
-#endif // _DEBUG
+#endif // QT_NO_DEBUG
 
 #include <QtAlgorithms>
 
@@ -62,7 +62,7 @@ unsigned int Deck::shuffle( bool hasard, unsigned int seed )
 #ifndef QT_NO_DEBUG
    // Affichage avant le mélange
    ofstream f("cartes_avant.txt");
-   
+
    f << "Nombre de cartes : " << nbCards << endl << endl;
 
 
@@ -78,7 +78,7 @@ unsigned int Deck::shuffle( bool hasard, unsigned int seed )
       }
    }
    f.close();
-#endif // _DEBUG
+#endif // QT_NO_DEBUG
 
    // On assigne à chaque carte un nombre aléatoire
    for( i=0; i<nbCards; i++) {
@@ -105,7 +105,7 @@ unsigned int Deck::shuffle( bool hasard, unsigned int seed )
 
 #ifndef QT_NO_DEBUG
    // on affiche les cartes mélangées
-   
+
    f.open("cartes_apres.txt");
    f << "Nombre de cartes : " << nbCards << endl << endl;
 
@@ -122,7 +122,7 @@ unsigned int Deck::shuffle( bool hasard, unsigned int seed )
       }
    }
    f.close();
-#endif // _DEBUG
+#endif // QT_NO_DEBUG
 
    delete[] cartesId;
    return graine;
