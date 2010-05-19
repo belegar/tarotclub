@@ -22,7 +22,7 @@
    #include <iostream>
    #include <fstream>
 using namespace std;
-#endif // _DEBUG
+#endif // QT_NO_DEBUG
 
 
 /*****************************************************************************/
@@ -79,7 +79,7 @@ bool Player::cardExists( Card *c )
 }
 /*****************************************************************************/
 /**
- * Teste si la carte cVerif peut être jouée : cela dépend des cartes déjà 
+ * Teste si la carte cVerif peut être jouée : cela dépend des cartes déjà
  * jouées sur le tapis et des cartes dans la main du joueur
  */
 bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nbPlayers )
@@ -154,7 +154,7 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
 
    for( i=0; i<n; i++ ) {
       c = myDeck.at( i );
-      
+
       if( c->getType() == ATOUT ) {
          possedeAtout=true;
          if( c->getValue() > atoutMax ) {
@@ -184,7 +184,7 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
          if( possedeAtout == true ) {
             return false;
          } else {
-            return true;      
+            return true;
          }
       }
    } else {// cas 2 : le type demandé est CARTE
@@ -202,7 +202,7 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
                   if( atoutMax > precAtoutMax ) {
                      return false; // oui, il doit donc surcouper
                   } else {
-                     return true;         
+                     return true;
                   }
                }
             }
