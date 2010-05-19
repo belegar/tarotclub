@@ -124,7 +124,7 @@ void Game::slotNewLocalGame()
    tapis->setNbPlayers(options->nbPlayers);
    tapis->setFilter(AUCUN);
    sequence = DISTRIBUTION;
-   statusBar()->showMessage( "Cliquez sur le tapis pour démarrer le tour." );
+   statusBar()->showMessage( trUtf8("Cliquez sur le tapis pour démarrer le tour.") );
 }
 /*****************************************************************************/
 void Game::applyOptions()
@@ -346,8 +346,8 @@ void Game::slotAfficheChien()
    GfxCard *cgfx;
 
    n = client.getTailleChien();
-   x = 350;
-   y = 150;
+   x = 260;
+   y = 160;
 
    for( i=0; i<n; i++ ) {
       c = client.getCardChien(i);
@@ -429,6 +429,9 @@ void Game::slotAfficheCarte(int id)
 void Game::slotFinDonne()
 {
    resultWindow->setCalcul( client.getScoreInfos(), client.getGameInfos() );
+
+   //TODO: show the cards of all players
+
    if( resultWindow->exec() == QDialog::Accepted ) {
       // Add current turn result to total score
       scoresDock->setNewScore(server.getScore()->getLastTurnScore(), config->getGameOptions()->nbPlayers);
