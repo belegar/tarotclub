@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>437</height>
+    <width>411</width>
+    <height>344</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,7 +26,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget_2">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -385,130 +385,107 @@
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
-          <string>Transitions entre joueurs</string>
+          <string>Délais</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QRadioButton" name="radioButton">
-            <property name="text">
-             <string>Un clic permet de passer au joueur suivant</string>
+           <layout class="QVBoxLayout" name="_4">
+            <property name="spacing">
+             <number>6</number>
             </property>
-           </widget>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="TextLabel1">
+              <property name="text">
+               <string>Entre deux joueurs</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="TextLabel2">
+              <property name="text">
+               <string>À la fin du tour</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
-          <item row="1" column="0">
-           <widget class="QRadioButton" name="radioButton_2">
-            <property name="text">
-             <string>Pause entre chaque joueur</string>
+          <item row="0" column="1">
+           <layout class="QVBoxLayout" name="_3">
+            <property name="spacing">
+             <number>6</number>
             </property>
-           </widget>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QSlider" name="slider1">
+              <property name="maximum">
+               <number>5000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="pageStep">
+               <number>100</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="slider2">
+              <property name="maximum">
+               <number>5000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="pageStep">
+               <number>100</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
-          <item row="2" column="0">
-           <widget class="QGroupBox" name="groupBox_11">
-            <property name="title">
-             <string>Temps de pause</string>
+          <item row="0" column="2">
+           <layout class="QVBoxLayout" name="_2">
+            <property name="spacing">
+             <number>6</number>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <layout class="QVBoxLayout" name="_4">
-               <property name="spacing">
-                <number>6</number>
-               </property>
-               <property name="margin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QLabel" name="TextLabel1">
-                 <property name="text">
-                  <string>Entre deux joueurs</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="TextLabel2">
-                 <property name="text">
-                  <string>À la fin du tour</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="_3">
-               <property name="spacing">
-                <number>6</number>
-               </property>
-               <property name="margin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QSlider" name="slider1">
-                 <property name="maximum">
-                  <number>9000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>100</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>100</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSlider" name="slider2">
-                 <property name="maximum">
-                  <number>9000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>100</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>100</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="_2">
-               <property name="spacing">
-                <number>6</number>
-               </property>
-               <property name="margin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QLabel" name="temps1">
-                 <property name="text">
-                  <string>0.0 secondes</string>
-                 </property>
-                 <property name="scaledContents">
-                  <bool>false</bool>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="temps2">
-                 <property name="text">
-                  <string>0.0 secondes</string>
-                 </property>
-                 <property name="scaledContents">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </widget>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="temps1">
+              <property name="text">
+               <string>0.0 secondes</string>
+              </property>
+              <property name="scaledContents">
+               <bool>false</bool>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="temps2">
+              <property name="text">
+               <string>0.0 secondes</string>
+              </property>
+              <property name="scaledContents">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

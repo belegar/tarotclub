@@ -65,6 +65,8 @@ private:
    QMap<Place, QTcpSocket *> clients; // les clients connectés
    QTcpServer  server;
 
+   QTimer      timerBetweenPlayers;
+   QTimer      timerBetweenTurns;
    QString     gamePath;
    GameInfos   infos;
    Score       score;
@@ -89,6 +91,10 @@ public:
    int   getConnectedPlayers( Identity *idents );
    int   getConnectedNumber();
    Score *getScore();
+
+   void setTimerBetweenPlayers(int t);
+   void setTimerBetweenTurns(int t);
+
    void  newServerGame( int port );
    void  closeServerGame();
    void  closeClients();
@@ -106,38 +112,41 @@ public:
    void  montreChien();
 
    // Fonctions réseau
-   void  sendCards( Place p, quint8 *params );
-   void  askBid( Place p, Contrat c );
-   void  sendBid( Place p, Contrat c );
-   void  broadcast( QByteArray &block );
-   void  doAction( QDataStream &in, Place p );
-   void  sendMessage( const QString &message, Place p );
-   void  readData( Place p );
-   void  clientClosed(Place p );
-   void  sendPlayersList();
-   void  sendShowChien();
-   void  sendDoChien();
-   void  sendJoueCarte();
-   void  sendCard( Card *c );
-   void  sendDepartDonne();
-   void  sendRedist();
-   void  sendFinDonne( ScoreInfos *score_inf );
-   void  sendWaitPli();
-   void  selectPlayer( Place p );
+   void sendCards( Place p, quint8 *params );
+   void askBid( Place p, Contrat c );
+   void sendBid( Place p, Contrat c );
+   void broadcast( QByteArray &block );
+   void doAction( QDataStream &in, Place p );
+   void sendMessage( const QString &message, Place p );
+   void readData( Place p );
+   void clientClosed(Place p );
+   void sendPlayersList();
+   void sendShowChien();
+   void sendDoChien();
+   void sendJoueCarte();
+   void sendCard( Card *c );
+   void sendDepartDonne();
+   void sendRedist();
+   void sendFinDonne( ScoreInfos *score_inf );
+   void sendWaitPli();
+   void selectPlayer( Place p );
 
 signals:
-   void  sigPrintMessage(const QString &);
+   void sigPrintMessage(const QString &);
 
 public slots:
-   void  newConnection();
-   void  clientClosed1();
-   void  clientClosed2();
-   void  clientClosed3();
-   void  clientClosed4();
-   void  readData1();
-   void  readData2();
-   void  readData3();
-   void  readData4();
+   void newConnection();
+   void clientClosed1();
+   void clientClosed2();
+   void clientClosed3();
+   void clientClosed4();
+   void readData1();
+   void readData2();
+   void readData3();
+   void readData4();
+
+   void slotTimerBetweenPlayers();
+   void slotTimerBetweenTurns();
 
 };
 

@@ -142,6 +142,9 @@ void Game::applyOptions()
    tapis->showAvatars( options->showAvatars, options->nbPlayers );
    tapis->printNames(options->identities, SUD);
    tapis->setBackground(options->tapis);
+
+   server.setTimerBetweenPlayers(options->timer1);
+   server.setTimerBetweenTurns(options->timer2);
 }
 /*****************************************************************************/
 void Game::showOptions()
