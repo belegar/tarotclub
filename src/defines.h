@@ -146,7 +146,7 @@ typedef struct {
    bool  vingtEtUn;
    bool  excuse;
 
-} DECK_STATS;
+} DeckStats;
 
 /*****************************************************************************/
 

@@ -33,7 +33,7 @@ class Client : public Player
 protected:
    QTcpSocket  socket;
    PlayerType  type;       // Type du joueur (humain, IA, ou réseau)
-   DECK_STATS  stats;      // statistiques sur les cartes en main du joueur
+   DeckStats   stats;      // statistiques sur les cartes en main du joueur
    GameInfos   infos;      // Informations sur le jeu en cours
    ScoreInfos  score_inf;
    Deck        chien;
@@ -49,7 +49,7 @@ public:
    bool     isValid( Card *c );
    void     setType( PlayerType );
    PlayerType  getType();
-   DECK_STATS  *getStats();
+   DeckStats  *getStats();
    GameInfos *getGameInfos();
    ScoreInfos *getScoreInfos();
 

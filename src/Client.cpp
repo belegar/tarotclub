@@ -46,7 +46,7 @@ PlayerType Client::getType()
    return (type);
 }
 /*****************************************************************************/
-DECK_STATS *Client::getStats()
+DeckStats *Client::getStats()
 {
    return (&stats);
 }
