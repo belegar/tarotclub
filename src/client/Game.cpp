@@ -22,7 +22,7 @@
 #include "Game.h"
 #include "../Jeu.h"
 
-#define CARD_NORMAL	522
+#define CARD_NORMAL     522
 #define CARD_SELECTED	502
 
 /*****************************************************************************/

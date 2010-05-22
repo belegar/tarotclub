@@ -68,7 +68,8 @@ public:
    void  setExcuse( Place p );
 
    // Accesseurs
-   Place    getExcuse();
+   Place getExcuse();
+   Place getPli(int i);
    QList<int>  getLastTurnScore();
    ScoreInfos  *getScoreInfos();
 

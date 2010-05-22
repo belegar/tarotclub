@@ -82,11 +82,18 @@ void Score::reset()
 /*****************************************************************************/
 void Score::setPli( int i, Place p )
 {
-   if( i>=78 || i<0 ) {
+   if( i>77 || i<0 ) {
       return;
    }
-
    plis[i] = p;
+}
+/*****************************************************************************/
+Place Score::getPli(int i)
+{
+   if( i>77 || i<0 ) {
+      return HYPERSPACE;
+   }
+   return plis[i];
 }
 /*****************************************************************************/
 void Score::setChelemDeclare( bool c )
@@ -135,14 +142,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
    petitAttaque = false;
 
 #ifndef QT_NO_DEBUG
-   QString filename = "plis_";
-
-   char car;
-   for( i=0; i<7; i++ ){
-      car = qrand()%26 + 0x61;
-      filename += car;
-   }
-   filename += ".txt";
+   QString filename = "plis_" + QDateTime::currentDateTime().toString() + ".txt" ;
    QFile out_file(filename);
    out_file.open(QIODevice::WriteOnly | QIODevice::Text);
    QTextStream f(&out_file);
@@ -161,7 +161,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 #endif
 
       if( c->getType() == EXCUSE ) {
-         if( plis[i]== infos->preneur ) {
+         if( plis[i] == infos->preneur ) {
             if( carteExcuse == infos->preneur ) {
                score_inf.attaque += n;
                score_inf.bouts++;

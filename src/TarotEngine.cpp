@@ -202,8 +202,8 @@ bool TarotEngine::cardExists( Card *c, Place p )
 }
 /*****************************************************************************/
 /**
-* Calcule qui a remporté le pli
-*/
+ * Calcule qui a remporté le pli
+ */
 Place TarotEngine::calculGagnantPli()
 {
    Card *c;
@@ -323,7 +323,7 @@ void TarotEngine::jeu()
 #ifndef QT_NO_DEBUG
    // generate a file with cards of all players
    ofstream f("round_cards.txt");
-   QString l1, l2, l3;
+   QString l1, l2, l3, l4;
 
    // Card type
    for (int j=0; j<mainDeck.size(); j++) {
@@ -332,10 +332,11 @@ void TarotEngine::jeu()
       l1 += c->getCardName() + "\t";
       l2 += n.setNum(c->getPoints()) + "\t";
       l3 += n.setNum((int)c->getOwner()) + "\t";
+      l4 += n.setNum(score.getPli(j)) + "\t";
    }
-   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << "\n";
+   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
 
-   l1 = l2 = l3 = "";
+   l1 = l2 = l3 = l4 = "";
 
    // Card type
    for (int j=0; j<deckChien.size(); j++) {
@@ -344,8 +345,9 @@ void TarotEngine::jeu()
       l1 += c->getCardName() + "\t";
       l2 += n.setNum(c->getPoints()) + "\t";
       l3 += n.setNum((int)c->getOwner()) + "\t";
+      l3 += n.setNum(score.getPli(j)) + "\t";
    }
-   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << "\n";
+   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
 
    f.close();
 #endif
@@ -431,7 +433,7 @@ bool TarotEngine::finLevee()
    // On détecte qui a remporté le pli, c'est lui qui entame le prochain tour
    tour = calculGagnantPli();
 
-   for( i = infos.gameCounter-infos.nbJoueurs; i<infos.gameCounter; i++ ) {
+   for( i = (infos.gameCounter-infos.nbJoueurs); i<infos.gameCounter; i++ ) {
       c = mainDeck.at(i);
       score.setPli( i, tour );
 
