@@ -91,6 +91,7 @@ public:
    int   getConnectedPlayers( Identity *idents );
    int   getConnectedNumber();
    Score *getScore();
+   int getDealNumber();
 
    void setTimerBetweenPlayers(int t);
    void setTimerBetweenTurns(int t);

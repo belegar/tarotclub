@@ -38,7 +38,8 @@ protected:
    ScoreInfos  score_inf;
    Deck        chien;
    Deck        mainDeck;
-   
+   Deck        poignee;  // poignée déclarée par le joueur
+
 public:
    Client();
 
@@ -64,11 +65,18 @@ public:
    int   getTailleChien();
    void  choixChien( Deck * ); // méthode qui génère un chien valide au hasard
 
+   // opération sur la poignée
+   void emptyPoignee();
+   void addCardPoignee(Card *c);
+   void removeCardPoignee(Card *c);
+   int getTaillePoignee();
+
    // Réseau
    void connectToHost( const QString &hostName, quint16 port );
    void sendMessage( const QString &message );
    void sendEnchere( Contrat c );
    void sendChien();
+   void sendPoignee();
    void sendCard( Card *c );
    void sendStart();
    void sendVuChien();

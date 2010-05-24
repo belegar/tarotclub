@@ -29,7 +29,7 @@
 GfxCard::GfxCard ( const QString & fileName, QGraphicsItem * parent ) : QGraphicsSvgItem(fileName, parent)
 
 {
-
+   status = CARD_NORMAL;
 }
 /*****************************************************************************/
 int GfxCard::type() const
@@ -38,6 +38,33 @@ int GfxCard::type() const
   return Type;
 }
 /*****************************************************************************/
+CardStatus GfxCard::getStatus()
+{
+   return status;
+}
+/*****************************************************************************/
+void GfxCard::setStatus(CardStatus s)
+{
+   status = s;
+}
+/*****************************************************************************/
+void GfxCard::toggleStatus()
+{
+   if (status == CARD_NORMAL) {
+      status = CARD_SELECTED;
+      this->moveBy(0.0, -20.0);
+   } else {
+      status = CARD_NORMAL;
+      this->moveBy(0.0, 20.0);
+   }
+}
+
+
+/*****************************************************************************/
+//          *                          *                        *
+/*****************************************************************************/
+
+
 Tapis::Tapis( QWidget *parent )
     : QGraphicsView( parent )
 {
@@ -75,6 +102,13 @@ Tapis::Tapis( QWidget *parent )
    boutonAccepterChien->hide();
 
    //==============================================================
+
+   boutonPresenterPoignee = new QPushButton(trUtf8("Présenter poignée"), this);
+   boutonPresenterPoignee->move(800, 462);
+   boutonPresenterPoignee->setMinimumSize( boutonPresenterPoignee->sizeHint() );
+   boutonPresenterPoignee->hide();
+
+   //==============================================================
    //       ELEMENTS DU CANVAS
    //==============================================================
    btNord = new PlayerBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y, &scene);
@@ -98,6 +132,7 @@ Tapis::Tapis( QWidget *parent )
    connect( boutonGardeSans, SIGNAL(clicked()), this, SLOT(slotBoutton4()) );
    connect( boutonGardeContre, SIGNAL(clicked()), this, SLOT(slotBoutton5()) );
    connect( boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()) );
+   connect( boutonPresenterPoignee, SIGNAL(clicked()), this, SLOT(slotPresenterPoignee()) );
 
    // appelle mouseEvent dès que la souris bouge, sans appuis sur les boutons
    viewport()->setMouseTracking(true);
@@ -135,6 +170,15 @@ void Tapis::setAccepterChienVisible(bool v)
       boutonAccepterChien->show();
    } else {
       boutonAccepterChien->hide();
+   }
+}
+/*****************************************************************************/
+void Tapis::setBoutonPoigneeVisible(bool v)
+{
+   if (v == true) {
+      boutonPresenterPoignee->show();
+   } else {
+      boutonPresenterPoignee->hide();
    }
 }
 /*****************************************************************************/
@@ -514,6 +558,14 @@ void Tapis::razTapis()
    btSud->selectPlayer(false);
 }
 /*****************************************************************************/
+void Tapis::resetCards()
+{
+   for(int i=0; i<cardsPics.size(); i++ ) {
+      cardsPics.at(i)->hide();
+      cardsPics.at(i)->setStatus(CARD_NORMAL);
+   }
+}
+/*****************************************************************************/
 void Tapis::slotBoutton1()
 {
    emit sgnlContrat( PASSE );
@@ -533,7 +585,7 @@ void Tapis::slotBoutton4()
 {
    emit sgnlContrat( GARDE_SANS );
 }
-/****************setPos(x, y);*************************************************************/
+/*****************************************************************************/
 void Tapis::slotBoutton5()
 {
    emit sgnlContrat( GARDE_CONTRE );
@@ -542,6 +594,11 @@ void Tapis::slotBoutton5()
 void Tapis::slotAccepteChien()
 {
    emit sgnlAccepteChien();
+}
+/*****************************************************************************/
+void Tapis::slotPresenterPoignee()
+{
+   emit sgnlPresenterPoignee();
 }
 /*****************************************************************************/
 void Tapis::setFilter( Filter f )

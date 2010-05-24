@@ -34,8 +34,10 @@
 #include "ScoresDock.h"
 #include "InfosDock.h"
 #include "ChatDock.h"
+#include "RoundDock.h"
 #include "ui_NetClientUI.h"
 #include "ui_ServerManagerUI.h"
+#include "ui_RulesUI.h"
 
 /*****************************************************************************/
 class MainWindow : public QMainWindow
@@ -74,15 +76,19 @@ protected:
    ResultWindow   *resultWindow;    // Résultat d'une donne
    OptionsWindow  *optionsWindow;   // Options
    QDialog        *clientWindow;    // fenêtre pour joindre une partie réseau
+   QDialog        *rulesWindow;
 
    // Dock windows
    ScoresDock     *scoresDock;
    InfosDock      *infosDock;
    ChatDock       *chatDock;
+   RoundDock      *roundDock;
    QDockWidget    *serverDock;
 
+   // UI classes
    Ui::NetClientUI  clientUI;
-   Ui::serverDock  serverUI;
+   Ui::serverDock serverUI;
+   Ui::RulesUI    rulesUI;
 
 public:
    MainWindow( QWidget* parent = 0, Qt::WFlags f = 0 );

@@ -56,26 +56,6 @@ Card *Client::getCardMainDeck(int i)
    return(mainDeck.at(i));
 }
 /*****************************************************************************/
-Card *Client::getCardChien(int i)
-{
-   return(chien.at(i));
-}
-/*****************************************************************************/
-int Client::getTailleChien()
-{
-   return(chien.count());
-}
-/*****************************************************************************/
-GameInfos *Client::getGameInfos()
-{
-   return &infos;
-}
-/*****************************************************************************/
-ScoreInfos *Client::getScoreInfos()
-{
-   return(&score_inf);
-}
-/*****************************************************************************/
 void Client::emptyChien()
 {
    chien.clear();
@@ -91,6 +71,48 @@ void Client::removeCardChien(Card *c)
 void Client::addCardChien(Card *c)
 {
    chien.append(c);
+}
+/*****************************************************************************/
+Card *Client::getCardChien(int i)
+{
+   return(chien.at(i));
+}
+/*****************************************************************************/
+int Client::getTailleChien()
+{
+   return(chien.count());
+}
+/*****************************************************************************/
+void Client::emptyPoignee()
+{
+   poignee.clear();
+}
+/*****************************************************************************/
+void Client::addCardPoignee(Card *c)
+{
+   poignee.append(c);
+}
+/*****************************************************************************/
+void Client::removeCardPoignee(Card *c)
+{
+   if( poignee.contains(c) == true ) {
+      poignee.removeAll(c);
+   }
+}
+/*****************************************************************************/
+int Client::getTaillePoignee()
+{
+   return(poignee.count());
+}
+/*****************************************************************************/
+GameInfos *Client::getGameInfos()
+{
+   return &infos;
+}
+/*****************************************************************************/
+ScoreInfos *Client::getScoreInfos()
+{
+   return(&score_inf);
 }
 /*****************************************************************************/
 /**
@@ -528,6 +550,31 @@ void Client::sendChien()
 
    for( i=0; i<chien.count(); i++ ) {
       out << (quint8)chien.at(i)->getId();
+   }
+
+   out << (quint16)0xFFFF;
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+}
+/*****************************************************************************/
+/**
+ * On envoie une poignée déclarée
+ */
+void Client::sendPoignee()
+{
+   int i;
+
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_POIGNEE;
+
+   //TODO: add position, south etc..
+   for( i=0; i<poignee.size(); i++ ) {
+      out << (quint8)(poignee.at(i)->getId());
    }
 
    out << (quint16)0xFFFF;

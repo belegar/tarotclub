@@ -88,6 +88,16 @@ void Score::setPli( int i, Place p )
    plis[i] = p;
 }
 /*****************************************************************************/
+void Score::setPoigneeDefense(Poignee p)
+{
+   typePoigneeD = p;
+}
+/*****************************************************************************/
+void Score::setPoigneeAttaque(Poignee p)
+{
+   typePoigneeA = p;
+}
+/*****************************************************************************/
 Place Score::getPli(int i)
 {
    if( i>77 || i<0 ) {

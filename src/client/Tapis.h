@@ -31,17 +31,22 @@
 #include "../Card.h"
 #include "TextBox.h"
 
+enum CardStatus { CARD_NORMAL, CARD_SELECTED };
+
 /*****************************************************************************/
 class GfxCard : public QGraphicsSvgItem
 {
-
+private:
+   CardStatus status;
 public:
    GfxCard ( const QString & fileName, QGraphicsItem * parent = 0 );
 
    enum { Type = UserType + 1 };
    int type() const;
+   CardStatus  getStatus();
+   void setStatus(CardStatus s);
+   void toggleStatus();
 };
-
 
 /*****************************************************************************/
 class Tapis : public QGraphicsView
@@ -90,6 +95,7 @@ public:
    void setNbPlayers(int n);
    void setBackground(const QString &fichier);
    void setAccepterChienVisible(bool v);
+   void setBoutonPoigneeVisible(bool v);
    void setCardScale(float factor);
 
    GfxCard *getGfxCard(int i);
@@ -105,6 +111,7 @@ public:
    void cacheBoutons();
    void showAvatars( bool b, int nb_players );
    void razTapis();
+   void resetCards();
 
 public slots:
    void slotBoutton1();
@@ -115,6 +122,7 @@ public slots:
    void slotAccepteChien();
    void slotAfficheBoutons( Contrat contrat );
    void slotAfficheEnchere(Place enchereur,Contrat cont);
+   void slotPresenterPoignee();
 
 signals:
    void sgnlViewportClicked();
@@ -122,6 +130,7 @@ signals:
    void sgnlMoveCursor( GfxCard * );
    void sgnlContrat(Contrat c);
    void sgnlAccepteChien();
+   void sgnlPresenterPoignee();
 };
 
 #endif // TAPIS_H

@@ -52,20 +52,22 @@ private:
    ScoreInfos  score_inf;
 
    // scores of each turn
-   int   turn;
-   int   scores[NB_TURNS_MAX][5];     // score of each turn players
+   int turn;
+   int scores[NB_TURNS_MAX][5];     // score of each turn players
 
 public:
    Score();
 
-   void  init();
-   void  reset();
-   void  setPli( int i, Place p );
-   void  calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos );
+   void init();
+   void reset();
+   void setPli( int i, Place p );
+   void calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos );
 
    // Mutateurs
-   void  setChelemDeclare( bool );
-   void  setExcuse( Place p );
+   void setChelemDeclare( bool );
+   void setExcuse( Place p );
+   void setPoigneeDefense(Poignee p);
+   void setPoigneeAttaque(Poignee p);
 
    // Accesseurs
    Place getExcuse();

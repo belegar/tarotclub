@@ -46,10 +46,11 @@ class Game : public MainWindow
 private:
    TarotEngine server;
    ConfigFile  *config;
-   Bot         bots[4];
-   Client      client;
+   Bot         bots[4]; // the computer
+   Client      client; // The human player
    Sequence    sequence;
    Place       tour;
+   bool        firstTurn;
 
    Card *getCardFromPix( GfxCard *gc );
 
@@ -66,16 +67,12 @@ public:
 public slots:
    void slotNewLocalGame();
    void showOptions();
-   void slotClickCard(GfxCard *c);
-   void slotClickTapis();
-   void slotMoveCursor( GfxCard *c );
    void slotQuitTarotClub();
 
    // événements du serveur
    void slotReceptionCartes();
    void slotAfficheSelection(Place p);
    void slotAfficheChien();
-   void slotAccepteChien();
    void slotRedist();
    void slotPrepareChien();
    void slotDepartDonne(Place p,Contrat c);
@@ -84,6 +81,13 @@ public slots:
    void slotFinDonne();
    void slotWaitPli();
    void slotSetEnchere( Contrat cont );
+
+   // événements du tapis
+   void slotPresenterPoignee();
+   void slotAccepteChien();
+   void slotClickCard(GfxCard *c);
+   void slotClickTapis();
+   void slotMoveCursor( GfxCard *c );
 
 };
 

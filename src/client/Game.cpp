@@ -22,8 +22,7 @@
 #include "Game.h"
 #include "../Jeu.h"
 
-#define CARD_NORMAL     522
-#define CARD_SELECTED	502
+#define SOUTH_CARDS_POS     522
 
 /*****************************************************************************/
 Game::Game( ConfigFile *conf ) : MainWindow()
@@ -42,6 +41,7 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( tapis, SIGNAL(sgnlMoveCursor(GfxCard *)), this, SLOT(slotMoveCursor(GfxCard *)) );
    connect( tapis, SIGNAL(sgnlContrat(Contrat)), this, SLOT(slotSetEnchere(Contrat)) );
    connect( tapis, SIGNAL(sgnlAccepteChien()), this, SLOT(slotAccepteChien()) );
+   connect( tapis, SIGNAL(sgnlPresenterPoignee()), this, SLOT(slotPresenterPoignee()) );
 
 /*
    // Network window (client)
@@ -209,6 +209,11 @@ void Game::slotMoveCursor( GfxCard *gc )
       } else {
          tapis->setCursorType( ARROW );
       }
+   } else if( sequence == BUILD_POIGNEE ) {
+      if(c->getType() == ATOUT)
+         tapis->setCursorType( ARROW );
+      else
+         tapis->setCursorType( FORBIDDEN );
    } else if( sequence == GAME ) {
       if( client.isValid( c ) == true ) {
          tapis->setCursorType( ARROW );
@@ -245,37 +250,54 @@ void Game::slotClickCard(GfxCard *gc)
       }
 
       // sélection de la carte
-      if( gc->y() == CARD_NORMAL ) {
+      if( gc->getStatus() == CARD_NORMAL ) {
          if( client.getTailleChien() == 6 ) {
             return;
          }
-
-         gc->setPos( gc->x(), CARD_SELECTED );
          client.addCardChien(c);
-
          if( client.getTailleChien() == 6 ) {
             tapis->setAccepterChienVisible(true);
          }
-
       // désélection de la carte
-      } else if( gc->y() == CARD_SELECTED ) {
+      } else if( gc->getStatus() == CARD_SELECTED ) {
          if( client.getTailleChien() == 0 ) {
             return;
          }
-         gc->setPos( gc->x(), CARD_NORMAL );
          client.removeCardChien( c );
          tapis->setAccepterChienVisible(false);
+      }
+      gc->toggleStatus();
+   } else if( sequence == BUILD_POIGNEE ) {
+      if(c->getType() == ATOUT) {
+         // sélection de la carte
+         if( gc->getStatus() == CARD_NORMAL ) {
+            client.addCardPoignee(c);
+            if( client.getTaillePoignee() == 10 ||
+                client.getTaillePoignee() == 13 ||
+                client.getTaillePoignee() == 15
+                ) {
+               tapis->setAccepterChienVisible(true);
+            }
+         // désélection de la carte
+         } else if( gc->getStatus() == CARD_SELECTED ) {
+
+            client.removeCardChien( c );
+            if( !(client.getTaillePoignee() == 10 ||
+                client.getTaillePoignee() == 13 ||
+                client.getTaillePoignee() == 15)
+                ) {
+               tapis->setAccepterChienVisible(false);
+            }
+         }
+         gc->toggleStatus();
       }
    }
 }
 /*****************************************************************************/
 void Game::slotReceptionCartes()
 {
-   int i;
-
-   for( i=0; i<78; i++ ) {
-      tapis->getGfxCard(i)->hide();
-   }
+   client.updateStats();
+   tapis->resetCards();
    afficheCartesJoueur(0);
 }
 /*****************************************************************************/
@@ -304,6 +326,27 @@ void Game::slotAccepteChien()
    client.sendChien();
 }
 /*****************************************************************************/
+void Game::slotPresenterPoignee()
+{
+   /*
+   Card *c;
+   GfxCard *gc;
+   int i;
+
+   for( i=0; i<client.getTailleChien(); i++) {
+      c = client.getCardChien(i);
+      client.removeCard(c);
+      gc = tapis->getGfxCard(c->getId());
+      gc->hide();
+   }
+   tapis->setAccepterChienVisible(false);
+   sequence = VIDE;
+   tapis->setFilter( AUCUN );
+   afficheCartesJoueur(0);
+   client.sendChien();
+   */
+}
+/*****************************************************************************/
 void Game::slotSetEnchere( Contrat cont )
 {
    client.sendEnchere( cont );
@@ -330,7 +373,7 @@ void Game::afficheCartesJoueur( int pos )
       x = 50.0;
       pas = 40.0;
    }
-   y = CARD_NORMAL;
+   y = SOUTH_CARDS_POS;
 
    for( i=0; i<client.getCardNumber(); i++ ) {
       c = client.getCard(i);
@@ -409,8 +452,10 @@ void Game::slotPrepareChien()
 /*****************************************************************************/
 void Game::slotDepartDonne(Place p, Contrat c)
 {
+   firstTurn = true;
    infosDock->setContrat(c);
    infosDock->setPreneur( config->getGameOptions()->identities[p].name );
+   infosDock->setDonne(server.getDealNumber());
    sequence = GAME;
    tapis->setFilter( AUCUN );
    tapis->razTapis();
@@ -420,7 +465,24 @@ void Game::slotDepartDonne(Place p, Contrat c)
 void Game::slotJoueCarte()
 {
    tapis->setFilter( JEU );
-   statusBar()->showMessage(trUtf8("A votre tour de jouer une carte.") );
+
+   // If we're about to play the first card the Player can declare a Poignée
+   if (firstTurn == true) {
+      firstTurn = false;
+      // TODO: test if a Poignée exists in the player's deck
+      if(client.getStats()->atouts >=10 ) {
+         int ret = QMessageBox::question(this, trUtf8("Poignée"),
+                                        trUtf8("Vous possédez une poignée.\n"
+                                           "Voulez-vous la déclarer ?"),
+                                        QMessageBox::Yes | QMessageBox::No);
+         if (ret == QMessageBox::YesRole) {
+            sequence = BUILD_POIGNEE;
+            statusBar()->showMessage(trUtf8("Constituez votre poignée.") );
+         }
+      }
+   } else {
+      statusBar()->showMessage(trUtf8("À votre tour de jouer une carte.") );
+   }
 }
 /*****************************************************************************/
 void Game::slotAfficheCarte(int id)

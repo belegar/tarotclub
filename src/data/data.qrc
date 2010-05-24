@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/" >
+    <qresource prefix="/">
         <file>images/anglais.png</file>
         <file>images/fileopen.png</file>
         <file>images/francais.png</file>
@@ -24,5 +24,6 @@
         <file>images/avatars/robot.png</file>
         <file>images/avatars/tigre.png</file>
         <file>images/avatars/vide.png</file>
+        <file>html/tarot_rules.htm</file>
     </qresource>
 </RCC>

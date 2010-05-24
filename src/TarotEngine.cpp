@@ -243,6 +243,11 @@ Score *TarotEngine::getScore()
    return &score;
 }
 /*****************************************************************************/
+int TarotEngine::getDealNumber()
+{
+   return dealNumber;
+}
+/*****************************************************************************/
 /**
  * Teste si une carte du joueur local peut être jouée
  */
@@ -844,13 +849,28 @@ void TarotEngine::doAction( QDataStream &in, Place p )
       }
 
       /**
+       * Un client a déclaré une poignée
+       */
+      case NET_CLIENT_POIGNEE:
+      {
+         /*
+          Tester :
+          1) L'origine du client (sud, est ... ip ??)
+          2) La validité de la poignée (présence dans le deck du joueur, utilisation de l'excuse)
+          3) La poignée doit être déclarée avant de jouer la première carte
+         */
+         break;
+      }
+
+      /**
        * Carte d'un client
        */
       case NET_CLIENT_CARTE:
       {
          quint8 id;
          Card *c;
-
+         // TODO: tester la validité de la carte (ID + présence dans le jeu du joueur)
+         // si erreur : logguer et prévenir quelqu'un ??
          in >> id;
          c = Jeu::getCard( id );
          mainDeck.append(c);

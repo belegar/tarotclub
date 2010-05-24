@@ -50,6 +50,13 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    clientUI.setupUi(clientWindow);
    clientWindow->hide();
 
+   // Aide en ligne // TODO: use QtHelp system
+   rulesWindow = new QDialog( this, Qt::WindowMinMaxButtonsHint );
+   rulesUI.setupUi(rulesWindow);
+   rulesWindow->hide();
+
+   // ----------  Docks de droite ------------------------
+
    // Dock window : scores
    scoresDock = new ScoresDock(this);
    addDockWidget(Qt::RightDockWidgetArea, scoresDock);
@@ -61,17 +68,27 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    addDockWidget(Qt::RightDockWidgetArea, infosDock);
    infosDock->show();
 
+   // Dock window : donne
+   roundDock = new RoundDock(this);
+   addDockWidget(Qt::RightDockWidgetArea, roundDock);
+   roundDock->show();
+
+   tabifyDockWidget(infosDock, roundDock);
+
+   // ----------  Docks du bas ------------------------
+
    // Dock window : discussion
    chatDock = new ChatDock(this);
    addDockWidget(Qt::BottomDockWidgetArea, chatDock);
-   chatDock->hide();
+   chatDock->show();
    connect( chatDock,SIGNAL(sgnlClose()),this, SLOT(closeChat()) );
 
    // Dock window : serveur
    serverDock = new QDockWidget(this);
    serverUI.setupUi(serverDock);
-   addDockWidget(Qt::RightDockWidgetArea, serverDock);
+   addDockWidget(Qt::BottomDockWidgetArea, serverDock);
    serverDock->show();
+
 
    //==============================================================
    //       MENUS
@@ -151,7 +168,7 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    chatAct->setCheckable(true);
    chatAct->setStatusTip(trUtf8("Montre/cache la fenêtre de discussion"));
    connect(chatAct, SIGNAL(triggered()), this, SLOT(slotChatDock()));
-   chatAct->setChecked(false);
+   chatAct->setChecked(true);
 
    serverAct = new QAction(trUtf8("Serveur"), this);
    serverAct->setCheckable(true);
@@ -173,9 +190,15 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    aboutAct->setStatusTip(trUtf8("À propos de Tarot Club"));
    connect(aboutAct, SIGNAL(triggered()), about, SLOT(show()));
 
+   QAction *rulesAct = new QAction(trUtf8("&Règles du Tarot"), this);
+   rulesAct->setShortcut(trUtf8("Ctrl+R"));
+   rulesAct->setStatusTip(trUtf8("Règles du Tarot"));
+   connect(rulesAct, SIGNAL(triggered()), rulesWindow, SLOT(show()));
+
    // On ajoute les actions au menu '?'
    help = menuBar()->addMenu(trUtf8("?"));
    help->addAction(aboutAct);
+   help->addAction(rulesAct);
 
    //==============================================================
    //       FENETRE PRINCIPALE

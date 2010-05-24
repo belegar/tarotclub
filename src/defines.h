@@ -41,13 +41,25 @@
 enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };
 enum CardType     { CARTE, ATOUT, EXCUSE };
 enum Place        { SUD=0, EST=1, NORD=2, OUEST=3, NORD_O=4, BROADCAST=462, HYPERSPACE=0xFFFF };
-enum Sequence     { VIDE, DISTRIBUTION, ENCHERES, MONTRE_CHIEN, WAIT_CHIEN, CHIEN, GAME, SEQ_WAIT_PLI };
+enum Sequence {
+   VIDE,
+   DISTRIBUTION,
+   ENCHERES,
+   MONTRE_CHIEN,
+   WAIT_CHIEN,
+   CHIEN,
+   BUILD_POIGNEE,
+   SHOW_POIGNEE,
+   GAME,
+   SEQ_WAIT_PLI
+};
 enum Contrat      { PASSE, PRISE, GARDE, GARDE_SANS, GARDE_CONTRE };
 enum Filter       { AUCUN, JEU };
 enum Poignee      { P_SANS, P_SIMPLE, P_DOUBLE, P_TRIPLE };
 enum PlayerType   { HUMAN, BOT, NET };
 enum SexType      { MALE, FEMALE };
 enum CursorType   { FORBIDDEN, ARROW };
+
 
 /*****************************************************************************/
 // client -> server
@@ -59,6 +71,7 @@ enum CursorType   { FORBIDDEN, ARROW };
 #define NET_CLIENT_CHIEN      0x15
 #define NET_CLIENT_CARTE      0x16
 #define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le pli
+#define NET_CLIENT_POIGNEE    0x18  // un client veut déclarer une poignée
 
 // server -> client
 #define NET_MESSAGE           0x70
@@ -76,6 +89,7 @@ enum CursorType   { FORBIDDEN, ARROW };
 #define NET_SERVER_WAIT_PLI   0x82
 #define NET_FIN_DONNE         0x83
 #define NET_SERVER_REDIST     0x84  // tous les joueurs ont passé, il faut relancer une distribution
+#define NET_SHOW_POIGNEE      0x85  // montre une poignée à tous les joueurs
 
 /*****************************************************************************/
 

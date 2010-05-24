@@ -41,6 +41,7 @@ HEADERS += AboutWindow.h \
     ScoresDock.h \
     InfosDock.h \
     ChatDock.h \
+    RoundDock.h \
     Tapis.h \
     TextBox.h \
     ConfigFile.h \
@@ -59,7 +60,6 @@ HEADERS += AboutWindow.h \
     ui_InfosDockUI.h \
     ui_AvatarsUI.h \
     ui_OptionsUI.h
-
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
     EncheresUI.ui \
@@ -67,7 +67,9 @@ FORMS = AboutUI.ui \
     NetClientUI.ui \
     OptionsUI.ui \
     ResultUI.ui \
-    ServerManagerUI.ui
+    ServerManagerUI.ui \
+    RulesUI.ui \
+    RoundUI.ui
 
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \
@@ -76,6 +78,7 @@ SOURCES = AboutWindow.cpp \
     ScoresDock.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
+    RoundDock.cpp \
     Tapis.cpp \
     TextBox.cpp \
     ConfigFile.cpp \
