@@ -53,7 +53,7 @@ private:
 
    // scores of each turn
    int turn;
-   int scores[NB_TURNS_MAX][5];     // score of each turn players
+   int scores[MAX_ROUNDS][5];     // score of each turn players
 
 public:
    Score();

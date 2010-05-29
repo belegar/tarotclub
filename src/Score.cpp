@@ -35,7 +35,7 @@ Score::Score()
 void Score::init()
 {
    // RAZ des totaux
-   for(int i=0; i<NB_TURNS_MAX; i++ ) {
+   for(int i=0; i<MAX_ROUNDS; i++ ) {
       for(int j=0; j<5; j++) {
          scores[i][j] = 0;
       }
