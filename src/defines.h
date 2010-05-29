@@ -24,7 +24,7 @@
 /*****************************************************************************/
 // Game definitions
 
-#define TAROT_VERSION   "2.0.0 Alpha 1"
+#define TAROT_VERSION   "2.0.0 Alpha 2"
 #define TAROT_TITRE     "TarotClub"
 #define TAROT_VNAME     "Kritzkrieg"
 
@@ -32,7 +32,7 @@
 #define CONFIG_FILE     "/bin/config.xml"
 #define NB_LANGUES      2
 #define QT_STREAMVER    QDataStream::Qt_4_4
-#define NB_TURNS_MAX    10
+#define MAX_ROUNDS      10
 
 #define TEXT_BOX_WIDTH  115
 #define TEXT_BOX_HEIGHT 30
@@ -56,10 +56,9 @@ enum Sequence {
 enum Contrat      { PASSE, PRISE, GARDE, GARDE_SANS, GARDE_CONTRE };
 enum Filter       { AUCUN, JEU };
 enum Poignee      { P_SANS, P_SIMPLE, P_DOUBLE, P_TRIPLE };
-enum PlayerType   { HUMAN, BOT, NET };
 enum SexType      { MALE, FEMALE };
 enum CursorType   { FORBIDDEN, ARROW };
-
+enum GameType     { LOC_ONEDEAL, LOC_TOURNAMENT, NET_GAME_SERVER, NET_GAME_CLIENT };
 
 /*****************************************************************************/
 // client -> server
