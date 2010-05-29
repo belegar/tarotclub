@@ -47,23 +47,23 @@ class MainWindow : public QMainWindow
 protected:
 
    // Menus
-   QMenu *jeu;
-   QMenu *tarot;
-   QMenu *fenetres;
-   QMenu *help;
+   QMenu *gameMenu;
+   QMenu *paramsMenu;
+   QMenu *helpMenu;
 
    // Menu Jeu
-   QAction    *newLocalGameAct;
+   //----local
+   QAction    *newQuickGameAct;
+   QAction    *newTournamentAct;
+   QAction    *newNumberedDealAct;
+   //----network
    QAction    *netGameServerAct;
    QAction    *netGameClientAct;
-   QAction    *newDonneAct;
-   QAction    *newDonneManuAct;
-
-   // Menu Tarot
-   QAction    *optionsAct;
+   //----misc
    QAction    *pliPrecAct;
 
-   // Menu Fenêtres
+   // Menu Paramètres
+   QAction    *optionsAct;
    QAction    *scoresAct;
    QAction    *infosAct;
    QAction    *chatAct;
