@@ -30,6 +30,7 @@ class Player : public QObject
 protected:
    Identity    identity;   // identité du joueur
    Deck        myDeck;     // cartes en main
+   Place       place;
 
 public:
    Player();
@@ -40,11 +41,14 @@ public:
    void setSex( SexType );
    void setAvatar( const QString & );
    void setIdentity( Identity *ident );
+   void setPlace(Place p);
+
    QString getName();
    QString getQuote();
    SexType getSex();
    QString getAvatar();
    Identity *getIdentity();
+   Place getPlace();
 
    // Opérations sur les cartes du joueur
    void tidyDeck();

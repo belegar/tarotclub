@@ -244,6 +244,11 @@ void Player::setIdentity( Identity *ident )
    identity = *ident;
 }
 /*****************************************************************************/
+void Player::setPlace(Place p)
+{
+   place = p;
+}
+/*****************************************************************************/
 QString Player::getName()
 {
    return (identity.name);
@@ -268,7 +273,11 @@ Identity *Player::getIdentity()
 {
    return (&identity);
 }
-
+/*****************************************************************************/
+Place Player::getPlace()
+{
+   return place;
+}
 
 //=============================================================================
 // End of file Player.cpp
