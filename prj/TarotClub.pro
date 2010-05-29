@@ -69,8 +69,8 @@ FORMS = AboutUI.ui \
     ResultUI.ui \
     ServerManagerUI.ui \
     RulesUI.ui \
-    RoundUI.ui
-
+    RoundUI.ui \
+    ../src/client/NumberedDealUI.ui
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
