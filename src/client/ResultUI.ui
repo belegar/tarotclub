@@ -454,16 +454,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="continueButton">
+      <widget class="QPushButton" name="okButton">
        <property name="text">
-        <string>Continuer</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="stopButton">
-       <property name="text">
-        <string>Arrêter</string>
+        <string>Ok</string>
        </property>
       </widget>
      </item>
@@ -474,7 +467,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>continueButton</sender>
+   <sender>okButton</sender>
    <signal>clicked()</signal>
    <receiver>ResultUI</receiver>
    <slot>accept()</slot>
@@ -486,22 +479,6 @@
     <hint type="destinationlabel">
      <x>96</x>
      <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>stopButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ResultUI</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>288</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>508</x>
-     <y>305</y>
     </hint>
    </hints>
   </connection>
