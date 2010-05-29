@@ -61,8 +61,7 @@ class TarotEngine : public QThread
    Q_OBJECT
 
 private:
-   Player      players[5]; // Données des joueurs
-   QMap<Place, QTcpSocket *> clients; // les clients connectés
+   QMap<QTcpSocket*, Player*> players;
    QTcpServer  server;
 
    QTimer      timerBetweenPlayers;
@@ -78,6 +77,7 @@ private:
    bool        newGame;       // vrai si une nouvelle partie a été commencée
    int         dealNumber;
    int         cptVu;         // counter of chien seen by clients
+   bool        numberedDeal;
 
 protected:
    void customEvent( QEvent *e );
@@ -89,12 +89,15 @@ public:
    void run();
 
    int   getConnectedPlayers( Identity *idents );
-   int   getConnectedNumber();
+   int   getNumberOfConnectedPlayers();
    Score *getScore();
    int getDealNumber();
+   Player *getPlayer(Place p);
+   QTcpSocket *getConnection(Place p);
 
    void setTimerBetweenPlayers(int t);
    void setTimerBetweenTurns(int t);
+   void setDealNumber(bool status, int deal);
 
    void  newServerGame( int port );
    void  closeServerGame();
@@ -102,7 +105,6 @@ public:
    bool  cardIsValid( Card *c, Place p );
    bool  cardExists( Card *c, Place p );
    void  distribution();
-   void  addPlayer( Place p, Identity *ident );
    Place calculGagnantPli();
    void  nouvelleDonne();
    void  jeu();
@@ -117,10 +119,8 @@ public:
    void askBid( Place p, Contrat c );
    void sendBid( Place p, Contrat c );
    void broadcast( QByteArray &block );
-   void doAction( QDataStream &in, Place p );
+   void doAction( QDataStream &in, QTcpSocket* cnx );
    void sendMessage( const QString &message, Place p );
-   void readData( Place p );
-   void clientClosed(Place p );
    void sendPlayersList();
    void sendShowChien();
    void sendDoChien();
@@ -136,15 +136,9 @@ signals:
    void sigPrintMessage(const QString &);
 
 public slots:
-   void newConnection();
-   void clientClosed1();
-   void clientClosed2();
-   void clientClosed3();
-   void clientClosed4();
-   void readData1();
-   void readData2();
-   void readData3();
-   void readData4();
+   void slotNewConnection();
+   void slotClientClosed();
+   void slotReadData();
 
    void slotTimerBetweenPlayers();
    void slotTimerBetweenTurns();

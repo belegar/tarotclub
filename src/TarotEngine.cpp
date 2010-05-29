@@ -40,6 +40,7 @@ TarotEngine::TarotEngine()
    sequence = VIDE;
    newGame = false;
    dealNumber = 0;
+   numberedDeal = false;
 
    timerBetweenPlayers.setSingleShot(true);
    timerBetweenPlayers.setInterval(0);
@@ -49,7 +50,7 @@ TarotEngine::TarotEngine()
 
    connect(&timerBetweenPlayers, SIGNAL(timeout()), this, SLOT(slotTimerBetweenPlayers()));
    connect(&timerBetweenTurns, SIGNAL(timeout()), this, SLOT(slotTimerBetweenTurns()));
-   connect(&server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+   connect(&server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
@@ -125,6 +126,12 @@ void TarotEngine::setTimerBetweenTurns(int t)
     timerBetweenTurns.setInterval(t);
 }
 /*****************************************************************************/
+void TarotEngine::setDealNumber(bool status, int deal)
+{
+   dealNumber = deal;
+   numberedDeal = status;
+}
+/*****************************************************************************/
 void TarotEngine::customEvent( QEvent *e )
 {
 
@@ -193,49 +200,55 @@ void TarotEngine::closeServerGame()
 /*****************************************************************************/
 void TarotEngine::closeClients()
 {
-   for( int i=0; i<5; i++ ) {
-      if( clients.contains((Place)i) == true ) {
-         if( clients.value((Place)i)->state() == QAbstractSocket::ConnectedState ) {
-            connect(clients.value((Place)i), SIGNAL(disconnected()), clients.value((Place)i), SLOT(deleteLater()));
-            clients.value((Place)i)->close();
-         }
-      }
+   QMapIterator<QTcpSocket*, Player*> i(players);
+   while (i.hasNext()) {
+     i.next();
+     QTcpSocket *cnx = i.key();
+     connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
+     cnx->close();
+     players.remove(cnx);
    }
 }
 /*****************************************************************************/
-void TarotEngine::addPlayer( Place p, Identity *ident )
+Player *TarotEngine::getPlayer(Place p)
 {
-   ident->avatar = gamePath+"/pics/avatars/"+ident->avatar;
-   players[p].setIdentity( ident );
+   QMapIterator<QTcpSocket*, Player*> i(players);
+   while (i.hasNext()) {
+     i.next();
+     if(i.value()->getPlace() == p) {
+        return i.value();
+     }
+   }
+   return NULL;
+}
+/*****************************************************************************/
+QTcpSocket *TarotEngine::getConnection(Place p)
+{
+   QMapIterator<QTcpSocket*, Player*> i(players);
+   while (i.hasNext()) {
+     i.next();
+     if(i.value()->getPlace() == p) {
+        return i.key();
+     }
+   }
+   return NULL;
 }
 /*****************************************************************************/
 int TarotEngine::getConnectedPlayers( Identity *idents )
 {
-   int n = 0;
+   int j = 0;
 
-   for( int i=0; i<5; i++ ) {
-      if( clients.contains((Place)i) == true ) {
-         if( clients.value((Place)i)->state() == QAbstractSocket::ConnectedState ) {
-            idents[i] = *players[i].getIdentity();
-            n++;
-         }
-      }
+   QMapIterator<QTcpSocket*, Player*> i(players);
+   while (i.hasNext()) {
+     i.next();
+     idents[j] = *i.value()->getIdentity();
    }
-   return (n);
+   return players.size();
 }
 /*****************************************************************************/
-int TarotEngine::getConnectedNumber()
+int TarotEngine::getNumberOfConnectedPlayers()
 {
-   int n = 0;
-
-   for( int i=0; i<5; i++ ) {
-      if( clients.contains((Place)i) == true ) {
-         if( clients.value((Place)i)->state() == QAbstractSocket::ConnectedState ) {
-            n++;
-         }
-      }
-   }
-   return (n);
+   return players.size();
 }
 /*****************************************************************************/
 Score *TarotEngine::getScore()
@@ -263,7 +276,7 @@ bool TarotEngine::cardIsValid( Card *c, Place p )
          ret = true;
       }
    } else if( sequence == GAME ) {
-      ret =  players[p].canPlayCard( &mainDeck, c, infos.gameCounter, infos.nbJoueurs );
+      ret =  getPlayer(p)->canPlayCard( &mainDeck, c, infos.gameCounter, infos.nbJoueurs );
    }
 
    return (ret);
@@ -274,7 +287,7 @@ bool TarotEngine::cardIsValid( Card *c, Place p )
  */
 bool TarotEngine::cardExists( Card *c, Place p )
 {
-   return (players[p].cardExists(c));
+   return (getPlayer(p)->cardExists(c));
 }
 /*****************************************************************************/
 /**
@@ -376,7 +389,11 @@ void TarotEngine::nouvelleDonne()
       mainDeck.append( Jeu::getCard(i) );
    }
 
-   dealNumber = mainDeck.shuffle( true, 0 );
+   if(numberedDeal == false) {
+      dealNumber = qrand()%RAND_MAX;
+   }
+
+   mainDeck.shuffle(dealNumber);
    donneur = nextPlayer(donneur);
    infos.contrat = PASSE;
    infos.gameCounter = 0;
@@ -494,17 +511,14 @@ bool TarotEngine::finLevee()
  */
 void TarotEngine::distribution()
 {
-   int i, j;
+   int n, j;
    Card *c;
    int index;
    int nb_cartes_chien;
    int nb_cartes_joueur;
+   Place p;
    quint8 params[24] = {0};   // cartes du joueur (3 joueurs: 24, 4j: 18, 5j: 15)
 
-   // On vide tous les decks
-   for(i=0; i<infos.nbJoueurs; i++ ) {
-      players[i].emptyDeck();
-   }
    deckChien.clear();
 
    if( infos.nbJoueurs == 3 ) {
@@ -515,35 +529,42 @@ void TarotEngine::distribution()
       nb_cartes_chien = 3;
    }
    nb_cartes_joueur = (78-nb_cartes_chien)/infos.nbJoueurs;
+   n = 0;
 
-   for( i=0; i<infos.nbJoueurs; i++ ) {
-      for( j=0; j<nb_cartes_joueur; j++ ) {
-         index = i*nb_cartes_joueur+j;
-         c = mainDeck.at(index);
-         if( c->getType() == EXCUSE ) {
-            score.setExcuse((Place)i);
-         }
-         c->setOwner((Place)i);
-         players[i].addCard( c );
-         params[j] = c->getId();
-      }
-      sendCards( (Place)i, params );
+   QMapIterator<QTcpSocket*, Player*> i(players);
+   while (i.hasNext()) {
+     i.next();
+     i.value()->emptyDeck();
+     p = i.value()->getPlace();
+
+     for( j=0; j<nb_cartes_joueur; j++ ) {
+        index = n*nb_cartes_joueur+j;
+        c = mainDeck.at(index);
+        if( c->getType() == EXCUSE ) {
+           score.setExcuse(p);
+        }
+        c->setOwner(p);
+        i.value()->addCard( c );
+        params[j] = c->getId();
+     }
+     sendCards( p, params );
+     n++;
    }
 
    // Les cartes restantes vont au chien
-   for( i=78-nb_cartes_chien; i<78; i++) {
-      c = mainDeck.at(i);
+   for( j=78-nb_cartes_chien; j<78; j++) {
+      c = mainDeck.at(j);
       deckChien.append( c );
    }
    mainDeck.clear();
 }
 /*****************************************************************************/
-void TarotEngine::newConnection()
+void TarotEngine::slotNewConnection()
 {
-   QTcpSocket *client = server.nextPendingConnection();
+   QTcpSocket *cnx = server.nextPendingConnection();
+   int n = players.size();
 
-    // Place disponible ?
-   if( getConnectedNumber() == infos.nbJoueurs ) {
+   if( n == infos.nbJoueurs ) {
       QString message = "Le serveur est complet.";
       QByteArray block;
       QDataStream out( &block, QIODevice::WriteOnly );
@@ -554,28 +575,29 @@ void TarotEngine::newConnection()
       out.device()->seek(0);
       out << (quint16)( block.size() - sizeof(quint16) );
 
-      connect(client, SIGNAL(disconnected()), client, SLOT(deleteLater()));
-      client->write(block);
-      client->close();
+      connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
+      cnx->write(block);
+      cnx->flush();
+      cnx->close();
    } else {
-      // Ok, il reste de la place, on connecte ce client
-      if( clients.contains(SUD) == false ) {
-         clients[SUD] = client; // on ajoute ce client à la liste
-         connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed1()));
-         connect( client, SIGNAL(readyRead()), this, SLOT( readData1()));
-      } else if( clients.contains(EST) == false ) {
-         clients[EST] = client; // on ajoute ce client à la liste
-         connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed2()));
-         connect( client, SIGNAL(readyRead()), this, SLOT( readData2()));
-      } else if( clients.contains(NORD) == false ) {
-         clients[NORD] = client; // on ajoute ce client à la liste
-         connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed3()));
-         connect( client, SIGNAL(readyRead()), this, SLOT( readData3()));
-      } else if( clients.contains(OUEST) == false ) {
-         clients[OUEST] = client; // on ajoute ce client à la liste
-         connect( client, SIGNAL(disconnected()), this, SLOT(clientClosed4()));
-         connect( client, SIGNAL(readyRead()), this, SLOT( readData4()));
+      Player *player = new Player();
+      Place p;
+
+      if (n == 0) {
+         p = SUD;
+      } else if (n == 1) {
+         p = EST;
+      } else if (n == 2) {
+         p = NORD;
+      } else {
+         p = OUEST;
       }
+      player->setPlace(p);
+
+      connect( cnx, SIGNAL(disconnected()), this, SLOT(slotClientClosed()));
+      connect( cnx, SIGNAL(readyRead()), this, SLOT(slotReadData()));
+
+      players[cnx] = player; // on ajoute ce client à la liste
 
       // on envoie une demande d'infos personnelles
       QByteArray block;
@@ -587,77 +609,43 @@ void TarotEngine::newConnection()
       out.device()->seek(0);
       out << (quint16)( block.size() - sizeof(quint16) );
 
-      client->write(block);
+      cnx->write(block);
    }
 }
 /*****************************************************************************/
-void TarotEngine::clientClosed1()
+void TarotEngine::slotClientClosed()
 {
-   clientClosed( SUD );
-}
-/*****************************************************************************/
-void TarotEngine::clientClosed2()
-{
-   clientClosed( EST );
-}
-/*****************************************************************************/
-void TarotEngine::clientClosed3()
-{
-   clientClosed( NORD );
-}
-/*****************************************************************************/
-void TarotEngine::clientClosed4()
-{
-   clientClosed( OUEST );
-}
-/*****************************************************************************/
-void TarotEngine::clientClosed( Place p )
-{
-   QString message = "Le joueur " + players[p].getName() + " a quitté la partie.";
+   // retrieve our sender QTcpSocket
+   QTcpSocket* cnx = qobject_cast<QTcpSocket *>(sender());
+   Player *player = players[cnx];
+   if (player == NULL) {
+      return;
+   }
+   QString message = "Le joueur " + player->getName() + " a quitté la partie.";
+   connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
+   cnx->close();
+   players.remove(cnx);
    sendMessage( message, BROADCAST );
    sendPlayersList();
-   clients.remove(p);
-}
-/*****************************************************************************/
-void TarotEngine::readData1()
-{
-   readData( SUD );
-}
-/*****************************************************************************/
-void TarotEngine::readData2()
-{
-   readData( EST );
-}
-/*****************************************************************************/
-void TarotEngine::readData3()
-{
-   readData( NORD );
-}
-/*****************************************************************************/
-void TarotEngine::readData4()
-{
-   readData( OUEST );
+
+   // TODO: if a player has quit during a game, replace it by a bot
 }
 /*****************************************************************************/
 /**
  * Décodage de la trame reçue
  */
-void TarotEngine::readData( Place p )
+void TarotEngine::slotReadData()
 {
-   QTcpSocket *client;
    quint16 blockSize = 0;
    bool trameEnPlus = false;
    unsigned int total=0;
    unsigned int bytes;
 
-   if( clients.contains(p) ) {
-      client = clients.value(p);
-   } else {
-      return; // à défaut d'autre chose
-   }
+   // retrieve our sender QTcpSocket
+   QTcpSocket* cnx = qobject_cast<QTcpSocket *>(sender());
+   bytes = cnx->bytesAvailable();
 
-   bytes = client->bytesAvailable();
-   QDataStream in( client );
+   QDataStream in( cnx );
    for( ;; ) {
       if( blockSize == 0 ) {
          if( bytes < sizeof(quint16) ) {
@@ -687,22 +675,15 @@ void TarotEngine::readData( Place p )
          trameEnPlus = false;
       }
 
-      doAction( in, p );
+      doAction( in, cnx );
       blockSize = 0;
    }
 }
 /*****************************************************************************/
-void TarotEngine::doAction( QDataStream &in, Place p )
+void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
 {
    quint8 type;   // type de trame
-   QTcpSocket *client;
    in >> type;
-
-   if( clients.contains(p) ) {
-      client = clients.value(p);
-   } else {
-      return; // à défaut d'autre chose
-   }
 
    switch( type ) {
 
@@ -744,14 +725,12 @@ void TarotEngine::doAction( QDataStream &in, Place p )
 
          bool ok = false;
          // On cherche si le nick n'existe pas déjà
-         for( int i=0; i<5; i++ ) {
-            if( clients.contains((Place)i) == true ) {
-               if( clients.value((Place)i)->state() == QAbstractSocket::ConnectedState ) {
-                  if( players[i].getName() == ident.name ) {
-                     ok = true;
-                     break;
-                  }
-               }
+         QMapIterator<QTcpSocket*, Player*> i(players);
+         while (i.hasNext()) {
+            i.next();
+            if (i.value()->getName() == ident.name) {
+               ok = true;
+               break;
             }
          }
 
@@ -761,14 +740,14 @@ void TarotEngine::doAction( QDataStream &in, Place p )
                " Changez le et reconnectez-vous.";
 
             // et on annule sa connexion
-            connect(client, SIGNAL(disconnected()), client, SLOT(deleteLater()));
-            sendMessage( message, p );
-            client->close();
-
-         // TODO : tester s'il reste encore une place libre
+            sendMessage( message, players[cnx]->getPlace() );
+            connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
+            cnx->close();
+            players.remove(cnx);
 
          } else {
-            addPlayer( p, &ident );
+            ident.avatar = gamePath+"/pics/avatars/"+ident.avatar;
+            players[cnx]->setIdentity( &ident );
             QString m = "Le joueur " + ident.name + " a rejoint la partie.";
             sendMessage( m , BROADCAST );
             emit sigPrintMessage(m);
@@ -874,7 +853,7 @@ void TarotEngine::doAction( QDataStream &in, Place p )
          in >> id;
          c = Jeu::getCard( id );
          mainDeck.append(c);
-         players[p].removeCard(c);
+         players[cnx]->removeCard(c);
          sendCard(c);
          jeu();
          break;
@@ -904,8 +883,10 @@ void TarotEngine::sendCards( Place p, quint8 *params )
    out << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   clients[p]->write(block);
-   clients[p]->flush();
+
+   QTcpSocket *s = getConnection(p);
+   s->write(block);
+   s->flush();
 }
 /*****************************************************************************/
 /**
@@ -921,8 +902,10 @@ void TarotEngine::askBid( Place p, Contrat c )
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   clients[p]->write(block);
-   clients[p]->flush();
+
+   QTcpSocket *s = getConnection(tour);
+   s->write(block);
+   s->flush();
 }
 /*****************************************************************************/
 void TarotEngine::sendBid( Place p, Contrat c )
@@ -970,14 +953,9 @@ void TarotEngine::sendMessage( const QString &message, Place p )
    if( p == BROADCAST ) {
       broadcast( block );
    } else {
-      QTcpSocket *client;
-      if( clients.contains(p) ) {
-         client = clients.value(p);
-      } else {
-         return; // à défaut d'autre chose
-      }
-      client->write(block);
-      client->flush();
+      QTcpSocket *s = getConnection(p);
+      s->write(block);
+      s->flush();
    }
 }
 /*****************************************************************************/
@@ -1042,8 +1020,10 @@ void TarotEngine::sendDoChien()
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   clients[infos.preneur]->write(block);
-   clients[infos.preneur]->flush();
+
+   QTcpSocket *s = getConnection(infos.preneur);
+   s->write(block);
+   s->flush();
 }
 /*****************************************************************************/
 /**
@@ -1077,8 +1057,10 @@ void TarotEngine::sendJoueCarte()
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
-   clients[tour]->write(block);
-   clients[tour]->flush();
+
+   QTcpSocket *s = getConnection(tour);
+   s->write(block);
+   s->flush();
 }
 /*****************************************************************************/
 /**
@@ -1162,12 +1144,11 @@ void TarotEngine::sendWaitPli()
  */
 void TarotEngine::broadcast( QByteArray &block )
 {
-   QMapIterator<Place, QTcpSocket*> i(clients);
+   QMapIterator<QTcpSocket*, Player*> i(players);
    while (i.hasNext()) {
-      i.next();
-      QTcpSocket *client = i.value();
-      client->write(block);
-      client->flush();
+     i.next();
+     i.key()->write(block);
+     i.key()->flush();
    }
 }
 
