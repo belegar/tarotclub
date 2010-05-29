@@ -26,7 +26,6 @@
 #include "Card.h"
 #include "defines.h"
 
-
 /*****************************************************************************/
 class Deck : public QList<Card *>
 {
@@ -35,10 +34,10 @@ public:
    // Constructeurs et destructeur
    Deck();
 
-   unsigned int   shuffle( bool , unsigned int );  // Mélange le jeu
-   Card           *getCardById( int );             // Renvoi un pointeur vers une carte
-   void           sort();
-   static bool    lessThanCards(Card *carte1, Card *carte2 );
+   void shuffle(int seed);
+   Card *getCardById( int );             // Renvoi un pointeur vers une carte
+   void sort();
+   static bool lessThanCards(Card *carte1, Card *carte2 );
 };
 
 #endif // _DECK_H

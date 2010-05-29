@@ -29,103 +29,24 @@
 #include <ctime>
 using namespace std;
 
+
 /*****************************************************************************/
 Deck::Deck()
 {
 
 }
 /*****************************************************************************/
-/**
- * Méthode "Quick and dirty" pour mélanger les cartes du jeu
- * Principe : on assigne à chaque carte un nombre au hasard entre 0 et 10000,
- * puis on range les cartes dans l'ordre croissant
- * si hasard == true, la graine est choisie entre 0 et 65000, sinon on
- * utilise la graine passée en paramètre
- */
-unsigned int Deck::shuffle( bool hasard, unsigned int seed )
+void Deck::shuffle(int seed)
 {
-   int i, ok, temp;
-   int nbCards;
-   int *cartesId;
-   unsigned int graine;
-
-   if( hasard == true ){
-      graine = qrand()%65000;
-   } else {
-      graine = seed;
-      srand( seed );
+   for ( int i = size(); i > 0; --i )
+   {
+      // pseudorandom number generation algorithm
+      // taken from KDE game KPat, thanks !
+      seed = 214013 * seed + 2531011;
+      int rand = ( seed >> 16 ) & 0x7fff;
+      int z = rand % i;
+      swap(z, i-1);
    }
-
-   nbCards = this->count();
-   cartesId = new int[nbCards];
-
-#ifndef QT_NO_DEBUG
-   // Affichage avant le mélange
-   ofstream f("cartes_avant.txt");
-
-   f << "Nombre de cartes : " << nbCards << endl << endl;
-
-
-   for( i=0; i<nbCards; i++) {
-      Card *c;
-      c = this->at(i);
-      if (f.is_open()) {
-         f << "Couleur : " << c->getColor() << endl;
-         f << "Type : " << c->getType() << endl;
-         f << "Valeur : " << c->getValue() << endl;
-         f << "Id : " << c->getId() << endl;
-         f << endl;
-      }
-   }
-   f.close();
-#endif // QT_NO_DEBUG
-
-   // On assigne à chaque carte un nombre aléatoire
-   for( i=0; i<nbCards; i++) {
-      cartesId[i] = qrand()%10000;
-   }
-
-   // On range ensuite les cartes dans l'ordre croissant de ces nombres aléatoires
-   // Tri à bulle classique
-   do {
-      ok = 1;
-      for( i=1; i<nbCards; i++) {
-         if ( cartesId[i-1]>cartesId[i] ) {
-            ok = 0;
-            // on échange le tableau de valeurs
-            temp = cartesId[i-1];
-            cartesId[i-1] = cartesId[i];
-            cartesId[i] = temp;
-            // et les cartes correspondantes
-            this->swap( i-1, i );
-         }
-      }
-   }
-   while(!ok);
-
-#ifndef QT_NO_DEBUG
-   // on affiche les cartes mélangées
-
-   f.open("cartes_apres.txt");
-   f << "Nombre de cartes : " << nbCards << endl << endl;
-
-   for( i=0; i<nbCards; i++) {
-      Card *c;
-      c = this->at(i);
-      if (f.is_open()) {
-         f << "Couleur : " << c->getColor() << endl;
-         f << "Type : " << c->getType() << endl;
-         f << "Valeur : " << c->getValue() << endl;
-         f << "Tri : " << cartesId[i] << endl;
-         f << "Id : " << c->getId() << endl;
-         f << endl;
-      }
-   }
-   f.close();
-#endif // QT_NO_DEBUG
-
-   delete[] cartesId;
-   return graine;
 }
 /*****************************************************************************/
 Card *Deck::getCardById( int id )
