@@ -21,8 +21,6 @@
 /*****************************************************************************/
 Bot::Bot() : Client()
 {
-   type = BOT;
-
    connect( this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(message(const QString &)));
    connect( this, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
    connect( this, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
