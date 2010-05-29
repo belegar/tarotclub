@@ -34,6 +34,8 @@ TextBox::TextBox(int x, int y, QGraphicsScene *canvas)
 /*****************************************************************************/
 void TextBox::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget )
 {
+   Q_UNUSED( option );
+   Q_UNUSED( widget );
 
    // Paint with specified color and pen
    painter->setRenderHint(QPainter::Antialiasing);
