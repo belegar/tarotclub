@@ -2,7 +2,7 @@
 
 # Edit TarotClub version
 tarotclub_title="tarotclub-2.0.0a2"
-install_dir="./opt/$tarotclub_title"
+install_dir="./opt/${tarotclub_title}"
 
 # clean previous install
 rm -rf $tarotclub_title
@@ -30,5 +30,6 @@ echo "Package tree created."
 
 dpkg-deb --build $tarotclub_title
 echo "Ubuntu package created."
+mv "${tarotclub_title}.deb" "${tarotclub_title}_i386.deb"
 
 
