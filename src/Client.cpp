@@ -36,16 +36,6 @@ Client::Client() : Player()
    connect( &socket, SIGNAL(hostFound()),this, SLOT(socketHostFound()));
 }
 /*****************************************************************************/
-void Client::setType( PlayerType t )
-{
-   type = t;
-}
-/*****************************************************************************/
-PlayerType Client::getType()
-{
-   return (type);
-}
-/*****************************************************************************/
 DeckStats *Client::getStats()
 {
    return (&stats);
@@ -284,17 +274,16 @@ void Client::choixChien( Deck *deckChien )
  */
 void Client::updateStats()
 {
-   int i, k, n, val, count, flag, longue;
+   int i, k, val, count, flag, longue;
    Card *c;
    CardColor coul;
 
    razStats();
-   n = myDeck.count();
    count = 0; // compteur
    flag = 0;  // indicateur de petit
 
    // recherche des atouts
-   for( i=0; i<n; i++) {
+   for( i=0; i<myDeck.count(); i++) {
       c = myDeck.at(i);
       if( c->getType() == ATOUT ) {
          stats.atouts++;
@@ -304,27 +293,19 @@ void Client::updateStats()
          }
          if( val == 21 ) {
             stats.vingtEtUn = true;
+            stats.bouts++;
          }
          if( val == 1 ) {
             stats.petit = true;
+            stats.bouts++;
          }
       }
 
       if( c->getType() == EXCUSE ) {
          stats.atouts++;
+         stats.bouts++;
          stats.excuse = true;
       }
-   }
-
-   // calcul du nombre de bouts
-   if( stats.excuse == true ) {
-      stats.bouts++;
-   }
-   if( stats.vingtEtUn == true ) {
-      stats.bouts++;
-   }
-   if( stats.petit == true ) {
-      stats.bouts++;
    }
 
    int distr[14] = {0}; // teste une distribution
@@ -346,7 +327,7 @@ void Client::updateStats()
       }
       count = 0;
 
-      for( k=0; k<n; k++ ) {
+      for( k=0; k<myDeck.count(); k++ ) {
          c = myDeck.at(k);
          if( c->getType() == CARTE && c->getColor() == coul ) {
             count++;
