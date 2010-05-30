@@ -28,6 +28,7 @@ RoundDock::RoundDock( QWidget *parent )
 /*****************************************************************************/
 void RoundDock::closeEvent( QCloseEvent *e )
 {
+   Q_UNUSED(e);
    emit sgnlClose();
 }
 

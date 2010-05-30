@@ -404,7 +404,7 @@ void TarotEngine::nouvelleDonne()
    infos.gameCounter = 0;
    tour = nextPlayer(donneur); // Le joueur à la droite du donneur commence les enchères
    selectPlayer(tour);
-   askBid( tour, infos.contrat );
+   askBid(infos.contrat);
 }
 /*****************************************************************************/
 /**
@@ -438,7 +438,7 @@ void TarotEngine::sequenceEncheres()
    } else {
       tour = nextPlayer(tour);
       selectPlayer(tour);
-      askBid( tour, infos.contrat );
+      askBid(infos.contrat);
    }
 }
 /*****************************************************************************/
@@ -836,7 +836,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
             infos.contrat = (Contrat)c;
             infos.preneur = tour;
          }
-         sendBid( tour, (Contrat)c );
+         sendBid(tour, (Contrat)c);
          sequenceEncheres();
          break;
       }
@@ -951,7 +951,7 @@ void TarotEngine::sendCards( Place p, quint8 *params )
 /**
  * Ask a client for his bid
  */
-void TarotEngine::askBid( Place p, Contrat c )
+void TarotEngine::askBid(Contrat c)
 {
    QByteArray block;
    QDataStream out( &block, QIODevice::WriteOnly );

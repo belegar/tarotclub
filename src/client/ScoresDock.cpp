@@ -32,6 +32,8 @@ ScoresDock::ScoresDock( QWidget *parent )
 /*****************************************************************************/
 void ScoresDock::closeEvent( QCloseEvent *e )
 {
+   Q_UNUSED(e);
+
    emit sgnlClose();
 }
 /*****************************************************************************/

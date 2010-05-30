@@ -55,6 +55,7 @@ ChatDock::ChatDock( QWidget *parent )
 /*****************************************************************************/
 void ChatDock::closeEvent( QCloseEvent * e )
 {
+    Q_UNUSED(e);
     emit sgnlClose();
 }
 /*****************************************************************************/

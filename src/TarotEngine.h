@@ -120,7 +120,7 @@ public:
 
    // Fonctions réseau
    void sendCards( Place p, quint8 *params );
-   void askBid( Place p, Contrat c );
+   void askBid(Contrat c);
    void sendBid( Place p, Contrat c );
    void broadcast( QByteArray &block );
    void doAction( QDataStream &in, QTcpSocket* cnx );
