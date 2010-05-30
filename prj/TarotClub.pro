@@ -37,6 +37,7 @@ win32 {
 HEADERS += AboutWindow.h \
     MainWindow.h \
     OptionsWindow.h \
+    EditorWindow.h \
     ResultWindow.h \
     ScoresDock.h \
     InfosDock.h \
@@ -45,6 +46,7 @@ HEADERS += AboutWindow.h \
     Tapis.h \
     TextBox.h \
     ConfigFile.h \
+    DealEditorFile.h \
     Game.h \
     Jeu.h \
     Deck.h \
@@ -55,11 +57,7 @@ HEADERS += AboutWindow.h \
     defines.h \
     textes.h \
     TarotEngine.h \
-    Score.h \
-    ui_ServerManagerUI.h \
-    ui_InfosDockUI.h \
-    ui_AvatarsUI.h \
-    ui_OptionsUI.h
+    Score.h
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
     EncheresUI.ui \
@@ -70,10 +68,12 @@ FORMS = AboutUI.ui \
     ServerManagerUI.ui \
     RulesUI.ui \
     RoundUI.ui \
-    ../src/client/NumberedDealUI.ui
+    NumberedDealUI.ui \
+    DealEditorUI.ui
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
+    EditorWindow.cpp \
     ResultWindow.cpp \
     ScoresDock.cpp \
     InfosDock.cpp \
@@ -82,6 +82,7 @@ SOURCES = AboutWindow.cpp \
     Tapis.cpp \
     TextBox.cpp \
     ConfigFile.cpp \
+    DealEditorFile.cpp \
     Game.cpp \
     main.cpp \
     Jeu.cpp \
@@ -92,3 +93,4 @@ SOURCES = AboutWindow.cpp \
     Bot.cpp \
     TarotEngine.cpp \
     Score.cpp
+
