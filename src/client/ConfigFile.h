@@ -27,7 +27,7 @@
 #include "../defines.h"
 
 
-#define XML_VERSION     "1.1"
+#define XML_VERSION     "1.2"
 
 // Valeurs par défaut
 #define NBPLAYERS_DEF   4

@@ -168,7 +168,7 @@ bool ConfigFile::save( const QString &fileName )
    doc.appendChild( doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" ) );
    doc.appendChild(doc.createTextNode("\n"));
 
-   doc.appendChild(doc.createComment( QString("Généré par ")+QString("Tarot Club ")+QString(TAROT_VERSION) ) );
+   doc.appendChild(doc.createComment( QString("Généré par ")+QString("TarotClub ")+QString(TAROT_VERSION) ) );
    doc.appendChild(doc.createTextNode("\n"));
 
    // root node
