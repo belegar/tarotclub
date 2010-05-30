@@ -59,6 +59,7 @@ enum Poignee      { P_SANS, P_SIMPLE, P_DOUBLE, P_TRIPLE };
 enum SexType      { MALE, FEMALE };
 enum CursorType   { FORBIDDEN, ARROW };
 enum GameType     { LOC_ONEDEAL, LOC_TOURNAMENT, NET_GAME_SERVER, NET_GAME_CLIENT };
+enum DealType     { RANDOM_DEAL, CUSTOM_DEAL, NUMBERED_DEAL };
 
 /*****************************************************************************/
 // client -> server
