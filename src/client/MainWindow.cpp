@@ -32,16 +32,16 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    //==============================================================
 
    // About Window
-   about = new AboutWindow( this );
+   about = new AboutWindow(this);
    about->hide();
 
    // Scores
-   resultWindow = new ResultWindow( this );
+   resultWindow = new ResultWindow(this);
    resultWindow->setAttribute(Qt::WA_ShowModal, true);
    resultWindow->hide();
 
    // Options
-   optionsWindow = new OptionsWindow( this );
+   optionsWindow = new OptionsWindow(this);
    optionsWindow->setAttribute(Qt::WA_ShowModal, true);
    optionsWindow->hide();
 
@@ -55,13 +55,18 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    rulesUI.setupUi(rulesWindow);
    rulesWindow->hide();
 
+   // Deal editor
+   editorWindow = new EditorWindow(this);
+   editorWindow->setAttribute(Qt::WA_ShowModal, true);
+   editorWindow->hide();
+
    // ----------  Docks de droite ------------------------
 
    // Dock window : scores
    scoresDock = new ScoresDock(this);
    addDockWidget(Qt::RightDockWidgetArea, scoresDock);
    scoresDock->show();
-   connect( scoresDock,SIGNAL(sgnlClose()),this, SLOT(closeScores()) );
+   connect( scoresDock,SIGNAL(sgnlClose()),this, SLOT(slotCloseScores()) );
 
    // Dock window : informations
    infosDock = new InfosDock(this);
@@ -81,7 +86,7 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    chatDock = new ChatDock(this);
    addDockWidget(Qt::BottomDockWidgetArea, chatDock);
    chatDock->show();
-   connect( chatDock,SIGNAL(sgnlClose()),this, SLOT(closeChat()) );
+   connect( chatDock,SIGNAL(sgnlClose()),this, SLOT(slotCloseChat()) );
 
    // Dock window : serveur
    serverDock = new QDockWidget(this);
@@ -97,11 +102,6 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    //----------
    // Menu Jeu
    //----------
-   /*
-   newQuickGameAct;
-      QAction    *newTournamentAct;
-      QAction    *newNumberedDealAct;
-   */
    //----- Local
    newQuickGameAct = new QAction("&Nouvelle partie rapide", this);
    newQuickGameAct->setShortcut(QString("Ctrl+N"));
@@ -114,6 +114,10 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    newNumberedDealAct = new QAction(trUtf8("Nouvelle donne nu&mérotée"), this);
    newNumberedDealAct->setShortcut(trUtf8("Ctrl+M"));
    newNumberedDealAct->setStatusTip(trUtf8("Redistribue les cartes avec une donne précise"));
+
+   newCustomDealAct = new QAction(trUtf8("Nouvelle donne manuelle"), this);
+   newCustomDealAct->setShortcut(trUtf8("Ctrl+C"));
+   newCustomDealAct->setStatusTip(trUtf8("Redistribue les cartes avec une donne construite avec l'éditeur"));
 
    //----- Network
    netGameServerAct = new QAction(trUtf8("Créer une partie en &réseau (serveur)"), this);
@@ -142,6 +146,7 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    gameMenu->addAction(newQuickGameAct);
    gameMenu->addAction(newTournamentAct);
    gameMenu->addAction(newNumberedDealAct);
+   gameMenu->addAction(newCustomDealAct);
    gameMenu->addSeparator();
    gameMenu->addAction(netGameServerAct);
    gameMenu->addAction(netGameClientAct);
@@ -156,6 +161,11 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    optionsAct = new QAction(trUtf8("&Options"), this);
    optionsAct->setShortcut(trUtf8("Ctrl+O"));
    optionsAct->setStatusTip(trUtf8("Options du jeu"));
+
+   dealEditorAct = new QAction(trUtf8("É&diteur de donne"), this);
+   dealEditorAct->setShortcut(trUtf8("Ctrl+D"));
+   dealEditorAct->setStatusTip(trUtf8("Choisissez les cartes de chaque joueurs pour une donne particulière."));
+   connect(dealEditorAct, SIGNAL(triggered()), this, SLOT(slotDealEditor()));
 
    scoresAct = new QAction(trUtf8("Scores"), this);
    scoresAct->setCheckable(true);
@@ -183,6 +193,7 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
 
    paramsMenu = menuBar()->addMenu(trUtf8("Paramètres"));
    paramsMenu->addAction(optionsAct);
+   paramsMenu->addAction(dealEditorAct);
    paramsMenu->addSeparator();
    paramsMenu->addAction(scoresAct);
    paramsMenu->addAction(infosAct);
@@ -194,7 +205,7 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    //-----------
    QAction *aboutAct = new QAction(trUtf8("&À propos..."), this);
    aboutAct->setShortcut(trUtf8("Ctrl+A"));
-   aboutAct->setStatusTip(trUtf8("À propos de Tarot Club"));
+   aboutAct->setStatusTip(trUtf8("À propos de TarotClub"));
    connect(aboutAct, SIGNAL(triggered()), about, SLOT(show()));
 
    QAction *rulesAct = new QAction(trUtf8("&Règles du Tarot"), this);
@@ -216,12 +227,18 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    tapis->show();
 }
 /*****************************************************************************/
-void MainWindow::closeChat()
+void  MainWindow::slotDealEditor()
+{
+   editorWindow->init();
+   editorWindow->exec();
+}
+/*****************************************************************************/
+void MainWindow::slotCloseChat()
 {
    chatAct->setChecked(false);
 }
 /*****************************************************************************/
-void MainWindow::closeScores()
+void MainWindow::slotCloseScores()
 {
    scoresAct->setChecked(false);
 }

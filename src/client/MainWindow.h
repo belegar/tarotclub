@@ -31,6 +31,7 @@
 #include "AboutWindow.h"
 #include "ResultWindow.h"
 #include "OptionsWindow.h"
+#include "EditorWindow.h"
 #include "ScoresDock.h"
 #include "InfosDock.h"
 #include "ChatDock.h"
@@ -53,53 +54,57 @@ protected:
 
    // Menu Jeu
    //----local
-   QAction    *newQuickGameAct;
-   QAction    *newTournamentAct;
-   QAction    *newNumberedDealAct;
+   QAction *newQuickGameAct;
+   QAction *newTournamentAct;
+   QAction *newNumberedDealAct;
+   QAction *newCustomDealAct;
    //----network
-   QAction    *netGameServerAct;
-   QAction    *netGameClientAct;
+   QAction *netGameServerAct;
+   QAction *netGameClientAct;
    //----misc
-   QAction    *pliPrecAct;
+   QAction *pliPrecAct;
 
    // Menu Paramètres
-   QAction    *optionsAct;
-   QAction    *scoresAct;
-   QAction    *infosAct;
-   QAction    *chatAct;
-   QAction    *serverAct;
+   QAction *dealEditorAct;
+   QAction *optionsAct;
+   QAction *scoresAct;
+   QAction *infosAct;
+   QAction *chatAct;
+   QAction *serverAct;
 
-   Tapis      *tapis;      // QCanvasView
+   Tapis *tapis;      // QCanvasView
 
    // Autres fenêtres
-   AboutWindow    *about;           // A propos
-   ResultWindow   *resultWindow;    // Résultat d'une donne
-   OptionsWindow  *optionsWindow;   // Options
-   QDialog        *clientWindow;    // fenêtre pour joindre une partie réseau
-   QDialog        *rulesWindow;
+   AboutWindow *about;           // A propos
+   ResultWindow *resultWindow;    // Résultat d'une donne
+   OptionsWindow *optionsWindow;   // Options
+   EditorWindow *editorWindow;   // Options
+   QDialog *clientWindow;    // fenêtre pour joindre une partie réseau
+   QDialog *rulesWindow;
 
    // Dock windows
-   ScoresDock     *scoresDock;
-   InfosDock      *infosDock;
-   ChatDock       *chatDock;
-   RoundDock      *roundDock;
-   QDockWidget    *serverDock;
+   ScoresDock *scoresDock;
+   InfosDock *infosDock;
+   ChatDock *chatDock;
+   RoundDock *roundDock;
+   QDockWidget *serverDock;
 
    // UI classes
-   Ui::NetClientUI  clientUI;
+   Ui::NetClientUI clientUI;
    Ui::serverDock serverUI;
-   Ui::RulesUI    rulesUI;
+   Ui::RulesUI rulesUI;
 
 public:
    MainWindow( QWidget* parent = 0, Qt::WFlags f = 0 );
 
 public slots:
-   void  slotScoresDock(void);
-   void  slotInfosDock(void);
-   void  slotChatDock(void);
-   void  slotServerDock(void);
-   void  closeChat();
-   void  closeScores();
+   void slotScoresDock();
+   void slotInfosDock();
+   void slotChatDock();
+   void slotServerDock();
+   void slotDealEditor();
+   void slotCloseChat();
+   void slotCloseScores();
 };
 
 #endif // _MAINWINDOW_H
