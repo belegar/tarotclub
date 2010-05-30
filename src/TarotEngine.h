@@ -75,9 +75,10 @@ private:
    Place       tour;          // A qui le tour (d'enchérir ou de jouer)
    Sequence    sequence;      // indique la séquence de jeu actuelle
    bool        newGame;       // vrai si une nouvelle partie a été commencée
-   int         dealNumber;
    int         cptVu;         // counter of chien seen by clients
-   bool        numberedDeal;
+   DealType    dealType;
+   int         dealNumber;
+   QString     dealFile;
 
 protected:
    void customEvent( QEvent *e );
@@ -88,8 +89,8 @@ public:
 
    void run();
 
-   int   getConnectedPlayers( Identity *idents );
-   int   getNumberOfConnectedPlayers();
+   int getConnectedPlayers( Identity *idents );
+   int getNumberOfConnectedPlayers();
    Score *getScore();
    int getDealNumber();
    Player *getPlayer(Place p);
@@ -97,22 +98,25 @@ public:
 
    void setTimerBetweenPlayers(int t);
    void setTimerBetweenTurns(int t);
-   void setDealNumber(bool status, int deal);
+   void setDealType(DealType type);
+   void setDealNumber(int deal);
+   void setDealFile(QString file);
 
-   void  newServerGame( int port );
-   void  closeServerGame();
-   void  closeClients();
-   bool  cardIsValid( Card *c, Place p );
-   bool  cardExists( Card *c, Place p );
-   void  distribution();
+   void newServerGame( int port );
+   void closeServerGame();
+   void closeClients();
+   bool cardIsValid( Card *c, Place p );
+   bool cardExists( Card *c, Place p );
+   void customDeal();
+   void randomDeal();
    Place calculGagnantPli();
-   void  nouvelleDonne();
-   void  jeu();
-   void  jeuNext();
+   void nouvelleDonne();
+   void jeu();
+   void jeuNext();
    Place nextPlayer( Place j );
-   bool  finLevee();
-   void  sequenceEncheres();
-   void  montreChien();
+   bool finLevee();
+   void sequenceEncheres();
+   void montreChien();
 
    // Fonctions réseau
    void sendCards( Place p, quint8 *params );

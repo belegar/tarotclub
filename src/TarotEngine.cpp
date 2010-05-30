@@ -19,6 +19,7 @@
 #include <QtNetwork>
 #include <QCoreApplication>
 #include "TarotEngine.h"
+#include "DealEditorFile.h"
 #ifndef QT_NO_DEBUG
    #include <iostream>
    #include <fstream>
@@ -40,7 +41,7 @@ TarotEngine::TarotEngine()
    sequence = VIDE;
    newGame = false;
    dealNumber = 0;
-   numberedDeal = false;
+   dealType = RANDOM_DEAL;
 
    timerBetweenPlayers.setSingleShot(true);
    timerBetweenPlayers.setInterval(0);
@@ -126,10 +127,19 @@ void TarotEngine::setTimerBetweenTurns(int t)
     timerBetweenTurns.setInterval(t);
 }
 /*****************************************************************************/
-void TarotEngine::setDealNumber(bool status, int deal)
+void TarotEngine::setDealNumber(int deal)
 {
    dealNumber = deal;
-   numberedDeal = status;
+}
+/*****************************************************************************/
+void TarotEngine::setDealType(DealType type)
+{
+   dealType = type;
+}
+/*****************************************************************************/
+void TarotEngine::setDealFile(QString file)
+{
+   dealFile = file;
 }
 /*****************************************************************************/
 void TarotEngine::customEvent( QEvent *e )
@@ -383,21 +393,15 @@ Place TarotEngine::calculGagnantPli()
 /*****************************************************************************/
 void TarotEngine::nouvelleDonne()
 {
-   // on ajoute les cartes dans le deck
-   mainDeck.clear();
-   for( int i=0; i<78; i++ ) {
-      mainDeck.append( Jeu::getCard(i) );
+   if(dealType == CUSTOM_DEAL) {
+      customDeal();
+   } else {
+      randomDeal();
    }
 
-   if(numberedDeal == false) {
-      dealNumber = qrand()%RAND_MAX;
-   }
-
-   mainDeck.shuffle(dealNumber);
    donneur = nextPlayer(donneur);
    infos.contrat = PASSE;
    infos.gameCounter = 0;
-   distribution();
    tour = nextPlayer(donneur); // Le joueur à la droite du donneur commence les enchères
    selectPlayer(tour);
    askBid( tour, infos.contrat );
@@ -507,9 +511,54 @@ bool TarotEngine::finLevee()
 }
 /*****************************************************************************/
 /**
+ * Use a custom deal for the game
+ */
+void TarotEngine::customDeal()
+{
+   int j;
+   Card *c;
+   quint8 params[18] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
+
+   DealEditorFile editor;
+   editor.loadFile(dealFile);
+
+   QMapIterator<QTcpSocket*, Player*> i(players);
+   while (i.hasNext()) {
+      i.next();
+      i.value()->emptyDeck();
+      Place p = i.value()->getPlace();
+      Deck *d;
+
+      if (p == SUD) {
+         d = &editor.southDeck;
+      } else if (p == EST) {
+         d = &editor.eastDeck;
+      } else if (p == OUEST) {
+         d = &editor.westDeck;
+      } else {
+         d = &editor.northDeck;
+      }
+
+      for( j=0; j<18; j++ ) {
+         c = d->at(j);
+         if( c->getType() == EXCUSE ) {
+            score.setExcuse(p);
+         }
+         c->setOwner(p);
+         i.value()->addCard( c );
+         params[j] = c->getId();
+      }
+      sendCards( p, params );
+   }
+
+   deckChien = editor.chienDeck;
+   mainDeck.clear();
+}
+/*****************************************************************************/
+/**
  * On distribue les cartes entre les joueurs et le chien
  */
-void TarotEngine::distribution()
+void TarotEngine::randomDeal()
 {
    int n, j;
    Card *c;
@@ -517,8 +566,18 @@ void TarotEngine::distribution()
    int nb_cartes_chien;
    int nb_cartes_joueur;
    Place p;
-   quint8 params[24] = {0};   // cartes du joueur (3 joueurs: 24, 4j: 18, 5j: 15)
+   quint8 params[18] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
 
+
+   // on ajoute les cartes dans le deck
+   mainDeck.clear();
+   for( int i=0; i<78; i++ ) {
+      mainDeck.append( Jeu::getCard(i) );
+   }
+   if(dealType == RANDOM_DEAL) {
+      dealNumber = qrand()%RAND_MAX;
+   }
+   mainDeck.shuffle(dealNumber);
    deckChien.clear();
 
    if( infos.nbJoueurs == 3 ) {
