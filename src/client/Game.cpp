@@ -21,6 +21,7 @@
 #include <QMessageBox>
 #include "Game.h"
 #include "../Jeu.h"
+#include "ui_NumberedDealUI.h"
 
 #define SOUTH_CARDS_POS     522
 
@@ -68,22 +69,23 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( &client, SIGNAL(sgnlFinDonne()), this, SLOT(slotFinDonne()));
    connect( &client, SIGNAL(sgnlWaitPli()), this, SLOT(slotWaitPli()));
 
-   // Menu Fichier
-   connect(newLocalGameAct, SIGNAL(triggered()), this, SLOT(slotNewLocalGame()));
+   // Game Menu
+   connect(newQuickGameAct, SIGNAL(triggered()), this, SLOT(slotNewQuickGame()));
+   connect(newTournamentAct, SIGNAL(triggered()), this, SLOT(slotNewTournamentGame()));
+   connect(newNumberedDealAct, SIGNAL(triggered()), this, SLOT(slotNewNumberedDeal()));
+   connect(newCustomDealAct, SIGNAL(triggered()), this, SLOT(slotNewCustomDeal()));
 //   connect(netGameServerAct, SIGNAL(triggered()), this, SLOT(slotServerWndShow()));
 //   connect(netGameClientAct, SIGNAL(triggered()), this, SLOT(slotClientWndShow()));
-//   connect(newDonneAct, SIGNAL(triggered()), this, SLOT(slotDonneAuto()));
-//   connect(newDonneManuAct, SIGNAL(triggered()), this, SLOT(slotDonneManu()));
-
-   connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotQuitTarotClub()));
-
-   // Menu Tarot
-   connect(optionsAct, SIGNAL(triggered()), this, SLOT(showOptions()));
 //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
 
-   newDonneAct->setEnabled(false);
-   newDonneManuAct->setEnabled(false);
-   pliPrecAct->setEnabled(false);
+   // Parameters Menu
+   connect(optionsAct, SIGNAL(triggered()), this, SLOT(slotShowOptions()));
+
+   // Exit catching to terminate the game properly
+   connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotQuitTarotClub()));
+
+   // Lancement du thread serveur
+   server.start();
 }
 /*****************************************************************************/
 Game::~Game()
@@ -98,28 +100,68 @@ void Game::slotQuitTarotClub()
 {
    server.closeServerGame();
    server.exit();
+   server.wait(); // block until thread has finished execution
 }
 /*****************************************************************************/
-void Game::slotNewLocalGame()
+void Game::slotNewTournamentGame()
+{
+   gameType = LOC_TOURNAMENT;
+   rounds = 0;
+   server.setDealType(RANDOM_DEAL);
+   newLocalGame();
+}
+/*****************************************************************************/
+void Game::slotNewNumberedDeal()
+{
+   QDialog *widget = new QDialog;
+   Ui::NumberedDeal ui;
+   ui.setupUi(widget);
+
+   if( widget->exec() == QDialog::Accepted ) {
+      gameType = LOC_ONEDEAL;
+      server.setDealType(NUMBERED_DEAL);
+      server.setDealNumber(ui.dealNumber->value());
+      newLocalGame();
+   }
+}
+/*****************************************************************************/
+void Game::slotNewCustomDeal()
+{
+   QString fileName = QFileDialog::getOpenFileName(this);
+
+   gameType = LOC_ONEDEAL;
+   server.setDealType(CUSTOM_DEAL);
+   server.setDealFile(fileName);
+   newLocalGame();
+}
+/*****************************************************************************/
+void Game::slotNewQuickGame()
+{
+   gameType = LOC_ONEDEAL;
+   server.setDealType(RANDOM_DEAL);
+   newLocalGame();
+}
+/*****************************************************************************/
+void Game::newLocalGame()
 {
    int i;
    GameOptions *options = config->getGameOptions();
 
-   // Lancement du thread serveur
-   if (server.isRunning() == false) {
-      server.start();
-   }
-   server.newServerGame(options->port);
-
-   newDonneAct->setEnabled(true);
-   newDonneManuAct->setEnabled(true);
    scoresDock->clear();
    infosDock->clear();
-   client.connectToHost( "127.0.0.1", options->port );
-   qApp->processEvents(QEventLoop::AllEvents,100);
-   for( i=0; i<(options->nbPlayers-1); i++ ) {
-      bots[i].connectToHost( "127.0.0.1", options->port );
+   tapis->razTapis();
+   tapis->resetCards();
+
+   if (server.getNumberOfConnectedPlayers() == options->nbPlayers) {
+      client.sendStart();
+   } else {
+      server.newServerGame(options->port);
+      client.connectToHost( "127.0.0.1", options->port );
       qApp->processEvents(QEventLoop::AllEvents,100);
+      for( i=0; i<(options->nbPlayers-1); i++ ) {
+         bots[i].connectToHost( "127.0.0.1", options->port );
+         qApp->processEvents(QEventLoop::AllEvents,100);
+      }
    }
    tapis->setNbPlayers(options->nbPlayers);
    tapis->setFilter(AUCUN);
@@ -147,7 +189,7 @@ void Game::applyOptions()
    server.setTimerBetweenTurns(options->timer2);
 }
 /*****************************************************************************/
-void Game::showOptions()
+void Game::slotShowOptions()
 {
    optionsWindow->setOptions( config->getGameOptions() );
 
@@ -493,14 +535,20 @@ void Game::slotAfficheCarte(int id)
 /*****************************************************************************/
 void Game::slotFinDonne()
 {
+   rounds++;
    resultWindow->setCalcul( client.getScoreInfos(), client.getGameInfos() );
+   resultWindow->exec();
 
-   //TODO: show the cards of all players
-
-   if( resultWindow->exec() == QDialog::Accepted ) {
+   if( (gameType == LOC_TOURNAMENT) &&
+       (rounds<MAX_ROUNDS) ) {
       // Add current turn result to total score
       scoresDock->setNewScore(server.getScore()->getLastTurnScore(), config->getGameOptions()->nbPlayers);
       client.sendStart();
+   } else {
+      sequence = VIDE;
+      tapis->setFilter( AUCUN );
+      tapis->razTapis();
+      tapis->resetCards();
    }
 }
 /*****************************************************************************/

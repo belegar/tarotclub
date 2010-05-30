@@ -51,6 +51,8 @@ private:
    Sequence    sequence;
    Place       tour;
    bool        firstTurn;
+   GameType    gameType;
+   int         rounds;
 
    Card *getCardFromPix( GfxCard *gc );
 
@@ -63,13 +65,19 @@ public:
    void afficheCartesJoueur( int pos );
    void hidePli();
    void hideChien();
+   void newLocalGame();
 
 public slots:
-   void slotNewLocalGame();
-   void showOptions();
+
+   // Menus
+   void slotNewTournamentGame();
+   void slotNewNumberedDeal();
+   void slotNewCustomDeal();
+   void slotNewQuickGame();
+   void slotShowOptions();
    void slotQuitTarotClub();
 
-   // événements du serveur
+   // client events
    void slotReceptionCartes();
    void slotAfficheSelection(Place p);
    void slotAfficheChien();
