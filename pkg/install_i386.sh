@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Edit TarotClub version
-tarotclub_title="tarotclub-2.0.0a2"
+tarotclub_title=$(cat ./version.txt)
 install_dir="./opt/${tarotclub_title}"
 
 # clean previous install
