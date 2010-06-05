@@ -40,7 +40,7 @@ public:
    void setContrat( Contrat c );
    void setPreneur( QString preneur );
    void setDonne( int n );
-
+   void printStats(DeckStats *stats);
 };
 
 #endif // INFOSDOCK_H
