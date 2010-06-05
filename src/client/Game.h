@@ -53,6 +53,7 @@ private:
    bool        firstTurn;
    GameType    gameType;
    int         rounds;
+   int         cardsCounter;
 
    Card *getCardFromPix( GfxCard *gc );
 
