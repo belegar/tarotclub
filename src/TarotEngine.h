@@ -71,6 +71,7 @@ private:
    Score       score;
    Deck        deckChien;     // le chien
    Deck        mainDeck;      // le tas principal
+   Deck        poigneeDeck;   // la poignee déclarée (TODO: une poignée ?? 2 max possibles !!)
    Place       donneur;       // qui est le donneur ?
    Place       tour;          // A qui le tour (d'enchérir ou de jouer)
    Sequence    sequence;      // indique la séquence de jeu actuelle

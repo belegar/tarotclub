@@ -739,6 +739,9 @@ void TarotEngine::slotReadData()
    }
 }
 /*****************************************************************************/
+/**
+ * ALL data *must*  be read !! TODO, add robustness here
+ */
 void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
 {
    quint8 type;   // type de trame
@@ -891,11 +894,36 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
        */
       case NET_CLIENT_POIGNEE:
       {
+         quint8 dummy;
+         in >> dummy;
+         quint8 id;
+         Poignee p;
+
+         // TODO: add protection, limits ...
+         poigneeDeck.clear();
+         for(int i=0; i<dummy;i++) {
+            in >> id;
+            poigneeDeck.append(Jeu::getCard(id));
+         }
+         // TODO: add robustness here!!
+         if(dummy == 10)
+            p = P_SIMPLE;
+         else if (dummy == 13)
+            p = P_DOUBLE;
+         else
+            p = P_TRIPLE;
+
+         if(players[cnx]->getPlace() == infos.preneur) {
+            score.setPoigneeAttaque(p);
+         } else {
+            score.setPoigneeDefense(p);
+         }
          /*
           Tester :
           1) L'origine du client (sud, est ... ip ??)
           2) La validité de la poignée (présence dans le deck du joueur, utilisation de l'excuse)
           3) La poignée doit être déclarée avant de jouer la première carte
+          4) Puis envoyer la poignée à tout le monde ...
          */
          break;
       }
