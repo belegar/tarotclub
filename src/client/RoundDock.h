@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - RoundDock.h
  *=============================================================================
- * Fenêtre dockable affichant toutes les cartes jouées dans la donne
+ * Fenêtre dockable affichant les plis réalisés à chaque tour de jeu
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -31,6 +31,9 @@ private:
 
 public:
    RoundDock( QWidget *parent );
+
+   void addRound(int turn, Place p, QString txt);
+   void clear();
 
 protected:
    void closeEvent( QCloseEvent * e );
