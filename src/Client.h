@@ -67,6 +67,7 @@ public:
    void addCardPoignee(Card *c);
    void removeCardPoignee(Card *c);
    int getTaillePoignee();
+   bool testPoignee();
 
    // Réseau
    void connectToHost( const QString &hostName, quint16 port );

@@ -95,6 +95,28 @@ int Client::getTaillePoignee()
    return(poignee.count());
 }
 /*****************************************************************************/
+/**
+ * excuse in the poignee significate that the player has no more atouts
+ * return false if this isn't true
+ */
+bool Client::testPoignee()
+{
+   bool excuseInPoignee = false;
+
+   for( int i=0; i<poignee.size(); i++) {
+      Card *c = poignee.at(i);
+      if(c->getType() == EXCUSE) {
+         excuseInPoignee = true;
+      }
+   }
+
+   if(excuseInPoignee == true && stats.atouts > poignee.size()) {
+      return false;
+   } else {
+      return true;
+   }
+}
+/*****************************************************************************/
 GameInfos *Client::getGameInfos()
 {
    return &infos;
@@ -478,6 +500,7 @@ void Client::sendMessage( const QString &message )
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 /**
@@ -496,6 +519,7 @@ void Client::sendStart()
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 /**
@@ -515,6 +539,7 @@ void Client::sendEnchere( Contrat c )
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 /**
@@ -539,6 +564,7 @@ void Client::sendChien()
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 /**
@@ -553,7 +579,8 @@ void Client::sendPoignee()
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_CLIENT_POIGNEE;
 
-   //TODO: add position, south etc..
+   out << (quint8)poignee.size();
+
    for( i=0; i<poignee.size(); i++ ) {
       out << (quint8)(poignee.at(i)->getId());
    }
@@ -564,6 +591,7 @@ void Client::sendPoignee()
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 /**
@@ -583,6 +611,7 @@ void Client::sendCard( Card *c )
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 /**
@@ -601,6 +630,7 @@ void Client::sendVuChien()
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 /**
@@ -619,6 +649,7 @@ void Client::sendVuPli()
 
    // On envoie la trame au serveur
    socket.write(block);
+   socket.flush();
 }
 /*****************************************************************************/
 void Client::socketReadData()
