@@ -25,7 +25,7 @@ cp ../../README $install_dir
 
 # Ubuntu package files
 mkdir "DEBIAN"
-cp ../control_i386.txt ./DEBIAN/control
+cp ../control_amd64.txt ./DEBIAN/control
 cp ../postinst ./DEBIAN
 cd ..
 
@@ -33,6 +33,6 @@ echo "Package tree created."
 
 dpkg-deb --build $tarotclub_title
 echo "Ubuntu package created."
-mv "${tarotclub_title}.deb" "${tarotclub_title}_i386.deb"
+mv "${tarotclub_title}.deb" "${tarotclub_title}_amd64.deb"
 
 

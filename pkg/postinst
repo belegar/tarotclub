@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# make the new font available for all
+fc-cache -f -v
