@@ -24,7 +24,7 @@
        <enum>QFrame::Plain</enum>
       </property>
       <property name="rowCount">
-       <number>18</number>
+       <number>0</number>
       </property>
       <attribute name="horizontalHeaderVisible">
        <bool>true</bool>
@@ -68,24 +68,6 @@
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>50</number>
       </attribute>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
       <column>
        <property name="text">
         <string>Points</string>
@@ -98,7 +80,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Ouest</string>
+        <string>Est</string>
        </property>
       </column>
       <column>
@@ -108,37 +90,9 @@
       </column>
       <column>
        <property name="text">
-        <string>Est</string>
+        <string>Ouest</string>
        </property>
       </column>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QGroupBox" name="groupBox">
-      <property name="title">
-       <string>Écart</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QFrame" name="frame">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>
