@@ -65,9 +65,9 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( &client, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
    connect( &client, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
    connect( &client, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
-   connect( &client, SIGNAL(sgnlAfficheCarte(int)), this, SLOT(slotAfficheCarte(int)));
+   connect( &client, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
    connect( &client, SIGNAL(sgnlFinDonne()), this, SLOT(slotFinDonne()));
-   connect( &client, SIGNAL(sgnlWaitPli()), this, SLOT(slotWaitPli()));
+   connect( &client, SIGNAL(sgnlWaitPli(Place)), this, SLOT(slotWaitPli(Place)));
 
    // Game Menu
    connect(newQuickGameAct, SIGNAL(triggered()), this, SLOT(slotNewQuickGame()));
@@ -178,6 +178,7 @@ void Game::applyOptions()
 
    for(i=0; i<4; i++ ) {
       bots[i].setIdentity( &options->identities[1+i] );
+      bots[i].setTimeBeforeSend(options->timer1);
    }
    client.setIdentity( &options->identities[0] );
 
@@ -185,8 +186,8 @@ void Game::applyOptions()
    tapis->printNames(options->identities, SUD);
    tapis->setBackground(options->tapis);
 
-   server.setTimerBetweenPlayers(options->timer1);
-   server.setTimerBetweenTurns(options->timer2);
+   // TODO: implement a time at the end of each turn
+  // server.setTimerBetweenTurns(options->timer2);
 }
 /*****************************************************************************/
 void Game::slotShowOptions()
@@ -349,7 +350,6 @@ void Game::slotReceptionCartes()
 /*****************************************************************************/
 void Game::slotAfficheSelection(Place p)
 {
-   tour = p;
    tapis->afficheSelection(p);
 }
 /*****************************************************************************/
@@ -494,7 +494,7 @@ void Game::slotPrepareChien()
 void Game::slotDepartDonne(Place p, Contrat c)
 {
    firstTurn = true;
-   cardsCounter = 0;
+   turnCounter = 0;
    roundDock->clear();
    infosDock->setContrat(c);
    infosDock->setPreneur( config->getGameOptions()->identities[p].name );
@@ -529,14 +529,11 @@ void Game::slotJoueCarte()
    }
 }
 /*****************************************************************************/
-void Game::slotAfficheCarte(int id)
+void Game::slotAfficheCarte(int id, Place tour)
 {
    GfxCard *gc = tapis->getGfxCard(id);
    tapis->afficheCarte(gc,tour);
-
-   // TODO: add card played to the dock
-   roundDock->addRound(cardsCounter/4, tour, Jeu::getCard(id)->getCardName());
-   cardsCounter++;
+   roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/
 void Game::slotFinDonne()
@@ -558,11 +555,19 @@ void Game::slotFinDonne()
    }
 }
 /*****************************************************************************/
-void Game::slotWaitPli()
+void Game::slotWaitPli(Place winner)
 {
-   sequence = SEQ_WAIT_PLI;
-   tapis->setFilter( AUCUN );
-   statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer.") );
+   roundDock->selectWinner(turnCounter, winner);
+   turnCounter++;
+   if(turnCounter >= 18) {
+      sequence = VIDE;
+      tapis->setFilter( AUCUN );
+      statusBar()->showMessage(trUtf8("Fin de la donne.") );
+   } else {
+      sequence = SEQ_WAIT_PLI;
+      tapis->setFilter( AUCUN );
+      statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer.") );
+   }
 }
 
 

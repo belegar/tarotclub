@@ -64,7 +64,6 @@ private:
    QMap<QTcpSocket*, Player*> players;
    QTcpServer  server;
 
-   QTimer      timerBetweenPlayers;
    QTimer      timerBetweenTurns;
    QString     gamePath;
    GameInfos   infos;
@@ -89,7 +88,7 @@ public:
     ~TarotEngine();
 
    void run();
-
+   void generateLog();
    int getConnectedPlayers( Identity *idents );
    int getNumberOfConnectedPlayers();
    Score *getScore();
@@ -97,8 +96,6 @@ public:
    Player *getPlayer(Place p);
    QTcpSocket *getConnection(Place p);
 
-   void setTimerBetweenPlayers(int t);
-   void setTimerBetweenTurns(int t);
    void setDealType(DealType type);
    void setDealNumber(int deal);
    void setDealFile(QString file);
@@ -144,9 +141,6 @@ public slots:
    void slotNewConnection();
    void slotClientClosed();
    void slotReadData();
-
-   void slotTimerBetweenPlayers();
-   void slotTimerBetweenTurns();
 
 };
 

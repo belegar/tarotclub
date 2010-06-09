@@ -21,7 +21,7 @@
 /*****************************************************************************/
 Bot::Bot() : Client()
 {
-   connect( this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(message(const QString &)));
+   connect( this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
    connect( this, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
    connect( this, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
    connect( this, SIGNAL(sgnlChoixEnchere(Contrat)), this, SLOT(slotChoixEnchere(Contrat)));
@@ -31,12 +31,29 @@ Bot::Bot() : Client()
    connect( this, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
    connect( this, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
    connect( this, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
-   connect( this, SIGNAL(sgnlAfficheCarte(int)), this, SLOT(slotAfficheCarte(int)));
+   connect( this, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
    connect( this, SIGNAL(sgnlFinDonne()), this, SLOT(slotFinDonne()));
-   connect( this, SIGNAL(sgnlWaitPli()), this, SLOT(slotWaitPli()));
+   connect( this, SIGNAL(sgnlWaitPli(Place)), this, SLOT(slotWaitPli(Place)));
+
+   timeBeforeSend.setSingleShot(true);
+   timeBeforeSend.setInterval(0);
+   connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
 }
 /*****************************************************************************/
-void Bot::message( const QString &text )
+void Bot::setTimeBeforeSend(int t)
+{
+   timeBeforeSend.setInterval(t);
+}
+/*****************************************************************************/
+void Bot::slotTimeBeforeSend()
+{
+   Card *c;
+   c = play();
+   removeCard(c);
+   sendCard(c);
+}
+/*****************************************************************************/
+void Bot::slotMessage( const QString &text )
 {
    Q_UNUSED(text);
    // un bot ne sait pas répondre (encore :)
@@ -92,15 +109,13 @@ void Bot::slotDepartDonne(Place p,Contrat c)
 /*****************************************************************************/
 void Bot::slotJoueCarte()
 {
-   Card *c;
-   c = play();
-   removeCard(c);
-   sendCard(c);
+   timeBeforeSend.start();
 }
 /*****************************************************************************/
-void Bot::slotAfficheCarte(int id)
+void Bot::slotAfficheCarte(int id, Place p)
 {
    Q_UNUSED(id);
+   Q_UNUSED(p);
    // nada
 }
 /*****************************************************************************/
@@ -109,8 +124,9 @@ void Bot::slotFinDonne()
    // nada
 }
 /*****************************************************************************/
-void Bot::slotWaitPli()
+void Bot::slotWaitPli(Place p)
 {
+   Q_UNUSED(p);
    sendVuPli();
 }
 

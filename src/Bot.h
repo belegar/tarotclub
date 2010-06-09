@@ -27,13 +27,18 @@ class Bot : public Client
    Q_OBJECT
 
 private:
-
+   QTimer  timeBeforeSend;
 
 public:
    Bot();
 
+   void setTimeBeforeSend(int t);
+
 public slots:
-   void message( const QString &text );
+   void slotTimeBeforeSend();
+
+   // client events
+   void slotMessage( const QString &text );
    void slotReceptionCartes();
    void slotAfficheSelection( Place p );
    void slotChoixEnchere( Contrat c );
@@ -43,9 +48,9 @@ public slots:
    void slotPrepareChien();
    void slotDepartDonne(Place p,Contrat c);
    void slotJoueCarte();
-   void slotAfficheCarte(int id);
+   void slotAfficheCarte(int id, Place p);
    void slotFinDonne();
-   void slotWaitPli();
+   void slotWaitPli(Place);
 };
 
 #endif // _BOT_H

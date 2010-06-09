@@ -43,14 +43,6 @@ TarotEngine::TarotEngine()
    dealNumber = 0;
    dealType = RANDOM_DEAL;
 
-   timerBetweenPlayers.setSingleShot(true);
-   timerBetweenPlayers.setInterval(0);
-
-   timerBetweenTurns.setSingleShot(true);
-   timerBetweenTurns.setInterval(0);
-
-   connect(&timerBetweenPlayers, SIGNAL(timeout()), this, SLOT(slotTimerBetweenPlayers()));
-   connect(&timerBetweenTurns, SIGNAL(timeout()), this, SLOT(slotTimerBetweenTurns()));
    connect(&server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 /*****************************************************************************/
@@ -62,69 +54,6 @@ TarotEngine::~TarotEngine()
 void TarotEngine::run()
 {
    exec();
-}
-/*****************************************************************************/
-void TarotEngine::slotTimerBetweenPlayers()
-{
-    infos.gameCounter++;
-    selectPlayer(tour);
-    sendJoueCarte();
-}
-/*****************************************************************************/
-void TarotEngine::slotTimerBetweenTurns()
-{
-    bool ret;
-
-    ret = finLevee();
-    if( ret == false ) {
-#ifndef QT_NO_DEBUG
- // generate a file with cards of all players
- ofstream f("round_cards.txt");
- QString l1, l2, l3, l4;
-
- // Card type
- for (int j=0; j<mainDeck.size(); j++) {
-    QString n;
-    Card *c = mainDeck.at(j);
-    l1 += c->getCardName() + "\t";
-    l2 += n.setNum(c->getPoints()) + "\t";
-    l3 += n.setNum((int)c->getOwner()) + "\t";
-    l4 += n.setNum(score.getPli(j)) + "\t";
- }
- f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
-
- l1 = l2 = l3 = l4 = "";
-
- // Card type
- for (int j=0; j<deckChien.size(); j++) {
-    QString n;
-    Card *c = deckChien.at(j);
-    l1 += c->getCardName() + "\t";
-    l2 += n.setNum(c->getPoints()) + "\t";
-    l3 += n.setNum((int)c->getOwner()) + "\t";
-    l3 += n.setNum(score.getPli(j)) + "\t";
- }
- f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
-
- f.close();
-#endif
-
-       // end of round, send score to all players
-       sendFinDonne( score.getScoreInfos() );
-    } else {
-       cptVu = 0;
-       sendWaitPli();
-    }
-}
-/*****************************************************************************/
-void TarotEngine::setTimerBetweenPlayers(int t)
-{
-    timerBetweenPlayers.setInterval(t);
-}
-/*****************************************************************************/
-void TarotEngine::setTimerBetweenTurns(int t)
-{
-    timerBetweenTurns.setInterval(t);
 }
 /*****************************************************************************/
 void TarotEngine::setDealNumber(int deal)
@@ -407,13 +336,59 @@ void TarotEngine::nouvelleDonne()
    askBid(infos.contrat);
 }
 /*****************************************************************************/
+void TarotEngine::generateLog()
+{
+   // generate a file with cards of all players
+   ofstream f("round_cards.txt");
+   QString l1, l2, l3, l4;
+
+   // Card type
+   for (int j=0; j<mainDeck.size(); j++) {
+      QString n;
+      Card *c = mainDeck.at(j);
+      l1 += c->getCardName() + "\t";
+      l2 += n.setNum(c->getPoints()) + "\t";
+      l3 += n.setNum((int)c->getOwner()) + "\t";
+      l4 += n.setNum(score.getPli(j)) + "\t";
+   }
+   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
+
+   l1 = l2 = l3 = l4 = "";
+
+   // Card type
+   for (int j=0; j<deckChien.size(); j++) {
+      QString n;
+      Card *c = deckChien.at(j);
+      l1 += c->getCardName() + "\t";
+      l2 += n.setNum(c->getPoints()) + "\t";
+      l3 += n.setNum((int)c->getOwner()) + "\t";
+      l3 += n.setNum(score.getPli(j)) + "\t";
+   }
+   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
+
+   f.close();
+}
+/*****************************************************************************/
 /**
  * Automate servant à séquencer le jeu selon l'état courant des variables
  */
 void TarotEngine::jeu()
 {
+   bool ret;
+
    if( !(infos.gameCounter%infos.nbJoueurs) && infos.gameCounter ) {
-       timerBetweenTurns.start();
+      ret = finLevee();
+
+      cptVu = 0;
+      sendWaitPli();
+
+      if( ret == false ) {
+  #ifndef QT_NO_DEBUG
+         generateLog();
+  #endif
+         // end of round, send score to all players
+         sendFinDonne( score.getScoreInfos() );
+      }
    } else {
       tour = nextPlayer(tour);
       jeuNext();
@@ -422,7 +397,9 @@ void TarotEngine::jeu()
 /*****************************************************************************/
 void TarotEngine::jeuNext()
 {
-   timerBetweenPlayers.start();
+   infos.gameCounter++;
+   selectPlayer(tour);
+   sendJoueCarte();
 }
 /*****************************************************************************/
 void TarotEngine::sequenceEncheres()
@@ -1220,6 +1197,7 @@ void TarotEngine::sendWaitPli()
 
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_SERVER_WAIT_PLI
+       << (quint8)tour // winner of the current turn
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );

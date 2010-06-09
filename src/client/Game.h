@@ -49,11 +49,10 @@ private:
    Bot         bots[4]; // the computer
    Client      client; // The human player
    Sequence    sequence;
-   Place       tour;
    bool        firstTurn;
    GameType    gameType;
    int         rounds;
-   int         cardsCounter;
+   int         turnCounter;
 
    Card *getCardFromPix( GfxCard *gc );
 
@@ -86,9 +85,9 @@ public slots:
    void slotPrepareChien();
    void slotDepartDonne(Place p,Contrat c);
    void slotJoueCarte();
-   void slotAfficheCarte(int id);
+   void slotAfficheCarte(int id, Place tour);
    void slotFinDonne();
-   void slotWaitPli();
+   void slotWaitPli(Place);
    void slotSetEnchere( Contrat cont );
 
    // événements du tapis

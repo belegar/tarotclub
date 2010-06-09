@@ -908,7 +908,7 @@ void Client::doAction( QDataStream &in )
          in >> id;
          in >> tour;
          mainDeck.append(Jeu::getCard(id));
-         emit sgnlAfficheCarte(id);
+         emit sgnlAfficheCarte((int)id, (Place)tour);
          break;
       }
 
@@ -917,7 +917,10 @@ void Client::doAction( QDataStream &in )
        */
       case NET_SERVER_WAIT_PLI:
       {
-         emit sgnlWaitPli();
+         quint8 winner;
+
+         in >> winner;
+         emit sgnlWaitPli((Place)winner);
          break;
       }
 

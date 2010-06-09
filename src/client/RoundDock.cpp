@@ -44,10 +44,12 @@ void RoundDock::closeEvent( QCloseEvent *e )
 void RoundDock::clear()
 {
    int i, j;
+   QBrush brush(Qt::white);
 
    for( i=0; i<5; i++) {
       for( j=0; j<18; j++) {
          ui.tableWidget->item(j, i)->setText("");
+         ui.tableWidget->item(j, i)->setBackground(brush);
       }
    }
 }
@@ -55,6 +57,18 @@ void RoundDock::clear()
 void RoundDock::addRound(int turn, Place p, QString txt)
 {
    ui.tableWidget->item(turn, p+1)->setText(txt);
+}
+/*****************************************************************************/
+void RoundDock::selectWinner(int turn, Place p)
+{
+   QBrush brush(Qt::cyan);
+   ui.tableWidget->item(turn, p+1)->setBackground(brush);
+}
+/*****************************************************************************/
+void RoundDock::selectFirstPlayer(int turn, Place p)
+{
+   QBrush brush(Qt::lightGray);
+   ui.tableWidget->item(turn, p+1)->setBackground(brush);
 }
 
 //=============================================================================

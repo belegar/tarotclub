@@ -26,7 +26,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget_2">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -438,6 +438,9 @@
             </item>
             <item>
              <widget class="QSlider" name="slider2">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximum">
                <number>5000</number>
               </property>

@@ -32,8 +32,10 @@ private:
 public:
    RoundDock( QWidget *parent );
 
-   void addRound(int turn, Place p, QString txt);
    void clear();
+   void addRound(int turn, Place p, QString txt);
+   void selectWinner(int turn, Place p);
+   void selectFirstPlayer(int turn, Place p);
 
 protected:
    void closeEvent( QCloseEvent * e );

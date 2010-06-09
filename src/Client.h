@@ -100,9 +100,9 @@ signals:
    void sgnlPrepareChien();
    void sgnlRedist();
    void sgnlJoueCarte();
-   void sgnlAfficheCarte(int);  
+   void sgnlAfficheCarte(int, Place);
    void sgnlFinDonne();
-   void sgnlWaitPli();
+   void sgnlWaitPli(Place);
 
 };
 
