@@ -662,7 +662,7 @@ void Client::socketReadData()
 
    for( ;; ) {
       if( blockSize == 0 ) {
-         if( bytes < sizeof(quint16) ) {
+         if( bytes < (qint64)sizeof(quint16) ) {
             break;
          }
          in >> blockSize;
@@ -905,9 +905,11 @@ void Client::doAction( QDataStream &in )
       case NET_SERVER_WAIT_PLI:
       {
          quint8 winner;
+         quint32 points;
 
          in >> winner;
-         emit sgnlWaitPli((Place)winner);
+         in >> points;
+         emit sgnlWaitPli((Place)winner, (float)points);
          break;
       }
 
@@ -961,6 +963,11 @@ void Client::doAction( QDataStream &in )
 void Client::connectToHost( const QString &hostName, quint16 port )
 {
    socket.connectToHost(hostName,port);
+}
+/*****************************************************************************/
+void Client::close()
+{
+    socket.close();
 }
 /*****************************************************************************/
 void Client::socketConnected()

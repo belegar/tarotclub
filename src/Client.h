@@ -71,6 +71,8 @@ public:
 
    // Réseau
    void connectToHost( const QString &hostName, quint16 port );
+   void close();
+
    void sendMessage( const QString &message );
    void sendEnchere( Contrat c );
    void sendChien();
@@ -102,7 +104,7 @@ signals:
    void sgnlJoueCarte();
    void sgnlAfficheCarte(int, Place);
    void sgnlFinDonne();
-   void sgnlWaitPli(Place);
+   void sgnlWaitPli(Place, float);
 
 };
 
