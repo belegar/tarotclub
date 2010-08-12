@@ -40,7 +40,7 @@ private:
    int            indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
    QString colorName;
 
-   QString choixAvatar();
+   QString choixAvatar(QString defaultAvatar);
    void    refresh();
 
 public:
@@ -56,12 +56,10 @@ public slots:
 
    // Widgets
    void  slider1Changed( int );
-   void  slider2Changed( int );
    void  slotBtnPixSud();
    void  slotBtnPixEst();
    void  slotBtnPixNord();
    void  slotBtnPixOuest();
-   void  slotBtnPixNordOuest();
    void  slotColorPicker();
 };
 

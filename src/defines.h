@@ -33,6 +33,7 @@
 #define NB_LANGUES      2
 #define QT_STREAMVER    QDataStream::Qt_4_4
 #define MAX_ROUNDS      10
+#define NB_PLAYERS      4
 
 #define TEXT_BOX_WIDTH  115
 #define TEXT_BOX_HEIGHT 30
@@ -40,7 +41,8 @@
 /*****************************************************************************/
 enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };
 enum CardType     { CARTE, ATOUT, EXCUSE };
-enum Place        { SUD=0, EST=1, NORD=2, OUEST=3, NORD_O=4, BROADCAST=462, HYPERSPACE=0xFFFF };
+enum Place        { SUD=0, EST=1, NORD=2, OUEST=3, BROADCAST=462, HYPERSPACE=0xFFFF };
+enum PlaceBot     { BOT_WEST=0, BOT_NORTH=1, BOT_EAST=2 };
 enum Sequence {
    VIDE,
    DISTRIBUTION,
@@ -65,13 +67,13 @@ enum DealType     { RANDOM_DEAL, CUSTOM_DEAL, NUMBERED_DEAL };
 // client -> server
 #define NET_CLIENT_MSG        0x10
 #define NET_CLIENT_INFOS      0x11
-#define NET_CLIENT_DONNE      0x12
 #define NET_CLIENT_ENCHERE    0x13
 #define NET_CLIENT_VU_CHIEN   0x14  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le chien
 #define NET_CLIENT_CHIEN      0x15
 #define NET_CLIENT_CARTE      0x16
 #define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le pli
 #define NET_CLIENT_POIGNEE    0x18  // un client veut déclarer une poignée
+#define NET_CLIENT_READY      0x19
 
 // server -> client
 #define NET_MESSAGE           0x70
@@ -90,6 +92,7 @@ enum DealType     { RANDOM_DEAL, CUSTOM_DEAL, NUMBERED_DEAL };
 #define NET_FIN_DONNE         0x83
 #define NET_SERVER_REDIST     0x84  // tous les joueurs ont passé, il faut relancer une distribution
 #define NET_SHOW_POIGNEE      0x85  // montre une poignée à tous les joueurs
+#define NET_FIN_PARTIE        0x86  // fin du tournoi
 
 /*****************************************************************************/
 
@@ -101,23 +104,22 @@ typedef struct {
 } Identity;
 
 typedef struct {
-   int      nbPlayers;
-   int      timer1;
-   int      timer2;
-   int      port;
+   //---- client stuff ----
+   QString  deckFilePath;
    bool     showAvatars;
    int      langue;
    QString  tapis;
-   Identity identities[5];
-   // images des cartes
-   QString  deckFilePath;
+   Identity client;
+   //---- server stuff ----
+   int      timer;
+   int      port;
+   Identity bots[3];
 } GameOptions;
 
 typedef struct {
    Place    place;      // place attribuée par le serveur
    Place    preneur;    // qui a pris
    Contrat  contrat;    // avec quel contrat
-   int      nbJoueurs;  // le nombre de joueurs
    int      gameCounter;   // compteur de jeu
 } GameInfos;
 

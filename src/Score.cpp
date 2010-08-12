@@ -386,9 +386,16 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
       score_inf.points_defense *= (-1);
    }
 
-   for( i=0; i<infos->nbJoueurs; i++ ) {
+   setPoints(infos);
+}
+/*****************************************************************************/
+void Score::setPoints(GameInfos *infos)
+{
+   int i;
+
+   for( i=0; i<NB_PLAYERS; i++ ) {
       if( i == infos->preneur ) {
-         scores[turn][i] = score_inf.points_defense * (infos->nbJoueurs-1) * (-1);
+         scores[turn][i] = score_inf.points_defense * (-3);
       } else {
          scores[turn][i] = score_inf.points_defense;
       }

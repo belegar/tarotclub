@@ -33,14 +33,12 @@ OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
 
    // Défilement des cartes
    connect( ui.slider1, SIGNAL(valueChanged(int)), this, SLOT(slider1Changed(int)) );
-   connect( ui.slider2, SIGNAL(valueChanged(int)), this, SLOT(slider2Changed(int)) );
 
    // Boutons choix de l'avatar
    connect( ui.btnPixSud, SIGNAL(clicked()), this, SLOT(slotBtnPixSud()) );
    connect( ui.btnPixEst, SIGNAL(clicked()), this, SLOT(slotBtnPixEst()) );
    connect( ui.btnPixNord, SIGNAL(clicked()), this, SLOT(slotBtnPixNord()) );
    connect( ui.btnPixOuest, SIGNAL(clicked()), this, SLOT(slotBtnPixOuest()) );
-   connect( ui.btnPixNordOuest, SIGNAL(clicked()), this, SLOT(slotBtnPixNordOuest()) );
 
    // Choix de la couleur du tapis
    connect( ui.tapisColor, SIGNAL(clicked()), this, SLOT(slotColorPicker()) );
@@ -51,7 +49,6 @@ OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
    ui.niveauEst->addItems( listeNiveaux );
    ui.niveauNord->addItems( listeNiveaux );
    ui.niveauOuest->addItems( listeNiveaux );
-   ui.niveauNordOuest->addItems( listeNiveaux );
 
 }
 /*****************************************************************************/
@@ -73,45 +70,33 @@ void OptionsWindow::setOptions( GameOptions *opt )
 /*****************************************************************************/
 void OptionsWindow::slotBtnOk()
 {
-   options.identities[0].name = ui.nomJoueurSud->text();
-   options.identities[1].name = ui.nomJoueurEst->text();
-   options.identities[2].name = ui.nomJoueurNord->text();
-   options.identities[3].name = ui.nomJoueurOuest->text();
-   options.identities[4].name = ui.nomJoueurNordOuest->text();
-
-   // TODO: three players version !
-/*   if( ui.troisJoueurs->isChecked() ) {
-      options.nbPlayers = 3;
-   } else if( ui.cinqJoueurs->isChecked() ) {
-      options.nbPlayers = 5;
-   } else {*/
-      options.nbPlayers = 4;
-//   }
-
-   options.timer1 = ui.slider1->value();
-   options.timer2 = ui.slider2->value();
-
-   options.identities[0].quote = ui.citationSud->text();
-
+   options.client.name = ui.nomJoueurSud->text();
+   options.client.quote = ui.citationSud->text();
    if( ui.sexeM->isChecked() ) {
-      options.identities[0].sex = MALE;
+      options.client.sex = MALE;
    } else {
-      options.identities[0].sex = FEMALE;
+      options.client.sex = FEMALE;
    }
-
    if( ui.afficheAvatars->isChecked() ) {
       options.showAvatars = true;
    } else {
       options.showAvatars = false;
    }
-
-   options.port = QString( ui.portReseau->text()).toInt();
    options.langue = ui.langList->currentIndex();
    if( indexLangue != options.langue ) {
      QMessageBox::information( this, trUtf8("Information"),
                     trUtf8("Vous devez redémarrer le jeu pour que le changement de langue soit actif.\n\n") );
    }
    options.tapis = colorName;
+
+   // Server stuff
+   options.timer = ui.slider1->value();
+   options.port = QString( ui.portReseau->text()).toInt();
+
+   options.bots[BOT_EAST].name = ui.nomJoueurEst->text();
+   options.bots[BOT_NORTH].name = ui.nomJoueurNord->text();
+   options.bots[BOT_WEST].name = ui.nomJoueurOuest->text();
+
    accept();
 }
 /*****************************************************************************/
@@ -131,14 +116,8 @@ void OptionsWindow::slider1Changed( int value )
    ui.temps1->setText( trUtf8("%1 secondes").arg((float)(value/100)/10) );
 }
 /*****************************************************************************/
-void OptionsWindow::slider2Changed( int value )
+QString OptionsWindow::choixAvatar(QString defaultAvatar)
 {
-   ui.temps2->setText( trUtf8("%1 secondes").arg((float)(value/100)/10) );
-}
-/*****************************************************************************/
-QString OptionsWindow::choixAvatar()
-{
-   QString defaultAvatar = ":/images/avatars/vide.png";
    Ui::Avatars ui;
    QDialog *diag = new QDialog(this);
    ui.setupUi(diag);
@@ -174,11 +153,11 @@ void OptionsWindow::slotBtnPixSud()
    QString s;
    QPixmap im;
 
-   s = choixAvatar();
+   s = choixAvatar(options.client.avatar);
    if( im.load( s ) == false ) {
       return;
    }
-   options.identities[0].avatar = s;
+   options.client.avatar = s;
    ui.pixSud->setPixmap( im );
 }
 /*****************************************************************************/
@@ -187,11 +166,11 @@ void OptionsWindow::slotBtnPixEst()
    QString s;
    QPixmap im;
 
-   s = choixAvatar();
+   s = choixAvatar(options.bots[BOT_EAST].avatar);
    if( im.load( s ) == false ) {
       return;
    }
-   options.identities[1].avatar = s;
+   options.bots[BOT_EAST].avatar = s;
    ui.pixEst->setPixmap( im );
 }
 /*****************************************************************************/
@@ -200,11 +179,11 @@ void OptionsWindow::slotBtnPixNord()
    QString s;
    QPixmap im;
 
-   s = choixAvatar();
+   s = choixAvatar(options.bots[BOT_NORTH].avatar);
    if( im.load( s ) == false ) {
       return;
    }
-   options.identities[2].avatar = s;
+   options.bots[BOT_NORTH].avatar = s;
    ui.pixNord->setPixmap( im );
 }
 /*****************************************************************************/
@@ -213,25 +192,12 @@ void OptionsWindow::slotBtnPixOuest()
    QString s;
    QPixmap im;
 
-   s = choixAvatar();
+   s = choixAvatar(options.bots[BOT_WEST].avatar);
    if( im.load( s ) == false ) {
       return;
    }
-   options.identities[3].avatar = s;
+   options.bots[BOT_WEST].avatar = s;
    ui.pixOuest->setPixmap( im );
-}
-/*****************************************************************************/
-void OptionsWindow::slotBtnPixNordOuest()
-{
-   QString s;
-   QPixmap im;
-
-   s = choixAvatar();
-   if( im.load( s ) == false ) {
-      return;
-   }
-   options.identities[4].avatar = s;
-   ui.pixNordOuest->setPixmap( im );
 }
 /*****************************************************************************/
 /**
@@ -241,52 +207,40 @@ void OptionsWindow::refresh()
 {
    QPixmap im;
 
-   ui.nomJoueurSud->setText( options.identities[0].name );
-   ui.nomJoueurEst->setText( options.identities[1].name );
-   ui.nomJoueurNord->setText( options.identities[2].name );
-   ui.nomJoueurOuest->setText( options.identities[3].name );
-   ui.nomJoueurNordOuest->setText( options.identities[4].name );
-
-   // TODO: three players version !
-   //ui.quatreJoueurs->setChecked( true );
-
-   ui.slider1->setValue( options.timer1 );
-   ui.slider2->setValue( options.timer2 );
-   ui.citationSud->setText( options.identities[0].quote );
-
-   if( options.identities[0].sex == MALE ) {
+   ui.nomJoueurSud->setText( options.client.name );
+   ui.citationSud->setText( options.client.quote );
+   if( options.client.sex == MALE ) {
       ui.sexeM->setChecked( true );
    } else {
       ui.sexeF->setChecked( true );
    }
-
    ui.afficheAvatars->setChecked( options.showAvatars );
-
    ui.langList->setCurrentIndex( options.langue );
    indexLangue = options.langue;
-
-   if( im.load( options.identities[0].avatar ) == true ) {
+   if( im.load( options.client.avatar ) == true ) {
       ui.pixSud->setPixmap( im );
    }
-   if( im.load( options.identities[1].avatar ) == true ) {
+
+   // server stuff
+   ui.slider1->setValue( options.timer );
+   ui.portReseau->setValue( options.port );
+   ui.nomJoueurEst->setText( options.bots[BOT_EAST].name );
+   ui.nomJoueurNord->setText( options.bots[BOT_NORTH].name );
+   ui.nomJoueurOuest->setText( options.bots[BOT_WEST].name );
+
+   if( im.load( options.bots[BOT_EAST].avatar ) == true ) {
       ui.pixEst->setPixmap( im );
    }
-   if( im.load( options.identities[2].avatar ) == true ) {
+   if( im.load( options.bots[BOT_NORTH].avatar ) == true ) {
       ui.pixNord->setPixmap( im );
    }
-   if( im.load( options.identities[3].avatar ) == true ) {
+   if( im.load( options.bots[BOT_WEST].avatar ) == true ) {
       ui.pixOuest->setPixmap( im );
-   }
-   if( im.load( options.identities[4].avatar ) == true ){
-      ui.pixNordOuest->setPixmap( im );
    }
 
    ui.niveauEst->setCurrentIndex(  0  );
    ui.niveauNord->setCurrentIndex( 0 );
    ui.niveauOuest->setCurrentIndex( 0 );
-   ui.niveauNordOuest->setCurrentIndex( 0 );
-
-   ui.portReseau->setValue( options.port );
 
    QColor color(options.tapis);
    if (color.isValid()) {

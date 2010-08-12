@@ -47,23 +47,24 @@ void ScoresDock::setOptions( GameOptions *options )
    int i;
    QStringList header;
 
-   tableScores->setColumnCount( options->nbPlayers );
+   tableScores->setColumnCount(NB_PLAYERS);
 
    // Les noms des joueurs
-   for( i=0; i<options->nbPlayers; i++ ) {
-      header += options->identities[i].name;
+   header += options->client.name;
+   for( i=0; i<3; i++ ) {
+      header += options->bots[i].name;
    }
    tableScores->setHorizontalHeaderLabels( header );
 }
 /*****************************************************************************/
-void ScoresDock::setNewScore( QList<int> scores, int nbJoueurs )
+void ScoresDock::setNewScore(QList<int> scores)
 {
    int n;
 
    n = tableScores->rowCount()+1;
    tableScores->setRowCount(n);
 
-   for( int i=0; i<nbJoueurs; i++ ) {
+   for( int i=0; i<4; i++ ) {
       QTableWidgetItem *newItem = new QTableWidgetItem( QString::number(scores[i]) );
       tableScores->setItem(n-1, i, newItem);
    }

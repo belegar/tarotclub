@@ -205,6 +205,7 @@ int Tapis::loadCards(GameOptions *opt)
          n = i*14+j;
          image = QString(opt->deckFilePath + "/") + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
 
+         // TODO: test if file exists
          GfxCard *item = new GfxCard(image);
          item->hide();
          cardsPics.insert(n, item);
@@ -215,7 +216,7 @@ int Tapis::loadCards(GameOptions *opt)
    //----- 21 atouts
    for( i=56; i<77; i++) {
       image = QString(opt->deckFilePath + "/atout-") + QString().sprintf("%02d.svg",i-55);
-
+      // TODO: test if file exists
       GfxCard *item = new GfxCard(image);
       item->hide();
       cardsPics.insert(i, item);
@@ -224,6 +225,7 @@ int Tapis::loadCards(GameOptions *opt)
 
    //----- L'excuse
    image = QString(opt->deckFilePath + "/excuse.svg");
+   // TODO: test if file exists
    GfxCard *item = new GfxCard(image);
    item->hide();
    cardsPics.insert(77, item);
@@ -346,16 +348,6 @@ void Tapis::setAvatar(Place p, const QString &file)
    }
 }
 /*****************************************************************************/
-void Tapis::setNbPlayers(int n)
-{
-   btOuest->show();
-   btSud->show();
-   btEst->show();
-   if( n == 4 ) {
-      btNord->show();
-   }
-}
-/*****************************************************************************/
 /**
  * Change la place absolue (vue du serveur, qui est toujours SUD) en relatif
  * au joueur
@@ -381,24 +373,39 @@ Place Tapis::retournePlace( Place origine, Place place_absolue )
    return (pl);
 }
 /*****************************************************************************/
+PlaceBot Tapis::getBotPlace(Place p)
+{
+   PlaceBot pb;
+
+   if(p == OUEST)
+      pb = BOT_WEST;
+   else if(p == NORD)
+      pb = BOT_NORTH;
+   else
+      pb = BOT_EAST;
+
+   return pb;
+}
+/*****************************************************************************/
 /**
  * Affiche les noms sur le tapis selon la position relative du joueur
  */
-void Tapis::printNames( Identity *identities, Place place )
+void Tapis::printNames( GameOptions *options, Place place )
 {
    Place serveur; // place relative du serveur
 
    serveur = retournePlace( place, SUD );
 
-    btSud->setText( identities[retournePlace( serveur, SUD )].name );
-    btEst->setText( identities[retournePlace( serveur,EST )].name  );
-    btNord->setText( identities[retournePlace( serveur,NORD )].name  );
-    btOuest->setText( identities[retournePlace( serveur,OUEST )].name  );
+   btSud->setText( options->client.name );
+   btSud->setAvatar( options->client.avatar );
 
-    btSud->setAvatar( identities[retournePlace( serveur,SUD )].avatar );
-    btEst->setAvatar( identities[retournePlace( serveur,EST )].avatar );
-    btNord->setAvatar( identities[retournePlace( serveur,NORD )].avatar );
-    btOuest->setAvatar( identities[retournePlace( serveur,OUEST )].avatar );
+   btEst->setText( options->bots[getBotPlace(retournePlace( serveur,EST ))].name  );
+   btNord->setText( options->bots[getBotPlace(retournePlace( serveur,NORD ))].name  );
+   btOuest->setText( options->bots[getBotPlace(retournePlace( serveur,OUEST ))].name  );
+
+   btEst->setAvatar( options->bots[getBotPlace(retournePlace( serveur,EST ))].avatar );
+   btNord->setAvatar( options->bots[getBotPlace(retournePlace( serveur,NORD ))].avatar );
+   btOuest->setAvatar( options->bots[getBotPlace(retournePlace( serveur,OUEST ))].avatar );
 }
 /*****************************************************************************/
 /**
@@ -522,19 +529,12 @@ void Tapis::slotAfficheBoutons( Contrat contrat )
    groupBoutons->show();
 }
 /*****************************************************************************/
-void Tapis::showAvatars( bool b, int nb_players )
+void Tapis::showAvatars(bool b)
 {
    btSud->enableAvatar(b);
    btEst->enableAvatar(b);
    btOuest->enableAvatar(b);
-
-   if( nb_players > 3 ) {
-      btNord->enableAvatar(b);
-   }
-   if( nb_players > 4 ) {
-      //TODO: 5 players
-      //btNordOuest->enableAvatar(b);
-   }
+   btNord->enableAvatar(b);
 }
 /*****************************************************************************/
 void Tapis::cacheBoutons()

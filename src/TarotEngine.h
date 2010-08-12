@@ -27,6 +27,7 @@
 #include "Score.h"
 #include "Jeu.h"
 #include "defines.h"
+#include "Bot.h"
 
 enum {
    MsgStartGame = QEvent::User+1,
@@ -64,7 +65,9 @@ private:
    QMap<QTcpSocket*, Player*> players;
    QTcpServer  server;
 
-   QTimer      timerBetweenTurns;
+   int         tcpPort;
+   Bot         bots[3];       // the computer
+
    QString     gamePath;
    GameInfos   infos;
    Score       score;
@@ -79,6 +82,8 @@ private:
    DealType    dealType;
    int         dealNumber;
    QString     dealFile;
+   GameType    gameType;
+
 
 protected:
    void customEvent( QEvent *e );
@@ -88,7 +93,9 @@ public:
     ~TarotEngine();
 
    void run();
+#ifndef QT_NO_DEBUG
    void generateLog();
+#endif // QT_NO_DEBUG
    int getConnectedPlayers( Identity *idents );
    int getNumberOfConnectedPlayers();
    Score *getScore();
@@ -99,8 +106,12 @@ public:
    void setDealType(DealType type);
    void setDealNumber(int deal);
    void setDealFile(QString file);
+   void setGameType(GameType type);
+   void setOptions(GameOptions *options);
 
-   void newServerGame( int port );
+   // Tarot game
+   void newServerGame();
+   void connectBots();
    void closeServerGame();
    void closeClients();
    bool cardIsValid( Card *c, Place p );

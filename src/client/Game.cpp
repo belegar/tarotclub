@@ -105,7 +105,7 @@ void Game::slotQuitTarotClub()
 /*****************************************************************************/
 void Game::slotNewTournamentGame()
 {
-   gameType = LOC_TOURNAMENT;
+   server.setGameType(LOC_TOURNAMENT);
    rounds = 0;
    server.setDealType(RANDOM_DEAL);
    newLocalGame();
@@ -118,7 +118,7 @@ void Game::slotNewNumberedDeal()
    ui.setupUi(widget);
 
    if( widget->exec() == QDialog::Accepted ) {
-      gameType = LOC_ONEDEAL;
+      server.setGameType(LOC_ONEDEAL);
       server.setDealType(NUMBERED_DEAL);
       server.setDealNumber(ui.dealNumber->value());
       newLocalGame();
@@ -129,7 +129,7 @@ void Game::slotNewCustomDeal()
 {
    QString fileName = QFileDialog::getOpenFileName(this);
 
-   gameType = LOC_ONEDEAL;
+   server.setGameType(LOC_ONEDEAL);
    server.setDealType(CUSTOM_DEAL);
    server.setDealFile(fileName);
    newLocalGame();
@@ -137,57 +137,44 @@ void Game::slotNewCustomDeal()
 /*****************************************************************************/
 void Game::slotNewQuickGame()
 {
-   gameType = LOC_ONEDEAL;
+   server.setGameType(LOC_ONEDEAL);
    server.setDealType(RANDOM_DEAL);
    newLocalGame();
 }
 /*****************************************************************************/
 void Game::newLocalGame()
 {
-   int i;
    GameOptions *options = config->getGameOptions();
 
    scoresDock->clear();
    infosDock->clear();
    tapis->razTapis();
    tapis->resetCards();
-
-   if (server.getNumberOfConnectedPlayers() == options->nbPlayers) {
-      client.sendStart();
-   } else {
-      server.newServerGame(options->port);
-      client.connectToHost( "127.0.0.1", options->port );
-      qApp->processEvents(QEventLoop::AllEvents,100);
-      for( i=0; i<(options->nbPlayers-1); i++ ) {
-         bots[i].connectToHost( "127.0.0.1", options->port );
-         qApp->processEvents(QEventLoop::AllEvents,100);
-      }
-   }
-   tapis->setNbPlayers(options->nbPlayers);
+   roundDock->clear();
    tapis->setFilter(AUCUN);
    sequence = DISTRIBUTION;
    statusBar()->showMessage( trUtf8("Cliquez sur le tapis pour démarrer le tour.") );
+
+   // start server
+   server.newServerGame();
+   // connect first, to be south
+   client.connectToHost( "127.0.0.1", options->port );
+   // connect bots
+   server.connectBots();
 }
 /*****************************************************************************/
 void Game::applyOptions()
 {
-   int i;
    GameOptions *options = config->getGameOptions();
 
-   scoresDock->setOptions( options );
+   scoresDock->setOptions(options);
 
-   for(i=0; i<4; i++ ) {
-      bots[i].setIdentity( &options->identities[1+i] );
-      bots[i].setTimeBeforeSend(options->timer1);
-   }
-   client.setIdentity( &options->identities[0] );
+   server.setOptions(options);
+   client.setIdentity( &options->client );
 
-   tapis->showAvatars( options->showAvatars, options->nbPlayers );
-   tapis->printNames(options->identities, SUD);
+   tapis->showAvatars( options->showAvatars );
+   tapis->printNames(options, SUD);
    tapis->setBackground(options->tapis);
-
-   // TODO: implement a time at the end of each turn
-  // server.setTimerBetweenTurns(options->timer2);
 }
 /*****************************************************************************/
 void Game::slotShowOptions()
@@ -204,7 +191,6 @@ void Game::slotShowOptions()
 void Game::slotClickTapis()
 {
    if( sequence == DISTRIBUTION ) {
-      client.sendStart();
       sequence = GAME;
    } else if( sequence == MONTRE_CHIEN ) {
       statusBar()->clearMessage();
@@ -226,7 +212,7 @@ void Game::hidePli()
    GfxCard *gc;
    GameInfos *inf = client.getGameInfos();
 
-   for( i = inf->gameCounter-inf->nbJoueurs; i<inf->gameCounter; i++ ) {
+   for( i = inf->gameCounter-NB_PLAYERS; i<inf->gameCounter; i++ ) {
       c = client.getCardMainDeck(i);
       gc = tapis->getGfxCard(c->getId());
       gc->hide();
@@ -466,12 +452,10 @@ void Game::slotRedist()
    QMessageBox::information(this, trUtf8("Information"),
                    trUtf8("Tous les joueurs ont passé.\n"
                       "Nouvelle distribution des cartes.") );
-
    sequence = GAME;
    infosDock->clear();
    tapis->setFilter(AUCUN);
    tapis->razTapis();
-   client.sendStart();
 }
 /*****************************************************************************/
 void Game::slotPrepareChien()
@@ -497,7 +481,15 @@ void Game::slotDepartDonne(Place p, Contrat c)
    turnCounter = 0;
    roundDock->clear();
    infosDock->setContrat(c);
-   infosDock->setPreneur( config->getGameOptions()->identities[p].name );
+   if (p == SUD)
+      infosDock->setPreneur( config->getGameOptions()->client.name );
+   else if (p == OUEST)
+      infosDock->setPreneur( config->getGameOptions()->bots[BOT_WEST].name );
+   else if (p == NORD)
+      infosDock->setPreneur( config->getGameOptions()->bots[BOT_NORTH].name );
+   else
+      infosDock->setPreneur( config->getGameOptions()->bots[BOT_EAST].name );
+
    infosDock->setDonne(server.getDealNumber());
    sequence = GAME;
    tapis->setFilter( AUCUN );
@@ -542,17 +534,24 @@ void Game::slotFinDonne()
    resultWindow->setCalcul( client.getScoreInfos(), client.getGameInfos() );
    resultWindow->exec();
 
-   if( (gameType == LOC_TOURNAMENT) &&
-       (rounds<MAX_ROUNDS) ) {
+   // TODO: manage tournament by the server
+/*
+   if( gameType == LOC_TOURNAMENT ) {
       // Add current turn result to total score
-      scoresDock->setNewScore(server.getScore()->getLastTurnScore(), config->getGameOptions()->nbPlayers);
-      client.sendStart();
+      scoresDock->setNewScore(server.getScore()->getLastTurnScore());
+      if (rounds<MAX_ROUNDS) {
+         //client.sendStart();
+      } else {
+         // TODO: show the winner of the tournament
+      }
    } else {
+
+   */
       sequence = VIDE;
       tapis->setFilter( AUCUN );
       tapis->razTapis();
       tapis->resetCards();
-   }
+ //  }
 }
 /*****************************************************************************/
 void Game::slotWaitPli(Place winner)

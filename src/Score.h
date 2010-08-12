@@ -68,6 +68,7 @@ public:
    void setExcuse( Place p );
    void setPoigneeDefense(Poignee p);
    void setPoigneeAttaque(Poignee p);
+   void setPoints(GameInfos *infos);
 
    // Accesseurs
    Place getExcuse();

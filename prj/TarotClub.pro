@@ -7,6 +7,8 @@
 # you should have received as part of this distribution.  The terms
 # are also available at
 # http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+
+
 # directories for temp files
 UI_DIR = ./ui
 UI_HEADERS_DIR = ./include
@@ -66,7 +68,6 @@ FORMS = AboutUI.ui \
     OptionsUI.ui \
     ResultUI.ui \
     ServerManagerUI.ui \
-    RulesUI.ui \
     RoundUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui
@@ -93,4 +94,3 @@ SOURCES = AboutWindow.cpp \
     Bot.cpp \
     TarotEngine.cpp \
     Score.cpp
-

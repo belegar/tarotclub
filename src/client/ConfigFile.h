@@ -27,10 +27,9 @@
 #include "../defines.h"
 
 
-#define XML_VERSION     "1.2"
+#define XML_VERSION     "1.4"
 
 // Valeurs par défaut
-#define NBPLAYERS_DEF   4
 #define TIMER1_DEF      500
 #define TIMER2_DEF      1500
 #define PORT_DEF        DEFAULTPORT

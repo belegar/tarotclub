@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
-    <height>344</height>
+    <width>404</width>
+    <height>328</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -261,14 +261,14 @@
       <attribute name="title">
        <string>Préférences</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_7">
+      <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_10">
          <property name="title">
-          <string>Divers</string>
+          <string>Général</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0" colspan="2">
            <widget class="QCheckBox" name="afficheAvatars">
             <property name="text">
              <string>Afficher les avatars sur le tapis</string>
@@ -348,7 +348,7 @@
             </item>
            </layout>
           </item>
-          <item row="3" column="0">
+          <item row="3" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QLabel" name="label">
@@ -379,47 +379,15 @@
             </item>
            </layout>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="title">
-          <string>Délais</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <layout class="QVBoxLayout" name="_4">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
+          <item row="4" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="TextLabel1">
               <property name="text">
-               <string>Entre deux joueurs</string>
+               <string>Délai entre deux joueurs</string>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QLabel" name="TextLabel2">
-              <property name="text">
-               <string>À la fin du tour</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="1">
-           <layout class="QVBoxLayout" name="_3">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
             <item>
              <widget class="QSlider" name="slider1">
               <property name="maximum">
@@ -437,35 +405,6 @@
              </widget>
             </item>
             <item>
-             <widget class="QSlider" name="slider2">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="maximum">
-               <number>5000</number>
-              </property>
-              <property name="singleStep">
-               <number>100</number>
-              </property>
-              <property name="pageStep">
-               <number>100</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="2">
-           <layout class="QVBoxLayout" name="_2">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item>
              <widget class="QLabel" name="temps1">
               <property name="text">
                <string>0.0 secondes</string>
@@ -478,17 +417,20 @@
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QLabel" name="temps2">
-              <property name="text">
-               <string>0.0 secondes</string>
-              </property>
-              <property name="scaledContents">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
            </layout>
+          </item>
+          <item row="5" column="1">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>56</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -501,120 +443,19 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Joueur Est</string>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <layout class="QGridLayout" name="_16">
-          <property name="margin">
-           <number>8</number>
-          </property>
-          <property name="spacing">
-           <number>6</number>
-          </property>
-          <item row="0" column="2">
-           <layout class="QVBoxLayout" name="_17">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="pixEst">
-              <property name="minimumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::Box</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Plain</enum>
-              </property>
-              <property name="scaledContents">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btnPixEst">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="../data/data.qrc">
-                <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="1">
-           <layout class="QVBoxLayout" name="_18">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLineEdit" name="nomJoueurEst">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="maxLength">
-               <number>10</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="niveauEst"/>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="0">
-           <layout class="QVBoxLayout" name="_19">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>Nom</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Niveau</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>71</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       <item row="0" column="1" rowspan="2">
+       <item row="0" column="1" colspan="2">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
           <string>Joueur Nord</string>
@@ -728,7 +569,20 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" rowspan="2">
+       <item row="0" column="3">
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>72</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
           <string>Joueur Ouest</string>
@@ -848,44 +702,20 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QGroupBox" name="groupBox_5">
+       <item row="1" column="2" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>Joueur Nord Ouest</string>
+          <string>Joueur Est</string>
          </property>
-         <layout class="QGridLayout" name="_28">
+         <layout class="QGridLayout" name="_16">
           <property name="margin">
            <number>8</number>
           </property>
           <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="0">
-           <layout class="QVBoxLayout" name="_29">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label_2_3_2">
-              <property name="text">
-               <string>Nom</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_3_3_2">
-              <property name="text">
-               <string>Niveau</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
           <item row="0" column="2">
-           <layout class="QVBoxLayout" name="_30">
+           <layout class="QVBoxLayout" name="_17">
             <property name="spacing">
              <number>6</number>
             </property>
@@ -893,7 +723,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="pixNordOuest">
+             <widget class="QLabel" name="pixEst">
               <property name="minimumSize">
                <size>
                 <width>40</width>
@@ -912,16 +742,13 @@
               <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="text">
-               <string/>
-              </property>
               <property name="scaledContents">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="btnPixNordOuest">
+             <widget class="QPushButton" name="btnPixEst">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -935,18 +762,12 @@
                <iconset resource="../data/data.qrc">
                 <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
-              <property name="autoDefault">
-               <bool>true</bool>
-              </property>
-              <property name="default">
-               <bool>false</bool>
-              </property>
              </widget>
             </item>
            </layout>
           </item>
           <item row="0" column="1">
-           <layout class="QVBoxLayout" name="_31">
+           <layout class="QVBoxLayout" name="_18">
             <property name="spacing">
              <number>6</number>
             </property>
@@ -954,7 +775,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="nomJoueurNordOuest">
+             <widget class="QLineEdit" name="nomJoueurEst">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -964,14 +785,38 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="niveauNordOuest"/>
+             <widget class="QComboBox" name="niveauEst"/>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="_19">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Nom</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Niveau</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="2" column="1" colspan="2">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -979,7 +824,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>128</height>
+           <height>53</height>
           </size>
          </property>
         </spacer>

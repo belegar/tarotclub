@@ -92,7 +92,6 @@ public:
    void setText(Place p, const QString &txt);
    void setAvatar(Place p, const QString &file);
    void setFilter( Filter );
-   void setNbPlayers(int n);
    void setBackground(const QString &fichier);
    void setAccepterChienVisible(bool v);
    void setBoutonPoigneeVisible(bool v);
@@ -100,16 +99,17 @@ public:
 
    GfxCard *getGfxCard(int i);
    Card *getObjectCard(GfxCard *gc);
+   PlaceBot getBotPlace(Place p);
 
    int loadCards(GameOptions *opt);
    void colorisePreneur( Place );
    Place retournePlace( Place origine, Place place_absolue );
-   void printNames( Identity *identities, Place place );
+   void printNames( GameOptions *options, Place place );
    void afficheSelection( Place );
    void afficheCarte( GfxCard *, Place );
    void cacheEncheres();
    void cacheBoutons();
-   void showAvatars( bool b, int nb_players );
+   void showAvatars(bool b);
    void razTapis();
    void resetCards();
 

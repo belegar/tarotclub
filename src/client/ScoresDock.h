@@ -33,7 +33,7 @@ public:
 
    void clear();
    void setOptions( GameOptions *options );
-   void setNewScore( QList<int> scores, int nbJoueurs );
+   void setNewScore( QList<int> scores );
 
 protected:
    void closeEvent( QCloseEvent * e );

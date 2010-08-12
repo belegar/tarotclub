@@ -199,7 +199,7 @@ Contrat Client::calculEnchere()
    total += stats.singletons * 3;
    total += stats.sequences * 4;
 
-   // on dÃ©cide de l'enchÃ¨re :
+   // on décide de l'enchère :
    if( total <= 35 ) {
       cont = PASSE;
    } else if( total >= 36  && total <= 50 ) {
@@ -468,7 +468,7 @@ Card *Client::play()
    n = myDeck.count();
    for( i=0; i<n; i++ ) {
       c = myDeck.at( i );
-      if( canPlayCard( &mainDeck, c, infos.gameCounter, infos.nbJoueurs ) == true ) {
+      if( canPlayCard( &mainDeck, c, infos.gameCounter, NB_PLAYERS ) == true ) {
          break;
       }
    }
@@ -477,7 +477,7 @@ Card *Client::play()
 /*****************************************************************************/
 bool Client::isValid( Card *c )
 {
-   return(canPlayCard( &mainDeck, c, infos.gameCounter, infos.nbJoueurs ));
+   return(canPlayCard( &mainDeck, c, infos.gameCounter, NB_PLAYERS ));
 }
 /*****************************************************************************/
 void Client::sendMessage( const QString &message )
@@ -504,14 +504,14 @@ void Client::sendMessage( const QString &message )
 }
 /*****************************************************************************/
 /**
- * Demande au serveur de démarrer une nouvelle donne
+ * Indique que le joueur est prêt à jouer
  */
-void Client::sendStart()
+void Client::sendReady()
 {
    QByteArray block;
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_DONNE
+   out << (quint16)0 << (quint8)NET_CLIENT_READY
        << (quint16)0xFFFF;
 
    out.device()->seek(0);
@@ -772,14 +772,12 @@ void Client::doAction( QDataStream &in )
 
          in >> p;
          in >> n;
-         if( n == 3 ) {
-            nb_cartes = 24;
-         } else if( n == 4 ) {
+         if( n == 4 ) {
             nb_cartes = 18;
          } else {
-            nb_cartes = 15;
+            // error
+            break;
          }
-         infos.nbJoueurs = n;
          infos.place = (Place)p;
          myDeck.clear();
          for( i=0; i<nb_cartes; i++ ) {
@@ -837,24 +835,13 @@ void Client::doAction( QDataStream &in )
        */
       case NET_MONTRE_CHIEN:
       {
-         int nb_cartes_chien, i;
+         int i;
          qint8 carte_id;
 
-         if( infos.nbJoueurs == 3 ) {
-            nb_cartes_chien = 6;
-         } else if( infos.nbJoueurs == 4 ) {
-            nb_cartes_chien = 6;
-         } else { // 5 joueurs
-            nb_cartes_chien = 3;
-         }
          chien.clear();
-         for( i=0; i<nb_cartes_chien; i++ ) {
+         for( i=0; i<6; i++ ) {
             in >> carte_id;
             chien.append( Jeu::getCard(carte_id) );
-         }
-         // on vide le stream
-         if( nb_cartes_chien == 3 ) {
-            in >> carte_id;in >> carte_id;in >> carte_id;
          }
          chien.sort();
          emit sgnlAfficheChien();
@@ -929,7 +916,7 @@ void Client::doAction( QDataStream &in )
        */
       case NET_FIN_DONNE:
       {
-         quint32 tmp;
+         qint32 tmp;
 
          in >> tmp;
          score_inf.attaque = (float)tmp;

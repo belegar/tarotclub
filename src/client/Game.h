@@ -25,7 +25,6 @@
 // Game includes
 #include "../defines.h"
 #include "../Client.h"
-#include "../Bot.h"
 #include "../TarotEngine.h"
 #include "MainWindow.h"
 #include "ConfigFile.h"
@@ -37,7 +36,6 @@
  * joueur 1 : ordi EST
  * joueur 2 : ordi NORD (ou NORD-EST)
  * joueur 3 : ordi OUEST
- * joueur 4 : ordi NORD-OUEST
  */
 class Game : public MainWindow
 {
@@ -46,11 +44,9 @@ class Game : public MainWindow
 private:
    TarotEngine server;
    ConfigFile  *config;
-   Bot         bots[4]; // the computer
    Client      client; // The human player
    Sequence    sequence;
    bool        firstTurn;
-   GameType    gameType;
    int         rounds;
    int         turnCounter;
 

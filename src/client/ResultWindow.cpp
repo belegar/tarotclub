@@ -69,8 +69,8 @@ void ResultWindow::setCalcul( ScoreInfos *score, GameInfos *infos )
     ui.lblMultiple->setNum( score->multiplicateur );
     ui.lblPoignee->setNum( score->points_poignee );
     ui.lblChelem->setNum( score->points_chelem );
-    ui.lblTotalDefense->setText( QString().setNum( score->defense ) + STR_POINTS );
-    ui.lblTotalAttaque->setText( QString().setNum( score->defense*(-3) ) + STR_POINTS );
+    ui.lblTotalDefense->setText( QString().setNum( score->points_defense ) + STR_POINTS );
+    ui.lblTotalAttaque->setText( QString().setNum( score->points_defense*(-3) ) + STR_POINTS );
 }
 
 

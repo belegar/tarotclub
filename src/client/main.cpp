@@ -88,12 +88,12 @@ int main( int argc, char** argv )
    qApp->installTranslator(&translator);
 */
    Game window( &config );
-   window.resize(1000, 770);
-   if ( QApplication::desktop()->width() > 1010 && QApplication::desktop()->height() > 780 ) {
-      window.showMaximized();
-   } else {
-      window.show();
-   }
+
+   window.resize(1280, 770);
+   QRect r = window.geometry();
+   r.moveCenter(QApplication::desktop()->availableGeometry().center());
+   window.setGeometry(r);
+   window.show();
 
    splash.finish(&window);
    return app.exec();

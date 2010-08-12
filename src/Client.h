@@ -76,7 +76,7 @@ public:
    void sendChien();
    void sendPoignee();
    void sendCard( Card *c );
-   void sendStart();
+   void sendReady();
    void sendVuChien();
    void sendVuPli();
    void doAction( QDataStream &in );
