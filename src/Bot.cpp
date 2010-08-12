@@ -33,7 +33,7 @@ Bot::Bot() : Client()
    connect( this, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
    connect( this, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
    connect( this, SIGNAL(sgnlFinDonne()), this, SLOT(slotFinDonne()));
-   connect( this, SIGNAL(sgnlWaitPli(Place)), this, SLOT(slotWaitPli(Place)));
+   connect( this, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
 
    timeBeforeSend.setSingleShot(true);
    timeBeforeSend.setInterval(0);
@@ -124,9 +124,10 @@ void Bot::slotFinDonne()
    // nada
 }
 /*****************************************************************************/
-void Bot::slotWaitPli(Place p)
+void Bot::slotWaitPli(Place p, float points)
 {
    Q_UNUSED(p);
+   Q_UNUSED(points);
    sendVuPli();
 }
 

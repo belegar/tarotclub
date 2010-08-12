@@ -50,7 +50,7 @@ public slots:
    void slotJoueCarte();
    void slotAfficheCarte(int id, Place p);
    void slotFinDonne();
-   void slotWaitPli(Place);
+   void slotWaitPli(Place p, float points);
 };
 
 #endif // _BOT_H
