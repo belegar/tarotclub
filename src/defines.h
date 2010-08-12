@@ -42,7 +42,7 @@
 enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };
 enum CardType     { CARTE, ATOUT, EXCUSE };
 enum Place        { SUD=0, EST=1, NORD=2, OUEST=3, BROADCAST=462, HYPERSPACE=0xFFFF };
-enum PlaceBot     { BOT_WEST=0, BOT_NORTH=1, BOT_EAST=2 };
+enum PlaceBot     { BOT_EAST=0, BOT_NORTH=1, BOT_WEST=2 };
 enum Sequence {
    VIDE,
    DISTRIBUTION,
