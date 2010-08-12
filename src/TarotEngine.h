@@ -81,6 +81,7 @@ private:
    int         cptVu;         // counter of chien seen by clients
    DealType    dealType;
    int         dealNumber;
+   int         dealCounter;   // number of deals for the tournament game
    QString     dealFile;
    GameType    gameType;
 
@@ -123,7 +124,7 @@ public:
    void jeu();
    void jeuNext();
    Place nextPlayer( Place j );
-   bool finLevee();
+   bool finLevee(float &points);
    void sequenceEncheres();
    void montreChien();
 
@@ -141,8 +142,8 @@ public:
    void sendCard( Card *c );
    void sendDepartDonne();
    void sendRedist();
-   void sendFinDonne( ScoreInfos *score_inf );
-   void sendWaitPli();
+   void sendFinDonne( ScoreInfos *score_inf, bool lastDeal );
+   void sendWaitPli(float pointsTour);
    void selectPlayer( Place p );
 
 signals:

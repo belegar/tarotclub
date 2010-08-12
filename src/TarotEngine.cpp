@@ -131,6 +131,8 @@ void TarotEngine::newServerGame()
    int i;
 
    closeClients();
+   server.close();
+
    // 4 joueurs max + une connexion en plus pour avertir aux nouveaux arrivants
    // que le serveur est plein
    server.setMaxPendingConnections(5);
@@ -141,6 +143,7 @@ void TarotEngine::newServerGame()
    donneur = (Place)i;
    newGame = true;
    score.init();
+   dealCounter = 0;
    emit sigPrintMessage("Server started.\r\n");
 }
 /*****************************************************************************/
@@ -403,19 +406,26 @@ void TarotEngine::generateLog()
 void TarotEngine::jeu()
 {
    bool ret;
+   float points;
+   bool lastDeal;
 
    if( !(infos.gameCounter%NB_PLAYERS) && infos.gameCounter ) {
-      ret = finLevee();
+      ret = finLevee(points);
 
       cptVu = 0;
-      sendWaitPli();
+      sendWaitPli(points);
 
       if( ret == false ) {
   #ifndef QT_NO_DEBUG
          generateLog();
   #endif
          // end of round, send score to all players
-         sendFinDonne( score.getScoreInfos() );
+         if (rounds<MAX_ROUNDS && gameType == LOC_TOURNAMENT ) {
+            lastDeal = false;
+         else
+            lastDeal = true;
+
+         sendFinDonne( score.getScoreInfos(), lastDeal );
       }
    } else {
       tour = nextPlayer(tour);
@@ -476,8 +486,9 @@ void TarotEngine::montreChien()
 /*****************************************************************************/
 /**
  * Fin d'un tour, on calcule le gagnant du pli et on prépare la suite
+ * On retourne également le nombre de points réalisés par le preneur
  */
-bool TarotEngine::finLevee()
+bool TarotEngine::finLevee(float &points)
 {
    int i;
    Card *c;
@@ -492,9 +503,24 @@ bool TarotEngine::finLevee()
    // On détecte qui a remporté le pli, c'est lui qui entame le prochain tour
    tour = calculGagnantPli();
 
+   points = 0;
    for( i = (infos.gameCounter-NB_PLAYERS); i<infos.gameCounter; i++ ) {
       c = mainDeck.at(i);
       score.setPli( i, tour );
+      // calculate points won by the taker, with the special case of the Excuse
+      if(tour == infos.preneur) {
+          // here, the taker won the round but the Excuse stays to the Defenders
+          if( c->getType() != EXCUSE ) {
+              points += c->getPoints();
+          } else {
+              points += 0.5;
+          }
+      } else {
+          // here, the taker lost the round, he can keep his Excuse
+          if( c->getType() == EXCUSE && c->getOwner() == tour) {
+              points += c->getPoints() + 0.5;
+          }
+      }
 
 #ifndef QT_NO_DEBUG
     fout << c->getId() << " i=" << i << ", tour=" << tour << " ";
@@ -1187,7 +1213,7 @@ void TarotEngine::sendRedist()
 /**
  * On termine ce tour de jeu et on affiche les scores
  */
-void TarotEngine::sendFinDonne( ScoreInfos *score_inf )
+void TarotEngine::sendFinDonne( ScoreInfos *score_inf, bool lastDeal )
 {
    QByteArray block;
    QDataStream out( &block, QIODevice::WriteOnly );
@@ -1203,7 +1229,14 @@ void TarotEngine::sendFinDonne( ScoreInfos *score_inf )
        << (qint32)score_inf->multiplicateur
        << (qint32)score_inf->points_poignee
        << (qint32)score_inf->points_chelem
-       << (qint32)score_inf->points_defense
+       << (qint32)score_inf->points_defense;
+
+   if (lastDeal == true)
+       out << (quint8)1;
+   else
+       out << (quint8)0;
+
+   out << (quint8)dealCounter
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
@@ -1213,7 +1246,7 @@ void TarotEngine::sendFinDonne( ScoreInfos *score_inf )
 /**
  * On demande aux clients d'acquitter le pli avant d'effectuer la levée
  */
-void TarotEngine::sendWaitPli()
+void TarotEngine::sendWaitPli(float pointsTour)
 {
    QByteArray block;
    QDataStream out( &block, QIODevice::WriteOnly );
@@ -1221,6 +1254,7 @@ void TarotEngine::sendWaitPli()
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_SERVER_WAIT_PLI
        << (quint8)tour // winner of the current turn
+       << (quint32)pointsTour // points won by the taker
        << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
