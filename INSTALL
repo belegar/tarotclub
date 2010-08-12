@@ -1,27 +1,22 @@
-Installation de Tarot Club
----------------------------
+TarotClub install
+------------------
 
 * Windows
 ==========
 
-Suivre les étapes à l'aide de l'installeur. Un raccourci vers 
-l'exécutable est créé sur le bureau et dans le menu Démarrer.
+Use the Setup executable. Shortcut is in the start menu.
 
+* Linux 
+=========
 
-* Linux et Mac
-===============
+Debian/Ubuntu : use .deb install package
 
-Debian/Ubuntu : utiliser le paquet .deb
+Other distributions:
 
-Autres distributions :
-
-Décompresser l'archive et exécuter le programme 'TarotClub' situé 
-dans le répertoire bin. Attention, il faut posséder la librairie 
-Qt 4.4.0 minimum. Mettre à jour votre distribution en conséquence. 
-
+Decompress the .tar.gz archive where you want in your system. You'll probably have to install 
+suitable Qt libraries
 
 * Mac
-===============
+=======
 
-Je n'ai pas de Mac et je n'ai aucune idée du fonctionnement d'un setup sur cet OS !
-
+No ready-to-use executable available yet. Compile from the source code.
