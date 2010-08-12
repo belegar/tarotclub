@@ -65,6 +65,14 @@ void RoundDock::selectWinner(int turn, Place p)
    ui.tableWidget->item(turn, p+1)->setBackground(brush);
 }
 /*****************************************************************************/
+void RoundDock::pointsToTaker(int turn, float points)
+{
+    QString txt;
+
+    txt.setNum(points);
+    ui.tableWidget->item(turn, 0)->setText(txt);
+}
+/*****************************************************************************/
 void RoundDock::selectFirstPlayer(int turn, Place p)
 {
    QBrush brush(Qt::lightGray);

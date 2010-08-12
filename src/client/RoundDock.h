@@ -35,6 +35,7 @@ public:
    void clear();
    void addRound(int turn, Place p, QString txt);
    void selectWinner(int turn, Place p);
+   void pointsToTaker(int turn, float points);
    void selectFirstPlayer(int turn, Place p);
 
 protected:
