@@ -67,7 +67,7 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( &client, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
    connect( &client, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
    connect( &client, SIGNAL(sgnlFinDonne()), this, SLOT(slotFinDonne()));
-   connect( &client, SIGNAL(sgnlWaitPli(Place)), this, SLOT(slotWaitPli(Place)));
+   connect( &client, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
 
    // Game Menu
    connect(newQuickGameAct, SIGNAL(triggered()), this, SLOT(slotNewQuickGame()));
@@ -106,7 +106,6 @@ void Game::slotQuitTarotClub()
 void Game::slotNewTournamentGame()
 {
    server.setGameType(LOC_TOURNAMENT);
-   rounds = 0;
    server.setDealType(RANDOM_DEAL);
    newLocalGame();
 }
@@ -152,12 +151,12 @@ void Game::newLocalGame()
    tapis->resetCards();
    roundDock->clear();
    tapis->setFilter(AUCUN);
-   sequence = DISTRIBUTION;
-   statusBar()->showMessage( trUtf8("Cliquez sur le tapis pour démarrer le tour.") );
+   sequence = GAME;
 
    // start server
    server.newServerGame();
    // connect first, to be south
+   client.close();
    client.connectToHost( "127.0.0.1", options->port );
    // connect bots
    server.connectBots();
@@ -190,9 +189,7 @@ void Game::slotShowOptions()
 /*****************************************************************************/
 void Game::slotClickTapis()
 {
-   if( sequence == DISTRIBUTION ) {
-      sequence = GAME;
-   } else if( sequence == MONTRE_CHIEN ) {
+   if( sequence == MONTRE_CHIEN ) {
       statusBar()->clearMessage();
       hideChien();
       sequence = VIDE;
@@ -528,45 +525,29 @@ void Game::slotAfficheCarte(int id, Place tour)
    roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/
-void Game::slotFinDonne()
+void Game::slotFinDonne(bool lastDeal, Place winner)
 {
-   rounds++;
-   resultWindow->setCalcul( client.getScoreInfos(), client.getGameInfos() );
-   resultWindow->exec();
+    statusBar()->showMessage(trUtf8("Fin de la donne.") );
+    sequence = VIDE;
+    tapis->setFilter( AUCUN );
+    tapis->razTapis();
+    tapis->resetCards();
 
-   // TODO: manage tournament by the server
-/*
-   if( gameType == LOC_TOURNAMENT ) {
-      // Add current turn result to total score
-      scoresDock->setNewScore(server.getScore()->getLastTurnScore());
-      if (rounds<MAX_ROUNDS) {
-         //client.sendStart();
-      } else {
-         // TODO: show the winner of the tournament
-      }
-   } else {
+    resultWindow->setCalcul( client.getScoreInfos(), client.getGameInfos() );
+    resultWindow->exec();
 
-   */
-      sequence = VIDE;
-      tapis->setFilter( AUCUN );
-      tapis->razTapis();
-      tapis->resetCards();
- //  }
+    // Add current turn result to total score
+    scoresDock->setNewScore(server.getScore()->getLastTurnScore());
 }
 /*****************************************************************************/
-void Game::slotWaitPli(Place winner)
+void Game::slotWaitPli(Place winner, float pointsTaker)
 {
    roundDock->selectWinner(turnCounter, winner);
+   roundDock->pointsToTaker(turnCounter, pointsTaker);
    turnCounter++;
-   if(turnCounter >= 18) {
-      sequence = VIDE;
-      tapis->setFilter( AUCUN );
-      statusBar()->showMessage(trUtf8("Fin de la donne.") );
-   } else {
-      sequence = SEQ_WAIT_PLI;
-      tapis->setFilter( AUCUN );
-      statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer.") );
-   }
+   sequence = SEQ_WAIT_PLI;
+   tapis->setFilter( AUCUN );
+   statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer.") );
 }
 
 

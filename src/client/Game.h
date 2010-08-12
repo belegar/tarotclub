@@ -47,7 +47,6 @@ private:
    Client      client; // The human player
    Sequence    sequence;
    bool        firstTurn;
-   int         rounds;
    int         turnCounter;
 
    Card *getCardFromPix( GfxCard *gc );
@@ -83,7 +82,7 @@ public slots:
    void slotJoueCarte();
    void slotAfficheCarte(int id, Place tour);
    void slotFinDonne();
-   void slotWaitPli(Place);
+   void slotWaitPli(Place winner, float pointsTaker);
    void slotSetEnchere( Contrat cont );
 
    // événements du tapis
