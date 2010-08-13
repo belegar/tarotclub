@@ -121,13 +121,16 @@ Place Score::getExcuse()
     return(carteExcuse);
 }
 /*****************************************************************************/
-QList<int> Score::getLastTurnScore()
+int Score::getTotalPoints(Place p)
 {
-   QList<int> s;
-   for(int i=0; i<NB_PLAYERS; i++) {
-      s.append(scores[turn-1][i]);
+   int i;
+   int total;
+
+   total = 0;
+   for (i=0; i<turn; i++) {
+      total += scores[i][p];
    }
-   return(s);
+   return(total);
 }
 /*****************************************************************************/
 ScoreInfos *Score::getScoreInfos()

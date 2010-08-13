@@ -74,7 +74,7 @@ public:
    // Accesseurs
    Place getExcuse();
    Place getPli(int i);
-   QList<int>  getLastTurnScore();
+   int  getTotalPoints(Place p);
    ScoreInfos  *getScoreInfos();
 
 };
