@@ -25,5 +25,6 @@
         <file>images/avatars/tigre.png</file>
         <file>images/avatars/vide.png</file>
         <file>html/tarot_rules.htm</file>
+        <file>images/podium.svg</file>
     </qresource>
 </RCC>

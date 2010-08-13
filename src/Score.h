@@ -53,7 +53,7 @@ private:
 
    // scores of each turn
    int turn;
-   int scores[MAX_ROUNDS][5];     // score of each turn players
+   int scores[MAX_ROUNDS][NB_PLAYERS];     // score of each turn players
 
 public:
    Score();
@@ -61,14 +61,15 @@ public:
    void init();
    void reset();
    void setPli( int i, Place p );
-   void calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos );
+   void calcul( Deck &mainDeck, Deck &deckChien, GameInfos &infos );
 
    // Mutateurs
    void setChelemDeclare( bool );
    void setExcuse( Place p );
    void setPoigneeDefense(Poignee p);
    void setPoigneeAttaque(Poignee p);
-   void setPoints(GameInfos *infos);
+   void setPoints(const GameInfos &infos);
+   void setScoreInfos(const ScoreInfos &inf);
 
    // Accesseurs
    Place getExcuse();

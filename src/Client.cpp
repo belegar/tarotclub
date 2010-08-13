@@ -122,9 +122,9 @@ GameInfos *Client::getGameInfos()
    return &infos;
 }
 /*****************************************************************************/
-ScoreInfos *Client::getScoreInfos()
+Score *Client::getScore()
 {
-   return(&score_inf);
+   return(&score);
 }
 /*****************************************************************************/
 /**
@@ -788,6 +788,7 @@ void Client::doAction( QDataStream &in )
          for( i=0; i<(24-nb_cartes); i++ ) {
             in >> n;
          }
+         score.reset();
          emit sgnlReceptionCartes();
          break;
       }
@@ -919,6 +920,9 @@ void Client::doAction( QDataStream &in )
       case NET_FIN_DONNE:
       {
          qint32 tmp;
+         ScoreInfos score_inf;
+         quint8 var8;
+         bool lastDeal;
 
          in >> tmp;
          score_inf.attaque = (float)tmp;
@@ -941,7 +945,15 @@ void Client::doAction( QDataStream &in )
          in >> tmp;
          score_inf.points_defense = (int)tmp;
 
-         emit sgnlFinDonne();
+         score.setScoreInfos(score_inf);
+         score.setPoints(infos);
+         in >> var8;
+         if (var8 == 1) {
+            lastDeal = true;
+         } else {
+            lastDeal = false;
+         }
+         emit sgnlFinDonne(lastDeal);
          break;
       }
 

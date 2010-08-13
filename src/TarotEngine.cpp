@@ -356,7 +356,7 @@ void TarotEngine::nouvelleDonne()
    } else {
       randomDeal();
    }
-
+   score.reset();
    donneur = nextPlayer(donneur);
    infos.contrat = PASSE;
    infos.gameCounter = 0;
@@ -419,13 +419,21 @@ void TarotEngine::jeu()
   #ifndef QT_NO_DEBUG
          generateLog();
   #endif
-         // end of round, send score to all players
-         if (rounds<MAX_ROUNDS && gameType == LOC_TOURNAMENT ) {
+         dealCounter++;
+         // end of deal, send score to all players
+         if (dealCounter<MAX_ROUNDS && gameType == LOC_TOURNAMENT )
             lastDeal = false;
          else
             lastDeal = true;
 
          sendFinDonne( score.getScoreInfos(), lastDeal );
+
+         if(lastDeal == true) {
+            // stop the server
+            closeServerGame();
+         } else {
+            sequence = SEQ_WAIT_PLAYER;
+         }
       }
    } else {
       tour = nextPlayer(tour);
@@ -535,7 +543,7 @@ bool TarotEngine::finLevee(float &points)
    if( infos.gameCounter < 72 ) {
       return true;
    } else { // fin du jeu
-      score.calcul( mainDeck, deckChien, &infos );
+      score.calcul( mainDeck, deckChien, infos );
       return false;
    }
 
@@ -785,6 +793,8 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
        */
       case NET_CLIENT_MSG:
       {
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
+
          QString message;
          in >> message;
          sendMessage( message, BROADCAST );
@@ -800,6 +810,8 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
          Identity ident;
          QString version;
          quint8 sex;
+
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
 
          in >> version;
          in >> ident.name;
@@ -859,7 +871,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
       case NET_CLIENT_ENCHERE:
       {
          quint8 c;
-
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
          in >> c;
          if( (Contrat)c > infos.contrat) {
             infos.contrat = (Contrat)c;
@@ -871,6 +883,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
       }
 
       case NET_CLIENT_VU_CHIEN:
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
          cptVu++;
          if( cptVu == NB_PLAYERS ) {
             sequence = CHIEN;
@@ -879,6 +892,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
          break;
 
       case NET_CLIENT_VU_PLI:
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
          cptVu++;
          if( cptVu == NB_PLAYERS ) {
             jeuNext();
@@ -894,7 +908,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
          int nb_cartes_chien;
          int i;
          Card *c;
-
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
          if( NB_PLAYERS == 3 ) {
             nb_cartes_chien = 6;
          } else if( NB_PLAYERS == 4 ) {
@@ -924,7 +938,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
          in >> dummy;
          quint8 id;
          Poignee p;
-
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
          // TODO: add protection, limits ...
          poigneeDeck.clear();
          for(int i=0; i<dummy;i++) {
@@ -963,6 +977,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
          Card *c;
          // TODO: tester la validité de la carte (ID + présence dans le jeu du joueur)
          // si erreur : logguer et prévenir quelqu'un ??
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
          in >> id;
          c = Jeu::getCard( id );
          mainDeck.append(c);
@@ -971,6 +986,16 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
          jeu();
          break;
       }
+
+      case NET_CLIENT_READY:
+         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
+         if (sequence == SEQ_WAIT_PLAYER) {
+            cptVu++;
+            if( cptVu == NB_PLAYERS ) {
+               nouvelleDonne();
+            }
+         }
+         break;
 
       default:
          break;
@@ -1236,8 +1261,7 @@ void TarotEngine::sendFinDonne( ScoreInfos *score_inf, bool lastDeal )
    else
        out << (quint8)0;
 
-   out << (quint8)dealCounter
-       << (quint16)0xFFFF;
+   out << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
    broadcast( block ); // clients connectés

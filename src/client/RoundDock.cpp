@@ -61,7 +61,7 @@ void RoundDock::addRound(int turn, Place p, QString txt)
 /*****************************************************************************/
 void RoundDock::selectWinner(int turn, Place p)
 {
-   QBrush brush(Qt::cyan);
+   QBrush brush(Qt::darkGreen);
    ui.tableWidget->item(turn, p+1)->setBackground(brush);
 }
 /*****************************************************************************/

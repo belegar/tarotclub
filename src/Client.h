@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "Jeu.h"
 #include "defines.h"
+#include "Score.h"
 
 class Client : public Player
 {
@@ -34,7 +35,7 @@ protected:
    QTcpSocket  socket;
    DeckStats   stats;      // statistiques sur les cartes en main du joueur
    GameInfos   infos;      // Informations sur le jeu en cours
-   ScoreInfos  score_inf;
+   Score       score;
    Deck        chien;
    Deck        mainDeck;
    Deck        poignee;  // poignée déclarée par le joueur
@@ -42,31 +43,32 @@ protected:
 public:
    Client();
 
-   Contrat  calculEnchere();
-   void     razStats();
-   void     updateStats();
-   Card     *play();
-   bool     isValid( Card *c );
-   DeckStats  *getStats();
-   GameInfos *getGameInfos();
-   ScoreInfos *getScoreInfos();
+   void        init() { score.init(); }
+   Contrat     calculEnchere();
+   void        razStats();
+   void        updateStats();
+   Card        *play();
+   bool        isValid( Card *c );
+   DeckStats   *getStats();
+   GameInfos   *getGameInfos();
+   Score       *getScore();
 
    // opérations sur le deck principal
    Card *getCardMainDeck(int i);
 
    // opérations sur le deck Chien
-   void  emptyChien();
-   Card  *getCardChien(int i);
-   void  addCardChien(Card *c);
-   void  removeCardChien(Card *c);
-   int   getTailleChien();
-   void  choixChien( Deck * ); // méthode qui génère un chien valide au hasard
+   void emptyChien();
+   Card *getCardChien(int i);
+   void addCardChien(Card *c);
+   void removeCardChien(Card *c);
+   int  getTailleChien();
+   void choixChien( Deck * ); // méthode qui génère un chien valide au hasard
 
    // opération sur la poignée
    void emptyPoignee();
    void addCardPoignee(Card *c);
    void removeCardPoignee(Card *c);
-   int getTaillePoignee();
+   int  getTaillePoignee();
    bool testPoignee();
 
    // Réseau
@@ -103,7 +105,7 @@ signals:
    void sgnlRedist();
    void sgnlJoueCarte();
    void sgnlAfficheCarte(int, Place);
-   void sgnlFinDonne();
+   void sgnlFinDonne(bool lastDeal);
    void sgnlWaitPli(Place, float);
 
 };

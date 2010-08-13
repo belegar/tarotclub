@@ -70,7 +70,8 @@ FORMS = AboutUI.ui \
     ServerManagerUI.ui \
     RoundUI.ui \
     NumberedDealUI.ui \
-    DealEditorUI.ui
+    DealEditorUI.ui \
+    ../src/client/WinUI.ui
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \

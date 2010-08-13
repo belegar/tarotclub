@@ -24,7 +24,7 @@
 /*****************************************************************************/
 // Game definitions
 
-#define TAROT_VERSION   "2.0.0 Alpha 2"
+#define TAROT_VERSION   "2.0.0 Alpha 3"
 #define TAROT_TITRE     "TarotClub"
 #define TAROT_VNAME     "Kritzkrieg"
 
@@ -53,7 +53,8 @@ enum Sequence {
    BUILD_POIGNEE,
    SHOW_POIGNEE,
    GAME,
-   SEQ_WAIT_PLI
+   SEQ_WAIT_PLI,
+   SEQ_WAIT_PLAYER
 };
 enum Contrat      { PASSE, PRISE, GARDE, GARDE_SANS, GARDE_CONTRE };
 enum Filter       { AUCUN, JEU };

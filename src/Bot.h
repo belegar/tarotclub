@@ -49,7 +49,7 @@ public slots:
    void slotDepartDonne(Place p,Contrat c);
    void slotJoueCarte();
    void slotAfficheCarte(int id, Place p);
-   void slotFinDonne();
+   void slotFinDonne(bool lastDeal);
    void slotWaitPli(Place p, float points);
 };
 

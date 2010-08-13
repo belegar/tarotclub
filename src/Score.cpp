@@ -36,7 +36,7 @@ void Score::init()
 {
    // RAZ des totaux
    for(int i=0; i<MAX_ROUNDS; i++ ) {
-      for(int j=0; j<5; j++) {
+      for(int j=0; j<NB_PLAYERS; j++) {
          scores[i][j] = 0;
       }
    }
@@ -124,7 +124,7 @@ Place Score::getExcuse()
 QList<int> Score::getLastTurnScore()
 {
    QList<int> s;
-   for(int i=0; i<5; i++) {
+   for(int i=0; i<NB_PLAYERS; i++) {
       s.append(scores[turn-1][i]);
    }
    return(s);
@@ -135,10 +135,15 @@ ScoreInfos *Score::getScoreInfos()
    return(&score_inf);
 }
 /*****************************************************************************/
+void Score::setScoreInfos(const ScoreInfos &inf)
+{
+   score_inf = inf;
+}
+/*****************************************************************************/
 /**
  * Calcule les points de la défense et de l'attaque
  */
-void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
+void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos &infos )
 {
    int i;
    float n;
@@ -171,8 +176,8 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 #endif
 
       if( c->getType() == EXCUSE ) {
-         if( plis[i] == infos->preneur ) {
-            if( carteExcuse == infos->preneur ) {
+         if( plis[i] == infos.preneur ) {
+            if( carteExcuse == infos.preneur ) {
                score_inf.attaque += n;
                score_inf.bouts++;
             } else {
@@ -180,7 +185,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
                flag = 1;
             }
          } else {
-            if( carteExcuse != infos->preneur ) {
+            if( carteExcuse != infos.preneur ) {
                score_inf.defense += n;
             } else {
                score_inf.attaque += n;
@@ -192,13 +197,13 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
          // il doit rendre une carte basse à la place de son excuse
          if( flag==1 && n==0.5 && plis[i]==carteExcuse ) {
             flag=2;
-            if( carteExcuse == infos->preneur ) {
+            if( carteExcuse == infos.preneur ) {
                score_inf.defense += 0.5;
             } else {
                score_inf.attaque += 0.5;
             }
          } else {
-            if( plis[i] == infos->preneur ) {
+            if( plis[i] == infos.preneur ) {
                score_inf.attaque += n;
                if( c->getType() == ATOUT ) {
                   if( c->getValue() == 21 || c->getValue() == 1 ) {
@@ -237,7 +242,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
 #endif
 
       // on compte les possibles bouts dans le chien
-      if( infos->contrat == GARDE_SANS ) { // seul cas possible avec des bouts dans le Chien
+      if( infos.contrat == GARDE_SANS ) { // seul cas possible avec des bouts dans le Chien
          if( c->getType() == ATOUT ) {
             if( c->getValue() == 21 || c->getValue() == 1 )
                score_inf.bouts++;
@@ -246,7 +251,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
       }
    }
 
-   if( infos->contrat == GARDE_CONTRE ) {
+   if( infos.contrat == GARDE_CONTRE ) {
       score_inf.defense += n;
    } else {
       score_inf.attaque += n;
@@ -290,7 +295,7 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
    if( petitAuBout == true ) {
       // A qui appartient le petit au bout
       // On prend la dernière carte du pli
-      if( plis[71] == infos->preneur ) {
+      if( plis[71] == infos.preneur ) {
          petitAttaque = true;
       }
    }
@@ -311,11 +316,11 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
       score_inf.pointsAFaire = 36;
    }
 
-   if( infos->contrat == PRISE ) {
+   if( infos.contrat == PRISE ) {
       score_inf.multiplicateur = 1;
-   } else if( infos->contrat == GARDE ) {
+   } else if( infos.contrat == GARDE ) {
       score_inf.multiplicateur = 2;
-   } else if( infos->contrat == GARDE_SANS ) {
+   } else if( infos.contrat == GARDE_SANS ) {
       score_inf.multiplicateur = 4;
    } else { // GARDE_CONTRE
       score_inf.multiplicateur = 6;
@@ -389,12 +394,12 @@ void Score::calcul( Deck &mainDeck, Deck &deckChien, GameInfos *infos )
    setPoints(infos);
 }
 /*****************************************************************************/
-void Score::setPoints(GameInfos *infos)
+void Score::setPoints(const GameInfos &infos)
 {
    int i;
 
    for( i=0; i<NB_PLAYERS; i++ ) {
-      if( i == infos->preneur ) {
+      if( i == infos.preneur ) {
          scores[turn][i] = score_inf.points_defense * (-3);
       } else {
          scores[turn][i] = score_inf.points_defense;

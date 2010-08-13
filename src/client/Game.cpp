@@ -22,6 +22,7 @@
 #include "Game.h"
 #include "../Jeu.h"
 #include "ui_NumberedDealUI.h"
+#include "ui_WinUI.h"
 
 #define SOUTH_CARDS_POS     522
 
@@ -66,7 +67,7 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( &client, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
    connect( &client, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
    connect( &client, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
-   connect( &client, SIGNAL(sgnlFinDonne()), this, SLOT(slotFinDonne()));
+   connect( &client, SIGNAL(sgnlFinDonne(bool)), this, SLOT(slotFinDonne(bool)));
    connect( &client, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
 
    // Game Menu
@@ -152,6 +153,7 @@ void Game::newLocalGame()
    roundDock->clear();
    tapis->setFilter(AUCUN);
    sequence = GAME;
+   client.init();
 
    // start server
    server.newServerGame();
@@ -525,19 +527,28 @@ void Game::slotAfficheCarte(int id, Place tour)
    roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/
-void Game::slotFinDonne(bool lastDeal, Place winner)
+void Game::slotFinDonne(bool lastDeal)
 {
-    statusBar()->showMessage(trUtf8("Fin de la donne.") );
-    sequence = VIDE;
-    tapis->setFilter( AUCUN );
-    tapis->razTapis();
-    tapis->resetCards();
+   QDialog *widget = new QDialog;
+   Ui::WinUI ui;
+   ui.setupUi(widget);
 
-    resultWindow->setCalcul( client.getScoreInfos(), client.getGameInfos() );
-    resultWindow->exec();
+   statusBar()->showMessage(trUtf8("Fin de la donne.") );
+   sequence = VIDE;
+   tapis->setFilter( AUCUN );
+   tapis->razTapis();
+   tapis->resetCards();
 
-    // Add current turn result to total score
-    scoresDock->setNewScore(server.getScore()->getLastTurnScore());
+   resultWindow->setCalcul( client.getScore()->getScoreInfos(), client.getGameInfos() );
+   resultWindow->exec();
+
+   scoresDock->setNewScore(client.getScore()->getLastTurnScore());
+
+   if(lastDeal == true) {
+      widget->exec();
+   } else {
+      client.sendReady();
+   }
 }
 /*****************************************************************************/
 void Game::slotWaitPli(Place winner, float pointsTaker)
