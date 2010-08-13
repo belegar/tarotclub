@@ -19,6 +19,7 @@
 #include <QDockWidget>
 #include <QTableWidget>
 #include "../defines.h"
+#include "../Score.h"
 
 /*****************************************************************************/
 class ScoresDock : public QDockWidget
@@ -33,7 +34,7 @@ public:
 
    void clear();
    void setOptions( GameOptions *options );
-   void setNewScore( QList<int> scores );
+   void setNewScore( Score *score );
 
 protected:
    void closeEvent( QCloseEvent * e );

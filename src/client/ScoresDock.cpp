@@ -25,6 +25,11 @@ ScoresDock::ScoresDock( QWidget *parent )
 {
    tableScores = new QTableWidget( this );
    tableScores->setSelectionMode(QAbstractItemView::NoSelection);
+   tableScores->setEditTriggers(QAbstractItemView::NoEditTriggers);
+   tableScores->setDragEnabled(false);
+   tableScores->setSelectionMode(QAbstractItemView::SingleSelection);
+   tableScores->setSelectionBehavior(QAbstractItemView::SelectRows);
+
    QHeaderView *hv = tableScores->horizontalHeader();
    hv->setResizeMode(QHeaderView::Stretch);
    setWidget(tableScores);
@@ -57,15 +62,16 @@ void ScoresDock::setOptions( GameOptions *options )
    tableScores->setHorizontalHeaderLabels( header );
 }
 /*****************************************************************************/
-void ScoresDock::setNewScore(QList<int> scores)
+void ScoresDock::setNewScore(Score *score)
 {
-   int n;
+   int n, total;
 
    n = tableScores->rowCount()+1;
    tableScores->setRowCount(n);
 
-   for( int i=0; i<4; i++ ) {
-      QTableWidgetItem *newItem = new QTableWidgetItem( QString::number(scores[i]) );
+   for( int i=0; i<NB_PLAYERS; i++ ) {
+      total = score->getTotalPoints((Place)i);
+      QTableWidgetItem *newItem = new QTableWidgetItem( QString::number(total) );
       tableScores->setItem(n-1, i, newItem);
    }
 }
