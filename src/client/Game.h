@@ -81,7 +81,7 @@ public slots:
    void slotDepartDonne(Place p,Contrat c);
    void slotJoueCarte();
    void slotAfficheCarte(int id, Place tour);
-   void slotFinDonne(bool);
+   void slotFinDonne(Place winner, float pointsTaker, bool);
    void slotWaitPli(Place winner, float pointsTaker);
    void slotSetEnchere( Contrat cont );
 

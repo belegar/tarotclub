@@ -67,7 +67,7 @@ Game::Game( ConfigFile *conf ) : MainWindow()
    connect( &client, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
    connect( &client, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
    connect( &client, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
-   connect( &client, SIGNAL(sgnlFinDonne(bool)), this, SLOT(slotFinDonne(bool)));
+   connect( &client, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
    connect( &client, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
 
    // Game Menu
@@ -129,10 +129,12 @@ void Game::slotNewCustomDeal()
 {
    QString fileName = QFileDialog::getOpenFileName(this);
 
-   server.setGameType(LOC_ONEDEAL);
-   server.setDealType(CUSTOM_DEAL);
-   server.setDealFile(fileName);
-   newLocalGame();
+   if(fileName.size() != 0) {
+      server.setGameType(LOC_ONEDEAL);
+      server.setDealType(CUSTOM_DEAL);
+      server.setDealFile(fileName);
+      newLocalGame();
+   }
 }
 /*****************************************************************************/
 void Game::slotNewQuickGame()
@@ -448,13 +450,15 @@ void Game::hideChien()
 /*****************************************************************************/
 void Game::slotRedist()
 {
-   QMessageBox::information(this, trUtf8("Information"),
-                   trUtf8("Tous les joueurs ont passé.\n"
-                      "Nouvelle distribution des cartes.") );
    sequence = GAME;
    infosDock->clear();
    tapis->setFilter(AUCUN);
    tapis->razTapis();
+
+   QMessageBox::information(this, trUtf8("Information"),
+                   trUtf8("Tous les joueurs ont passé.\n"
+                      "Nouvelle distribution des cartes.") );
+   client.sendReady();
 }
 /*****************************************************************************/
 void Game::slotPrepareChien()
@@ -527,11 +531,14 @@ void Game::slotAfficheCarte(int id, Place tour)
    roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/
-void Game::slotFinDonne(bool lastDeal)
+void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 {
    QDialog *widget = new QDialog;
    Ui::WinUI ui;
    ui.setupUi(widget);
+
+   roundDock->selectWinner(turnCounter, winner);
+   roundDock->pointsToTaker(turnCounter, pointsTaker);
 
    statusBar()->showMessage(trUtf8("Fin de la donne.") );
    sequence = VIDE;
@@ -542,7 +549,7 @@ void Game::slotFinDonne(bool lastDeal)
    resultWindow->setCalcul( client.getScore()->getScoreInfos(), client.getGameInfos() );
    resultWindow->exec();
 
-   scoresDock->setNewScore(client.getScore()->getLastTurnScore());
+   scoresDock->setNewScore(client.getScore());
 
    if(lastDeal == true) {
       widget->exec();
