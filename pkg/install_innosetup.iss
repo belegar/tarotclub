@@ -3,8 +3,8 @@
 
 ; Customize the Qt dir installation and version
 [Code]
-#define QT_DIR 	 "C:\Qt\2010.02.1\qt\bin"
-#define VERSION  "2.0.0a2"
+#define QT_DIR 	 "C:\Qt\2010.04\qt\bin"
+#define VERSION  "2.0.0"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -36,7 +36,7 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: ..\prj\bin\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\TarotClub-build-desktop\bin\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\src\data\cards\default\*; DestDir: {app}\default; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\BUILD; DestDir: {app}; Flags: ignoreversion
 Source: ..\COPYING; DestDir: {app}; Flags: ignoreversion
@@ -65,4 +65,3 @@ Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClub; Filename
 
 [Run]
 Filename: {app}\TarotClub.exe; Description: {cm:LaunchProgram,TarotClub}; Flags: nowait postinstall skipifsilent
-
