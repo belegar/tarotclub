@@ -4,20 +4,19 @@ TarotClub 2.0.0
 ~ bug corrected
 - feature removed
 
-
 * version 2.0.0 <Kritzkrieg>
   -------------------------------
-    + Configure time between players
+    + Configure time between players and at the end of a turn
     + Windows installer with Innosetup
-    + Add the Tarot rules in the help menu
-    + Tournament mode (10 rounds) and one-shot round
-    + Give the seed used to generate the current round
+    + Tournament mode (10 rounds) and one shot round
+    + Give the seed used to generate the current “donne”
     + Deal editor
     + Ubuntu package
     + Show player’s deck statistics
+    + Show cards played each turn in a dock window
     + Chelem + poignées implementation and scoring
     + Show the total of points in the score table
-    + Show cards played each turn in a dock window
+    + Server-side tournament mode and result UI
 
 * version 1.3.0 <Dragon Ball>
   -------------------------------
