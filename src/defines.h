@@ -24,7 +24,7 @@
 /*****************************************************************************/
 // Game definitions
 
-#define TAROT_VERSION   "2.0.0 Alpha 3"
+#define TAROT_VERSION   "2.0.0"
 #define TAROT_TITRE     "TarotClub"
 #define TAROT_VNAME     "Kritzkrieg"
 
@@ -34,6 +34,8 @@
 #define QT_STREAMVER    QDataStream::Qt_4_4
 #define MAX_ROUNDS      10
 #define NB_PLAYERS      4
+#define NB_HAND_CARDS   18
+#define NB_CHIEN_CARDS  6
 
 #define TEXT_BOX_WIDTH  115
 #define TEXT_BOX_HEIGHT 30
