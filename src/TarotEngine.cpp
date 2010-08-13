@@ -38,7 +38,7 @@ TarotEngine::TarotEngine()
    gamePath = b.path();
    infos.gameCounter = 0;
    sequence = VIDE;
-   newGame = false;
+   gameState = GAME_STOPPED;
    dealNumber = 0;
    dealType = RANDOM_DEAL;
    tcpPort = DEFAULTPORT;
@@ -90,9 +90,11 @@ void TarotEngine::setOptions(GameOptions *options)
 /*****************************************************************************/
 void TarotEngine::customEvent( QEvent *e )
 {
+/*
+   TODO: review for the stand alone server
 
    if( (int)e->type() == MsgStartGame ) {
-      if( newGame == true ) {
+      if( gateState !=  ) {
          emit sigPrintMessage("Game already started.");
          return;
       }
@@ -107,7 +109,7 @@ void TarotEngine::customEvent( QEvent *e )
       closeServerGame();
      // QCoreApplication::exit(0);
    }
-
+*/
 }
 /*****************************************************************************/
 Place TarotEngine::nextPlayer( Place j )
@@ -141,7 +143,7 @@ void TarotEngine::newServerGame()
    // On initialise toutes les variables locales et on choisit le donneur
    i = qrand()%4;
    donneur = (Place)i;
-   newGame = true;
+   gameState = GAME_STOPPED;
    score.init();
    dealCounter = 0;
    emit sigPrintMessage("Server started.\r\n");
@@ -160,7 +162,7 @@ void TarotEngine::connectBots()
 /*****************************************************************************/
 void TarotEngine::closeServerGame()
 {
-   newGame = false;
+   gameState = GAME_STOPPED;
    sequence = VIDE;
 
    closeClients();
@@ -412,28 +414,28 @@ void TarotEngine::jeu()
    if( !(infos.gameCounter%NB_PLAYERS) && infos.gameCounter ) {
       ret = finLevee(points);
 
-      cptVu = 0;
-      sendWaitPli(points);
-
-      if( ret == false ) {
+      // end of the deal?
+      if( ret == true ) {
   #ifndef QT_NO_DEBUG
          generateLog();
   #endif
          dealCounter++;
          // end of deal, send score to all players
-         if (dealCounter<MAX_ROUNDS && gameType == LOC_TOURNAMENT )
+         if (dealCounter<MAX_ROUNDS && gameType == LOC_TOURNAMENT ) {
             lastDeal = false;
-         else
-            lastDeal = true;
-
-         sendFinDonne( score.getScoreInfos(), lastDeal );
-
-         if(lastDeal == true) {
-            // stop the server
-            closeServerGame();
-         } else {
             sequence = SEQ_WAIT_PLAYER;
+         } else {
+            lastDeal = true;
+            gameState = GAME_FINISHED;
+            sequence = VIDE;
          }
+
+         cptVuDonne = 0;
+         sendFinDonne( score.getScoreInfos(), lastDeal, points );
+      } else {
+         cptVuPli = 0;
+         sequence = SEQ_WAIT_PLI;
+         sendWaitPli(points);
       }
    } else {
       tour = nextPlayer(tour);
@@ -453,7 +455,8 @@ void TarotEngine::sequenceEncheres()
    if( tour == donneur ) {
       if( infos.contrat == PASSE ) {
          // si tous les joueurs ont passé on s'arrête et on prévient tout le monde
-         sequence = VIDE;
+         cptVuDonne = 0;
+         sequence = SEQ_WAIT_PLAYER;
          sendRedist();
       } else {
          montreChien();
@@ -487,14 +490,16 @@ void TarotEngine::montreChien()
       jeu();
       return;
    }
-   sendShowChien(); // Prise ou garde, on affiche le chien chez tout le monde
-   cptVu = 0;
+
+   cptVuChien = 0;
    sequence = WAIT_CHIEN; // et on attend le chien écarté par le preneur
+   sendShowChien(); // Prise ou garde, on affiche le chien chez tout le monde
 }
 /*****************************************************************************/
 /**
  * Fin d'un tour, on calcule le gagnant du pli et on prépare la suite
  * On retourne également le nombre de points réalisés par le preneur
+ * retourne true si la partie est terminée, sinon false
  */
 bool TarotEngine::finLevee(float &points)
 {
@@ -541,10 +546,10 @@ bool TarotEngine::finLevee(float &points)
 #endif
 
    if( infos.gameCounter < 72 ) {
-      return true;
+      return false;
    } else { // fin du jeu
       score.calcul( mainDeck, deckChien, infos );
-      return false;
+      return true;
    }
 
 }
@@ -556,7 +561,7 @@ void TarotEngine::customDeal()
 {
    int j;
    Card *c;
-   quint8 params[18] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
+   quint8 params[NB_HAND_CARDS] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
 
    DealEditorFile editor;
    editor.loadFile(dealFile);
@@ -578,7 +583,7 @@ void TarotEngine::customDeal()
          d = &editor.northDeck;
       }
 
-      for( j=0; j<18; j++ ) {
+      for( j=0; j<NB_HAND_CARDS; j++ ) {
          c = d->at(j);
          if( c->getType() == EXCUSE ) {
             score.setExcuse(p);
@@ -602,10 +607,8 @@ void TarotEngine::randomDeal()
    int n, j;
    Card *c;
    int index;
-   int nb_cartes_chien;
-   int nb_cartes_joueur;
    Place p;
-   quint8 params[18] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
+   quint8 params[NB_HAND_CARDS] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
 
 
    // on ajoute les cartes dans le deck
@@ -619,24 +622,15 @@ void TarotEngine::randomDeal()
    mainDeck.shuffle(dealNumber);
    deckChien.clear();
 
-   if( NB_PLAYERS == 3 ) {
-      nb_cartes_chien = 6;
-   } else if( NB_PLAYERS == 4 ) {
-      nb_cartes_chien = 6;
-   } else { // 5 joueurs
-      nb_cartes_chien = 3;
-   }
-   nb_cartes_joueur = (78-nb_cartes_chien)/NB_PLAYERS;
    n = 0;
-
    QMapIterator<QTcpSocket*, Player*> i(players);
    while (i.hasNext()) {
      i.next();
      i.value()->emptyDeck();
      p = i.value()->getPlace();
 
-     for( j=0; j<nb_cartes_joueur; j++ ) {
-        index = n*nb_cartes_joueur+j;
+     for( j=0; j<NB_HAND_CARDS; j++ ) {
+        index = n*NB_HAND_CARDS+j;
         c = mainDeck.at(index);
         if( c->getType() == EXCUSE ) {
            score.setExcuse(p);
@@ -650,7 +644,7 @@ void TarotEngine::randomDeal()
    }
 
    // Les cartes restantes vont au chien
-   for( j=78-nb_cartes_chien; j<78; j++) {
+   for( j=78-NB_CHIEN_CARDS; j<78; j++) {
       c = mainDeck.at(j);
       deckChien.append( c );
    }
@@ -736,7 +730,7 @@ void TarotEngine::slotReadData()
 {
    quint16 blockSize = 0;
    bool trameEnPlus = false;
-   unsigned int total=0;
+   unsigned int total = 0;
    unsigned int bytes;
 
    // retrieve our sender QTcpSocket
@@ -859,6 +853,7 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
             sendPlayersList();
 
             if (getNumberOfConnectedPlayers() == NB_PLAYERS) {
+               gameState = GAME_STARTED;
                nouvelleDonne();
             }
          }
@@ -883,19 +878,21 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
       }
 
       case NET_CLIENT_VU_CHIEN:
-         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-         cptVu++;
-         if( cptVu == NB_PLAYERS ) {
-            sequence = CHIEN;
-            sendDoChien(); // On ordonne au preneur de faire le chien et on attend
+         if (sequence == WAIT_CHIEN) {
+            cptVuChien++;
+            if( cptVuChien >= NB_PLAYERS ) {
+               sequence = CHIEN;
+               sendDoChien(); // On ordonne au preneur de faire le chien et on attend
+            }
          }
          break;
 
       case NET_CLIENT_VU_PLI:
-         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-         cptVu++;
-         if( cptVu == NB_PLAYERS ) {
-            jeuNext();
+         if (sequence == SEQ_WAIT_PLI) {
+            cptVuPli++;
+            if( cptVuPli >= NB_PLAYERS ) {
+               jeuNext();
+            }
          }
          break;
 
@@ -988,10 +985,9 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
       }
 
       case NET_CLIENT_READY:
-         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
          if (sequence == SEQ_WAIT_PLAYER) {
-            cptVu++;
-            if( cptVu == NB_PLAYERS ) {
+            cptVuDonne++;
+            if( cptVuDonne >= NB_PLAYERS ) {
                nouvelleDonne();
             }
          }
@@ -1015,7 +1011,7 @@ void TarotEngine::sendCards( Place p, quint8 *params )
    out << (quint16)0 << (quint8)NET_RECEPTION_CARTES
        << (quint8)p
        << (quint8)NB_PLAYERS;
-   for(j=0; j<24; j++ ) {
+   for(j=0; j<NB_HAND_CARDS; j++ ) {
       out << (quint8)params[j];
    }
    out << (quint16)0xFFFF;
@@ -1238,7 +1234,7 @@ void TarotEngine::sendRedist()
 /**
  * On termine ce tour de jeu et on affiche les scores
  */
-void TarotEngine::sendFinDonne( ScoreInfos *score_inf, bool lastDeal )
+void TarotEngine::sendFinDonne( ScoreInfos *score_inf, bool lastDeal, float pointsTour )
 {
    QByteArray block;
    QDataStream out( &block, QIODevice::WriteOnly );
@@ -1261,7 +1257,9 @@ void TarotEngine::sendFinDonne( ScoreInfos *score_inf, bool lastDeal )
    else
        out << (quint8)0;
 
-   out << (quint16)0xFFFF;
+   out << (quint8)tour // winner of the current turn
+       << (quint32)pointsTour // points won by the taker
+       << (quint16)0xFFFF;
    out.device()->seek(0);
    out << (quint16)( block.size() - sizeof(quint16) );
    broadcast( block ); // clients connectés

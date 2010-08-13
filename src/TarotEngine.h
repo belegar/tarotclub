@@ -36,6 +36,7 @@ enum {
    MsgExitGame
 };
 
+enum GameState { GAME_STOPPED, GAME_STARTED, GAME_FINISHED };
 
 /*****************************************************************************/
 class EvStartGame : public QEvent
@@ -77,14 +78,17 @@ private:
    Place       donneur;       // qui est le donneur ?
    Place       tour;          // A qui le tour (d'enchérir ou de jouer)
    Sequence    sequence;      // indique la séquence de jeu actuelle
-   bool        newGame;       // vrai si une nouvelle partie a été commencée
-   int         cptVu;         // counter of chien seen by clients
+   GameState   gameState;
    DealType    dealType;
    int         dealNumber;
    int         dealCounter;   // number of deals for the tournament game
    QString     dealFile;
    GameType    gameType;
 
+   // syncho counters
+   int         cptVuChien; // players saw the dog
+   int         cptVuPli;   // end of a round
+   int         cptVuDonne; // end of a deal
 
 protected:
    void customEvent( QEvent *e );
@@ -142,7 +146,7 @@ public:
    void sendCard( Card *c );
    void sendDepartDonne();
    void sendRedist();
-   void sendFinDonne( ScoreInfos *score_inf, bool lastDeal );
+   void sendFinDonne( ScoreInfos *score_inf, bool lastDeal, float pointsTour );
    void sendWaitPli(float pointsTour);
    void selectPlayer( Place p );
 
