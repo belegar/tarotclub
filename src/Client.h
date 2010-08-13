@@ -105,7 +105,7 @@ signals:
    void sgnlRedist();
    void sgnlJoueCarte();
    void sgnlAfficheCarte(int, Place);
-   void sgnlFinDonne(bool lastDeal);
+   void sgnlFinDonne(Place, float, bool lastDeal);
    void sgnlWaitPli(Place, float);
 
 };

@@ -768,28 +768,19 @@ void Client::doAction( QDataStream &in )
       {
          int i;
          quint8 n, p;
-         int nb_cartes;
 
          in >> p;
          in >> n;
          if( n == 4 ) {
-            nb_cartes = 18;
-         } else {
-            // error
-            break;
+            infos.place = (Place)p;
+            myDeck.clear();
+            for( i=0; i<NB_HAND_CARDS; i++ ) {
+               in >> n;
+               myDeck.append(Jeu::getCard( n ));
+            }
+            score.reset();
+            emit sgnlReceptionCartes();
          }
-         infos.place = (Place)p;
-         myDeck.clear();
-         for( i=0; i<nb_cartes; i++ ) {
-            in >> n;
-            myDeck.append(Jeu::getCard( n ));
-         }
-         // on vide le stream
-         for( i=0; i<(24-nb_cartes); i++ ) {
-            in >> n;
-         }
-         score.reset();
-         emit sgnlReceptionCartes();
          break;
       }
 
@@ -953,7 +944,10 @@ void Client::doAction( QDataStream &in )
          } else {
             lastDeal = false;
          }
-         emit sgnlFinDonne(lastDeal);
+         in >> var8;
+         in >> tmp;
+
+         emit sgnlFinDonne( (Place)var8, (float)tmp, lastDeal);
          break;
       }
 
