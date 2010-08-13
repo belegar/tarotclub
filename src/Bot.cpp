@@ -32,7 +32,7 @@ Bot::Bot() : Client()
    connect( this, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
    connect( this, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
    connect( this, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
-   connect( this, SIGNAL(sgnlFinDonne(bool)), this, SLOT(slotFinDonne(bool)));
+   connect( this, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
    connect( this, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
 
    timeBeforeSend.setSingleShot(true);
@@ -86,7 +86,7 @@ void Bot::slotAfficheEnchere( Place, Contrat )
 /*****************************************************************************/
 void Bot::slotRedist()
 {
-   // nada
+   sendReady();
 }
 /*****************************************************************************/
 void Bot::slotAfficheChien()
@@ -119,18 +119,20 @@ void Bot::slotAfficheCarte(int id, Place p)
    // nada
 }
 /*****************************************************************************/
-void Bot::slotFinDonne(bool lastDeal)
+void Bot::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 {
+   Q_UNUSED(winner);
+   Q_UNUSED(pointsTaker);
    Q_UNUSED(lastDeal);
    if (lastDeal == false) {
       sendReady();
    }
 }
 /*****************************************************************************/
-void Bot::slotWaitPli(Place p, float points)
+void Bot::slotWaitPli(Place winner, float pointsTaker)
 {
-   Q_UNUSED(p);
-   Q_UNUSED(points);
+   Q_UNUSED(winner);
+   Q_UNUSED(pointsTaker);
    sendVuPli();
 }
 
