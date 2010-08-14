@@ -544,7 +544,7 @@ void Game::slotAfficheCarte(int id, Place tour)
 void Game::showVictoryWindow()
 {
    Score *score;
-   QMap<int, QString> res;
+/*
    QGraphicsTextItem *txt;
 
    QDialog *widget = new QDialog;
@@ -557,10 +557,15 @@ void Game::showVictoryWindow()
    ui.tournamentGraph->setScene(scene);
    scene->addItem(victory);
    ui.tournamentGraph->centerOn(victory);
-
+*/
    score = client.getScore();
    QList<Place> podium = score->getPodium();
 
+   QMessageBox::information(this, trUtf8("Résultat du tournoi"),
+                                   trUtf8("Le gagnant du tournoi est ") + players[podium[0]].name,
+                                   QMessageBox::Ok);
+
+/*
    // add the three best players to the image
    txt = scene->addText(players[podium[0]].name);
    txt->setPos(20+150, 450);
@@ -570,6 +575,7 @@ void Game::showVictoryWindow()
    txt->setPos(20+300, 450);
 
    widget->exec();
+*/
 }
 /*****************************************************************************/
 void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
