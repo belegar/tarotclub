@@ -33,7 +33,7 @@
 #define CONFIG_FILE     "/bin/config.xml"
 #define NB_LANGUES      2
 #define QT_STREAMVER    QDataStream::Qt_4_4
-#define MAX_ROUNDS      3
+#define MAX_ROUNDS      5
 #define NB_PLAYERS      4
 #define NB_HAND_CARDS   18
 #define NB_CHIEN_CARDS  6
