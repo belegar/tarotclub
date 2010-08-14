@@ -57,6 +57,7 @@ Game::Game( ConfigFile *conf ) : MainWindow()
 
    // Client events connection
    connect( &client, SIGNAL(sgnlMessage(const QString &)), chatDock, SLOT(message(const QString &)));
+   connect( &client, SIGNAL(sgnlListeDesJoueurs(QList<Identity>)), this, SLOT(slotListeDesJoueurs(QList<Identity>)));
    connect( &client, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
    connect( &client, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
    connect( &client, SIGNAL(sgnlChoixEnchere(Contrat)), tapis, SLOT(slotAfficheBoutons(Contrat)));
@@ -106,6 +107,7 @@ void Game::slotQuitTarotClub()
 /*****************************************************************************/
 void Game::slotNewTournamentGame()
 {
+   gameType = LOC_TOURNAMENT;
    server.setGameType(LOC_TOURNAMENT);
    server.setDealType(RANDOM_DEAL);
    newLocalGame();
@@ -118,6 +120,7 @@ void Game::slotNewNumberedDeal()
    ui.setupUi(widget);
 
    if( widget->exec() == QDialog::Accepted ) {
+      gameType = LOC_ONEDEAL;
       server.setGameType(LOC_ONEDEAL);
       server.setDealType(NUMBERED_DEAL);
       server.setDealNumber(ui.dealNumber->value());
@@ -130,6 +133,7 @@ void Game::slotNewCustomDeal()
    QString fileName = QFileDialog::getOpenFileName(this);
 
    if(fileName.size() != 0) {
+      gameType = LOC_ONEDEAL;
       server.setGameType(LOC_ONEDEAL);
       server.setDealType(CUSTOM_DEAL);
       server.setDealFile(fileName);
@@ -139,6 +143,7 @@ void Game::slotNewCustomDeal()
 /*****************************************************************************/
 void Game::slotNewQuickGame()
 {
+
    server.setGameType(LOC_ONEDEAL);
    server.setDealType(RANDOM_DEAL);
    newLocalGame();
@@ -173,7 +178,7 @@ void Game::applyOptions()
    scoresDock->setOptions(options);
 
    server.setOptions(options);
-   client.setIdentity( &options->client );
+   client.setIdentity( options->client );
 
    tapis->showAvatars( options->showAvatars );
    tapis->printNames(options, SUD);
@@ -325,6 +330,11 @@ void Game::slotClickCard(GfxCard *gc)
          gc->toggleStatus();
       }
    }
+}
+/*****************************************************************************/
+void Game::slotListeDesJoueurs(QList<Identity> pl)
+{
+   players = pl;
 }
 /*****************************************************************************/
 void Game::slotReceptionCartes()
@@ -531,12 +541,39 @@ void Game::slotAfficheCarte(int id, Place tour)
    roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/
-void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
+void Game::showVictoryWindow()
 {
+   Score *score;
+   QMap<int, QString> res;
+   QGraphicsTextItem *txt;
+
    QDialog *widget = new QDialog;
    Ui::WinUI ui;
    ui.setupUi(widget);
 
+   QGraphicsScene *scene = new QGraphicsScene();
+   QGraphicsSvgItem *victory = new QGraphicsSvgItem(":images/podium.svg");
+
+   ui.tournamentGraph->setScene(scene);
+   scene->addItem(victory);
+   ui.tournamentGraph->centerOn(victory);
+
+   score = client.getScore();
+   QList<Place> podium = score->getPodium();
+
+   // add the three best players to the image
+   txt = scene->addText(players[podium[0]].name);
+   txt->setPos(20+150, 450);
+   txt = scene->addText(players[podium[1]].name);
+   txt->setPos(20, 450);
+   txt = scene->addText(players[podium[2]].name);
+   txt->setPos(20+300, 450);
+
+   widget->exec();
+}
+/*****************************************************************************/
+void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
+{
    roundDock->selectWinner(turnCounter, winner);
    roundDock->pointsToTaker(turnCounter, pointsTaker);
 
@@ -551,8 +588,8 @@ void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 
    scoresDock->setNewScore(client.getScore());
 
-   if(lastDeal == true) {
-      widget->exec();
+   if(lastDeal == true && gameType == LOC_TOURNAMENT ) {
+      showVictoryWindow();
    } else {
       client.sendReady();
    }

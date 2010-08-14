@@ -7,8 +7,6 @@
 # you should have received as part of this distribution.  The terms
 # are also available at
 # http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
-
-
 # directories for temp files
 UI_DIR = ./ui
 UI_HEADERS_DIR = ./include
@@ -59,7 +57,10 @@ HEADERS += AboutWindow.h \
     defines.h \
     textes.h \
     TarotEngine.h \
-    Score.h
+    Score.h \
+    ../src/Identity.h \
+    ../src/Table.h \
+    ../src/GameOptions.h
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
     EncheresUI.ui \

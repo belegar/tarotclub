@@ -76,7 +76,7 @@ public:
    Place getPli(int i);
    int  getTotalPoints(Place p);
    ScoreInfos  *getScoreInfos();
-
+   QList<Place> getPodium();
 };
 
 

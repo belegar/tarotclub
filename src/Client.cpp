@@ -23,6 +23,7 @@ using namespace std;
 #endif // QT_NO_DEBUG
 
 #include "Client.h"
+#include "Identity.h"
 #include "defines.h"
 
 /*****************************************************************************/
@@ -479,178 +480,8 @@ bool Client::isValid( Card *c )
 {
    return(canPlayCard( &mainDeck, c, infos.gameCounter, NB_PLAYERS ));
 }
-/*****************************************************************************/
-void Client::sendMessage( const QString &message )
-{
-   QByteArray block;
-   QString msg;
 
-   // On ajoute le nick avant le message
-   msg = identity.name + "> " + message;
 
-   // Préparation de la trame
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_MSG
-       << msg
-       << (quint16)0xFFFF;
-
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
-/*****************************************************************************/
-/**
- * Indique que le joueur est prêt à jouer
- */
-void Client::sendReady()
-{
-   QByteArray block;
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_READY
-       << (quint16)0xFFFF;
-
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
-/*****************************************************************************/
-/**
- * Le client envoie son choix d'enchère
- */
-void Client::sendEnchere( Contrat c )
-{
-   QByteArray block;
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_ENCHERE
-       << (quint8)c
-       << (quint16)0xFFFF;
-
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
-/*****************************************************************************/
-/**
- * On envoie le Chien au serveur
- */
-void Client::sendChien()
-{
-   int i;
-
-   QByteArray block;
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_CHIEN;
-
-   for( i=0; i<chien.count(); i++ ) {
-      out << (quint8)chien.at(i)->getId();
-   }
-
-   out << (quint16)0xFFFF;
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
-/*****************************************************************************/
-/**
- * On envoie une poignée déclarée
- */
-void Client::sendPoignee()
-{
-   int i;
-
-   QByteArray block;
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_POIGNEE;
-
-   out << (quint8)poignee.size();
-
-   for( i=0; i<poignee.size(); i++ ) {
-      out << (quint8)(poignee.at(i)->getId());
-   }
-
-   out << (quint16)0xFFFF;
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
-/*****************************************************************************/
-/**
- * On envoie la carte jouée
- */
-void Client::sendCard( Card *c )
-{
-   QByteArray block;
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_CARTE
-       << (quint8)c->getId()
-       << (quint16)0xFFFF;
-
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
-/*****************************************************************************/
-/**
- * Demande au serveur de démarrer une nouvelle donne
- */
-void Client::sendVuChien()
-{
-   QByteArray block;
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_VU_CHIEN
-       << (quint16)0xFFFF;
-
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
-/*****************************************************************************/
-/**
- * On prévient le serveur qu'on a bien vu toutes les cartes du pli
- */
-void Client::sendVuPli()
-{
-   QByteArray block;
-   QDataStream out( &block, QIODevice::WriteOnly );
-   out.setVersion(QT_STREAMVER);
-   out << (quint16)0 << (quint8)NET_CLIENT_VU_PLI
-       << (quint16)0xFFFF;
-
-   out.device()->seek(0);
-   out << (quint16)( block.size() - sizeof(quint16) );
-
-   // On envoie la trame au serveur
-   socket.write(block);
-   socket.flush();
-}
 /*****************************************************************************/
 void Client::socketReadData()
 {
@@ -696,6 +527,49 @@ void Client::socketReadData()
 
 }
 /*****************************************************************************/
+void Client::connectToHost( const QString &hostName, quint16 port )
+{
+   socket.connectToHost(hostName,port);
+}
+/*****************************************************************************/
+void Client::close()
+{
+    socket.close();
+}
+/*****************************************************************************/
+void Client::socketConnected()
+{
+   emit sgnlMessage( identity.name + trUtf8(" est connecté.") );
+}
+/*****************************************************************************/
+void Client::socketHostFound()
+{
+   emit sgnlMessage( identity.name + trUtf8(" se connecte au serveur ...") );
+}
+/*****************************************************************************/
+void Client::socketClosed()
+{
+   emit sgnlMessage( trUtf8("Le serveur a mis fin à la connexion.") );
+}
+/*****************************************************************************/
+void Client::socketError( QAbstractSocket::SocketError code )
+{
+   QString message;
+
+   switch( code ) {
+      case QAbstractSocket::ConnectionRefusedError:
+         message = trUtf8("Erreur réseau : connexion refusée.");
+         break;
+      case QAbstractSocket::HostNotFoundError:
+         message = trUtf8("Erreur réseau : serveur introuvable.");
+         break;
+      default:
+         message = trUtf8("Erreur réseau : la transmission de données a échoué.");
+         break;
+   }
+   emit sgnlMessage( message );
+}
+/*****************************************************************************/
 /**
  * On agit en fonction du type de bloc reçu
  */
@@ -722,21 +596,11 @@ void Client::doAction( QDataStream &in )
        */
       case NET_IDENTIFICATION:
       {
-         QByteArray block;
-         QFileInfo fi(identity.avatar);
-         QDataStream out( &block, QIODevice::WriteOnly );
-         out.setVersion( 5 );
-         out << (quint16)0 << (quint8)NET_CLIENT_INFOS
-             << QString( TAROT_VERSION ) // version de TarotClub pour de futurs tests de compatibilité
-             << identity.name
-             << fi.fileName()
-             << identity.quote
-             << (quint8)identity.sex
-             << (quint16)0xFFFF;
+         quint8 p;
 
-         out.device()->seek(0);
-         out << (quint16)( block.size() - sizeof(quint16) );
-         socket.write(block);
+         in >> p;
+         place = (Place)p;
+         sendIdentity();
          break;
       }
 
@@ -746,18 +610,15 @@ void Client::doAction( QDataStream &in )
       case NET_LISTE_JOUEURS:
       {
          quint8 nombre;
-         Identity idents[5];
-         quint8 sex;
+         QList<Identity> players;
 
          in >> nombre;
-         for( int i=0; i< nombre; i++) {
-            in >> idents[i].name;
-            in >> idents[i].avatar;
-            in >> idents[i].quote;
-            in >> sex;
-            idents[i].sex = (SexType)sex;
+         for( int i=0; i<nombre; i++) {
+            Identity ident;
+            in >> ident;
+            players.append(ident);
          }
-         emit sgnlListeDesJoueurs( nombre, idents );
+         emit sgnlListeDesJoueurs( players );
          break;
       }
 
@@ -767,12 +628,10 @@ void Client::doAction( QDataStream &in )
       case NET_RECEPTION_CARTES:
       {
          int i;
-         quint8 n, p;
+         quint8 n;
 
-         in >> p;
          in >> n;
          if( n == 4 ) {
-            infos.place = (Place)p;
             myDeck.clear();
             for( i=0; i<NB_HAND_CARDS; i++ ) {
                in >> n;
@@ -966,47 +825,190 @@ void Client::doAction( QDataStream &in )
    }
 }
 /*****************************************************************************/
-void Client::connectToHost( const QString &hostName, quint16 port )
+void Client::sendIdentity()
 {
-   socket.connectToHost(hostName,port);
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion( 5 );
+   out << (quint16)0 << (quint8)NET_CLIENT_INFOS
+       << QString( TAROT_VERSION ) // version de TarotClub pour de futurs tests de compatibilité
+       << identity
+       << (quint16)0xFFFF;
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+   socket.write(block);
 }
 /*****************************************************************************/
-void Client::close()
+void Client::sendMessage( const QString &message )
 {
-    socket.close();
-}
-/*****************************************************************************/
-void Client::socketConnected()
-{
-   emit sgnlMessage( identity.name + trUtf8(" est connecté.") );
-}
-/*****************************************************************************/
-void Client::socketHostFound()
-{
-   emit sgnlMessage( identity.name + trUtf8(" se connecte au serveur ...") );
-}
-/*****************************************************************************/
-void Client::socketClosed()
-{
-   emit sgnlMessage( trUtf8("Le serveur a mis fin à la connexion.") );
-}
-/*****************************************************************************/
-void Client::socketError( QAbstractSocket::SocketError code )
-{
-   QString message;
+   QByteArray block;
+   QString msg;
 
-   switch( code ) {
-      case QAbstractSocket::ConnectionRefusedError:
-         message = trUtf8("Erreur réseau : connexion refusée.");
-         break;
-      case QAbstractSocket::HostNotFoundError:
-         message = trUtf8("Erreur réseau : serveur introuvable.");
-         break;
-      default:
-         message = trUtf8("Erreur réseau : la transmission de données a échoué.");
-         break;
+   // On ajoute le nick avant le message
+   msg = identity.name + "> " + message;
+
+   // Préparation de la trame
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_MSG
+       << msg
+       << (quint16)0xFFFF;
+
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
+ * Indique que le joueur est prêt à jouer
+ */
+void Client::sendReady()
+{
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_READY
+       << (quint16)0xFFFF;
+
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
+ * Le client envoie son choix d'enchère
+ */
+void Client::sendEnchere( Contrat c )
+{
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_ENCHERE
+       << (quint8)c
+       << (quint16)0xFFFF;
+
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
+ * On envoie le Chien au serveur
+ */
+void Client::sendChien()
+{
+   int i;
+
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_CHIEN;
+
+   for( i=0; i<chien.count(); i++ ) {
+      out << (quint8)chien.at(i)->getId();
    }
-   emit sgnlMessage( message );
+
+   out << (quint16)0xFFFF;
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
+ * On envoie une poignée déclarée
+ */
+void Client::sendPoignee()
+{
+   int i;
+
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_POIGNEE;
+
+   out << (quint8)poignee.size();
+
+   for( i=0; i<poignee.size(); i++ ) {
+      out << (quint8)(poignee.at(i)->getId());
+   }
+
+   out << (quint16)0xFFFF;
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
+ * On envoie la carte jouée
+ */
+void Client::sendCard( Card *c )
+{
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_CARTE
+       << (quint8)c->getId()
+       << (quint16)0xFFFF;
+
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
+ * Demande au serveur de démarrer une nouvelle donne
+ */
+void Client::sendVuChien()
+{
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_VU_CHIEN
+       << (quint16)0xFFFF;
+
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
+ * On prévient le serveur qu'on a bien vu toutes les cartes du pli
+ */
+void Client::sendVuPli()
+{
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_VU_PLI
+       << (quint16)0xFFFF;
+
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
 }
 
 //=============================================================================

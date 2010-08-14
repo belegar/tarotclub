@@ -28,6 +28,7 @@
 
 // Includes locales
 #include "../defines.h"
+#include "../Identity.h"
 
 /*****************************************************************************/
 class ChatDock : public QDockWidget
@@ -44,7 +45,7 @@ public:
    ChatDock( QWidget *parent );
 
    void clear();
-   void setPlayersList( int nombre, Identity *idents );
+   void setPlayersList( QList<Identity> &idents );
    void clearPlayersList();
 
 protected:

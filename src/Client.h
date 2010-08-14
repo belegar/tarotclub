@@ -74,7 +74,7 @@ public:
    // Réseau
    void connectToHost( const QString &hostName, quint16 port );
    void close();
-
+   void sendIdentity();
    void sendMessage( const QString &message );
    void sendEnchere( Contrat c );
    void sendChien();
@@ -94,7 +94,7 @@ public slots:
 
 signals:
    void sgnlMessage(const QString &message);
-   void sgnlListeDesJoueurs( quint8 nombre, Identity *idents );
+   void sgnlListeDesJoueurs( QList<Identity> players );
    void sgnlReceptionCartes();
    void sgnlAfficheSelection(Place);
    void sgnlChoixEnchere(Contrat);

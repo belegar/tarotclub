@@ -133,6 +133,31 @@ int Score::getTotalPoints(Place p)
    return(total);
 }
 /*****************************************************************************/
+QList<Place> Score::getPodium()
+{
+   QList<Place> placePodium;
+   QList<int> pointsPodium;
+   int i, j;
+
+   // init lists
+   for(i=0; i<NB_PLAYERS; i++) {
+      placePodium.append((Place)i);
+      pointsPodium.append(scores[turn-1][i]);
+   }
+
+   // bubble sort
+   for(i=0; i<NB_PLAYERS; i++) {
+      for(j=0; j<(NB_PLAYERS-1); j++) {
+         if (pointsPodium[j]<pointsPodium[j+1]) {
+            placePodium.swap(j, j+1);
+            pointsPodium.swap(j, j+1);
+         }
+      }
+   }
+
+   return placePodium;
+}
+/*****************************************************************************/
 ScoreInfos *Score::getScoreInfos()
 {
    return(&score_inf);

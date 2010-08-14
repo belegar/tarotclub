@@ -48,6 +48,8 @@ private:
    Sequence    sequence;
    bool        firstTurn;
    int         turnCounter;
+   QList<Identity> players;
+   GameType    gameType;
 
    Card *getCardFromPix( GfxCard *gc );
 
@@ -61,6 +63,7 @@ public:
    void hidePli();
    void hideChien();
    void newLocalGame();
+   void showVictoryWindow();
 
 public slots:
 
@@ -73,6 +76,7 @@ public slots:
    void slotQuitTarotClub();
 
    // client events
+   void slotListeDesJoueurs(QList<Identity> pl);
    void slotReceptionCartes();
    void slotAfficheSelection(Place p);
    void slotAfficheChien();

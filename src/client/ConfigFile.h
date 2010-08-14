@@ -25,7 +25,7 @@
 
 // Game includes
 #include "../defines.h"
-
+#include "../GameOptions.h"
 
 #define XML_VERSION     "1.4"
 

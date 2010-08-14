@@ -29,6 +29,7 @@
 // Game includes
 #include "../defines.h"
 #include "../Card.h"
+#include "../GameOptions.h"
 #include "TextBox.h"
 
 enum CardStatus { CARD_NORMAL, CARD_SELECTED };

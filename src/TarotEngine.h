@@ -28,6 +28,8 @@
 #include "Jeu.h"
 #include "defines.h"
 #include "Bot.h"
+#include "Table.h"
+#include "GameOptions.h"
 
 enum {
    MsgStartGame = QEvent::User+1,
@@ -69,6 +71,7 @@ private:
    int         tcpPort;
    Bot         bots[3];       // the computer
 
+   Table       table;
    QString     gamePath;
    GameInfos   infos;
    Score       score;
@@ -101,7 +104,8 @@ public:
 #ifndef QT_NO_DEBUG
    void generateLog();
 #endif // QT_NO_DEBUG
-   int getConnectedPlayers( Identity *idents );
+
+   QList<Identity> getConnectedPlayers();
    int getNumberOfConnectedPlayers();
    Score *getScore();
    int getDealNumber();
@@ -133,6 +137,8 @@ public:
    void montreChien();
 
    // Fonctions réseau
+   void sendErrorServerFull(QTcpSocket *cnx);
+   void askIdentity(QTcpSocket *cnx, Place p );
    void sendCards( Place p, quint8 *params );
    void askBid(Contrat c);
    void sendBid( Place p, Contrat c );

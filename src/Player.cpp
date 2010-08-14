@@ -239,9 +239,9 @@ void Player::setAvatar( const QString &a )
    identity.avatar = a;
 }
 /*****************************************************************************/
-void Player::setIdentity( Identity *ident )
+void Player::setIdentity( Identity &ident )
 {
-   identity = *ident;
+   identity = ident;
 }
 /*****************************************************************************/
 void Player::setPlace(Place p)

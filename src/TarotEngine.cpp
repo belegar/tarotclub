@@ -20,6 +20,8 @@
 #include <QCoreApplication>
 #include "TarotEngine.h"
 #include "DealEditorFile.h"
+#include "Identity.h"
+
 #ifndef QT_NO_DEBUG
    #include <iostream>
    #include <fstream>
@@ -82,7 +84,7 @@ void TarotEngine::setOptions(GameOptions *options)
 
    tcpPort = options->port;
    for(i=0; i<3; i++ ) {
-      bots[i].setIdentity( &options->bots[i] );
+      bots[i].setIdentity( options->bots[i] );
       bots[i].setTimeBeforeSend(options->timer);
    }
 
@@ -90,6 +92,7 @@ void TarotEngine::setOptions(GameOptions *options)
 /*****************************************************************************/
 void TarotEngine::customEvent( QEvent *e )
 {
+   Q_UNUSED(e);
 /*
    TODO: review for the stand alone server
 
@@ -134,10 +137,11 @@ void TarotEngine::newServerGame()
 
    closeClients();
    server.close();
+   table.freePlace(BROADCAST);
 
    // 4 joueurs max + une connexion en plus pour avertir aux nouveaux arrivants
    // que le serveur est plein
-   server.setMaxPendingConnections(5);
+   server.setMaxPendingConnections(NB_PLAYERS+1);
    server.listen( QHostAddress::LocalHost, tcpPort );
 
    // On initialise toutes les variables locales et on choisit le donneur
@@ -205,16 +209,16 @@ QTcpSocket *TarotEngine::getConnection(Place p)
    return NULL;
 }
 /*****************************************************************************/
-int TarotEngine::getConnectedPlayers( Identity *idents )
+QList<Identity> TarotEngine::getConnectedPlayers()
 {
-   int j = 0;
+   QList<Identity> idents;
 
    QMapIterator<QTcpSocket*, Player*> i(players);
    while (i.hasNext()) {
      i.next();
-     idents[j] = *i.value()->getIdentity();
+     idents.append(*i.value()->getIdentity());
    }
-   return players.size();
+   return idents;
 }
 /*****************************************************************************/
 int TarotEngine::getNumberOfConnectedPlayers()
@@ -657,51 +661,21 @@ void TarotEngine::slotNewConnection()
    int n = players.size();
 
    if( n == NB_PLAYERS ) {
-      QString message = "Le serveur est complet.";
-      QByteArray block;
-      QDataStream out( &block, QIODevice::WriteOnly );
-      out.setVersion(QT_STREAMVER);
-      out << (quint16)0 << (quint8)NET_MESSAGE
-          << message
-          << (quint16)0xFFFF;
-      out.device()->seek(0);
-      out << (quint16)( block.size() - sizeof(quint16) );
-
-      connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
-      cnx->write(block);
-      cnx->flush();
+      sendErrorServerFull(cnx);
       cnx->close();
+
    } else {
       Player *player = new Player();
       Place p;
 
-      if (n == 0) {
-         p = SUD;
-      } else if (n == 1) {
-         p = EST;
-      } else if (n == 2) {
-         p = NORD;
-      } else {
-         p = OUEST;
-      }
+      p = table.reserveFreePlace(); // TODO: add protection here, test HYPERSPACE retun?
       player->setPlace(p);
 
       connect( cnx, SIGNAL(disconnected()), this, SLOT(slotClientClosed()));
       connect( cnx, SIGNAL(readyRead()), this, SLOT(slotReadData()));
 
       players[cnx] = player; // on ajoute ce client à la liste
-
-      // on envoie une demande d'infos personnelles
-      QByteArray block;
-      QDataStream out( &block, QIODevice::WriteOnly );
-      out.setVersion(QT_STREAMVER);
-      out << (quint16)0 << (quint8)NET_IDENTIFICATION
-          << (quint16)0xFFFF;
-
-      out.device()->seek(0);
-      out << (quint16)( block.size() - sizeof(quint16) );
-
-      cnx->write(block);
+      askIdentity(cnx, p);
    }
 }
 /*****************************************************************************/
@@ -803,25 +777,24 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
       {
          Identity ident;
          QString version;
-         quint8 sex;
 
-         // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
+         in >> version; // TODO: test protocol version or already done by Qt in lower layers?
+         in >> ident;
 
-         in >> version;
-         in >> ident.name;
-         in >> ident.avatar;
-         in >> ident.quote;
-         in >> sex;
-         ident.sex = (SexType)sex;
+         ident.avatar = ":/images/avatars/"+ident.avatar;
+         players[cnx]->setIdentity( ident );
+         QString m = "Le joueur " + ident.name + " a rejoint la partie.";
+         sendMessage( m , BROADCAST );
+         emit sigPrintMessage(m);
 
-#ifndef QT_NO_DEBUG
-        QFile f("avatars.txt");
-        QTextStream fout(&f);
-        f.open(QIODevice::Append | QIODevice::Text);
-        fout << ident.avatar.toLatin1().data() << endl;
-        f.close();
-#endif
+         if (getNumberOfConnectedPlayers() == NB_PLAYERS) {
+            sendPlayersList();
+            gameState = GAME_STARTED;
+            nouvelleDonne();
+         }
 
+/*
+  TODO: same nickname allowed or don't care ???
          bool ok = false;
          // On cherche si le nick n'existe pas déjà
          QMapIterator<QTcpSocket*, Player*> i(players);
@@ -845,18 +818,8 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
             players.remove(cnx);
 
          } else {
-            ident.avatar = ":/images/avatars/"+ident.avatar;
-            players[cnx]->setIdentity( &ident );
-            QString m = "Le joueur " + ident.name + " a rejoint la partie.";
-            sendMessage( m , BROADCAST );
-            emit sigPrintMessage(m);
-            sendPlayersList();
-
-            if (getNumberOfConnectedPlayers() == NB_PLAYERS) {
-               gameState = GAME_STARTED;
-               nouvelleDonne();
-            }
          }
+*/
          break;
       }
 
@@ -999,6 +962,43 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
 }
 /*****************************************************************************/
 /**
+ * Erreur, le serveur est plein
+ */
+void TarotEngine::sendErrorServerFull(QTcpSocket *cnx)
+{
+   QString message = "Le serveur est complet.";
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_MESSAGE
+       << message
+       << (quint16)0xFFFF;
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
+   cnx->write(block);
+   cnx->flush();
+}
+/*****************************************************************************/
+/**
+ * on envoie une demande d'infos personnelles
+ */
+void TarotEngine::askIdentity(QTcpSocket *cnx, Place p )
+{
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_IDENTIFICATION
+       << (quint8)p // assignate place around table
+       << (quint16)0xFFFF;
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+   cnx->write(block);
+   cnx->flush();
+}
+/*****************************************************************************/
+/**
  * Broadcast des cartes à tous les clients
  */
 void TarotEngine::sendCards( Place p, quint8 *params )
@@ -1009,7 +1009,6 @@ void TarotEngine::sendCards( Place p, quint8 *params )
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_RECEPTION_CARTES
-       << (quint8)p
        << (quint8)NB_PLAYERS;
    for(j=0; j<NB_HAND_CARDS; j++ ) {
       out << (quint8)params[j];
@@ -1099,21 +1098,16 @@ void TarotEngine::sendMessage( const QString &message, Place p )
 void TarotEngine::sendPlayersList()
 {
    QByteArray block;
-   quint8 n;
-   Identity idents[5];
+   QList<Identity> idents;
 
-   n = getConnectedPlayers( idents );
+   idents = getConnectedPlayers();
    QDataStream out( &block, QIODevice::WriteOnly );
    out.setVersion(QT_STREAMVER);
    out << (quint16)0 << (quint8)NET_LISTE_JOUEURS
-       << (quint8)n; // nombre de joueurs
+       << (quint8)idents.size(); // nombre de joueurs
 
-   for( int i=0; i<n; i++ ) {
-      QFileInfo fi(idents[i].avatar);
-      out << idents[i].name
-          << fi.fileName()
-          << idents[i].quote
-          << (quint8)idents[i].sex;
+   for( int i=0; i<idents.size(); i++ ) {
+      out << idents[i];
    }
    out << (quint16)0xFFFF;
    out.device()->seek(0);

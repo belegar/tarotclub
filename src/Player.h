@@ -22,6 +22,7 @@
 #include <QObject>
 #include "defines.h"
 #include "Deck.h"
+#include "Identity.h"
 
 /*****************************************************************************/
 class Player : public QObject
@@ -40,7 +41,7 @@ public:
    void setQuote( const QString & );
    void setSex( SexType );
    void setAvatar( const QString & );
-   void setIdentity( Identity *ident );
+   void setIdentity( Identity &ident );
    void setPlace(Place p);
 
    QString getName();

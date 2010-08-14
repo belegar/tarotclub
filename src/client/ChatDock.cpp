@@ -85,13 +85,13 @@ void ChatDock::slotReturnPressed()
    textLine->clear();
 }
 /*****************************************************************************/
-void ChatDock::setPlayersList( int nombre, Identity *idents )
+void ChatDock::setPlayersList( QList<Identity> &idents )
 {
    QString server;
    QStringList nicks;
 
-   for( int i=0; i<nombre; i++ ) {
-      nicks += idents[i].name;
+   for( int i=0; i<idents.size(); i++ ) {
+      nicks += idents.at(i).name;
    }
    playersList->clear();
    // On marque le premier joueur comme étant le serveur

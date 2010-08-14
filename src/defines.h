@@ -21,6 +21,7 @@
 
 #include <QtCore>
 
+
 /*****************************************************************************/
 // Game definitions
 
@@ -32,7 +33,7 @@
 #define CONFIG_FILE     "/bin/config.xml"
 #define NB_LANGUES      2
 #define QT_STREAMVER    QDataStream::Qt_4_4
-#define MAX_ROUNDS      10
+#define MAX_ROUNDS      3
 #define NB_PLAYERS      4
 #define NB_HAND_CARDS   18
 #define NB_CHIEN_CARDS  6
@@ -100,29 +101,8 @@ enum DealType     { RANDOM_DEAL, CUSTOM_DEAL, NUMBERED_DEAL };
 /*****************************************************************************/
 
 typedef struct {
-   QString  name;    // nom du joueur
-   QString  quote;      // citation
-   QString  avatar;     // Emplacement de l'avatar
-   SexType  sex;     // homme=1, femme=0, comme à la sécu
-} Identity;
-
-typedef struct {
-   //---- client stuff ----
-   QString  deckFilePath;
-   bool     showAvatars;
-   int      langue;
-   QString  tapis;
-   Identity client;
-   //---- server stuff ----
-   int      timer;
-   int      port;
-   Identity bots[3];
-} GameOptions;
-
-typedef struct {
-   Place    place;      // place attribuée par le serveur
-   Place    preneur;    // qui a pris
-   Contrat  contrat;    // avec quel contrat
+   Place    preneur;       // qui a pris
+   Contrat  contrat;       // avec quel contrat
    int      gameCounter;   // compteur de jeu
 } GameInfos;
 

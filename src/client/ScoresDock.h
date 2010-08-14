@@ -20,6 +20,7 @@
 #include <QTableWidget>
 #include "../defines.h"
 #include "../Score.h"
+#include "../GameOptions.h"
 
 /*****************************************************************************/
 class ScoresDock : public QDockWidget
