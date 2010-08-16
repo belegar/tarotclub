@@ -18,8 +18,9 @@ DESTDIR = ./bin
 # The search path to find supplied files
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/client
-VPATH += $${PWD}/../src/client/quazip
+VPATH += $${PWD}/../src/server
 VPATH += $${PWD}/include
+VPATH += $${PWD}/../lib
 QT += xml \
     network \
     svg
@@ -27,12 +28,12 @@ RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt \
     warn_on
 INCLUDEPATH += $${PWD}/include
+INCLUDEPATH += $${PWD}/../lib/lua/src
+INCLUDEPATH += $${PWD}/../src/client
+INCLUDEPATH += $${PWD}/../src/server
 win32 { 
-    INCLUDEPATH += $${PWD}/../lib/zlib-1.2.5
-    debug:
-    
-    # CONFIG += console
-    RC_FILE = icon.rc
+   LIBS += $${PWD}/../lib/win32/liblua.a
+   RC_FILE = icon.rc
 }
 HEADERS += AboutWindow.h \
     MainWindow.h \
@@ -45,7 +46,8 @@ HEADERS += AboutWindow.h \
     RoundDock.h \
     Tapis.h \
     TextBox.h \
-    ConfigFile.h \
+    ClientConfig.h \
+    ServerConfig.h \
     DealEditorFile.h \
     Game.h \
     Jeu.h \
@@ -58,9 +60,10 @@ HEADERS += AboutWindow.h \
     textes.h \
     TarotEngine.h \
     Score.h \
-    ../src/Identity.h \
-    ../src/Table.h \
-    ../src/GameOptions.h
+    Identity.h \
+    Table.h \
+    luna.h \
+    LuaBot.h
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
     EncheresUI.ui \
@@ -72,7 +75,7 @@ FORMS = AboutUI.ui \
     RoundUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
-    ../src/client/WinUI.ui
+    WinUI.ui
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
@@ -84,7 +87,8 @@ SOURCES = AboutWindow.cpp \
     RoundDock.cpp \
     Tapis.cpp \
     TextBox.cpp \
-    ConfigFile.cpp \
+    ClientConfig.cpp \
+    ServerConfig.cpp \
     DealEditorFile.cpp \
     Game.cpp \
     main.cpp \
@@ -95,4 +99,5 @@ SOURCES = AboutWindow.cpp \
     Client.cpp \
     Bot.cpp \
     TarotEngine.cpp \
-    Score.cpp
+    Score.cpp \
+    LuaBot.cpp
