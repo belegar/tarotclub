@@ -34,16 +34,11 @@ TarotEngine::TarotEngine()
 {
    qsrand(QTime(0,0,0).secsTo(QTime::currentTime())); // seed init
 
-   QDir b = QCoreApplication::applicationDirPath();
-   b.cdUp();
-
-   gamePath = b.path();
    infos.gameCounter = 0;
    sequence = VIDE;
    gameState = GAME_STOPPED;
    dealNumber = 0;
    dealType = RANDOM_DEAL;
-   tcpPort = DEFAULTPORT;
 
    connect(&server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
@@ -78,16 +73,15 @@ void TarotEngine::setDealFile(QString file)
    dealFile = file;
 }
 /*****************************************************************************/
-void TarotEngine::setOptions(GameOptions *options)
+void TarotEngine::setOptions(ServerOptions &opt)
 {
    int i;
 
-   tcpPort = options->port;
+   options = opt;
    for(i=0; i<3; i++ ) {
-      bots[i].setIdentity( options->bots[i] );
-      bots[i].setTimeBeforeSend(options->timer);
+      bots[i].setIdentity( options.bots[i] );
+      bots[i].setTimeBeforeSend(options.timer);
    }
-
 }
 /*****************************************************************************/
 void TarotEngine::customEvent( QEvent *e )
@@ -134,6 +128,7 @@ Place TarotEngine::nextPlayer( Place j )
 void TarotEngine::newServerGame()
 {
    int i;
+   int port;
 
    closeClients();
    server.close();
@@ -142,7 +137,14 @@ void TarotEngine::newServerGame()
    // 4 joueurs max + une connexion en plus pour avertir aux nouveaux arrivants
    // que le serveur est plein
    server.setMaxPendingConnections(NB_PLAYERS+1);
-   server.listen( QHostAddress::LocalHost, tcpPort );
+
+   if (gameType == NET_GAME_SERVER) {
+      port = options.port;
+   } else {
+      // if local game, always use the default port
+      port = DEFAULT_PORT;
+   }
+   server.listen( QHostAddress::LocalHost, port );
 
    // On initialise toutes les variables locales et on choisit le donneur
    i = qrand()%4;
@@ -159,7 +161,7 @@ void TarotEngine::connectBots()
 
    qApp->processEvents(QEventLoop::AllEvents,100);
    for( i=0; i<3; i++ ) {
-      bots[i].connectToHost( "127.0.0.1", tcpPort );
+      bots[i].connectToHost( "127.0.0.1", options.port );
       qApp->processEvents(QEventLoop::AllEvents,100);
    }
 }

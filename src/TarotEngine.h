@@ -29,7 +29,7 @@
 #include "defines.h"
 #include "Bot.h"
 #include "Table.h"
-#include "GameOptions.h"
+#include "ServerConfig.h"
 
 enum {
    MsgStartGame = QEvent::User+1,
@@ -68,11 +68,9 @@ private:
    QMap<QTcpSocket*, Player*> players;
    QTcpServer  server;
 
-   int         tcpPort;
+   ServerOptions  options;
    Bot         bots[3];       // the computer
-
    Table       table;
-   QString     gamePath;
    GameInfos   infos;
    Score       score;
    Deck        deckChien;     // le chien
@@ -116,7 +114,7 @@ public:
    void setDealNumber(int deal);
    void setDealFile(QString file);
    void setGameType(GameType type);
-   void setOptions(GameOptions *options);
+   void setOptions(ServerOptions &opt);
 
    // Tarot game
    void newServerGame();
