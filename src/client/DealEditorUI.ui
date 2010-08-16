@@ -17,7 +17,10 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Choisissez les cartes pour chaque joueur. Les cartes restantes dans la colonne de gauche constituent le chien.</string>
+      <string>Choisissez les cartes pour chaque joueur. Les cartes restantes dans la colonne de gauche constituent le chien. Double-cliquez sur la carte d'un joueur pour la remettre dans la colonne de gauche.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
