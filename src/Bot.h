@@ -21,6 +21,13 @@
 
 #include "Client.h"
 
+/* Include the Lua API header files. */
+extern "C" {
+   #include <lua.h>
+   #include <lauxlib.h>
+   #include <lualib.h>
+}
+
 /*****************************************************************************/
 class Bot : public Client
 {
@@ -28,9 +35,11 @@ class Bot : public Client
 
 private:
    QTimer  timeBeforeSend;
+   lua_State *L;
 
 public:
    Bot();
+   ~Bot();
 
    void setTimeBeforeSend(int t);
 

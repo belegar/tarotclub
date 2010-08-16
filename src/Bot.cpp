@@ -17,6 +17,10 @@
  */
 
 #include "Bot.h"
+#include "LuaBot.h"
+
+#include <iostream>
+using namespace std;
 
 /*****************************************************************************/
 Bot::Bot() : Client()
@@ -38,6 +42,22 @@ Bot::Bot() : Client()
    timeBeforeSend.setSingleShot(true);
    timeBeforeSend.setInterval(0);
    connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
+
+   L = lua_open();
+   luaL_openlibs(L); // open standard Lua libraries
+
+   // Register the LuaGameObject data type with Lua
+   Luna<LuaBot>::Register(L);
+
+   // Push a pointer to this Bot to the Lua stack
+   lua_pushlightuserdata(L, (void*)this);
+   // And set the global name of this pointer
+   lua_setglobal(L,"BotObject");
+}
+/*****************************************************************************/
+Bot::~Bot()
+{
+   lua_close(L);
 }
 /*****************************************************************************/
 void Bot::setTimeBeforeSend(int t)
@@ -72,7 +92,35 @@ void Bot::slotAfficheSelection( Place p )
 /*****************************************************************************/
 void Bot::slotChoixEnchere( Contrat c )
 {
-   Contrat mon_contrat = calculEnchere();
+   int ret;
+   Contrat mon_contrat;
+
+   // on lance le script lua
+   ret = luaL_dofile(L,"bid.lua");
+   if( ret ) {
+      // on a eu une erreur
+      cerr << "Error in Lua script : " << lua_tostring(L, -1) << endl;
+      mon_contrat = calculEnchere();
+   } else {
+      lua_getglobal(L, "CalculateBid");
+      if (!lua_pcall(L, 0, 1, 0)) {
+         if(lua_isnumber(L, -1)) {
+            ret = (int)lua_tonumber(L, -1);
+            cerr << "Bid: " << ret;
+            // security test
+            if (ret<PASSE || ret>GARDE_CONTRE) {
+               mon_contrat = calculEnchere();
+            } else {
+               mon_contrat = (Contrat)ret;
+            }
+         }
+         lua_pop(L, 1);
+      } else {
+         mon_contrat = calculEnchere();
+      }
+   }
+
+   // only bid over previous one is allowed
    if( mon_contrat <= c ) {
       mon_contrat = PASSE;
    }
