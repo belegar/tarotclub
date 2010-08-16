@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - ConfigFile.h
+ * TarotClub - ClientConfig.h
  *=============================================================================
- * Classe de gestion du fichier d'options en XML
+ * Classe de gestion du fichier d'options en XML (client graphique)
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -15,8 +15,8 @@
  *
  *=============================================================================
  */
-#ifndef _CONFIGFILE_H
-#define _CONFIGFILE_H
+#ifndef _CLIENTCONFIG_H
+#define _CLIENTCONFIG_H
 
 // Qt includes
 #include <QString>
@@ -25,39 +25,44 @@
 
 // Game includes
 #include "../defines.h"
-#include "../GameOptions.h"
+#include "../Identity.h"
 
-#define XML_VERSION     "1.4"
+#define XML_VERSION           "1.4"
+#define CLIENT_CONFIG_FILE    "tarotclub.xml"
 
-// Valeurs par défaut
-#define TIMER1_DEF      500
-#define TIMER2_DEF      1500
-#define PORT_DEF        DEFAULTPORT
+// default values
 #define AVATARS_DEF     true
 
+typedef struct {
+   QString  deckFilePath;
+   bool     showAvatars;
+   int      langue;
+   QString  tapis;
+   Identity identity;
+} ClientOptions;
+
+
 /*****************************************************************************/
-class ConfigFile
+class ClientConfig
 {
 
 private:
-   QString path; // répertoire racine du jeu
-   GameOptions options;
+   ClientOptions options;
 
 public:
-   ConfigFile( const QString &gamePath );
+   ClientConfig();
 
-   bool     load( const QString &fileName );
-   bool     save( const QString &fileName );
+   bool     load();
+   bool     save();
 
-   GameOptions *getGameOptions();
-   QString     getPath();
+   ClientOptions *getOptions();
 
-   void        setGameOptions( GameOptions *newOptions );
-   static void setDefault( GameOptions *opt );
+   void        setOptions( ClientOptions *newOptions );
+   static void setDefault( ClientOptions *opt );
 };
 
-#endif // _CONFIGFILE_H
+#endif // _CLIENTCONFIG_H
 
 //=============================================================================
-// End of file ConfigFile.h
+// End of file ClientConfig.h
 //=============================================================================

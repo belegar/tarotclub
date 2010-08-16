@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - ConfigFile.cpp
+ * TarotClub - ClientConfig.cpp
  *=============================================================================
- * Classe de gestion du fichier d'options en XML
+ * Classe de gestion du fichier d'options en XML (client graphique)
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -16,42 +16,36 @@
  *=============================================================================
  */
 
-#include "ConfigFile.h"
+#include "ClientConfig.h"
 #include <QtXml>
 #include <QString>
 
 /*****************************************************************************/
-ConfigFile::ConfigFile( const QString &gamePath )
+ClientConfig::ClientConfig()
 {
-   path = gamePath;
    setDefault( &options );
 }
 /*****************************************************************************/
-GameOptions *ConfigFile::getGameOptions()
+ClientOptions *ClientConfig::getOptions()
 {
    return(&options);
 }
 /*****************************************************************************/
-QString ConfigFile::getPath()
-{
-   return(path);
-}
-/*****************************************************************************/
-void ConfigFile::setGameOptions( GameOptions *newOptions )
+void ClientConfig::setOptions( ClientOptions *newOptions )
 {
    options = *newOptions;
 }
 /*****************************************************************************/
-bool ConfigFile::load( const QString &fileName )
+bool ClientConfig::load()
 {
    QDomDocument doc;
-   QFile f( path + "/" + fileName );
+   QFile f( QCoreApplication::applicationDirPath () + "/" + CLIENT_CONFIG_FILE );
    QString txt;
    int val;
 
    // Fichier non trouvé, on en crée un par défaut et on sort
    if( f.open(QIODevice::ReadOnly) == false ) {
-      save(fileName);
+      save();
       return(true);
    }
    doc.setContent(&f);
@@ -70,108 +64,53 @@ bool ConfigFile::load( const QString &fileName )
    // On parse les données
    QDomElement child=root.firstChild().toElement();
    while(!child.isNull()) {
-      //-------------------
-      // Section "client"
-      //-------------------
-      if(child.tagName() == "client") {
-         QDomElement subchild = child.firstChild().toElement();
-         while(!subchild.isNull()) {
 
-            if(subchild.tagName() == "avatars") {
-               val = subchild.text().toInt();
-               if( val == 1 ) {
-                  options.showAvatars = true;
-               } else {
-                  options.showAvatars = false;
-               }
-
-            } else if(subchild.tagName() == "tapis") {
-               options.tapis = subchild.text();
-
-            } else if(subchild.tagName() == "langue") {
-               options.langue = subchild.text().toInt();
-               if( options.langue >= NB_LANGUES ) {
-                  options.langue = 0;
-               }
-
-            } else if(subchild.tagName() == "identity") {
-               QDomElement lastchild = subchild.firstChild().toElement();
-               while(!lastchild.isNull()) {
-                  if(lastchild.tagName() == "name") {
-                     txt = lastchild.text();
-                     if( txt.isEmpty() ) {
-                        txt = "Sans nom";
-                     }
-                     options.client.name = txt;
-
-                  } else if(lastchild.tagName() == "quote") {
-                     options.client.quote = lastchild.text();
-
-                  } else if(lastchild.tagName() == "sex") {
-                     options.client.sex = (SexType)lastchild.text().toInt();
-
-                  } else if(lastchild.tagName() == "avatar") {
-                     options.client.avatar = lastchild.text();
-                  }
-                  lastchild = lastchild.nextSibling().toElement();
-               }
-            }
-            subchild = subchild.nextSibling().toElement();
+      if(child.tagName() == "avatars") {
+         val = child.text().toInt();
+         if( val == 1 ) {
+            options.showAvatars = true;
+         } else {
+            options.showAvatars = false;
          }
 
-      //-------------------
-      // Section "server"
-      //-------------------
-      } else if( child.tagName() == "server" ) {
-         QDomElement subchild = child.firstChild().toElement();
-         while(!subchild.isNull()) {
+      } else if(child.tagName() == "tapis") {
+         options.tapis = child.text();
 
-            if(subchild.tagName() == "pause") {
-               val = subchild.text().toInt();
-               if( val<0 || val>9000 ) {
-                  val = TIMER1_DEF;
+      } else if(child.tagName() == "langue") {
+         options.langue = child.text().toInt();
+         if( options.langue >= NB_LANGUES ) {
+            options.langue = 0;
+         }
+
+      } else if(child.tagName() == "identity") {
+         QDomElement lastchild = child.firstChild().toElement();
+         while(!lastchild.isNull()) {
+            if(lastchild.tagName() == "name") {
+               txt = lastchild.text();
+               if( txt.isEmpty() ) {
+                  txt = "Sans nom";
                }
-               options.timer = val;
+               options.identity.name = txt;
 
-            } else if(subchild.tagName() == "port") {
-               options.port = subchild.text().toInt();
+            } else if(lastchild.tagName() == "quote") {
+               options.identity.quote = lastchild.text();
 
-            } else if(subchild.tagName() == "identity") {
-               int pos;
-               pos = subchild.attribute("pos","-1").toInt();
-               if (pos<0 || pos>2)
-                  return false;
+            } else if(lastchild.tagName() == "sex") {
+               options.identity.sex = (SexType)lastchild.text().toInt();
 
-               QDomElement lastchild = subchild.firstChild().toElement();
-               while(!lastchild.isNull()) {
-                  if(lastchild.tagName() == "name") {
-                     txt = lastchild.text();
-                     if( txt.isEmpty() ) {
-                        txt = "Sans nom";
-                     }
-                     options.bots[pos].name = txt;
-
-                  } else if(lastchild.tagName() == "quote") {
-                     options.bots[pos].quote = lastchild.text();
-
-                  } else if(lastchild.tagName() == "sex") {
-                     options.bots[pos].sex = (SexType)lastchild.text().toInt();
-
-                  } else if(lastchild.tagName() == "avatar") {
-                     options.bots[pos].avatar = lastchild.text();
-                  }
-                  lastchild = lastchild.nextSibling().toElement();
-               }
+            } else if(lastchild.tagName() == "avatar") {
+               options.identity.avatar = lastchild.text();
             }
-            subchild = subchild.nextSibling().toElement();
+            lastchild = lastchild.nextSibling().toElement();
          }
       }
       child = child.nextSibling().toElement();
+
    }
    return true;
 }
 /*****************************************************************************/
-bool ConfigFile::save( const QString &fileName )
+bool ClientConfig::save()
 {
    // On crée le document
    QDomDocument doc("TarotClub");
@@ -192,94 +131,47 @@ bool ConfigFile::save( const QString &fileName )
    rootNode.setAttribute("version", QString(XML_VERSION));
    doc.appendChild(rootNode);
 
-   //------------- Paramètres du client --------------------------------
-   QDomElement clientNode = doc.createElement("client");
-   rootNode.appendChild(clientNode);
+   // affichage ou non des avatars
+   QDomElement affAvatarNode = doc.createElement("avatars");
+   affAvatarNode.appendChild(doc.createTextNode( QString().setNum( options.showAvatars==true?1:0 ) ));
+   rootNode.appendChild(affAvatarNode);
 
-      // affichage ou non des avatars
-      QDomElement affAvatarNode = doc.createElement("avatars");
-      affAvatarNode.appendChild(doc.createTextNode( QString().setNum( options.showAvatars==true?1:0 ) ));
-      clientNode.appendChild(affAvatarNode);
+   // Tapis de jeu
+   QDomElement tapisNode = doc.createElement("tapis");
+   tapisNode.appendChild(doc.createTextNode( options.tapis ));
+   rootNode.appendChild(tapisNode);
 
-      // Tapis de jeu
-      QDomElement tapisNode = doc.createElement("tapis");
-      tapisNode.appendChild(doc.createTextNode( options.tapis ));
-      clientNode.appendChild(tapisNode);
+   // Langue
+   QDomElement langueNode = doc.createElement("langue");
+   langueNode.appendChild(doc.createTextNode( QString().setNum(options.langue) ));
+   rootNode.appendChild(langueNode);
 
-      // Langue
-      QDomElement langueNode = doc.createElement("langue");
-      langueNode.appendChild(doc.createTextNode( QString().setNum(options.langue) ));
-      clientNode.appendChild(langueNode);
+   // Identité du joueur
+   identityNode = doc.createElement("identity");
+   rootNode.appendChild(identityNode);
 
-      // Identité du joueur
-      identityNode = doc.createElement("identity");
-      clientNode.appendChild(identityNode);
+      // name
+      nameNode = doc.createElement("name");
+      nameNode.appendChild(doc.createTextNode( options.identity.name ));
+      identityNode.appendChild(nameNode);
 
-         // name
-         nameNode = doc.createElement("name");
-         nameNode.appendChild(doc.createTextNode( options.client.name ));
-         identityNode.appendChild(nameNode);
+      // avatar
+      avatarNode = doc.createElement("avatar");
+      avatarNode.appendChild(doc.createTextNode( options.identity.avatar ));
+      identityNode.appendChild(avatarNode);
 
-         // avatar
-         avatarNode = doc.createElement("avatar");
-         avatarNode.appendChild(doc.createTextNode( options.client.avatar ));
-         identityNode.appendChild(avatarNode);
+      // sex
+      sexNode = doc.createElement("sex");
+      sexNode.appendChild(doc.createTextNode( QString().setNum( options.identity.sex ) ));
+      identityNode.appendChild(sexNode);
 
-         // sex
-         sexNode = doc.createElement("sex");
-         sexNode.appendChild(doc.createTextNode( QString().setNum( options.client.sex ) ));
-         identityNode.appendChild(sexNode);
-
-         // quote
-         quoteNode = doc.createElement("quote");
-         quoteNode.appendChild(doc.createTextNode( options.client.quote ));
-         identityNode.appendChild(quoteNode);
-
-
-   //------------- Paramètres du serveur --------------------------------
-   QDomElement serverNode = doc.createElement("server");
-   rootNode.appendChild(serverNode);
-
-      // Réglage du timing entre chaque joueur
-      QDomElement temps1Node = doc.createElement("pause");
-      temps1Node.appendChild(doc.createTextNode( QString().setNum( options.timer ) ));
-      serverNode.appendChild(temps1Node);
-
-      // Port réseau
-      QDomElement portNode = doc.createElement("port");
-      portNode.appendChild(doc.createTextNode( QString().setNum( options.port ) ));
-      serverNode.appendChild(portNode);
-
-      // Paramètres pour chaque bot
-      for( int i=0; i<3; i++ )
-      {
-         identityNode = doc.createElement("identity");
-         serverNode.appendChild(identityNode);
-         identityNode.setAttribute("pos", QString().setNum(i));
-
-            // name
-            nameNode = doc.createElement("name");
-            nameNode.appendChild(doc.createTextNode( options.bots[i].name ));
-            identityNode.appendChild(nameNode);
-
-            // avatar
-            avatarNode = doc.createElement("avatar");
-            avatarNode.appendChild(doc.createTextNode( options.bots[i].avatar ));
-            identityNode.appendChild(avatarNode);
-
-            // sex
-            sexNode = doc.createElement("sex");
-            sexNode.appendChild(doc.createTextNode( QString().setNum( options.bots[i].sex ) ));
-            identityNode.appendChild(sexNode);
-
-            // quote
-            quoteNode = doc.createElement("quote");
-            quoteNode.appendChild(doc.createTextNode( options.bots[i].quote ));
-            identityNode.appendChild(quoteNode);
-      }
+      // quote
+      quoteNode = doc.createElement("quote");
+      quoteNode.appendChild(doc.createTextNode( options.identity.quote ));
+      identityNode.appendChild(quoteNode);
 
    // Sauvegarde du document DOM en mémoire
-   QFile f( path + "/" + fileName );
+   QFile f( QCoreApplication::applicationDirPath () + "/" + CLIENT_CONFIG_FILE );
    if(!f.open(QIODevice::WriteOnly)) {
       return (false); // problème de création du fichier
    }
@@ -293,40 +185,19 @@ bool ConfigFile::save( const QString &fileName )
    return (true);
 }
 /*****************************************************************************/
-void ConfigFile::setDefault( GameOptions *opt )
+void ClientConfig::setDefault( ClientOptions *opt )
 {
-
    opt->showAvatars = AVATARS_DEF;
    opt->tapis = "#008000";
    opt->langue = 0;
    opt->deckFilePath = "./default";
 
-   opt->client.name = "Moi";
-   opt->client.avatar = ":/images/avatars/inconnu.png";
-   opt->client.quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
-   opt->client.sex = MALE;
-
-   // ----- Server
-   opt->timer = TIMER1_DEF;
-   opt->port = PORT_DEF;
-
-   opt->bots[BOT_WEST].name = "Ouest";
-   opt->bots[BOT_WEST].avatar = ":/images/avatars/robot.png";
-   opt->bots[BOT_WEST].quote = QString::fromUtf8("Quand on mettra les cons sur orbite, t'as pas fini de tourner.");
-   opt->bots[BOT_WEST].sex = MALE;
-
-   opt->bots[BOT_NORTH].name = "Nord";
-   opt->bots[BOT_NORTH].avatar = ":/images/avatars/robot.png";
-   opt->bots[BOT_NORTH].quote = QString::fromUtf8("J'ai fait un test de QI, les resultats étaient negatifs.");
-   opt->bots[BOT_NORTH].sex = MALE;
-
-   opt->bots[BOT_EAST].name = "Est";
-   opt->bots[BOT_EAST].avatar = ":/images/avatars/robot.png";
-   opt->bots[BOT_EAST].quote = "Plus je grossis, plus je m'aigris.";
-   opt->bots[BOT_EAST].sex = MALE;
-
+   opt->identity.name = "Moi";
+   opt->identity.avatar = ":/images/avatars/inconnu.png";
+   opt->identity.quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
+   opt->identity.sex = MALE;
 }
 
 //=============================================================================
-// End of file ConfigFile.cpp
+// End of file ClientConfig.cpp
 //=============================================================================
