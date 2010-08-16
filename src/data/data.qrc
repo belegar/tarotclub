@@ -7,7 +7,6 @@
         <file>images/next.png</file>
         <file>images/previous.png</file>
         <file>images/splash.png</file>
-        <file>images/version.png</file>
         <file>images/avatars/alien.png</file>
         <file>images/avatars/batterie.png</file>
         <file>images/avatars/bonhomme.png</file>
@@ -24,7 +23,7 @@
         <file>images/avatars/robot.png</file>
         <file>images/avatars/tigre.png</file>
         <file>images/avatars/vide.png</file>
-        <file>html/tarot_rules.htm</file>
         <file>images/podium.svg</file>
+        <file>images/version.png</file>
     </qresource>
 </RCC>
