@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - GameOptions.h
+ * TarotClub - LuaBot.h
  *=============================================================================
- * Manage the options
+ * C++ class interface used in Lua scripts for AI
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -16,27 +16,42 @@
  *=============================================================================
  */
 
-#ifndef GAMEOPTIONS_H
-#define GAMEOPTIONS_H
+#ifndef _LUABOT_H_
+#define _LUABOT_H_
 
-#include "defines.h"
-#include "Identity.h"
+// Need to include lua headers this way
+extern "C" {
+   #include "lua.h"
+   #include "lauxlib.h"
+   #include "lualib.h"
+}
 
-typedef struct {
-   //---- client stuff ----
-   QString  deckFilePath;
-   bool     showAvatars;
-   int      langue;
-   QString  tapis;
-   Identity client;
-   //---- server stuff ----
-   int      timer;
-   int      port;
-   Identity bots[3];
-} GameOptions;
+// I am using luna
+#include "luna.h"
+#include "Bot.h"
 
-#endif // GAMEOPTIONS_H
+/*****************************************************************************/
+class LuaBot
+{
+public:
+  // Constants
+  static const char className[];
+  static Luna<LuaBot>::RegType methods[];
+
+  // Initialize the pointer
+  LuaBot(lua_State *L);
+  ~LuaBot();
+
+  // Methods we will need to use
+  int getCardNumber(lua_State *L);
+
+private:
+   // The pointer to the 'real object' defined in Bot.cpp
+   Bot *bot;
+};
+
+#endif // _LUABOT_H_
 
 //=============================================================================
-// End of file GameOptions.h
+// End of file LuaBot.h
 //=============================================================================
