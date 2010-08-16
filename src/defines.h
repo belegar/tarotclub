@@ -25,12 +25,10 @@
 /*****************************************************************************/
 // Game definitions
 
-#define TAROT_VERSION   "2.0.0"
+#define TAROT_VERSION   "2.1.0a1"
 #define TAROT_TITRE     "TarotClub"
-#define TAROT_VNAME     "Kritzkrieg"
+#define TAROT_VNAME     "GLaDOS"
 
-#define DEFAULTPORT     4269
-#define CONFIG_FILE     "/bin/config.xml"
 #define NB_LANGUES      2
 #define QT_STREAMVER    QDataStream::Qt_4_4
 #define MAX_ROUNDS      5
@@ -59,7 +57,7 @@ enum Sequence {
    SEQ_WAIT_PLI,
    SEQ_WAIT_PLAYER
 };
-enum Contrat      { PASSE, PRISE, GARDE, GARDE_SANS, GARDE_CONTRE };
+enum Contrat      { PASSE=0, PRISE=1, GARDE=2, GARDE_SANS=3, GARDE_CONTRE=4 };
 enum Filter       { AUCUN, JEU };
 enum Poignee      { P_SANS, P_SIMPLE, P_DOUBLE, P_TRIPLE };
 enum SexType      { MALE, FEMALE };
