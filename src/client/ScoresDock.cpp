@@ -47,7 +47,7 @@ void ScoresDock::clear()
    tableScores->setRowCount(0);
 }
 /*****************************************************************************/
-void ScoresDock::setOptions( GameOptions *options )
+void ScoresDock::setPlayers( QList<Identity> &players )
 {
    int i;
    QStringList header;
@@ -55,9 +55,8 @@ void ScoresDock::setOptions( GameOptions *options )
    tableScores->setColumnCount(NB_PLAYERS);
 
    // Les noms des joueurs
-   header += options->client.name;
-   for( i=0; i<3; i++ ) {
-      header += options->bots[i].name;
+   for( i=0; i<players.size(); i++ ) {
+      header += players.at(i).name;
    }
    tableScores->setHorizontalHeaderLabels( header );
 }

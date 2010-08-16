@@ -20,7 +20,7 @@
 #include <QTableWidget>
 #include "../defines.h"
 #include "../Score.h"
-#include "../GameOptions.h"
+#include "../Identity.h"
 
 /*****************************************************************************/
 class ScoresDock : public QDockWidget
@@ -34,7 +34,7 @@ public:
    ScoresDock( QWidget *parent );
 
    void clear();
-   void setOptions( GameOptions *options );
+   void setPlayers( QList<Identity> &players );
    void setNewScore( Score *score );
 
 protected:

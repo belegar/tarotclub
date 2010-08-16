@@ -27,12 +27,13 @@
 #define SOUTH_CARDS_POS     522
 
 /*****************************************************************************/
-Game::Game( ConfigFile *conf ) : MainWindow()
+Game::Game() : MainWindow()
 {
-   config = conf;
+   clientConfig.load();
+   serverConfig.load();
 
    Jeu::init();
-   if( tapis->loadCards(config->getGameOptions()) ) {
+   if( tapis->loadCards(clientConfig.getOptions()) ) {
       exit(-1);
    }
    applyOptions();
@@ -143,7 +144,6 @@ void Game::slotNewCustomDeal()
 /*****************************************************************************/
 void Game::slotNewQuickGame()
 {
-
    server.setGameType(LOC_ONEDEAL);
    server.setDealType(RANDOM_DEAL);
    newLocalGame();
@@ -151,8 +151,6 @@ void Game::slotNewQuickGame()
 /*****************************************************************************/
 void Game::newLocalGame()
 {
-   GameOptions *options = config->getGameOptions();
-
    scoresDock->clear();
    infosDock->clear();
    tapis->razTapis();
@@ -166,32 +164,36 @@ void Game::newLocalGame()
    server.newServerGame();
    // connect first, to be south
    client.close();
-   client.connectToHost( "127.0.0.1", options->port );
+   client.connectToHost( "127.0.0.1", DEFAULT_PORT );
    // connect bots
    server.connectBots();
 }
 /*****************************************************************************/
 void Game::applyOptions()
 {
-   GameOptions *options = config->getGameOptions();
+   ClientOptions *options = clientConfig.getOptions();
 
-   scoresDock->setOptions(options);
+   scoresDock->setPlayers(players);
 
-   server.setOptions(options);
-   client.setIdentity( options->client );
+   server.setOptions(*serverConfig.getOptions());
+   client.setIdentity( options->identity );
 
    tapis->showAvatars( options->showAvatars );
-   tapis->printNames(options, SUD);
    tapis->setBackground(options->tapis);
 }
 /*****************************************************************************/
 void Game::slotShowOptions()
 {
-   optionsWindow->setOptions( config->getGameOptions() );
+   optionsWindow->setClientOptions(clientConfig.getOptions());
+   optionsWindow->setServerOptions(serverConfig.getOptions());
 
    if( optionsWindow->exec() == QDialog::Accepted ) {
-      config->setGameOptions( optionsWindow->getOptions() );
-      config->save(CONFIG_FILE);
+      clientConfig.setOptions( optionsWindow->getClientOptions() );
+      serverConfig.setOptions( optionsWindow->getServerOptions() );
+
+      clientConfig.save();
+      serverConfig.save();
+
       applyOptions();
    }
 }
@@ -335,6 +337,7 @@ void Game::slotClickCard(GfxCard *gc)
 void Game::slotListeDesJoueurs(QList<Identity> pl)
 {
    players = pl;
+   tapis->setPlayerNames(players, SUD);
 }
 /*****************************************************************************/
 void Game::slotReceptionCartes()
@@ -494,15 +497,7 @@ void Game::slotDepartDonne(Place p, Contrat c)
    turnCounter = 0;
    roundDock->clear();
    infosDock->setContrat(c);
-   if (p == SUD)
-      infosDock->setPreneur( config->getGameOptions()->client.name );
-   else if (p == OUEST)
-      infosDock->setPreneur( config->getGameOptions()->bots[BOT_WEST].name );
-   else if (p == NORD)
-      infosDock->setPreneur( config->getGameOptions()->bots[BOT_NORTH].name );
-   else
-      infosDock->setPreneur( config->getGameOptions()->bots[BOT_EAST].name );
-
+   infosDock->setPreneur(players[p].name);
    infosDock->setDonne(server.getDealNumber());
    sequence = GAME;
    tapis->setFilter( AUCUN );

@@ -27,8 +27,8 @@
 #include "../Client.h"
 #include "../TarotEngine.h"
 #include "MainWindow.h"
-#include "ConfigFile.h"
-
+#include "ClientConfig.h"
+#include "ServerConfig.h"
 
 /*****************************************************************************/
 /**
@@ -43,7 +43,8 @@ class Game : public MainWindow
 
 private:
    TarotEngine server;
-   ConfigFile  *config;
+   ClientConfig  clientConfig;
+   ServerConfig  serverConfig;
    Client      client; // The human player
    Sequence    sequence;
    bool        firstTurn;
@@ -54,7 +55,7 @@ private:
    Card *getCardFromPix( GfxCard *gc );
 
 public:
-   Game( ConfigFile *conf );
+   Game();
    ~Game();
 
    void applyOptions();

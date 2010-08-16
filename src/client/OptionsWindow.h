@@ -26,8 +26,8 @@
 #include <ui_OptionsUI.h>
 #include <ui_AvatarsUI.h>
 #include "../defines.h"
-#include "ConfigFile.h"
-
+#include "ClientConfig.h"
+#include "ServerConfig.h"
 
 /*****************************************************************************/
 class OptionsWindow : public QDialog
@@ -36,7 +36,8 @@ class OptionsWindow : public QDialog
 
 private:
    Ui::OptionsUI  ui;
-   GameOptions    options;
+   ClientOptions    clientOptions;
+   ServerOptions    serverOptions;
    int            indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
    QString colorName;
 
@@ -46,11 +47,13 @@ private:
 public:
    OptionsWindow( QWidget* parent = 0, Qt::WFlags fl = 0 );
 
-   void           setOptions( GameOptions *opt );
-   GameOptions    *getOptions();
+   void setClientOptions(ClientOptions *opt);
+   void setServerOptions(ServerOptions *opt);
+
+   ClientOptions *getClientOptions();
+   ServerOptions *getServerOptions();
 
 public slots:
-   
    void  slotBtnOk();
    void  slotBtnDefaut();
 
