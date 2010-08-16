@@ -28,7 +28,6 @@
 
 // Inclusions du jeu
 #include "Game.h"
-#include "ConfigFile.h"
 
 using namespace std;
 
@@ -66,28 +65,12 @@ int main( int argc, char** argv )
 #endif
 
    QApplication app( argc, argv );
-   QDir b = qApp->applicationDirPath();
-   b.cdUp();
-   QString path = b.path();
 
    QPixmap pixmap( ":/images/splash.png" );
    QSplashScreen splash(pixmap);
    splash.show();
 
-   ConfigFile config(path);
-   if( config.load(CONFIG_FILE) == false ) {
-      cout <<  "Unable to find the user preferences file.\n"
-               "The factory default will be used instead." << endl;
-      app.quit();
-   }
-
-   /*
-   QTranslator translator;
-   GameOptions *opt = config->getGameOptions();
-   translator.load( b.path() + "/bin/" + langList[opt->langue] );
-   qApp->installTranslator(&translator);
-*/
-   Game window( &config );
+   Game window;
 
    window.resize(1280, 770);
    QRect r = window.geometry();
