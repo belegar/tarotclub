@@ -246,7 +246,7 @@ void Player::setIdentity( Identity &ident )
 /*****************************************************************************/
 void Player::setPlace(Place p)
 {
-   place = p;
+   identity.place = p;
 }
 /*****************************************************************************/
 QString Player::getName()
@@ -276,7 +276,7 @@ Identity *Player::getIdentity()
 /*****************************************************************************/
 Place Player::getPlace()
 {
-   return place;
+   return identity.place;
 }
 
 //=============================================================================

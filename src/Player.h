@@ -31,7 +31,6 @@ class Player : public QObject
 protected:
    Identity    identity;   // identité du joueur
    Deck        myDeck;     // cartes en main
-   Place       place;
 
 public:
    Player();
