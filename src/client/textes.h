@@ -29,7 +29,6 @@
 #define STR_EST      trUtf8("Est")
 #define STR_NORD     trUtf8("Nord")
 #define STR_OUEST    trUtf8("Ouest")
-#define STR_NORD_O   trUtf8("Nord ouest")
 
 #define STR_WIN      trUtf8("Contrat réussi de ")
 #define STR_LOSE     trUtf8("Contrat chuté de ")
