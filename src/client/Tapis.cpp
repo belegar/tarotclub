@@ -25,6 +25,20 @@
 #define NORTH_BOX_POS_X   350
 #define NORTH_BOX_POS_Y   10
 
+static const Coord coordPlayerBox[NB_PLAYERS] = {
+   {NORTH_BOX_POS_X, NORTH_BOX_POS_Y+452},      // SUD
+   {NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+103},  // EST
+   {NORTH_BOX_POS_X, NORTH_BOX_POS_Y},          // NORD
+   {NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+103}   // OUEST
+};
+
+static const Coord coordTextBox[NB_PLAYERS] = {
+   {NORTH_BOX_POS_X, NORTH_BOX_POS_Y+412},      // SUD
+   {NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+143},  // EST
+   {NORTH_BOX_POS_X, NORTH_BOX_POS_Y+40},       // NORD
+   {NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+143}   // OUEST
+};
+
 /*****************************************************************************/
 GfxCard::GfxCard ( const QString & fileName, QGraphicsItem * parent ) : QGraphicsSvgItem(fileName, parent)
 
@@ -111,20 +125,16 @@ Tapis::Tapis( QWidget *parent )
    //==============================================================
    //       ELEMENTS DU CANVAS
    //==============================================================
-   btNord = new PlayerBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y, &scene);
-   btOuest = new PlayerBox(NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+103, &scene);
-   btSud = new PlayerBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+452, &scene);
-   btEst = new PlayerBox(NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+103, &scene);
 
-   btNord->show();
-   btOuest->show();
-   btSud->show();
-   btEst->show();
+   for (int i=0; i<NB_PLAYERS; i++) {
+      PlayerBox *pb = new PlayerBox(coordPlayerBox[i], &scene);
+      pb->show();
+      TextBox *tb = new TextBox(coordTextBox[i], &scene);
+      tb->hide();
 
-   enchNord = new TextBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+40, &scene);
-   enchOuest = new TextBox(NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+143, &scene);
-   enchSud = new TextBox(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+412, &scene);
-   enchEst = new TextBox(NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+143, &scene);
+      playerBox.insert((Place)i, pb);
+      textBox.insert((Place)i, tb);
+   }
 
    connect( boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()) );
    connect( boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()) );
@@ -182,7 +192,7 @@ void Tapis::setBoutonPoigneeVisible(bool v)
    }
 }
 /*****************************************************************************/
-int Tapis::loadCards(GameOptions *opt)
+int Tapis::loadCards(ClientOptions *opt)
 {
    int i,j,n;
    QString varImg;
@@ -311,41 +321,17 @@ void Tapis::setCursorType( CursorType t )
 /*****************************************************************************/
 void Tapis::colorisePreneur( Place preneur )
 {
-   if( preneur == SUD ) {
-      btSud->highlightPlayer(true);
-   } else if( preneur == EST ) {
-      btEst->highlightPlayer(true);
-   } else if( preneur == NORD ) {
-      btNord->highlightPlayer(true);
-   } else { // OUEST
-      btOuest->highlightPlayer(true);
-   }
+   playerBox.value(preneur)->highlightPlayer(true);
 }
 /*****************************************************************************/
 void Tapis::setText(Place p, const QString &txt)
 {
-   if( p == SUD ) {
-      btSud->setText( txt );
-   } else if( p == EST ) {
-      btEst->setText( txt );
-   } else if( p == NORD ) {
-      btNord->setText( txt );
-   } else { // OUEST
-      btOuest->setText( txt );
-   }
+   playerBox.value(p)->setText(txt);
 }
 /*****************************************************************************/
 void Tapis::setAvatar(Place p, const QString &file)
 {
-   if( p == SUD ) {
-      btSud->setAvatar( file );
-   } else if( p == EST ) {
-      btEst->setAvatar( file );
-   } else if( p == NORD ) {
-      btNord->setAvatar( file );
-   } else { // OUEST
-      btOuest->setAvatar( file );
-   }
+   playerBox.value(p)->setAvatar(file);
 }
 /*****************************************************************************/
 /**
@@ -373,39 +359,22 @@ Place Tapis::retournePlace( Place origine, Place place_absolue )
    return (pl);
 }
 /*****************************************************************************/
-PlaceBot Tapis::getBotPlace(Place p)
-{
-   PlaceBot pb;
-
-   if(p == OUEST)
-      pb = BOT_WEST;
-   else if(p == NORD)
-      pb = BOT_NORTH;
-   else
-      pb = BOT_EAST;
-
-   return pb;
-}
-/*****************************************************************************/
 /**
- * Affiche les noms sur le tapis selon la position relative du joueur
+ * Affiche les noms sur le tapis, la "vue" étant toujours au sud
  */
-void Tapis::printNames( GameOptions *options, Place place )
+void Tapis::setPlayerNames( QList<Identity> &players, Place p )
 {
-   Place serveur; // place relative du serveur
+   if (players.size() != NB_PLAYERS)
+      return;
 
-   serveur = retournePlace( place, SUD );
+   p = retournePlace( p, SUD ); // la vue du joueur est toujours au SUD
 
-   btSud->setText( options->client.name );
-   btSud->setAvatar( options->client.avatar );
+   for (int i = 0; i < players.size(); ++i) {
+      Place rel = retournePlace( p, players.at(i).place); // relative place
 
-   btEst->setText( options->bots[getBotPlace(retournePlace( serveur,EST ))].name  );
-   btNord->setText( options->bots[getBotPlace(retournePlace( serveur,NORD ))].name  );
-   btOuest->setText( options->bots[getBotPlace(retournePlace( serveur,OUEST ))].name  );
-
-   btEst->setAvatar( options->bots[getBotPlace(retournePlace( serveur,EST ))].avatar );
-   btNord->setAvatar( options->bots[getBotPlace(retournePlace( serveur,NORD ))].avatar );
-   btOuest->setAvatar( options->bots[getBotPlace(retournePlace( serveur,OUEST ))].avatar );
+      playerBox.value(rel)->setText(players.at(i).name);
+      playerBox.value(rel)->setAvatar(":/images/avatars/" + players.at(i).avatar);
+   }
 }
 /*****************************************************************************/
 /**
@@ -419,23 +388,8 @@ void Tapis::afficheCarte( GfxCard *c, Place p )
    height = rect.height();
    width = rect.width();
 
-   if( p == NORD ) {
-      x = btNord->rect().x();
-      y = btNord->rect().y();
-   } else if( p == OUEST ) {
-      x = btOuest->rect().x();
-      y = btOuest->rect().y();
-   } else if( p == SUD ) {
-      x = btSud->rect().x();
-      y = btSud->rect().y();
-   } else if( p == EST ) {
-      x = btEst->rect().x();
-      y = btEst->rect().y();
-   } else {
-      //TODO: Nord-ouest
-      x = 0;
-      y = 0;
-   }
+   x = playerBox.value(p)->rect().x();
+   y = playerBox.value(p)->rect().y();
 
    x = x + (TEXT_BOX_WIDTH - width)/4;
    if (p == SUD) {
@@ -450,61 +404,44 @@ void Tapis::afficheCarte( GfxCard *c, Place p )
 /*****************************************************************************/
 void Tapis::afficheSelection( Place p )
 {
-   btNord->selectPlayer(false);
-   btOuest->selectPlayer(false);
-   btEst->selectPlayer(false);
-   btSud->selectPlayer(false);
-
-   if( p == NORD ) {
-      btNord->selectPlayer(true);
-   } else if( p == OUEST ) {
-      btOuest->selectPlayer(true);
-   } else if( p == SUD ) {
-      btSud->selectPlayer(true);
-   } else if( p == EST ) {
-      btEst->selectPlayer(true);
-   } else {// Nord ouest
-      //TODO
+   QMapIterator<Place, PlayerBox *> i(playerBox);
+   while (i.hasNext()) {
+      i.next();
+      if (i.key() == p) {
+         i.value()->selectPlayer(true);
+      } else {
+         i.value()->selectPlayer(false);
+      }
    }
 }
 /*****************************************************************************/
 void Tapis::slotAfficheEnchere( Place enchereur, Contrat cont )
 {
-   QString mot;
+   QString txt;
 
    if( cont == GARDE_CONTRE ) {
-      mot = STR_GARDE_CONTRE;
+      txt = STR_GARDE_CONTRE;
    } else if( cont == GARDE_SANS ) {
-      mot = STR_GARDE_SANS;
+      txt = STR_GARDE_SANS;
    } else if( cont == GARDE ) {
-      mot = STR_GARDE;
+      txt = STR_GARDE;
    } else if( cont == PRISE ) {
-      mot = STR_PRISE;
+      txt = STR_PRISE;
    } else {
-      mot = STR_PASSE;
+      txt = STR_PASSE;
    }
 
-   if( enchereur == NORD ) {
-      enchNord->setText(mot);
-      enchNord->show();
-   } else if( enchereur == OUEST ) {
-      enchOuest->setText(mot);
-      enchOuest->show();
-   } else if( enchereur == SUD ) {
-      enchSud->setText(mot);
-      enchSud->show();
-   } else { // EST
-      enchEst->setText(mot);
-      enchEst->show();
-   }
+   textBox.value(enchereur)->setText(txt);
+   textBox.value(enchereur)->show();
 }
 /*****************************************************************************/
 void Tapis::cacheEncheres()
 {
-   enchNord->hide();
-   enchOuest->hide();
-   enchSud->hide();
-   enchEst->hide();
+   QMapIterator<Place, TextBox *> i(textBox);
+   while (i.hasNext()) {
+      i.next();
+      i.value()->hide();
+   }
 }
 /*****************************************************************************/
 void Tapis::slotAfficheBoutons( Contrat contrat )
@@ -531,10 +468,11 @@ void Tapis::slotAfficheBoutons( Contrat contrat )
 /*****************************************************************************/
 void Tapis::showAvatars(bool b)
 {
-   btSud->enableAvatar(b);
-   btEst->enableAvatar(b);
-   btOuest->enableAvatar(b);
-   btNord->enableAvatar(b);
+   QMapIterator<Place, PlayerBox *> i(playerBox);
+   while (i.hasNext()) {
+      i.next();
+      i.value()->enableAvatar(b);
+   }
 }
 /*****************************************************************************/
 void Tapis::cacheBoutons()
@@ -547,15 +485,12 @@ void Tapis::razTapis()
    cacheEncheres();
    groupBoutons->hide();
 
-   btNord->highlightPlayer(false);
-   btOuest->highlightPlayer(false);
-   btEst->highlightPlayer(false);
-   btSud->highlightPlayer(false);
-
-   btNord->selectPlayer(false);
-   btOuest->selectPlayer(false);
-   btEst->selectPlayer(false);
-   btSud->selectPlayer(false);
+   QMapIterator<Place, PlayerBox *> i(playerBox);
+   while (i.hasNext()) {
+      i.next();
+      i.value()->highlightPlayer(false);
+      i.value()->selectPlayer(false);
+   }
 }
 /*****************************************************************************/
 void Tapis::resetCards()

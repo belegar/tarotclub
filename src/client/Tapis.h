@@ -29,8 +29,8 @@
 // Game includes
 #include "../defines.h"
 #include "../Card.h"
-#include "../GameOptions.h"
 #include "TextBox.h"
+#include "ClientConfig.h"
 
 enum CardStatus { CARD_NORMAL, CARD_SELECTED };
 
@@ -61,15 +61,8 @@ private:
    QGraphicsScene scene;
 
    // Graphiques
-   PlayerBox      *btNord;
-   PlayerBox      *btOuest;
-   PlayerBox      *btSud;
-   PlayerBox      *btEst;
-
-   TextBox        *enchNord;
-   TextBox        *enchOuest;
-   TextBox        *enchSud;
-   TextBox        *enchEst;
+   QMap<Place, PlayerBox *> playerBox;
+   QMap<Place, TextBox *>  textBox;
 
    QGroupBox      *groupBoutons;
    QPushButton    *boutonPasse;
@@ -100,12 +93,11 @@ public:
 
    GfxCard *getGfxCard(int i);
    Card *getObjectCard(GfxCard *gc);
-   PlaceBot getBotPlace(Place p);
 
-   int loadCards(GameOptions *opt);
+   int loadCards(ClientOptions *opt);
    void colorisePreneur( Place );
    Place retournePlace( Place origine, Place place_absolue );
-   void printNames( GameOptions *options, Place place );
+   void setPlayerNames( QList<Identity> &players, Place p );
    void afficheSelection( Place );
    void afficheCarte( GfxCard *, Place );
    void cacheEncheres();
