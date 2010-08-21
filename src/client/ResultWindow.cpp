@@ -37,11 +37,9 @@ void ResultWindow::setCalcul( ScoreInfos *score, GameInfos *infos )
 		ui.lblPreneur->setText(STR_EST);
    }else if( infos->preneur == NORD ) {
 		ui.lblPreneur->setText(STR_NORD);
-   } else if( infos->preneur == OUEST ) {
-		ui.lblPreneur->setText(STR_OUEST);
    } else {
-      ui.lblPreneur->setText(STR_NORD_O);
-   } 
+		ui.lblPreneur->setText(STR_OUEST);
+   }
 
    if( infos->contrat == PRISE ) {
 		ui.lblContrat->setText(STR_PRISE);
