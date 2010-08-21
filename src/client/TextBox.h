@@ -25,6 +25,10 @@
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsScene>
 
+typedef struct {
+   int x, y;
+} Coord;
+
 /*****************************************************************************/
 /**
  * Rectangle box + text inside, for bids and player nicknames
@@ -39,7 +43,7 @@ private:
    QColor fillColor;
 
 public:
-   TextBox(int x, int y, QGraphicsScene *canvas);
+   TextBox(Coord c, QGraphicsScene *canvas);
    void paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
 
    void move( int x, int y ) { setPos( x, y ); }
@@ -63,7 +67,7 @@ private:
    QGraphicsPixmapItem		*avatar;
 
 public:
-   PlayerBox(int x, int y, QGraphicsScene *canvas);
+   PlayerBox(Coord c, QGraphicsScene *canvas);
 
    void selectPlayer(bool selected);
    void highlightPlayer(bool highlighted);

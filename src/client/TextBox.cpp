@@ -23,8 +23,8 @@
 
 
 /*****************************************************************************/
-TextBox::TextBox(int x, int y, QGraphicsScene *canvas)
-   : QGraphicsRectItem( x, y, TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 0, canvas)
+TextBox::TextBox(Coord c, QGraphicsScene *canvas)
+   : QGraphicsRectItem( c.x, c.y, TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 0, canvas)
 {
    penWidth = 1;
    penColor = Qt::black;
@@ -63,8 +63,8 @@ void TextBox::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option
 /*****************************************************************************/
 
 
-PlayerBox::PlayerBox(int x, int y, QGraphicsScene *canvas )
-   : TextBox( x, y, canvas)
+PlayerBox::PlayerBox(Coord c, QGraphicsScene *canvas )
+   : TextBox( c, canvas)
 {
    setFillColor(QColor(255, 255, 255, 127)); // transparent
 
