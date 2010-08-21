@@ -599,7 +599,7 @@ void Client::doAction( QDataStream &in )
          quint8 p;
 
          in >> p;
-         place = (Place)p;
+         identity.place = (Place)p;
          sendIdentity();
          break;
       }
