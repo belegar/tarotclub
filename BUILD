@@ -1,21 +1,52 @@
-Instructions to build Tarot Club
---------------------------------------
+1. Introduction
+---------------
 
---------------------------------------
-* Tools
---------------------------------------
+TarotClub is a multi-system compatible game, so please use 
+the appropriate package to install it under your OS.
 
-Use QtCreator to compile the source code.
-Download the source code from:
+This build help is intented for developers only. TarotClub does 
+not use autoconf and probably never will because it is an insane 
+mess created by alien brains.
 
-http://www.tarotclub.fr
-http://github.com/Belegar/TarotClub
+The client project file is "tarotclub/prj/TarotClub.pro"
+The server project file is "tarotclub/prj/TarotClubd.pro"
 
---------------------------------------
-* All systems
---------------------------------------
+2. Obtaining source code
+------------------------
 
-1. Install QtCreator
-2. Open the project in "tarotclub/prj/TarotClub.pro"
-3. Build !
+git clone http://github.com/Belegar/TarotClub.git
 
+3. Dependencies
+---------------
+
+ - Qt library, 4.6 minimum.
+ - Lua 5.1
+
+4. Compiling under Windows
+--------------------------
+
+The best way is to install the official Qt development tools 
+from qt.nokia.com and use the QtCreator IDE. So simple.
+
+5. Compiling under Linux
+------------------------
+ 
+Install the following packages to setup a development environment:
+
+Debian: apt-get install build-essential git-core liblua5.1-0-dev qt4-dev-tools
+
+Then, in TarotClub/pjt directory:
+
+qmake <project-file>.pro
+make
+make install
+
+The default install path is /opt/tarotclub, it can be overloaded 
+by using the PREFIX=/you/path argument to qmake.
+Warning: the /opt directory is probably restricted to the root. Use 
+"sudo make install".
+
+6. Compiling under MacOS X
+--------------------------
+
+TODO
