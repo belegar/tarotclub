@@ -42,9 +42,13 @@ win32 {
    LIBS += -llua5.1
 
    # install
-   isEmpty(PREFIX): PREFIX=/opt
+   isEmpty(PREFIX): PREFIX=/opt/tarotclub
    target.path = $${PREFIX}
-   INSTALLS += target
+   cards.path = $${PREFIX}/default
+   cards.files = ../src/data/cards/default/*
+   copying.path = $${PREFIX}
+   copying.files = ../COPYING ../COPYING-FR ../HISTORY ../INSTALL ../README
+   INSTALLS += target cards copying
 }
 
 
