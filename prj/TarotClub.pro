@@ -21,6 +21,7 @@ VPATH += $${PWD}/../src/client
 VPATH += $${PWD}/../src/server
 VPATH += $${PWD}/include
 VPATH += $${PWD}/../lib
+
 QT += xml \
     network \
     svg
@@ -28,13 +29,25 @@ RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt \
     warn_on
 INCLUDEPATH += $${PWD}/include
-INCLUDEPATH += $${PWD}/../lib/lua/src
 INCLUDEPATH += $${PWD}/../src/client
 INCLUDEPATH += $${PWD}/../src/server
-win32 { 
+
+# libraries and other annoying OS stuff
+win32 {
+   INCLUDEPATH += $${PWD}/../lib/lua/src
    LIBS += $${PWD}/../lib/win32/liblua.a
    RC_FILE = icon.rc
+} else {
+   INCLUDEPATH += /usr/include/lua5.1/
+   LIBS += -llua5.1
+
+   # install
+   isEmpty(PREFIX): PREFIX=/opt
+   target.path = $${PREFIX}
+   INSTALLS += target
 }
+
+
 HEADERS += AboutWindow.h \
     MainWindow.h \
     OptionsWindow.h \
