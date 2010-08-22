@@ -39,7 +39,7 @@ LuaBot::LuaBot(lua_State *L)
 /*****************************************************************************/
 LuaBot::~LuaBot()
 {
-  cerr << "Deleted Lua object " << (int)this;
+  cerr << "Deleted Lua object " << (void *)this;
 }
 /*****************************************************************************/
 int LuaBot::getCardNumber(lua_State *L)
