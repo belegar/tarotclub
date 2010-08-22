@@ -93,30 +93,24 @@ void Bot::slotAfficheSelection( Place p )
 void Bot::slotChoixEnchere( Contrat c )
 {
    int ret;
-   Contrat mon_contrat;
+   Contrat mon_contrat = calculEnchere();
 
    // on lance le script lua
    ret = luaL_dofile(L,"bid.lua");
    if( ret ) {
       // on a eu une erreur
-      cerr << "Error in Lua script : " << lua_tostring(L, -1) << endl;
-      mon_contrat = calculEnchere();
+      cerr << "Error in Lua script: " << lua_tostring(L, -1) << endl;
    } else {
       lua_getglobal(L, "CalculateBid");
       if (!lua_pcall(L, 0, 1, 0)) {
          if(lua_isnumber(L, -1)) {
             ret = (int)lua_tonumber(L, -1);
-            cerr << "Bid: " << ret;
             // security test
-            if (ret<PASSE || ret>GARDE_CONTRE) {
-               mon_contrat = calculEnchere();
-            } else {
+            if (ret>=PASSE && ret<=GARDE_CONTRE) {
                mon_contrat = (Contrat)ret;
             }
          }
          lua_pop(L, 1);
-      } else {
-         mon_contrat = calculEnchere();
       }
    }
 
