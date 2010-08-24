@@ -190,7 +190,7 @@ void ClientConfig::setDefault( ClientOptions *opt )
    opt->showAvatars = AVATARS_DEF;
    opt->tapis = "#008000";
    opt->langue = 0;
-   opt->deckFilePath = "./default";
+   opt->deckFilePath = "default";
 
    opt->identity.name = "Moi";
    opt->identity.avatar = ":/images/avatars/inconnu.png";

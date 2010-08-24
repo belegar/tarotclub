@@ -17,6 +17,7 @@
  */
 
 #include "Tapis.h"
+#include <QtCore>
 #include <QResizeEvent>
 #include <QMouseEvent>
 #include "textes.h"
@@ -197,6 +198,7 @@ int Tapis::loadCards(ClientOptions *opt)
    int i,j,n;
    QString varImg;
    QString image;
+   QString path = QCoreApplication::applicationDirPath() + "/" + opt->deckFilePath + "/";
 
    //----- 4 couleurs
    for( i=0; i<4; i++ ){
@@ -213,7 +215,7 @@ int Tapis::loadCards(ClientOptions *opt)
       // de l'as au roi (14 cartes)
       for( j=0; j<14; j++ ) {
          n = i*14+j;
-         image = QString(opt->deckFilePath + "/") + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
+         image = path + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
 
          // TODO: test if file exists
          GfxCard *item = new GfxCard(image);
@@ -225,7 +227,7 @@ int Tapis::loadCards(ClientOptions *opt)
 
    //----- 21 atouts
    for( i=56; i<77; i++) {
-      image = QString(opt->deckFilePath + "/atout-") + QString().sprintf("%02d.svg",i-55);
+      image = path + "atout-" + QString().sprintf("%02d.svg",i-55);
       // TODO: test if file exists
       GfxCard *item = new GfxCard(image);
       item->hide();
@@ -234,7 +236,7 @@ int Tapis::loadCards(ClientOptions *opt)
    }
 
    //----- L'excuse
-   image = QString(opt->deckFilePath + "/excuse.svg");
+   image = path + "excuse.svg";
    // TODO: test if file exists
    GfxCard *item = new GfxCard(image);
    item->hide();
