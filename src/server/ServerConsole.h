@@ -35,30 +35,6 @@ typedef struct {
    
 } Command_t;
 
-enum {
-   MsgStartGame = QEvent::User+1,
-   MsgRandomDeal,
-   MsgStopGame,
-   MsgExitGame
-};
-/*****************************************************************************/
-class EvStartGame : public QEvent
-{
-public:
-   EvStartGame() : QEvent( (QEvent::Type)MsgStartGame ) {}
-};
-/*****************************************************************************/
-class EvStopGame : public QEvent
-{
-public:
-   EvStopGame() : QEvent( (QEvent::Type)MsgStopGame ) {}
-};
-/*****************************************************************************/
-class EvExitGame : public QEvent
-{
-public:
-   EvExitGame() : QEvent( (QEvent::Type)MsgExitGame ) {}
-};
 /*****************************************************************************/
 class ServerConsole : public QThread
 {

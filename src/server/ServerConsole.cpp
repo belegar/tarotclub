@@ -19,6 +19,7 @@
 #include <QCoreApplication>
 #include <QStringList>
 #include "ServerConsole.h"
+#include "../TarotEngine.h"
 
 /*****************************************************************************/
 ServerConsole::ServerConsole( QObject *eventObject ) : QThread()

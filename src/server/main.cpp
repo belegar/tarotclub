@@ -20,7 +20,7 @@
 #include <QString>
 #include <QThread>
 #include "ServerConsole.h"
-#include "TarotEngine.h"
+#include "../TarotEngine.h"
 
 /*****************************************************************************/
 /**
@@ -48,7 +48,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
 }
 /*****************************************************************************/
 /**
- * Point d'entrÃ©e de l'application
+ * Point d'entrée de l'application
  */
 int main(int argc, char* argv[])
 {

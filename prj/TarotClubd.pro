@@ -20,19 +20,62 @@ OBJECTS_DIR = ./obj
 DESTDIR = ./bin
 
 # Qt build configuration
+# The search path to find supplied files
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/server
-QT      += xml network
-CONFIG += qt console warn_on static
+VPATH += $${PWD}/include
+VPATH += $${PWD}/../lib
 
+QT += xml network
+CONFIG += qt console warn_on
 
+INCLUDEPATH += $${PWD}/include
+INCLUDEPATH += $${PWD}/../src/client
+INCLUDEPATH += $${PWD}/../src/server
+
+# libraries and other annoying OS stuff
 win32 {
-    RC_FILE = icon.rc
+   RC_FILE = server.rc
+   INCLUDEPATH += $${PWD}/../lib/lua/src
+   LIBS += $${PWD}/../lib/win32/liblua.a
+} else {
+   INCLUDEPATH += /usr/include/lua5.1/
+   LIBS += -llua5.1
+
+   # install
+   isEmpty(PREFIX): PREFIX=/opt/tarotclub
+   target.path = $${PREFIX}
+   copying.path = $${PREFIX}
+   copying.files = ../COPYING ../COPYING-FR ../HISTORY ../INSTALL ../README
+   INSTALLS += target cards copying
 }
 
-HEADERS	=   ServerConsole.h ServerConsole.h TarotEngine.h defines.h Card.h \
-            Deck.h Jeu.h Player.h Score.h
+HEADERS = ServerConsole.h \
+   TarotEngine.h \
+   defines.h \
+   Identity.h \
+   Card.h \
+   Deck.h \
+   Jeu.h \
+   Player.h \
+   Client.h \
+   Bot.h \
+   LuaBot.h \
+   Score.h \
+   Table.h \
+   DealEditorFile.h \
+   ServerConfig.h
 
-SOURCES	=   main.cpp ServerConsole.cpp TarotEngine.cpp Card.cpp Deck.cpp \
-            Jeu.cpp Player.cpp Score.cpp
-
+SOURCES = main.cpp \
+   ServerConsole.cpp \
+   TarotEngine.cpp \
+   Card.cpp \
+   Deck.cpp \
+   Jeu.cpp \
+   Player.cpp \
+   Client.cpp \
+   Bot.cpp \
+   LuaBot.cpp \
+   Score.cpp \
+   DealEditorFile.cpp \
+   ServerConfig.cpp
