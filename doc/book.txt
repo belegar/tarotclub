@@ -1,0 +1,78 @@
+TarotClub Book
+
+Sommaire
+
+Présentation du jeu
+
+Le client graphique
+Le serveur
+L'éditeur de scripts d'IA
+
+Scripts IA
+
+
+Network protocol
+
+TarotClubProtocol DEFINITIONS ::= BEGIN
+
+-- Useful types 
+Integer8 ::= INTEGER(-128..127) 
+Integer16 ::= INTEGER(-32768..32767) 
+Integer32 ::= INTEGER(-2147483648..2147483647) 
+Integer64 ::= INTEGER(-9223372036854775808..9223372036854775807) 
+Unsigned8 ::= INTEGER(0..255) 
+Unsigned16 ::= INTEGER(0..65535) 
+Unsigned32 ::= INTEGER(0..4294967295) 
+Unsigned64 ::= INTEGER(0..18446744073709551615) 
+
+
+TarotClubPDU ::= CHOICE {
+
+–- Client to server
+	clientMessagePDU		[16] ClientMessagePDU
+
+
+
+}
+
+    FooQuestion ::= SEQUENCE {
+        trackingNumber INTEGER,
+        question       UTF8String
+    }
+
+    FooAnswer ::= SEQUENCE {
+        questionNumber INTEGER,
+        answer         BOOLEAN
+    }
+
+END
+
+// client -> server
+#define NET_CLIENT_MSG        0x10
+#define NET_CLIENT_INFOS      0x11
+#define NET_CLIENT_ENCHERE    0x13
+#define NET_CLIENT_VU_CHIEN   0x14  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le chien
+#define NET_CLIENT_CHIEN      0x15
+#define NET_CLIENT_CARTE      0x16
+#define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le pli
+#define NET_CLIENT_POIGNEE    0x18  // un client veut déclarer une poignée
+#define NET_CLIENT_READY      0x19
+// server -> client
+#define NET_MESSAGE           0x70
+#define NET_IDENTIFICATION    0x71
+#define NET_LISTE_JOUEURS     0x72
+#define NET_RECEPTION_CARTES  0x73
+#define NET_SELECTION_JOUEUR  0x74
+#define NET_DEMANDE_ENCHERE   0x75
+#define NET_ENCHERE_JOUEUR    0x76
+#define NET_MONTRE_CHIEN      0x77
+#define NET_FAIT_CHIEN        0x78
+#define NET_DEPART_DONNE      0x79
+#define NET_JOUE_CARTE        0x80
+#define NET_MONTRE_CARTE      0x81
+#define NET_SERVER_WAIT_PLI   0x82
+#define NET_FIN_DONNE         0x83
+#define NET_SERVER_REDIST     0x84  // tous les joueurs ont passé, il faut relancer une distribution
+#define NET_SHOW_POIGNEE      0x85  // montre une poignée à tous les joueurs
+#define NET_FIN_PARTIE        0x86  // fin du tournoi
+
