@@ -19,11 +19,8 @@
 #ifndef EDITORWINDOW_H
 #define EDITORWINDOW_H
 
-// Includes Qt
 #include <QDialog>
 #include <QListWidgetItem>
-
-// Includes locales
 #include "../defines.h"
 #include "../Jeu.h"
 #include <ui_DealEditorUI.h>
