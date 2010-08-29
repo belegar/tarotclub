@@ -25,5 +25,6 @@
         <file>images/avatars/vide.png</file>
         <file>images/podium.svg</file>
         <file>images/version.png</file>
+        <file>images/wizard.png</file>
     </qresource>
 </RCC>

@@ -38,12 +38,13 @@ win32 {
    RC_FILE = server.rc
    INCLUDEPATH += $${PWD}/../lib/lua/src
    LIBS += $${PWD}/../lib/win32/liblua.a
+
 } else {
    INCLUDEPATH += /usr/include/lua5.1/
-   LIBS += -llua5.1
+   LIBS += -llua5.1 -ldl -lpthread
 
    # install
-   isEmpty(PREFIX): PREFIX=/opt/tarotclub
+   isEmpty(PREFIX): PREFIX=/opt/tarotclubd
    target.path = $${PREFIX}
    copying.path = $${PREFIX}
    copying.files = ../COPYING ../COPYING-FR ../HISTORY ../INSTALL ../README
@@ -64,7 +65,9 @@ HEADERS = ServerConsole.h \
    Score.h \
    Table.h \
    DealEditorFile.h \
-   ServerConfig.h
+   ServerConfig.h \
+   Saloon.h \
+   TarotServer.h
 
 SOURCES = main.cpp \
    ServerConsole.cpp \
@@ -78,4 +81,6 @@ SOURCES = main.cpp \
    LuaBot.cpp \
    Score.cpp \
    DealEditorFile.cpp \
-   ServerConfig.cpp
+   ServerConfig.cpp \
+   Saloon.cpp \
+   TarotServer.cpp

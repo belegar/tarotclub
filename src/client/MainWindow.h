@@ -36,7 +36,7 @@
 #include "InfosDock.h"
 #include "ChatDock.h"
 #include "RoundDock.h"
-#include "ui_NetClientUI.h"
+#include "JoinWizard.h"
 #include "ui_ServerManagerUI.h"
 
 
@@ -74,12 +74,12 @@ protected:
 
    Tapis *tapis;      // QCanvasView
 
-   // Autres fenêtres
-   AboutWindow *about;           // A propos
-   ResultWindow *resultWindow;    // Résultat d'une donne
-   OptionsWindow *optionsWindow;   // Options
-   EditorWindow *editorWindow;   // Options
-   QDialog *clientWindow;    // fenêtre pour joindre une partie réseau
+   // Modal windows
+   AboutWindow *about;
+   ResultWindow *resultWindow;
+   OptionsWindow *optionsWindow;
+   EditorWindow *editorWindow;
+   JoinWizard *joinWizard;
 
    // Dock windows
    ScoresDock *scoresDock;
@@ -89,7 +89,6 @@ protected:
    QDockWidget *serverDock;
 
    // UI classes
-   Ui::NetClientUI clientUI;
    Ui::serverDock serverUI;
 
 public:

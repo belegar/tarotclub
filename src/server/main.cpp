@@ -20,7 +20,7 @@
 #include <QString>
 #include <QThread>
 #include "ServerConsole.h"
-#include "../TarotEngine.h"
+#include "TarotServer.h"
 
 /*****************************************************************************/
 /**
@@ -48,7 +48,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
 }
 /*****************************************************************************/
 /**
- * Point d'entrée de l'application
+ * Point d'entrÃ©e de l'application
  */
 int main(int argc, char* argv[])
 {
@@ -57,19 +57,12 @@ int main(int argc, char* argv[])
 #endif
 
    QCoreApplication app(argc, argv);
-
    cout << "TarotClub server " TAROT_VERSION << endl;
-   TarotEngine engine;
-   ServerConsole console(&engine);
-   console.start();
-   engine.start();
-   
-   app.exec();
 
-   console.exit();
-   engine.exit();
+   TarotServer server;
+   server.start();
 
-   return 0;
+   return app.exec();
 }
 
 //=============================================================================

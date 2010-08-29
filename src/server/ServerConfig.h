@@ -29,6 +29,7 @@
 
 #define XML_VERSION           "1.4"
 #define SERVER_CONFIG_FILE    "tarotclubd.xml"
+#define SERVER_MAX_TABLES     10
 
 // default values
 #define TIMER1_DEF      500

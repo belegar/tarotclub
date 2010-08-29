@@ -73,6 +73,7 @@ public slots:
    void slotNewNumberedDeal();
    void slotNewCustomDeal();
    void slotNewQuickGame();
+   void slotJoinNetworkGame();
    void slotShowOptions();
    void slotQuitTarotClub();
 

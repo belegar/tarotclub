@@ -77,8 +77,9 @@ Game::Game() : MainWindow()
    connect(newTournamentAct, SIGNAL(triggered()), this, SLOT(slotNewTournamentGame()));
    connect(newNumberedDealAct, SIGNAL(triggered()), this, SLOT(slotNewNumberedDeal()));
    connect(newCustomDealAct, SIGNAL(triggered()), this, SLOT(slotNewCustomDeal()));
+   connect(netGameClientAct, SIGNAL(triggered()), this, SLOT(slotJoinNetworkGame()));
+
 //   connect(netGameServerAct, SIGNAL(triggered()), this, SLOT(slotServerWndShow()));
-//   connect(netGameClientAct, SIGNAL(triggered()), this, SLOT(slotClientWndShow()));
 //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
 
    // Parameters Menu
@@ -167,6 +168,11 @@ void Game::newLocalGame()
    client.connectToHost( "127.0.0.1", DEFAULT_PORT );
    // connect bots
    server.connectBots();
+}
+/*****************************************************************************/
+void Game::slotJoinNetworkGame()
+{
+   joinWizard->exec();
 }
 /*****************************************************************************/
 void Game::applyOptions()

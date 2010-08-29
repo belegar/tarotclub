@@ -82,19 +82,22 @@ HEADERS = AboutWindow.h \
     Identity.h \
     Table.h \
     luna.h \
-    LuaBot.h
+    LuaBot.h \
+    JoinWizard.h
+
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
-    EncheresUI.ui \
     InfosDockUI.ui \
-    NetClientUI.ui \
     OptionsUI.ui \
     ResultUI.ui \
     ServerManagerUI.ui \
     RoundUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
-    WinUI.ui
+    WinUI.ui \
+    JoinWizardPage1.ui \
+    JoinWizardPage2.ui
+
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
@@ -119,4 +122,5 @@ SOURCES = AboutWindow.cpp \
     Bot.cpp \
     TarotEngine.cpp \
     Score.cpp \
-    LuaBot.cpp
+    LuaBot.cpp \
+    JoinWizard.cpp

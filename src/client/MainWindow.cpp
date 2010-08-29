@@ -46,9 +46,8 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    optionsWindow->hide();
 
    // Joignage d'une partie réseau
-   clientWindow = new QDialog( this, Qt::WindowMinMaxButtonsHint );
-   clientUI.setupUi(clientWindow);
-   clientWindow->hide();
+   joinWizard = new JoinWizard(this);
+   joinWizard->hide();
 
    // Aide en ligne // TODO: use QtHelp system
  //  rulesWindow = new QDialog( this, Qt::WindowMinMaxButtonsHint );
@@ -128,7 +127,6 @@ MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
    netGameClientAct = new QAction(trUtf8("Re&joindre une partie en réseau"), this);
    netGameClientAct->setShortcut(trUtf8("Ctrl+J"));
    netGameClientAct->setStatusTip(trUtf8("Connexion à un serveur sur Internet ou en réseau local"));
-   netGameClientAct->setEnabled(false);
 
    //----- Misc
    pliPrecAct = new QAction(trUtf8("&Pli précédent"), this);
