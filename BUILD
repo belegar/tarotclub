@@ -42,7 +42,7 @@ make
 make install
 
 The default install path is /opt/tarotclub, it can be overloaded 
-by using the PREFIX=/you/path argument to qmake.
+by using the PREFIX=/your/path argument to qmake.
 Warning: the /opt directory is probably restricted to the root. Use 
 "sudo make install".
 
