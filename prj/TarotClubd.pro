@@ -66,7 +66,7 @@ HEADERS = ServerConsole.h \
    Table.h \
    DealEditorFile.h \
    ServerConfig.h \
-   Saloon.h \
+   Lobby.h \
    TarotServer.h
 
 SOURCES = main.cpp \
@@ -82,5 +82,5 @@ SOURCES = main.cpp \
    Score.cpp \
    DealEditorFile.cpp \
    ServerConfig.cpp \
-   Saloon.cpp \
+   Lobby.cpp \
    TarotServer.cpp
