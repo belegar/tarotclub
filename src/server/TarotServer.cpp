@@ -1,38 +1,51 @@
+/*=============================================================================
+ * TarotClub - TarotServer.cpp
+ *=============================================================================
+ * Little web server to manage Tarot tables
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ *
+ *=============================================================================
+ */
 
 #include "TarotServer.h"
+#include "../Jeu.h"
+#include <iostream>
+using namespace std;
 
 /*****************************************************************************/
 TarotServer::TarotServer()
 {
    listen(QHostAddress::Any, 8080);
    if (!isListening()) {
-      // logMessage(QString("Failed to bind to port %1").arg(daemon->serverPort()), QtServiceBase::Error);
-       qApp->quit();
+      cerr << "Failed to bind to port 8080";
+      qApp->quit();
    }
+
+   Jeu::init();
 }
 /*****************************************************************************/
 void TarotServer::start()
 {
    config.load();
-
-
-   // room inits here
-
-
+   lobby.setupTables(*config.getOptions());
+   lobby.startGames();
 }
 /*****************************************************************************/
 void TarotServer::incomingConnection(int socket)
 {
-    // When a new client connects, the server constructs a QTcpSocket and all
-    // communication with the client is done over this QTcpSocket. QTcpSocket
-    // works asynchronously, this means that all the communication is done
-    // in the two slots readClient() and discardClient().
     QTcpSocket* s = new QTcpSocket(this);
     connect(s, SIGNAL(readyRead()), this, SLOT(readClient()));
     connect(s, SIGNAL(disconnected()), this, SLOT(discardClient()));
     s->setSocketDescriptor(socket);
-
-  //  QtServiceBase::instance()->logMessage("New Connection");
 }
 /*****************************************************************************/
 void TarotServer::readClient()
@@ -65,3 +78,6 @@ void TarotServer::discardClient()
     socket->deleteLater();
 }
 
+//=============================================================================
+// End of file TarotServer.cpp
+//=============================================================================
