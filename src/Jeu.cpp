@@ -70,14 +70,12 @@ void Jeu::init()
       }
    }
 
-   id = 56;
-
    //----- Les 21 atouts
    for( i=56; i<77; i++) {
       cards[i].setType( ATOUT );
       cards[i].setValue( i-55 ); // [1..21]
       cards[i].setColor( NO_COLOR );
-      cards[i].setId( id + i - 56 );
+      cards[i].setId(i);
 
       if( i==56 || i==76) { // Petit ou 21
          cards[i].setPoints( 4.5 );
