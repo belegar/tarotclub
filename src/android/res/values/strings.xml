@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TarotClub</string>
+    <string name="menu_newgame">New Game</string>
+    <string name="menu_about">Help</string>
+    <string name="menu_quit">Quit</string>
+</resources>
