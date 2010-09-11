@@ -4,4 +4,10 @@
     <string name="menu_newgame">New Game</string>
     <string name="menu_about">Help</string>
     <string name="menu_quit">Quit</string>
+	<string name="about_text">
+About TarotClub\n\n
+Free tarot game! More information on tarotclub.fr.
+
+</string>
+    <string name="win_text">You Win!\n\nUse the menu to start a new game.</string>
 </resources>

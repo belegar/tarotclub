@@ -1,19 +1,6 @@
-/*
-  Copyright 2008 Google Inc.
-  
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-  
-       http://www.apache.org/licenses/LICENSE-2.0
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/ 
-package com.kmagic.solitaire;
+/* License here! */
+
+package fr.tarotclub;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -43,7 +30,7 @@ import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 
 // The brains of the operation
-public class SolitaireView extends View {
+public class TarotView extends View {
 
   private static final int MODE_NORMAL      = 1;
   private static final int MODE_MOVE_CARD   = 2;
@@ -53,148 +40,40 @@ public class SolitaireView extends View {
   private static final int MODE_WIN         = 6;
   private static final int MODE_WIN_STOP    = 7;
 
-  private static final String SAVE_FILENAME = "solitaire_save.bin";
-  // This is incremented only when the save system changes.
-  private static final String SAVE_VERSION = "solitaire_save_2";
-
-  private CharSequence mHelpText;
+  private CharSequence mAboutText;
   private CharSequence mWinText;
-
-  private CardAnchor[] mCardAnchor;
-  private DrawMaster mDrawMaster;
-  private Rules mRules;
   private TextView mTextView;
-  private AnimateCard mAnimateCard;
-
-  private MoveCard mMoveCard;
-  private SelectCard mSelectCard;
   private int mViewMode;
   private boolean mTextViewDown;
-
-  private PointF mLastPoint;
-  private PointF mDownPoint;
-  private RefreshHandler mRefreshHandler;
-  private Thread mRefreshThread;
-  private Stack<Move> mMoveHistory;
-  private Replay mReplay;
-  private Context mContext;
-  private boolean mHasMoved;
-  private Speed mSpeed;
-
-  private Card[] mUndoStorage;
-
-  private int mElapsed = 0;
-  private long mStartTime;
-  private boolean mTimePaused;
-
   private boolean mGameStarted;
-  private boolean mPaused;
-  private boolean mDisplayTime;
-
   private int mWinningScore;
 
-  public SolitaireView(Context context, AttributeSet attrs) {
+  public TarotView(Context context, AttributeSet attrs) {
     super(context, attrs);
     setFocusable(true);
     setFocusableInTouchMode(true);
 
-    mDrawMaster = new DrawMaster(context);
-    mMoveCard = new MoveCard();
-    mSelectCard = new SelectCard();
     mViewMode = MODE_NORMAL;
-    mLastPoint = new PointF();
-    mDownPoint = new PointF();
-    mRefreshHandler = new RefreshHandler(this);
-    mRefreshThread = new Thread(mRefreshHandler);
-    mMoveHistory = new Stack<Move>();
-    mUndoStorage = new Card[CardAnchor.MAX_CARDS];
-    mAnimateCard = new AnimateCard(this);
-    mSpeed = new Speed();
-    mReplay = new Replay(this, mAnimateCard);
 
     Resources res = context.getResources();
-    mHelpText = context.getResources().getText(R.string.help_text);
+    mAboutText = context.getResources().getText(R.string.about_text);
     mWinText = context.getResources().getText(R.string.win_text);
-    mContext = context;
     mTextViewDown = false;
-    mRefreshThread.start();
     mWinningScore = 0;
   }
 
-  public void InitGame(int gameType) {
-    int oldScore = 0;
-    String oldGameType = "None";
+  public void InitGame() {
 
     // We really really want focus :)
     setFocusable(true);
     setFocusableInTouchMode(true);
     requestFocus();
-
-    SharedPreferences.Editor editor = GetSettings().edit();
-    if (mRules != null) {
-      if (mRules.HasScore()) {
-        if (mViewMode == MODE_WIN || mViewMode == MODE_WIN_STOP) {
-          oldScore = mWinningScore;
-        } else {
-          oldScore = mRules.GetScore();
-        }
-        oldGameType = mRules.GetGameTypeString();
-        if (oldScore > GetSettings().getInt(mRules.GetGameTypeString() + "Score", -52)) {
-          editor.putInt(mRules.GetGameTypeString() + "Score", oldScore);
-        }
-      }
-    }
     ChangeViewMode(MODE_NORMAL);
     mTextView.setVisibility(View.INVISIBLE);
-    mMoveHistory.clear();
-    mRules = Rules.CreateRules(gameType, null, this, mMoveHistory, mAnimateCard);
-    if (oldGameType == mRules.GetGameTypeString()) {
-      mRules.SetCarryOverScore(oldScore);
-    }
-    Card.SetSize(gameType);
-    mDrawMaster.DrawCards(GetSettings().getBoolean("DisplayBigCards", false));
-    mCardAnchor = mRules.GetAnchorArray();
-    if (mDrawMaster.GetWidth() > 1) {
-      mRules.Resize(mDrawMaster.GetWidth(), mDrawMaster.GetHeight());
-      Refresh();
-    }
-    SetDisplayTime(GetSettings().getBoolean("DisplayTime", true));
-    editor.putInt("LastType", gameType);
-    editor.commit();
-    mStartTime = SystemClock.uptimeMillis();
-    mElapsed = 0;
-    mTimePaused = false;
-    mPaused = false;
     mGameStarted = false;
   }
 
-  public SharedPreferences GetSettings() { return ((Solitaire)mContext).GetSettings(); }
-  public DrawMaster GetDrawMaster() { return mDrawMaster; }
-  public Rules GetRules() { return mRules; }
   public void ClearGameStarted() { mGameStarted = false; }
-  public void SetDisplayTime(boolean displayTime) { mDisplayTime = displayTime; }
-
-  public void SetTimePassing(boolean timePassing) {
-    if (timePassing == true && (mViewMode == MODE_WIN || mViewMode == MODE_WIN_STOP)) {
-      return;
-    }
-    if (timePassing == true && mTimePaused == true) {
-      mStartTime = SystemClock.uptimeMillis() - mElapsed;
-      mTimePaused = false;
-    } else if (timePassing == false) {
-      mTimePaused = true;
-    }
-  }
-
-  public void UpdateTime() {
-    if (!mTimePaused) {
-      int elapsed = (int)(SystemClock.uptimeMillis() - mStartTime);
-      if (elapsed / 1000 > mElapsed / 1000) {
-        Refresh();
-      }
-      mElapsed = elapsed;
-    }
-  }
 
   private void ChangeViewMode(int newMode) {
     switch (mViewMode) {

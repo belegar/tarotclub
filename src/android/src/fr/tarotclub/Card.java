@@ -16,7 +16,7 @@ class Card {
 
   private int mValue;
   private int mSuit;
-  private int mPoints;
+  private float mPoints;
   
   private float mX;
   private float mY;
