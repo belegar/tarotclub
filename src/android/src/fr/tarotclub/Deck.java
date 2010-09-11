@@ -3,14 +3,15 @@
 
 package fr.tarotclub;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class Deck {
 
-  private List<Card> mCards;
+  private ArrayList<Card> mCards;
 
   public Deck() {
+	  mCards = new ArrayList<Card>();
   }
 
   public void addCard(Card card) {
@@ -28,7 +29,11 @@ public class Deck {
     return mCards.remove(card);
   }
 
-  public void Shuffle() {
+  public void shuffle() {
 	  Collections.shuffle(mCards);
+  }
+  
+  public int size() {
+	  return mCards.size();
   }
 }

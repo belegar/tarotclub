@@ -3,322 +3,86 @@
 package fr.tarotclub;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.PointF;
-import android.os.Bundle;
-import android.os.SystemClock;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.MotionEvent;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
-
-import java.lang.Math;
-import java.lang.Runnable;
-import java.util.Stack;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StreamCorruptedException;
 
 // The brains of the operation
 public class TarotView extends View {
-
-  private static final int MODE_NORMAL      = 1;
-  private static final int MODE_MOVE_CARD   = 2;
-  private static final int MODE_CARD_SELECT = 3;
-  private static final int MODE_TEXT        = 4;
-  private static final int MODE_ANIMATE     = 5;
-  private static final int MODE_WIN         = 6;
-  private static final int MODE_WIN_STOP    = 7;
-
   private CharSequence mAboutText;
-  private CharSequence mWinText;
   private TextView mTextView;
-  private int mViewMode;
-  private boolean mTextViewDown;
-  private boolean mGameStarted;
-  private int mWinningScore;
+  private RefreshHandler mRefreshHandler;
+  private String mPackage = "fr.tarotclub";
+  private String mDir ="drawable" ;
 
+  //Card stuff
+  private Bitmap[] mCardBitmap;
+  
+  // Background
+  private int mScreenWidth;
+  private int mScreenHeight;
+  private Paint mBGPaint;
+  
+  // Tarot game stuff
+  private Table mTable;
+  
+  /*****************************************************************************/
   public TarotView(Context context, AttributeSet attrs) {
     super(context, attrs);
     setFocusable(true);
     setFocusableInTouchMode(true);
-
-    mViewMode = MODE_NORMAL;
-
-    Resources res = context.getResources();
+    
+    mRefreshHandler = new RefreshHandler(this);
     mAboutText = context.getResources().getText(R.string.about_text);
-    mWinText = context.getResources().getText(R.string.win_text);
-    mTextViewDown = false;
-    mWinningScore = 0;
-  }
+        
+    // Default to this for simplicity
+    mScreenWidth = 480;
+    mScreenHeight = 295;
 
-  public void InitGame() {
+    // Background
+    mBGPaint = new Paint();
+    mBGPaint.setARGB(255, 0, 128, 0);
+
+    mCardBitmap = new Bitmap[78];
+    DrawCards(context);
+    
+    mTable = new Table();
+  }
+  /*****************************************************************************/
+public void InitGame() {
 
     // We really really want focus :)
     setFocusable(true);
     setFocusableInTouchMode(true);
     requestFocus();
-    ChangeViewMode(MODE_NORMAL);
     mTextView.setVisibility(View.INVISIBLE);
-    mGameStarted = false;
   }
-
-  public void ClearGameStarted() { mGameStarted = false; }
-
-  private void ChangeViewMode(int newMode) {
-    switch (mViewMode) {
-      case MODE_NORMAL:
-        if (newMode != MODE_NORMAL) {
-          DrawBoard();
-        }
-        break;
-      case MODE_MOVE_CARD:
-        mMoveCard.Release();
-        DrawBoard();
-        break;
-      case MODE_CARD_SELECT:
-        mSelectCard.Release();
-        DrawBoard();
-        break;
-      case MODE_TEXT:
-        mTextView.setVisibility(View.INVISIBLE);
-        break;
-      case MODE_ANIMATE:
-        mRefreshHandler.SetRefresh(RefreshHandler.SINGLE_REFRESH);
-        break;
-      case MODE_WIN:
-      case MODE_WIN_STOP:
-        if (newMode != MODE_WIN_STOP) {
-          mTextView.setVisibility(View.INVISIBLE);
-        }
-        DrawBoard();
-        mReplay.StopPlaying();
-        break;
-    }
-    mViewMode = newMode;
-    switch (newMode) {
-      case MODE_WIN:
-        SetTimePassing(false);
-      case MODE_MOVE_CARD:
-      case MODE_CARD_SELECT:
-      case MODE_ANIMATE:
-        mRefreshHandler.SetRefresh(RefreshHandler.LOCK_REFRESH);
-        break;
-
-      case MODE_NORMAL:
-      case MODE_TEXT:
-      case MODE_WIN_STOP:
-        mRefreshHandler.SetRefresh(RefreshHandler.SINGLE_REFRESH);
-        break;
-    }
-  }
-
-  public void onPause() {
-    mPaused = true;
-
-    if (mRefreshThread != null) {
-      mRefreshHandler.SetRunning(false);
-      mRules.ClearEvent();
-      mRules.SetIgnoreEvents(true);
-      mReplay.StopPlaying();
-      try {
-        mRefreshThread.join(1000);
-      } catch (InterruptedException e) {
-      }
-      mRefreshThread = null;
-      if (mAnimateCard.GetAnimate()) {
-        mAnimateCard.Cancel();
-      }
-      if (mViewMode != MODE_WIN && mViewMode != MODE_WIN_STOP) {
-        ChangeViewMode(MODE_NORMAL);
-      }
-
-      if (mRules != null && mRules.GetScore() > GetSettings().getInt(mRules.GetGameTypeString() + "Score", -52)) {
-        SharedPreferences.Editor editor = GetSettings().edit();
-        editor.putInt(mRules.GetGameTypeString() + "Score", mRules.GetScore());
-        editor.commit();
-      }
-    }
-  }
-
-  public void SaveGame() {
-    // This is supposed to have been called but I've seen instances where it wasn't.
-    if (mRefreshThread != null) {
-      onPause();
-    }
-
-    if (mRules != null && mViewMode == MODE_NORMAL) {
-      try {
-
-        FileOutputStream fout = mContext.openFileOutput(SAVE_FILENAME, 0);
-        ObjectOutputStream oout = new ObjectOutputStream(fout);
-
-        int cardCount = mRules.GetCardCount();
-        int[] value = new int[cardCount];
-        int[] suit = new int[cardCount];
-        int[] anchorCardCount = new int[mCardAnchor.length];
-        int[] anchorHiddenCount = new int[mCardAnchor.length];
-        int historySize = mMoveHistory.size();
-        int[] historyFrom = new int[historySize];
-        int[] historyToBegin = new int[historySize];
-        int[] historyToEnd = new int[historySize];
-        int[] historyCount = new int[historySize];
-        int[] historyFlags = new int[historySize];
-        Card[] card;
-
-        cardCount = 0;
-        for (int i = 0; i < mCardAnchor.length; i++) {
-          anchorCardCount[i] = mCardAnchor[i].GetCount();
-          anchorHiddenCount[i] = mCardAnchor[i].GetHiddenCount();
-          card = mCardAnchor[i].GetCards();
-          for (int j = 0; j < anchorCardCount[i]; j++, cardCount++) {
-            value[cardCount] = card[j].GetValue();
-            suit[cardCount] = card[j].GetSuit();
-          }
-        }
-
-        for (int i = 0; i < historySize; i++) {
-          Move move = mMoveHistory.pop();
-          historyFrom[i] = move.GetFrom();
-          historyToBegin[i] = move.GetToBegin();
-          historyToEnd[i] = move.GetToEnd();
-          historyCount[i] = move.GetCount();
-          historyFlags[i] = move.GetFlags();
-        }
-
-        oout.writeObject(SAVE_VERSION);
-        oout.writeInt(mCardAnchor.length);
-        oout.writeInt(cardCount);
-        oout.writeInt(mRules.GetType());
-        oout.writeObject(anchorCardCount);
-        oout.writeObject(anchorHiddenCount);
-        oout.writeObject(value);
-        oout.writeObject(suit);
-        oout.writeInt(mRules.GetRulesExtra());
-        oout.writeInt(mRules.GetScore());
-        oout.writeInt(mElapsed);
-        oout.writeObject(historyFrom);
-        oout.writeObject(historyToBegin);
-        oout.writeObject(historyToEnd);
-        oout.writeObject(historyCount);
-        oout.writeObject(historyFlags);
-        oout.close();
-
-        SharedPreferences.Editor editor = GetSettings().edit();
-        editor.putBoolean("SolitaireSaveValid", true);
-        editor.commit();
-
-      } catch (FileNotFoundException e) {
-        Log.e("SolitaireView.java", "onStop(): File not found");
-      } catch (IOException e) {
-        Log.e("SolitaireView.java", "onStop(): IOException");
-      }
-    }
-  }
-
-  public boolean LoadSave() {
-    mDrawMaster.DrawCards(GetSettings().getBoolean("DisplayBigCards", false));
-    mTimePaused = true;
-
-    try {
-      FileInputStream fin = mContext.openFileInput(SAVE_FILENAME);
-      ObjectInputStream oin = new ObjectInputStream(fin);
-      
-      String version = (String)oin.readObject();
-      if (!version.equals(SAVE_VERSION)) {
-        Log.e("SolitaireView.java", "Invalid save version");
-        return false;
-      }
-      Bundle map = new Bundle();
-        
-      map.putInt("cardAnchorCount", oin.readInt());
-      map.putInt("cardCount", oin.readInt());
-      int type = oin.readInt();
-      map.putIntArray("anchorCardCount", (int[])oin.readObject());
-      map.putIntArray("anchorHiddenCount", (int[])oin.readObject());
-      map.putIntArray("value", (int[])oin.readObject());
-      map.putIntArray("suit", (int[])oin.readObject());
-      map.putInt("rulesExtra", oin.readInt());
-      map.putInt("score", oin.readInt());
-      mElapsed = oin.readInt();
-      mStartTime = SystemClock.uptimeMillis() - mElapsed;
-      int[] historyFrom = (int[])oin.readObject();
-      int[] historyToBegin = (int[])oin.readObject();
-      int[] historyToEnd = (int[])oin.readObject();
-      int[] historyCount = (int[])oin.readObject();
-      int[] historyFlags = (int[])oin.readObject();
-      for (int i = historyFrom.length - 1; i >= 0; i--) {
-        mMoveHistory.push(new Move(historyFrom[i], historyToBegin[i], historyToEnd[i],
-                                   historyCount[i], historyFlags[i]));
-      }
-
-      oin.close();
-
-      mGameStarted = !mMoveHistory.isEmpty();
-      mRules = Rules.CreateRules(type, map, this, mMoveHistory, mAnimateCard);
-      Card.SetSize(type);
-      SetDisplayTime(GetSettings().getBoolean("DisplayTime", true));
-      mCardAnchor = mRules.GetAnchorArray();
-      if (mDrawMaster.GetWidth() > 1) {
-        mRules.Resize(mDrawMaster.GetWidth(), mDrawMaster.GetHeight());
-        Refresh();
-      }
-      mTimePaused = false;
-      return true;
-      
-    } catch (FileNotFoundException e) {
-      Log.e("SolitaireView.java", "LoadSave(): File not found");
-    } catch (StreamCorruptedException e) {
-      Log.e("SolitaireView.java", "LoadSave(): Stream Corrupted");
-    } catch (IOException e) {
-      Log.e("SolitaireView.java", "LoadSave(): IOException");
-    } catch (ClassNotFoundException e) {
-      Log.e("SolitaireView.java", "LoadSave(): Class not found exception");
-    }
-    mTimePaused = false;
-    mPaused = false;
-    return false;
-  }
-
-  public void onResume() {
-    mStartTime = SystemClock.uptimeMillis() - mElapsed;
-    mRefreshHandler.SetRunning(true);
-    mRefreshThread = new Thread(mRefreshHandler);
-    mRefreshThread.start();
-    mRules.SetIgnoreEvents(false);
-    mPaused = false;
-  }
-
-  public void Refresh() {
-    mRefreshHandler.SingleRefresh();
-  }
-
+/*****************************************************************************/
   public void SetTextView(TextView textView) {
     mTextView = textView;
   }
-
+/*
   protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     mDrawMaster.SetScreenSize(w, h);
     mRules.Resize(w, h);
     mSelectCard.SetHeight(h);
   }
-
-  public void DisplayHelp() {
+*/
+  /*****************************************************************************/
+  public void DisplayAbout() {
     mTextView.setTextSize(15);
     mTextView.setGravity(Gravity.LEFT);
-    DisplayText(mHelpText);
+    DisplayText(mAboutText);
   }
-
+/*
   public void DisplayWin() {
     MarkWin();
     mTextView.setTextSize(24);
@@ -329,433 +93,112 @@ public class TarotView extends View {
     mRules.SetIgnoreEvents(true);
     mReplay.StartReplay(mMoveHistory, mCardAnchor);
   }
-
-  public void RestartGame() {
-    mRules.SetIgnoreEvents(true);
-    while (!mMoveHistory.empty()) {
-      Undo();
-    }
-    mRules.SetIgnoreEvents(false);
-    Refresh();
-  }
-
+*/
+  /*****************************************************************************/
   public void DisplayText(CharSequence text) {
-    ChangeViewMode(MODE_TEXT);
+   // ChangeViewMode(MODE_TEXT);
     mTextView.setVisibility(View.VISIBLE);
     mTextView.setText(text);
-    Refresh();
-  }
+   }
 
-  public void DrawBoard() {
-    Canvas boardCanvas = mDrawMaster.GetBoardCanvas();
-    mDrawMaster.DrawBackground(boardCanvas);
-    for (int i = 0; i < mCardAnchor.length; i++) {
-      mCardAnchor[i].Draw(mDrawMaster, boardCanvas);
-    }
-  }
-
+  /*****************************************************************************/
   @Override
   public void onDraw(Canvas canvas) {
-
-    // Only draw the stagnant stuff if it may have changed
-    if (mViewMode == MODE_NORMAL) {
-      // SanityCheck is for debug use only.
-      SanityCheck();
-      DrawBoard();
-    }
-    mDrawMaster.DrawLastBoard(canvas);
-    if (mDisplayTime) {
-      mDrawMaster.DrawTime(canvas, mElapsed);
-    }
-    if (mRules.HasString()) {
-      mDrawMaster.DrawRulesString(canvas, mRules.GetString());
-    }
-
-    switch (mViewMode) {
-      case MODE_MOVE_CARD:
-        mMoveCard.Draw(mDrawMaster, canvas);
-        break;
-      case MODE_CARD_SELECT:
-        mSelectCard.Draw(mDrawMaster, canvas);
-        break;
-      case MODE_WIN:
-        if (mReplay.IsPlaying()) {
-          mAnimateCard.Draw(mDrawMaster, canvas);
-        }
-      case MODE_WIN_STOP:
-      case MODE_TEXT:
-        mDrawMaster.DrawShade(canvas);
-        break;
-      case MODE_ANIMATE:
-        mAnimateCard.Draw(mDrawMaster, canvas);
-    }
-
-    mRules.HandleEvents();
+	  canvas.drawRect(0, 0, mScreenWidth, mScreenHeight, mBGPaint);
+	  DrawCard(canvas, mTable.getCard(0));
+	  Refresh();
   }
 
+  public void Refresh() {
+    mRefreshHandler.SingleRefresh();
+  }
+  /*****************************************************************************/
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent msg) {
     switch (keyCode) {
     case KeyEvent.KEYCODE_DPAD_CENTER:
-      if (mViewMode == MODE_TEXT) {
-        ChangeViewMode(MODE_NORMAL);
-      } else if (mViewMode == MODE_NORMAL) {
-        mRules.EventAlert(Rules.EVENT_DEAL, mCardAnchor[0]);
-        Refresh();
-      }
       return true;
       case KeyEvent.KEYCODE_BACK:
-        Undo();
         return true;
       }
-    mRules.HandleEvents();
     return super.onKeyDown(keyCode, msg);
   }
-
+  /*****************************************************************************/
   @Override
   public boolean onTouchEvent(MotionEvent event) {
     boolean ret = false;
 
-    // Yes you can get touch events while in the "paused" state.
-    if (mPaused) {
-      return false;
-    }
-
-    // Text mode only handles clickys
-    if (mViewMode == MODE_TEXT) {
-      if (event.getAction() == MotionEvent.ACTION_UP && mTextViewDown) {
-        SharedPreferences.Editor editor = mContext.getSharedPreferences("SolitairePreferences", 0).edit();
-        editor.putBoolean("PlayedBefore", true);
-        editor.commit();
-        mTextViewDown = false;
-        ChangeViewMode(MODE_NORMAL);
-      } if (event.getAction() == MotionEvent.ACTION_DOWN) {
-        mTextViewDown = true;
-      }
-      return true;
-    }
-
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-        mHasMoved = false;
-        mSpeed.Reset();
-        ret = onDown(event.getX(), event.getY());
-        mDownPoint.set(event.getX(), event.getY());
         break;
       case MotionEvent.ACTION_UP:
       case MotionEvent.ACTION_CANCEL:
-        ret = onRelease(event.getX(), event.getY());
         break;
       case MotionEvent.ACTION_MOVE:
-        if (!mHasMoved) {
-          CheckMoved(event.getX(), event.getY());
-        }
-        ret = onMove(mLastPoint.x - event.getX(), mLastPoint.y - event.getY(),
-                     event.getX(), event.getY());
         break;
     }
-    mLastPoint.set(event.getX(), event.getY());
-
-    if (!mGameStarted && !mMoveHistory.empty()) {
-      mGameStarted = true;
-      MarkAttempt();
-    }
-
-    mRules.HandleEvents();
     return ret;
   }
-
-  private boolean onRelease(float x, float y) {
-    switch (mViewMode) {
-      case MODE_NORMAL:
-        if (!mHasMoved) {
-          for (int i = 0; i < mCardAnchor.length; i++) {
-            if (mCardAnchor[i].ExpandStack(x, y)) {
-              mSelectCard.InitFromAnchor(mCardAnchor[i]);
-              ChangeViewMode(MODE_CARD_SELECT);
-              return true;
-            } else if (mCardAnchor[i].TapCard(x, y)) {
-              Refresh();
-              return true;
-            }
-          }
-        }
-        break;
-      case MODE_MOVE_CARD:
-        for (int close = 0; close < 2; close++) {
-          CardAnchor prevAnchor = mMoveCard.GetAnchor();
-          boolean unhide = (prevAnchor.GetVisibleCount() == 0 &&
-                            prevAnchor.GetCount() > 0);
-          int count = mMoveCard.GetCount();
-
-          for (int i = 0; i < mCardAnchor.length; i++) {
-            if (mCardAnchor[i] != prevAnchor) {
-              if (mCardAnchor[i].CanDropCard(mMoveCard, close)) {
-                mMoveHistory.push(new Move(prevAnchor.GetNumber(), i, count, false, unhide));
-                mCardAnchor[i].AddMoveCard(mMoveCard);
-                if (mViewMode == MODE_MOVE_CARD) {
-                  ChangeViewMode(MODE_NORMAL);
-                }
-                return true;
-              }
-            }
-          }
-        }
-        if (!mMoveCard.HasMoved()) {
-          CardAnchor anchor = mMoveCard.GetAnchor();
-          mMoveCard.Release();
-          if (anchor.ExpandStack(x, y)) {
-            mSelectCard.InitFromAnchor(anchor);
-            ChangeViewMode(MODE_CARD_SELECT);
-          } else {
-            ChangeViewMode(MODE_NORMAL);
-          }
-        } else if (mSpeed.IsFast() && mMoveCard.GetCount() == 1) {
-          if (!mRules.Fling(mMoveCard)) {
-            ChangeViewMode(MODE_NORMAL);
-          }
-        } else {
-          mMoveCard.Release();
-          ChangeViewMode(MODE_NORMAL);
-        }
-        return true;
-      case MODE_CARD_SELECT:
-        if (!mSelectCard.IsOnCard() && !mHasMoved) {
-          mSelectCard.Release();
-          ChangeViewMode(MODE_NORMAL);
-          return true;
-        }
-        break;
-    }
-
-    return false;
+  /*****************************************************************************/
+  public void DrawCard(Canvas canvas, Card card) {
+    float x = card.getX();
+    float y = card.getY();
+    int idx = card.getId();
+    canvas.drawBitmap(mCardBitmap[idx], x, y, null);
   }
-
-  public boolean onDown(float x, float y) {
-    switch (mViewMode) {
-      case MODE_NORMAL:
-        Card card = null;
-        for (int i = 0; i < mCardAnchor.length; i++) {
-          card = mCardAnchor[i].GrabCard(x, y);
-          if (card != null) {
-            if (y < card.GetY() + Card.HEIGHT/4) {
-              boolean lastIgnore = mRules.GetIgnoreEvents();
-              mRules.SetIgnoreEvents(true);
-              mCardAnchor[i].AddCard(card);
-              mRules.SetIgnoreEvents(lastIgnore);
-              if (mCardAnchor[i].ExpandStack(x, y)) {
-                mMoveCard.InitFromAnchor(mCardAnchor[i], x-Card.WIDTH/2, y-Card.HEIGHT/2);
-                ChangeViewMode(MODE_MOVE_CARD);
-                break;
-              }
-              card = mCardAnchor[i].PopCard();
-            }
-            mMoveCard.SetAnchor(mCardAnchor[i]);
-            mMoveCard.AddCard(card);
-            ChangeViewMode(MODE_MOVE_CARD);
-            break;
-          }
-        }
-        break;
-      case MODE_CARD_SELECT:
-        mSelectCard.Tap(x, y);
-        break;
-    }
-    return true;
+  /*****************************************************************************/
+  private void LoadCardBitmap(Context context, int idx, String varImg, int i) {
+	Canvas canvas;
+	String numImg = "";
+	Resources r = context.getResources();
+	
+	// avoid slow String format
+	if (i>0) {
+		if (i<10)
+			numImg = "0" + Integer.toString(i);
+		else
+			numImg =  Integer.toString(i);
+	}
+	
+	int resID = r.getIdentifier(varImg + numImg, mDir, mPackage);
+	Drawable drawable = r.getDrawable(resID);
+	mCardBitmap[idx] = Bitmap.createBitmap(Card.WIDTH, Card.HEIGHT, Bitmap.Config.ARGB_4444);
+	canvas = new Canvas(mCardBitmap[idx]);
+	drawable.setBounds(0, 0, Card.WIDTH, Card.HEIGHT);
+	drawable.draw(canvas);
   }
-
-  public boolean onMove(float dx, float dy, float x, float y) {
-    mSpeed.AddSpeed(dx, dy);
-    switch (mViewMode) {
-      case MODE_NORMAL:
-        if (Math.abs(mDownPoint.x - x) > 15 || Math.abs(mDownPoint.y - y) > 15) {
-          for (int i = 0; i < mCardAnchor.length; i++) {
-            if (mCardAnchor[i].CanMoveStack(mDownPoint.x, mDownPoint.y)) {
-              mMoveCard.InitFromAnchor(mCardAnchor[i], x-Card.WIDTH/2, y-Card.HEIGHT/2);
-              ChangeViewMode(MODE_MOVE_CARD);
-              return true;
-            }
-          }
-        }
-        break;
-      case MODE_MOVE_CARD:
-        mMoveCard.MovePosition(dx, dy);
-        return true;
-      case MODE_CARD_SELECT:
-        if (mSelectCard.IsOnCard() && Math.abs(mDownPoint.x - x) > 30) {
-          mMoveCard.InitFromSelectCard(mSelectCard, x, y);
-          ChangeViewMode(MODE_MOVE_CARD);
-        } else {
-          mSelectCard.Scroll(dy);
-          if (!mSelectCard.IsOnCard()) {
-            mSelectCard.Tap(x, y);
-          }
-        }
-        return true;
-    }
-
-    return false;
-  }
-
-  private void CheckMoved(float x, float y) {
-    if (x >= mDownPoint.x - 30 && x <= mDownPoint.x + 30 &&
-        y >= mDownPoint.y - 30 && y <= mDownPoint.y + 30) {
-      mHasMoved = false;
-    } else {
-      mHasMoved = true;
-    }    
-  }
-
-  public void StartAnimating() {
-    DrawBoard();
-    if (mViewMode != MODE_WIN && mViewMode != MODE_ANIMATE) {
-      ChangeViewMode(MODE_ANIMATE);
-    }
-  }
-
-  public void StopAnimating() {
-    if (mViewMode == MODE_ANIMATE) {
-      ChangeViewMode(MODE_NORMAL);
-    } else if (mViewMode == MODE_WIN) {
-      ChangeViewMode(MODE_WIN_STOP);
-    }
-  }
-
-  public void Undo() {
-    if (mViewMode != MODE_NORMAL && mViewMode != MODE_WIN) {
-      return;
-    }
-    boolean oldIgnore = mRules.GetIgnoreEvents();
-    mRules.SetIgnoreEvents(true);
-
-    mMoveCard.Release();
-    mSelectCard.Release();
-
-    if (!mMoveHistory.empty()) {
-      Move move = mMoveHistory.pop();
-      int count = 0;
-      int from = move.GetFrom();
-      if (move.GetToBegin() != move.GetToEnd()) {
-        for (int i = move.GetToBegin(); i <= move.GetToEnd(); i++) {
-          for (int j = 0; j < move.GetCount(); j++) {
-            mUndoStorage[count++] = mCardAnchor[i].PopCard();
-          }
-        }
-      } else {
-        for (int i = 0; i < move.GetCount(); i++) {
-          mUndoStorage[count++] = mCardAnchor[move.GetToBegin()].PopCard();
-        }
-      }
-      if (move.GetUnhide()) {
-        mCardAnchor[from].SetHiddenCount(mCardAnchor[from].GetHiddenCount() + 1);
-      }
-      if (move.GetInvert()) {
-        for (int i = 0; i < count; i++) {
-          mCardAnchor[from].AddCard(mUndoStorage[i]);
-        }
-      } else {
-        for (int i = count-1; i >= 0; i--) {
-          mCardAnchor[from].AddCard(mUndoStorage[i]);
-        }
-      }
-      if (move.GetAddDealCount()) {
-        mRules.AddDealCount();
-      }
-      if (mUndoStorage[0].GetValue() == 1) {
-        for (int i = 0; i < mCardAnchor[from].GetCount(); i++) {
-          Card card = mCardAnchor[from].GetCards()[i];
-        }
-      }
-      Refresh();
-    }
-    mRules.SetIgnoreEvents(oldIgnore);
-  }
-
-  private void MarkAttempt() {
-    String gameAttemptString = mRules.GetGameTypeString() + "Attempts";
-    int attempts = GetSettings().getInt(gameAttemptString, 0);
-    SharedPreferences.Editor editor = GetSettings().edit();
-    editor.putInt(gameAttemptString, attempts + 1);
-    editor.commit();
-  }      
-
-  private void MarkWin() {
-    String gameWinString = mRules.GetGameTypeString() + "Wins";
-    String gameTimeString = mRules.GetGameTypeString() + "Time";
-    int wins = GetSettings().getInt(gameWinString, 0);
-    int bestTime = GetSettings().getInt(gameTimeString, -1);
-    SharedPreferences.Editor editor = GetSettings().edit();
-
-    if (bestTime == -1 || mElapsed < bestTime) {
-      editor.putInt(gameTimeString, mElapsed);
-    }
-
-    editor.putInt(gameWinString, wins + 1);
-    editor.commit();
-    if (mRules.HasScore()) {
-      mWinningScore = mRules.GetScore();
-      if (mWinningScore > GetSettings().getInt(mRules.GetGameTypeString() + "Score", -52)) {
-        editor.putInt(mRules.GetGameTypeString() + "Score", mWinningScore);
-      }
-    }
-  }      
-
-  // Simple function to check for a consistent state in Solitaire.
-  private void SanityCheck() {
-    int cardCount;
-    int diffCardCount;
-    int matchCount;
-    String type = mRules.GetGameTypeString();
-    if (type == "Spider1Suit") {
-      cardCount = 13;
-      matchCount = 8;
-    } else if (type == "Spider2Suit") {
-      cardCount = 26;
-      matchCount = 4;
-    } else if (type == "Spider4Suit") {
-      cardCount = 52;
-      matchCount = 2;
-    } else if (type == "Forty Thieves") {
-      cardCount = 52;
-      matchCount = 2;
-    } else {
-      cardCount = 52;
-      matchCount = 1;
-    }
-    
-    int[] cards = new int[cardCount];
-    for (int i = 0; i < cardCount; i++) {
-      cards[i] = 0;
-    }
-    for (int i = 0; i < mCardAnchor.length; i++) {
-      for (int j = 0; j < mCardAnchor[i].GetCount(); j++) {
-        Card card = mCardAnchor[i].GetCards()[j];
-        int idx = card.GetSuit() * 13 + card.GetValue() - 1;
-        if (cards[idx] >= matchCount) {
-          mTextView.setTextSize(20);
-          mTextView.setGravity(Gravity.CENTER);
-          DisplayText("Sanity Check Failed\nExtra: " + card.GetValue() + " " +card.GetSuit());
-          return;
-        }
-        cards[idx]++;
-      }
-    }
-    for (int i = 0; i < cardCount; i++) {
-      if (cards[i] != matchCount) {
-        mTextView.setTextSize(20);
-        mTextView.setGravity(Gravity.CENTER);
-        DisplayText("Sanity Check Failed\nMissing: " + (i %13 + 1) + " " + i / 13);
-        return;
-      }
-    }
-  }
-
-  public void RefreshOptions() {
-    mRules.RefreshOptions();
-    SetDisplayTime(GetSettings().getBoolean("DisplayTime", true));
+  /*****************************************************************************/
+  private void DrawCards(Context context) {   
+	  // get suits images
+	  for (int i=0; i<4; i++) {
+	  	String varImg;
+	  	if (i == Card.SPADES) {
+	  		varImg = "pique";
+		} else if (i == Card.HEARTS) {
+			varImg = "coeur";
+		} else if (i == Card.CLUBS) {
+			varImg = "trefle";
+		} else {
+			varImg = "carreau";
+			}
+	  	for (int j=0; j<14; j++) {
+	  		LoadCardBitmap(context, i*14+j, varImg, j+1);
+	  	}
+	  }
+	  
+	  // 21 atouts
+	  for(int i=0; i<21; i++) {
+	  	LoadCardBitmap(context, 56+i, "atout", i+1);
+	  }
+		
+	  // Excuse
+	  LoadCardBitmap(context, 77, "excuse", -1);
   }
 }
+/*****************************************************************************/
 
+
+/*****************************************************************************/
 class RefreshHandler implements Runnable {
   public static final int NO_REFRESH = 1;
   public static final int SINGLE_REFRESH = 2;
@@ -765,9 +208,9 @@ class RefreshHandler implements Runnable {
 
   private boolean mRun;
   private int mRefresh;
-  private SolitaireView mView;
+  private TarotView mView;
 
-  public RefreshHandler(SolitaireView solitaireView) {
+  public RefreshHandler(TarotView solitaireView) {
     mView = solitaireView;
     mRun = true;
     mRefresh = NO_REFRESH;
@@ -797,7 +240,6 @@ class RefreshHandler implements Runnable {
         Thread.sleep(1000 / FPS);
       } catch (InterruptedException e) {
       }
-      mView.UpdateTime();
       if (mRefresh != NO_REFRESH) {
         mView.postInvalidate();
         if (mRefresh == SINGLE_REFRESH) {
@@ -807,34 +249,3 @@ class RefreshHandler implements Runnable {
     }
   }
 }
-
-class Speed {
-  private static final int SPEED_COUNT = 4;
-  private static final float SPEED_THRESHOLD = 10*10;
-  private float[] mSpeed;
-  private int mIdx;
-
-  public Speed() {
-    mSpeed = new float[SPEED_COUNT];
-    Reset();
-  }
-  public void Reset() {
-    mIdx = 0;
-    for (int i = 0; i < SPEED_COUNT; i++) {
-      mSpeed[i] = 0;
-    }
-  }
-  public void AddSpeed(float dx, float dy) {
-    mSpeed[mIdx] = dx*dx + dy*dy;
-    mIdx = (mIdx + 1) % SPEED_COUNT;
-  }
-  public boolean IsFast() {
-    for (int i = 0; i < SPEED_COUNT; i++) {
-      if (mSpeed[i] > SPEED_THRESHOLD) {
-        return true;
-      }
-    }
-    return false;
-  }
-}
-
