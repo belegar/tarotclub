@@ -20,8 +20,8 @@ class TarotEngine extends TarotView {
   // variables
   public static final int NB_HAND_CARDS = 18;
 
-  private Deck deck;  // main deck, never empty
-  private Deck stack; // stack of cards played turing this turn
+  private Card[] cards;
+  private Deck deck;  // main deck
   private Deck chien; // chien cards
   private Player[] mPlayers; // every player have his own deck
   
@@ -58,9 +58,11 @@ class TarotEngine extends TarotView {
 	  
 	  // show player's cards
 	  for (int i=0; i<mPlayers[TarotEngine.SOUTH].mDeck.size(); i++) {
-		  Card c = mPlayers[TarotEngine.SOUTH].mDeck.getCard(i);
-		  c.setPosition(30+20*i, 239);
-		  DrawCard(canvas, c);
+		  int id = mPlayers[TarotEngine.SOUTH].mDeck.getCard(i);
+		  if ((id >= 0) && (id<=77)) {
+			  cards[id].setPosition(30+20*i, 239);
+			  DrawCard(canvas, cards[id]);
+		  }
 	  }
   }
   /*****************************************************************************/
@@ -77,9 +79,10 @@ class TarotEngine extends TarotView {
   public TarotEngine(Context context, AttributeSet attrs) {
 	  super(context, attrs);
 	  
+	  cards = new Card[78];
+	  
 	  mPlayers = new Player[4];
 	  deck = new Deck();
-	  stack = new Deck();
 	  chien = new Deck();
 	  
 	  mPlayers[0] = new Player("Sud", SOUTH);
@@ -109,35 +112,45 @@ class TarotEngine extends TarotView {
   // detect which card is under the finger
   private void selectCard(float x, float y) {
 	  for (int i=0; i<mPlayers[TarotEngine.SOUTH].mDeck.size(); i++) {
-		  Card c = mPlayers[TarotEngine.SOUTH].mDeck.getCard(i);
-		  if (y >= c.getY()) {
-			  if ((x >= c.getX()) && (x <= (c.getX()+Card.WIDTH))) {
-				  c.movePosition(0, -20);
-				  TarotEngine.this.invalidate();
+		  int id = mPlayers[TarotEngine.SOUTH].mDeck.getCard(i);
+		  if ((id >= 0) && (id<=77)) {
+			  Card c = cards[id];
+			  if (y >= c.getY()) {
+				  if ((x >= c.getX()) && (x <= (c.getX()+Card.WIDTH))) {
+					  cards[id].movePosition(0, -20);
+					  TarotEngine.this.invalidate();
+				  }
 			  }
 		  }
 	  }
   }
   /*****************************************************************************/
   public void deal() {
-	  stack.clear();
+	  deck.clear();
 	  chien.clear();
-	  
+
+	  // init main deck
+	  for (int i=0; i<78; i++) {
+		  deck.addCard(i);
+	  }
+  
 	  // shuffle cards and send to players
 	  deck.shuffle();
 	  for (int i=0; i<4; i++) {
 		  int n = i*NB_HAND_CARDS;
 		  mPlayers[i].mDeck.clear();
 		  for (int j=0; j<NB_HAND_CARDS; j++) {
-			  Card c = deck.getCard(n+j);
+			  int c = deck.getCard(n+j);
 			  mPlayers[i].mDeck.addCard(c);
 		  }
 	  }
 	  // rest of the cards go to the chien
 	  for (int i=0; i<6; i++) {
-		  Card c = deck.getCard(72+i);
+		  int c = deck.getCard(72+i);
 		  chien.addCard(c);
 	  }
+	  
+	  deck.clear();
   }
   /*****************************************************************************/
   public void newGame() {
@@ -145,11 +158,7 @@ class TarotEngine extends TarotView {
 	update();
   } 
   /*****************************************************************************/
-  public Card getCard(int idx) {
-	  return deck.getCard(idx);
-  }
-  /*****************************************************************************/
-  // init cards for the round
+  // init cards for the game
   public void Init() {
 	int id;
 	// create normal cards
@@ -178,8 +187,8 @@ class TarotEngine extends TarotView {
 			} else {
 				points = 0.5f;
 			}
-			Card card = new Card(j+1, i, points, id+j);
-			deck.addCard(card);
+			cards[id+j] = new Card(j+1, i, points, id+j);
+			
 		}
 	}
 	// atouts cards
@@ -190,12 +199,10 @@ class TarotEngine extends TarotView {
 		} else {
 			points = 0.5f;
 		}
-		Card card = new Card(i+1, Card.ATOUT, points, i);
-		deck.addCard(card);
+		cards[i] = new Card(i+1, Card.ATOUT, points, i);
 	}
 	// Excuse card
-	Card card = new Card(1, Card.EXCUSE, 4.5f, 77);
-	deck.addCard(card);
+	cards[77] = new Card(1, Card.EXCUSE, 4.5f, 77);
   }
 }
 

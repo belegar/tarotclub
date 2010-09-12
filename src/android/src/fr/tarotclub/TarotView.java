@@ -57,7 +57,6 @@ public class TarotView extends View {
   }
   /*****************************************************************************/
 public void InitGame() {
-
     // We really really want focus :)
     setFocusable(true);
     setFocusableInTouchMode(true);

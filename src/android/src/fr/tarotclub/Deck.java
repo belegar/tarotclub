@@ -9,14 +9,14 @@ import java.util.Comparator;
 
 public class Deck {
 
-  private ArrayList<Card> mCards;
+  public ArrayList<Integer> mCards;
 
-  Comparator<Card> comparator = new Comparator<Card>() {
+  Comparator<Integer> comparator = new Comparator<Integer>() {
 	  @Override
-	  public int compare(Card obj1, Card obj2) {
-		  if (obj1.getId() < obj2.getId())
+	  public int compare(Integer obj1, Integer obj2) {
+		  if (obj1.intValue() < obj2.intValue())
 			  return 1;
-		  else if (obj1.getId() > obj2.getId())
+		  else if (obj1.intValue() > obj2.intValue())
 			  return -1;
 		  else
 			  return 0;
@@ -24,31 +24,29 @@ public class Deck {
   };
   
   public Deck() {
-	  mCards = new ArrayList<Card>();
+	  mCards = new ArrayList<Integer>();
   }
 
-  public void addCard(Card card) {
-    mCards.add(card);
-  }
-
-  public Card getCard(int index) {
-    if ( (index < mCards.size()) && (mCards.size()!=0) ) {
-      return mCards.get(index);
-    }
-    return null;
-  }
-  
-  public Card getCardById(int id) {
+  public int getCardById(int id) {
+	int c = -1;
 	for (int i=0; i<mCards.size(); i++) {
-		Card c = mCards.get(i);
-		if (c.getId() == id)
+		c = mCards.get(i).intValue();
+		if (c == id)
 			return c;
     }
-    return null;
+	return c;
   }
   
-  public boolean removeCard(Card card) {
-    return mCards.remove(card);
+  public int getCard(int idx) {
+    return mCards.get(idx).intValue();
+  }
+  
+  public void addCard(int id) {
+    mCards.add(Integer.valueOf(id));
+  }
+  
+  public boolean removeCard(int id) {
+    return mCards.remove(Integer.valueOf(id));
   }
 
   public void shuffle() {
