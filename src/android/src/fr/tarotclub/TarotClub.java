@@ -10,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 // Base activity class.
@@ -19,40 +21,59 @@ public class TarotClub extends Activity {
   private static final int MENU_QUIT     	= 3;
 
   // View extracted from main.xml.
-  private View mMainView;
-  private TarotView mTarotView;
+  private TarotEngine mTarotEngine;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    // Force landscape and no title for extra room
+    // Force landscape and no title bar for extra room
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-    // If the user has never accepted the EULA show it again.
     setContentView(R.layout.main);
-    mMainView = findViewById(R.id.main_view);
-    mTarotView = (TarotView) findViewById(R.id.tarot);
-    mTarotView.SetTextView((TextView) findViewById(R.id.text));
-
-    //StartSolitaire(savedInstanceState);
+    
+    final Button buttonPasse = (Button) findViewById(R.id.buttonPasse);
+    	buttonPasse.setVisibility(View.INVISIBLE);
+    	buttonPasse.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+          }
+      });
+    final Button buttonPrise = (Button) findViewById(R.id.buttonPrise);
+    	buttonPrise.setVisibility(View.INVISIBLE);
+    	buttonPrise.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+          }
+      });
+    final Button buttonGarde = (Button) findViewById(R.id.buttonGarde);
+    	buttonGarde.setVisibility(View.INVISIBLE);
+      	buttonGarde.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+          }
+      });
+    final Button buttonGardeSans = (Button) findViewById(R.id.buttonGardeSans);
+    	buttonGardeSans.setVisibility(View.INVISIBLE);
+    	buttonGardeSans.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+          }
+      });
+    final Button buttonGardeContre = (Button) findViewById(R.id.buttonGardeContre);
+    	buttonGardeContre.setVisibility(View.INVISIBLE);
+    	buttonGardeContre.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+          }
+      });
+    
+    mTarotEngine = (TarotEngine) findViewById(R.id.tarot);
+    mTarotEngine.SetTextView((TextView) findViewById(R.id.text));
   }
 
   // Entry point for starting the game.
-  //public void StartSolitaire(Bundle savedInstanceState) {
   @Override
   public void onStart() {
     super.onStart();
 
-    mTarotView.InitGame();
-   // AboutSplashScreen();
-  }
-
-  // Force show the help if this is the first time played. Sadly no one reads
-  // it anyways.
-  private void AboutSplashScreen() {
-	  mTarotView.DisplayAbout();
+    mTarotEngine.InitGame();
   }
 
   @Override
@@ -68,10 +89,10 @@ public class TarotClub extends Activity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case MENU_NEW_GAME:
-    	 // mTarotView.RestartGame();
+    	  mTarotEngine.newGame();
         break;
       case MENU_ABOUT:
-    	  mTarotView.DisplayAbout();
+    	  mTarotEngine.DisplayAbout();
         break;
       case MENU_QUIT:
         finish();

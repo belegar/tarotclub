@@ -15,11 +15,10 @@
   limitations under the License.
   -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_view"
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
-    <fr.tarotclub.TarotView
+    <fr.tarotclub.TarotEngine
       android:id="@+id/tarot"
       android:layout_width="fill_parent"
       android:layout_height="fill_parent" />
@@ -37,5 +36,53 @@
           />
      </RelativeLayout>
 
+	<AbsoluteLayout android:id="@+id/widget0" android:layout_width="fill_parent"
+					android:layout_height="fill_parent"
+					xmlns:android="http://schemas.android.com/apk/res/android">
+	<Button
+		android:id="@+id/buttonPasse"
+		android:layout_width="100px"
+		android:layout_height="wrap_content"
+		android:text="Passe"
+		android:layout_x="310px"
+		android:layout_y="110px"
+	/>
+	<Button
+		android:id="@+id/buttonPrise"
+		android:layout_width="100px"
+		android:layout_height="wrap_content"
+		android:text="Prise"
+		android:layout_x="260px"
+		android:layout_y="5px"
+	/>
+	<Button
+		android:id="@+id/buttonGarde"
+		android:layout_width="100px"
+		android:layout_height="wrap_content"
+		android:text="Garde"
+		android:layout_x="365px"
+		android:layout_y="5px"
+	/>
+	<Button
+		android:id="@+id/buttonGardeSans"
+		android:layout_width="100px"
+		android:layout_height="wrap_content"
+		android:text="Garde sans"
+		android:layout_x="260px"
+		android:layout_y="55px"
+	/>
+	<Button
+		android:id="@+id/buttonGardeContre"
+		android:layout_width="100px"
+		android:layout_height="wrap_content"
+		android:text="Garde contre"
+		android:layout_x="365px"
+		android:layout_y="55px"
+	/>
+	</AbsoluteLayout>
+
 </FrameLayout>
+
+
+
 
