@@ -20,6 +20,8 @@ class TarotEngine extends TarotView {
   // variables
   public static final int NB_HAND_CARDS = 18;
 
+  private int selId = -1;
+  private float selX, selY;
   private Card[] cards;
   private Deck deck;  // main deck
   private Deck chien; // chien cards
@@ -59,10 +61,16 @@ class TarotEngine extends TarotView {
 	  // show player's cards
 	  for (int i=0; i<mPlayers[TarotEngine.SOUTH].mDeck.size(); i++) {
 		  int id = mPlayers[TarotEngine.SOUTH].mDeck.getCard(i);
-		  if ((id >= 0) && (id<=77)) {
+		  if ((id >= 0) && (id<=77) && (id!=selId)) {
 			  cards[id].setPosition(30+20*i, 239);
 			  DrawCard(canvas, cards[id]);
 		  }
+	  }
+	  
+	  // center the selected card under the finger (in the low half to see the card
+	  if (selId>=0) {
+		  cards[selId].setPosition(selX-Card.WIDTH/2, selY-Card.HEIGHT/1.5f);
+		  DrawCard(canvas, cards[selId]);
 	  }
   }
   /*****************************************************************************/
@@ -99,11 +107,21 @@ class TarotEngine extends TarotView {
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
     	selectCard(event.getX(), event.getY());
+    	ret = true;
         break;
       case MotionEvent.ACTION_UP:
+    	selId = -1;
+    	TarotEngine.this.invalidate();
+    	break;
       case MotionEvent.ACTION_CANCEL:
         break;
       case MotionEvent.ACTION_MOVE:
+    	if (selId>=0) {
+    		selX = event.getX();
+    		selY = event.getY();
+    		TarotEngine.this.invalidate();
+    		ret = true;
+    	}
         break;
     }
     return ret;
@@ -117,7 +135,9 @@ class TarotEngine extends TarotView {
 			  Card c = cards[id];
 			  if (y >= c.getY()) {
 				  if ((x >= c.getX()) && (x <= (c.getX()+Card.WIDTH))) {
-					  cards[id].movePosition(0, -20);
+					  selId = id;
+					  selX = x;
+					  selY = y;
 					  TarotEngine.this.invalidate();
 				  }
 			  }
