@@ -2,9 +2,17 @@
 <project name="TarotClub" default="debug">
     <!-- SDK Locations -->
     <!-- NOTE: You must change these to match your configuration. -->
-    <property name="sdk-folder" value="C:\android-sdk-windows" />
-    <property name="android-tools" value="C:\android-sdk-windows\tools" />
-    
+    <condition property="sdk-folder"
+    		value="C:\android-sdk-windows"
+    		else="~/android-sdk-linux_x86">
+    	<os family="windows"/>
+    </condition>
+    <condition property="android-tools"
+    		value="C:\android-sdk-windows\tools"
+    		else="~/android-sdk-linux_x86/tools">
+    	<os family="windows"/>
+   	</condition>
+    	
     <!-- Application Package Name -->
     <property name="application-package" value="fr.tarotclub" />
 
