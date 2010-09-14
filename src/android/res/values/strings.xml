@@ -4,6 +4,11 @@
     <string name="menu_newgame">New Game</string>
     <string name="menu_about">About</string>
     <string name="menu_quit">Quit</string>
+    <string name="bid_passe">Passe</string>
+    <string name="bid_prise">Prise</string>
+    <string name="bid_garde">Garde</string>
+    <string name="bid_garde_sans">Garde sans</string>
+    <string name="bid_garde_contre">Garde contre</string>
 	<string name="about_text">
 TarotClub is an open source Tarot card game!\n\n
 More information on http://www.tarotclub.fr.\n\n

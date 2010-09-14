@@ -8,10 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.TextView;
 
 // Base activity class.
@@ -32,38 +29,7 @@ public class TarotClub extends Activity {
     requestWindowFeature(Window.FEATURE_NO_TITLE);
 
     setContentView(R.layout.main);
-    
-    final Button buttonPasse = (Button) findViewById(R.id.buttonPasse);
-    	buttonPasse.setVisibility(View.INVISIBLE);
-    	buttonPasse.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-          }
-      });
-    final Button buttonPrise = (Button) findViewById(R.id.buttonPrise);
-    	buttonPrise.setVisibility(View.INVISIBLE);
-    	buttonPrise.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-          }
-      });
-    final Button buttonGarde = (Button) findViewById(R.id.buttonGarde);
-    	buttonGarde.setVisibility(View.INVISIBLE);
-      	buttonGarde.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-          }
-      });
-    final Button buttonGardeSans = (Button) findViewById(R.id.buttonGardeSans);
-    	buttonGardeSans.setVisibility(View.INVISIBLE);
-    	buttonGardeSans.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-          }
-      });
-    final Button buttonGardeContre = (Button) findViewById(R.id.buttonGardeContre);
-    	buttonGardeContre.setVisibility(View.INVISIBLE);
-    	buttonGardeContre.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-          }
-      });
-    
+
     mTarotEngine = (TarotEngine) findViewById(R.id.tarot);
     mTarotEngine.SetTextView((TextView) findViewById(R.id.text));
   }

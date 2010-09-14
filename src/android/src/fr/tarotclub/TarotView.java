@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 // The brains of the operation
@@ -20,7 +21,7 @@ public class TarotView extends View {
   private CharSequence mAboutText;
   private TextView mTextView;
   private String mPackage = "fr.tarotclub";
-  private String mDir ="drawable" ;
+  private String mDir = "drawable" ;
 
   //Card stuff
   private Bitmap[] mCardBitmap;
@@ -31,6 +32,19 @@ public class TarotView extends View {
   private int mScreenHeight;
   private Paint mBGPaint;
   
+  // bid values
+  private TextView mBidSouth;
+  private TextView mBidEast;
+  private TextView mBidNorth;
+  private TextView mBidWest;
+  
+  // bid buttons
+  Button buttonPasse = (Button) findViewById(R.id.buttonPasse);
+  Button buttonPrise = (Button) findViewById(R.id.buttonPrise);
+  Button buttonGarde = (Button) findViewById(R.id.buttonGarde);
+  Button buttonGardeSans = (Button) findViewById(R.id.buttonGardeSans);
+  Button buttonGardeContre = (Button) findViewById(R.id.buttonGardeContre);
+  
   /*****************************************************************************/
   public TarotView(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -38,6 +52,11 @@ public class TarotView extends View {
     setFocusableInTouchMode(true);
   
     mAboutText = context.getResources().getText(R.string.about_text);
+    
+    mBidSouth = (TextView) findViewById(R.id.bidSouth);
+    mBidEast = (TextView) findViewById(R.id.bidEast);
+    mBidNorth = (TextView) findViewById(R.id.bidNorth);
+    mBidWest = (TextView) findViewById(R.id.bidWest);
         
     // Default to this for simplicity
     mScreenWidth = 480;
@@ -49,11 +68,71 @@ public class TarotView extends View {
     
     // card footprints
     mCardPaint = new Paint();
-    mCardPaint.setARGB(100, 0, 0, 0);
+    mCardPaint.setARGB(70, 0, 0, 0);
 
     mCardBitmap = new Bitmap[78];
     LoadCards(context);
-
+    
+//    removeBidButtons();
+  }
+  /*****************************************************************************/
+  public void showBidButtons(int bid) {
+	  
+	  buttonPasse.setVisibility(View.VISIBLE);
+	  
+	  if (bid > Game.PRISE) {
+		  buttonPrise.setVisibility(View.VISIBLE);
+	  } else {
+		  buttonPrise.setVisibility(View.INVISIBLE);
+	  }
+	  if (bid > Game.GARDE) {
+		  buttonGarde.setVisibility(View.VISIBLE);
+	  } else {
+		  buttonGarde.setVisibility(View.INVISIBLE);
+	  }
+	  if (bid > Game.GARDE_SANS) {
+		  buttonGardeSans.setVisibility(View.VISIBLE);
+	  } else {
+		  buttonGardeSans.setVisibility(View.INVISIBLE);
+	  }
+	  if (bid > Game.GARDE_CONTRE) {
+		  buttonGardeContre.setVisibility(View.VISIBLE);
+	  } else {
+		  buttonGardeContre.setVisibility(View.INVISIBLE);
+	  }
+  }
+  /*****************************************************************************/
+  public void removeBidButtons() {
+	  buttonPasse.setVisibility(View.INVISIBLE);
+	  buttonPrise.setVisibility(View.INVISIBLE);
+	  buttonGarde.setVisibility(View.INVISIBLE);
+	  buttonGardeSans.setVisibility(View.INVISIBLE);
+	  buttonGardeContre.setVisibility(View.INVISIBLE);
+  }
+  /*****************************************************************************/
+  public void showBid(int place, int bid) {
+	  CharSequence txt;
+	  
+	  if (bid == Game.PASSE)
+		  txt = getContext().getResources().getString(R.string.bid_passe);
+	  else if (bid == Game.PRISE)
+		  txt = getContext().getResources().getString(R.string.bid_prise);
+	  else if (bid == Game.GARDE)
+		  txt = getContext().getResources().getString(R.string.bid_garde);
+	  else if (bid == Game.GARDE_SANS)
+		  txt = getContext().getResources().getString(R.string.bid_garde_sans);
+	  else
+		  txt = getContext().getResources().getString(R.string.bid_garde_contre);
+	  
+	  if (place == Game.SOUTH) {
+		  mBidSouth.setText(txt);
+	  } else if (place == Game.EAST) {
+		  mBidEast.setText(txt);
+	  } else if (place == Game.NORTH) {
+		  mBidNorth.setText(txt);
+	  } else {
+		  mBidWest.setText(txt);
+	  }
   }
   /*****************************************************************************/
 public void InitGame() {
@@ -85,6 +164,11 @@ public void InitGame() {
   /*****************************************************************************/
   public void drawCardFootPrint(int x, int y, Canvas canvas) {
 	  RectF pos = new RectF(x, y, x + Card.WIDTH, y + Card.HEIGHT);
+	  canvas.drawRoundRect(pos, 4, 4, mCardPaint);
+  }
+  /*****************************************************************************/
+  public void drawChienArea(int x, int y, Canvas canvas) {
+	  RectF pos = new RectF(x, y, x+200, y+230);
 	  canvas.drawRoundRect(pos, 4, 4, mCardPaint);
   }
   /*****************************************************************************/

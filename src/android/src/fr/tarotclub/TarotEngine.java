@@ -8,17 +8,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 
 
 class TarotEngine extends TarotView {
-  // Places
-  public static final int SOUTH = 0;
-  public static final int EAST = 1;
-  public static final int NORTH = 2;
-  public static final int WEST = 3;
-  
   // variables
-  public static final int NB_HAND_CARDS = 18;
+  private static final int NB_HAND_CARDS = 18;
+  private static final long DELAY_MS = 500;
 
   private int selId = -1;
   private float selX, selY;
@@ -26,29 +22,45 @@ class TarotEngine extends TarotView {
   private Deck deck;  // main deck
   private Deck chien; // chien cards
   private Player[] mPlayers; // every player have his own deck
+  private Game mGame = new Game();
+  private GameHandler mGameHandler = new GameHandler();
+    
   
-  private RefreshHandler mRedrawHandler = new RefreshHandler();
   
   /*****************************************************************************/
   /**
-   * Create a simple handler that we can use to cause animation to happen.  We
-   * set ourselves as a target and we can use the sleep()
-   * function to cause an update/invalidate to occur at a later date.
+   * Main game engine, a quick and dirty state machine
    */
-  class RefreshHandler extends Handler {
-
+  class GameHandler extends Handler {
       @Override
       public void handleMessage(Message msg) {
-    	  TarotEngine.this.update();
-    	  TarotEngine.this.invalidate();
+    	  if (mGame.getSequence() == Game.ENCHERES) {
+    		  if (mGame.getTurn() == Game.SOUTH) {
+    			  showBidButtons(mGame.getContract());
+    		  } else {
+    			 manageBids(mPlayers[mGame.getTurn()].calculEnchere());
+    		  }
+    	  }
       }
 
       public void sleep(long delayMillis) {
-      	this.removeMessages(0);
+    	  this.removeMessages(0);
           sendMessageDelayed(obtainMessage(0), delayMillis);
       }
-  };
-  
+  }
+
+  /*****************************************************************************/
+  public void manageBids(int bid) {
+	  if (bid<= mGame.getContract())
+		  bid = Game.PASSE;
+	  showBid(mGame.getTurn(), bid);
+	  
+	  if (mGame.sequenceBids(bid) == false) {
+		  // restart if all players passed, otherwise start game
+	  } else {
+		  mGameHandler.sleep(DELAY_MS);
+	  }
+  }
   /*****************************************************************************/
   @Override
   public void onDraw(Canvas canvas) {
@@ -58,9 +70,11 @@ class TarotEngine extends TarotView {
 	  drawCardFootPrint(126, 5, canvas); //north
 	  drawCardFootPrint(126, 122, canvas); //south
 	  
+//	  drawChienArea(270, 5, canvas);
+	  
 	  // show player's cards
-	  for (int i=0; i<mPlayers[TarotEngine.SOUTH].mDeck.size(); i++) {
-		  int id = mPlayers[TarotEngine.SOUTH].mDeck.getCard(i);
+	  for (int i=0; i<mPlayers[Game.SOUTH].mDeck.size(); i++) {
+		  int id = mPlayers[Game.SOUTH].mDeck.getCard(i);
 		  if ((id >= 0) && (id<=77) && (id!=selId)) {
 			  cards[id].setPosition(30+20*i, 239);
 			  DrawCard(canvas, cards[id]);
@@ -74,13 +88,8 @@ class TarotEngine extends TarotView {
 	  }
   }
   /*****************************************************************************/
-  /**
-   * Handles the basic update loop, checking to see if we are in the running
-   * state, determining if a move should be made, updating the snake's location.
-   */
   public void update() { 
-	  mPlayers[TarotEngine.SOUTH].mDeck.tidy();
-	  //mRedrawHandler.sleep(200);
+	  mPlayers[Game.SOUTH].mDeck.tidy();
 	  TarotEngine.this.invalidate();
   }
   /*****************************************************************************/
@@ -93,10 +102,36 @@ class TarotEngine extends TarotView {
 	  deck = new Deck();
 	  chien = new Deck();
 	  
-	  mPlayers[0] = new Player("Sud", SOUTH);
-	  mPlayers[1] = new Player("Est", EAST);
-	  mPlayers[2] = new Player("Ouest", NORTH);
-	  mPlayers[3] = new Player("Nord", WEST);
+	  mPlayers[0] = new Player();
+	  mPlayers[1] = new Player();
+	  mPlayers[2] = new Player();
+	  mPlayers[3] = new Player();
+	  
+	  buttonPasse.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				manageBids(Game.PASSE);
+			}
+		 });
+	  buttonPrise.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				manageBids(Game.PRISE);
+			}
+		});
+	  buttonGarde.setOnClickListener(new OnClickListener() {
+		    public void onClick(View v) {
+		    	manageBids(Game.GARDE);
+		    }
+		});	  
+	  buttonGardeSans.setOnClickListener(new OnClickListener() {
+		    public void onClick(View v) {
+		    	manageBids(Game.GARDE_SANS);
+		    }
+		});
+	  buttonGardeContre.setOnClickListener(new OnClickListener() {
+		    public void onClick(View v) {
+		    	manageBids(Game.GARDE_CONTRE);
+		    }
+		});
 	  Init();
   }
   /*****************************************************************************/
@@ -129,8 +164,8 @@ class TarotEngine extends TarotView {
   /*****************************************************************************/
   // detect which card is under the finger
   private void selectCard(float x, float y) {
-	  for (int i=0; i<mPlayers[TarotEngine.SOUTH].mDeck.size(); i++) {
-		  int id = mPlayers[TarotEngine.SOUTH].mDeck.getCard(i);
+	  for (int i=0; i<mPlayers[Game.SOUTH].mDeck.size(); i++) {
+		  int id = mPlayers[Game.SOUTH].mDeck.getCard(i);
 		  if ((id >= 0) && (id<=77)) {
 			  Card c = cards[id];
 			  if (y >= c.getY()) {
@@ -163,6 +198,7 @@ class TarotEngine extends TarotView {
 			  int c = deck.getCard(n+j);
 			  mPlayers[i].mDeck.addCard(c);
 		  }
+		  mPlayers[i].updateStats(cards);
 	  }
 	  // rest of the cards go to the chien
 	  for (int i=0; i<6; i++) {
@@ -176,6 +212,8 @@ class TarotEngine extends TarotView {
   public void newGame() {
 	deal();
 	update();
+	mGame.start();
+	mGameHandler.sleep(DELAY_MS);
   } 
   /*****************************************************************************/
   // init cards for the game
