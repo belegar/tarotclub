@@ -39,6 +39,37 @@
 	<AbsoluteLayout android:id="@+id/widget0" android:layout_width="fill_parent"
 					android:layout_height="fill_parent"
 					xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<TextView
+		android:id="@+id/bidSouth"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_x="126px"
+		android:layout_y="122px"
+	/>
+	<TextView
+		android:id="@+id/bidEast"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_x="192px"
+		android:layout_y="60px"
+	/>
+	<TextView
+		android:id="@+id/bidNorth"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_x="126px"
+		android:layout_y="5px"
+	/>
+	<TextView
+		android:id="@+id/bidWest"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_x="60px"
+		android:layout_y="60px"
+	/>
+	
+	<!--  Bid buttons -->
 	<Button
 		android:id="@+id/buttonPasse"
 		android:layout_width="100px"
@@ -79,6 +110,8 @@
 		android:layout_x="365px"
 		android:layout_y="55px"
 	/>
+	
+	
 	</AbsoluteLayout>
 
 </FrameLayout>
