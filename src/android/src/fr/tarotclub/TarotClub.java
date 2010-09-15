@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
-import android.widget.TextView;
 
 // Base activity class.
 public class TarotClub extends Activity {
@@ -31,14 +30,14 @@ public class TarotClub extends Activity {
     setContentView(R.layout.main);
 
     mTarotEngine = (TarotEngine) findViewById(R.id.tarot);
-    mTarotEngine.SetTextView((TextView) findViewById(R.id.text));
+    mTarotEngine.setupUI(this);
+    mTarotEngine.setupHandlers();
   }
 
   // Entry point for starting the game.
   @Override
   public void onStart() {
     super.onStart();
-
     mTarotEngine.InitGame();
   }
 

@@ -2,6 +2,7 @@
 
 package fr.tarotclub;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -24,6 +25,7 @@ public class TarotView extends View {
   private String mDir = "drawable" ;
 
   //Card stuff
+  protected Card[] cards;
   private Bitmap[] mCardBitmap;
   private Paint mCardPaint;
   
@@ -39,11 +41,11 @@ public class TarotView extends View {
   private TextView mBidWest;
   
   // bid buttons
-  Button buttonPasse = (Button) findViewById(R.id.buttonPasse);
-  Button buttonPrise = (Button) findViewById(R.id.buttonPrise);
-  Button buttonGarde = (Button) findViewById(R.id.buttonGarde);
-  Button buttonGardeSans = (Button) findViewById(R.id.buttonGardeSans);
-  Button buttonGardeContre = (Button) findViewById(R.id.buttonGardeContre);
+  Button buttonPasse;
+  Button buttonPrise;
+  Button buttonGarde; 
+  Button buttonGardeSans; 
+  Button buttonGardeContre;
   
   /*****************************************************************************/
   public TarotView(Context context, AttributeSet attrs) {
@@ -52,12 +54,7 @@ public class TarotView extends View {
     setFocusableInTouchMode(true);
   
     mAboutText = context.getResources().getText(R.string.about_text);
-    
-    mBidSouth = (TextView) findViewById(R.id.bidSouth);
-    mBidEast = (TextView) findViewById(R.id.bidEast);
-    mBidNorth = (TextView) findViewById(R.id.bidNorth);
-    mBidWest = (TextView) findViewById(R.id.bidWest);
-        
+
     // Default to this for simplicity
     mScreenWidth = 480;
     mScreenHeight = 295;
@@ -70,39 +67,38 @@ public class TarotView extends View {
     mCardPaint = new Paint();
     mCardPaint.setARGB(70, 0, 0, 0);
 
+    cards = new Card[78];
     mCardBitmap = new Bitmap[78];
     LoadCards(context);
-    
-//    removeBidButtons();
   }
   /*****************************************************************************/
   public void showBidButtons(int bid) {
 	  
 	  buttonPasse.setVisibility(View.VISIBLE);
 	  
-	  if (bid > Game.PRISE) {
-		  buttonPrise.setVisibility(View.VISIBLE);
-	  } else {
+	  if (bid >= Game.PRISE) {
 		  buttonPrise.setVisibility(View.INVISIBLE);
-	  }
-	  if (bid > Game.GARDE) {
-		  buttonGarde.setVisibility(View.VISIBLE);
 	  } else {
+		  buttonPrise.setVisibility(View.VISIBLE);
+	  }
+	  if (bid >= Game.GARDE) {
 		  buttonGarde.setVisibility(View.INVISIBLE);
-	  }
-	  if (bid > Game.GARDE_SANS) {
-		  buttonGardeSans.setVisibility(View.VISIBLE);
 	  } else {
+		  buttonGarde.setVisibility(View.VISIBLE);
+	  }
+	  if (bid >= Game.GARDE_SANS) {
 		  buttonGardeSans.setVisibility(View.INVISIBLE);
-	  }
-	  if (bid > Game.GARDE_CONTRE) {
-		  buttonGardeContre.setVisibility(View.VISIBLE);
 	  } else {
+		  buttonGardeSans.setVisibility(View.VISIBLE);
+	  }
+	  if (bid >= Game.GARDE_CONTRE) {
 		  buttonGardeContre.setVisibility(View.INVISIBLE);
+	  } else {
+		  buttonGardeContre.setVisibility(View.VISIBLE);
 	  }
   }
   /*****************************************************************************/
-  public void removeBidButtons() {
+  public void hideBidButtons() {
 	  buttonPasse.setVisibility(View.INVISIBLE);
 	  buttonPrise.setVisibility(View.INVISIBLE);
 	  buttonGarde.setVisibility(View.INVISIBLE);
@@ -110,7 +106,14 @@ public class TarotView extends View {
 	  buttonGardeContre.setVisibility(View.INVISIBLE);
   }
   /*****************************************************************************/
-  public void showBid(int place, int bid) {
+  public void hideBidTexts() {
+	  mBidSouth.setVisibility(View.INVISIBLE);
+	  mBidEast.setVisibility(View.INVISIBLE);
+	  mBidNorth.setVisibility(View.INVISIBLE);
+	  mBidWest.setVisibility(View.INVISIBLE);
+  }
+  /*****************************************************************************/
+  public CharSequence getBidText(int bid) {
 	  CharSequence txt;
 	  
 	  if (bid == Game.PASSE)
@@ -124,27 +127,56 @@ public class TarotView extends View {
 	  else
 		  txt = getContext().getResources().getString(R.string.bid_garde_contre);
 	  
+	  return txt;
+  }
+  
+  /*****************************************************************************/
+  public void showBid(int place, int bid) {
+	  CharSequence txt = "";
+	  
+	  txt = getBidText(bid);
+	  
 	  if (place == Game.SOUTH) {
 		  mBidSouth.setText(txt);
+		  mBidSouth.setVisibility(View.VISIBLE);
 	  } else if (place == Game.EAST) {
 		  mBidEast.setText(txt);
+		  mBidEast.setVisibility(View.VISIBLE);
 	  } else if (place == Game.NORTH) {
 		  mBidNorth.setText(txt);
+		  mBidNorth.setVisibility(View.VISIBLE);
 	  } else {
 		  mBidWest.setText(txt);
+		  mBidWest.setVisibility(View.VISIBLE);
 	  }
   }
   /*****************************************************************************/
-public void InitGame() {
+  /**
+   * One-time initializations
+   */
+  public void InitGame() {
     // We really really want focus :)
     setFocusable(true);
     setFocusableInTouchMode(true);
     requestFocus();
     mTextView.setVisibility(View.INVISIBLE);
+    hideBidButtons();
+
   }
-/*****************************************************************************/
-  public void SetTextView(TextView textView) {
-    mTextView = textView;
+  /*****************************************************************************/
+  public void setupUI(Activity act) {
+	  mTextView = (TextView) act.findViewById(R.id.text);
+
+	  buttonPasse = (Button) act.findViewById(R.id.buttonPasse);
+	  buttonPrise = (Button) act.findViewById(R.id.buttonPrise);
+	  buttonGarde = (Button) act.findViewById(R.id.buttonGarde);
+	  buttonGardeSans = (Button) act.findViewById(R.id.buttonGardeSans);
+	  buttonGardeContre = (Button) act.findViewById(R.id.buttonGardeContre);
+		
+	  mBidSouth = (TextView) act.findViewById(R.id.bidSouth);
+	  mBidEast = (TextView) act.findViewById(R.id.bidEast);
+	  mBidNorth = (TextView) act.findViewById(R.id.bidNorth);
+	  mBidWest = (TextView) act.findViewById(R.id.bidWest);
   }
   /*****************************************************************************/
   public void DisplayAbout() {
@@ -205,30 +237,61 @@ public void InitGame() {
   }
   /*****************************************************************************/
   private void LoadCards(Context context) {   
+	  int id;
+	  
 	  // get suits images
 	  for (int i=0; i<4; i++) {
 	  	String varImg;
 	  	if (i == Card.SPADES) {
+	  		id = 0;
 	  		varImg = "pique";
 		} else if (i == Card.HEARTS) {
+			id = 14;
 			varImg = "coeur";
 		} else if (i == Card.CLUBS) {
+			id = 28;
 			varImg = "trefle";
 		} else {
+			id = 42;
 			varImg = "carreau";
-			}
+		}
+	  	
+	  	// 14 cards per suit (1-10 + joker, knight, queen, king)
 	  	for (int j=0; j<14; j++) {
+	  		float points;
+			if (j == 11) {
+				points = 1.5f;
+			} else if (j == 12) {
+				points = 2.5f;
+			} else if (j == 13) {
+				points = 3.5f;
+			} else if (j == 14) {
+				points = 4.5f;
+			} else {
+				points = 0.5f;
+			}
+			cards[id+j] = new Card(j+1, i, points, id+j);
 	  		LoadCardBitmap(context, i*14+j, varImg, j+1);
 	  	}
 	  }
 	  
-	  // 21 atouts
-	  for(int i=0; i<21; i++) {
-	  	LoadCardBitmap(context, 56+i, "atout", i+1);
-	  }
+	// 21 atouts cards
+	for (int i=56; i<77; i++) {
+		float points;
+		if (i == 56 || i == 76) {
+			points = 4.5f;
+		} else {
+			points = 0.5f;
+		}
+		cards[i] = new Card(i+1, Card.ATOUT, points, i);
+		LoadCardBitmap(context, i, "atout", i-55);
+	}
 		
-	  // Excuse
-	  LoadCardBitmap(context, 77, "excuse", -1);
+	// Excuse
+	cards[77] = new Card(1, Card.EXCUSE, 4.5f, 77);
+	LoadCardBitmap(context, 77, "excuse", -1);
+	
   }
 }
-/*****************************************************************************/
+
+// End of file

@@ -23,11 +23,15 @@ public class Game {
 	public static final int CHIEN = 2;
 	public static final int GAME = 3;
 	
+	// misc
+	public static final int NB_PLAYERS = 4;
+	
 	private int turn;
 	private int sequence;      // indique la séquence de jeu actuelle
 	private int contract;
 	private int dealer;
 	private int taker;
+	private int gameCounter;
 	private Random mRnd = new Random();
 	
 	Game() {
@@ -37,12 +41,19 @@ public class Game {
 	public int getSequence() { return sequence; }
 	public int getTurn() { return turn; }
 	public int getContract() { return contract; }
+	public int getTaker() { return taker; }
 	
 	/*****************************************************************************/
 	void start() {
 		sequence = ENCHERES;
 		// dealer is the first player to tell the bid
 		dealer = mRnd.nextInt(4);
+		turn = dealer;
+		contract = Game.PASSE;
+	}
+	/*****************************************************************************/
+	void beginRound() {
+		sequence = GAME;
 		turn = dealer;
 	}
 	/*****************************************************************************/
@@ -64,7 +75,7 @@ public class Game {
 	}
 	/*****************************************************************************/
 	int nextPlayer(int t) {
-		return (t++)%4;
+		return ((++t)%4);
 	}
 	
 }

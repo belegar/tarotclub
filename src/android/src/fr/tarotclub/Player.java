@@ -15,6 +15,23 @@ public class Player {
   }
   /*****************************************************************************/
   /**
+   * Play the first valid card in hands
+   */
+  public Card play(Deck stack, Card[] cards, Card cVerif , int gameCounter) {
+     Card c = null;
+     int i, n;
+
+     n = mDeck.size();
+     for( i=0; i<n; i++ ) {
+        c = cards[mDeck.getCard(i)];
+        if( canPlayCard( stack, cards, c, gameCounter) == true ) {
+           break;
+        }
+     }
+     return c;
+  }
+  /*****************************************************************************/
+  /**
    * Update statistics by analyzing the deck
    */
   void updateStats(Card[] cards){
@@ -196,9 +213,177 @@ public class Player {
         }
         return cont;
      }
+     /*****************************************************************************/
+     void choixChien(Deck chien, Card[] cards) {
+        int i, j;
+        Card c, cdeck;
+        boolean ok=false;
+        i=0;
 
+        // on cherche si il y a un atout, une excuse, ou un roi dans le chien
+        // et on les remplace par des cartes valides
+        while( ok == false ) {
+           c = cards[chien.getCard(i)];
+           if ((	c.getSuit() == Card.ATOUT) || (c.getSuit() == Card.EXCUSE) ||
+        		   ((c.getSuit() < Card.ATOUT) && (c.getSuit() == 14))) {
+              // on cherche une carte de remplacement
+              for( j=0; j<mDeck.size(); j++ ) {
+                 cdeck = cards[mDeck.getCard(j)];
+                 if ((cdeck.getSuit() < Card.ATOUT) && (cdeck.getValue() < 14)) {
+                    // ok, on procède à l'échange
+                	mDeck.removeCard(cdeck.getId());
+                    mDeck.addCard(c.getId());
+                    
+                    chien.removeCard(c.getId());
+                    chien.addCard(cdeck.getId());
+                    break;
+                 }
+              }
+              i=0;
+           } else {
+              i++;
+           }
+           if( i == 6 ) {
+              ok = true;
+           }
+        }
+     }
+     /*****************************************************************************/
+ 	/**
+ 	 * Teste si la carte cVerif peut être jouée : cela dépend des cartes déjà
+ 	 * jouées sur le tapis et des cartes dans la main du joueur
+ 	 */
+ 	boolean canPlayCard(Deck stack, Card[] cards, Card cVerif , int gameCounter) {
+ 	   int debut;
+ 	   int rang;
+ 	   // première carte (couleur demandée)
+ 	   int type;
+ 	   
+ 	   debut = (gameCounter-1)/Game.NB_PLAYERS;
+ 	   debut = debut*Game.NB_PLAYERS;
+
+ 	   rang = gameCounter - debut;
+
+ 	   // Le joueur entame le tour, il peut commencer comme il veut
+ 	   if( rang == 1 ) {
+ 	      return true;
+ 	   }
+
+ 	   // on traite un cas simple
+ 	   if( cVerif.getSuit() == Card.EXCUSE ) {
+ 	      return true;
+ 	   }
+
+ 	   boolean possedeCouleur = false; // vrai si le joueur posseède la couleur demandee
+ 	   boolean possedeAtout = false;   // vrai si le joueur possède un atout
+ 	   boolean precedentAtout = false; // vrai si un atout max précédent
+ 	   int  precAtoutMax = 0;
+ 	   int  atoutMax = 0; // atout maxi possédé
+ 	   boolean ret=true;
+ 	   Card c;
+ 	   int i,n;
+
+ 	   // on cherche la couleur demandée
+ 	   c = cards[stack.getCard(debut)]; // première carte jouée à ce tour
+
+ 	   type = c.getSuit();
+ 	   if( type == Card.EXCUSE ) { // aïe, le joueur a commencé avec une excuse
+ 	      // le joueur peut jouer n'importe quelle carte après l'excuse, c'est lui qui décide alors de la couleur
+ 	      if( rang == 2 ) {
+ 	         return true;
+ 	      }
+ 	      c = cards[stack.getCard(debut+1)]; // la couleur demandée est donc la seconde carte
+ 	      type = c.getSuit();
+ 	   }
+
+ 	   if((type < Card.ATOUT) && (type == cVerif.getSuit())) {
+ 	      return true;
+ 	   }
+
+ 	   // Quelques indications sur les cartes précédentes
+ 	   // On regarde s'il y a un atout
+ 	   for( i=0; i<rang-1; i++ ) {
+ 	      c = cards[stack.getCard(debut+i)];
+ 	      if( c.getSuit() == Card.ATOUT ) {
+ 	         precedentAtout = true;
+ 	         if( c.getValue() > precAtoutMax ) {
+ 	            precAtoutMax = c.getValue();
+ 	         }
+ 	      }
+ 	   }
+
+ 	   // Quelques indications sur les cartes du joueur
+ 	   n = mDeck.size();
+
+ 	   for( i=0; i<n; i++ ) {
+ 	      c = cards[mDeck.getCard(i)];
+
+ 	      if( c.getSuit() == Card.ATOUT ) {
+ 	         possedeAtout = true;
+ 	         if( c.getValue() > atoutMax ) {
+ 	            atoutMax = c.getValue();
+ 	         }
+ 	      }
+ 	      else if( c.getSuit() < Card.ATOUT ) {
+ 	         if( c.getSuit() == type ) {
+ 	            possedeCouleur = true;
+ 	         }
+ 	      }
+ 	   }
+
+ 	   // cas 1 : le type demandé est ATOUT
+ 	   if( type == Card.ATOUT ) {
+ 	      if( cVerif.getSuit() == Card.ATOUT ) {
+ 	         if( cVerif.getValue() > precAtoutMax ) {
+ 	            return true;
+ 	         } else {
+ 	            if( atoutMax > precAtoutMax ) {
+ 	               return false;  // doit surcouper !
+ 	            } else {
+ 	               return true;   // sinon tant pis, on doit quand même jouer la couleur demandée
+ 	            }
+ 	         }
+ 	      } else {
+ 	         if( possedeAtout == true ) {
+ 	            return false;
+ 	         } else {
+ 	            return true;
+ 	         }
+ 	      }
+ 	   } else {// cas 2 : le type demandé est CARTE
+ 	      // le joueur possède la couleur demandée, il doit donc la jouer cela
+ 	      if( possedeCouleur == true ) {
+ 	         return false;
+ 	      } else { // pas la couleur demandée
+ 	         if( cVerif.getSuit() == Card.ATOUT ) {
+ 	            // doit-il surcouper ?
+ 	            if( precedentAtout==true ) {
+ 	               if( cVerif.getValue() > precAtoutMax ) { // carte de surcoupe
+ 	                  return true;
+ 	               } else {
+ 	                  // a-t-il alors un atout plus fort ?
+ 	                  if( atoutMax > precAtoutMax ) {
+ 	                     return false; // oui, il doit donc surcouper
+ 	                  } else {
+ 	                     return true;
+ 	                  }
+ 	               }
+ 	            }
+ 	         } else {
+ 	            // a-t-il un atout pour couper ?
+ 	            if( possedeAtout == true ) {
+ 	               return false; // oui, il DOIT couper
+ 	            } else {
+ 	               return true; // non, il peut se défausser
+ 	            }
+ 	         }
+ 	      }
+ 	   }
+ 	   return ret;
+ 	}
 }
-  
+
+/*****************************************************************************/
 class Stats {
 		
    public int   atouts;  // nombres d'atouts , en comptant les bouts et l'excuse
@@ -223,11 +408,11 @@ class Stats {
    public boolean  petit;
    public boolean  vingtEtUn;
    public boolean  excuse;
-
+   /*****************************************************************************/
    Stats() {
 	   raz();
    }
-   
+   /*****************************************************************************/
    void raz() {
     atouts = 0;
 	bouts = 0;

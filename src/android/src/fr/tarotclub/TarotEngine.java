@@ -18,14 +18,11 @@ class TarotEngine extends TarotView {
 
   private int selId = -1;
   private float selX, selY;
-  private Card[] cards;
-  private Deck deck;  // main deck
+  private Deck stack;  // main deck
   private Deck chien; // chien cards
   private Player[] mPlayers; // every player have his own deck
   private Game mGame = new Game();
-  private GameHandler mGameHandler = new GameHandler();
-    
-  
+  private GameHandler mGameHandler = new GameHandler(); 
   
   /*****************************************************************************/
   /**
@@ -54,9 +51,19 @@ class TarotEngine extends TarotView {
 	  if (bid<= mGame.getContract())
 		  bid = Game.PASSE;
 	  showBid(mGame.getTurn(), bid);
-	  
+	  hideBidButtons();
 	  if (mGame.sequenceBids(bid) == false) {
 		  // restart if all players passed, otherwise start game
+		  if (mGame.getContract() == Game.PASSE) {
+			  newGame();
+		  } else if (mGame.getContract() > Game.GARDE){
+			  // give the chien to the attack or the defense			  
+		  } else {
+			// TODO: if south, graphical chien process
+			  mPlayers[mGame.getTaker()].choixChien(chien, cards);
+			  mGame.beginRound();
+			  mGameHandler.sleep(DELAY_MS);
+		  }
 	  } else {
 		  mGameHandler.sleep(DELAY_MS);
 	  }
@@ -95,44 +102,15 @@ class TarotEngine extends TarotView {
   /*****************************************************************************/
   public TarotEngine(Context context, AttributeSet attrs) {
 	  super(context, attrs);
-	  
-	  cards = new Card[78];
-	  
+
 	  mPlayers = new Player[4];
-	  deck = new Deck();
+	  stack = new Deck();
 	  chien = new Deck();
 	  
 	  mPlayers[0] = new Player();
 	  mPlayers[1] = new Player();
 	  mPlayers[2] = new Player();
-	  mPlayers[3] = new Player();
-	  
-	  buttonPasse.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				manageBids(Game.PASSE);
-			}
-		 });
-	  buttonPrise.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				manageBids(Game.PRISE);
-			}
-		});
-	  buttonGarde.setOnClickListener(new OnClickListener() {
-		    public void onClick(View v) {
-		    	manageBids(Game.GARDE);
-		    }
-		});	  
-	  buttonGardeSans.setOnClickListener(new OnClickListener() {
-		    public void onClick(View v) {
-		    	manageBids(Game.GARDE_SANS);
-		    }
-		});
-	  buttonGardeContre.setOnClickListener(new OnClickListener() {
-		    public void onClick(View v) {
-		    	manageBids(Game.GARDE_CONTRE);
-		    }
-		});
-	  Init();
+	  mPlayers[3] = new Player();  
   }
   /*****************************************************************************/
   @Override
@@ -181,87 +159,70 @@ class TarotEngine extends TarotView {
   }
   /*****************************************************************************/
   public void deal() {
-	  deck.clear();
+	  stack.clear();
 	  chien.clear();
 
 	  // init main deck
 	  for (int i=0; i<78; i++) {
-		  deck.addCard(i);
+		  stack.addCard(i);
 	  }
   
 	  // shuffle cards and send to players
-	  deck.shuffle();
+	  stack.shuffle();
 	  for (int i=0; i<4; i++) {
 		  int n = i*NB_HAND_CARDS;
 		  mPlayers[i].mDeck.clear();
 		  for (int j=0; j<NB_HAND_CARDS; j++) {
-			  int c = deck.getCard(n+j);
+			  int c = stack.getCard(n+j);
 			  mPlayers[i].mDeck.addCard(c);
 		  }
 		  mPlayers[i].updateStats(cards);
 	  }
 	  // rest of the cards go to the chien
 	  for (int i=0; i<6; i++) {
-		  int c = deck.getCard(72+i);
+		  int c = stack.getCard(72+i);
 		  chien.addCard(c);
 	  }
 	  
-	  deck.clear();
+	  stack.clear();
   }
   /*****************************************************************************/
   public void newGame() {
 	deal();
 	update();
+	hideBidTexts();
 	mGame.start();
 	mGameHandler.sleep(DELAY_MS);
   } 
   /*****************************************************************************/
-  // init cards for the game
-  public void Init() {
-	int id;
-	// create normal cards
-	for (int i=0; i<4; i++) {
-		if (i == Card.SPADES) {
-			id = 0;
-		} else if (i == Card.HEARTS) {
-			id = 14;
-		} else if (i == Card.CLUBS) {
-			id = 28;
-		} else {
-			id = 42;
+  public void setupHandlers() {
+	buttonPasse.setOnClickListener(new OnClickListener() {
+		public void onClick(View v) {
+			manageBids(Game.PASSE);
 		}
-		
-		// 14 cards per suit (1-10 + joker, knight, queen, king)
-		for (int j=0; j<14; j++) {
-			float points;
-			if (j == 11) {
-				points = 1.5f;
-			} else if (j == 12) {
-				points = 2.5f;
-			} else if (j == 13) {
-				points = 3.5f;
-			} else if (j == 14) {
-				points = 4.5f;
-			} else {
-				points = 0.5f;
+	 });
+	buttonPrise.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				manageBids(Game.PRISE);
 			}
-			cards[id+j] = new Card(j+1, i, points, id+j);
-			
-		}
-	}
-	// atouts cards
-	for (int i=56; i<77; i++) {
-		float points;
-		if (i == 56 || i == 76) {
-			points = 4.5f;
-		} else {
-			points = 0.5f;
-		}
-		cards[i] = new Card(i+1, Card.ATOUT, points, i);
-	}
-	// Excuse card
-	cards[77] = new Card(1, Card.EXCUSE, 4.5f, 77);
+		});
+	buttonGarde.setOnClickListener(new OnClickListener() {
+		    public void onClick(View v) {
+		    	manageBids(Game.GARDE);
+		    }
+		});	  
+	buttonGardeSans.setOnClickListener(new OnClickListener() {
+		    public void onClick(View v) {
+		    	manageBids(Game.GARDE_SANS);
+		    }
+		});
+	buttonGardeContre.setOnClickListener(new OnClickListener() {
+		    public void onClick(View v) {
+		    	manageBids(Game.GARDE_CONTRE);
+		    }
+	});
   }
+  
 }
-
-
+ 
+// End of file
