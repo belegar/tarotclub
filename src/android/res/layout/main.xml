@@ -69,7 +69,6 @@
 		android:layout_y="60px"
 	/>
 	
-	
 	<!--  Bid buttons -->
 	<Button
 		android:id="@+id/buttonPasse"
@@ -111,6 +110,8 @@
 		android:layout_x="365px"
 		android:layout_y="55px"
 	/>
+	
+	
 	</AbsoluteLayout>
 
 </FrameLayout>
