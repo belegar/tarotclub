@@ -2,8 +2,11 @@
 
 package fr.tarotclub;
 
+import java.util.Map;
+
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -11,18 +14,24 @@ import android.view.MotionEvent;
 import android.view.View;
 
 
-class TarotEngine extends TarotView {
-  // variables
+public class TarotEngine extends TarotView {
+  
+// variables
   private static final int NB_HAND_CARDS = 18;
   private static final long DELAY_MS = 500;
 
   private int selId = -1;
   private float selX, selY;
   private Deck stack;  // main deck
+  private Map<Integer, Integer> middle; // Place, id
   private Deck chien; // chien cards
   private Player[] mPlayers; // every player have his own deck
   private Game mGame = new Game();
   private GameHandler mGameHandler = new GameHandler(); 
+  private Point[] coord = { new Point(126, 122),
+		  					new Point(192, 60),
+		  					new Point(126, 5),
+		  					new Point(60, 60) };
   
   /*****************************************************************************/
   /**
@@ -37,6 +46,12 @@ class TarotEngine extends TarotView {
     		  } else {
     			 manageBids(mPlayers[mGame.getTurn()].calculEnchere());
     		  }
+    	  } else if (mGame.getSequence() == Game.GAME) {
+    		  if (mGame.getTurn() == Game.SOUTH) {
+    			  
+    		  } else {
+    			  
+    		  }
     	  }
       }
 
@@ -45,11 +60,30 @@ class TarotEngine extends TarotView {
           sendMessageDelayed(obtainMessage(0), delayMillis);
       }
   }
-
+  /*****************************************************************************/
+  /**
+   * id is the identification of the card played
+   */
+  public void manageCardGame(int id) {
+	  stack.addCard(id);
+	  middle.put(new Integer(mGame.getTurn()), new Integer(id));
+	  TarotEngine.this.invalidate();
+	  
+	  if (mGame.next() == true) {
+	      if (mGame.endOfTurn(stack, chien, cards) == true) {
+	    	  // End of game, show score
+	    	  //TODO !!
+	    	  return;
+	      }
+	      middle.clear();
+	  }
+	  mGameHandler.sleep(DELAY_MS);	  
+  }
   /*****************************************************************************/
   public void manageBids(int bid) {
 	  if (bid<= mGame.getContract())
 		  bid = Game.PASSE;
+	  
 	  showBid(mGame.getTurn(), bid);
 	  hideBidButtons();
 	  if (mGame.sequenceBids(bid) == false) {
@@ -72,10 +106,10 @@ class TarotEngine extends TarotView {
   @Override
   public void onDraw(Canvas canvas) {
 	  drawBackground(canvas);
-	  drawCardFootPrint(60, 60, canvas); //west
-	  drawCardFootPrint(192, 60, canvas); //east
-	  drawCardFootPrint(126, 5, canvas); //north
-	  drawCardFootPrint(126, 122, canvas); //south
+	  
+	  for (int i=0; i<Game.NB_PLAYERS; i++) {
+		  drawCardFootPrint(coord[i], canvas);
+	  }
 	  
 //	  drawChienArea(270, 5, canvas);
 	  
@@ -83,11 +117,25 @@ class TarotEngine extends TarotView {
 	  for (int i=0; i<mPlayers[Game.SOUTH].mDeck.size(); i++) {
 		  int id = mPlayers[Game.SOUTH].mDeck.getCard(i);
 		  if ((id >= 0) && (id<=77) && (id!=selId)) {
-			  cards[id].setPosition(30+20*i, 239);
+			  cards[id].setPosition(20+22*i, 239);
 			  DrawCard(canvas, cards[id]);
 		  }
 	  }
 	  
+	  // show already played cards
+	  /*
+	  for (Map.Entry<Integer, Integer> e : middle.entrySet()) {
+		  float x, y;
+	    System.out.println(e.getKey() + " : " + e.getValue());
+	  }
+
+	  for (int i=0; i<middle.size(); i++) {
+		  
+		  if (middle.containsKey(Game.SOUTH) == true) {
+			  
+		  }
+	  }
+	*/  
 	  // center the selected card under the finger (in the low half to see the card
 	  if (selId>=0) {
 		  cards[selId].setPosition(selX-Card.WIDTH/2, selY-Card.HEIGHT/1.5f);
@@ -110,7 +158,7 @@ class TarotEngine extends TarotView {
 	  mPlayers[0] = new Player();
 	  mPlayers[1] = new Player();
 	  mPlayers[2] = new Player();
-	  mPlayers[3] = new Player();  
+	  mPlayers[3] = new Player();
   }
   /*****************************************************************************/
   @Override
@@ -222,7 +270,9 @@ class TarotEngine extends TarotView {
 		    }
 	});
   }
-  
+ 
+  // End of class
 }
+
  
 // End of file

@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -194,8 +195,8 @@ public class TarotView extends View {
     mTextView.setText(text);
    }
   /*****************************************************************************/
-  public void drawCardFootPrint(int x, int y, Canvas canvas) {
-	  RectF pos = new RectF(x, y, x + Card.WIDTH, y + Card.HEIGHT);
+  public void drawCardFootPrint(Point p, Canvas canvas) {
+	  RectF pos = new RectF(p.x, p.y, p.x + Card.WIDTH, p.y + Card.HEIGHT);
 	  canvas.drawRoundRect(pos, 4, 4, mCardPaint);
   }
   /*****************************************************************************/
