@@ -1,18 +1,40 @@
+<!-- 
+ TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ Copyright (C) 2003-2999 - Anthony Rabine
+ anthony@tarotclub.fr
+ 
+ This file must be used under the terms of the CeCILL.
+ This source file is licensed as described in the file COPYING, which
+ you should have received as part of this distribution.  The terms
+ are also available at
+ http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ -->
+
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<!-- Game and menu -->
     <string name="app_name">TarotClub</string>
     <string name="menu_newgame">New Game</string>
     <string name="menu_about">About</string>
     <string name="menu_quit">Quit</string>
+    
+    <!-- Bids -->
     <string name="bid_passe">Passe</string>
     <string name="bid_prise">Prise</string>
     <string name="bid_garde">Garde</string>
     <string name="bid_garde_sans">Garde sans</string>
     <string name="bid_garde_contre">Garde contre</string>
-	<string name="about_text">
+    
+    <!-- Places -->
+    <string name="place_south">Sud</string>
+    <string name="place_east">Est</string>
+    <string name="place_north">Nord</string>
+    <string name="place_west">Ouest</string>
+    
+<string name="about_text">
 TarotClub is an open source Tarot card game!\n\n
 More information on http://www.tarotclub.fr.\n\n
 This software is licensed under the terms of the CeCILL license.
 </string>
-    <string name="win_text">You Win!\n\nUse the menu to start a new game.</string>
+
 </resources>
