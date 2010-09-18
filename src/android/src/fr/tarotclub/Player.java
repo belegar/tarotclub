@@ -16,19 +16,22 @@ public class Player {
   /*****************************************************************************/
   /**
    * Play the first valid card in hands
+   * Return the Id of the played card
    */
-  public Card play(Deck stack, Card[] cards, Card cVerif , int gameCounter) {
+  public int play(Deck stack, Card[] cards, int gameCounter) {
      Card c = null;
-     int i, n;
-
-     n = mDeck.size();
-     for( i=0; i<n; i++ ) {
+     int i;
+     
+     for( i=0; i<mDeck.size(); i++ ) {
         c = cards[mDeck.getCard(i)];
         if( canPlayCard( stack, cards, c, gameCounter) == true ) {
-           break;
+        	break;
         }
      }
-     return c;
+     if (c != null)
+    	 return c.getId();
+     else
+    	 return -1;
   }
   /*****************************************************************************/
   /**

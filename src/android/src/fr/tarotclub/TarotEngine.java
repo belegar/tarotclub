@@ -2,6 +2,7 @@
 
 package fr.tarotclub;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
@@ -15,20 +16,24 @@ import android.view.View;
 
 
 public class TarotEngine extends TarotView {
-  
-// variables
-  private static final int NB_HAND_CARDS = 18;
-  private static final long DELAY_MS = 500;
+	// machine states	
+	private static final int STATE_PLAY = 0;
+	private static final int STATE_END_TURN = 1;
+	
+	// variables
+	private static final int NB_HAND_CARDS = 18;
+	private static final long DELAY_MS = 500;
 
-  private int selId = -1;
-  private float selX, selY;
-  private Deck stack;  // main deck
-  private Map<Integer, Integer> middle; // Place, id
-  private Deck chien; // chien cards
-  private Player[] mPlayers; // every player have his own deck
-  private Game mGame = new Game();
-  private GameHandler mGameHandler = new GameHandler(); 
-  private Point[] coord = { new Point(126, 122),
+	private int state = STATE_PLAY;
+	private int selId = -1;
+	private float selX, selY;
+	private Deck stack;  // main deck
+	private HashMap<Integer, Integer> middle = new HashMap<Integer, Integer>(); // Place, id
+	private Deck chien; // chien cards
+	private Player[] mPlayers; // every player have his own deck
+	private Game mGame = new Game();
+	private GameHandler mGameHandler = new GameHandler(); 
+	private Point[] coord = { new Point(126, 122),
 		  					new Point(192, 60),
 		  					new Point(126, 5),
 		  					new Point(60, 60) };
@@ -47,11 +52,36 @@ public class TarotEngine extends TarotView {
     			 manageBids(mPlayers[mGame.getTurn()].calculEnchere());
     		  }
     	  } else if (mGame.getSequence() == Game.GAME) {
-    		  if (mGame.getTurn() == Game.SOUTH) {
-    			  
-    		  } else {
-    			  
+    		  if (mGame.getGameCounter() == 0) {
+    			  //cleanups
+    			  hideBidTexts();
     		  }
+    		  
+    		  switch (state) {
+    		  	case STATE_PLAY:
+    		  		mGame.next();
+    		  	//  if (mGame.getTurn() == Game.SOUTH) {
+    		  		manageCardGame(mPlayers[mGame.getTurn()].play(stack, cards, mGame.getGameCounter()));
+    		  		if (mGame.isEndOfTurn() == true) {
+    		  			state = STATE_END_TURN;
+    		  		} else {
+    		  			mGame.nextPlayer();
+    		  		}
+    		  		break;
+    		  	case STATE_END_TURN:
+    		  		if (mGame.endOfTurn(stack, chien, cards) == true) {
+    		  			// End of game, show score
+    		  			//TODO !!
+    		  		} else {
+    		  			
+    		  			state = STATE_PLAY;
+    		  		}
+    		  		middle.clear();
+    		  		break;
+    		  
+    		  }
+    		  TarotEngine.this.invalidate();
+		      mGameHandler.sleep(DELAY_MS);
     	  }
       }
 
@@ -66,18 +96,8 @@ public class TarotEngine extends TarotView {
    */
   public void manageCardGame(int id) {
 	  stack.addCard(id);
+	  mPlayers[mGame.getTurn()].mDeck.removeCard(id);
 	  middle.put(new Integer(mGame.getTurn()), new Integer(id));
-	  TarotEngine.this.invalidate();
-	  
-	  if (mGame.next() == true) {
-	      if (mGame.endOfTurn(stack, chien, cards) == true) {
-	    	  // End of game, show score
-	    	  //TODO !!
-	    	  return;
-	      }
-	      middle.clear();
-	  }
-	  mGameHandler.sleep(DELAY_MS);	  
   }
   /*****************************************************************************/
   public void manageBids(int bid) {
@@ -123,20 +143,12 @@ public class TarotEngine extends TarotView {
 	  }
 	  
 	  // show already played cards
-	  /*
 	  for (Map.Entry<Integer, Integer> e : middle.entrySet()) {
-		  float x, y;
-	    System.out.println(e.getKey() + " : " + e.getValue());
+		  cards[e.getValue()].setPosition(coord[e.getKey()]);
+		  DrawCard(canvas, cards[e.getValue()]);
 	  }
 
-	  for (int i=0; i<middle.size(); i++) {
-		  
-		  if (middle.containsKey(Game.SOUTH) == true) {
-			  
-		  }
-	  }
-	*/  
-	  // center the selected card under the finger (in the low half to see the card
+	  // center the selected card under the finger (in the low half to see the card, human fingers are big -_-)
 	  if (selId>=0) {
 		  cards[selId].setPosition(selX-Card.WIDTH/2, selY-Card.HEIGHT/1.5f);
 		  DrawCard(canvas, cards[selId]);
@@ -240,6 +252,7 @@ public class TarotEngine extends TarotView {
 	update();
 	hideBidTexts();
 	mGame.start();
+	state = STATE_PLAY;
 	mGameHandler.sleep(DELAY_MS);
   } 
   /*****************************************************************************/

@@ -2,6 +2,8 @@
 
 package fr.tarotclub;
 
+import android.graphics.Point;
+
 class Card {
   // Suits
   public static final int SPADES = 0;
@@ -38,6 +40,11 @@ class Card {
   public int getId() { return mId;}
   public float getPoints() { return mPoints; }
 
+  public void setPosition(Point point) {
+	  mX = point.x;
+	  mY = point.y;
+  }
+  
   public void setPosition(float x, float y) {
     mX = x;
     mY = y;

@@ -49,6 +49,7 @@ public class Game {
 	public int getTurn() { return turn; }
 	public int getContract() { return contract; }
 	public int getTaker() { return taker; }
+	public int getGameCounter() { return gameCounter; }
 	
 	/*****************************************************************************/
 	void start() {
@@ -63,7 +64,7 @@ public class Game {
 		sequence = GAME;
 		gameCounter = 0;
 		score.reset();
-		turn = nextPlayer(dealer); // first player is one on the right of the dealer
+		turn = dealer;
 	}
 	/*****************************************************************************/
 	/**
@@ -76,28 +77,30 @@ public class Game {
 			contract = bid;
 			taker = turn;
 		}
-		turn = nextPlayer(turn);
-		if( turn == dealer ) {
+		nextPlayer();
+		if (turn == dealer) {
 	      return false;
 		}
 		return true;
 	}
 	/*****************************************************************************/
-	int nextPlayer(int t) {
-		return ((++t)%4);
+	void nextPlayer() {
+		turn = ((++turn)%4);
+	}
+	/*****************************************************************************/
+	boolean isEndOfTurn() {
+		if(((gameCounter%Game.NB_PLAYERS) == 0) && (gameCounter != 0)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	/*****************************************************************************/
 	/**
 	 * return true if the turn is finished, otherwise false
 	 */
-	boolean next() {
-		if(((gameCounter%Game.NB_PLAYERS) == 0) && (gameCounter != 0)) {
-			return true;
-		} else {
-			turn = nextPlayer(turn);
-			gameCounter++;
-			return false;
-		}
+	void next() {
+		gameCounter++;
 	}
 	/*****************************************************************************/
 	/**
