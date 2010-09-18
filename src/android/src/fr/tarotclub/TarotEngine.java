@@ -1,4 +1,20 @@
-/* License here! */
+/*=============================================================================
+ * TarotClub - TarotEngine.java
+ *=============================================================================
+ * Main Tarot process class, handle user events and sequence states
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ *
+ *=============================================================================
+ */
 
 package fr.tarotclub;
 
@@ -22,7 +38,7 @@ public class TarotEngine extends TarotView {
 	
 	// variables
 	private static final int NB_HAND_CARDS = 18;
-	private static final long DELAY_MS = 500;
+	private static final long DELAY_MS = 200;
 
 	private int state = STATE_PLAY;
 	private int selId = -1;
@@ -70,15 +86,14 @@ public class TarotEngine extends TarotView {
     		  		break;
     		  	case STATE_END_TURN:
     		  		if (mGame.endOfTurn(stack, chien, cards) == true) {
-    		  			// End of game, show score
-    		  			//TODO !!
+    		  			// End of game, clean the board and show score
+    		  			showResult(mGame.getInfos());
     		  		} else {
     		  			
     		  			state = STATE_PLAY;
     		  		}
     		  		middle.clear();
     		  		break;
-    		  
     		  }
     		  TarotEngine.this.invalidate();
 		      mGameHandler.sleep(DELAY_MS);
@@ -107,14 +122,16 @@ public class TarotEngine extends TarotView {
 	  showBid(mGame.getTurn(), bid);
 	  hideBidButtons();
 	  if (mGame.sequenceBids(bid) == false) {
+		  // TODO: set the owner of the Excuse, depends of teh contract
 		  // restart if all players passed, otherwise start game
 		  if (mGame.getContract() == Game.PASSE) {
 			  newGame();
-		  } else if (mGame.getContract() > Game.GARDE){
-			  // give the chien to the attack or the defense			  
+		  } else if (mGame.getTaker() == Game.SOUTH) {
+			  // TODO: if south, graphical chien process
 		  } else {
-			// TODO: if south, graphical chien process
-			  mPlayers[mGame.getTaker()].choixChien(chien, cards);
+			  if (mGame.getContract() < Game.GARDE_SANS){
+				  mPlayers[mGame.getTaker()].choixChien(chien, cards);
+			  }
 			  mGame.beginRound();
 			  mGameHandler.sleep(DELAY_MS);
 		  }
@@ -126,6 +143,10 @@ public class TarotEngine extends TarotView {
   @Override
   public void onDraw(Canvas canvas) {
 	  drawBackground(canvas);
+	  
+	  if (mGame.getSequence() == Game.RESULT) {
+		  return;
+	  }
 	  
 	  for (int i=0; i<Game.NB_PLAYERS; i++) {
 		  drawCardFootPrint(coord[i], canvas);
@@ -173,10 +194,14 @@ public class TarotEngine extends TarotView {
 	  mPlayers[3] = new Player();
   }
   /*****************************************************************************/
+  /**
+   * return true if you want re-entry event 
+   * return false if you only want a one-shot event
+   */
   @Override
   public boolean onTouchEvent(MotionEvent event) {
     boolean ret = false;
-
+    
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
     	selectCard(event.getX(), event.getY());
@@ -184,6 +209,7 @@ public class TarotEngine extends TarotView {
         break;
       case MotionEvent.ACTION_UP:
     	selId = -1;
+    	clearText();
     	TarotEngine.this.invalidate();
     	break;
       case MotionEvent.ACTION_CANCEL:
@@ -235,6 +261,9 @@ public class TarotEngine extends TarotView {
 		  for (int j=0; j<NB_HAND_CARDS; j++) {
 			  int c = stack.getCard(n+j);
 			  mPlayers[i].mDeck.addCard(c);
+			  if (c == 77) {
+				  mGame.setExcuse(i);
+			  }
 		  }
 		  mPlayers[i].updateStats(cards);
 	  }
@@ -251,6 +280,7 @@ public class TarotEngine extends TarotView {
 	deal();
 	update();
 	hideBidTexts();
+	clearText();
 	mGame.start();
 	state = STATE_PLAY;
 	mGameHandler.sleep(DELAY_MS);
@@ -287,5 +317,6 @@ public class TarotEngine extends TarotView {
   // End of class
 }
 
- 
-// End of file
+//=============================================================================
+//End of file TarotEngine.java
+//=============================================================================

@@ -1,3 +1,20 @@
+/*=============================================================================
+ * TarotClub - Game.java
+ *=============================================================================
+ * Store all game variables
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ *
+ *=============================================================================
+ */
 
 package fr.tarotclub;
 
@@ -22,6 +39,7 @@ public class Game {
 	public static final int ENCHERES = 1;
 	public static final int CHIEN = 2;
 	public static final int GAME = 3;
+	public static final int RESULT = 4;
 	
 	// poignées
 	public static final int SIMPLE = 0;
@@ -33,23 +51,26 @@ public class Game {
 	
 	private int turn;
 	private int sequence;      // indique la séquence de jeu actuelle
-	private int contract;
+	private Infos infos;
 	private int dealer;
-	private int taker;
 	private int gameCounter;
 	private Score score;
 	private Random mRnd = new Random();
 	
 	Game() {
+		infos = new Infos();
 		score = new Score();
 		sequence = IDLE;
 	}
 	
+	public void setExcuse(int place) { score.setExcuse(place); }
+	/*****************************************************************************/
 	public int getSequence() { return sequence; }
 	public int getTurn() { return turn; }
-	public int getContract() { return contract; }
-	public int getTaker() { return taker; }
+	public int getContract() { return infos.contract; }
+	public int getTaker() { return infos.taker; }
 	public int getGameCounter() { return gameCounter; }
+	public Infos getInfos() { return infos; }
 	
 	/*****************************************************************************/
 	void start() {
@@ -57,7 +78,7 @@ public class Game {
 		// dealer is the first player to tell the bid
 		dealer = mRnd.nextInt(4);
 		turn = dealer;
-		contract = Game.PASSE;
+		infos.contract = Game.PASSE;
 	}
 	/*****************************************************************************/
 	void beginRound() {
@@ -73,9 +94,9 @@ public class Game {
 	boolean sequenceBids(int bid)
 	{
 		// record player's bid
-		if (bid > contract) {
-			contract = bid;
-			taker = turn;
+		if (bid > infos.contract) {
+			infos.contract = bid;
+			infos.taker = turn;
 		}
 		nextPlayer();
 		if (turn == dealer) {
@@ -120,7 +141,8 @@ public class Game {
 	   if (gameCounter < 72) {
 	      return false;
 	   } else { // fin du jeu
-	      score.calcul(stack, chien, cards);
+	      score.calcul(stack, chien, cards, infos);
+	      sequence = RESULT;
 	      return true;
 	   }
 	}
@@ -135,7 +157,7 @@ public class Game {
 	   int pl = NORTH;
 
 	   int i, debut = 0;
-	   int leader = 0; // 0 est le premier joueur a joué etc. jusqu'à 5
+	   int leader = 0; // 0 est le premier joueur qui a joué, 1 le second, etc.
 	   // par défaut, celui qui entame est le leader (car couleur demandée)
 
 	   // étape 1 : on cherche la couleur demandée
@@ -206,6 +228,10 @@ public class Game {
 
 	   return pl;
 	}
+	
+	// end of class
 }
 
-// End of file
+//=============================================================================
+//End of file Game.java
+//=============================================================================

@@ -1,4 +1,20 @@
-/* License here! */
+/*=============================================================================
+ * TarotClub - TarotView.java
+ *=============================================================================
+ * Handle all gfx stuff
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * This file must be used under the terms of the CeCILL.
+ * This source file is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution.  The terms
+ * are also available at
+ * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ *
+ *=============================================================================
+ */
 
 package fr.tarotclub;
 
@@ -180,13 +196,55 @@ public class TarotView extends View {
 	  mBidWest = (TextView) act.findViewById(R.id.bidWest);
   }
   /*****************************************************************************/
+  void showResult(Infos infos) {
+	  StringBuilder txt = new StringBuilder("Résultat: ");
+	  
+	  if (((int)infos.attaque) >= infos.pointsAFaire) {
+		  txt.append("L'attaque gagne ! :)\n");
+	  } else {
+		  txt.append("L'attaque perd ! :(\n");
+	  }
+	  
+	  txt.append("Preneur: ");
+	  // On affiche les caractéristiques de la partie
+	  if( infos.taker == Game.SOUTH ) {
+		  txt.append(getContext().getResources().getString(R.string.place_south));
+	  } else if( infos.taker == Game.EAST ) {
+		  txt.append(getContext().getResources().getString(R.string.place_east));
+	  } else if( infos.taker == Game.NORTH ) {
+		  txt.append(getContext().getResources().getString(R.string.place_north));
+	  } else {
+		  txt.append(getContext().getResources().getString(R.string.place_west));
+	  }
+	  
+	  txt.append("\nContrat: ");
+	  if( infos.contract == Game.PRISE ) {
+		  txt.append(getContext().getResources().getString(R.string.bid_prise));
+	  } else if( infos.contract == Game.GARDE ) {
+		  txt.append(getContext().getResources().getString(R.string.bid_garde));
+	  } else if( infos.contract == Game.GARDE_SANS ) {
+		  txt.append(getContext().getResources().getString(R.string.bid_garde_sans));
+	  } else {
+		  txt.append(getContext().getResources().getString(R.string.bid_garde_contre));
+	  }
+	  
+	  txt.append("\nBouts: ");
+	  txt.append(infos.bouts);
+	  txt.append("\nPoints à faire: ");
+	  txt.append(infos.pointsAFaire);
+	  txt.append("\nPoints réalisés: ");
+	  txt.append((int)infos.attaque);
+	  
+	  DisplayText(txt.toString());
+  }
+  /*****************************************************************************/
   public void DisplayAbout() {
     mTextView.setTextSize(15);
     mTextView.setGravity(Gravity.LEFT);
     DisplayText(mAboutText);
   }
   /*****************************************************************************/
-  public void ClearText() {
+  public void clearText() {
 	  mTextView.setVisibility(View.INVISIBLE);
   }
   /*****************************************************************************/
