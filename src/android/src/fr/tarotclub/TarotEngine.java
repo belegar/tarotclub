@@ -123,6 +123,25 @@ public class TarotEngine extends TarotView {
 	  middle.put(new Integer(mGame.getTurn()), new Integer(id));
   }
   /*****************************************************************************/
+  public void southPlayCard(float x, float y) {
+	  // south has selected a card
+	  // the card is played if it is dropped on the south footprint
+	  if ((x >= coord[Game.SOUTH].x) &&
+	      (x <= (coord[Game.SOUTH].x+Card.WIDTH)) &&
+	      (y >= coord[Game.SOUTH].y) &&
+	      (y <= (coord[Game.SOUTH].y+Card.HEIGHT))) {
+		  
+		  manageCardGame(selId);
+		  if (mGame.isEndOfTurn() == true) {
+			  state = STATE_END_TURN;
+		  } else {
+			  mGame.nextPlayer();
+			  state = STATE_PLAY;
+		  }
+		  mGameHandler.sleep(DELAY_MS);
+	  }
+  }
+  /*****************************************************************************/
   public void manageBids(int bid) {
 	  if (bid<= mGame.getContract())
 		  bid = Game.PASSE;
@@ -218,9 +237,12 @@ public class TarotEngine extends TarotView {
     	  ret = true;
     	  break;
       case MotionEvent.ACTION_UP:
-    	selId = -1;
-    	clearText();
-    	TarotEngine.this.invalidate();
+    	  if (selId >= 0) {
+    		  southPlayCard(event.getX(), event.getY());
+    	  }
+    	  selId = -1;
+    	  clearText();
+    	  TarotEngine.this.invalidate();
     	break;
       case MotionEvent.ACTION_CANCEL:
         break;
