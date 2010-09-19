@@ -318,13 +318,13 @@ public class TarotView extends View {
 	  	// 14 cards per suit (1-10 + joker, knight, queen, king)
 	  	for (int j=0; j<14; j++) {
 	  		float points;
-			if (j == 11) {
+			if (j == 10) {
 				points = 1.5f;
-			} else if (j == 12) {
+			} else if (j == 11) {
 				points = 2.5f;
-			} else if (j == 13) {
+			} else if (j == 12) {
 				points = 3.5f;
-			} else if (j == 14) {
+			} else if (j == 13) {
 				points = 4.5f;
 			} else {
 				points = 0.5f;
@@ -342,12 +342,12 @@ public class TarotView extends View {
 		} else {
 			points = 0.5f;
 		}
-		cards[i] = new Card(i+1, Card.ATOUT, points, i);
+		cards[i] = new Card(i-55, Card.ATOUT, points, i);
 		LoadCardBitmap(context, i, "atout", i-55);
 	}
 		
 	// Excuse
-	cards[77] = new Card(1, Card.EXCUSE, 4.5f, 77);
+	cards[77] = new Card(-1, Card.EXCUSE, 4.5f, 77);
 	LoadCardBitmap(context, 77, "excuse", -1);
 	
   }
