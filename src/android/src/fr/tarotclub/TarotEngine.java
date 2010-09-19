@@ -34,11 +34,13 @@ import android.view.View;
 public class TarotEngine extends TarotView {
 	// machine states	
 	private static final int STATE_PLAY = 0;
-	private static final int STATE_END_TURN = 1;
+	private static final int STATE_WAIT_SOUTH = 1;
+	private static final int STATE_END_TURN = 2;
 	
-	// variables
+	// miscellaneous constants
 	private static final int NB_HAND_CARDS = 18;
-	private static final long DELAY_MS = 200;
+	private static final long DELAY_MS = 500;
+	private static final long CARD_SPACE = 24;
 
 	private int state = STATE_PLAY;
 	private int selId = -1;
@@ -74,22 +76,28 @@ public class TarotEngine extends TarotView {
     		  }
     		  
     		  switch (state) {
+    		  	case STATE_WAIT_SOUTH:
+    		  		return;
+     		  
     		  	case STATE_PLAY:
     		  		mGame.next();
-    		  	//  if (mGame.getTurn() == Game.SOUTH) {
-    		  		manageCardGame(mPlayers[mGame.getTurn()].play(stack, cards, mGame.getGameCounter()));
-    		  		if (mGame.isEndOfTurn() == true) {
-    		  			state = STATE_END_TURN;
+    		  		if (mGame.getTurn() == Game.SOUTH) {
+    		  			state = STATE_WAIT_SOUTH;
     		  		} else {
-    		  			mGame.nextPlayer();
+    		  			manageCardGame(mPlayers[mGame.getTurn()].play(stack, cards, mGame.getGameCounter()));
+    		  			if (mGame.isEndOfTurn() == true) {
+    		  				state = STATE_END_TURN;
+    		  			} else {
+    		  				mGame.nextPlayer();
+    		  			}
     		  		}
     		  		break;
+    		  		
     		  	case STATE_END_TURN:
     		  		if (mGame.endOfTurn(stack, chien, cards) == true) {
     		  			// End of game, clean the board and show score
     		  			showResult(mGame.getInfos());
     		  		} else {
-    		  			
     		  			state = STATE_PLAY;
     		  		}
     		  		middle.clear();
@@ -158,7 +166,7 @@ public class TarotEngine extends TarotView {
 	  for (int i=0; i<mPlayers[Game.SOUTH].mDeck.size(); i++) {
 		  int id = mPlayers[Game.SOUTH].mDeck.getCard(i);
 		  if ((id >= 0) && (id<=77) && (id!=selId)) {
-			  cards[id].setPosition(20+22*i, 239);
+			  cards[id].setPosition(5+CARD_SPACE*i, 239);
 			  DrawCard(canvas, cards[id]);
 		  }
 	  }
@@ -204,9 +212,11 @@ public class TarotEngine extends TarotView {
     
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-    	selectCard(event.getX(), event.getY());
-    	ret = true;
-        break;
+    	  if (state == STATE_WAIT_SOUTH) {
+    		  selectCard(event.getX(), event.getY());
+    	  }
+    	  ret = true;
+    	  break;
       case MotionEvent.ACTION_UP:
     	selId = -1;
     	clearText();
@@ -233,11 +243,14 @@ public class TarotEngine extends TarotView {
 		  if ((id >= 0) && (id<=77)) {
 			  Card c = cards[id];
 			  if (y >= c.getY()) {
-				  if ((x >= c.getX()) && (x <= (c.getX()+Card.WIDTH))) {
-					  selId = id;
-					  selX = x;
-					  selY = y;
-					  TarotEngine.this.invalidate();
+				  if ((x >= c.getX()) && (x <= (c.getX()+CARD_SPACE))) {
+					  // test if the card can be played
+					  if (mPlayers[Game.SOUTH].canPlayCard(stack, cards, c, mGame.getGameCounter())) {
+						  selId = id;
+						  selX = x;
+						  selY = y;
+						  TarotEngine.this.invalidate();
+					  }
 				  }
 			  }
 		  }
