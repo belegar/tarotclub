@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!-- 
  TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  Copyright (C) 2003-2999 - Anthony Rabine
@@ -10,7 +11,6 @@
  http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
  -->
 
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="fill_parent"
@@ -81,7 +81,7 @@
 		android:layout_height="wrap_content"
 		android:text="Prise"
 		android:layout_x="260px"
-		android:layout_y="5px"
+		android:layout_y="55px"
 	/>
 	<Button
 		android:id="@+id/buttonGarde"
@@ -89,7 +89,7 @@
 		android:layout_height="wrap_content"
 		android:text="Garde"
 		android:layout_x="365px"
-		android:layout_y="5px"
+		android:layout_y="55px"
 	/>
 	<Button
 		android:id="@+id/buttonGardeSans"
@@ -97,7 +97,7 @@
 		android:layout_height="wrap_content"
 		android:text="Garde sans"
 		android:layout_x="260px"
-		android:layout_y="55px"
+		android:layout_y="5px"
 	/>
 	<Button
 		android:id="@+id/buttonGardeContre"
@@ -105,14 +105,8 @@
 		android:layout_height="wrap_content"
 		android:text="Garde contre"
 		android:layout_x="365px"
-		android:layout_y="55px"
+		android:layout_y="5px"
 	/>
-	
-	
 	</AbsoluteLayout>
-
 </FrameLayout>
-
-
-
 
