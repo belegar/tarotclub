@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!-- 
  TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  Copyright (C) 2003-2999 - Anthony Rabine
@@ -10,7 +11,6 @@
  http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
  -->
 
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- Game and menu -->
     <string name="app_name">TarotClub</string>
