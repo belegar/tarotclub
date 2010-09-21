@@ -47,8 +47,8 @@ public class TarotView extends View {
   private Paint mCardPaint;
   
   // Background
-  private int mScreenWidth;
-  private int mScreenHeight;
+  protected int mScreenWidth;
+  protected int mScreenHeight;
   private Paint mBGPaint;
   
   // bid values
@@ -258,8 +258,7 @@ public class TarotView extends View {
 	  canvas.drawRoundRect(pos, 4, 4, mCardPaint);
   }
   /*****************************************************************************/
-  public void drawChienArea(int x, int y, Canvas canvas) {
-	  RectF pos = new RectF(x, y, x+200, y+230);
+  public void drawChienArea(RectF pos, Canvas canvas) {
 	  canvas.drawRoundRect(pos, 4, 4, mCardPaint);
   }
   /*****************************************************************************/
