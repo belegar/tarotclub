@@ -24,7 +24,8 @@ import java.util.Comparator;
 
 public class Deck {
 
-  public ArrayList<Integer> mCards;
+	private int mWidth = 0; // width to draw the deck
+	public ArrayList<Integer> mCards;
 
   /*****************************************************************************/
   Comparator<Integer> comparator = new Comparator<Integer>() {
@@ -43,14 +44,28 @@ public class Deck {
 	  mCards = new ArrayList<Integer>();
   }
   /*****************************************************************************/
-  public int getCardById(int id) {
-	int c = -1;
-	for (int i=0; i<mCards.size(); i++) {
-		c = mCards.get(i).intValue();
-		if (c == id)
-			return c;
-    }
-	return c;
+  public void setWidth(int width) {
+	  mWidth = width;
+  }
+  /*****************************************************************************/
+  /**
+   * return the id of the card under the x coordinate
+   */
+  int getSelectedCard(float x) {
+	  int pos = (int)(x/getSpace());
+	  if ((pos>=0) && (pos<mCards.size())) {
+		  return mCards.get(pos);
+	  } else {
+		  return -1;
+	  }
+  }
+  /*****************************************************************************/
+  int getSpace() {
+	  int size = mCards.size();
+	  if (size<2)
+		  return Card.WIDTH;
+	  float space = (mWidth-Card.WIDTH)/(size-1); 
+	  return (int)(space+0.5f);
   }
   /*****************************************************************************/
   public int getCard(int idx) {
