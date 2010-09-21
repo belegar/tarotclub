@@ -63,6 +63,7 @@ public class Game {
 		sequence = IDLE;
 	}
 	
+	public void setSequence(int seq) { sequence = seq; }
 	public void setExcuse(int place) { score.setExcuse(place); }
 	/*****************************************************************************/
 	public int getSequence() { return sequence; }
