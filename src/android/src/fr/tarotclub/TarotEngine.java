@@ -38,6 +38,10 @@ public class TarotEngine extends TarotView {
 	private static final int STATE_WAIT_SOUTH = 1;
 	private static final int STATE_END_TURN = 2;
 	
+	// chien management
+	private static final int CHIEN_ADD_CARD = 0;
+	private static final int CHIEN_REMOVE_CARD = 1;
+	
 	// miscellaneous constants
 	private static final int NB_HAND_CARDS = 18;
 	private static final long DELAY_MS = 500;
@@ -47,7 +51,6 @@ public class TarotEngine extends TarotView {
 	private int state = STATE_PLAY;
 	private int selId = -1;
 	private float selX, selY;
-	private float limitXleft, limitXright;
 	private Deck stack;  // main deck
 	private HashMap<Integer, Integer> middle = new HashMap<Integer, Integer>(); // Place, id: middle cards played
 	private Deck chien; // chien cards
@@ -58,7 +61,7 @@ public class TarotEngine extends TarotView {
 		  									new Point(192, 60),
 		  									new Point(126, 5),
 		  									new Point(60, 60) };
-	private static final RectF central = new RectF(60, 50, 260, 50+Card.HEIGHT+10); // chien area to drop the cards
+	private static final RectF central = new RectF(60, 50, 280, 70+Card.HEIGHT); // chien area to drop the cards
 	private static final RectF southCard = new RectF(126, 122, 126+Card.WIDTH, 122+Card.HEIGHT);
   
   /*****************************************************************************/
@@ -128,11 +131,16 @@ public class TarotEngine extends TarotView {
 	  middle.put(new Integer(mGame.getTurn()), new Integer(id));
   }
   /*****************************************************************************/
-  public void manageChienDeck(int id) {
-	  if (chien.size()<6) {
-		  chien.addCard(id);
-		  mPlayers[Game.SOUTH].mDeck.removeCard(id);
-	  }
+  public void manageChienDeck(int id, int action) {
+	  if (action == CHIEN_ADD_CARD) {
+		  if (chien.size()<6) {
+			  chien.addCard(id);
+			  mPlayers[Game.SOUTH].mDeck.removeCard(id);
+		  }
+  	  } else {
+  		  chien.removeCard(id);
+  		  mPlayers[Game.SOUTH].mDeck.addCard(id);
+  	  }
   }
   /*****************************************************************************/
   public void southPlayCard(float x, float y) {
@@ -210,27 +218,29 @@ public class TarotEngine extends TarotView {
 		  }
 	  }
 	  
-	  // show already played cards
-	  
 	  if (mGame.getSequence() == Game.GAME) {
+		// show already played cards
 		  for (Map.Entry<Integer, Integer> e : middle.entrySet()) {
 		  	  // cards of other players
 			  cards[e.getValue()].setPosition(coord[e.getKey()]);
 			  DrawCard(canvas, cards[e.getValue()]);
 		  }
 	  } else if (mGame.getSequence() == Game.CHIEN) {
+		  // show cards of chien in the middle
 		  cardSpace = chien.getSpace();
 		  for (int i=0; i<chien.size(); i++) {
 			  // chien under construction
 			  int id = chien.getCard(i);
-			  cards[id].setPosition(70+cardSpace*i, 60);
-			  DrawCard(canvas, cards[id]);
+			  if ((id >= 0) && (id<=77) && (id!=selId)) {
+				  cards[id].setPosition(70+cardSpace*i, 60);
+				  DrawCard(canvas, cards[id]);
+			  }
 		  }
 	  }
 
 	  // center the selected card under the finger (in the low half to see the card, human fingers are big -_-)
 	  if (selId>=0) {
-		  cards[selId].setPosition(selX-Card.WIDTH/2, selY-Card.HEIGHT/1.5f);
+		  cards[selId].setPosition(selX, selY);
 		  DrawCard(canvas, cards[selId]);
 	  }
   }
@@ -267,20 +277,18 @@ public class TarotEngine extends TarotView {
     float y = event.getY();
     
     switch (event.getAction()) {
-      case MotionEvent.ACTION_DOWN:    	  
-    	  if (y>SOUTH_CARD_POS_Y)
-    		  selectCard(x, y);
-    	  if (central.contains(x, y))
-    		  selectChienCard(x, y);
-    	  ret = true;
-    	  break;
+      
       case MotionEvent.ACTION_UP:
     	  if (selId >= 0) {
     		  if (mGame.getSequence() == Game.GAME) {
     			  southPlayCard(x, y);
     		  } else if (mGame.getSequence() == Game.CHIEN) {
     			  if (central.contains(x, y) == true) {
-    				  manageChienDeck(selId);
+    				  if (chien.hasCard(selId) == false ) {
+    					  manageChienDeck(selId, CHIEN_ADD_CARD);
+    				  }
+    			  } else if(chien.hasCard(selId)){
+    				  manageChienDeck(selId, CHIEN_REMOVE_CARD);
     			  }
     		  }
     	  }
@@ -290,21 +298,20 @@ public class TarotEngine extends TarotView {
     	break;
       case MotionEvent.ACTION_CANCEL:
         break;
+        
+      case MotionEvent.ACTION_DOWN:
       case MotionEvent.ACTION_MOVE:
-    	if (selId>=0) {
-    		if (y>SOUTH_CARD_POS_Y) {
-    			// just a selection
-    			if ((x<limitXleft) || (x>limitXright)) {
-    				// out of card, try to select another one
-    				selectCard(x, y);
-    			}
-    		} else {
-	    		selX = x;
-	    		selY = y;
-	    		TarotEngine.this.invalidate();
-    		}
-    		ret = true;
-    	}
+    	
+		if (y>SOUTH_CARD_POS_Y) {
+			selectCard(x, y);
+		} else if (selId>=0) {
+    		selX = x-Card.WIDTH/2;
+    		selY = y-Card.HEIGHT/1.5f;
+    		TarotEngine.this.invalidate();
+		} else if (central.contains(x, y)) {
+    		selectChienCard(x, y);
+		}
+		ret = true;
         break;
     }
     return ret;
@@ -315,18 +322,12 @@ public class TarotEngine extends TarotView {
 	  if (mGame.getSequence() != Game.CHIEN)
 		  return;
 	  
-	  int id = chien.getSelectedCard(x);
+	  int id = chien.getSelectedCard(x-central.left);
 	  if (id >= 0) {
-		  Card c = cards[id];
-		  limitXleft = c.getX();
-		  limitXright = c.getX() + chien.getSpace();
-		  if ((x >= limitXleft) && (x <= limitXright)) {
-			  // test if the card can be selected		  
-			  selId = id;
-			  selX = x;
-			  selY = y;
-			  TarotEngine.this.invalidate();
-		  }
+		  selId = id;
+		  selX = x-Card.WIDTH/2;
+		  selY = y-Card.HEIGHT/1.5f;
+		  TarotEngine.this.invalidate();
 	  }
   }
   /*****************************************************************************/
@@ -340,31 +341,27 @@ public class TarotEngine extends TarotView {
 	  int id = mPlayers[Game.SOUTH].mDeck.getSelectedCard(x);
 	  if (id >= 0) {
 		  Card c = cards[id];
-		  limitXleft = c.getX();
-		  limitXright = c.getX() + mPlayers[Game.SOUTH].mDeck.getSpace();
 
-		  if ((x >= limitXleft) && (x <= limitXright)) {
-			  // test if the card can be played
-			  if (mGame.getSequence() == Game.GAME) {  
-				  ok = mPlayers[Game.SOUTH].canPlayCard(stack, cards, c, mGame.getGameCounter());
-			  } else if (mGame.getSequence() == Game.CHIEN) {
-				  if ((c.getSuit() != Card.ATOUT) &&
-					  (c.getSuit() != Card.EXCUSE) &&
-					  (c.getValue() < 14))
-				  {
-					  ok = true;
-				  }
-			  } else {
-				  return;
+		  // test if the card can be played
+		  if (mGame.getSequence() == Game.GAME) {  
+			  ok = mPlayers[Game.SOUTH].canPlayCard(stack, cards, c, mGame.getGameCounter());
+		  } else if (mGame.getSequence() == Game.CHIEN) {
+			  if ((c.getSuit() != Card.ATOUT) &&
+				  (c.getSuit() != Card.EXCUSE) &&
+				  (c.getValue() < 14))
+			  {
+				  ok = true;
 			  }
-			  
-			  if (ok == true) {
-				  selId = id;
-				  selX = c.getX();
-				  selY = SOUTH_CARD_SEL_Y;
-				  TarotEngine.this.invalidate();
-				  return;
-			  }
+		  } else {
+			  return;
+		  }
+		  
+		  if (ok == true) {
+			  selId = id;
+			  selX = c.getX();
+			  selY = SOUTH_CARD_SEL_Y;
+			  TarotEngine.this.invalidate();
+			  return;
 		  }
 	  }
   }

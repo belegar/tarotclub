@@ -32,9 +32,10 @@
     <string name="place_west">Ouest</string>
     
 <string name="about_text">
-TarotClub is an open source Tarot card game!\n\n
-More information on http://www.tarotclub.fr.\n\n
-This software is licensed under the terms of the CeCILL license.
+TarotClub est un jeu de Tarot libre!\n\n
+N\'hésitez pas à aider au développement du jeu.\n
+Plus d\'informations sur http://www.tarotclub.fr.\n
+Ce logiciel est distribué sous licence CeCILL.
 </string>
 
 </resources>

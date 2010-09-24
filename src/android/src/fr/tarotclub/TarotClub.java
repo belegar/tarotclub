@@ -19,11 +19,18 @@
 package fr.tarotclub;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 // Base activity class.
 public class TarotClub extends Activity {
@@ -73,7 +80,7 @@ public class TarotClub extends Activity {
     	  mTarotEngine.newGame();
         break;
       case MENU_ABOUT:
-    	  mTarotEngine.DisplayAbout();
+    	  showAboutDialog();
         break;
       case MENU_QUIT:
         finish();
@@ -102,8 +109,36 @@ public class TarotClub extends Activity {
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
   }
-  
+  /*****************************************************************************/
+  public void showAboutDialog() {
+	  AboutBox dialog = new AboutBox(TarotClub.this);   
+	  dialog.show();
+  }
   // end of class
+}
+/*****************************************************************************/
+final class AboutBox extends Dialog implements OnClickListener {
+
+	public AboutBox(Context context) {
+		super(context);
+		
+		setContentView(R.layout.aboutbox);
+		setTitle("À propos de TarotClub");
+
+		TextView text = (TextView) findViewById(R.id.TextView01);
+		text.setText(R.string.about_text);
+		
+		ImageView img = (ImageView) findViewById(R.id.ImageView01);
+		img.setImageResource(R.drawable.splash);
+		
+		Button button = (Button) findViewById(R.id.Button01);
+		button.setOnClickListener(this);
+		
+	}
+	@Override
+    public void onClick(View v) {
+		dismiss();
+    }
 }
 
 //=============================================================================

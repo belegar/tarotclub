@@ -28,7 +28,6 @@ import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,7 +35,6 @@ import android.widget.TextView;
 // The brains of the operation
 public class TarotView extends View {
 	
-  private CharSequence mAboutText;
   private TextView mTextView;
   private String mPackage = "fr.tarotclub";
   private String mDir = "drawable" ;
@@ -69,8 +67,6 @@ public class TarotView extends View {
     super(context, attrs);
     setFocusable(true);
     setFocusableInTouchMode(true);
-  
-    mAboutText = context.getResources().getText(R.string.about_text);
 
     // Default to this for simplicity
     mScreenWidth = 480;
@@ -238,17 +234,13 @@ public class TarotView extends View {
 	  DisplayText(txt.toString());
   }
   /*****************************************************************************/
-  public void DisplayAbout() {
-    mTextView.setTextSize(15);
-    mTextView.setGravity(Gravity.LEFT);
-    DisplayText(mAboutText);
-  }
-  /*****************************************************************************/
   public void clearText() {
 	  mTextView.setVisibility(View.INVISIBLE);
   }
   /*****************************************************************************/
   public void DisplayText(CharSequence text) {
+	mTextView.setTextSize(20);
+	//mTextView.setGravity(Gravity.LEFT);
     mTextView.setVisibility(View.VISIBLE);
     mTextView.setText(text);
    }

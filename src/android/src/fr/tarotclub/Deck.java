@@ -68,6 +68,10 @@ public class Deck {
 	  return (int)(space+0.5f);
   }
   /*****************************************************************************/
+  public boolean hasCard(int id) {
+	 return mCards.contains(Integer.valueOf(id)); 
+  }
+  /*****************************************************************************/
   public int getCard(int idx) {
     return mCards.get(idx).intValue();
   }
