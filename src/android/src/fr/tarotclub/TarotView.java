@@ -36,8 +36,8 @@ import android.widget.TextView;
 public class TarotView extends View {
 	
   private TextView mTextView;
-  private String mPackage = "fr.tarotclub";
-  private String mDir = "drawable" ;
+  private static final String mPackage = "fr.tarotclub";
+  private static final String mDir = "drawable" ;
 
   //Card stuff
   protected Card[] cards;
