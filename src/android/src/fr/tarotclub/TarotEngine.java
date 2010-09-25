@@ -131,6 +131,13 @@ public class TarotEngine extends TarotView {
 	  middle.put(new Integer(mGame.getTurn()), new Integer(id));
   }
   /*****************************************************************************/
+  public void acceptChien() {
+	  if (chien.size() != 6)
+		  return;
+	  
+	  beginRound();
+  }
+  /*****************************************************************************/
   public void manageChienDeck(int id, int action) {
 	  if (action == CHIEN_ADD_CARD) {
 		  if (chien.size()<6) {
@@ -179,14 +186,14 @@ public class TarotEngine extends TarotView {
 					  chien.clear();
 					  mGame.setSequence(Game.CHIEN);
 					  hideBidTexts();
+					  showChienButton();
 					  update();
 					  return;
 				  } else {
 					  mPlayers[mGame.getTaker()].choixChien(chien, cards);
 				  }
 			  }
-			  mGame.beginRound();
-			  mGameHandler.sleep(DELAY_MS);
+			  beginRound();
 		  }
 	  } else {
 		  mGameHandler.sleep(DELAY_MS);
@@ -293,8 +300,7 @@ public class TarotEngine extends TarotView {
     		  }
     	  }
     	  selId = -1;
-    	  clearText();
-    	  TarotEngine.this.invalidate();
+    	  update();
     	break;
       case MotionEvent.ACTION_CANCEL:
         break;
@@ -408,7 +414,21 @@ public class TarotEngine extends TarotView {
 	mGameHandler.sleep(DELAY_MS);
   } 
   /*****************************************************************************/
+  public void beginRound() {
+	state = STATE_PLAY;	
+	hideChienButton();
+	update();  
+	mGame.beginRound();
+	mGameHandler.sleep(DELAY_MS);
+  }
+  /*****************************************************************************/
   public void setupHandlers() {
+	  
+	buttonChien.setOnClickListener(new OnClickListener() {
+		public void onClick(View v) {
+			acceptChien();
+		}
+	 });
 	buttonPasse.setOnClickListener(new OnClickListener() {
 		public void onClick(View v) {
 			manageBids(Game.PASSE);

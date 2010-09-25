@@ -55,6 +55,9 @@ public class TarotView extends View {
   private TextView mBidNorth;
   private TextView mBidWest;
   
+  // to accept the chien
+  Button buttonChien;
+  
   // bid buttons
   Button buttonPasse;
   Button buttonPrise;
@@ -126,6 +129,14 @@ public class TarotView extends View {
 	  mBidWest.setVisibility(View.INVISIBLE);
   }
   /*****************************************************************************/
+  public void hideChienButton() {
+	  buttonChien.setVisibility(View.INVISIBLE);
+  }
+  /*****************************************************************************/
+  public void showChienButton() {
+	  buttonChien.setVisibility(View.VISIBLE);
+  }
+  /*****************************************************************************/
   public CharSequence getBidText(int bid) {
 	  CharSequence txt;
 	  
@@ -174,12 +185,14 @@ public class TarotView extends View {
     requestFocus();
     mTextView.setVisibility(View.INVISIBLE);
     hideBidButtons();
-
+    hideChienButton();
   }
   /*****************************************************************************/
   public void setupUI(Activity act) {
 	  mTextView = (TextView) act.findViewById(R.id.text);
 
+	  buttonChien = (Button) act.findViewById(R.id.buttonChien);
+	  
 	  buttonPasse = (Button) act.findViewById(R.id.buttonPasse);
 	  buttonPrise = (Button) act.findViewById(R.id.buttonPrise);
 	  buttonGarde = (Button) act.findViewById(R.id.buttonGarde);
