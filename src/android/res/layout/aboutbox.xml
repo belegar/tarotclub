@@ -31,7 +31,7 @@
  	</ScrollView>
  
  	<Button android:id="@+id/Button01" android:layout_below="@id/ScrollView01"
- 		android:layout_width="50px"
+ 		android:layout_width="wrap_content"
  		android:layout_height="wrap_content"
  		android:layout_centerHorizontal="true"
  		android:text="Ok" />
