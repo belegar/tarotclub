@@ -14,9 +14,10 @@
 <resources>
 	<!-- Game and menu -->
     <string name="app_name">TarotClub</string>
-    <string name="menu_newgame">New Game</string>
-    <string name="menu_about">About</string>
-    <string name="menu_quit">Quit</string>
+    <string name="app_version">1.0.1</string>
+    <string name="menu_newgame">Nouveau</string>
+    <string name="menu_about">À propos</string>
+    <string name="menu_quit">Quitter</string>
     
     <!-- Bids -->
     <string name="bid_passe">Passe</string>
