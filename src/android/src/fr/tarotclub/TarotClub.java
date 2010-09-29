@@ -37,8 +37,6 @@ public class TarotClub extends Activity {
   private static final int MENU_NEW_GAME	= 1;
   private static final int MENU_ABOUT   	= 2;
   private static final int MENU_QUIT     	= 3;
-  
-  public static final String VERSION = "1.0.0";
 
   // View extracted from main.xml.
   private TarotEngine mTarotEngine;
@@ -125,7 +123,7 @@ final class AboutBox extends Dialog implements OnClickListener {
 		super(context);
 		
 		setContentView(R.layout.aboutbox);
-		setTitle("TarotClub " + TarotClub.VERSION);
+		setTitle("TarotClub " + context.getString(R.string.app_version));
 
 		TextView text = (TextView) findViewById(R.id.TextView01);
 		text.setText(R.string.about_text);
