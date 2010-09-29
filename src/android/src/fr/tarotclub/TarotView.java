@@ -28,6 +28,7 @@ import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ public class TarotView extends View {
   private Paint mCardPaint;
   
   // Background
+  protected DisplayMetrics metrics =  getContext().getResources().getDisplayMetrics();
   protected int mScreenWidth;
   protected int mScreenHeight;
   private Paint mBGPaint;
@@ -72,8 +74,8 @@ public class TarotView extends View {
     setFocusableInTouchMode(true);
 
     // Default to this for simplicity
-    mScreenWidth = 480;
-    mScreenHeight = 295;
+    mScreenWidth = metrics.widthPixels;
+    mScreenHeight = metrics.heightPixels;
 
     // Background
     mBGPaint = new Paint();
