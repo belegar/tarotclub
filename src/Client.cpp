@@ -305,6 +305,8 @@ void Client::updateStats()
    count = 0; // compteur
    flag = 0;  // indicateur de petit
 
+   stats.nbCards = getCardNumber();
+
    // recherche des atouts
    for( i=0; i<myDeck.count(); i++) {
       c = myDeck.at(i);

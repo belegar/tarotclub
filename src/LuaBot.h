@@ -45,6 +45,7 @@ public:
   // Methods we will need to use
   int getCardNumber(lua_State *L);
 
+
 private:
    // The pointer to the 'real object' defined in Bot.cpp
    Bot *bot;

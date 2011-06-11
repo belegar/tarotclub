@@ -53,6 +53,14 @@ Bot::Bot() : Client()
    lua_pushlightuserdata(L, (void*)this);
    // And set the global name of this pointer
    lua_setglobal(L,"BotObject");
+
+   lua_pushlightuserdata(L, (void*)&stats);
+   // And set the global name of this pointer
+   lua_setglobal(L,"Stats");
+
+   lua_pushlightuserdata(L, (void*)&infos);
+   // And set the global name of this pointer
+   lua_setglobal(L,"GameInfos");
 }
 /*****************************************************************************/
 Bot::~Bot()
@@ -95,8 +103,16 @@ void Bot::slotChoixEnchere( Contrat c )
    int ret;
    Contrat mon_contrat = calculEnchere();
 
+#ifndef QT_NO_DEBUG
+   #ifdef Q_OS_WIN32
+      QString scriptFile = "C:/Users/Anthony/Documents/tarotclub/lua/bid.lua";
+   #else
+      QString scriptFile = "bid.lua";
+   #endif
+#endif
+
    // on lance le script lua
-   ret = luaL_dofile(L,"bid.lua");
+   ret = luaL_dofile(L, scriptFile.toStdString().c_str());
    if( ret ) {
       // on a eu une erreur
       cerr << "Error in Lua script: " << lua_tostring(L, -1) << endl;
@@ -111,6 +127,8 @@ void Bot::slotChoixEnchere( Contrat c )
             }
          }
          lua_pop(L, 1);
+      } else {
+         cerr << "Error in Lua script: " << lua_tostring(L, -1) << endl;
       }
    }
 
