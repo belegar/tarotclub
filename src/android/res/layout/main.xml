@@ -30,13 +30,18 @@
           android:layout_height="wrap_content"
           android:layout_centerInParent="true"
           android:gravity="center_horizontal"
-          />   
+          /> 
+          
+          <Gallery xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/examplegallery"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content" />
           
           <TableLayout
 			  xmlns:android="http://schemas.android.com/apk/res/android"
 			  android:layout_width="wrap_content"
 			  android:layout_height="wrap_content"
-			  android:paddingLeft="280px">
+			  android:gravity="center_horizontal">
 			    <TableRow>
 					<Button
 						android:id="@+id/buttonGardeSans"

@@ -57,10 +57,10 @@ public class TarotEngine extends TarotView {
 	private Player[] mPlayers; // every player have his own deck
 	private Game mGame = new Game();
 	private GameHandler mGameHandler = new GameHandler(); 
-	private static final Point[] coord = { 	new Point(126, 122),
-		  									new Point(192, 60),
-		  									new Point(126, 5),
-		  									new Point(60, 60) };
+	private static final Point[] coord = { 	new Point(61, 122),
+		  									new Point(127, 60),
+		  									new Point(61, 5),
+		  									new Point(5, 60) };
 	private static final RectF central = new RectF(60, 50, 280, 70+Card.HEIGHT); // chien area to drop the cards
 	private static final RectF southCard = new RectF(126, 122, 126+Card.WIDTH, 122+Card.HEIGHT);
   
@@ -455,7 +455,7 @@ public class TarotEngine extends TarotView {
 		    }
 	});
   }
- 
+  
   // End of class
 }
 

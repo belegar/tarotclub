@@ -58,14 +58,14 @@ public class TarotView extends View {
   private TextView mBidWest;
   
   // to accept the chien
-  Button buttonChien;
+  protected Button buttonChien;
   
   // bid buttons
-  Button buttonPasse;
-  Button buttonPrise;
-  Button buttonGarde; 
-  Button buttonGardeSans; 
-  Button buttonGardeContre;
+  protected Button buttonPasse;
+  protected Button buttonPrise;
+  protected Button buttonGarde; 
+  protected Button buttonGardeSans; 
+  protected Button buttonGardeContre;
   
   /*****************************************************************************/
   public TarotView(Context context, AttributeSet attrs) {

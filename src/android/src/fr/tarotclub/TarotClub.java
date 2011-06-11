@@ -22,15 +22,22 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 // Base activity class.
 public class TarotClub extends Activity {
@@ -41,13 +48,14 @@ public class TarotClub extends Activity {
   // View extracted from main.xml.
   private TarotEngine mTarotEngine;
   
+  
   /*****************************************************************************/
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     // Force landscape and no title bar for extra room
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
 
     setContentView(R.layout.main);
@@ -55,7 +63,78 @@ public class TarotClub extends Activity {
     mTarotEngine = (TarotEngine) findViewById(R.id.tarot);
     mTarotEngine.setupUI(this);
     mTarotEngine.setupHandlers();
+    
+    Gallery g = (Gallery) findViewById(R.id.examplegallery);
+    g.setAdapter(new ImageAdapter(this));
+
+    g.setOnItemClickListener(new OnItemClickListener() {
+        public void onItemClick(AdapterView parent, View v, int position, long id) {
+            Toast.makeText(TarotClub.this, "" + position, Toast.LENGTH_SHORT).show();
+        }
+    });
   }
+    
+    public class ImageAdapter extends BaseAdapter {
+	    int mGalleryItemBackground;
+	    private Context mContext;
+
+	    private Integer[] mImageIds = {
+	            R.drawable.atout01,
+	            R.drawable.atout02,
+	            R.drawable.atout03,
+	            R.drawable.atout04,
+	            R.drawable.atout05,
+	            R.drawable.atout06,
+	            R.drawable.atout07,
+	            R.drawable.atout08,
+	            R.drawable.atout09,
+	            R.drawable.atout10,
+	            R.drawable.atout11,
+	            R.drawable.atout12,
+	            R.drawable.atout13,
+	            R.drawable.atout14,
+	            R.drawable.atout15,
+	            R.drawable.atout16,
+	            R.drawable.atout17,
+	            R.drawable.atout18,
+	            R.drawable.atout19,
+	            R.drawable.atout20,
+	            R.drawable.atout21,
+	            
+	    };
+
+	    public ImageAdapter(Context c) {
+	        mContext = c;
+	        TypedArray a = c.obtainStyledAttributes(R.styleable.HelloGallery);
+	        mGalleryItemBackground = a.getResourceId(
+	                R.styleable.HelloGallery_android_galleryItemBackground, 0);
+	        a.recycle();
+	    }
+
+	    public int getCount() {
+	        return mImageIds.length;
+	    }
+
+	    public Object getItem(int position) {
+	        return position;
+	    }
+
+	    public long getItemId(int position) {
+	        return position;
+	    }
+
+	    public View getView(int position, View convertView, ViewGroup parent) {
+	        ImageView i = new ImageView(mContext);
+
+	        i.setImageResource(mImageIds[position]);
+	        i.setLayoutParams(new Gallery.LayoutParams(100, 200));
+	        i.setScaleType(ImageView.ScaleType.CENTER);
+	      //  i.setBackgroundResource(mGalleryItemBackground);
+
+	        return i;
+	    }
+	}
+
   /*****************************************************************************/
   // Entry point for starting the game.
   @Override
