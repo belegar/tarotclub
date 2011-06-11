@@ -19,6 +19,9 @@
 #include "ServerConfig.h"
 #include <QtXml>
 #include <QString>
+#include <QDesktopServices>
+
+QString ServerConfig::configPath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation) + "/.tarotclub/";
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
@@ -39,7 +42,7 @@ void ServerConfig::setOptions( ServerOptions *newOptions )
 bool ServerConfig::load()
 {
    QDomDocument doc;
-   QFile f( QCoreApplication::applicationDirPath () + "/" + SERVER_CONFIG_FILE );
+   QFile f( configPath + SERVER_CONFIG_FILE );
    QString txt;
    int val;
 
@@ -167,7 +170,7 @@ bool ServerConfig::save()
    }
 
    // Sauvegarde du document DOM en mémoire
-   QFile f( QCoreApplication::applicationDirPath () + "/" + SERVER_CONFIG_FILE );
+   QFile f( configPath + SERVER_CONFIG_FILE );
    if(!f.open(QIODevice::WriteOnly)) {
       return (false); // problème de création du fichier
    }

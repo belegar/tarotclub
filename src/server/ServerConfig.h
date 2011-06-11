@@ -51,6 +51,7 @@ private:
 
 public:
    ServerConfig();
+   static QString configPath;
 
    bool     load();
    bool     save();

@@ -19,6 +19,9 @@
 #include "ClientConfig.h"
 #include <QtXml>
 #include <QString>
+#include <QDesktopServices>
+
+QString ClientConfig::configPath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation) + "/.tarotclub/";
 
 /*****************************************************************************/
 ClientConfig::ClientConfig()
@@ -39,7 +42,7 @@ void ClientConfig::setOptions( ClientOptions *newOptions )
 bool ClientConfig::load()
 {
    QDomDocument doc;
-   QFile f( QCoreApplication::applicationDirPath () + "/" + CLIENT_CONFIG_FILE );
+   QFile f( configPath + CLIENT_CONFIG_FILE );
    QString txt;
    int val;
 
@@ -171,7 +174,7 @@ bool ClientConfig::save()
       identityNode.appendChild(quoteNode);
 
    // Sauvegarde du document DOM en mémoire
-   QFile f( QCoreApplication::applicationDirPath () + "/" + CLIENT_CONFIG_FILE );
+   QFile f( configPath + CLIENT_CONFIG_FILE );
    if(!f.open(QIODevice::WriteOnly)) {
       return (false); // problème de création du fichier
    }
