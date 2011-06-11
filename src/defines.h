@@ -40,8 +40,8 @@
 #define TEXT_BOX_HEIGHT 30
 
 /*****************************************************************************/
-enum CardColor    { PIC, COEUR, TREFLE, CARREAU, NO_COLOR };
-enum CardType     { CARTE, ATOUT, EXCUSE };
+enum CardColor    { PIC=0, COEUR=1, TREFLE=2, CARREAU=3, NO_COLOR=10 };
+enum CardType     { CARTE=0, ATOUT=1, EXCUSE=2 };
 enum Place        { SUD=0, EST=1, NORD=2, OUEST=3, BROADCAST=462, HYPERSPACE=0xFFFF };
 enum PlaceBot     { BOT_EAST=0, BOT_NORTH=1, BOT_WEST=2 };
 enum Sequence {
@@ -119,6 +119,8 @@ typedef struct {
 } ScoreInfos;
 
 typedef struct {
+   int   nbCards;
+
    int   atouts;  // nombres d'atouts , en comptant les bouts et l'excuse
    int   bouts;   // 0, 1, 2 ou 3
    int   atoutsMajeurs; // atouts >= 15
