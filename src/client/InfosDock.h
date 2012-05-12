@@ -26,6 +26,7 @@
 
 // Includes locales
 #include "../defines.h"
+#include "../Deck.h"
 
 /*****************************************************************************/
 class InfosDock : public QDockWidget

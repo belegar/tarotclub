@@ -133,6 +133,8 @@ Score *Client::getScore()
  */
 void Client::razStats()
 {
+   stats.nbCards = 0;
+
    stats.atouts = 0;
    stats.bouts = 0;
    stats.atoutsMajeurs = 0;

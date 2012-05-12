@@ -17,9 +17,8 @@
  */
 
 #include "Bot.h"
-#include "LuaBot.h"
+#include <QMessageBox>
 
-#include <iostream>
 using namespace std;
 
 /*****************************************************************************/
@@ -43,29 +42,13 @@ Bot::Bot() : Client()
    timeBeforeSend.setInterval(0);
    connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
 
-   L = lua_open();
-   luaL_openlibs(L); // open standard Lua libraries
+   debugger.attachTo(&botEngine);
 
-   // Register the LuaGameObject data type with Lua
-   Luna<LuaBot>::Register(L);
-
-   // Push a pointer to this Bot to the Lua stack
-   lua_pushlightuserdata(L, (void*)this);
-   // And set the global name of this pointer
-   lua_setglobal(L,"BotObject");
-
-   lua_pushlightuserdata(L, (void*)&stats);
-   // And set the global name of this pointer
-   lua_setglobal(L,"Stats");
-
-   lua_pushlightuserdata(L, (void*)&infos);
-   // And set the global name of this pointer
-   lua_setglobal(L,"GameInfos");
 }
 /*****************************************************************************/
 Bot::~Bot()
 {
-   lua_close(L);
+
 }
 /*****************************************************************************/
 void Bot::setTimeBeforeSend(int t)
@@ -101,42 +84,92 @@ void Bot::slotAfficheSelection( Place p )
 void Bot::slotChoixEnchere( Contrat c )
 {
    int ret;
-   Contrat mon_contrat = calculEnchere();
+   Contrat mon_contrat = calculEnchere(); // propose our algorithm if the user's one failed
 
 #ifndef QT_NO_DEBUG
    #ifdef Q_OS_WIN32
-      QString scriptFile = "C:/Users/Anthony/Documents/tarotclub/lua/bid.lua";
+      QString fileName = "C:/Users/Anthony/Dropbox/dev/tarotclub/ai/bid.qs";
    #else
-      QString scriptFile = "bid.lua";
+      QString fileName = "/home/anthony/tarotclub/ai/bid.qs";
    #endif
 #endif
 
-   // on lance le script lua
-   ret = luaL_dofile(L, scriptFile.toStdString().c_str());
-   if( ret ) {
-      // on a eu une erreur
-      cerr << "Error in Lua script: " << lua_tostring(L, -1) << endl;
-   } else {
-      lua_getglobal(L, "CalculateBid");
-      if (!lua_pcall(L, 0, 1, 0)) {
-         if(lua_isnumber(L, -1)) {
-            ret = (int)lua_tonumber(L, -1);
-            // security test
-            if (ret>=PASSE && ret<=GARDE_CONTRE) {
-               mon_contrat = (Contrat)ret;
-            }
-         }
-         lua_pop(L, 1);
-      } else {
-         cerr << "Error in Lua script: " << lua_tostring(L, -1) << endl;
-      }
-   }
+    m_thisObject = botEngine.newQObject(this);
 
-   // only bid over previous one is allowed
-   if( mon_contrat <= c ) {
-      mon_contrat = PASSE;
-   }
-   sendEnchere(mon_contrat);
+    botEngine.globalObject().setProperty("TStats", botEngine.newQObject(new StatsWrapper, QScriptEngine::AutoOwnership));
+
+
+
+   // QScriptValue scriptVar = botEngine.newQObject(&obj);
+   // botEngine.globalObject().setProperty("obj", scriptVar);
+
+    QFile scriptFile(fileName);
+
+    if (! scriptFile.exists()) {
+        QMessageBox::critical(0, "Error", "Could not find program file!");
+        return;
+    }
+
+    if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical(0, "Error", "Could not open program file!");
+        return;
+    }
+
+    QString strProgram = scriptFile.readAll();
+
+    // do static check so far of code:
+    if (! botEngine.canEvaluate(strProgram) ) {
+        QMessageBox::critical(0, "Error", "canEvaluate returned false!");
+        return;
+    }
+
+    debugger.action(QScriptEngineDebugger::InterruptAction)->trigger();
+    // actually do the eval:
+    botEngine.evaluate(strProgram);
+
+    // uncaught exception?
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception: ") + exception.toString());
+        return;
+    }
+
+    QScriptValue createFunc = botEngine.evaluate("calculEnchere");
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
+        return;
+    }
+
+    if (!createFunc.isFunction()) {
+        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
+    }
+
+    ret = createFunc.call(m_thisObject).toInteger();
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
+        return;
+    }
+
+    //  args << 3;
+    //  ret = bidFunc.call(QScriptValue(), args).toInt32();
+
+    // security test
+    if (ret>=PASSE && ret<=GARDE_CONTRE) {
+        mon_contrat = (Contrat)ret;
+    }
+ //  } else {
+      // TODO: handle error
+ //  }
+
+    // only bid over previous one is allowed
+    if( mon_contrat <= c ) {
+        mon_contrat = PASSE;
+    }
+    sendEnchere(mon_contrat);
 }
 /*****************************************************************************/
 void Bot::slotAfficheEnchere( Place, Contrat )

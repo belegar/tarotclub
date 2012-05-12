@@ -20,13 +20,24 @@
 #define _BOT_H
 
 #include "Client.h"
+#include <QScriptEngine>
+#include <QtScriptTools>
 
-/* Include the Lua API header files. */
-extern "C" {
-   #include <lua.h>
-   #include <lauxlib.h>
-   #include <lualib.h>
-}
+class StatsWrapper: public DeckStats, protected QScriptable
+{
+   Q_OBJECT
+public:
+
+    StatsWrapper() {}
+
+public slots:
+     QScriptValue qscript_call(QWidget *parent = 0)
+     {
+      DeckStats * const iface = new DeckStats();
+      return engine()->newQObject(iface, QScriptEngine::AutoOwnership);
+     }
+
+};
 
 /*****************************************************************************/
 class Bot : public Client
@@ -35,15 +46,21 @@ class Bot : public Client
 
 private:
    QTimer  timeBeforeSend;
-   lua_State *L;
+   QScriptEngine botEngine;
+   QScriptEngineDebugger debugger;
+
+   QScriptValue m_thisObject;
 
 public:
    Bot();
    ~Bot();
 
+
+
    void setTimeBeforeSend(int t);
 
-public slots:
+// Private slots are not visible in a QtScript
+private slots:
    void slotTimeBeforeSend();
 
    // client events
@@ -60,6 +77,14 @@ public slots:
    void slotAfficheCarte(int id, Place p);
    void slotFinDonne(Place, float, bool lastDeal);
    void slotWaitPli(Place p, float points);
+
+
+// public slots ARE visible in a QtScript
+public slots:
+
+    int getToto() { return 9; }
+
+
 };
 
 #endif // _BOT_H

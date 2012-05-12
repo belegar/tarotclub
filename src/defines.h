@@ -118,35 +118,6 @@ typedef struct {
 
 } ScoreInfos;
 
-typedef struct {
-   int   nbCards;
-
-   int   atouts;  // nombres d'atouts , en comptant les bouts et l'excuse
-   int   bouts;   // 0, 1, 2 ou 3
-   int   atoutsMajeurs; // atouts >= 15
-
-   int   rois;
-   int   dames;
-   int   cavaliers;
-   int   valets;
-
-   int   mariages;   // nombre de mariages dans la main
-   int   longues;
-   int   coupes;     // aucune carte dans une couleur
-   int   singletons; // une seule carte dans une couleur
-   int   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
-
-   int   trefles;
-   int   pics;
-   int   coeurs;
-   int   carreaux;
-
-   bool  petit;
-   bool  vingtEtUn;
-   bool  excuse;
-
-} DeckStats;
-
 /*****************************************************************************/
 
 
