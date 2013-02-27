@@ -56,7 +56,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
 #endif
 /*****************************************************************************/
 /**
- * Point d'entrée de l'application
+ * Entry point of the game
  */
 int main( int argc, char** argv )
 {

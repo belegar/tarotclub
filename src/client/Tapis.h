@@ -94,7 +94,7 @@ public:
    GfxCard *getGfxCard(int i);
    Card *getObjectCard(GfxCard *gc);
 
-   int loadCards(ClientOptions *opt);
+   bool loadCards(ClientOptions *opt);
    void colorisePreneur( Place );
    Place retournePlace( Place origine, Place place_absolue );
    void setPlayerNames( QList<Identity> &players, Place p );

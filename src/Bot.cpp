@@ -67,7 +67,7 @@ void Bot::slotTimeBeforeSend()
 void Bot::slotMessage( const QString &text )
 {
    Q_UNUSED(text);
-   // un bot ne sait pas répondre (encore :)
+   // A bot cannot reply (yet :)
 }
 /*****************************************************************************/
 void Bot::slotReceptionCartes()
@@ -83,25 +83,20 @@ void Bot::slotAfficheSelection( Place p )
 /*****************************************************************************/
 void Bot::slotChoixEnchere( Contrat c )
 {
-   int ret;
-   Contrat mon_contrat = calculEnchere(); // propose our algorithm if the user's one failed
+    int ret;
+    Contrat mon_contrat;
 
 #ifndef QT_NO_DEBUG
    #ifdef Q_OS_WIN32
-      QString fileName = "C:/Users/Anthony/Dropbox/dev/tarotclub/ai/bid.qs";
+      QString fileName = "E:/Personnel/tarotclub/ai/bid.js";
    #else
       QString fileName = "/home/anthony/tarotclub/ai/bid.qs";
    #endif
 #endif
 
-    m_thisObject = botEngine.newQObject(this);
+    StatsWrapper statsObj(stats);
 
-    botEngine.globalObject().setProperty("TStats", botEngine.newQObject(new StatsWrapper, QScriptEngine::AutoOwnership));
-
-
-
-   // QScriptValue scriptVar = botEngine.newQObject(&obj);
-   // botEngine.globalObject().setProperty("obj", scriptVar);
+    botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
 
     QFile scriptFile(fileName);
 
@@ -134,7 +129,7 @@ void Bot::slotChoixEnchere( Contrat c )
         return;
     }
 
-    QScriptValue createFunc = botEngine.evaluate("calculEnchere");
+    QScriptValue createFunc = botEngine.evaluate("calculateBid");
 
     if (botEngine.hasUncaughtException()) {
         QScriptValue exception = botEngine.uncaughtException();
@@ -146,7 +141,7 @@ void Bot::slotChoixEnchere( Contrat c )
         QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
     }
 
-    ret = createFunc.call(m_thisObject).toInteger();
+    ret = createFunc.call().toInteger();
 
     if (botEngine.hasUncaughtException()) {
         QScriptValue exception = botEngine.uncaughtException();
@@ -154,16 +149,12 @@ void Bot::slotChoixEnchere( Contrat c )
         return;
     }
 
-    //  args << 3;
-    //  ret = bidFunc.call(QScriptValue(), args).toInt32();
-
     // security test
-    if (ret>=PASSE && ret<=GARDE_CONTRE) {
+    if (ret >= PASSE && ret <= GARDE_CONTRE) {
         mon_contrat = (Contrat)ret;
+    } else {
+        mon_contrat = calculEnchere(); // propose our algorithm if the user's one failed
     }
- //  } else {
-      // TODO: handle error
- //  }
 
     // only bid over previous one is allowed
     if( mon_contrat <= c ) {

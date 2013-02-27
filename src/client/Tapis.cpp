@@ -193,7 +193,7 @@ void Tapis::setBoutonPoigneeVisible(bool v)
    }
 }
 /*****************************************************************************/
-int Tapis::loadCards(ClientOptions *opt)
+bool Tapis::loadCards(ClientOptions *opt)
 {
    int i,j,n;
    QString varImg;
@@ -217,35 +217,52 @@ int Tapis::loadCards(ClientOptions *opt)
          n = i*14+j;
          image = path + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
 
-         // TODO: test if file exists
-         GfxCard *item = new GfxCard(image);
-         item->hide();
-         cardsPics.insert(n, item);
-         scene.addItem(item);
+         // Test if file exists
+         QFile fileTest(image);
+         if (fileTest.exists()) {
+             GfxCard *item = new GfxCard(image);
+             item->hide();
+             cardsPics.insert(n, item);
+             scene.addItem(item);
+         } else {
+             return false;
+         }
       }
    }
 
    //----- 21 atouts
    for( i=56; i<77; i++) {
       image = path + "atout-" + QString().sprintf("%02d.svg",i-55);
-      // TODO: test if file exists
-      GfxCard *item = new GfxCard(image);
-      item->hide();
-      cardsPics.insert(i, item);
-      scene.addItem(item);
+
+      // Test if file exists
+      QFile fileTest(image);
+      if (fileTest.exists()) {
+          GfxCard *item = new GfxCard(image);
+          item->hide();
+          cardsPics.insert(i, item);
+          scene.addItem(item);
+      } else {
+          return false;
+      }
    }
 
    //----- L'excuse
    image = path + "excuse.svg";
-   // TODO: test if file exists
-   GfxCard *item = new GfxCard(image);
-   item->hide();
-   cardsPics.insert(77, item);
-   scene.addItem(item);
+
+   // Test if file exists
+   QFile fileTest(image);
+   if (fileTest.exists()) {
+       GfxCard *item = new GfxCard(image);
+       item->hide();
+       cardsPics.insert(77, item);
+       scene.addItem(item);
+   } else {
+       return false;
+   }
 
    setCardScale(1.5);
 
-   return 0;
+   return true;
 }
 /*****************************************************************************/
 void Tapis::resizeEvent( QResizeEvent *e )
@@ -380,7 +397,7 @@ void Tapis::setPlayerNames( QList<Identity> &players, Place p )
 }
 /*****************************************************************************/
 /**
- * Affiche une carte "c" Ã   l'emplacement "p" de la table.
+ * Affiche une carte "c" Ã   l'emplacement "p" de la table.
  * p = NORD, OUEST, SUD, EST
  */
 void Tapis::afficheCarte( GfxCard *c, Place p )

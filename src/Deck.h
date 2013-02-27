@@ -25,7 +25,6 @@
 // Game includes
 #include "Card.h"
 #include "defines.h"
-#include <QtScript>
 
 class DeckStats
 {

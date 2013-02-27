@@ -16,6 +16,7 @@
  *=============================================================================
  */
 
+#include <iostream>
 #include <QStatusBar>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -33,8 +34,9 @@ Game::Game() : MainWindow()
    serverConfig.load();
 
    Jeu::init();
-   if( tapis->loadCards(clientConfig.getOptions()) ) {
-      exit(-1);
+   if( tapis->loadCards(clientConfig.getOptions()) == false ) {
+       std::cout << "Cannot load SVG images, exiting..." << endl;
+       exit(-1);
    }
    applyOptions();
 
@@ -234,7 +236,7 @@ void Game::hidePli()
 }
 /*****************************************************************************/
 /**
- * Cette fonction est appelée à chaque fois que l'utilisateur déplace son
+ * Cette fonction est appelée �  chaque fois que l'utilisateur déplace son
  * curseur au dessus d'une carte
  */
 void Game::slotMoveCursor( GfxCard *gc )

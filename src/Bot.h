@@ -23,19 +23,119 @@
 #include <QScriptEngine>
 #include <QtScriptTools>
 
-class StatsWrapper: public DeckStats, protected QScriptable
+class StatsWrapper: public QObject
 {
    Q_OBJECT
 public:
 
-    StatsWrapper() {}
+    StatsWrapper(DeckStats &stats)
+        : mDeck(stats)
+    {
+
+    }
+
+    DeckStats &mDeck;
 
 public slots:
-     QScriptValue qscript_call(QWidget *parent = 0)
-     {
-      DeckStats * const iface = new DeckStats();
-      return engine()->newQObject(iface, QScriptEngine::AutoOwnership);
-     }
+    int getNumberOfCards()
+    {
+        return mDeck.nbCards;
+    }
+
+    int getNumberOfAtouts()
+    {
+        return mDeck.atouts;
+    }
+
+    int getNumberOfBouts()
+    {
+        return mDeck.bouts;   // 0, 1, 2 ou 3
+    }
+
+    int getNumberOfAtoutsMajeurs()
+    {
+        return mDeck.atoutsMajeurs; // atouts >= 15
+    }
+
+    int getNumberOfRois()
+    {
+        return mDeck.rois;
+    }
+
+    int getNumberOfDames()
+    {
+        return mDeck.dames;
+    }
+
+    int getNumberOfCavaliers()
+    {
+        return mDeck.cavaliers;
+    }
+
+    int getNumberOfValets()
+    {
+        return mDeck.valets;
+    }
+
+    int getNumberOfMariages()
+    {
+        return mDeck.mariages;   // nombre de mariages dans la main
+    }
+
+    int getNumberOfLongues()
+    {
+        return mDeck.longues;
+    }
+
+    int getNumberOfCoupes()
+    {
+        return mDeck.coupes;     // aucune carte dans une couleur
+    }
+
+    int getNumberOfSingletons()
+    {
+        return mDeck.singletons; // une seule carte dans une couleur
+    }
+
+    int getNumberOfSequences()
+    {
+        return mDeck.sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+    }
+
+    int getNumberOfTrefles()
+    {
+        return mDeck.trefles;
+    }
+
+    int getNumberOfPics()
+    {
+        return mDeck.pics;
+    }
+
+    int getNumberOfCoeurs()
+    {
+        return mDeck.coeurs;
+    }
+
+    int getNumberOfCarreaux()
+    {
+        return mDeck.carreaux;
+    }
+
+    bool hasPetits()
+    {
+        return mDeck.petit;
+    }
+
+    bool hasVingtEtUn()
+    {
+        return mDeck.vingtEtUn;
+    }
+
+    bool hasExcuse()
+    {
+        return mDeck.excuse;
+    }
 
 };
 
@@ -48,8 +148,6 @@ private:
    QTimer  timeBeforeSend;
    QScriptEngine botEngine;
    QScriptEngineDebugger debugger;
-
-   QScriptValue m_thisObject;
 
 public:
    Bot();
@@ -77,12 +175,6 @@ private slots:
    void slotAfficheCarte(int id, Place p);
    void slotFinDonne(Place, float, bool lastDeal);
    void slotWaitPli(Place p, float points);
-
-
-// public slots ARE visible in a QtScript
-public slots:
-
-    int getToto() { return 9; }
 
 
 };

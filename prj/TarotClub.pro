@@ -26,7 +26,7 @@ VPATH += $${PWD}/../src/server
 VPATH += $${PWD}/include
 VPATH += $${PWD}/../lib
 
-QT += xml network svg
+QT += xml network svg script scripttools
 RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt warn_on
 
@@ -36,12 +36,12 @@ INCLUDEPATH += $${PWD}/../src/server
 
 # libraries and other annoying OS stuff
 win32 {
-   INCLUDEPATH += $${PWD}/../lib/lua/src
-   LIBS += $${PWD}/../lib/win32/liblua.a
+#   INCLUDEPATH += $${PWD}/../lib/lua/src
+#   LIBS += $${PWD}/../lib/win32/liblua.a
    RC_FILE = icon.rc
 } else {
-   INCLUDEPATH += /usr/include/lua5.1/
-   LIBS += -llua5.1
+#   INCLUDEPATH += /usr/include/lua5.1/
+#   LIBS += -llua5.1
 
    # install
    isEmpty(PREFIX): PREFIX=/opt/tarotclub
@@ -81,8 +81,6 @@ HEADERS = AboutWindow.h \
     Score.h \
     Identity.h \
     Table.h \
-    luna.h \
-    LuaBot.h \
     JoinWizard.h
 
 FORMS = AboutUI.ui \
@@ -122,5 +120,4 @@ SOURCES = AboutWindow.cpp \
     Bot.cpp \
     TarotEngine.cpp \
     Score.cpp \
-    LuaBot.cpp \
     JoinWizard.cpp
