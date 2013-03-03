@@ -279,7 +279,6 @@ Place TarotEngine::calculGagnantPli()
    CardColor coul;
    Place pl = NORD;
 
-   bool flag=false; // vrai si l'entame est l'excuse
    int i, debut=0;
    int leader = 0; // 0 est le premier joueur a joué etc. jusqu'à 5
    // par défaut, celui qui entame est le leader (car couleur demandée)
@@ -294,7 +293,6 @@ Place TarotEngine::calculGagnantPli()
     // aïe, le joueur a commencé avec une excuse
    if( type == EXCUSE ) {
       c = mainDeck.at( infos.gameCounter - NB_PLAYERS + 1 ); // la couleur demandée est donc la seconde carte
-      flag = true;
       debut = 1;
       type = c->getType();
       coul = c->getColor();

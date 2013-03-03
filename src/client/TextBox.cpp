@@ -24,12 +24,14 @@
 
 /*****************************************************************************/
 TextBox::TextBox(Coord c, QGraphicsScene *canvas)
-   : QGraphicsRectItem( c.x, c.y, TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 0, canvas)
+   : QGraphicsRectItem( c.x, c.y, TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT)
 {
    penWidth = 1;
    penColor = Qt::black;
    fillColor = Qt::red;
    hide();
+   canvas->addItem(this);
+
 }
 /*****************************************************************************/
 void TextBox::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget )
@@ -68,12 +70,15 @@ PlayerBox::PlayerBox(Coord c, QGraphicsScene *canvas )
 {
    setFillColor(QColor(255, 255, 255, 127)); // transparent
 
-   // On initialise avec les images par défaut
-   avatar = new QGraphicsPixmapItem( QPixmap( ":/images/vide.png"), 0, canvas);
+   // Init with defaut image
+   avatar = new QGraphicsPixmapItem( QPixmap( ":/images/vide.png"));
    avatar->hide();
 
-   // On les positionne à l'écran
+   // we set it to the right place
    avatar->setPos( rect().x() + rect().width() + 10, rect().y()-5 );
+
+   // we add the item to the scene
+   canvas->addItem(avatar);
 }
 /*****************************************************************************/
 void PlayerBox::setAvatar( const QString &av )

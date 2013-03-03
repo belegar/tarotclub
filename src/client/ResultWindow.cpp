@@ -20,8 +20,8 @@
 #include "textes.h"
 
 /*****************************************************************************/
-ResultWindow::ResultWindow( QWidget* parent, Qt::WFlags fl )
-	: QDialog( parent, fl )
+ResultWindow::ResultWindow( QWidget* parent )
+    : QDialog(parent)
 {
     ui.setupUi(this);
 }

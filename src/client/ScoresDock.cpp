@@ -31,7 +31,7 @@ ScoresDock::ScoresDock( QWidget *parent )
    tableScores->setSelectionBehavior(QAbstractItemView::SelectRows);
 
    QHeaderView *hv = tableScores->horizontalHeader();
-   hv->setResizeMode(QHeaderView::Stretch);
+   hv->setSectionResizeMode(QHeaderView::Stretch);
    setWidget(tableScores);
 }
 /*****************************************************************************/

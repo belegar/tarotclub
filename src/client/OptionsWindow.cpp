@@ -23,8 +23,8 @@
 #include <QString>
 
 /*****************************************************************************/
-OptionsWindow::OptionsWindow( QWidget* parent, Qt::WFlags fl )
-   : QDialog( parent, fl )
+OptionsWindow::OptionsWindow(QWidget* parent)
+   : QDialog(parent)
 {
     ui.setupUi(this);
 

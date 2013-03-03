@@ -45,7 +45,7 @@ private:
    void    refresh();
 
 public:
-   OptionsWindow( QWidget* parent = 0, Qt::WFlags fl = 0 );
+   OptionsWindow( QWidget* parent = 0);
 
    void setClientOptions(ClientOptions *opt);
    void setServerOptions(ServerOptions *opt);

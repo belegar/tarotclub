@@ -92,7 +92,7 @@ protected:
    Ui::serverDock serverUI;
 
 public:
-   MainWindow( QWidget* parent = 0, Qt::WFlags f = 0 );
+   MainWindow( QWidget* parent = 0);
 
 public slots:
    void slotScoresDock();

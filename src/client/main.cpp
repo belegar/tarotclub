@@ -36,21 +36,22 @@ using namespace std;
  * Affiche sur la console les messages Qt (warnings, erreurs...)
  */
 #ifndef QT_NO_DEBUG
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QByteArray localMsg = msg.toLocal8Bit();
     switch (type) {
-        case QtDebugMsg:
-            cout << "Debug: " << msg << endl;
-            break;
-        case QtWarningMsg:
-            cout << "Warning: " << msg << endl;
-            break;
-        case QtCriticalMsg:
-            cout << "Critical: " << msg << endl;
-            break;
-        case QtFatalMsg:
-            cout << "Fatal: " << msg << endl;
-            abort(); // deliberately core dump
+    case QtDebugMsg:
+        fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        abort();
     }
 }
 #endif
@@ -61,24 +62,25 @@ void myMessageOutput(QtMsgType type, const char *msg)
 int main( int argc, char** argv )
 {
 #ifndef QT_NO_DEBUG
-   qInstallMsgHandler(myMessageOutput);
+    qInstallMessageHandler(myMessageOutput);
 #endif
 
-   QApplication app( argc, argv );
+    QApplication app( argc, argv );
 
-   QPixmap pixmap( ":/images/splash.png" );
-   QSplashScreen splash(pixmap);
-   splash.show();
+    QPixmap pixmap( ":/images/splash.png" );
+    QSplashScreen splash(pixmap);
+    splash.show();
 
-   Game window;
+    Game window;
 
-   window.resize(1280, 770);
-   QRect r = window.geometry();
-   r.moveCenter(QApplication::desktop()->availableGeometry().center());
-   window.setGeometry(r);
-   window.show();
+    window.resize(1280, 770);
+    QRect r = window.geometry();
+    r.moveCenter(QApplication::desktop()->availableGeometry().center());
+    window.setGeometry(r);
+    window.show();
 
-   splash.finish(&window);
+    splash.finish(&window);
+
    return app.exec();
 }
 

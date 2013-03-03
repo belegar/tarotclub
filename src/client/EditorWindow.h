@@ -49,7 +49,7 @@ private:
    Ui::DealEditorUI ui;
 
 public:
-   EditorWindow( QWidget* parent = 0, Qt::WFlags fl = 0 );
+   EditorWindow( QWidget* parent = 0);
 
    void init();
    void addToList(int id, QListWidget *list, QListWidgetItem *item);

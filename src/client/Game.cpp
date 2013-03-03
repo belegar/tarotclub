@@ -16,7 +16,6 @@
  *=============================================================================
  */
 
-#include <iostream>
 #include <QStatusBar>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -35,8 +34,7 @@ Game::Game() : MainWindow()
 
    Jeu::init();
    if( tapis->loadCards(clientConfig.getOptions()) == false ) {
-       std::cout << "Cannot load SVG images, exiting..." << endl;
-       exit(-1);
+       qFatal("Cannot load SVG images, exiting...");
    }
    applyOptions();
 
@@ -236,7 +234,7 @@ void Game::hidePli()
 }
 /*****************************************************************************/
 /**
- * Cette fonction est appelée �  chaque fois que l'utilisateur déplace son
+ * Cette fonction est appelÃ©e Ã  chaque fois que l'utilisateur dÃ©place son
  * curseur au dessus d'une carte
  */
 void Game::slotMoveCursor( GfxCard *gc )
@@ -294,7 +292,7 @@ void Game::slotClickCard(GfxCard *gc)
          return;
       }
 
-      // sélection de la carte
+      // sÃ©lection de la carte
       if( gc->getStatus() == CARD_NORMAL ) {
          if( client.getTailleChien() == 6 ) {
             return;
@@ -303,7 +301,7 @@ void Game::slotClickCard(GfxCard *gc)
          if( client.getTailleChien() == 6 ) {
             tapis->setAccepterChienVisible(true);
          }
-      // désélection de la carte
+      // dÃ©sÃ©lection de la carte
       } else if( gc->getStatus() == CARD_SELECTED ) {
          if( client.getTailleChien() == 0 ) {
             return;
@@ -314,7 +312,7 @@ void Game::slotClickCard(GfxCard *gc)
       gc->toggleStatus();
    } else if( sequence == BUILD_POIGNEE ) {
       if(c->getType() == ATOUT || c->getType() == EXCUSE) {
-         // sélection de la carte
+         // sÃ©lection de la carte
          if( gc->getStatus() == CARD_NORMAL ) {
             client.addCardPoignee(c);
             if( client.getTaillePoignee() == 10 ||
@@ -325,7 +323,7 @@ void Game::slotClickCard(GfxCard *gc)
             } else {
                tapis->setBoutonPoigneeVisible(false);
             }
-         // désélection de la carte
+         // dÃ©sÃ©lection de la carte
          } else if( gc->getStatus() == CARD_SELECTED ) {
             client.removeCardPoignee(c);
             if( client.getTaillePoignee() == 10 ||
@@ -385,15 +383,15 @@ void Game::slotPresenterPoignee()
    if(client.testPoignee() == false)
    {
       QMessageBox::information(this, trUtf8("Information"),
-                      trUtf8("Votre poignée n'est pas valide.\n"
-                         "L'excuse dans le chien signifie que vous ne possédez pas d'autres atouts.") );
+                      trUtf8("Votre poignÃ©e n'est pas valide.\n"
+                         "L'excuse dans le chien signifie que vous ne possÃ©dez pas d'autres atouts.") );
       return;
    }
    tapis->setBoutonPoigneeVisible(false);
    client.sendPoignee();
    afficheCartesJoueur(0);
    sequence = GAME;
-   statusBar()->showMessage(trUtf8("À votre tour de jouer une carte.") );
+   statusBar()->showMessage(trUtf8("Ã votre tour de jouer une carte.") );
 }
 /*****************************************************************************/
 void Game::slotSetEnchere( Contrat cont )
@@ -403,9 +401,9 @@ void Game::slotSetEnchere( Contrat cont )
 }
 /*****************************************************************************/
 /**
- * Pos : décale ou non l'affichage des cartes
+ * Pos : dÃ©cale ou non l'affichage des cartes
  * 0 : normal pour 18 cartes
- * 1 : serrées car il y a le chien en plus
+ * 1 : serrÃ©es car il y a le chien en plus
  */
 void Game::afficheCartesJoueur( int pos )
 {
@@ -477,7 +475,7 @@ void Game::slotRedist()
    tapis->razTapis();
 
    QMessageBox::information(this, trUtf8("Information"),
-                   trUtf8("Tous les joueurs ont passé.\n"
+                   trUtf8("Tous les joueurs ont passÃ©.\n"
                       "Nouvelle distribution des cartes.") );
    client.sendReady();
 }
@@ -496,7 +494,7 @@ void Game::slotPrepareChien()
    tapis->setFilter( JEU );
    // on affiche le deck du joueur + le contenu du chien
    afficheCartesJoueur(1);
-   statusBar()->showMessage(trUtf8("Sélectionnez des cartes pour construire votre chien.") );
+   statusBar()->showMessage(trUtf8("SÃ©lectionnez des cartes pour construire votre chien.") );
 }
 /*****************************************************************************/
 void Game::slotDepartDonne(Place p, Contrat c)
@@ -517,23 +515,23 @@ void Game::slotJoueCarte()
 {
    tapis->setFilter( JEU );
 
-   // If we're about to play the first card the Player can declare a Poignée
+   // If we're about to play the first card the Player can declare a PoignÃ©e
    if (firstTurn == true) {
       firstTurn = false;
-      // TODO: test if a Poignée exists in the player's deck
+      // TODO: test if a PoignÃ©e exists in the player's deck
       if(client.getStats()->atouts >=10 ) {
-         int ret = QMessageBox::question(this, trUtf8("Poignée"),
-                                        trUtf8("Vous possédez une poignée.\n"
-                                           "Voulez-vous la déclarer ?"),
+         int ret = QMessageBox::question(this, trUtf8("PoignÃ©e"),
+                                        trUtf8("Vous possÃ©dez une poignÃ©e.\n"
+                                           "Voulez-vous la dÃ©clarer ?"),
                                         QMessageBox::Yes | QMessageBox::No);
          if (ret == QMessageBox::Yes) {
             sequence = BUILD_POIGNEE;
             client.emptyPoignee();
-            statusBar()->showMessage(trUtf8("Constituez votre poignée.") );
+            statusBar()->showMessage(trUtf8("Constituez votre poignÃ©e.") );
          }
       }
    } else {
-      statusBar()->showMessage(trUtf8("À votre tour de jouer une carte.") );
+      statusBar()->showMessage(trUtf8("Ã votre tour de jouer une carte.") );
    }
 }
 /*****************************************************************************/
@@ -564,7 +562,7 @@ void Game::showVictoryWindow()
    score = client.getScore();
    QList<Place> podium = score->getPodium();
 
-   QMessageBox::information(this, trUtf8("Résultat du tournoi"),
+   QMessageBox::information(this, trUtf8("RÃ©sultat du tournoi"),
                                    trUtf8("Le gagnant du tournoi est ") + players[podium[0]].name,
                                    QMessageBox::Ok);
 

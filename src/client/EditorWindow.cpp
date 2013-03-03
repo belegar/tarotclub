@@ -22,8 +22,8 @@
 #include "../DealEditorFile.h"
 
 /*****************************************************************************/
-EditorWindow::EditorWindow( QWidget* parent, Qt::WFlags fl )
-	: QDialog( parent, fl )
+EditorWindow::EditorWindow(QWidget* parent)
+    : QDialog( parent)
 {
    ui.setupUi(this);
 

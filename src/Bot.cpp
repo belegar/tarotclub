@@ -118,7 +118,7 @@ void Bot::slotChoixEnchere( Contrat c )
         return;
     }
 
-    debugger.action(QScriptEngineDebugger::InterruptAction)->trigger();
+    debugger.action(QScriptEngineDebugger::InterruptAction);
     // actually do the eval:
     botEngine.evaluate(strProgram);
 

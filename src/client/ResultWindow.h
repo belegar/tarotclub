@@ -34,7 +34,7 @@ class ResultWindow : public QDialog
 private:
     Ui::ResultUI ui;
 public:
-	ResultWindow( QWidget* parent = 0, Qt::WFlags fl = 0 );
+    ResultWindow( QWidget* parent = 0);
 
 	void	setCalcul(  ScoreInfos *score, GameInfos *infos );
 

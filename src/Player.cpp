@@ -104,7 +104,6 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
    // première carte (couleur demandée)
    CardType type;
    CardColor   coul;
-   int         val;
    //////////////
 
    bool possedeCouleur=false; // vrai si le joueur posseède la couleur demandee
@@ -121,7 +120,6 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
 
    type = c->getType();
    coul = c->getColor();
-   val  = c->getValue();
    if( type == EXCUSE ) { // aïe, le joueur a commencé avec une excuse
       // le joueur peut jouer n'importe quelle carte après l'excuse, c'est lui qui décide alors de la couleur
       if( rang == 2 ) {
@@ -130,7 +128,6 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
       c = mainDeck->at( debut + 1 ); // la couleur demandée est donc la seconde carte
       type = c->getType();
       coul = c->getColor();
-      val  = c->getValue();
    }
 
    if( type == CARTE && cVerif->getColor() == coul ) {

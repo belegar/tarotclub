@@ -24,8 +24,8 @@
 #include "textes.h"
 
 /*****************************************************************************/
-MainWindow::MainWindow( QWidget* parent, Qt::WFlags f )
-   : QMainWindow( parent, f )
+MainWindow::MainWindow(QWidget* parent)
+   : QMainWindow( parent)
 {
    //==============================================================
    //       FENETRES DU JEU

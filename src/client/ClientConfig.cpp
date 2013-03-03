@@ -21,7 +21,7 @@
 #include <QString>
 #include <QDesktopServices>
 
-QString ClientConfig::configPath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation) + "/.tarotclub/";
+QString ClientConfig::configPath = QDir::homePath() + "/.tarotclub/";
 
 /*****************************************************************************/
 ClientConfig::ClientConfig()
