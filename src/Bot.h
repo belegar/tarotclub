@@ -23,6 +23,19 @@
 #include <QScriptEngine>
 #include <QtScriptTools>
 
+
+class DebugObject: public QObject
+{
+   Q_OBJECT
+public:
+
+public slots:
+    void Print(const char *message)
+    {
+        qDebug(message);
+    }
+};
+
 class StatsWrapper: public QObject
 {
    Q_OBJECT
@@ -148,6 +161,10 @@ private:
    QTimer  timeBeforeSend;
    QScriptEngine botEngine;
    QScriptEngineDebugger debugger;
+   StatsWrapper statsObj;
+   DebugObject dbgObj;
+
+   bool initializeScriptContext();
 
 public:
    Bot();

@@ -886,6 +886,25 @@ void Client::sendReady()
 }
 /*****************************************************************************/
 /**
+ * Send an error signal to the server
+ */
+void Client::sendError()
+{
+   QByteArray block;
+   QDataStream out( &block, QIODevice::WriteOnly );
+   out.setVersion(QT_STREAMVER);
+   out << (quint16)0 << (quint8)NET_CLIENT_ERROR
+       << (quint16)0xFFFF;
+
+   out.device()->seek(0);
+   out << (quint16)( block.size() - sizeof(quint16) );
+
+   // On envoie la trame au serveur
+   socket.write(block);
+   socket.flush();
+}
+/*****************************************************************************/
+/**
  * Le client envoie son choix d'enchère
  */
 void Client::sendEnchere( Contrat c )

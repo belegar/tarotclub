@@ -562,7 +562,7 @@ void Game::showVictoryWindow()
    score = client.getScore();
    QList<Place> podium = score->getPodium();
 
-   QMessageBox::information(this, trUtf8("RÃ©sultat du tournoi"),
+   QMessageBox::information(this, trUtf8("Résultat du tournoi"),
                                    trUtf8("Le gagnant du tournoi est ") + players[podium[0]].name,
                                    QMessageBox::Ok);
 

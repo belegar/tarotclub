@@ -31,9 +31,9 @@ QString Card::getCardName()
    } else {
       // number or figure
       if(value == 11)
-         name = "C";
-      else if(value == 12)
          name = "V";
+      else if(value == 12)
+         name = "C";
       else if(value == 13)
          name = "D";
       else if(value == 14)

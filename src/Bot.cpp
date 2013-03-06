@@ -22,27 +22,31 @@
 using namespace std;
 
 /*****************************************************************************/
-Bot::Bot() : Client()
+Bot::Bot() :
+    Client()
+    , statsObj(stats)
 {
-   connect( this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
-   connect( this, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
-   connect( this, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
-   connect( this, SIGNAL(sgnlChoixEnchere(Contrat)), this, SLOT(slotChoixEnchere(Contrat)));
-   connect( this, SIGNAL(sgnlAfficheEnchere(Place,Contrat)), this, SLOT(slotAfficheEnchere(Place,Contrat)));
-   connect( this, SIGNAL(sgnlRedist()), this, SLOT(slotRedist()));
-   connect( this, SIGNAL(sgnlAfficheChien()), this, SLOT(slotAfficheChien()));
-   connect( this, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
-   connect( this, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
-   connect( this, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
-   connect( this, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
-   connect( this, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
-   connect( this, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
+    connect( this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
+    connect( this, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
+    connect( this, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
+    connect( this, SIGNAL(sgnlChoixEnchere(Contrat)), this, SLOT(slotChoixEnchere(Contrat)));
+    connect( this, SIGNAL(sgnlAfficheEnchere(Place,Contrat)), this, SLOT(slotAfficheEnchere(Place,Contrat)));
+    connect( this, SIGNAL(sgnlRedist()), this, SLOT(slotRedist()));
+    connect( this, SIGNAL(sgnlAfficheChien()), this, SLOT(slotAfficheChien()));
+    connect( this, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
+    connect( this, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
+    connect( this, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
+    connect( this, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
+    connect( this, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
+    connect( this, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
 
-   timeBeforeSend.setSingleShot(true);
-   timeBeforeSend.setInterval(0);
-   connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
+    timeBeforeSend.setSingleShot(true);
+    timeBeforeSend.setInterval(0);
+    connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
 
-   debugger.attachTo(&botEngine);
+    debugger.attachTo(&botEngine);
+
+    initializeScriptContext();
 
 }
 /*****************************************************************************/
@@ -53,61 +57,75 @@ Bot::~Bot()
 /*****************************************************************************/
 void Bot::setTimeBeforeSend(int t)
 {
-   timeBeforeSend.setInterval(t);
+    timeBeforeSend.setInterval(t);
 }
 /*****************************************************************************/
 void Bot::slotTimeBeforeSend()
 {
-   Card *c;
-   c = play();
-   removeCard(c);
-   sendCard(c);
+    Card *c;
+    c = play();
+    removeCard(c);
+    sendCard(c);
 }
 /*****************************************************************************/
 void Bot::slotMessage( const QString &text )
 {
-   Q_UNUSED(text);
-   // A bot cannot reply (yet :)
+    Q_UNUSED(text);
+    // A bot cannot reply (yet :)
 }
 /*****************************************************************************/
 void Bot::slotReceptionCartes()
 {
-   updateStats();
+    updateStats();
 }
 /*****************************************************************************/
 void Bot::slotAfficheSelection( Place p )
 {
-   Q_UNUSED(p);
-   // nada aussi
+    Q_UNUSED(p);
+    // nada aussi
 }
 /*****************************************************************************/
-void Bot::slotChoixEnchere( Contrat c )
-{
-    int ret;
-    Contrat mon_contrat;
 
+QScriptValue myPrint( QScriptContext * context, QScriptEngine * eng )
+{
+   // return QScriptEngine();
+
+    QScriptValue arg = context->argument(0);
+    if (!arg.isString()) {
+        return context->throwError(
+            QScriptContext::TypeError,
+            QString::fromLatin1("print(): expected string argument"));
+    }
+    QString toPrint = arg.toString();
+    qDebug(toPrint.toLatin1().constData());
+    return QScriptValue();
+}
+
+bool Bot::initializeScriptContext()
+{
 #ifndef QT_NO_DEBUG
-   #ifdef Q_OS_WIN32
-      QString fileName = "E:/Personnel/tarotclub/ai/bid.js";
-   #else
-      QString fileName = "/home/anthony/tarotclub/ai/bid.qs";
-   #endif
+#ifdef Q_OS_WIN32
+    QString fileName = "E:/Personnel/tarotclub/ai/bid.js";
+#else
+    QString fileName = "/home/anthony/tarotclub/ai/bid.qs";
+#endif
 #endif
 
-    StatsWrapper statsObj(stats);
-
     botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
+   // botEngine.globalObject().setProperty("TDbg", botEngine.newQObject(&dbgObj));
+
+    botEngine.globalObject().setProperty( "print", botEngine.newFunction( &myPrint ) );
 
     QFile scriptFile(fileName);
 
     if (! scriptFile.exists()) {
         QMessageBox::critical(0, "Error", "Could not find program file!");
-        return;
+        return false;
     }
 
     if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::critical(0, "Error", "Could not open program file!");
-        return;
+        return false;
     }
 
     QString strProgram = scriptFile.readAll();
@@ -115,7 +133,7 @@ void Bot::slotChoixEnchere( Contrat c )
     // do static check so far of code:
     if (! botEngine.canEvaluate(strProgram) ) {
         QMessageBox::critical(0, "Error", "canEvaluate returned false!");
-        return;
+        return false;
     }
 
     debugger.action(QScriptEngineDebugger::InterruptAction);
@@ -126,8 +144,16 @@ void Bot::slotChoixEnchere( Contrat c )
     if (botEngine.hasUncaughtException()) {
         QScriptValue exception = botEngine.uncaughtException();
         QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception: ") + exception.toString());
-        return;
+        return false;
     }
+
+    return true;
+}
+/*****************************************************************************/
+void Bot::slotChoixEnchere( Contrat c )
+{
+    int ret;
+    Contrat mon_contrat;
 
     QScriptValue createFunc = botEngine.evaluate("calculateBid");
 
@@ -165,61 +191,67 @@ void Bot::slotChoixEnchere( Contrat c )
 /*****************************************************************************/
 void Bot::slotAfficheEnchere( Place, Contrat )
 {
-   // nada
+    // nada
 }
 /*****************************************************************************/
 void Bot::slotRedist()
 {
-   sendReady();
+    // Re-inititialize script context
+    if (initializeScriptContext() == true) {
+        sendReady();
+    } else {
+        sendError();
+    }
 }
 /*****************************************************************************/
 void Bot::slotAfficheChien()
 {
-   sendVuChien();
+    sendVuChien();
 }
 /*****************************************************************************/
 void Bot::slotPrepareChien()
 {
-   choixChien(&chien);
-   sendChien();
+    choixChien(&chien);
+    sendChien();
 }
 /*****************************************************************************/
 void Bot::slotDepartDonne(Place p,Contrat c)
 {
-   Q_UNUSED(p);
-   Q_UNUSED(c);
-   // nada
+    Q_UNUSED(p);
+    Q_UNUSED(c);
+    // nada
 }
 /*****************************************************************************/
 void Bot::slotJoueCarte()
 {
-   timeBeforeSend.start();
+    timeBeforeSend.start();
 }
 /*****************************************************************************/
 void Bot::slotAfficheCarte(int id, Place p)
 {
-   Q_UNUSED(id);
-   Q_UNUSED(p);
-   // nada
+    Q_UNUSED(id);
+    Q_UNUSED(p);
+    // nada
 }
 /*****************************************************************************/
 void Bot::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 {
-   Q_UNUSED(winner);
-   Q_UNUSED(pointsTaker);
-   Q_UNUSED(lastDeal);
-   if (lastDeal == false) {
-      sendReady();
-   }
+    Q_UNUSED(winner);
+    Q_UNUSED(pointsTaker);
+    Q_UNUSED(lastDeal);
+    if (lastDeal == false) {
+        sendReady();
+    }
 }
 /*****************************************************************************/
 void Bot::slotWaitPli(Place winner, float pointsTaker)
 {
-   Q_UNUSED(winner);
-   Q_UNUSED(pointsTaker);
-   sendVuPli();
+    Q_UNUSED(winner);
+    Q_UNUSED(pointsTaker);
+    sendVuPli();
 }
 
 //=============================================================================
 // End of file Bot.cpp
 //=============================================================================
+

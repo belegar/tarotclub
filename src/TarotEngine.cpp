@@ -906,12 +906,13 @@ void TarotEngine::doAction( QDataStream &in, QTcpSocket* cnx )
             poigneeDeck.append(Jeu::getCard(id));
          }
          // TODO: add robustness here!!
-         if(dummy == 10)
+         if(dummy == 10) {
             p = P_SIMPLE;
-         else if (dummy == 13)
+         } else if (dummy == 13) {
             p = P_DOUBLE;
-         else
+         } else {
             p = P_TRIPLE;
+         }
 
          if(players[cnx]->getPlace() == infos.preneur) {
             score.setPoigneeAttaque(p);

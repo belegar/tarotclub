@@ -81,6 +81,7 @@ public:
    void sendPoignee();
    void sendCard( Card *c );
    void sendReady();
+   void sendError();
    void sendVuChien();
    void sendVuPli();
    void doAction( QDataStream &in );

@@ -76,6 +76,7 @@ enum DealType     { RANDOM_DEAL, CUSTOM_DEAL, NUMBERED_DEAL };
 #define NET_CLIENT_VU_PLI     0x17  // tous les clients doivent prévenir le serveur qu'ils ont bien vus le pli
 #define NET_CLIENT_POIGNEE    0x18  // un client veut déclarer une poignée
 #define NET_CLIENT_READY      0x19
+#define NET_CLIENT_ERROR      0x20
 
 // server -> client
 #define NET_MESSAGE           0x70

@@ -11,6 +11,10 @@ function calculateBid()
 {
    total = 0;
 
+   //TDbg.Print("coucou!");
+   
+   print("coucou!");
+   
    // We start looking at bouts, each of them increase the total value of points
    if( TStats.hasVingtEtUn() == true ) {
       total += 9;
