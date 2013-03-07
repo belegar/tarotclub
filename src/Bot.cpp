@@ -45,9 +45,6 @@ Bot::Bot() :
     connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
 
     debugger.attachTo(&botEngine);
-
-    initializeScriptContext();
-
 }
 /*****************************************************************************/
 Bot::~Bot()
@@ -77,6 +74,7 @@ void Bot::slotMessage( const QString &text )
 void Bot::slotReceptionCartes()
 {
     updateStats();
+    initializeScriptContext();
 }
 /*****************************************************************************/
 void Bot::slotAfficheSelection( Place p )
@@ -85,7 +83,6 @@ void Bot::slotAfficheSelection( Place p )
     // nada aussi
 }
 /*****************************************************************************/
-
 QScriptValue myPrint( QScriptContext * context, QScriptEngine * eng )
 {
    // return QScriptEngine();
@@ -100,7 +97,7 @@ QScriptValue myPrint( QScriptContext * context, QScriptEngine * eng )
     qDebug(toPrint.toLatin1().constData());
     return QScriptValue();
 }
-
+/*****************************************************************************/
 bool Bot::initializeScriptContext()
 {
 #ifndef QT_NO_DEBUG
@@ -111,10 +108,9 @@ bool Bot::initializeScriptContext()
 #endif
 #endif
 
+    // Give access to some objects from the JavaScript engine
     botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
-   // botEngine.globalObject().setProperty("TDbg", botEngine.newQObject(&dbgObj));
-
-    botEngine.globalObject().setProperty( "print", botEngine.newFunction( &myPrint ) );
+    botEngine.globalObject().setProperty("print", botEngine.newFunction( &myPrint ) );
 
     QFile scriptFile(fileName);
 
@@ -238,7 +234,6 @@ void Bot::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 {
     Q_UNUSED(winner);
     Q_UNUSED(pointsTaker);
-    Q_UNUSED(lastDeal);
     if (lastDeal == false) {
         sendReady();
     }

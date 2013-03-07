@@ -63,6 +63,7 @@ HEADERS = AboutWindow.h \
     InfosDock.h \
     ChatDock.h \
     RoundDock.h \
+    DebugDock.h \
     Tapis.h \
     TextBox.h \
     ClientConfig.h \
@@ -105,6 +106,7 @@ SOURCES = AboutWindow.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
     RoundDock.cpp \
+    DebugDock.cpp \
     Tapis.cpp \
     TextBox.cpp \
     ClientConfig.cpp \

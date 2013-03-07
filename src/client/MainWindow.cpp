@@ -77,7 +77,12 @@ MainWindow::MainWindow(QWidget* parent)
    addDockWidget(Qt::RightDockWidgetArea, roundDock);
    roundDock->show();
 
-   tabifyDockWidget(infosDock, roundDock);
+   // Debug window
+   debugDock = new DebugDock(this);
+   addDockWidget(Qt::RightDockWidgetArea, debugDock);
+   debugDock->show();
+
+   tabifyDockWidget(roundDock, debugDock);
 
    // ----------  Docks du bas ------------------------
 

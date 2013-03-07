@@ -36,6 +36,7 @@
 #include "InfosDock.h"
 #include "ChatDock.h"
 #include "RoundDock.h"
+#include "DebugDock.h"
 #include "JoinWizard.h"
 #include "ui_ServerManagerUI.h"
 
@@ -87,6 +88,7 @@ protected:
    ChatDock *chatDock;
    RoundDock *roundDock;
    QDockWidget *serverDock;
+   DebugDock *debugDock;
 
    // UI classes
    Ui::serverDock serverUI;
