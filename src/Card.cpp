@@ -22,34 +22,35 @@
 QString Card::getCardName()
 {
    QString name;
+   QTextStream stream(&name);
+   stream.setFieldWidth(2);
+   stream.setFieldAlignment(QTextStream::AlignRight);
+   stream.setPadChar('0');
 
-   if (cardType == ATOUT) {
-      QString n;
-      name = "A" + n.setNum(value);
-   } else if (cardType == EXCUSE) {
-      name = "E";
-   } else {
-      // number or figure
-      if(value == 11)
-         name = "V";
-      else if(value == 12)
-         name = "C";
-      else if(value == 13)
-         name = "D";
-      else if(value == 14)
-         name = "R";
-      else
-         name.setNum(value);
-
+   stream << value;
+   if (cardType == ATOUT || (cardType == EXCUSE))
+   {
+      stream << "-A";
+   }
+   else
+   {
       // Color
       if (color == PIC)
-         name += "-P";
+      {
+         stream << "-S"; // spades
+      }
       else if (color == COEUR)
-         name += "-Co";
+      {
+         stream << "-H"; // heart
+      }
       else if (color == TREFLE)
-         name += "-T";
+      {
+         stream << "-C"; // club
+      }
       else
-         name += "-Ca";
+      {
+         stream << "-D"; // diamond
+      }
    }
    return name;
 }

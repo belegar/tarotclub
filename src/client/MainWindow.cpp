@@ -77,27 +77,28 @@ MainWindow::MainWindow(QWidget* parent)
    addDockWidget(Qt::RightDockWidgetArea, roundDock);
    roundDock->show();
 
-   // Debug window
-   debugDock = new DebugDock(this);
-   addDockWidget(Qt::RightDockWidgetArea, debugDock);
-   debugDock->show();
 
-   tabifyDockWidget(roundDock, debugDock);
 
    // ----------  Docks du bas ------------------------
 
    // Dock window : discussion
    chatDock = new ChatDock(this);
    addDockWidget(Qt::BottomDockWidgetArea, chatDock);
-   chatDock->hide();
+   chatDock->show();
    connect( chatDock,SIGNAL(sgnlClose()),this, SLOT(slotCloseChat()) );
 
    // Dock window : serveur
    serverDock = new QDockWidget(this);
    serverUI.setupUi(serverDock);
    addDockWidget(Qt::BottomDockWidgetArea, serverDock);
-   serverDock->hide();
+   serverDock->show();
 
+   // Debug window
+   debugDock = new DebugDock(this);
+   addDockWidget(Qt::BottomDockWidgetArea, debugDock);
+   debugDock->show();
+
+   tabifyDockWidget(roundDock, debugDock);
 
    //==============================================================
    //       MENUS

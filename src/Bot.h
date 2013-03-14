@@ -23,19 +23,6 @@
 #include <QScriptEngine>
 #include <QtScriptTools>
 
-
-class DebugObject: public QObject
-{
-   Q_OBJECT
-public:
-
-public slots:
-    void Print(const char *message)
-    {
-        qDebug(message);
-    }
-};
-
 class StatsWrapper: public QObject
 {
    Q_OBJECT
@@ -151,6 +138,28 @@ public slots:
     }
 
 };
+/*****************************************************************************/
+class DeckWrapper: public QObject
+{
+   Q_OBJECT
+public:
+
+    DeckWrapper(Deck &i_botDeck, Deck &i_mainDeck)
+        :   mBotDeck(i_botDeck)
+        ,   mMainDeck(i_mainDeck)
+    {
+
+    }
+
+    Deck &mBotDeck;
+    Deck &mMainDeck;
+
+public slots:
+    QString GetBotCards()
+    {
+        return mBotDeck.GetCardList();
+    }
+};
 
 /*****************************************************************************/
 class Bot : public Client
@@ -161,16 +170,16 @@ private:
    QTimer  timeBeforeSend;
    QScriptEngine botEngine;
    QScriptEngineDebugger debugger;
+
+   // Exposed object to the Javascript
    StatsWrapper statsObj;
-   DebugObject dbgObj;
+   DeckWrapper deckObj;
 
    bool initializeScriptContext();
 
 public:
    Bot();
    ~Bot();
-
-
 
    void setTimeBeforeSend(int t);
 

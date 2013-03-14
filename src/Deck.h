@@ -71,6 +71,8 @@ public:
    Card *getCardById( int );             // Renvoi un pointeur vers une carte
    void sort();
    static bool lessThanCards(Card *carte1, Card *carte2 );
+
+   QString GetCardList();
 };
 
 #endif // _DECK_H
