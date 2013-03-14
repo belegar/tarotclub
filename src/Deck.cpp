@@ -19,8 +19,8 @@
 #include "Deck.h"
 // Standard includes
 #ifndef QT_NO_DEBUG
-   #include <iostream>
-   #include <fstream>
+#include <iostream>
+#include <fstream>
 #endif // QT_NO_DEBUG
 
 #include <QtAlgorithms>
@@ -36,36 +36,48 @@ Deck::Deck()
 
 }
 /*****************************************************************************/
+QString Deck::GetCardList()
+{
+    QString list;
+
+    for(int i=0; i<size(); i++)
+    {
+        list += at(i)->getCardName();
+        list += ";";
+    }
+    return list;
+}
+/*****************************************************************************/
 void Deck::shuffle(int seed)
 {
-   for ( int i = size(); i > 0; --i )
-   {
-      // pseudorandom number generation algorithm
-      // taken from KDE game KPat, thanks !
-      seed = 214013 * seed + 2531011;
-      int rand = ( seed >> 16 ) & 0x7fff;
-      int z = rand % i;
-      swap(z, i-1);
-   }
+    for ( int i = size(); i > 0; --i )
+    {
+        // pseudorandom number generation algorithm
+        // taken from KDE game KPat, thanks !
+        seed = 214013 * seed + 2531011;
+        int rand = ( seed >> 16 ) & 0x7fff;
+        int z = rand % i;
+        swap(z, i-1);
+    }
 }
 /*****************************************************************************/
 Card *Deck::getCardById( int id )
 {
-   for( int i = 0; i<this->size(); ++i) {
-     if( this->at(i)->getId() == id )
-         return this->at(i);
-   }
-   return (NULL);
+    for( int i = 0; i<this->size(); ++i) {
+        if( this->at(i)->getId() == id )
+            return this->at(i);
+    }
+    return (NULL);
 }
 /*****************************************************************************/
 void Deck::sort()
 {
-   qSort( this->begin(), this->end(), lessThanCards );
+    qSort( this->begin(), this->end(), lessThanCards );
 }
 /*****************************************************************************/
 bool Deck::lessThanCards(Card *carte1, Card *carte2 )
 {
-   return carte1->getId() > carte2->getId();
+    return carte1->getId() > carte2->getId();
 }
 //=============================================================================
 // End of file Deck.cpp

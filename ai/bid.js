@@ -7,6 +7,16 @@ var BidValue = {
     GARDE_CONTRE:4
 }
 
+
+function playCard()
+{
+	var cards = TDeck.GetBotCards();
+	var result = cards.split(/;/g);
+	print(result[0]);
+
+	return result[0];
+}
+
 function calculateBid()
 {
    total = 0;
@@ -46,7 +56,7 @@ function calculateBid()
    total += TStats.getNumberOfSingletons() * 3;
    total += TStats.getNumberOfSequences() * 4;
 
-   // on décide de l'enchère :
+   // We decide on a bid depending of thresholds
    if( total <= 35 ) {
       cont = BidValue.PASSE;
    } else if( total >= 36  && total <= 50 ) {
@@ -60,3 +70,5 @@ function calculateBid()
    }
    return cont;
 }
+
+// End of file

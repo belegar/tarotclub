@@ -16,18 +16,19 @@
  *=============================================================================
  */
 
-// Inclusions Qt
+// Qt includes
 #include <QApplication>
 #include <QSplashScreen>
 #include <QDesktopWidget>
 #include <QtGlobal>
 #include <QTranslator>
 
-// Inclusions C++
+// Std C++
 #include <iostream>
 
-// Inclusions du jeu
+// Specific game includes
 #include "Game.h"
+#include "DebugDock.h"
 
 using namespace std;
 
@@ -38,20 +39,26 @@ using namespace std;
 #ifndef QT_NO_DEBUG
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
-    switch (type) {
-    case QtDebugMsg:
-        printf("Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        break;
-    case QtWarningMsg:
-        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        break;
-    case QtCriticalMsg:
-        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        break;
-    case QtFatalMsg:
-        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        abort();
+    DebugDock *output = DebugDock::getInstance();
+    if (output != NULL)
+    {
+        QString infos = QString(": ") + QString(context.file) + QString(":") + QString().setNum(context.line) + QString(", ") + QString(context.function);
+
+        switch (type)
+        {
+        case QtDebugMsg:
+            output->message(msg);
+            break;
+        case QtWarningMsg:
+            output->message(msg + infos);
+            break;
+        case QtCriticalMsg:
+            output->message(msg + infos);
+            break;
+        case QtFatalMsg:
+            output->message(msg + infos);
+            abort();
+        }
     }
 }
 #endif

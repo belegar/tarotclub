@@ -60,6 +60,7 @@ public:
    int getCardNumber();
    Card *getCard( int );
    Card *getCardById( int );
+   Card *GetCardByName(const QString &i_name);
 };
 
 #endif // _PLAYER_H

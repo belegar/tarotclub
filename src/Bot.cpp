@@ -25,6 +25,7 @@ using namespace std;
 Bot::Bot() :
     Client()
     , statsObj(stats)
+    , deckObj(myDeck, mainDeck)
 {
     connect( this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
     connect( this, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
@@ -59,8 +60,44 @@ void Bot::setTimeBeforeSend(int t)
 /*****************************************************************************/
 void Bot::slotTimeBeforeSend()
 {
-    Card *c;
-    c = play();
+    Card *c = NULL;
+    QString ret;
+
+    QScriptValue createFunc = botEngine.evaluate("playCard");
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
+        return;
+    }
+
+    if (!createFunc.isFunction()) {
+        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
+    }
+
+    ret = createFunc.call().toString();
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
+        return;
+    }
+
+    // Test validity of card
+    c = GetCardByName(ret);
+    if (c != NULL) {
+        if (isValid(c) == false) {
+            QString message = QString("Bot played a non-valid card: ") + ret;
+            qDebug(message.toLatin1().constData());
+        } else {
+            // The show must go on, play a random card
+            c = play();
+        }
+    } else {
+        // The show must go on, play a random card
+        c = play();
+    }
+
     removeCard(c);
     sendCard(c);
 }
@@ -85,7 +122,7 @@ void Bot::slotAfficheSelection( Place p )
 /*****************************************************************************/
 QScriptValue myPrint( QScriptContext * context, QScriptEngine * eng )
 {
-   // return QScriptEngine();
+    Q_UNUSED(eng);
 
     QScriptValue arg = context->argument(0);
     if (!arg.isString()) {
@@ -93,7 +130,7 @@ QScriptValue myPrint( QScriptContext * context, QScriptEngine * eng )
             QScriptContext::TypeError,
             QString::fromLatin1("print(): expected string argument"));
     }
-    QString toPrint = arg.toString();
+    QString toPrint = QString("Bot script: ") + arg.toString();
     qDebug(toPrint.toLatin1().constData());
     return QScriptValue();
 }
@@ -110,6 +147,7 @@ bool Bot::initializeScriptContext()
 
     // Give access to some objects from the JavaScript engine
     botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
+    botEngine.globalObject().setProperty("TDeck", botEngine.newQObject(&deckObj));
     botEngine.globalObject().setProperty("print", botEngine.newFunction( &myPrint ) );
 
     QFile scriptFile(fileName);
