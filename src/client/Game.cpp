@@ -475,7 +475,7 @@ void Game::slotRedist()
    tapis->razTapis();
 
    QMessageBox::information(this, trUtf8("Information"),
-                   trUtf8("Tous les joueurs ont passÃ©.\n"
+                   trUtf8("Tous les joueurs ont passé.\n"
                       "Nouvelle distribution des cartes.") );
    client.sendReady();
 }

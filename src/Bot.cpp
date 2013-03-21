@@ -63,7 +63,7 @@ void Bot::slotTimeBeforeSend()
     Card *c = NULL;
     QString ret;
 
-    QScriptValue createFunc = botEngine.evaluate("playCard");
+    QScriptValue createFunc = botEngine.evaluate("PlayCard");
 
     if (botEngine.hasUncaughtException()) {
         QScriptValue exception = botEngine.uncaughtException();
@@ -75,7 +75,9 @@ void Bot::slotTimeBeforeSend()
         QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
     }
 
-    ret = createFunc.call().toString();
+    QScriptValueList args;
+    args << infos.gameCounter;
+    ret = createFunc.call(QScriptValue(), args).toString();
 
     if (botEngine.hasUncaughtException()) {
         QScriptValue exception = botEngine.uncaughtException();
@@ -87,9 +89,8 @@ void Bot::slotTimeBeforeSend()
     c = GetCardByName(ret);
     if (c != NULL) {
         if (isValid(c) == false) {
-            QString message = QString("Bot played a non-valid card: ") + ret;
+            QString message = getName() + QString(" played a non-valid card: ") + ret;
             qDebug(message.toLatin1().constData());
-        } else {
             // The show must go on, play a random card
             c = play();
         }
@@ -139,7 +140,7 @@ bool Bot::initializeScriptContext()
 {
 #ifndef QT_NO_DEBUG
 #ifdef Q_OS_WIN32
-    QString fileName = "E:/Personnel/tarotclub/ai/bid.js";
+    QString fileName = "E:/Personnel/tarotclub/ai/beginner.js";
 #else
     QString fileName = "/home/anthony/tarotclub/ai/bid.qs";
 #endif
@@ -184,12 +185,12 @@ bool Bot::initializeScriptContext()
     return true;
 }
 /*****************************************************************************/
-void Bot::slotChoixEnchere( Contrat c )
+void Bot::slotChoixEnchere(Contrat highestBid)
 {
     int ret;
     Contrat mon_contrat;
 
-    QScriptValue createFunc = botEngine.evaluate("calculateBid");
+    QScriptValue createFunc = botEngine.evaluate("CalculateBid");
 
     if (botEngine.hasUncaughtException()) {
         QScriptValue exception = botEngine.uncaughtException();
@@ -201,7 +202,9 @@ void Bot::slotChoixEnchere( Contrat c )
         QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
     }
 
-    ret = createFunc.call().toInteger();
+    QScriptValueList args;
+    args << (int)highestBid;
+    ret = createFunc.call(QScriptValue(), args).toInteger();
 
     if (botEngine.hasUncaughtException()) {
         QScriptValue exception = botEngine.uncaughtException();
@@ -217,15 +220,16 @@ void Bot::slotChoixEnchere( Contrat c )
     }
 
     // only bid over previous one is allowed
-    if( mon_contrat <= c ) {
+    if( mon_contrat <= highestBid ) {
         mon_contrat = PASSE;
     }
     sendEnchere(mon_contrat);
 }
 /*****************************************************************************/
-void Bot::slotAfficheEnchere( Place, Contrat )
+void Bot::slotAfficheEnchere( Place place, Contrat contract)
 {
-    // nada
+    Q_UNUSED(place);
+    Q_UNUSED(contract);
 }
 /*****************************************************************************/
 void Bot::slotRedist()
@@ -249,11 +253,29 @@ void Bot::slotPrepareChien()
     sendChien();
 }
 /*****************************************************************************/
-void Bot::slotDepartDonne(Place p,Contrat c)
+void Bot::slotDepartDonne(Place i_taker,Contrat i_contract)
 {
-    Q_UNUSED(p);
-    Q_UNUSED(c);
-    // nada
+    QScriptValue createFunc = botEngine.evaluate("StartGame");
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
+        return;
+    }
+
+    if (!createFunc.isFunction()) {
+        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
+    }
+
+    QScriptValueList args;
+    args << i_taker << i_contract;
+    createFunc.call(QScriptValue(), args);
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
+        return;
+    }
 }
 /*****************************************************************************/
 void Bot::slotJoueCarte()
@@ -265,7 +287,28 @@ void Bot::slotAfficheCarte(int id, Place p)
 {
     Q_UNUSED(id);
     Q_UNUSED(p);
-    // nada
+
+    QScriptValue createFunc = botEngine.evaluate("PlayedCard");
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
+        return;
+    }
+
+    if (!createFunc.isFunction()) {
+        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
+    }
+
+    QScriptValueList args;
+    args << Jeu::getCard(id)->getCardName() << (int)p;
+    createFunc.call(QScriptValue(), args);
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
+        return;
+    }
 }
 /*****************************************************************************/
 void Bot::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)

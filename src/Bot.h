@@ -152,15 +152,19 @@ public:
     }
 
     Deck &mBotDeck;
-    Deck &mMainDeck;
+    Deck &mMainDeck;    // cards played in previous and current turns
 
 public slots:
     QString GetBotCards()
     {
         return mBotDeck.GetCardList();
     }
-};
 
+    QString GetMainCards()
+    {
+        return mMainDeck.GetCardList();
+    }
+};
 /*****************************************************************************/
 class Bot : public Client
 {
@@ -191,12 +195,12 @@ private slots:
    void slotMessage( const QString &text );
    void slotReceptionCartes();
    void slotAfficheSelection( Place p );
-   void slotChoixEnchere( Contrat c );
-   void slotAfficheEnchere( Place, Contrat );
+   void slotChoixEnchere(Contrat highestBid );
+   void slotAfficheEnchere(Place place, Contrat contract);
    void slotRedist();
    void slotAfficheChien();
    void slotPrepareChien();
-   void slotDepartDonne(Place p,Contrat c);
+   void slotDepartDonne(Place i_taker, Contrat i_contract);
    void slotJoueCarte();
    void slotAfficheCarte(int id, Place p);
    void slotFinDonne(Place, float, bool lastDeal);

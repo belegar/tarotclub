@@ -23,9 +23,6 @@ QString Card::getCardName()
 {
    QString name;
    QTextStream stream(&name);
-   stream.setFieldWidth(2);
-   stream.setFieldAlignment(QTextStream::AlignRight);
-   stream.setPadChar('0');
 
    stream << value;
    if (cardType == ATOUT || (cardType == EXCUSE))

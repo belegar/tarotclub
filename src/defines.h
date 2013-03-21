@@ -100,9 +100,9 @@ enum DealType     { RANDOM_DEAL, CUSTOM_DEAL, NUMBERED_DEAL };
 /*****************************************************************************/
 
 typedef struct {
-   Place    preneur;       // qui a pris
-   Contrat  contrat;       // avec quel contrat
-   int      gameCounter;   // compteur de jeu
+   Place    preneur;       // who has taken
+   Contrat  contrat;       // taker's contract
+   int      gameCounter;   // game counter, first player of the game will start at 1
 } GameInfos;
 
 typedef struct {

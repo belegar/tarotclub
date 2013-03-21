@@ -43,7 +43,10 @@ QString Deck::GetCardList()
     for(int i=0; i<size(); i++)
     {
         list += at(i)->getCardName();
-        list += ";";
+        if (i < (size()-1))
+        {
+            list += ";";
+        }
     }
     return list;
 }
