@@ -1,0 +1,78 @@
+====== Nouvelles ======
+
+Cette page liste les dernières nouveautés concernant le développement du jeu.
+
+===== TuxFamily =====
+August 23, 2010, 17:33
+
+Le site et le dépôt Git vont déménager chez TuxFamily dans les jours qui viennent.
+Edit : ça y est, c'est fait, merci à TuxFamily. Quelques pages manquent encore, ça sera bientôt réparé.
+
+===== Version 2.0.0 finale =====
+August 14, 2010, 15:22
+
+Hop ! voici donc la 2.0.0 finale.
+L’architecture est maintenant globalement stabilisée, la prochaine version se focalisera sur le jeu en réseau et le retour des scipts d’IA !
+Le jeu est disponible sur Launchpad pour Ubuntu ou sur GitHub pour Windows et les autres distributions.
+
+===== Nouveautés Alpha 2 =====
+May 30, 2010, 00:20
+
+La version 2.0.0 Alpha 2 devrait être prête dans les jours qui viennent. Quelques nouveautés intéressantes sont au programme :
+
+  * Refonte des menus et des graphismes du tapis
+  * Nouveaux Docks (statistiques, cartes jouées à tous les tours)
+  * Donnes numérotées et manuelles
+  * Editeur de donne
+
+Il y a bien entendu de nombreux autres changements invisibles mais essentiels pour les futures évolutions du jeu.
+N’oubliez pas d’aller voir la page du projet sur GitHub pour en apprendre plus. Sinon, tout est sur le dépôt Git !
+
+Edit : j’ai mis sur Launchpad la release 2.0.0a2 empaquetée dans un beau paquet .deb. Disponible ici : https://launchpad.net/tarotclub
+Edit2: la version Windows est disponible sur GitHub, packagée avec InnoSetup cette fois-ci.
+
+===== TarotClub 2.0.0 Alpha 1 =====
+May 16, 2010, 01:48
+
+J’ai compilé une première version de TarotClub 2.0.0 pour Windows, vous pouvez récupérer l’installeur ici :
+
+TarotClub2.0.0-Alpha1-Setup.exe
+
+Voici ce que ça donne :
+
+tarotclub_2-0-0a1
+
+Edit : et voici la version Linux64 :
+
+TarotClub-2.0.0-Alpha1.tar.bz2
+
+Vous aurez besoin de Qt 4.6.2 pour que cela fonctionne. Voici un aperçu :
+
+snapshot1
+
+
+===== Ajout du dépôt GitHub =====
+March 1, 2010, 20:58
+
+Gitorious fait place à Github étant donné que je n’arrivais pas à pusher sur gitorious … je suis plutôt content du passage, GitHub a l’air beaucoup plus documenté et fonctionnel.
+
+La dernière version de TarotClub est donc en ligne !
+
+===== Jeu de cartes en SVG =====
+February 20, 2010, 16:55
+
+Ça y est, j’ai finalement mis une touche finale à mon jeu de cartes en SVG (format d’image vectoriel). Les atouts sont illustrés par des blasons représentant nos départements tandis que les figures sont représentées par des couronnes.
+
+Désolé pour l’excuse en forme de Tux, j’ai pas résisté :D .
+
+tarot-deck
+
+Concernant le code source sur Gitorious, il est un peu vieux (et ne compile pas), je possède une version plus récente contenant le deck de cartes mais je n’arrive plus à “git-pusher” sur gitorious :’(
+
+
+===== Bienvenue ! =====
+February 16, 2010, 18:54
+
+Ce petit site centralise les activités autour du développement du jeu TarotClub, un jeu de Tarot libre (code source included et tout).
+
+En plus, grâce à la librairie Qt, le jeu est disponible sur (potentiellement) tous les systèmes d’exploitation. Le rulez intégral quoi.

@@ -1,0 +1,31 @@
+====== Installer CGI Perl ======
+
+Installer Apache2, puis :
+
+<code>
+sudo apt-get install libapache2-mod-perl2
+</code>
+
+Activer Perl :
+
+<code>
+sudo a2enmod perl
+</code>
+
+Editer le fichier ''sudo vim /etc/apache2/sites-available/default'' et modifier les paramètres de l'emplacement des scripts :
+
+<code>
+<Directory /var/www/>
+   Options Indexes FollowSymLinks MultiViews +ExecCGI
+   AllowOverride None
+   Order allow,deny
+   allow from all
+   AddHandler cgi-script .cgi .pl
+</Directory>
+</code>
+
+Redémarrer Apache
+
+<code>
+sudo /etc/init.d/apache2 restart
+</code>

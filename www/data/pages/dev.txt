@@ -1,0 +1,50 @@
+====== Code source ======
+
+Le code source est disponible sur le dépôt git de TuxFamily. Pour le récupérer, tapez :
+
+<code>
+git clone git://git.tuxfamily.org/gitroot/tarotclub/tarotclub.git
+</code>
+
+Il est possible de visualiser le code source par l'interface Web : http://git.tuxfamily.org/tarotclub/tarotclub/
+====== Planning des sorties ======
+
+**Planned for the 2.1.0 release:**
+  * Script Engine for AI using QtScript or Lua //- work in progress -//
+  * Dedicated server  //- work in progress -//
+  * Server protocol for remote management
+  * Connection to a server, server hosting inside the graphical client
+  * Client/Server stuff (commands, disconnections, replace a deconnected client by a bot ...)
+  * <del>Rework options and config files (separation between server and client)</del> //-done-//
+  * Server logs, log raw bad packets with IPs
+  * Add network protocol robustness (free the data stream if bad packet received)
+  * Add XML server parameters (number of deals of the tournament ...)
+  * Network engine: class serializations for all packets (same as Identity.h)
+  * For Linux, store the config files in ~/.config/tarotclub
+  * Embedded HTTP server in the dedicated server (game management)
+
+Target date: November 2010
+
+**Planned for 2.2.0 release:**
+  * Game modes scripted in Lua
+  * Show the Chien at the end of the deal (and the points)
+  * See the previous turn cards
+  * Add a lexical and Tarot rules in the help menu (using QtHelp system)
+  * Translation files (French and English)
+  * Automatically save the QMainWindow state before closing  (size, position ...)
+  * "Championship mode" like in football
+  * Allow domain names instead and IP fields
+
+**Planned for 2.3.0 release:**
+  * Mac OS X version
+  * Statistic graphs (points at each round)
+  * Save and load game
+
+**Planned for 2.4.0 version:**
+  * Server with multi game rooms, ability of seeing current players, scores
+  * Championship system with points
+
+**Planned for another time:**
+  * Symbian version (single player only)
+  * iPhone version (single player only)
+  * Androïd version (single player only)

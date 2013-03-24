@@ -1,0 +1,39 @@
+====== Technologies ======
+
+**Qt**
+
+TarotClub est entièrement conçu à l’aide de la librairie Qt de Nokia. Ce framework est tellement fantastique que l’on n’a plus l’impression de programmer en C++ ; non, dorénavant je proclame que programme en langage Qt !
+
+Parmi les nombreux outils fournis dans cet bibliothèque, voici la liste des technologies utilisées au sein de TarotClub :
+
+  *QCanvasView : en fait il s’agit là d’une classe mais tellement vaste que je la considère comme un module à part entière. Cette classe, toute indiquée pour les jeux, est un conteneur de dessins et d’images !
+  *QtSVG : comme son nom l’indique, permet la manipulation et l’affichage de dessins au format vectoriel SVG
+  *QtNetwork : permet de créer son protocole de jeu en réseau vraiment très facilement, c’est un bonheur à utiliser au quotidien
+  *QtXML : utilisé pour sauvegarder la configuration de l’utilisateur (fichier config.xml à la racine de l’exécutable)
+  *QtGui : bien entenu, ce module regroupe tous les objets liés à l’interface graphique (boutons, menus, labels …)
+  *QtHelp : moteur d’aide en ligne
+  *QtLinguist : permet de traduire facilement les chaînes de caractères et de basculer dynamiquement d’une langue à l’autre
+
+**Lua**
+
+Les scripts d'intelligence artificielle sont conçus en Lua, un magnifique langage de script que l'on peut facilement embarquer dans les applications.
+
+====== Outils ======
+
+**Inkscape**
+
+Ce logiciel de dessin vectoriel est l’un des tout meilleurs outils du monde Open Source. Il est utilisé pour dessiner les cartes au format SVG et ne possède, à ma connaissance, pas vraiment de concurrent.
+
+**Hébergement**
+
+Un grand merci à TuxFamily (http://www.tuxfamily.org) pour l'hébergement du site et du dépôt Git !
+
+====== Informations diverses ======
+
+**Licence**
+
+Ce logiciel est mis sous la licence libre CeCILL http://www.cecill.info/. La raison principale de ce choix est sa compatibilité avec la GPL et le droit français. Les cartes du jeu au format SVG sont également sous la même licence.
+
+**Icônes**
+
+Les icônes de TarotClub sont utilisées avec l’aimable autorisation d’Antonio, voici son blog : http://www.xeader.com
