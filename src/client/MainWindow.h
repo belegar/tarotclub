@@ -32,6 +32,7 @@
 #include "ResultWindow.h"
 #include "OptionsWindow.h"
 #include "EditorWindow.h"
+#include "HelpWindow.h"
 #include "ScoresDock.h"
 #include "InfosDock.h"
 #include "ChatDock.h"
@@ -72,6 +73,7 @@ protected:
    QAction *infosAct;
    QAction *chatAct;
    QAction *serverAct;
+   QAction *debugAct;
 
    Tapis *tapis;      // QCanvasView
 
@@ -81,6 +83,7 @@ protected:
    OptionsWindow *optionsWindow;
    EditorWindow *editorWindow;
    JoinWizard *joinWizard;
+   HelpWindow *helpWindow;
 
    // Dock windows
    ScoresDock *scoresDock;
@@ -101,9 +104,15 @@ public slots:
    void slotInfosDock();
    void slotChatDock();
    void slotServerDock();
+   void slotDebugDock();
    void slotDealEditor();
    void slotCloseChat();
    void slotCloseScores();
+
+private:
+   void SetupDialogs();
+   void SetupMenus();
+   void SetupDocks();
 };
 
 #endif // _MAINWINDOW_H

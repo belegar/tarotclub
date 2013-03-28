@@ -42,32 +42,62 @@ function Card(cardName)
 	var elem = cardName.split("-");
 	this.value = elem[0];
 	this.color = elem[1];
-	
-	this.GetName = function() {
+
+// Methods	
+	this.GetName = function()
+	{
 		return (this.value + "-" + this.color);
 	}
 	
 	// debug code only
-	this.Print = function() {
+	this.Print = function()
+	{
 		SystemPrint("Card value: " + this.value + " Color: " + this.color);
 	}
 }
 
-function Deck(list)
+function Deck()
 {
-	var result = list.split(/;/g);
-	this.cards = new Array(result.length);
+	this.cards = new Array();
 	
-	for (var i=0; i<result.length; i++) {
-		this.cards[i] = new Card(result[i]);
-	}
-	
+// Methods		
 	// debug code only
-	this.Print = function() {
+	this.Print = function()
+	{
 		for(var i=0; i<this.cards.length; i++) {
 			this.cards[i].Print();
 		}
 	}
+	
+	this.Clear = function()
+	{
+		for (var i=0; i<this.cards.length; i++) {
+			this.cards[i] = undefined;
+		}
+		this.cards.length = 0;
+	}
+	
+	this.AddOneCard = function(cardName)
+	{
+		cards[cards.length] = new Card(cardName);
+	}
+	
+	this.AddCards = function(list)
+	{		
+		var result = list.split(/;/g);		
+		for (var i=0; i<result.length; i++) {
+			this.cards[i] = new Card(result[i]);
+		}
+	}
+}
+
+/**
+ * @brief This object will store statistics on each turn
+ */ 
+function Turn()
+{
+	
+
 }
 
 /*****************************************************************************/
@@ -81,11 +111,14 @@ function Player()
 	this.hasClubs = false;
 	this.hasTrumps = false;
 	
-	this.Initialize = function() {
+// Methods		
+	this.Initialize = function()
+	{
 		this.NoDiamond = false;
 	}
 	
-	this.Print = function() {
+	this.Print = function()
+	{
 		SystemPrint("Has diamonds: " + this.hasDiamonds);
 	}
 }
@@ -98,25 +131,32 @@ function GameState()
 		this.players[i] = new Player();
 	}
 	
+	this.deck = new Deck(); // deck of played cards
+	this.place = new Array(); // who has played
+	
 	this.gameCounter = 0;		// [1..72] with 4 players
 	this.turnCounter = 0;		// number of turns, 18 with 4 players
 	this.currentPosition = 0; 	// position of the current turn
 	
 // Methods	
-	this.Initialize = function() {
+	this.Initialize = function()
+	{
 		for(var i=0; i<this.players.length; i++) {
 			this.players[i].Initialize();
 		}
 		gameCounter = 0;
+		deck.Clear();
 	}
 	
-	this.Print = function() {
+	this.Print = function()
+	{
 		for(var i=0; i<this.players.length; i++) {
 			this.players[i].Print();
 		}
 	}
 	
-	this.CardPlayed = function(cardName, place) {
+	this.CardPlayed = function(cardName, place)
+	{
 		
 	}
 }
@@ -135,7 +175,10 @@ function SystemPrint(message)
 function RunUnitTest()
 {
 	myCard = new Card("7-C");
-	deck = new Deck("7-C;21-A");
+	deck = new Deck();
+	deck.AddCards("7-C;21-A");
+	deck.Print();
+	deck.Clear();
 	deck.Print();
 	
 	CurrentGame.Initialize();
@@ -192,8 +235,11 @@ function PlayCard(gameCounter)
 {
 //	debugger;
 
-    myDeck = new Deck(TDeck.GetBotCards());
-	mainDeck = new Deck(TDeck.GetMainCards());
+    myDeck = new Deck();
+	myDeck.AddCards(TDeck.GetBotCards());
+	
+	mainDeck = new Deck();
+	mainDeck.AddCards(TDeck.GetMainCards());
 		
 	return name = myDeck.cards[0].GetName();
 }

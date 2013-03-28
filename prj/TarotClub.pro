@@ -26,7 +26,7 @@ VPATH += $${PWD}/../src/server
 VPATH += $${PWD}/include
 VPATH += $${PWD}/../lib
 
-QT += xml network svg script scripttools
+QT += xml network svg script scripttools help
 RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt warn_on
 
@@ -59,6 +59,7 @@ HEADERS = AboutWindow.h \
     OptionsWindow.h \
     EditorWindow.h \
     ResultWindow.h \
+    HelpWindow.h \
     ScoresDock.h \
     InfosDock.h \
     ChatDock.h \
@@ -89,6 +90,7 @@ FORMS = AboutUI.ui \
     InfosDockUI.ui \
     OptionsUI.ui \
     ResultUI.ui \
+    HelpUI.ui \
     ServerManagerUI.ui \
     RoundUI.ui \
     NumberedDealUI.ui \
@@ -102,6 +104,7 @@ SOURCES = AboutWindow.cpp \
     OptionsWindow.cpp \
     EditorWindow.cpp \
     ResultWindow.cpp \
+    HelpWindow.cpp \
     ScoresDock.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
@@ -123,3 +126,4 @@ SOURCES = AboutWindow.cpp \
     TarotEngine.cpp \
     Score.cpp \
     JoinWizard.cpp
+

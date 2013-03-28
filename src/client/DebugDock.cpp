@@ -38,6 +38,7 @@ DebugDock::DebugDock( QWidget *parent )
     saveButton = new QPushButton(trUtf8("Save"));
 
     QHBoxLayout *lay1 = new QHBoxLayout();
+    lay1->addStretch();
     lay1->addWidget(clearButton);
     lay1->addWidget(saveButton);
 
