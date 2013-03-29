@@ -1,2 +1,8 @@
 syntax: glob
-www/data/meta/start.meta
+TarotClub-build-Desktop_Qt_5_0_1_MinGW_32bit-Debug/*
+www/data/meta/*
+www/data/index/*
+www/conf/*
+syntax: regexp
+www/data/attic/*
+www/data/cache/*
