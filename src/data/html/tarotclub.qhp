@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <QtHelpProject version="1.0">
-    <namespace>fr.tarotclub.help</namespace>
+    <namespace>tarotclub.fr</namespace>
     <virtualFolder>help</virtualFolder>
     <filterSection>
         <filterAttribute>TarotClub</filterAttribute>
