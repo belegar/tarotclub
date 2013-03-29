@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>fr.tarotclub.help</namespace>
+    <virtualFolder>help</virtualFolder>
+    <filterSection>
+        <filterAttribute>TarotClub</filterAttribute>
+        <toc>
+            <section title="TarotClub Manual" ref="index.html">
+                <section title="English rules" ref="rules_en.html" />
+                <section title="Règles en français" ref="rules_fr.html" />
+            </section>
+        </toc>
+        <files>
+			<file>index.html</file>
+            <file>rules_en.html</file>
+			<file>rules_fr.html</file>
+        </files>
+    </filterSection>
+</QtHelpProject>
