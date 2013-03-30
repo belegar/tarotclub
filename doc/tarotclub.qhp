@@ -14,6 +14,17 @@
 			<file>index.html</file>
             <file>rules_en.html</file>
 			<file>rules_fr.html</file>
+			<file>images/t1.gif</file>
+			<file>images/t21.gif</file>
+			<file>images/ex.gif</file>
+			<file>images/180px-TAROT_ATOUT_17.jpg</file>
+			<file>images/180px-TAROT_EXCUSE.jpg</file>
+			<file>images/220px-Joueurs_de_tarot.JPG</file>
+			<file>images/220px-Tarot_Atout_17_illustration.jpg</file>
+			<file>images/220px-Tarot_card_values.jpg</file>
+			<file>images/260px-Tarot.jpg</file>
+			<file>images/280px-Tarots_cards_deal_whitebg.jpg</file>
+			<file>images/310px-Tarotcartes.jpg</file>
         </files>
     </filterSection>
 </QtHelpProject>

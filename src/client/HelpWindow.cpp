@@ -30,9 +30,13 @@ HelpBrowser::HelpBrowser(QHelpEngine *help, QWidget *parent)
 QVariant HelpBrowser::loadResource(int type, const QUrl &url)
 {
     if (url.scheme() == "qthelp")
+    {
         return QVariant(helpEngine->fileData(url));
+    }
     else
+    {
         return QTextBrowser::loadResource(type, url);
+    }
 }
 /*****************************************************************************/
 HelpWindow::HelpWindow( QWidget* parent  )
@@ -45,23 +49,27 @@ HelpWindow::HelpWindow( QWidget* parent  )
     {
         qFatal("Cannot initialize help system.");
     }
-    helpBrowser = new HelpBrowser(helpEngine, this);
+    browser = new HelpBrowser(helpEngine, this);
 
     ui.splitter->insertWidget(0, helpEngine->contentWidget());
-    ui.splitter->insertWidget(1, helpBrowser);
-    ui.splitter->setStretchFactor(1, 1);
-
-    connect(helpEngine->contentWidget(), SIGNAL(linkActivated(const QUrl &)),
-                helpBrowser, SLOT(setSource(const QUrl &)));
+    ui.splitter->insertWidget(1, browser);
+    ui.splitter->setStretchFactor(1, 2);
 
  //   connect(helpEngine->contentWidget(), SIGNAL(linkActivated(const QUrl &)),
-  //                  this, SLOT(DisplayUrl(const QUrl &)));
+ //               helpBrowser, SLOT(setSource(const QUrl &)));
 
+    connect(helpEngine->contentWidget(), SIGNAL(linkActivated(const QUrl &)),
+                    this, SLOT(DisplayUrl(const QUrl &)));
+
+    DisplayUrl(QUrl("qthelp://tarotclub.fr/help/index.html"));
 }
 /*****************************************************************************/
 void HelpWindow::DisplayUrl(const QUrl &url)
 {
-    qDebug(url.toDisplayString().toLatin1().constData());
+//    qDebug(url.toDisplayString().toLatin1().constData());
+
+    browser->setSource(url);
+
 }
 
 //=============================================================================

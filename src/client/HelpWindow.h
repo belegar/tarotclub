@@ -39,13 +39,15 @@ private:
 };
 
 /*****************************************************************************/
+
 class HelpWindow : public QDialog
 {
+       Q_OBJECT
 
 private:
     Ui::HelpUI ui;
     QHelpEngine *helpEngine;
-    HelpBrowser *helpBrowser;
+    HelpBrowser *browser;
 
 public:
     HelpWindow( QWidget* parent = 0 );

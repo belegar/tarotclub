@@ -40,10 +40,10 @@ using namespace std;
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     DebugDock *output = DebugDock::getInstance();
+    QString infos = QString(": ") + QString(context.file) + QString(":") + QString().setNum(context.line) + QString(", ") + QString(context.function);
+
     if (output != NULL)
     {
-        QString infos = QString(": ") + QString(context.file) + QString(":") + QString().setNum(context.line) + QString(", ") + QString(context.function);
-
         switch (type)
         {
         case QtDebugMsg:
@@ -59,6 +59,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
             output->message(msg + infos);
             abort();
         }
+    }
+    else
+    {
+        cout << msg.toLatin1().constData() << infos.toLatin1().constData() << endl;
     }
 }
 #endif
