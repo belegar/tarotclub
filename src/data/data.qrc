@@ -26,5 +26,6 @@
         <file>images/podium.svg</file>
         <file>images/version.png</file>
         <file>images/wizard.png</file>
+        <file>images/avatars/bender.png</file>
     </qresource>
 </RCC>
