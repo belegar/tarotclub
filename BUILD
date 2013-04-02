@@ -14,13 +14,13 @@ The server project file is "tarotclub/prj/TarotClubd.pro"
 2. Obtaining source code
 ------------------------
 
-git clone http://github.com/Belegar/TarotClub.git
+hg clone https://tarotclub@bitbucket.org/tarotclub/tarotclub
 
 3. Dependencies
 ---------------
 
- - Qt library, 4.6 minimum.
- - Lua 5.1
+ - Qt library, 5.0 minimum.
+ - Prefer the usage of QtCreator while hacking TarotClub
 
 4. Compiling under Windows
 --------------------------
@@ -33,7 +33,7 @@ from qt.nokia.com and use the QtCreator IDE. So simple.
  
 Install the following packages to setup a development environment:
 
-Debian: apt-get install build-essential git-core liblua5.1-0-dev qt4-dev-tools
+Debian: apt-get install build-essential qt4-dev-tools
 
 Then, in TarotClub/pjt directory:
 
