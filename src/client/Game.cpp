@@ -507,7 +507,7 @@ void Game::slotDepartDonne(Place p, Contrat c)
    infosDock->setDonne(server.getDealNumber());
    sequence = GAME;
    tapis->setFilter( AUCUN );
-   tapis->razTapis();
+   tapis->razTapis(true);
    tapis->colorisePreneur(p);
 }
 /*****************************************************************************/
@@ -538,7 +538,7 @@ void Game::slotJoueCarte()
 void Game::slotAfficheCarte(int id, Place tour)
 {
    GfxCard *gc = tapis->getGfxCard(id);
-   tapis->afficheCarte(gc,tour);
+   tapis->DrawCard(gc, tour);
    roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/

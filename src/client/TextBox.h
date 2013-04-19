@@ -25,9 +25,19 @@
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsScene>
 
-typedef struct {
-   int x, y;
-} Coord;
+/*****************************************************************************/
+/**
+ * @brief Card shadow item to show the positions of cards on the play board
+ */
+class CardShadow : public QGraphicsRectItem
+{
+
+public:
+   CardShadow(QRectF &pos, QGraphicsScene *canvas);
+   void paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
+
+};
+
 
 /*****************************************************************************/
 /**
@@ -43,36 +53,32 @@ private:
    QColor fillColor;
 
 public:
-   TextBox(Coord c, QGraphicsScene *canvas);
+   TextBox(const QPointF &pos, QGraphicsScene *canvas);
    void paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
 
    void move( int x, int y ) { setPos( x, y ); }
-   void setText( QString s ) {
-      s.truncate( 10 );
-      text = s;
-   }
+   void setText(const QString &s) { text = s; text.truncate(10); }
    void setPenWidth(int w) { penWidth = w; }
-   void setPenColor(QColor c) { penColor = c; }
-   void setFillColor(QColor c) { fillColor = c; }
+   void setPenColor(Qt::GlobalColor c) { penColor = c; }
+   void setFillColor(QColor &c) { fillColor = c; }
 };
 
 /*****************************************************************************/
 /**
- * Widget avancé avec des icônes
+ * Advanced graphics box item with icon
  */
 class PlayerBox : public TextBox
 {
-
 private:
    QGraphicsPixmapItem		*avatar;
 
 public:
-   PlayerBox(Coord c, QGraphicsScene *canvas);
+   PlayerBox(const QPointF &pos, QGraphicsScene *canvas);
 
    void selectPlayer(bool selected);
    void highlightPlayer(bool highlighted);
-   void setAvatar( const QString & );
-   void enableAvatar( bool );
+   void setAvatar(const QString & avatar);
+   void enableAvatar(bool enable);
 
 };
 

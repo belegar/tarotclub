@@ -58,6 +58,7 @@ class Tapis : public QGraphicsView
 private:
    Filter filter;
    QVector<GfxCard *> cardsPics;
+   QVector<CardShadow *> cardShadows;
    QGraphicsScene scene;
 
    // Graphiques
@@ -73,6 +74,9 @@ private:
    QCheckBox      *chelem;
    QPushButton    *boutonAccepterChien;
    QPushButton    *boutonPresenterPoignee;
+
+   QPointF CalculateCardPosition(Place p);
+   void DrawCardShadows();
 
 protected:
    void  mousePressEvent( QMouseEvent *e );
@@ -99,11 +103,11 @@ public:
    Place retournePlace( Place origine, Place place_absolue );
    void setPlayerNames( QList<Identity> &players, Place p );
    void afficheSelection( Place );
-   void afficheCarte( GfxCard *, Place );
+   void DrawCard(GfxCard *c, Place p);
    void cacheEncheres();
    void cacheBoutons();
    void showAvatars(bool b);
-   void razTapis();
+   void razTapis(bool shadow = false);
    void resetCards();
 
 public slots:
