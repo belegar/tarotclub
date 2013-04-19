@@ -3,8 +3,9 @@
 
 ; Customize the Qt dir installation and version
 [Code]
-#define QT_DIR 	 "C:\Qt\2010.04\qt\bin"
-#define VERSION  "2.0.0"
+#define QT_DIR 	      "C:\Qt\Qt5.0.2\5.0.2\mingw47_32\bin"
+#define VERSION       "2.1.0a1"
+#define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_0_2_MinGW_32bit-Release"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -36,23 +37,45 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: ..\TarotClub-build-desktop\bin\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\{#RELEASE_DIR}\bin\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\src\data\cards\default\*; DestDir: {app}\default; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\doc\tarotclub.qch; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\doc\tarotclub.qhc; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\ai\beginner.js; DestDir: {app}\ai; Flags: ignoreversion recursesubdirs createallsubdirs
+
+; Miscellaneous information text files
 Source: ..\BUILD; DestDir: {app}; Flags: ignoreversion
 Source: ..\COPYING; DestDir: {app}; Flags: ignoreversion
 Source: ..\COPYING-FR; DestDir: {app}; Flags: ignoreversion
 Source: ..\HISTORY; DestDir: {app}; Flags: ignoreversion
 Source: ..\INSTALL; DestDir: {app}; Flags: ignoreversion
 Source: ..\README; DestDir: {app}; Flags: ignoreversion
+
+; Fonts used in SVG files
 Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {app}; Flags: ignoreversion
 Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {fonts}; FontInstall: Kanzlei; Flags: onlyifdoesntexist uninsneveruninstall
-Source: {#QT_DIR}\QtCore4.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\QtSvg4.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\mingwm10.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\QtGui4.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\QtXml4.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\QtNetwork4.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\libgcc_s_dw2-1.dll; DestDir: {app}; Flags: ignoreversion
+
+
+; Qt DLL files
+Source: {#QT_DIR}\D3DCompiler_43.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\icudt49.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\icuin49.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\icuuc49.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libgcc_s_sjlj-1.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libGLESv2.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libstdc++-6.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libwinpthread-1.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5CLucene.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Core.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Gui.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Help.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Network.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Script.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Sql.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Svg.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Widgets.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Xml.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libEGL.dll; DestDir: {app}; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
