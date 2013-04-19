@@ -45,7 +45,9 @@ Bot::Bot() :
     timeBeforeSend.setInterval(0);
     connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
 
+#ifndef QT_NO_DEBUG
     debugger.attachTo(&botEngine);
+#endif
 }
 /*****************************************************************************/
 Bot::~Bot()
@@ -144,6 +146,9 @@ bool Bot::initializeScriptContext()
 #else
     QString fileName = "/home/anthony/tarotclub/ai/bid.qs";
 #endif
+#else
+    // Release
+    QString fileName = "./ai/beginner.js";
 #endif
 
     // Give access to some objects from the JavaScript engine
@@ -170,8 +175,9 @@ bool Bot::initializeScriptContext()
         QMessageBox::critical(0, "Error", "canEvaluate returned false!");
         return false;
     }
-
+#ifndef QT_NO_DEBUG
     debugger.action(QScriptEngineDebugger::InterruptAction);
+#endif
     // actually do the eval:
     botEngine.evaluate(strProgram);
 

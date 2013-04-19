@@ -173,7 +173,10 @@ class Bot : public Client
 private:
    QTimer  timeBeforeSend;
    QScriptEngine botEngine;
+
+#ifndef QT_NO_DEBUG
    QScriptEngineDebugger debugger;
+#endif
 
    // Exposed object to the Javascript
    StatsWrapper statsObj;
