@@ -372,35 +372,48 @@ void TarotEngine::nouvelleDonne()
 }
 /*****************************************************************************/
 #ifndef QT_NO_DEBUG
-void TarotEngine::generateLog()
+/**
+ * @brief Generate a file with all played cards of the deal
+ *
+ * This file also contains useful information such as ower of cards, points ...
+ * The log contains 2 parts, the main deck and the dog, each parts has 4 lines
+ * line 1: name of cards
+ * line 2: points of each card
+ * line 3: the original owner of the card
+ * line 4: the final owner of the card
+ */
+void TarotEngine::GenerateEndDealLog()
 {
-   // generate a file with cards of all players
    ofstream f("round_cards.txt");
-   QString l1, l2, l3, l4;
 
+   QString line1, line2, line3, line4;
+
+   line1 = mainDeck.GetCardList();
    // Card type
    for (int j=0; j<mainDeck.size(); j++) {
       QString n;
       Card *c = mainDeck.at(j);
-      l1 += c->getCardName() + "\t";
-      l2 += n.setNum(c->getPoints()) + "\t";
-      l3 += n.setNum((int)c->getOwner()) + "\t";
-      l4 += n.setNum(score.getPli(j)) + "\t";
+      line2 += n.setNum(c->getPoints()) + ";";
+      line3 += n.setNum((int)c->getOwner()) + ";";
+      line4 += n.setNum(score.getPli(j)) + ";";
    }
-   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
 
-   l1 = l2 = l3 = l4 = "";
+   f << "Main deck" << endl;
+   f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
+
+   line1 = line2 = line3 = line4 = "";
 
    // Card type
+   line1 = deckChien.GetCardList();
    for (int j=0; j<deckChien.size(); j++) {
       QString n;
       Card *c = deckChien.at(j);
-      l1 += c->getCardName() + "\t";
-      l2 += n.setNum(c->getPoints()) + "\t";
-      l3 += n.setNum((int)c->getOwner()) + "\t";
-      l3 += n.setNum(score.getPli(j)) + "\t";
+      line2 += n.setNum(c->getPoints()) + ";";
+      line3 += n.setNum((int)c->getOwner()) + ";";
+      line4 += n.setNum(score.getPli(j)) + ";";
    }
-   f << l1.toStdString() << "\n" << l2.toStdString() << "\n" << l3.toStdString() << l4.toStdString() << "\n";
+   f << "Dog deck" << endl;
+   f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n";
 
    f.close();
 }
@@ -421,7 +434,7 @@ void TarotEngine::jeu()
       // end of the deal?
       if( ret == true ) {
   #ifndef QT_NO_DEBUG
-         generateLog();
+         GenerateEndDealLog();
   #endif
          dealCounter++;
          // end of deal, send score to all players

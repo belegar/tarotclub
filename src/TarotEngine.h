@@ -100,7 +100,7 @@ public:
 
    void run();
 #ifndef QT_NO_DEBUG
-   void generateLog();
+   void GenerateEndDealLog();
 #endif // QT_NO_DEBUG
 
    QList<Identity> getConnectedPlayers();
