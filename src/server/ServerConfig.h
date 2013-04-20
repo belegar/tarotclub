@@ -46,12 +46,10 @@ class ServerConfig
 {
 
 private:
-   QString path; // répertoire racine du jeu
    ServerOptions options;
 
 public:
    ServerConfig();
-   static QString configPath;
 
    bool     load();
    bool     save();

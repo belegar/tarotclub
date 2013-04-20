@@ -51,7 +51,6 @@ private:
 
 public:
    ClientConfig();
-   static QString configPath;
 
    bool     load();
    bool     save();

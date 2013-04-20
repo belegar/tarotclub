@@ -29,6 +29,12 @@
 /*****************************************************************************/
 Game::Game() : MainWindow()
 {
+   // Check user's directory and create it if not exists
+    if (!QDir(Config::path).exists())
+    {
+        QDir().mkdir(Config::path);
+    }
+
    clientConfig.load();
    serverConfig.load();
 

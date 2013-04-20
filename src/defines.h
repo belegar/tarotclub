@@ -39,6 +39,10 @@
 #define TEXT_BOX_WIDTH  115
 #define TEXT_BOX_HEIGHT 30
 
+namespace Config {
+    const QString path = QDir::homePath() + "/.tarotclub/";
+}
+
 /*****************************************************************************/
 enum CardColor    { PIC=0, COEUR=1, TREFLE=2, CARREAU=3, NO_COLOR=10 };
 enum CardType     { CARTE=0, ATOUT=1, EXCUSE=2 };
