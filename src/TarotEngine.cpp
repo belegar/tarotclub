@@ -384,18 +384,20 @@ void TarotEngine::nouvelleDonne()
  */
 void TarotEngine::GenerateEndDealLog()
 {
-   ofstream f("round_cards.txt");
+   ofstream f("round_cards.csv");
 
-   QString line1, line2, line3, line4;
+   QString line1 = "Card;" + mainDeck.GetCardList();
+   QString line2 = "Points";
+   QString line3 = "Base owner";
+   QString line4 = "Final owner";
 
-   line1 = mainDeck.GetCardList();
    // Card type
    for (int j=0; j<mainDeck.size(); j++) {
       QString n;
       Card *c = mainDeck.at(j);
-      line2 += n.setNum(c->getPoints()) + ";";
-      line3 += n.setNum((int)c->getOwner()) + ";";
-      line4 += n.setNum(score.getPli(j)) + ";";
+      line2 += ";" + n.setNum(c->getPoints());
+      line3 += ";" + n.setNum((int)c->getOwner());
+      line4 += ";" + n.setNum(score.getPli(j));
    }
 
    f << "Main deck" << endl;
@@ -413,7 +415,10 @@ void TarotEngine::GenerateEndDealLog()
       line4 += n.setNum(score.getPli(j)) + ";";
    }
    f << "Dog deck" << endl;
-   f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n";
+   f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
+
+   f << "Game infos" << endl;
+   f << "Taker;" << infos.preneur << endl << "Bid;" << infos.contrat << endl;
 
    f.close();
 }
