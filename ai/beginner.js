@@ -34,8 +34,79 @@ var Place = {
 	WEST:3
 }
 
+var Suits = {
+	SPADES:0,
+	HEARTS:1,
+	CLUBS:2,
+	DIAMONDS:3,
+	TRUMPS:4
+}
+
 /*****************************************************************************/
 // UTILITY FUNCTIONS AND CLASSES
+
+/**
+ * This function transform a place integer into a string
+ */
+function PlaceToString(place)
+{
+    var position = "";
+	
+	if (place == Place.SOUTH) {
+		position = "South";
+	} else if (place == Place.NORTH) {
+		position = "North";
+	} else if (place == Place.WEST) {
+		position = "West";
+	} else if (place == Place.EAST) {
+		position = "East";
+	} else {
+		position = "Nobody";
+	}
+	return position;
+}
+
+/**
+ * This function transform a suits string into an integer
+ */
+function SuitsToInteger(color)
+{
+    var suits;
+	
+	if (color == "A") {
+		suits = Suits.TRUMPS;
+	} else if (color == "S") {
+		suits = Suits.SPADES;
+	} else if (color == "D") {
+		suits = Suits.DIAMONDS;
+	} else if (color == "C") {
+		suits = Suits.CLUBS;
+	} else {
+		suits = Suits.HEARTS;
+	}
+	return suits;
+}
+
+/**
+ * This function transform a suits integer into a string
+ */
+function SuitsToString(color)
+{
+    var suits = "";
+	
+	if (color == Suits.TRUMPS) {
+		suits = "A";
+	} else if (color == Suits.SPADES) {
+		suits = "S";
+	} else if (color == Suits.DIAMONDS) {
+		suits = "D";
+	} else if (color == Suits.CLUBS) {
+		suits = "C";
+	} else {
+		suits = "H";
+	}
+	return suits;
+}
 
 /**
  * This class allow you to specify an owner along with the card value
@@ -48,7 +119,7 @@ function Card(cardName, place)
 	this.color = elem[1];
 	this.owner = place;
 
-// Methods	
+/********* Methods *********/
 	this.GetName = function()
 	{
 		return (this.value + "-" + this.color);
@@ -57,19 +128,7 @@ function Card(cardName, place)
 	// debug code only
 	this.Print = function()
 	{
-		var place;
-		
-		if (this.owner == Place.SOUTH) {
-			place = "South";
-		} else if (this.owner == Place.NORTH) {
-			place = "North";
-		} else if (this.owner == Place.WEST) {
-			place = "West";
-		} else if (this.owner == Place.EAST) {
-			place = "East";
-		} else {
-			place = "Nobody";
-		}
+		var place = PlaceToString(this.owner);
 		SystemPrint("Card value: " + this.value + " Color: " + this.color + " Owner: " + place);
 	}
 }
@@ -78,7 +137,7 @@ function Deck()
 {
 	this.cards = new Array();
 	
-// Methods		
+/********* Methods *********/
 	// debug code only
 	this.Print = function()
 	{
@@ -101,7 +160,7 @@ function Deck()
 	}
 	
 	this.SetCards = function(list)
-	{		
+	{
 		var result = list.split(/;/g);		
 		
 		this.Clear();
@@ -115,30 +174,45 @@ function Deck()
 /*****************************************************************************/
 // GAME OBJECTS FOR STATISTICS STORAGE
 
-function Player()
+function Player(place)
 {
-	this.hasDiamonds = false;
-	this.hasSpades = false;
-	this.hasHearts = false;
-	this.hasClubs = false;
-	this.hasTrumps = false;
+	this.position = place;
+	this.HasSuits = new Array(5);
 	
-	// true if there is at least one suit missing, including trumps
-	this.missedSuits = false;
-	
-// Methods		
+/********* Methods *********/
 	this.Initialize = function()
 	{
-		this.hasDiamonds = false;
-		this.hasSpades = false;
-		this.hasHearts = false;
-		this.hasClubs = false;
-		this.hasTrumps = false;
+		for (var i=0; i<this.HasSuits.length; i++) {
+			this.HasSuits[i] = true;
+		}
 	}
 	
 	this.Print = function()
 	{
-		//SystemPrint("Has diamonds: " + this.hasDiamonds);
+		var place = PlaceToString(this.position);
+		for (var i=0; i<this.HasSuits.length; i++) {
+			if (this.HasSuits[i] == false) {
+				SystemPrint("Player " + place + " has a missed suit: " + SuitsToString(i));
+			}
+		}
+	}
+	
+	this.SetMissedColor = function(color)
+	{
+		this.HasSuits[SuitsToInteger(color)] = false;
+	}
+	
+	// return true if there is at least one suit missing, including trumps
+	this.HasMissedSuit = function()
+	{
+		var missed = false;
+		
+		for (var i=0; i<this.HasSuits.length; i++) {
+			if (this.HasSuits[i] == false) {
+				missed = true;
+			}
+		}
+		return missed;
 	}
 }
 
@@ -150,7 +224,8 @@ function GameState()
 // Variables
 	this.players = new Array(4);
 	for(var i=0; i<this.players.length; i++) {
-		this.players[i] = new Player();
+		this.players[i] = new Player(i); // position of players is assigned here
+		this.players[i].Initialize();
 	}
 	
 	this.playedCards = new Array(18); // turns for 4 players
@@ -161,7 +236,42 @@ function GameState()
 	this.turnCounter = 0;		// number of turns, 18 with 4 players
 	this.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
 	
-// Methods	
+	// Variables of the current turn
+	this.trickColor;
+	this.firstCardValue;
+	this.startPosition;
+	this.startedWithExcuse = false;
+	
+/********* Methods *********/
+	this.DetectMissedColor = function(place)
+	{
+		if (this.currentPosition == 0) {
+			this.startedWithExcuse = false;
+			// First played card is the color to play, except in case of excuse (0-A)
+			this.trickColor = this.playedCards[this.turnCounter].cards[0].color;
+			this.firstCardValue = this.playedCards[this.turnCounter].cards[0].value;
+			
+			// special case of excuse
+			if ((this.trickColor == "A") && (this.firstCardValue == "0")) {
+				this.startedWithExcuse = true;			
+			}
+		} else if ((this.currentPosition == 1) && (this.startedWithExcuse == true)) {
+			this.trickColor = this.playedCards[this.turnCounter].cards[1].color;
+		} else {
+			if (this.playedCards[this.turnCounter].cards[this.currentPosition].color != this.trickColor) {
+				this.players[place].SetMissedColor(this.trickColor);
+			}
+		}
+	}
+
+	/**
+	 * @brief This method is call at the end of each trick to analyze played cards
+	 */
+	this.AnalyzeTrick = function(place)
+	{
+		this.DetectMissedColor(place);
+	}
+
 	this.Initialize = function()
 	{
 		for(var i=0; i<this.players.length; i++) {
@@ -175,21 +285,19 @@ function GameState()
 		}
 	}
 	
-	this.Print = function()
+	// Print players statistics and information
+	this.PrintPlayers = function()
 	{
-		this.currentPosition = 0;
-		this.turnCounter = 0;
-		
-		for(var i=0; i<18; i++) {
-			var j = i+1;
-			SystemPrint("-- Tour --" + j);
-			this.playedCards[i].Print();
+		for (var j=0; j<this.players.length; j++) {
+			this.players[j].Print();
 		}
 	}
 	
 	this.SetPlayedCard = function(cardName, place)
 	{
 		this.playedCards[this.turnCounter].AddOneCard(cardName, place);
+	
+		this.AnalyzeTrick(place);
 	
 		this.currentPosition++;
 		if (this.currentPosition >= 4) {
@@ -228,7 +336,7 @@ function CreateFakeGame()
 {
 	// FIXME: load string from generated file
 	var cardList = "13-A;15-A;19-A;21-A;10-A;20-A;3-A;5-A;7-D;9-D;11-D;14-D;11-C;8-C;13-C;4-C;9-S;6-S;12-S;11-S;5-H;13-H;8-H;12-H;16-A;6-A;12-A;4-A;8-A;6-D;9-A;1-A;1-C;7-C;14-C;9-C;14-A;3-H;7-A;2-C;11-A;12-D;2-A;10-H;7-H;4-H;6-H;1-H;3-C;12-C;5-C;6-C;5-S;14-S;13-S;0-A;3-S;10-S;18-A;7-S;5-D;3-D;8-S;10-D;9-H;14-H;4-S;2-H;17-A;1-D;2-S;1-S";
-	var ownerList = "1;2;3;0;0;1;2;3;1;2;3;0;0;1;2;3;2;3;0;1;0;1;2;3;1;2;3;0;1;2;3;0;3;0;1;2;1;2;3;0;1;2;3;0;1;2;3;0;1;2;3;0;2;3;0;1;3;0;1;2;1;2;3;0;0;1;2;3;1;2;3;0;";
+	var ownerList = "1;2;3;0;0;1;2;3;1;2;3;0;0;1;2;3;2;3;0;1;0;1;2;3;1;2;3;0;1;2;3;0;3;0;1;2;1;2;3;0;1;2;3;0;1;2;3;0;1;2;3;0;2;3;0;1;3;0;1;2;1;2;3;0;0;1;2;3;1;2;3;0";
 	var dogList = "6-C;1-C;1-S;12-D;11-C;13-H";
 	
 	this.cards = cardList.split(/;/g);
@@ -240,26 +348,27 @@ function CreateFakeGame()
 	
 	// Send the cards to the AI engine
 	for(var i=0; i<72; i++) {
-		CurrentGame.SetPlayedCard(this.cards[i], this.owners[i]);
+		CurrentGame.SetPlayedCard(this.cards[i], parseInt(this.owners[i]));
+		if (CurrentGame.currentPosition == 0) {
+			SystemPrint("-- Turn " + CurrentGame.turnCounter + " --");
+			CurrentGame.playedCards[CurrentGame.turnCounter-1].Print();
+			CurrentGame.PrintPlayers();
+		}
 	}
 	
-	CurrentGame.Print();
-	
-	this.ReadCSV = function(locfile) {
+	this.ReadCSV = function(locfile)
+	{
 		// load a whole csv file, and then split it line by line
 		var req = new XMLHttpRequest();
 		req.open("POST", locfile, false);
 		req.send("");
 		return req.responseText.split(/\n/g);
 	}
-
 }
 
 function RunFakeGame()
 {
 	this.fakeGame = new CreateFakeGame();
-
-
 }
 
 RunUnitTest();
