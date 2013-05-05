@@ -315,8 +315,8 @@ var CurrentGame = new GameState();
 
 function SystemPrint(message)
 {
-	document.write(message + "<br />");
-	//print(message + "<br />");
+	//document.write(message + "<br />");
+	print(message + "<br />");
 }
 
 function RunUnitTest()
