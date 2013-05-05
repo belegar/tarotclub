@@ -25,7 +25,11 @@
 /*****************************************************************************/
 // Game definitions
 
-#define TAROT_VERSION   "2.1.0a1"
+/**
+ * @brief The version string uses Semantic Versioning format
+ * @see http://semver.org
+ */
+#define TAROT_VERSION   "2.1.0-alpha.1"
 #define TAROT_TITRE     "TarotClub"
 #define TAROT_VNAME     "GLaDOS"
 
