@@ -92,7 +92,7 @@ void Bot::slotTimeBeforeSend()
     if (c != NULL) {
         if (isValid(c) == false) {
             QString message = getName() + QString(" played a non-valid card: ") + ret;
-            qDebug(message.toLatin1().constData());
+            qDebug() << message.toLatin1().constData();
             // The show must go on, play a random card
             c = play();
         }
@@ -134,7 +134,7 @@ QScriptValue myPrint( QScriptContext * context, QScriptEngine * eng )
             QString::fromLatin1("print(): expected string argument"));
     }
     QString toPrint = QString("Bot script: ") + arg.toString();
-    qDebug(toPrint.toLatin1().constData());
+    qDebug() << toPrint.toLatin1().constData();
     return QScriptValue();
 }
 /*****************************************************************************/
