@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TarotClub
+Comment=Le jeu de Tarot libre!
+TryExec=TarotClub
+Exec=/opt/tarotclub-2.1.0-alpha.1/TarotClub
+Icon=fooview
+MimeType=image/x-foo;
+Categories=Game;CardGame

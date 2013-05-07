@@ -50,6 +50,7 @@ echo "Tarball archive created."
 PACKAGE_ROOT="./deb_temp"
 INSTALL_DIR="${PACKAGE_ROOT}/opt/tarotclub-${VERSION}"
 FONTS_DIR="${PACKAGE_ROOT}/usr/local/share/fonts"
+MENU_ENTRY_DIR="${PACKAGE_ROOT}/usr/share/applications"
 DEBIAN_DIR="${PACKAGE_ROOT}/DEBIAN"
 
 echo "Starting DEBIAN package..."
@@ -62,6 +63,7 @@ rm *.deb
 mkdir -p ${INSTALL_DIR}
 mkdir -p ${FONTS_DIR}
 mkdir -p ${DEBIAN_DIR}
+mkdir -p ${MENU_ENTRY_DIR}
 
 # move TarotClub where it must be installed
 mv ${TEMP_DIR}/kanzlei.ttf ${FONTS_DIR} 
@@ -70,6 +72,7 @@ mv ${TEMP_DIR}/* ${INSTALL_DIR}
 # Debian package files
 cp ./control_i386.txt ${DEBIAN_DIR}/control
 cp ./postinst ${DEBIAN_DIR}
+cp ./tarotclub.desktop ${MENU_ENTRY_DIR}
 
 echo "Package tree created."
 

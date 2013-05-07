@@ -1,5 +1,5 @@
 Package: TarotClub
-Version: 2.0.0a2
+Version: 2.1.0-alpha.1
 Section: games
 Priority: extra
 Architecture: i386
