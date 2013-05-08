@@ -36,6 +36,7 @@ cp ${TAROT_ROOT}/README .
 cp ${TAROT_ROOT}/doc/tarotclub.qch .
 cp ${TAROT_ROOT}/doc/tarotclub.qhc .
 cp ${TAROT_ROOT}/ai/beginner.js ./ai
+cp ${TAROT_ROOT}/lib/icon256x256.png .
 
 # copy install script
 cp ${TAROT_ROOT}/pkg/ubuntu/install.sh .
@@ -48,9 +49,10 @@ echo "Tarball archive created."
 ####################  DEBIAN PACKAGE ###########################
 
 PACKAGE_ROOT="./deb_temp"
-INSTALL_DIR="${PACKAGE_ROOT}/opt/tarotclub-${VERSION}"
-FONTS_DIR="${PACKAGE_ROOT}/usr/local/share/fonts"
-MENU_ENTRY_DIR="${PACKAGE_ROOT}/usr/share/applications"
+INSTALL_DIR="${PACKAGE_ROOT}/usr/share/tarotclub"
+FONTS_DIR="${PACKAGE_ROOT}/usr/share/fonts"
+DESKTOP_ENTRY="${PACKAGE_ROOT}/usr/share/applications"
+MENU_ENTRY="${PACKAGE_ROOT}/usr/share/menu"
 DEBIAN_DIR="${PACKAGE_ROOT}/DEBIAN"
 
 echo "Starting DEBIAN package..."
@@ -63,7 +65,8 @@ rm *.deb
 mkdir -p ${INSTALL_DIR}
 mkdir -p ${FONTS_DIR}
 mkdir -p ${DEBIAN_DIR}
-mkdir -p ${MENU_ENTRY_DIR}
+mkdir -p ${DESKTOP_ENTRY}
+mkdir -p ${MENU_ENTRY}
 
 # move TarotClub where it must be installed
 mv ${TEMP_DIR}/kanzlei.ttf ${FONTS_DIR} 
@@ -72,7 +75,8 @@ mv ${TEMP_DIR}/* ${INSTALL_DIR}
 # Debian package files
 cp ./control_i386.txt ${DEBIAN_DIR}/control
 cp ./postinst ${DEBIAN_DIR}
-cp ./tarotclub.desktop ${MENU_ENTRY_DIR}
+cp ./tarotclub.desktop ${DESKTOP_ENTRY}
+cp ./tarotclub.menu ${MENU_ENTRY}
 
 echo "Package tree created."
 
