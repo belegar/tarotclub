@@ -77,23 +77,31 @@ void MainWindow::SetupDocks()
     // Chat
     chatDock = new ChatDock(this);
     addDockWidget(Qt::BottomDockWidgetArea, chatDock);
-    chatDock->show();
     connect( chatDock,SIGNAL(sgnlClose()),this, SLOT(slotCloseChat()) );
 
     // Server
     serverDock = new QDockWidget(this);
     serverUI.setupUi(serverDock);
     addDockWidget(Qt::BottomDockWidgetArea, serverDock);
-    serverDock->show();
 
     // Debug, for scripts and Qt error redirection
     debugDock = new DebugDock(this);
     addDockWidget(Qt::BottomDockWidgetArea, debugDock);
-    debugDock->show();
 
     tabifyDockWidget(chatDock, serverDock);
     tabifyDockWidget(serverDock, debugDock);
 
+#ifndef QT_NO_DEBUG
+    // Debug
+    debugDock->show();
+    serverDock->show();
+    chatDock->show();
+#else
+    // Release
+    debugDock->hide();
+    serverDock->hide();
+    chatDock->hide();
+#endif
 
     // ----------  Right Docks ------------------------
 

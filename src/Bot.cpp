@@ -148,7 +148,7 @@ bool Bot::initializeScriptContext()
 #endif
 #else
     // Release
-    QString fileName = "./ai/beginner.js";
+    QString fileName = qApp->applicationDirPath() + "/ai/beginner.js";
 #endif
 
     // Give access to some objects from the JavaScript engine

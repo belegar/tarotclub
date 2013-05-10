@@ -1,9 +1,26 @@
 #!/bin/bash
 
+# Argument is  or amd64
+
+
+if [ $1 == "i386" ] || [ $1 == "amd64" ]; then
+  ARCH=$1
+  echo "Using arch: ${ARCH}"
+else
+  ARCH=i386
+  echo "Using default arch i386"
+fi
+
 # Edit TarotClub version
 
 TAROT_ROOT=$(pwd)/../..
-RELEASE_ROOT=build-TarotClub-Desktop_Qt_5_0_2_GCC_32bit-Release
+
+if [ ${ARCH} == "i386" ]; then
+  RELEASE_ROOT=build-TarotClub-Desktop_Qt_5_0_2_GCC_32bit-Release
+else
+  RELEASE_ROOT=build-TarotClub-Desktop_Qt_5_0_2_GCC_64bit-Release
+fi
+
 TEMP_DIR=tarotclub
 
 # version is in defines.h file in the following format:
@@ -73,7 +90,7 @@ mv ${TEMP_DIR}/kanzlei.ttf ${FONTS_DIR}
 mv ${TEMP_DIR}/* ${INSTALL_DIR}  
 
 # Debian package files
-cp ./control_i386.txt ${DEBIAN_DIR}/control
+cp ./control_${ARCH}.txt ${DEBIAN_DIR}/control
 cp ./postinst ${DEBIAN_DIR}
 cp ./tarotclub.desktop ${DESKTOP_ENTRY}
 cp ./tarotclub.menu ${MENU_ENTRY}
@@ -82,5 +99,5 @@ echo "Package tree created."
 
 dpkg-deb --build ${PACKAGE_ROOT}
 echo "Ubuntu package created."
-mv "${PACKAGE_ROOT}.deb" "tarotclub-${VERSION}_i386.deb"
+mv "${PACKAGE_ROOT}.deb" "tarotclub-${VERSION}_${ARCH}.deb"
 
