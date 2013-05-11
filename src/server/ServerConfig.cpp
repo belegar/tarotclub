@@ -44,7 +44,7 @@ bool ServerConfig::load()
     QString txt;
     int val;
 
-    // Fichier non trouvé, on en crée un par défaut et on sort
+    // File not found, we create default one and quit loading
     if( f.open(QIODevice::ReadOnly) == false )
     {
         return save();
@@ -52,42 +52,50 @@ bool ServerConfig::load()
     doc.setContent(&f);
     f.close();
 
-    // On teste le tag racine "TarotClubd"
+    // test of root element "tarotclubd"
     QDomElement root=doc.documentElement();
-    if(root.tagName()!="TarotClubd") {
+    if(root.tagName()!="tarotclubd") {
         return (false);
     }
 
-    if(root.attribute("version","0") != QString(XML_VERSION)) {
+    if(root.attribute("version","0") != QString(SERVER_XML_VERSION)) {
         return (false);
     }
 
-    // On parse les données
+    // Parsing data
     QDomElement child=root.firstChild().toElement();
     while(!child.isNull()) {
 
-        if(child.tagName() == "pause") {
+        if(child.tagName() == "pause")
+        {
             val = child.text().toInt();
-            if( val<0 || val>9000 ) {
+            if( val<0 || val>9000 )
+            {
                 val = TIMER1_DEF;
             }
             options.timer = val;
 
-        } else if(child.tagName() == "port") {
+        }
+        else if(child.tagName() == "port")
+        {
             options.port = child.text().toInt();
 
-        } else if(child.tagName() == "identity") {
+        }
+        else if(child.tagName() == "identity")
+        {
             int pos;
             pos = child.attribute("pos","-1").toInt();
             if (pos<0 || pos>2)
+            {
                 return false;
+            }
 
             QDomElement lastchild = child.firstChild().toElement();
             while(!lastchild.isNull()) {
                 if(lastchild.tagName() == "name") {
                     txt = lastchild.text();
                     if( txt.isEmpty() ) {
-                        txt = "Sans nom";
+                        txt = "Unknown";
                     }
                     options.bots[pos].name = txt;
 
@@ -110,8 +118,8 @@ bool ServerConfig::load()
 /*****************************************************************************/
 bool ServerConfig::save()
 {
-    // On crée le document
-    QDomDocument doc("TarotClub");
+    // Document creation
+    QDomDocument doc("tarotclubd");
     QDomElement identityNode;
     QDomElement nameNode;
     QDomElement avatarNode;
@@ -125,8 +133,8 @@ bool ServerConfig::save()
     doc.appendChild(doc.createTextNode("\n"));
 
     // root node
-    QDomElement rootNode = doc.createElement("TarotClubd");
-    rootNode.setAttribute("version", QString(XML_VERSION));
+    QDomElement rootNode = doc.createElement("tarotclubd");
+    rootNode.setAttribute("version", QString(SERVER_XML_VERSION));
     doc.appendChild(rootNode);
 
     // Réglage du timing entre chaque joueur
@@ -139,7 +147,7 @@ bool ServerConfig::save()
     portNode.appendChild(doc.createTextNode( QString().setNum( options.port ) ));
     rootNode.appendChild(portNode);
 
-    // Paramètres pour chaque bot
+    // Parameter of each bot
     for( int i=0; i<3; i++ )
     {
         identityNode = doc.createElement("identity");
@@ -167,7 +175,7 @@ bool ServerConfig::save()
         identityNode.appendChild(quoteNode);
     }
 
-    // Sauvegarde du document DOM en mémoire
+    // Save DOM XML tree into file
     QFile f( Config::path + SERVER_CONFIG_FILE );
     if(!f.open(QIODevice::WriteOnly))
     {

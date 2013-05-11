@@ -27,7 +27,7 @@
 #include "../defines.h"
 #include "../Identity.h"
 
-#define XML_VERSION           "1.4"
+#define SERVER_XML_VERSION    "1.5"
 #define SERVER_CONFIG_FILE    "tarotclubd.xml"
 #define SERVER_MAX_TABLES     10
 
@@ -36,8 +36,8 @@
 #define DEFAULT_PORT    4269
 
 typedef struct {
-   int      timer;
-   int      port;
+   int      timer;  // between players, in milliseconds
+   int      port;   // TCP/IP port
    Identity bots[3];
 } ServerOptions;
 

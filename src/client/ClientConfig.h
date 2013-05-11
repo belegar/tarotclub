@@ -27,18 +27,21 @@
 #include "../defines.h"
 #include "../Identity.h"
 
-#define XML_VERSION           "1.4"
+#define CLIENT_XML_VERSION    "1.5"
 #define CLIENT_CONFIG_FILE    "tarotclub.xml"
 
 // default values
-#define AVATARS_DEF     true
+#define AVATARS_DEF         true
+#define CLIENT_TIMER_DEF    1500
 
 typedef struct {
-   QString  deckFilePath;
-   bool     showAvatars;
-   int      langue;
-   QString  tapis;
-   Identity identity;
+   QString          deckFilePath;
+   bool             showAvatars;
+   unsigned int     language;
+   QString          backgroundColor;
+   Identity         identity;
+   unsigned int     delayBeforeCleaning;  // in milliseconds
+   bool             enableDelayBeforeCleaning;
 } ClientOptions;
 
 

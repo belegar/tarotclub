@@ -55,11 +55,13 @@ bool ClientConfig::load()
 
     // On teste le tag racine "TarotClub"
     QDomElement root=doc.documentElement();
-    if(root.tagName()!="TarotClub") {
+    if(root.tagName() != "tarotclub")
+    {
         return (false);
     }
 
-    if(root.attribute("version","0") != QString(XML_VERSION)) {
+    if(root.attribute("version","0") != QString(CLIENT_XML_VERSION))
+    {
         return (false);
     }
 
@@ -67,30 +69,59 @@ bool ClientConfig::load()
     QDomElement child=root.firstChild().toElement();
     while(!child.isNull()) {
 
-        if(child.tagName() == "avatars") {
+        if(child.tagName() == "show_avatars")
+        {
             val = child.text().toInt();
-            if( val == 1 ) {
+            if( val == 1 )
+            {
                 options.showAvatars = true;
-            } else {
+            }
+            else
+            {
                 options.showAvatars = false;
             }
 
-        } else if(child.tagName() == "tapis") {
-            options.tapis = child.text();
-
-        } else if(child.tagName() == "langue") {
-            options.langue = child.text().toInt();
-            if( options.langue >= NB_LANGUES ) {
-                options.langue = 0;
+        } else if(child.tagName() == "background_color")
+        {
+            options.backgroundColor = child.text();
+        }
+        else if(child.tagName() == "language")
+        {
+            options.language = child.text().toInt();
+            if( options.language >= NB_LANGUES )
+            {
+                options.language = 0;
             }
 
-        } else if(child.tagName() == "identity") {
+        } else if(child.tagName() == "delay_before_cleaning")
+        {
+            options.delayBeforeCleaning = child.text().toInt();
+            if (options.delayBeforeCleaning > 5000)
+            {
+                options.delayBeforeCleaning = 5000;
+            }
+
+        }
+        else if(child.tagName() == "click_to_clean")
+        {
+            val = child.text().toInt();
+            if( val == 1 )
+            {
+                options.enableDelayBeforeCleaning = true;
+            }
+            else
+            {
+                options.enableDelayBeforeCleaning = false;
+            }
+        }
+        else if(child.tagName() == "identity")
+        {
             QDomElement lastchild = child.firstChild().toElement();
             while(!lastchild.isNull()) {
                 if(lastchild.tagName() == "name") {
                     txt = lastchild.text();
                     if( txt.isEmpty() ) {
-                        txt = "Sans nom";
+                        txt = "Unknown";
                     }
                     options.identity.name = txt;
 
@@ -115,7 +146,7 @@ bool ClientConfig::load()
 bool ClientConfig::save()
 {
     // On crée le document
-    QDomDocument doc("TarotClub");
+    QDomDocument doc("tarotclub");
     QDomElement identityNode;
     QDomElement nameNode;
     QDomElement avatarNode;
@@ -129,26 +160,36 @@ bool ClientConfig::save()
     doc.appendChild(doc.createTextNode("\n"));
 
     // root node
-    QDomElement rootNode = doc.createElement("TarotClub");
-    rootNode.setAttribute("version", QString(XML_VERSION));
+    QDomElement rootNode = doc.createElement("tarotclub");
+    rootNode.setAttribute("version", QString(CLIENT_XML_VERSION));
     doc.appendChild(rootNode);
 
-    // affichage ou non des avatars
-    QDomElement affAvatarNode = doc.createElement("avatars");
-    affAvatarNode.appendChild(doc.createTextNode( QString().setNum( options.showAvatars==true?1:0 ) ));
+    // Show avatar on the board or not?
+    QDomElement affAvatarNode = doc.createElement("show_avatars");
+    affAvatarNode.appendChild(doc.createTextNode( QString().setNum(options.showAvatars == true ? 1 : 0) ));
     rootNode.appendChild(affAvatarNode);
 
-    // Tapis de jeu
-    QDomElement tapisNode = doc.createElement("tapis");
-    tapisNode.appendChild(doc.createTextNode( options.tapis ));
+    // Background board color
+    QDomElement tapisNode = doc.createElement("background_color");
+    tapisNode.appendChild(doc.createTextNode( options.backgroundColor ));
     rootNode.appendChild(tapisNode);
 
-    // Langue
-    QDomElement langueNode = doc.createElement("langue");
-    langueNode.appendChild(doc.createTextNode( QString().setNum(options.langue) ));
+    // Language
+    QDomElement langueNode = doc.createElement("language");
+    langueNode.appendChild(doc.createTextNode( QString().setNum(options.language) ));
     rootNode.appendChild(langueNode);
 
-    // Identité du joueur
+    // Delay before cleaning
+    QDomElement delayeNode = doc.createElement("delay_before_cleaning");
+    delayeNode.appendChild(doc.createTextNode( QString().setNum(options.delayBeforeCleaning) ));
+    rootNode.appendChild(delayeNode);
+
+    // click to clean cards after one turn
+    QDomElement clickNode = doc.createElement("click_to_clean");
+    clickNode.appendChild(doc.createTextNode( QString().setNum(options.enableDelayBeforeCleaning == true ? 1 : 0) ));
+    rootNode.appendChild(clickNode);
+
+    // Player's indentity
     identityNode = doc.createElement("identity");
     rootNode.appendChild(identityNode);
 
@@ -172,7 +213,7 @@ bool ClientConfig::save()
     quoteNode.appendChild(doc.createTextNode( options.identity.quote ));
     identityNode.appendChild(quoteNode);
 
-    // Sauvegarde du document DOM en mémoire
+    // Save DOM XML into file
     QFile f( Config::path + CLIENT_CONFIG_FILE );
     if(!f.open(QIODevice::WriteOnly))
     {
@@ -192,9 +233,12 @@ bool ClientConfig::save()
 void ClientConfig::setDefault( ClientOptions *opt )
 {
     opt->showAvatars = AVATARS_DEF;
-    opt->tapis = "#008000";
-    opt->langue = 0;
+    opt->backgroundColor = "#008000";
+    opt->language = 0;
     opt->deckFilePath = "default";
+
+    opt->delayBeforeCleaning = CLIENT_TIMER_DEF;
+    opt->enableDelayBeforeCleaning = true;
 
     opt->identity.name = "Moi";
     opt->identity.avatar = ":/images/avatars/inconnu.png";

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>331</height>
+    <width>441</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,7 +26,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget_2">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -316,20 +316,20 @@
        <string>Préférences</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
+       <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_10">
          <property name="title">
           <string>Général</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0" colspan="2">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
            <widget class="QCheckBox" name="afficheAvatars">
             <property name="text">
              <string>Afficher les avatars sur le tapis</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item>
            <layout class="QHBoxLayout" name="_13">
             <property name="spacing">
              <number>6</number>
@@ -362,7 +362,7 @@
             </item>
            </layout>
           </item>
-          <item row="2" column="0">
+          <item>
            <layout class="QHBoxLayout" name="_14">
             <property name="spacing">
              <number>6</number>
@@ -420,7 +420,7 @@
             </item>
            </layout>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QLabel" name="label">
@@ -454,7 +454,7 @@
             </item>
            </layout>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="TextLabel1">
@@ -494,7 +494,48 @@
             </item>
            </layout>
           </item>
-          <item row="5" column="1">
+          <item>
+           <widget class="QCheckBox" name="clic">
+            <property name="text">
+             <string>Activer le ramassage des cartes automatique</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label2">
+              <property name="text">
+               <string>Délai avant ramassage des cartes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="slider2">
+              <property name="maximum">
+               <number>5000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="pageStep">
+               <number>100</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="temps2">
+              <property name="text">
+               <string>0.0 secondes</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
            <spacer name="verticalSpacer_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>

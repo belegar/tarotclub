@@ -38,7 +38,7 @@ private:
    Ui::OptionsUI  ui;
    ClientOptions    clientOptions;
    ServerOptions    serverOptions;
-   int            indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
+   unsigned int     indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
    QString colorName;
 
    QString choixAvatar(QString defaultAvatar);
@@ -54,16 +54,19 @@ public:
    ServerOptions *getServerOptions();
 
 public slots:
-   void  slotBtnOk();
-   void  slotBtnDefaut();
+   void slotBtnOk();
+   void slotBtnDefaut();
+
+   void slotClickOptionChanged(int state);
 
    // Widgets
-   void  slider1Changed( int );
-   void  slotBtnPixSud();
-   void  slotBtnPixEst();
-   void  slotBtnPixNord();
-   void  slotBtnPixOuest();
-   void  slotColorPicker();
+   void slider1Changed( int );
+   void slider2Changed( int );
+   void slotBtnPixSud();
+   void slotBtnPixEst();
+   void slotBtnPixNord();
+   void slotBtnPixOuest();
+   void slotColorPicker();
 };
 
 #endif // _OPTIONSWINDOW_H

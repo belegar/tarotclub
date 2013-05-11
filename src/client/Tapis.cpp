@@ -328,8 +328,8 @@ void Tapis::mouseMoveEvent( QMouseEvent * e )
 }
 /*****************************************************************************/
 /**
- * n==0 : curseur normal avec une flÃ¨che
- * n==1 : curseur interdiction
+ * n==0 : norma icon with an arrow
+ * n==1 : forbidden icon
  */
 void Tapis::setCursorType( CursorType t )
 {
@@ -383,14 +383,14 @@ Place Tapis::retournePlace( Place origine, Place place_absolue )
 }
 /*****************************************************************************/
 /**
- * Affiche les noms sur le tapis, la "vue" Ã©tant toujours au sud
+ * Show names on the board, bottom player is always south
  */
 void Tapis::setPlayerNames( QList<Identity> &players, Place p )
 {
     if (players.size() != NB_PLAYERS)
         return;
 
-    p = retournePlace( p, SUD ); // la vue du joueur est toujours au SUD
+    p = retournePlace( p, SUD ); // always south
 
     for (int i = 0; i < players.size(); ++i) {
         Place rel = retournePlace( p, players.at(i).place); // relative place
