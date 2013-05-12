@@ -9,7 +9,19 @@ Use the Setup executable. Shortcut is in the start menu.
 * Ubuntu
 =========
 
-Ubuntu : use .deb install package
+Two packages are available depending of your architecture, i386 (32-bits) or x86_64 (64-bits). If your using a command line installation, you will have to execute two commands to resolve dependencies:
+
+dpkg -i tarotclub-2.1.0-alpha.1_amd64.deb
+apt-get -f install
+
+== Ubuntu 12.04 or 12.10 ==
+
+You have to add the PPA Qt5-Proper source to your package source list to get the Qt5 libraries needed by TarotClub.
+https://launchpad.net/~canonical-qt5-edgers/+archive/qt5-proper
+
+== Ubuntu 13.04 ==
+
+The Qt5 libraries are available in standard with this version of Ubuntu, just install the .deb package as usual.
 
 * Generic Linux
 ===============

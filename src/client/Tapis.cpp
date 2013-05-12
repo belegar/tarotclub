@@ -7,11 +7,18 @@
  * Copyright (C) 2003-2999 - Anthony Rabine
  * anthony@tarotclub.fr
  *
- * This file must be used under the terms of the CeCILL.
- * This source file is licensed as described in the file COPYING, which
- * you should have received as part of this distribution.  The terms
- * are also available at
- * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
  *
  *=============================================================================
  */
@@ -358,25 +365,37 @@ void Tapis::setAvatar(Place p, const QString &file)
 }
 /*****************************************************************************/
 /**
- * Change la place absolue (vue du serveur, qui est toujours SUD) en relatif
- * au joueur
+ * @brief Tapis::SwapPlace
+ *
+ * Change an absolute place, from the server point of view (always SOUTH), in
+ * a relative place depending of the player position.
+ *
+ * @param origin
+ * @param absolute
+ * @return
  */
-Place Tapis::retournePlace( Place origine, Place place_absolue )
+Place Tapis::SwapPlace(Place origin, Place absolute)
 {
     Place pl = SUD;
 
-    if( origine == OUEST) {
+    if(origin == OUEST)
+    {
         Place tab[] = {EST, NORD, OUEST, SUD};
-        pl = tab[place_absolue];
-    } else if( origine == NORD) {
+        pl = tab[absolute];
+    }
+    else if(origin == NORD)
+    {
         Place tab[] = {NORD, OUEST, SUD, EST};
-        pl = tab[place_absolue];
-    } else if( origine == EST) {
+        pl = tab[absolute];
+    }
+    else if(origin == EST)
+    {
         Place tab[] = {OUEST, SUD, EST, NORD};
-        pl = tab[place_absolue];
-    } else {
+        pl = tab[absolute];
+    }
+    else {
         Place tab[] = {SUD, EST, NORD, OUEST};
-        pl = tab[place_absolue];
+        pl = tab[absolute];
     }
 
     return (pl);
@@ -390,10 +409,10 @@ void Tapis::setPlayerNames( QList<Identity> &players, Place p )
     if (players.size() != NB_PLAYERS)
         return;
 
-    p = retournePlace( p, SUD ); // always south
+    p = SwapPlace( p, SUD ); // always south
 
     for (int i = 0; i < players.size(); ++i) {
-        Place rel = retournePlace( p, players.at(i).place); // relative place
+        Place rel = SwapPlace( p, players.at(i).place); // relative place
 
         playerBox.value(rel)->setText(players.at(i).name);
         playerBox.value(rel)->setAvatar(":/images/avatars/" + players.at(i).avatar);
@@ -475,11 +494,15 @@ void Tapis::DrawCardShadows()
 void Tapis::afficheSelection( Place p )
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
-    while (i.hasNext()) {
+    while (i.hasNext())
+    {
         i.next();
-        if (i.key() == p) {
+        if (i.key() == p)
+        {
             i.value()->selectPlayer(true);
-        } else {
+        }
+        else
+        {
             i.value()->selectPlayer(false);
         }
     }
@@ -508,7 +531,8 @@ void Tapis::slotAfficheEnchere( Place enchereur, Contrat cont )
 void Tapis::cacheEncheres()
 {
     QMapIterator<Place, TextBox *> i(textBox);
-    while (i.hasNext()) {
+    while (i.hasNext())
+    {
         i.next();
         i.value()->hide();
     }
@@ -579,7 +603,8 @@ void Tapis::razTapis(bool shadow)
 /*****************************************************************************/
 void Tapis::resetCards()
 {
-    for(int i=0; i<cardsPics.size(); i++ ) {
+    for(int i=0; i<cardsPics.size(); i++ )
+    {
         cardsPics.at(i)->hide();
         cardsPics.at(i)->setStatus(CARD_NORMAL);
     }
