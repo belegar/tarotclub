@@ -28,6 +28,7 @@ Bot::Bot() :
     , deckObj(myDeck, mainDeck)
 {
     connect( this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
+    connect( this, SIGNAL(sgnlAssignedPlace(Place)), this, SLOT(slotAssignedPlace(Place)));
     connect( this, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
     connect( this, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
     connect( this, SIGNAL(sgnlChoixEnchere(Contrat)), this, SLOT(slotChoixEnchere(Contrat)));
@@ -111,10 +112,36 @@ void Bot::slotMessage( const QString &text )
     // A bot cannot reply (yet :)
 }
 /*****************************************************************************/
+void Bot::slotAssignedPlace(Place p)
+{
+    initializeScriptContext();
+
+    QScriptValue createFunc = botEngine.evaluate("EnterGame");
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
+        return;
+    }
+
+    if (!createFunc.isFunction()) {
+        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
+    }
+
+    QScriptValueList args;
+    args << p;
+    createFunc.call(QScriptValue(), args);
+
+    if (botEngine.hasUncaughtException()) {
+        QScriptValue exception = botEngine.uncaughtException();
+        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
+        return;
+    }
+}
+/*****************************************************************************/
 void Bot::slotReceptionCartes()
 {
     updateStats();
-    initializeScriptContext();
 }
 /*****************************************************************************/
 void Bot::slotAfficheSelection( Place p )

@@ -94,7 +94,18 @@ public slots:
    void socketError( QAbstractSocket::SocketError code );
 
 signals:
+
+   /**
+    * @brief Emitted when a chat message has been broadcasted by one player or the server
+    * @param message
+    */
    void sgnlMessage(const QString &message);
+
+   /**
+    * @brief Emitted when the server has assigned a place around the table
+    * @param p Place assigned by the server
+    */
+   void sgnlAssignedPlace(Place p);
    void sgnlListeDesJoueurs( QList<Identity> players );
    void sgnlReceptionCartes();
    void sgnlAfficheSelection(Place);
