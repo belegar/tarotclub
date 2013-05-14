@@ -612,6 +612,7 @@ void Client::doAction( QDataStream &in )
         in >> p;
         identity.place = (Place)p;
         sendIdentity();
+        emit sgnlAssignedPlace((Place)p);
         break;
     }
 
