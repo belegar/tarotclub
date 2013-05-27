@@ -19,7 +19,7 @@
 /*****************************************************************************/
 // GLOBAL DEFINITIONS
  
-var BidValue = {
+var Contract = {
     PASSE:0,
     PRISE:1,
     GARDE:2,
@@ -177,21 +177,23 @@ function Deck()
 function Player(place)
 {
 	this.position = place;
-	this.HasSuits = new Array(5);
+	this.hasSuits = new Array(5);
+	this.deck = new Deck();
 	
 /********* Methods *********/
 	this.Initialize = function()
 	{
-		for (var i=0; i<this.HasSuits.length; i++) {
-			this.HasSuits[i] = true;
+		for (var i=0; i<this.hasSuits.length; i++) {
+			this.hasSuits[i] = true;
 		}
+		this.deck.Clear();
 	}
 	
 	this.Print = function()
 	{
 		var place = PlaceToString(this.position);
-		for (var i=0; i<this.HasSuits.length; i++) {
-			if (this.HasSuits[i] == false) {
+		for (var i=0; i<this.hasSuits.length; i++) {
+			if (this.hasSuits[i] == false) {
 				SystemPrint("Player " + place + " has a missed suit: " + SuitsToString(i));
 			}
 		}
@@ -199,7 +201,7 @@ function Player(place)
 	
 	this.SetMissedColor = function(color)
 	{
-		this.HasSuits[SuitsToInteger(color)] = false;
+		this.hasSuits[SuitsToInteger(color)] = false;
 	}
 	
 	// return true if there is at least one suit missing, including trumps
@@ -207,12 +209,22 @@ function Player(place)
 	{
 		var missed = false;
 		
-		for (var i=0; i<this.HasSuits.length; i++) {
-			if (this.HasSuits[i] == false) {
+		for (var i=0; i<this.hasSuits.length; i++) {
+			if (this.hasSuits[i] == false) {
 				missed = true;
 			}
 		}
 		return missed;
+	}
+	
+	/**
+	 * @brief Retreive a card in the players deck. Replaced by an empty slot
+	 */
+	this.GetCard = function(index)
+	{
+		var card = this.deck[index];
+		this.deck[index] = undefined;
+		return card;
 	}
 }
 
@@ -235,6 +247,11 @@ function GameState()
 	
 	this.turnCounter = 0;		// number of turns, 18 with 4 players
 	this.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
+	
+	// Game variables
+	this.contract;
+	this.taker;
+	this.myPlace;
 	
 	// Variables of the current turn
 	this.trickColor;
@@ -305,79 +322,194 @@ function GameState()
 			this.turnCounter++;
 		}
 	}
+	
+	this.PlayDefenseStrategy = function()
+	{
+		var myDeck = new Deck();
+		
+		// Retreive my cards
+		myDeck.SetCards(TDeck.GetBotCards());
+		
+		// just play the first card available ... (let the game engine take a valid card if necessary)
+		return myDeck.cards[0].GetName();
+	}
+	
+	this.PlayAttackStrategy = function()
+	{
+	
+	
+	}
+	
+	this.GetRandomCard = function(place)
+	{
+		for (var i=0; this.players[place].deck.length; i++) {
+			var card = this.players[place].GetCard(i);
+			if (card != undefined) {
+				card.Print();
+				//this.IsValid();
+			}
+		}
+	}
+
+	this.IsValid = function(place, card)
+	{
+		return true;
+	}
+	
+/*		
+		if (card.color)
+	
+		bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nbPlayers )
+{
+    int debut;
+    int rang;
+    debut = (gameCounter-1)/nbPlayers;
+    debut = debut*nbPlayers;
+
+    rang = gameCounter - debut;
+
+    // Le joueur entame le tour, il peut commencer comme il veut
+    if( rang == 1 ) {
+        return true;
+    }
+
+    // on traite un cas simple
+    if( cVerif->getType() == EXCUSE ) {
+        return true;
+    }
+
+    // première carte (couleur demandée)
+    CardType type;
+    CardColor   coul;
+    //////////////
+
+    bool possedeCouleur=false; // vrai si le joueur posseède la couleur demandee
+    bool possedeAtout=false;   // vrai si le joueur possède un atout
+    bool precedentAtout=false; // vrai si un atout max précédent
+    int  precAtoutMax=0;
+    int  atoutMax=0; // atout maxi possédé
+    bool ret=true;
+    Card *c;
+    int i,n;
+
+    // on cherche la couleur demandée
+    c = mainDeck->at( debut ); // première carte jouée à ce tour
+
+    type = c->getType();
+    coul = c->getColor();
+    if( type == EXCUSE ) { // aïe, le joueur a commencé avec une excuse
+        // le joueur peut jouer n'importe quelle carte après l'excuse, c'est lui qui décide alors de la couleur
+        if( rang == 2 ) {
+            return true;
+        }
+        c = mainDeck->at( debut + 1 ); // la couleur demandée est donc la seconde carte
+        type = c->getType();
+        coul = c->getColor();
+    }
+
+    if( type == CARTE && cVerif->getColor() == coul ) {
+        return true;
+    }
+
+    // Quelques indications sur les plis précédents
+    // On regarde s'il y a un atout
+    for( i=0; i<rang-1; i++ ) {
+        c = mainDeck->at( debut + i );
+        if( c->getType() == ATOUT ) {
+            precedentAtout = true;
+            if( c->getValue() > precAtoutMax ) {
+                precAtoutMax = c->getValue();
+            }
+        }
+    }
+
+    // Quelques indications sur les cartes du joueur
+    n = myDeck.count();
+
+    for( i=0; i<n; i++ ) {
+        c = myDeck.at( i );
+
+        if( c->getType() == ATOUT ) {
+            possedeAtout=true;
+            if( c->getValue() > atoutMax ) {
+                atoutMax = c->getValue();
+            }
+        }
+        else if( c->getType() == CARTE ) {
+            if( c->getColor() == coul ) {
+                possedeCouleur = true;
+            }
+        }
+    }
+
+    // cas 1 : le type demandé est ATOUT
+    if( type == ATOUT ) {
+        if( cVerif->getType() == ATOUT ) {
+            if( cVerif->getValue() > precAtoutMax ) {
+                return true;
+            } else {
+                if( atoutMax > precAtoutMax ) {
+                    return false;  // doit surcouper !
+                } else {
+                    return true;   // sinon tant pis, on doit quand même jouer la couleur demandée
+                }
+            }
+        } else {
+            if( possedeAtout == true ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    } else {// cas 2 : le type demandé est CARTE
+        // le joueur possède la couleur demandée, il doit donc la jouer cela
+        if( possedeCouleur == true ) {
+            return false;
+        } else { // pas la couleur demandée
+            if( cVerif->getType() == ATOUT ) {
+                // doit-il surcouper ?
+                if( precedentAtout==true ) {
+                    if( cVerif->getValue() > precAtoutMax ) { // carte de surcoupe
+                        return true;
+                    } else {
+                        // a-t-il alors un atout plus fort ?
+                        if( atoutMax > precAtoutMax ) {
+                            return false; // oui, il doit donc surcouper
+                        } else {
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                // a-t-il un atout pour couper ?
+                if( possedeAtout == true ) {
+                    return false; // oui, il DOIT couper
+                } else {
+                    return true; // non, il peut se défausser
+                }
+            }
+        }
+    }
+    return ret;
+}
+	*/
+	
 }
 
 var CurrentGame = new GameState();
 
-
-/*****************************************************************************/
-// JAVASCRIPT UNIT TEST OF BASE CLASSES
-
-function SystemPrint(message)
-{
-	//document.write(message + "<br />");
-	print(message + "<br />");
-}
-
-function RunUnitTest()
-{
-	SystemPrint("********** START UNIT TEST **********");
-	myCard = new Card("7-C");
-	deck = new Deck();
-	deck.SetCards("7-C;21-A");
-	deck.Print();
-	deck.Clear();
-	deck.Print();
-	
-	SystemPrint(""); // empty string = skip line
-}
-
-function CreateFakeGame()
-{
-	// FIXME: load string from generated file
-	var cardList = "13-A;15-A;19-A;21-A;10-A;20-A;3-A;5-A;7-D;9-D;11-D;14-D;11-C;8-C;13-C;4-C;9-S;6-S;12-S;11-S;5-H;13-H;8-H;12-H;16-A;6-A;12-A;4-A;8-A;6-D;9-A;1-A;1-C;7-C;14-C;9-C;14-A;3-H;7-A;2-C;11-A;12-D;2-A;10-H;7-H;4-H;6-H;1-H;3-C;12-C;5-C;6-C;5-S;14-S;13-S;0-A;3-S;10-S;18-A;7-S;5-D;3-D;8-S;10-D;9-H;14-H;4-S;2-H;17-A;1-D;2-S;1-S";
-	var ownerList = "1;2;3;0;0;1;2;3;1;2;3;0;0;1;2;3;2;3;0;1;0;1;2;3;1;2;3;0;1;2;3;0;3;0;1;2;1;2;3;0;1;2;3;0;1;2;3;0;1;2;3;0;2;3;0;1;3;0;1;2;1;2;3;0;0;1;2;3;1;2;3;0";
-	var dogList = "6-C;1-C;1-S;12-D;11-C;13-H";
-	
-	this.cards = cardList.split(/;/g);
-	this.owners = ownerList.split(/;/g);
-	this.dog = dogList.split(/;/g);
-	
-	SystemPrint("\n********** NEW GAME SIMULATOR **********");
-	CurrentGame.Initialize();
-	
-	// Send the cards to the AI engine
-	for(var i=0; i<72; i++) {
-		CurrentGame.SetPlayedCard(this.cards[i], parseInt(this.owners[i]));
-		if (CurrentGame.currentPosition == 0) {
-			SystemPrint("-- Turn " + CurrentGame.turnCounter + " --");
-			CurrentGame.playedCards[CurrentGame.turnCounter-1].Print();
-			CurrentGame.PrintPlayers();
-		}
-	}
-	
-	this.ReadCSV = function(locfile)
-	{
-		// load a whole csv file, and then split it line by line
-		var req = new XMLHttpRequest();
-		req.open("POST", locfile, false);
-		req.send("");
-		return req.responseText.split(/\n/g);
-	}
-}
-
-function RunFakeGame()
-{
-	this.fakeGame = new CreateFakeGame();
-}
-
-RunUnitTest();
-RunFakeGame();
-
-
-
 /*****************************************************************************/
 // TAROTCLUB API CALLABLE FROM C++ WORLD
+
+/**
+ * @brief This function is called when the player has been accepted around the table
+ *
+ * @param[in] place The place assigned by the server around the table
+ */
+function EnterGame(place)
+{
+	CurrentGame.myPlace = place;
+}
 
 /**
  * @brief This function is called when any card is played (even bot's ones)
@@ -387,7 +519,7 @@ RunFakeGame();
  */
 function PlayedCard(cardName, place)
 {
-
+	CurrentGame.SetPlayedCard(cardName, parseInt(place));
 }
 
 /**
@@ -400,8 +532,8 @@ function PlayedCard(cardName, place)
  */
 function StartGame(taker, contract)
 {
-
-
+	CurrentGame.taker = taker;
+	CurrentGame.contract = contract;
 }
 
 /**
@@ -421,28 +553,31 @@ function StartGame(taker, contract)
  */
 function PlayCard(gameCounter)
 {
+	// FIXME: delete gameCounter, not necessary for AI
 //	debugger;
 
-    myDeck = new Deck();
-	myDeck.SetCards(TDeck.GetBotCards());
+	var cardName;
 	
-	mainDeck = new Deck();
-	mainDeck.SetCards(TDeck.GetMainCards());
-		
-	return name = myDeck.cards[0].GetName();
+	if (CurrentGame.taker == CurrentGame.myPlace) {
+		cardName = CurrentGame.PlayAttackStrategy();
+	} else {
+		cardName = CurrentGame.PlayDefenseStrategy();
+	}
+
+	return cardName;
 }
 
 /**
  * @brief This function is called when the bot must declare a bid
  * 
  * @return The bid announced, use the definition forrmat
- * @see Variable 'BidValue'
+ * @see Variable 'Contract'
  */
 function CalculateBid()
 {
    total = 0;
    
-   print("The bot is announcing a bid.");
+   SystemPrint("The bot is announcing a bid.");
    
    // We start looking at bouts, each of them increase the total value of points
    if( TStats.hasVingtEtUn() == true ) {
@@ -477,17 +612,28 @@ function CalculateBid()
 
    // We decide on a bid depending of thresholds
    if( total <= 35 ) {
-      cont = BidValue.PASSE;
+      cont = Contract.PASSE;
    } else if( total >= 36  && total <= 50 ) {
-      cont = BidValue.PRISE;
+      cont = Contract.PRISE;
    } else if( total >= 51  && total <= 65 ) {
-      cont = BidValue.GARDE;
+      cont = Contract.GARDE;
    } else if( total >= 66  && total <= 75 ) {
-      cont = BidValue.GARDE_SANS;
+      cont = Contract.GARDE_SANS;
    } else {
-      cont = BidValue.GARDE_CONTRE;
+      cont = Contract.GARDE_CONTRE;
    }
    return cont;
 }
+
+/*****************************************************************************/
+// JAVASCRIPT UNIT TEST OF BASE CLASSES
+
+function SystemPrint(message)
+{
+	//document.write(message + "<br />");
+	//print(message + "<br />");
+}
+
+
 
 // End of file

@@ -159,7 +159,7 @@ public:
     }
 
     Deck &mBotDeck;
-    Deck &mMainDeck;    // cards played in previous and current turns
+    Deck &mMainDeck;    // FIXME: not necessary, delete
 
 public slots:
     QString GetBotCards()
@@ -203,6 +203,7 @@ private slots:
 
     // client events
     void slotMessage(const QString &text);
+   void slotAssignedPlace(Place p);
     void slotReceptionCartes();
     void slotAfficheSelection(Place p);
     void slotChoixEnchere(Contrat highestBid);
