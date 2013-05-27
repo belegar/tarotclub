@@ -38,14 +38,14 @@ Player::Player()
 
 }
 /*****************************************************************************/
-void Player::addCard( Card *newCard )
+void Player::addCard(Card *newCard)
 {
-    myDeck.append( newCard );
+    myDeck.append(newCard);
 }
 /*****************************************************************************/
-void Player::removeCard( Card *c )
+void Player::removeCard(Card *c)
 {
-    myDeck.removeAll( c );
+    myDeck.removeAll(c);
 }
 /*****************************************************************************/
 void Player::emptyDeck()
@@ -63,12 +63,12 @@ int Player::getCardNumber()
     return myDeck.count();
 }
 /*****************************************************************************/
-Card *Player::getCard( int i )
+Card *Player::getCard(int i)
 {
     return (myDeck.at(i));
 }
 /*****************************************************************************/
-Card *Player::getCardById( int i )
+Card *Player::getCardById(int i)
 {
     return (myDeck.getCardById(i));
 }
@@ -77,7 +77,7 @@ Card *Player::GetCardByName(const QString &i_name)
 {
     Card *c = NULL;
 
-    for (int i=0; i<myDeck.size(); i++)
+    for (int i = 0; i < myDeck.size(); i++)
     {
         c = myDeck.at(i);
         if (c->getCardName() == i_name)
@@ -91,78 +91,89 @@ Card *Player::GetCardByName(const QString &i_name)
 /**
  * Retourne true si la carte est présente dans les main du joueur, sinon false
  */
-bool Player::cardExists( Card *c )
+bool Player::HasCard(Card *c)
 {
-    if( myDeck.indexOf( c ) == -1 ) {
+    if (myDeck.indexOf(c) == -1)
+    {
         return (false);
-    } else {
+    }
+    else
+    {
         return (true);
     }
 }
 /*****************************************************************************/
 /**
- * Teste si la carte cVerif peut être jouée : cela dépend des cartes déjà
- * jouées sur le tapis et des cartes dans la main du joueur
+ * @brief Player::canPlayCard
+ *
+ * Test if the card cVerif can be played depending of the already played cards
+ * and the cards in the player's hand.
+ *
+ * @param mainDeck
+ * @param cVerif
+ * @param gameCounter
+ * @param nbPlayers
+ * @return true if the card can be played
  */
-bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nbPlayers )
+bool Player::CanPlayCard(Deck *mainDeck, Card *cVerif, GameState &info)
 {
-    int debut;
-    int rang;
-    debut = (gameCounter-1)/nbPlayers;
-    debut = debut*nbPlayers;
+    CardType    type; // required card
+    CardColor   coul; // required color
 
-    rang = gameCounter - debut;
+    bool hasColor = false; // true if the player has the requested color
+    bool possedeAtout = false;   // vrai si le joueur possède un atout
+    bool precedentAtout = false; // vrai si un atout max précédent
+    int  precAtoutMax = 0;
+    int  atoutMax = 0; // atout maxi possédé
+    bool ret = true;
+    Card *c = NULL;
+    int i, n;
 
-    // Le joueur entame le tour, il peut commencer comme il veut
-    if( rang == 1 ) {
+    // The player is the first of the trick, he can play all the cards
+    if (info.trickCounter == 0)
+    {
         return true;
     }
 
-    // on traite un cas simple
-    if( cVerif->getType() == EXCUSE ) {
+    // Simple use case, the excuse can always be played
+    if (cVerif->getType() == EXCUSE)
+    {
         return true;
     }
 
-    // première carte (couleur demandée)
-    CardType type;
-    CardColor   coul;
-    //////////////
-
-    bool possedeCouleur=false; // vrai si le joueur posseède la couleur demandee
-    bool possedeAtout=false;   // vrai si le joueur possède un atout
-    bool precedentAtout=false; // vrai si un atout max précédent
-    int  precAtoutMax=0;
-    int  atoutMax=0; // atout maxi possédé
-    bool ret=true;
-    Card *c;
-    int i,n;
-
-    // on cherche la couleur demandée
-    c = mainDeck->at( debut ); // première carte jouée à ce tour
+    // We retreive the requested color by looking at the first card played
+    c = mainDeck->at(debut);
 
     type = c->getType();
     coul = c->getColor();
-    if( type == EXCUSE ) { // aïe, le joueur a commencé avec une excuse
-        // le joueur peut jouer n'importe quelle carte après l'excuse, c'est lui qui décide alors de la couleur
-        if( rang == 2 ) {
+    if (type == EXCUSE)
+    {
+        // The first card is a Excuse
+        if (rang == 2)
+        {
+            // The player can play everything he wants
             return true;
         }
-        c = mainDeck->at( debut + 1 ); // la couleur demandée est donc la seconde carte
+        c = mainDeck->at(debut + 1);   // la couleur demandée est donc la seconde carte
         type = c->getType();
         coul = c->getColor();
     }
 
-    if( type == CARTE && cVerif->getColor() == coul ) {
+    if (type == CARTE && cVerif->getColor() == coul)
+    {
         return true;
     }
 
     // Quelques indications sur les plis précédents
     // On regarde s'il y a un atout
-    for( i=0; i<rang-1; i++ ) {
-        c = mainDeck->at( debut + i );
-        if( c->getType() == ATOUT ) {
+    for (i = 0; i < rang - 1; i++)
+    {
+        c = mainDeck->at(debut + i);
+        if (c->getType() == ATOUT)
+        {
             precedentAtout = true;
-            if( c->getValue() > precAtoutMax ) {
+            if (c->getValue() > precAtoutMax)
+            {
                 precAtoutMax = c->getValue();
             }
         }
@@ -171,65 +182,104 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
     // Quelques indications sur les cartes du joueur
     n = myDeck.count();
 
-    for( i=0; i<n; i++ ) {
-        c = myDeck.at( i );
+    for (i = 0; i < n; i++)
+    {
+        c = myDeck.at(i);
 
-        if( c->getType() == ATOUT ) {
-            possedeAtout=true;
-            if( c->getValue() > atoutMax ) {
+        if (c->getType() == ATOUT)
+        {
+            possedeAtout = true;
+            if (c->getValue() > atoutMax)
+            {
                 atoutMax = c->getValue();
             }
         }
-        else if( c->getType() == CARTE ) {
-            if( c->getColor() == coul ) {
-                possedeCouleur = true;
+        else if (c->getType() == CARTE)
+        {
+            if (c->getColor() == coul)
+            {
+                hasColor = true;
             }
         }
     }
 
-    // cas 1 : le type demandé est ATOUT
-    if( type == ATOUT ) {
-        if( cVerif->getType() == ATOUT ) {
-            if( cVerif->getValue() > precAtoutMax ) {
+    // Card type requested is a trump
+    if (type == ATOUT)
+    {
+        if (cVerif->getType() == ATOUT)
+        {
+            if (cVerif->getValue() > precAtoutMax)
+            {
                 return true;
-            } else {
-                if( atoutMax > precAtoutMax ) {
+            }
+            else
+            {
+                if (atoutMax > precAtoutMax)
+                {
                     return false;  // doit surcouper !
-                } else {
+                }
+                else
+                {
                     return true;   // sinon tant pis, on doit quand même jouer la couleur demandée
                 }
             }
-        } else {
-            if( possedeAtout == true ) {
+        }
+        else
+        {
+            if (possedeAtout == true)
+            {
                 return false;
-            } else {
+            }
+            else
+            {
                 return true;
             }
         }
-    } else {// cas 2 : le type demandé est CARTE
+    }
+    // Card type requested is a standard card
+    else
+    {
         // le joueur possède la couleur demandée, il doit donc la jouer cela
-        if( possedeCouleur == true ) {
+        if (hasColor == true)
+        {
             return false;
-        } else { // pas la couleur demandée
-            if( cVerif->getType() == ATOUT ) {
+        }
+        else
+        {
+            // pas la couleur demandée
+            if (cVerif->getType() == ATOUT)
+            {
                 // doit-il surcouper ?
-                if( precedentAtout==true ) {
-                    if( cVerif->getValue() > precAtoutMax ) { // carte de surcoupe
+                if (precedentAtout == true)
+                {
+                    if (cVerif->getValue() > precAtoutMax)
+                    {
+                        // carte de surcoupe
                         return true;
-                    } else {
+                    }
+                    else
+                    {
                         // a-t-il alors un atout plus fort ?
-                        if( atoutMax > precAtoutMax ) {
+                        if (atoutMax > precAtoutMax)
+                        {
                             return false; // oui, il doit donc surcouper
-                        } else {
+                        }
+                        else
+                        {
                             return true;
                         }
                     }
                 }
-            } else {
+            }
+            else
+            {
                 // a-t-il un atout pour couper ?
-                if( possedeAtout == true ) {
+                if (possedeAtout == true)
+                {
                     return false; // oui, il DOIT couper
-                } else {
+                }
+                else
+                {
                     return true; // non, il peut se défausser
                 }
             }
@@ -238,27 +288,27 @@ bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nb
     return ret;
 }
 /*****************************************************************************/
-void Player::setName( const QString &n )
+void Player::setName(const QString &n)
 {
     identity.name = n;
 }
 /*****************************************************************************/
-void Player::setQuote( const QString &q )
+void Player::setQuote(const QString &q)
 {
     identity.quote = q;
 }
 /*****************************************************************************/
-void Player::setSex( SexType s )
+void Player::setSex(SexType s)
 {
     identity.sex = s;
 }
 /*****************************************************************************/
-void Player::setAvatar( const QString &a )
+void Player::setAvatar(const QString &a)
 {
     identity.avatar = a;
 }
 /*****************************************************************************/
-void Player::setIdentity( Identity &ident )
+void Player::setIdentity(Identity &ident)
 {
     identity = ident;
 }

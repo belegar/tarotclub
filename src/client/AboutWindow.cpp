@@ -28,13 +28,13 @@
 #include "../defines.h"
 
 /*****************************************************************************/
-AboutWindow::AboutWindow( QWidget* parent  )
-   : QDialog( parent )
+AboutWindow::AboutWindow(QWidget *parent)
+    : QDialog(parent)
 {
-   ui.setupUi(this);
+    ui.setupUi(this);
 
-   ui.version->setText(QString(TAROT_TITRE) + " " +  QString(TAROT_VERSION));
-   ui.nom->setText( "<" + QString(TAROT_VNAME) + ">");
+    ui.version->setText(QString(TAROT_TITRE) + " " +  QString(TAROT_VERSION));
+    ui.nom->setText("<" + QString(TAROT_VNAME) + ">");
 
 }
 

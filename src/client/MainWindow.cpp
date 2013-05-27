@@ -31,16 +31,16 @@
 #include "textes.h"
 
 /*****************************************************************************/
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow( parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
     SetupDialogs();
     SetupMenus();
     SetupDocks();
 
     setWindowTitle(QString(TAROT_TITRE) + " " + QString(TAROT_VERSION));
-    tapis = new Tapis( this );
-    setCentralWidget( tapis );
+    tapis = new Tapis(this);
+    setCentralWidget(tapis);
     tapis->show();
 }
 /*****************************************************************************/
@@ -84,7 +84,7 @@ void MainWindow::SetupDocks()
     // Chat
     chatDock = new ChatDock(this);
     addDockWidget(Qt::BottomDockWidgetArea, chatDock);
-    connect( chatDock,SIGNAL(sgnlClose()),this, SLOT(slotCloseChat()) );
+    connect(chatDock, SIGNAL(sgnlClose()), this, SLOT(slotCloseChat()));
 
     // Server
     serverDock = new QDockWidget(this);
@@ -116,7 +116,7 @@ void MainWindow::SetupDocks()
     scoresDock = new ScoresDock(this);
     addDockWidget(Qt::RightDockWidgetArea, scoresDock);
     scoresDock->show();
-    connect( scoresDock,SIGNAL(sgnlClose()),this, SLOT(slotCloseScores()) );
+    connect(scoresDock, SIGNAL(sgnlClose()), this, SLOT(slotCloseScores()));
 
     // Information
     infosDock = new InfosDock(this);
@@ -285,10 +285,13 @@ void MainWindow::slotCloseScores()
 /*****************************************************************************/
 void MainWindow::slotScoresDock(void)
 {
-    if( scoresDock->isVisible() == true ) {
+    if (scoresDock->isVisible() == true)
+    {
         scoresAct->setChecked(false);
         scoresDock->hide();
-    } else {
+    }
+    else
+    {
         scoresAct->setChecked(true);
         scoresDock->show();
     }
@@ -296,10 +299,13 @@ void MainWindow::slotScoresDock(void)
 /*****************************************************************************/
 void MainWindow::slotInfosDock(void)
 {
-    if( infosDock->isVisible() == true ) {
+    if (infosDock->isVisible() == true)
+    {
         infosAct->setChecked(false);
         infosDock->hide();
-    } else {
+    }
+    else
+    {
         infosAct->setChecked(true);
         infosDock->show();
     }
@@ -307,10 +313,13 @@ void MainWindow::slotInfosDock(void)
 /*****************************************************************************/
 void MainWindow::slotChatDock(void)
 {
-    if( chatDock->isVisible() == true ) {
+    if (chatDock->isVisible() == true)
+    {
         chatAct->setChecked(false);
         chatDock->hide();
-    } else {
+    }
+    else
+    {
         chatAct->setChecked(true);
         chatDock->show();
     }
@@ -318,10 +327,13 @@ void MainWindow::slotChatDock(void)
 /*****************************************************************************/
 void MainWindow::slotServerDock(void)
 {
-    if( serverDock->isVisible() == true ) {
+    if (serverDock->isVisible() == true)
+    {
         serverAct->setChecked(false);
         serverDock->hide();
-    } else {
+    }
+    else
+    {
         serverAct->setChecked(true);
         serverDock->show();
     }
@@ -329,10 +341,13 @@ void MainWindow::slotServerDock(void)
 /*****************************************************************************/
 void MainWindow::slotDebugDock(void)
 {
-    if( debugDock->isVisible() == true ) {
+    if (debugDock->isVisible() == true)
+    {
         debugAct->setChecked(false);
         debugDock->hide();
-    } else {
+    }
+    else
+    {
         debugAct->setChecked(true);
         debugDock->show();
     }

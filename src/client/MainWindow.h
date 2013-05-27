@@ -52,74 +52,74 @@
 /*****************************************************************************/
 class MainWindow : public QMainWindow
 {
-   Q_OBJECT
+    Q_OBJECT
 
 protected:
 
-   // Menus
-   QMenu *gameMenu;
-   QMenu *paramsMenu;
-   QMenu *helpMenu;
+    // Menus
+    QMenu *gameMenu;
+    QMenu *paramsMenu;
+    QMenu *helpMenu;
 
-   // Menu Jeu
-   //----local
-   QAction *newQuickGameAct;
-   QAction *newTournamentAct;
-   QAction *newNumberedDealAct;
-   QAction *newCustomDealAct;
-   //----network
-   QAction *netGameServerAct;
-   QAction *netGameClientAct;
-   //----misc
-   QAction *pliPrecAct;
+    // Menu Jeu
+    //----local
+    QAction *newQuickGameAct;
+    QAction *newTournamentAct;
+    QAction *newNumberedDealAct;
+    QAction *newCustomDealAct;
+    //----network
+    QAction *netGameServerAct;
+    QAction *netGameClientAct;
+    //----misc
+    QAction *pliPrecAct;
 
-   // Menu Paramètres
-   QAction *dealEditorAct;
-   QAction *optionsAct;
-   QAction *scoresAct;
-   QAction *infosAct;
-   QAction *chatAct;
-   QAction *serverAct;
-   QAction *debugAct;
+    // Menu Paramètres
+    QAction *dealEditorAct;
+    QAction *optionsAct;
+    QAction *scoresAct;
+    QAction *infosAct;
+    QAction *chatAct;
+    QAction *serverAct;
+    QAction *debugAct;
 
-   Tapis *tapis;      // QCanvasView
+    Tapis *tapis;      // QCanvasView
 
-   // Modal windows
-   AboutWindow *about;
-   ResultWindow *resultWindow;
-   OptionsWindow *optionsWindow;
-   EditorWindow *editorWindow;
-   JoinWizard *joinWizard;
-   HelpWindow *helpWindow;
+    // Modal windows
+    AboutWindow *about;
+    ResultWindow *resultWindow;
+    OptionsWindow *optionsWindow;
+    EditorWindow *editorWindow;
+    JoinWizard *joinWizard;
+    HelpWindow *helpWindow;
 
-   // Dock windows
-   ScoresDock *scoresDock;
-   InfosDock *infosDock;
-   ChatDock *chatDock;
-   RoundDock *roundDock;
-   QDockWidget *serverDock;
-   DebugDock *debugDock;
+    // Dock windows
+    ScoresDock *scoresDock;
+    InfosDock *infosDock;
+    ChatDock *chatDock;
+    RoundDock *roundDock;
+    QDockWidget *serverDock;
+    DebugDock *debugDock;
 
-   // UI classes
-   Ui::serverDock serverUI;
+    // UI classes
+    Ui::serverDock serverUI;
 
 public:
-   MainWindow( QWidget* parent = 0);
+    MainWindow(QWidget *parent = 0);
 
 public slots:
-   void slotScoresDock();
-   void slotInfosDock();
-   void slotChatDock();
-   void slotServerDock();
-   void slotDebugDock();
-   void slotDealEditor();
-   void slotCloseChat();
-   void slotCloseScores();
+    void slotScoresDock();
+    void slotInfosDock();
+    void slotChatDock();
+    void slotServerDock();
+    void slotDebugDock();
+    void slotDealEditor();
+    void slotCloseChat();
+    void slotCloseScores();
 
 private:
-   void SetupDialogs();
-   void SetupMenus();
-   void SetupDocks();
+    void SetupDialogs();
+    void SetupMenus();
+    void SetupDocks();
 };
 
 #endif // _MAINWINDOW_H

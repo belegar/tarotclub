@@ -47,10 +47,10 @@ QString Deck::GetCardList()
 {
     QString list;
 
-    for(int i=0; i<size(); i++)
+    for (int i = 0; i < size(); i++)
     {
-        list += at(i)->getCardName();
-        if (i < (size()-1))
+        list += at(i)->GetName();
+        if (i < (size() - 1))
         {
             list += ";";
         }
@@ -58,36 +58,37 @@ QString Deck::GetCardList()
     return list;
 }
 /*****************************************************************************/
-void Deck::shuffle(int seed)
+void Deck::Shuffle(int seed)
 {
-    for ( int i = size(); i > 0; --i )
+    for (int i = size(); i > 0; --i)
     {
         // pseudorandom number generation algorithm
         // taken from KDE game KPat, thanks !
         seed = 214013 * seed + 2531011;
-        int rand = ( seed >> 16 ) & 0x7fff;
+        int rand = (seed >> 16) & 0x7fff;
         int z = rand % i;
-        swap(z, i-1);
+        swap(z, i - 1);
     }
 }
 /*****************************************************************************/
-Card *Deck::getCardById( int id )
+Card *Deck::GetCardById(int id)
 {
-    for( int i = 0; i<this->size(); ++i) {
-        if( this->at(i)->getId() == id )
+    for (int i = 0; i < this->size(); ++i)
+    {
+        if (this->at(i)->GetId() == id)
             return this->at(i);
     }
     return (NULL);
 }
 /*****************************************************************************/
-void Deck::sort()
+void Deck::Sort()
 {
-    qSort( this->begin(), this->end(), lessThanCards );
+    qSort(this->begin(), this->end(), LessThanCards);
 }
 /*****************************************************************************/
-bool Deck::lessThanCards(Card *carte1, Card *carte2 )
+bool Deck::LessThanCards(Card *c1, Card *c2)
 {
-    return carte1->getId() > carte2->getId();
+    return c1->GetId() > c2->GetId();
 }
 //=============================================================================
 // End of file Deck.cpp

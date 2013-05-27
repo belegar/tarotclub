@@ -35,45 +35,49 @@
 /*****************************************************************************/
 class CardListItem : public QListWidgetItem
 {
-   Card *c;
+    Card *c;
 
 public:
-   CardListItem(Card *ref) : QListWidgetItem() {
-      c = ref;
-      setText(c->getCardName());
-   }
+    CardListItem(Card *ref) : QListWidgetItem()
+    {
+        c = ref;
+        setText(c->getCardName());
+    }
 
-   Card *getCard() { return c; }
+    Card *getCard()
+    {
+        return c;
+    }
 };
 
 
 /*****************************************************************************/
 class EditorWindow : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
 private:
-   Ui::DealEditorUI ui;
+    Ui::DealEditorUI ui;
 
 public:
-   EditorWindow( QWidget* parent = 0);
+    EditorWindow(QWidget *parent = 0);
 
-   void init();
-   void addToList(int id, QListWidget *list, QListWidgetItem *item);
+    void init();
+    void addToList(int id, QListWidget *list, QListWidgetItem *item);
 
 public slots:
-   void slotOpenDeal();
-   void slotSaveDeal();
+    void slotOpenDeal();
+    void slotSaveDeal();
 
-   void slotToSouth();
-   void slotToNorth();
-   void slotToWest();
-   void slotToEast();
+    void slotToSouth();
+    void slotToNorth();
+    void slotToWest();
+    void slotToEast();
 
-   void slotRemoveSouthCard(QListWidgetItem *item);
-   void slotRemoveNorthCard(QListWidgetItem *item);
-   void slotRemoveWestCard(QListWidgetItem *item);
-   void slotRemoveEastCard(QListWidgetItem *item);
+    void slotRemoveSouthCard(QListWidgetItem *item);
+    void slotRemoveNorthCard(QListWidgetItem *item);
+    void slotRemoveWestCard(QListWidgetItem *item);
+    void slotRemoveEastCard(QListWidgetItem *item);
 
 };
 

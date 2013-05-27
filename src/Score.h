@@ -31,6 +31,8 @@
 #include "Card.h"
 #include "Deck.h"
 #include "defines.h"
+#include "GameState.h"
+#include "ScoreInfo.h"
 
 /*****************************************************************************/
 class Score
@@ -38,52 +40,51 @@ class Score
 
 private:
 
-   Place plis[78];      // indique quelle carte a été remportée par quel joueur
-   bool  gagne;         // vrai si le coup est gagné par l'attaque
-   Place carteExcuse;   // A qui appartient l'excuse
+    Place plis[78];      // indique quelle carte a été remportée par quel joueur
+    bool  gagne;         // vrai si le coup est gagné par l'attaque
+    Place carteExcuse;   // A qui appartient l'excuse
 
-   // Informations sur le petit au bout
-   bool  petitAuBout;   // vrai si le petit a été mené au bout
-   bool  petitAttaque;  // vrai si le petit au bout a été remporté par l'attaque
-   // Informations sur le Chelem
-   bool  chelemDeclare; // vrai si un Chelem a été déclaré
-   bool  chelemRealise; // vrai si le Chelem a été réalisé
-   bool  chelemDefense; // vrai si le Chelem a été réalisé par la défense
-   // Informations sur les poignées
-   bool  poigneeDefense;   // vrai si la défense a déclaré une poignée
-   bool  poigneeAttaque;   // vrai si l'attaque a déclaré une poignée
-   Poignee  typePoigneeD;  // (Défense) simple, double ou triple
-   Poignee  typePoigneeA;  // (Attaque) simple, double ou triple
+    // Informations sur le petit au bout
+    bool  petitAuBout;   // vrai si le petit a été mené au bout
+    bool  petitAttaque;  // vrai si le petit au bout a été remporté par l'attaque
+    // Informations sur le Chelem
+    bool  chelemRealise; // vrai si le Chelem a été réalisé
+    bool  chelemDefense; // vrai si le Chelem a été réalisé par la défense
+    // Informations sur les poignées
+    bool  poigneeDefense;   // vrai si la défense a déclaré une poignée
+    bool  poigneeAttaque;   // vrai si l'attaque a déclaré une poignée
+    Poignee  typePoigneeD;  // (Défense) simple, double ou triple
+    Poignee  typePoigneeA;  // (Attaque) simple, double ou triple
 
-   // Informations calculées à partir du jeu
-   ScoreInfos  score_inf;
+    // Informations calculées à partir du jeu
+    ScoreInfo  score_inf;
 
-   // scores of each turn
-   int turn;
-   int scores[MAX_ROUNDS][NB_PLAYERS];     // score of each turn players
+    // scores of each turn
+    int turn;
+    int scores[MAX_ROUNDS][5];   // score of each turn players, 5 players max
 
 public:
-   Score();
+    Score();
 
-   void init();
-   void reset();
-   void setPli( int i, Place p );
-   void calcul( Deck &mainDeck, Deck &deckChien, GameInfos &infos );
+    void Initialize();
+    void reset();
+    void setPli(int i, Place p);
+    void calcul(Deck &mainDeck, Deck &deckChien, GameState &info);
 
-   // Mutateurs
-   void setChelemDeclare( bool );
-   void setExcuse( Place p );
-   void setPoigneeDefense(Poignee p);
-   void setPoigneeAttaque(Poignee p);
-   void setPoints(const GameInfos &infos);
-   void setScoreInfos(const ScoreInfos &inf);
+    // Mutateurs
+    void setChelemDeclare(bool);
+    void setExcuse(Place p);
+    void setPoigneeDefense(Poignee p);
+    void setPoigneeAttaque(Poignee p);
+    void setPoints(const GameState &infos);
+    void SetScoreInfo(const ScoreInfo &inf);
 
-   // Accesseurs
-   Place getExcuse();
-   Place getPli(int i);
-   int  getTotalPoints(Place p);
-   ScoreInfos  *getScoreInfos();
-   QList<Place> getPodium();
+    // Accesseurs
+    Place getExcuse();
+    Place getPli(int i);
+    int  getTotalPoints(Place p);
+    ScoreInfo  &GetScoreInfo();
+    QList<Place> getPodium();
 };
 
 

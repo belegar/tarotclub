@@ -37,9 +37,9 @@
 DebugDock *DebugDock::instance = NULL;
 
 /*****************************************************************************/
-DebugDock::DebugDock( QWidget *parent )
-    : QDockWidget( trUtf8("Debug"), parent )
-{        
+DebugDock::DebugDock(QWidget *parent)
+    : QDockWidget(trUtf8("Debug"), parent)
+{
     logWindow = new QTextBrowser();
     clearButton = new QPushButton(trUtf8("Clear"));
     saveButton = new QPushButton(trUtf8("Save"));
@@ -63,7 +63,7 @@ DebugDock::DebugDock( QWidget *parent )
     instance = this;
 }
 /*****************************************************************************/
-void DebugDock::closeEvent( QCloseEvent * e )
+void DebugDock::closeEvent(QCloseEvent *e)
 {
     Q_UNUSED(e);
 
@@ -77,30 +77,32 @@ void DebugDock::clear()
 /*****************************************************************************/
 void DebugDock::message(const QString &message)
 {
-    logWindow->append( message );
+    logWindow->append(message);
 }
 /*****************************************************************************/
 void DebugDock::save()
 {
     QString saveFileName = QFileDialog::getSaveFileName(
-                this,
-                tr("Save Log Output"),
-                tr("%1/logfile.txt").arg(QDir::homePath()),
-                tr("Text Files (*.txt);;All Files (*)")
-                );
+                               this,
+                               tr("Save Log Output"),
+                               tr("%1/logfile.txt").arg(QDir::homePath()),
+                               tr("Text Files (*.txt);;All Files (*)")
+                           );
 
-    if(saveFileName.isEmpty()) {
+    if (saveFileName.isEmpty())
+    {
         return;
     }
 
     QFile file(saveFileName);
-    if(!file.open(QIODevice::WriteOnly)) {
+    if (!file.open(QIODevice::WriteOnly))
+    {
         QMessageBox::warning(
-                    this,
-                    tr("Error"),
-                    QString(tr("<nobr>File '%1'<br/>cannot be opened for writing.<br/><br/>"
-                               "The log output could <b>not</b> be saved!</nobr>"))
-                    .arg(saveFileName));
+            this,
+            tr("Error"),
+            QString(tr("<nobr>File '%1'<br/>cannot be opened for writing.<br/><br/>"
+                       "The log output could <b>not</b> be saved!</nobr>"))
+            .arg(saveFileName));
         return;
     }
 

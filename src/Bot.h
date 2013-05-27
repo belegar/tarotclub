@@ -32,7 +32,7 @@
 
 class StatsWrapper: public QObject
 {
-   Q_OBJECT
+    Q_OBJECT
 public:
 
     StatsWrapper(DeckStats &stats)
@@ -148,7 +148,7 @@ public slots:
 /*****************************************************************************/
 class DeckWrapper: public QObject
 {
-   Q_OBJECT
+    Q_OBJECT
 public:
 
     DeckWrapper(Deck &i_botDeck, Deck &i_mainDeck)
@@ -175,46 +175,46 @@ public slots:
 /*****************************************************************************/
 class Bot : public Client
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   QTimer  timeBeforeSend;
-   QScriptEngine botEngine;
+    QTimer  timeBeforeSend;
+    QScriptEngine botEngine;
 
 #ifndef QT_NO_DEBUG
-   QScriptEngineDebugger debugger;
+    QScriptEngineDebugger debugger;
 #endif
 
-   // Exposed object to the Javascript
-   StatsWrapper statsObj;
-   DeckWrapper deckObj;
+    // Exposed object to the Javascript
+    StatsWrapper statsObj;
+    DeckWrapper deckObj;
 
-   bool initializeScriptContext();
+    bool initializeScriptContext();
 
 public:
-   Bot();
-   ~Bot();
+    Bot();
+    ~Bot();
 
-   void setTimeBeforeSend(int t);
+    void setTimeBeforeSend(int t);
 
-// Private slots are not visible in a QtScript
+    // Private slots are not visible in a QtScript
 private slots:
-   void slotTimeBeforeSend();
+    void slotTimeBeforeSend();
 
-   // client events
-   void slotMessage( const QString &text );
-   void slotReceptionCartes();
-   void slotAfficheSelection( Place p );
-   void slotChoixEnchere(Contrat highestBid );
-   void slotAfficheEnchere(Place place, Contrat contract);
-   void slotRedist();
-   void slotAfficheChien();
-   void slotPrepareChien();
-   void slotDepartDonne(Place i_taker, Contrat i_contract);
-   void slotJoueCarte();
-   void slotAfficheCarte(int id, Place p);
-   void slotFinDonne(Place, float, bool lastDeal);
-   void slotWaitPli(Place p, float points);
+    // client events
+    void slotMessage(const QString &text);
+    void slotReceptionCartes();
+    void slotAfficheSelection(Place p);
+    void slotChoixEnchere(Contrat highestBid);
+    void slotAfficheEnchere(Place place, Contrat contract);
+    void slotRedist();
+    void slotAfficheChien();
+    void slotPrepareChien();
+    void slotDepartDonne(Place i_taker, Contrat i_contract);
+    void slotJoueCarte();
+    void slotAfficheCarte(int id, Place p);
+    void slotFinDonne(Place, float, bool lastDeal);
+    void slotWaitPli(Place p, float points);
 
 
 };

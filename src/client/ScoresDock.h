@@ -32,23 +32,23 @@
 /*****************************************************************************/
 class ScoresDock : public QDockWidget
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   QTableWidget *tableScores;
+    QTableWidget *tableScores;
 
 public:
-   ScoresDock( QWidget *parent );
+    ScoresDock(QWidget *parent);
 
-   void clear();
-   void setPlayers( QList<Identity> &players );
-   void setNewScore( Score *score );
+    void clear();
+    void setPlayers(QList<Identity> &players);
+    void SetNewScore(Score &score);
 
 protected:
-   void closeEvent( QCloseEvent * e );
+    void closeEvent(QCloseEvent *e);
 
 signals:
-   void sgnlClose();
+    void sgnlClose();
 
 };
 

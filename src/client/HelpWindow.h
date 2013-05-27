@@ -49,7 +49,7 @@ private:
 
 class HelpWindow : public QDialog
 {
-       Q_OBJECT
+    Q_OBJECT
 
 private:
     Ui::HelpUI ui;
@@ -57,7 +57,7 @@ private:
     HelpBrowser *browser;
 
 public:
-    HelpWindow( QWidget* parent = 0 );
+    HelpWindow(QWidget *parent = 0);
 
 public slots:
     void DisplayUrl(const QUrl &url);

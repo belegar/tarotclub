@@ -31,25 +31,25 @@
 /*****************************************************************************/
 class RoundDock : public QDockWidget
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   Ui::RoundUI ui;
+    Ui::RoundUI ui;
 
 public:
-   RoundDock( QWidget *parent );
+    RoundDock(QWidget *parent);
 
-   void clear();
-   void addRound(int turn, Place p, QString txt);
-   void selectWinner(int turn, Place p);
-   void pointsToTaker(int turn, float points);
-   void selectFirstPlayer(int turn, Place p);
+    void clear();
+    void addRound(int turn, Place p, QString txt);
+    void selectWinner(int turn, Place p);
+    void pointsToTaker(int turn, float points);
+    void selectFirstPlayer(int turn, Place p);
 
 protected:
-   void closeEvent( QCloseEvent * e );
+    void closeEvent(QCloseEvent *e);
 
 signals:
-   void sgnlClose();
+    void sgnlClose();
 
 };
 

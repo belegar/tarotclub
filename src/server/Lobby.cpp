@@ -23,66 +23,72 @@ using namespace std;
 /*****************************************************************************/
 Lobby::Lobby()
 {
-   saloonName = "Essai";
+    saloonName = "Essai";
 
-   socket.listen(QHostAddress::Any, 4242);
-   if (!socket.isListening()) {
-      cerr << "Failed to bind to port 4242";
-      qApp->quit();
-   }
-   connect(&socket, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    socket.listen(QHostAddress::Any, 4242);
+    if (!socket.isListening())
+    {
+        cerr << "Failed to bind to port 4242";
+        qApp->quit();
+    }
+    connect(&socket, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 /*****************************************************************************/
 void Lobby::startGames()
 {
-   for (int i=0; i<SERVER_MAX_TABLES; i++) {
-      tables[i].newServerGame();
-      tables[i].start();
-   }
+    for (int i = 0; i < SERVER_MAX_TABLES; i++)
+    {
+        tables[i].newServerGame();
+        tables[i].start();
+    }
 }
 /*****************************************************************************/
 void Lobby::setupTables(ServerOptions &opt)
 {
-   for (int i=0; i<SERVER_MAX_TABLES; i++) {
-      tables[i].setOptions(opt);
-      tables[i].setGameType(LOC_ONEDEAL);
-      tables[i].setDealType(RANDOM_DEAL);
-      opt.port++;
-   }
+    for (int i = 0; i < SERVER_MAX_TABLES; i++)
+    {
+        tables[i].setOptions(opt);
+        tables[i].setGameType(LOC_ONEDEAL);
+        tables[i].setDealType(RANDOM_DEAL);
+        opt.port++;
+    }
 
 }
 /*****************************************************************************/
 void Lobby::slotClientClosed()
 {
-    QTcpSocket* s = qobject_cast<QTcpSocket *>(sender());
+    QTcpSocket *s = qobject_cast<QTcpSocket *>(sender());
     s->deleteLater();
 }
 /*****************************************************************************/
 void Lobby::slotReadData()
 {
-   // This slot is called when the client sent data to the server. The
-   // server looks if it was a get request and sends a very simple HTML
-   // document back.
-   QTcpSocket* s = qobject_cast<QTcpSocket *>(sender());
-   if (s->canReadLine()) {
-      QStringList tokens = QString(s->readLine()).split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
-      QTextStream os(s);
-      if (tokens[0] == "GET") {
-         if (tokens[1] == "SALOONS") {
-            os.setAutoDetectUnicode(true);
-            os << "SALOONS:" << saloonName;
-            os << ":\r\n";
-            os.flush();
-         }
-      }
-   }
+    // This slot is called when the client sent data to the server. The
+    // server looks if it was a get request and sends a very simple HTML
+    // document back.
+    QTcpSocket *s = qobject_cast<QTcpSocket *>(sender());
+    if (s->canReadLine())
+    {
+        QStringList tokens = QString(s->readLine()).split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
+        QTextStream os(s);
+        if (tokens[0] == "GET")
+        {
+            if (tokens[1] == "SALOONS")
+            {
+                os.setAutoDetectUnicode(true);
+                os << "SALOONS:" << saloonName;
+                os << ":\r\n";
+                os.flush();
+            }
+        }
+    }
 }
 /*****************************************************************************/
 void Lobby::slotNewConnection()
 {
-   QTcpSocket *s = socket.nextPendingConnection();
-   connect( s, SIGNAL(disconnected()), this, SLOT(slotClientClosed()));
-   connect( s, SIGNAL(readyRead()), this, SLOT(slotReadData()));
+    QTcpSocket *s = socket.nextPendingConnection();
+    connect(s, SIGNAL(disconnected()), this, SLOT(slotClientClosed()));
+    connect(s, SIGNAL(readyRead()), this, SLOT(slotReadData()));
 }
 
 //=============================================================================

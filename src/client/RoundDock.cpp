@@ -27,49 +27,53 @@
 #include "RoundDock.h"
 
 /*****************************************************************************/
-RoundDock::RoundDock( QWidget *parent )
-    : QDockWidget( parent )
+RoundDock::RoundDock(QWidget *parent)
+    : QDockWidget(parent)
 {
-   int i, j;
-   ui.setupUi(this);
+    int i, j;
+    ui.setupUi(this);
 
-   ui.tableWidget->setRowCount(18);
+    ui.tableWidget->setRowCount(18);
 
-   for( i=0; i<5; i++) {
-      for( j=0; j<18; j++) {
-         ui.tableWidget->setItem(j, i, new QTableWidgetItem());
-      }
-   }
+    for (i = 0; i < 5; i++)
+    {
+        for (j = 0; j < 18; j++)
+        {
+            ui.tableWidget->setItem(j, i, new QTableWidgetItem());
+        }
+    }
 }
 /*****************************************************************************/
-void RoundDock::closeEvent( QCloseEvent *e )
+void RoundDock::closeEvent(QCloseEvent *e)
 {
-   Q_UNUSED(e);
-   emit sgnlClose();
+    Q_UNUSED(e);
+    emit sgnlClose();
 }
 /*****************************************************************************/
 void RoundDock::clear()
 {
-   int i, j;
-   QBrush brush(Qt::white);
+    int i, j;
+    QBrush brush(Qt::white);
 
-   for( i=0; i<5; i++) {
-      for( j=0; j<18; j++) {
-         ui.tableWidget->item(j, i)->setText("");
-         ui.tableWidget->item(j, i)->setBackground(brush);
-      }
-   }
+    for (i = 0; i < 5; i++)
+    {
+        for (j = 0; j < 18; j++)
+        {
+            ui.tableWidget->item(j, i)->setText("");
+            ui.tableWidget->item(j, i)->setBackground(brush);
+        }
+    }
 }
 /*****************************************************************************/
 void RoundDock::addRound(int turn, Place p, QString txt)
 {
-   ui.tableWidget->item(turn, p+1)->setText(txt);
+    ui.tableWidget->item(turn, p + 1)->setText(txt);
 }
 /*****************************************************************************/
 void RoundDock::selectWinner(int turn, Place p)
 {
-   QBrush brush(Qt::darkGreen);
-   ui.tableWidget->item(turn, p+1)->setBackground(brush);
+    QBrush brush(Qt::darkGreen);
+    ui.tableWidget->item(turn, p + 1)->setBackground(brush);
 }
 /*****************************************************************************/
 void RoundDock::pointsToTaker(int turn, float points)
@@ -82,8 +86,8 @@ void RoundDock::pointsToTaker(int turn, float points)
 /*****************************************************************************/
 void RoundDock::selectFirstPlayer(int turn, Place p)
 {
-   QBrush brush(Qt::lightGray);
-   ui.tableWidget->item(turn, p+1)->setBackground(brush);
+    QBrush brush(Qt::lightGray);
+    ui.tableWidget->item(turn, p + 1)->setBackground(brush);
 }
 
 //=============================================================================

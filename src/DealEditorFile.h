@@ -32,17 +32,17 @@
 class DealEditorFile
 {
 public:
-   DealEditorFile();
+    DealEditorFile();
 
-   void loadFile(QString fileName);
-   void saveFile(QString fileName);
+    void loadFile(QString fileName);
+    void saveFile(QString fileName);
 
-   Deck  southDeck;
-   Deck  northDeck;
-   Deck  westDeck;
-   Deck  eastDeck;
-   Deck  chienDeck;
-   
+    Deck  southDeck;
+    Deck  northDeck;
+    Deck  westDeck;
+    Deck  eastDeck;
+    Deck  chienDeck;
+
 };
 
 #endif // DEALEDITORFILE_H

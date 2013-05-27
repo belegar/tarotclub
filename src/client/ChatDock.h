@@ -40,31 +40,31 @@
 /*****************************************************************************/
 class ChatDock : public QDockWidget
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   QTextBrowser    *chatWindow;
-   QLineEdit       *textLine;
-   QPushButton     *options;
-   QListWidget     *playersList;
+    QTextBrowser    *chatWindow;
+    QLineEdit       *textLine;
+    QPushButton     *options;
+    QListWidget     *playersList;
 
 public:
-   ChatDock( QWidget *parent );
+    ChatDock(QWidget *parent);
 
-   void clear();
-   void setPlayersList( QList<Identity> &idents );
-   void clearPlayersList();
+    void clear();
+    void setPlayersList(QList<Identity> &idents);
+    void clearPlayersList();
 
 protected:
-   void closeEvent( QCloseEvent * e );
+    void closeEvent(QCloseEvent *e);
 
 public slots:
-   void slotReturnPressed();
-   void message(const QString &message);
+    void slotReturnPressed();
+    void message(const QString &message);
 
 signals:
-   void sgnlEmitMessage(const QString&);
-   void sgnlClose();
+    void sgnlEmitMessage(const QString &);
+    void sgnlClose();
 };
 
 #endif // CHATDOCK_H

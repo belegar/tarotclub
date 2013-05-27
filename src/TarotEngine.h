@@ -25,149 +25,105 @@
 #ifndef _TAROTENGINE_H
 #define _TAROTENGINE_H
 
-#include <QtNetwork>
 #include <QMap>
 #include <QThread>
 #include "Card.h"
 #include "Deck.h"
-#include "Player.h"
 #include "Score.h"
+#include "Player.h"
 #include "Jeu.h"
 #include "defines.h"
-#include "Bot.h"
-#include "Table.h"
+#include "GameState.h"
 #include "ServerConfig.h"
 
-enum {
-   MsgStartGame = QEvent::User+1,
-   MsgRandomDeal,
-   MsgStopGame,
-   MsgExitGame
-};
-
-enum GameState { GAME_STOPPED, GAME_STARTED, GAME_FINISHED };
 
 /*****************************************************************************/
-class EvStartGame : public QEvent
+class TarotEngine
 {
-public:
-   EvStartGame() : QEvent( (QEvent::Type)MsgStartGame ) {}
-};
-/*****************************************************************************/
-class EvStopGame : public QEvent
-{
-public:
-   EvStopGame() : QEvent( (QEvent::Type)MsgStopGame ) {}
-};
-/*****************************************************************************/
-class EvExitGame : public QEvent
-{
-public:
-   EvExitGame() : QEvent( (QEvent::Type)MsgExitGame ) {}
-};
-
-/*****************************************************************************/
-class TarotEngine : public QThread
-{
-   Q_OBJECT
-
-private:
-   QMap<QTcpSocket*, Player*> players;
-   QTcpServer  server;
-
-   ServerOptions  options;
-   Bot         bots[3];       // the computer
-   Table       table;
-   GameInfos   infos;
-   Score       score;
-   Deck        deckChien;     // le chien
-   Deck        mainDeck;      // le tas principal
-   Deck        poigneeDeck;   // la poignee déclarée (TODO: une poignée ?? 2 max possibles !!)
-   Place       donneur;       // qui est le donneur ?
-   Place       tour;          // A qui le tour (d'enchérir ou de jouer)
-   Sequence    sequence;      // indique la séquence de jeu actuelle
-   GameState   gameState;
-   DealType    dealType;
-   int         dealNumber;
-   int         dealCounter;   // number of deals for the tournament game
-   QString     dealFile;
-   GameType    gameType;
-
-   // syncho counters
-   int         cptVuChien; // players saw the dog
-   int         cptVuPli;   // end of a round
-   int         cptVuDonne; // end of a deal
-
-protected:
-   void customEvent( QEvent *e );
 
 public:
-   TarotEngine();
+    /**
+     * @brief The GameMode enum
+     */
+    enum GameMode
+    {
+        LOCAL_ONEDEAL,
+        LOCAL_TOURNAMENT,
+        NET_GAME_SERVER,
+        NET_GAME_CLIENT
+    };
+
+    /**
+     * @brief The DealType enum
+     */
+    enum DealType
+    {
+        RANDOM_DEAL,
+        CUSTOM_DEAL,
+        NUMBERED_DEAL
+    };
+
+    TarotEngine();
     ~TarotEngine();
 
-   void run();
 #ifndef QT_NO_DEBUG
-   void GenerateEndDealLog();
+    void GenerateEndDealLog();
 #endif // QT_NO_DEBUG
 
-   QList<Identity> getConnectedPlayers();
-   int getNumberOfConnectedPlayers();
-   Score *getScore();
-   int getDealNumber();
-   Player *getPlayer(Place p);
-   QTcpSocket *getConnection(Place p);
+    Player &GetPlayer(Place p);
+    Score &GetScore();
+    int GetDealNumber();
 
-   void setDealType(DealType type);
-   void setDealNumber(int deal);
-   void setDealFile(QString file);
-   void setGameType(GameType type);
-   void setOptions(ServerOptions &opt);
+    void SetDealType(DealType type);
+    void SetDealNumber(int deal);
+    void SetDealFile(QString file);
+    void SetGameMode(GameMode mode);
+    void SetOptions(ServerOptions &opt);
 
-   // Tarot game
-   void newServerGame();
-   void connectBots();
-   void closeServerGame();
-   void closeClients();
-   bool cardIsValid( Card *c, Place p );
-   bool cardExists( Card *c, Place p );
-   void customDeal();
-   void randomDeal();
-   Place calculGagnantPli();
-   void nouvelleDonne();
-   void jeu();
-   void jeuNext();
-   Place nextPlayer( Place j );
-   bool finLevee(float &points);
-   void sequenceEncheres();
-   void montreChien();
+private:
+    Player      players[5];     // [3..5] players
+    Score       score;
+    Deck        deckChien;     // the dog
+    Deck        mainDeck;      // the main deck of cards
+    Deck        poigneeDeck;   // la poignee déclarée (FIXME: une seule poignée ?? théoriquement 2 max possibles !!)
+    GameState   gameState;
+    DealType    dealType;
+    int         dealNumber;
+    int         dealCounter;   // number of deals for the tournament game
+    QString     dealFile;
+    GameMode    gameMode;
 
-   // Fonctions réseau
-   void sendErrorServerFull(QTcpSocket *cnx);
-   void askIdentity(QTcpSocket *cnx, Place p );
-   void sendCards( Place p, quint8 *params );
-   void askBid(Contrat c);
-   void sendBid( Place p, Contrat c );
-   void broadcast( QByteArray &block );
-   void doAction( QDataStream &in, QTcpSocket* cnx );
-   void sendMessage( const QString &message, Place p );
-   void sendPlayersList();
-   void sendShowChien();
-   void sendDoChien();
-   void sendJoueCarte();
-   void sendCard( Card *c );
-   void sendDepartDonne();
-   void sendRedist();
-   void sendFinDonne( ScoreInfos *score_inf, bool lastDeal, float pointsTour );
-   void sendWaitPli(float pointsTour);
-   void selectPlayer( Place p );
+    // synchonization counters
+    int         cptVuChien; // players saw the dog
+    int         cptVuPli;   // end of a round
+    int         cptVuDonne; // end of a deal
 
-signals:
-   void sigPrintMessage(const QString &);
 
-public slots:
-   void slotNewConnection();
-   void slotClientClosed();
-   void slotReadData();
+    void NewGame();
+    void StopGame();
+    void NewDeal();
+
+    bool IsCardValid(Card *c, Place p);
+    bool HasCard(Card *c, Place p);
+    void CustomDeal();
+    void RandomDeal();
+    Place CalculateTrickWinner();
+    void BidSequence();
+    void ShowDog();
+    void GameSateMachine();
+
+    /**
+     * @brief EndOfTrick
+     *
+     * Fin d'un tour, on calcule le gagnant du pli et on prépare la suite
+     * On retourne également le nombre de points réalisés par le preneur
+     * retourne true si la partie est terminée, sinon false
+     *
+     * @param points
+     * @return
+     */
+    bool EndOfTrick(float &points);
+
 
 };
 

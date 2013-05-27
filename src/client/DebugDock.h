@@ -49,12 +49,15 @@ private:
     static DebugDock *instance;
 
 public:
-    DebugDock( QWidget *parent );
+    DebugDock(QWidget *parent);
 
-    static DebugDock *getInstance() { return instance; }
+    static DebugDock *getInstance()
+    {
+        return instance;
+    }
 
 protected:
-    void closeEvent( QCloseEvent * e );
+    void closeEvent(QCloseEvent *e);
 
 public:
     void message(const QString &message);

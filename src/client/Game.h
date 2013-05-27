@@ -46,64 +46,64 @@
  */
 class Game : public MainWindow
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   TarotEngine server;
-   ClientConfig  clientConfig;
-   ServerConfig  serverConfig;
-   Client      client; // The human player
-   Sequence    sequence;
-   bool        firstTurn;
-   int         turnCounter;
-   QList<Identity> players;
-   GameType    gameType;
+    TarotEngine server;         // built-in server, to run local games or to host network games
+    ClientConfig  clientConfig;
+    ServerConfig  serverConfig;
+    Client      client; // The human player
+    Sequence    sequence;
+    bool        firstTurn;
+    int         turnCounter;
+    QList<Identity> players;
+    GameType    gameType;
 
-   Card *getCardFromPix( GfxCard *gc );
+    Card *getCardFromPix(GfxCard *gc);
 
 public:
-   Game();
-   ~Game();
+    Game();
+    ~Game();
 
-   void applyOptions();
-   int setTheme();
-   void afficheCartesJoueur( int pos );
-   void hidePli();
-   void hideChien();
-   void newLocalGame();
-   void showVictoryWindow();
+    void applyOptions();
+    int setTheme();
+    void afficheCartesJoueur(int pos);
+    void hidePli();
+    void hideChien();
+    void newLocalGame();
+    void showVictoryWindow();
 
 public slots:
 
-   // Menus
-   void slotNewTournamentGame();
-   void slotNewNumberedDeal();
-   void slotNewCustomDeal();
-   void slotNewQuickGame();
-   void slotJoinNetworkGame();
-   void slotShowOptions();
-   void slotQuitTarotClub();
+    // Menus
+    void slotNewTournamentGame();
+    void slotNewNumberedDeal();
+    void slotNewCustomDeal();
+    void slotNewQuickGame();
+    void slotJoinNetworkGame();
+    void slotShowOptions();
+    void slotQuitTarotClub();
 
-   // client events
-   void slotListeDesJoueurs(QList<Identity> pl);
-   void slotReceptionCartes();
-   void slotAfficheSelection(Place p);
-   void slotAfficheChien();
-   void slotRedist();
-   void slotPrepareChien();
-   void slotDepartDonne(Place p,Contrat c);
-   void slotJoueCarte();
-   void slotAfficheCarte(int id, Place tour);
-   void slotFinDonne(Place winner, float pointsTaker, bool);
-   void slotWaitPli(Place winner, float pointsTaker);
-   void slotSetEnchere( Contrat cont );
+    // client events
+    void slotListeDesJoueurs(QList<Identity> pl);
+    void slotReceptionCartes();
+    void slotAfficheSelection(Place p);
+    void slotAfficheChien();
+    void slotRedist();
+    void slotPrepareChien();
+    void slotDepartDonne(Place p, Contrat c);
+    void slotJoueCarte();
+    void slotAfficheCarte(int id, Place tour);
+    void slotFinDonne(Place winner, float pointsTaker, bool);
+    void slotWaitPli(Place winner, float pointsTaker);
+    void slotSetEnchere(Contrat cont);
 
-   // événements du tapis
-   void slotPresenterPoignee();
-   void slotAccepteChien();
-   void slotClickCard(GfxCard *c);
-   void slotClickTapis();
-   void slotMoveCursor( GfxCard *c );
+    // événements du tapis
+    void slotPresenterPoignee();
+    void slotAccepteChien();
+    void slotClickCard(GfxCard *c);
+    void slotClickTapis();
+    void slotMoveCursor(GfxCard *c);
 
 };
 

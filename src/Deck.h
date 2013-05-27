@@ -33,37 +33,38 @@
 #include "Card.h"
 #include "defines.h"
 
+/*****************************************************************************/
 class DeckStats
 {
 
 public:
-   DeckStats() {}
+    DeckStats() {}
 
-   int   nbCards;
+    int   nbCards;
 
-   int   atouts;  // nombres d'atouts , en comptant les bouts et l'excuse
-   int   bouts;   // 0, 1, 2 ou 3
-   int   atoutsMajeurs; // atouts >= 15
+    int   atouts;  // nombres d'atouts , en comptant les bouts et l'excuse
+    int   bouts;   // 0, 1, 2 ou 3
+    int   atoutsMajeurs; // atouts >= 15
 
-   int   rois;
-   int   dames;
-   int   cavaliers;
-   int   valets;
+    int   rois;
+    int   dames;
+    int   cavaliers;
+    int   valets;
 
-   int   mariages;   // nombre de mariages dans la main
-   int   longues;
-   int   coupes;     // aucune carte dans une couleur
-   int   singletons; // une seule carte dans une couleur
-   int   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+    int   mariages;   // nombre de mariages dans la main
+    int   longues;
+    int   coupes;     // aucune carte dans une couleur
+    int   singletons; // une seule carte dans une couleur
+    int   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
 
-   int   trefles;
-   int   pics;
-   int   coeurs;
-   int   carreaux;
+    int   trefles;
+    int   pics;
+    int   coeurs;
+    int   carreaux;
 
-   bool  petit;
-   bool  vingtEtUn;
-   bool  excuse;
+    bool  petit;
+    bool  vingtEtUn;
+    bool  excuse;
 };
 
 /*****************************************************************************/
@@ -71,15 +72,15 @@ class Deck : public QList<Card *>
 {
 
 public:
-   // Constructeurs et destructeur
-   Deck();
+    Deck();
 
-   void shuffle(int seed);
-   Card *getCardById( int );             // Renvoi un pointeur vers une carte
-   void sort();
-   static bool lessThanCards(Card *carte1, Card *carte2 );
+    void Shuffle(int seed);
+    Card *GetCardById(int);               // Renvoi un pointeur vers une carte
+    void Sort();
+    QString GetCardList();
 
-   QString GetCardList();
+private:
+    static bool LessThanCards(Card *carte1, Card *carte2);
 };
 
 #endif // _DECK_H

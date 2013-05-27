@@ -46,44 +46,45 @@ Game::Game() : MainWindow()
     serverConfig.load();
 
     Jeu::init();
-    if( tapis->loadCards(clientConfig.getOptions()) == false ) {
+    if (tapis->loadCards(clientConfig.getOptions()) == false)
+    {
         qFatal("Cannot load SVG images, exiting...");
     }
     applyOptions();
 
     // Board clic events
-    connect( tapis, SIGNAL(sgnlViewportClicked()), this, SLOT(slotClickTapis()) );
-    connect( tapis, SIGNAL(sgnlClickCard(GfxCard *)), this, SLOT(slotClickCard(GfxCard *)) );
-    connect( tapis, SIGNAL(sgnlMoveCursor(GfxCard *)), this, SLOT(slotMoveCursor(GfxCard *)) );
-    connect( tapis, SIGNAL(sgnlContrat(Contrat)), this, SLOT(slotSetEnchere(Contrat)) );
-    connect( tapis, SIGNAL(sgnlAccepteChien()), this, SLOT(slotAccepteChien()) );
-    connect( tapis, SIGNAL(sgnlPresenterPoignee()), this, SLOT(slotPresenterPoignee()) );
+    connect(tapis, SIGNAL(sgnlViewportClicked()), this, SLOT(slotClickTapis()));
+    connect(tapis, SIGNAL(sgnlClickCard(GfxCard *)), this, SLOT(slotClickCard(GfxCard *)));
+    connect(tapis, SIGNAL(sgnlMoveCursor(GfxCard *)), this, SLOT(slotMoveCursor(GfxCard *)));
+    connect(tapis, SIGNAL(sgnlContrat(Contrat)), this, SLOT(slotSetEnchere(Contrat)));
+    connect(tapis, SIGNAL(sgnlAccepteChien()), this, SLOT(slotAccepteChien()));
+    connect(tapis, SIGNAL(sgnlPresenterPoignee()), this, SLOT(slotPresenterPoignee()));
 
     /*
-   // Network window (client)
-   connect( clientWindow, SIGNAL(sgnlExit()), this, SLOT(slotClientWndExit()));
-   connect( clientWindow, SIGNAL(sgnlSendMessage(const QString &)), this, SLOT(slotClientMessage(const QString &)));
-   connect( clientWindow, SIGNAL(sgnlConnection(const QString &)), this, SLOT(slotClientConnexion(const QString &)));
-   connect( clientWindow, SIGNAL(sgnlDeconnection()), this, SLOT(slotClientDeconnexion()));
-*/
+    // Network window (client)
+    connect( clientWindow, SIGNAL(sgnlExit()), this, SLOT(slotClientWndExit()));
+    connect( clientWindow, SIGNAL(sgnlSendMessage(const QString &)), this, SLOT(slotClientMessage(const QString &)));
+    connect( clientWindow, SIGNAL(sgnlConnection(const QString &)), this, SLOT(slotClientConnexion(const QString &)));
+    connect( clientWindow, SIGNAL(sgnlDeconnection()), this, SLOT(slotClientDeconnexion()));
+    */
     // Network window (server)
-    connect( &server, SIGNAL(sigPrintMessage(const QString &)), serverUI.textBrowser, SLOT(append(const QString &)) );
+    connect(&server, SIGNAL(sigPrintMessage(const QString &)), serverUI.textBrowser, SLOT(append(const QString &)));
 
     // Client events connection
-    connect( &client, SIGNAL(sgnlMessage(const QString &)), chatDock, SLOT(message(const QString &)));
-    connect( &client, SIGNAL(sgnlListeDesJoueurs(QList<Identity>)), this, SLOT(slotListeDesJoueurs(QList<Identity>)));
-    connect( &client, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
-    connect( &client, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
-    connect( &client, SIGNAL(sgnlChoixEnchere(Contrat)), tapis, SLOT(slotAfficheBoutons(Contrat)));
-    connect( &client, SIGNAL(sgnlAfficheEnchere(Place,Contrat)), tapis, SLOT(slotAfficheEnchere(Place,Contrat)));
-    connect( &client, SIGNAL(sgnlAfficheChien()), this, SLOT(slotAfficheChien()));
-    connect( &client, SIGNAL(sgnlRedist()), this, SLOT(slotRedist()));
-    connect( &client, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
-    connect( &client, SIGNAL(sgnlDepartDonne(Place,Contrat)), this, SLOT(slotDepartDonne(Place,Contrat)));
-    connect( &client, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
-    connect( &client, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
-    connect( &client, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
-    connect( &client, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
+    connect(&client, SIGNAL(sgnlMessage(const QString &)), chatDock, SLOT(message(const QString &)));
+    connect(&client, SIGNAL(sgnlListeDesJoueurs(QList<Identity>)), this, SLOT(slotListeDesJoueurs(QList<Identity>)));
+    connect(&client, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
+    connect(&client, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
+    connect(&client, SIGNAL(sgnlChoixEnchere(Contrat)), tapis, SLOT(slotAfficheBoutons(Contrat)));
+    connect(&client, SIGNAL(sgnlAfficheEnchere(Place, Contrat)), tapis, SLOT(slotAfficheEnchere(Place, Contrat)));
+    connect(&client, SIGNAL(sgnlAfficheChien()), this, SLOT(slotAfficheChien()));
+    connect(&client, SIGNAL(sgnlRedist()), this, SLOT(slotRedist()));
+    connect(&client, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
+    connect(&client, SIGNAL(sgnlDepartDonne(Place, Contrat)), this, SLOT(slotDepartDonne(Place, Contrat)));
+    connect(&client, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
+    connect(&client, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
+    connect(&client, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
+    connect(&client, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
 
     // Game Menu
     connect(newQuickGameAct, SIGNAL(triggered()), this, SLOT(slotNewQuickGame()));
@@ -134,7 +135,7 @@ void Game::slotNewNumberedDeal()
     Ui::NumberedDeal ui;
     ui.setupUi(widget);
 
-    if( widget->exec() == QDialog::Accepted )
+    if (widget->exec() == QDialog::Accepted)
     {
         gameType = LOC_ONEDEAL;
         server.setGameType(LOC_ONEDEAL);
@@ -148,7 +149,7 @@ void Game::slotNewCustomDeal()
 {
     QString fileName = QFileDialog::getOpenFileName(this);
 
-    if(fileName.size() != 0)
+    if (fileName.size() != 0)
     {
         gameType = LOC_ONEDEAL;
         server.setGameType(LOC_ONEDEAL);
@@ -180,7 +181,7 @@ void Game::newLocalGame()
     server.newServerGame();
     // connect first, to be south
     client.close();
-    client.connectToHost( "127.0.0.1", DEFAULT_PORT );
+    client.connectToHost("127.0.0.1", DEFAULT_PORT);
     // connect bots
     server.connectBots();
 }
@@ -197,9 +198,9 @@ void Game::applyOptions()
     scoresDock->setPlayers(players);
 
     server.setOptions(*serverConfig.getOptions());
-    client.setIdentity( options->identity );
+    client.setIdentity(options->identity);
 
-    tapis->showAvatars( options->showAvatars );
+    tapis->showAvatars(options->showAvatars);
     tapis->setBackground(options->backgroundColor);
 }
 /*****************************************************************************/
@@ -208,10 +209,10 @@ void Game::slotShowOptions()
     optionsWindow->setClientOptions(clientConfig.getOptions());
     optionsWindow->setServerOptions(serverConfig.getOptions());
 
-    if( optionsWindow->exec() == QDialog::Accepted )
+    if (optionsWindow->exec() == QDialog::Accepted)
     {
-        clientConfig.setOptions( optionsWindow->getClientOptions() );
-        serverConfig.setOptions( optionsWindow->getServerOptions() );
+        clientConfig.setOptions(optionsWindow->getClientOptions());
+        serverConfig.setOptions(optionsWindow->getServerOptions());
 
         clientConfig.save();
         serverConfig.save();
@@ -222,14 +223,14 @@ void Game::slotShowOptions()
 /*****************************************************************************/
 void Game::slotClickTapis()
 {
-    if( sequence == MONTRE_CHIEN )
+    if (sequence == MONTRE_CHIEN)
     {
         statusBar()->clearMessage();
         hideChien();
         sequence = VIDE;
         client.sendVuChien();
     }
-    else if( sequence == SEQ_WAIT_PLI )
+    else if (sequence == SEQ_WAIT_PLI)
     {
         hidePli();
         statusBar()->clearMessage();
@@ -243,61 +244,64 @@ void Game::hidePli()
     int i;
     Card *c;
     GfxCard *gc;
-    GameInfos *inf = client.getGameInfos();
+    GameState &info = client.GetGameState();
 
-    for( i = inf->gameCounter-NB_PLAYERS; i<inf->gameCounter; i++ )
+    for (i = info.FirstCard(); i < client.GetMainDeckSize(); i++)
     {
-        c = client.getCardMainDeck(i);
+        c = client.GetMainDeckCard(i);
         gc = tapis->getGfxCard(c->getId());
         gc->hide();
     }
 }
 /*****************************************************************************/
 /**
- * Cette fonction est appelÃ©e Ã  chaque fois que l'utilisateur dÃ©place son
- * curseur au dessus d'une carte
+ * @brief Game::slotMoveCursor
+ *
+ * This function is called every time the mouse cursor moves
+ *
+ * @param gc
  */
-void Game::slotMoveCursor( GfxCard *gc )
+void Game::slotMoveCursor(GfxCard *gc)
 {
     Card *c = tapis->getObjectCard(gc);
 
-    if( client.cardExists( c ) == false )
+    if (client.cardExists(c) == false)
     {
         return;
     }
 
-    if( sequence == CHIEN )
+    if (sequence == CHIEN)
     {
-        if( c->getType() == ATOUT || c->getType() == EXCUSE ||
-                (c->getType() == CARTE && c->getValue()==14 ))
+        if (c->getType() == ATOUT || c->getType() == EXCUSE ||
+                (c->getType() == CARTE && c->getValue() == 14))
         {
-            tapis->setCursorType( FORBIDDEN );
+            tapis->setCursorType(FORBIDDEN);
         }
         else
         {
-            tapis->setCursorType( ARROW );
+            tapis->setCursorType(ARROW);
         }
     }
-    else if( sequence == BUILD_POIGNEE )
+    else if (sequence == BUILD_POIGNEE)
     {
-        if(c->getType() == ATOUT || c->getType() == EXCUSE)
+        if (c->getType() == ATOUT || c->getType() == EXCUSE)
         {
-            tapis->setCursorType( ARROW );
+            tapis->setCursorType(ARROW);
         }
         else
         {
-            tapis->setCursorType( FORBIDDEN );
+            tapis->setCursorType(FORBIDDEN);
         }
     }
-    else if( sequence == GAME )
+    else if (sequence == GAME)
     {
-        if( client.isValid( c ) == true )
+        if (client.isValid(c) == true)
         {
-            tapis->setCursorType( ARROW );
+            tapis->setCursorType(ARROW);
         }
         else
         {
-            tapis->setCursorType( FORBIDDEN );
+            tapis->setCursorType(FORBIDDEN);
         }
     }
 }
@@ -306,70 +310,70 @@ void Game::slotClickCard(GfxCard *gc)
 {
     Card *c = tapis->getObjectCard(gc);
 
-    if( client.cardExists( c ) == false )
+    if (client.cardExists(c) == false)
     {
         return;
     }
 
-    if( sequence == GAME )
+    if (sequence == GAME)
     {
-        if( client.isValid( c ) == false )
+        if (client.isValid(c) == false)
         {
             return;
         }
-        tapis->setFilter( AUCUN );
+        tapis->setFilter(AUCUN);
         statusBar()->clearMessage();
         client.removeCard(c);
         afficheCartesJoueur(0);
         client.sendCard(c);
 
     }
-    else if( sequence == CHIEN )
+    else if (sequence == CHIEN)
     {
 
-        if( c->getType() == ATOUT || c->getType() == EXCUSE ||
-                (c->getType() == CARTE && c->getValue()==14 ))
+        if (c->getType() == ATOUT || c->getType() == EXCUSE ||
+                (c->getType() == CARTE && c->getValue() == 14))
         {
             return;
         }
 
         // select one card
-        if( gc->getStatus() == CARD_NORMAL )
+        if (gc->getStatus() == CARD_NORMAL)
         {
-            if( client.getTailleChien() == 6 )
+            if (client.getTailleChien() == 6)
             {
                 return;
             }
             client.addCardChien(c);
-            if( client.getTailleChien() == 6 )
+            if (client.getTailleChien() == 6)
             {
                 tapis->setAccepterChienVisible(true);
             }
         }
         // Un-select card
-        else if( gc->getStatus() == CARD_SELECTED )
+        else if (gc->getStatus() == CARD_SELECTED)
         {
-            if( client.getTailleChien() == 0 )
+            if (client.getTailleChien() == 0)
             {
                 return;
             }
-            client.removeCardChien( c );
+            client.removeCardChien(c);
             tapis->setAccepterChienVisible(false);
         }
         gc->toggleStatus();
     }
-    else if( sequence == BUILD_POIGNEE )
+    else if (sequence == BUILD_POIGNEE)
     {
-        if(c->getType() == ATOUT || c->getType() == EXCUSE)
+        if (c->getType() == ATOUT || c->getType() == EXCUSE)
         {
             // select one card
-            if( gc->getStatus() == CARD_NORMAL )
+            if (gc->getStatus() == CARD_NORMAL)
             {
                 client.addCardPoignee(c);
-                if( client.getTaillePoignee() == 10 ||
+                if (client.getTaillePoignee() == 10 ||
                         client.getTaillePoignee() == 13 ||
                         client.getTaillePoignee() == 15
-                        )
+                   )
                 {
                     tapis->setBoutonPoigneeVisible(true);
                 }
@@ -379,13 +383,13 @@ void Game::slotClickCard(GfxCard *gc)
                 }
             }
             // Un-select card
-            else if( gc->getStatus() == CARD_SELECTED )
+            else if (gc->getStatus() == CARD_SELECTED)
             {
                 client.removeCardPoignee(c);
-                if( client.getTaillePoignee() == 10 ||
+                if (client.getTaillePoignee() == 10 ||
                         client.getTaillePoignee() == 13 ||
                         client.getTaillePoignee() == 15
-                        )
+                   )
                 {
                     tapis->setBoutonPoigneeVisible(true);
                 }
@@ -424,7 +428,7 @@ void Game::slotAccepteChien()
     GfxCard *gc;
     int i;
 
-    for( i=0; i<client.getTailleChien(); i++)
+    for (i = 0; i < client.getTailleChien(); i++)
     {
         c = client.getCardChien(i);
         client.removeCard(c);
@@ -433,30 +437,30 @@ void Game::slotAccepteChien()
     }
     tapis->setAccepterChienVisible(false);
     sequence = VIDE;
-    tapis->setFilter( AUCUN );
+    tapis->setFilter(AUCUN);
     afficheCartesJoueur(0);
     client.sendChien();
 }
 /*****************************************************************************/
 void Game::slotPresenterPoignee()
 {
-    if(client.testPoignee() == false)
+    if (client.testPoignee() == false)
     {
         QMessageBox::information(this, trUtf8("Information"),
                                  trUtf8("Votre poignÃ©e n'est pas valide.\n"
-                                        "L'excuse dans le chien signifie que vous ne possÃ©dez pas d'autres atouts.") );
+                                        "L'excuse dans le chien signifie que vous ne possÃ©dez pas d'autres atouts."));
         return;
     }
     tapis->setBoutonPoigneeVisible(false);
     client.sendPoignee();
     afficheCartesJoueur(0);
     sequence = GAME;
-    statusBar()->showMessage(trUtf8("Ã votre tour de jouer une carte.") );
+    statusBar()->showMessage(trUtf8("Ã votre tour de jouer une carte."));
 }
 /*****************************************************************************/
-void Game::slotSetEnchere( Contrat cont )
+void Game::slotSetEnchere(Contrat cont)
 {
-    client.sendEnchere( cont );
+    client.sendEnchere(cont);
     tapis->cacheBoutons();
 }
 /*****************************************************************************/
@@ -467,7 +471,7 @@ void Game::slotSetEnchere( Contrat cont )
  *
  * @param pos = 0 for 18-cards in the hand, otherwise 1 (with cards from the chien)
  */
-void Game::afficheCartesJoueur( int pos )
+void Game::afficheCartesJoueur(int pos)
 {
     qreal i, x, y, pas;
     Card *c;
@@ -475,7 +479,7 @@ void Game::afficheCartesJoueur( int pos )
 
     client.tidyDeck();
 
-    if( pos == 1 )
+    if (pos == 1)
     {
         x = 20.0;
         pas = 35.0;
@@ -487,12 +491,12 @@ void Game::afficheCartesJoueur( int pos )
     }
     y = SOUTH_CARDS_POS;
 
-    for( i=0; i<client.getCardNumber(); i++ )
+    for (i = 0; i < client.getCardNumber(); i++)
     {
         c = client.getCard(i);
         cgfx = tapis->getGfxCard(c->getId());
         cgfx->setPos(x, y);
-        cgfx->setZValue( i );
+        cgfx->setZValue(i);
         cgfx->show();
         x = x + pas;
     }
@@ -508,7 +512,7 @@ void Game::slotAfficheChien()
     x = 260;
     y = 160;
 
-    for( i=0; i<n; i++ )
+    for (i = 0; i < n; i++)
     {
         c = client.getCardChien(i);
         cgfx = tapis->getGfxCard(c->getId());
@@ -518,7 +522,7 @@ void Game::slotAfficheChien()
         x = x + 40;
     }
     sequence = MONTRE_CHIEN;
-    statusBar()->showMessage(trUtf8("Cliquez sur le tapis une fois que vous avez vu le Chien.") );
+    statusBar()->showMessage(trUtf8("Cliquez sur le tapis une fois que vous avez vu le Chien."));
 }
 /*****************************************************************************/
 void Game::hideChien()
@@ -527,7 +531,7 @@ void Game::hideChien()
     Card *c;
     GfxCard *cgfx;
 
-    for( i=0; i<client.getTailleChien(); i++ )
+    for (i = 0; i < client.getTailleChien(); i++)
     {
         c = client.getCardChien(i);
         cgfx = tapis->getGfxCard(c->getId());
@@ -544,7 +548,7 @@ void Game::slotRedist()
 
     QMessageBox::information(this, trUtf8("Information"),
                              trUtf8("Tous les joueurs ont passé.\n"
-                                    "Nouvelle distribution des cartes.") );
+                                    "Nouvelle distribution des cartes."));
     client.sendReady();
 }
 /*****************************************************************************/
@@ -553,17 +557,17 @@ void Game::slotPrepareChien()
     Card *c;
 
     // On ajoute le chien au deck du joueur
-    for( int i=0; i<client.getTailleChien(); i++ )
+    for (int i = 0; i < client.getTailleChien(); i++)
     {
-        c = client.getCardChien( i );
-        client.addCard( c );
+        c = client.getCardChien(i);
+        client.addCard(c);
     }
     client.emptyChien();
     sequence = CHIEN;
-    tapis->setFilter( JEU );
+    tapis->setFilter(JEU);
     // on affiche le deck du joueur + le contenu du chien
     afficheCartesJoueur(1);
-    statusBar()->showMessage(trUtf8("Sélectionnez des cartes pour construire votre chien.") );
+    statusBar()->showMessage(trUtf8("Sélectionnez des cartes pour construire votre chien."));
 }
 /*****************************************************************************/
 void Game::slotDepartDonne(Place p, Contrat c)
@@ -575,31 +579,31 @@ void Game::slotDepartDonne(Place p, Contrat c)
 
     QString name;
 
-    for (int i=0; i<players.size(); i++)
+    for (int i = 0; i < players.size(); i++)
     {
         if (p == players[i].place)
         {
-            name = players[i].name;
+            name = players[p].name;
         }
     }
     infosDock->setPreneur(name);
     infosDock->setDonne(server.getDealNumber());
     sequence = GAME;
-    tapis->setFilter( AUCUN );
+    tapis->setFilter(AUCUN);
     tapis->razTapis(true);
     tapis->colorisePreneur(p);
 }
 /*****************************************************************************/
 void Game::slotJoueCarte()
 {
-    tapis->setFilter( JEU );
+    tapis->setFilter(JEU);
 
     // If we're about to play the first card the Player can declare a Poignée
     if (firstTurn == true)
     {
         firstTurn = false;
         // TODO: test if a Poignée exists in the player's deck
-        if(client.getStats()->atouts >=10 )
+        if (client.getStats()->atouts >= 10)
         {
             int ret = QMessageBox::question(this, trUtf8("Poignée"),
                                             trUtf8("Vous possédez une poignée.\n"
@@ -609,13 +613,13 @@ void Game::slotJoueCarte()
             {
                 sequence = BUILD_POIGNEE;
                 client.emptyPoignee();
-                statusBar()->showMessage(trUtf8("Constituez votre poignée.") );
+                statusBar()->showMessage(trUtf8("Constituez votre poignée."));
             }
         }
     }
     else
     {
-        statusBar()->showMessage(trUtf8("Ã votre tour de jouer une carte.") );
+        statusBar()->showMessage(trUtf8("Jouez une carte."));
     }
 }
 /*****************************************************************************/
@@ -628,39 +632,39 @@ void Game::slotAfficheCarte(int id, Place tour)
 /*****************************************************************************/
 void Game::showVictoryWindow()
 {
-    Score *score;
+
     /*
-   QGraphicsTextItem *txt;
+    QGraphicsTextItem *txt;
 
-   QDialog *widget = new QDialog;
-   Ui::WinUI ui;
-   ui.setupUi(widget);
+    QDialog *widget = new QDialog;
+    Ui::WinUI ui;
+    ui.setupUi(widget);
 
-   QGraphicsScene *scene = new QGraphicsScene();
-   QGraphicsSvgItem *victory = new QGraphicsSvgItem(":images/podium.svg");
+    QGraphicsScene *scene = new QGraphicsScene();
+    QGraphicsSvgItem *victory = new QGraphicsSvgItem(":images/podium.svg");
 
-   ui.tournamentGraph->setScene(scene);
-   scene->addItem(victory);
-   ui.tournamentGraph->centerOn(victory);
-*/
-    score = client.getScore();
-    QList<Place> podium = score->getPodium();
+    ui.tournamentGraph->setScene(scene);
+    scene->addItem(victory);
+    ui.tournamentGraph->centerOn(victory);
+    */
+    Score &score = client.GetScore();
+    QList<Place> podium = score.getPodium();
 
     QMessageBox::information(this, trUtf8("Résultat du tournoi"),
                              trUtf8("Le gagnant du tournoi est ") + players[podium[0]].name,
-            QMessageBox::Ok);
+                             QMessageBox::Ok);
 
     /*
-   // add the three best players to the image
-   txt = scene->addText(players[podium[0]].name);
-   txt->setPos(20+150, 450);
-   txt = scene->addText(players[podium[1]].name);
-   txt->setPos(20, 450);
-   txt = scene->addText(players[podium[2]].name);
-   txt->setPos(20+300, 450);
+    // add the three best players to the image
+    txt = scene->addText(players[podium[0]].name);
+    txt->setPos(20+150, 450);
+    txt = scene->addText(players[podium[1]].name);
+    txt->setPos(20, 450);
+    txt = scene->addText(players[podium[2]].name);
+    txt->setPos(20+300, 450);
 
-   widget->exec();
-*/
+    widget->exec();
+    */
 }
 /*****************************************************************************/
 void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
@@ -668,20 +672,23 @@ void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
     roundDock->selectWinner(turnCounter, winner);
     roundDock->pointsToTaker(turnCounter, pointsTaker);
 
-    statusBar()->showMessage(trUtf8("Fin de la donne.") );
+    statusBar()->showMessage(trUtf8("Fin de la donne."));
     sequence = VIDE;
-    tapis->setFilter( AUCUN );
+    tapis->setFilter(AUCUN);
     tapis->razTapis();
     tapis->resetCards();
 
-    resultWindow->setCalcul( client.getScore()->getScoreInfos(), client.getGameInfos() );
+    resultWindow->SetResult(client.GetScore().GetScoreInfo(), client.GetGameState());
     resultWindow->exec();
 
-    scoresDock->setNewScore(client.getScore());
+    scoresDock->SetNewScore(client.GetScore());
 
-    if(lastDeal == true && gameType == LOC_TOURNAMENT ) {
+    if (lastDeal == true && gameType == LOC_TOURNAMENT)
+    {
         showVictoryWindow();
-    } else {
+    }
+    else
+    {
         client.sendReady();
     }
 }
@@ -701,8 +708,8 @@ void Game::slotWaitPli(Place winner, float pointsTaker)
     roundDock->pointsToTaker(turnCounter, pointsTaker);
     turnCounter++;
     sequence = SEQ_WAIT_PLI;
-    tapis->setFilter( AUCUN );
-    statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer.") );
+    tapis->setFilter(AUCUN);
+    statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer."));
 
     // launch timer to clean cards, if needed
     if (clientConfig.getOptions()->enableDelayBeforeCleaning == true)

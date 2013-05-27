@@ -53,18 +53,18 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     {
         switch (type)
         {
-        case QtDebugMsg:
-            output->message(msg);
-            break;
-        case QtWarningMsg:
-            output->message(msg + infos);
-            break;
-        case QtCriticalMsg:
-            output->message(msg + infos);
-            break;
-        case QtFatalMsg:
-            output->message(msg + infos);
-            abort();
+            case QtDebugMsg:
+                output->message(msg);
+                break;
+            case QtWarningMsg:
+                output->message(msg + infos);
+                break;
+            case QtCriticalMsg:
+                output->message(msg + infos);
+                break;
+            case QtFatalMsg:
+                output->message(msg + infos);
+                abort();
         }
     }
     else
@@ -77,15 +77,15 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 /**
  * Entry point of the game
  */
-int main( int argc, char** argv )
+int main(int argc, char **argv)
 {
 #ifndef QT_NO_DEBUG
     qInstallMessageHandler(myMessageOutput);
 #endif
 
-    QApplication app( argc, argv );
+    QApplication app(argc, argv);
 
-    QPixmap pixmap( ":/images/splash.png" );
+    QPixmap pixmap(":/images/splash.png");
     QSplashScreen splash(pixmap);
     splash.show();
 
@@ -99,7 +99,7 @@ int main( int argc, char** argv )
 
     splash.finish(&window);
 
-   return app.exec();
+    return app.exec();
 }
 
 //=============================================================================

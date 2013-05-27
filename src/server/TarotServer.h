@@ -33,23 +33,23 @@
  */
 class TarotServer : public QTcpServer
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   Lobby lobby;
-   ServerConfig config;
+    Lobby lobby;
+    ServerConfig config;
 
 public:
-   TarotServer();
+    TarotServer();
 
-   void start();
+    void start();
 
 protected:
-   void incomingConnection(int socket);
+    void incomingConnection(int socket);
 
 public slots:
-   void readClient();
-   void discardClient();
+    void readClient();
+    void discardClient();
 
 };
 

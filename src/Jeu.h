@@ -31,11 +31,11 @@
 /*****************************************************************************/
 class Jeu
 {
-   static Card cards[78];
+    static Card cards[78];
 public:
-   Jeu();
-   static void init();
-   static Card *getCard(int id);
+    Jeu();
+    static void init();
+    static Card *getCard(int id);
 };
 
 #endif // _JEU_H

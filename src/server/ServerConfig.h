@@ -42,10 +42,12 @@
 #define TIMER1_DEF      500
 #define DEFAULT_PORT    4269
 
-typedef struct {
-   int      timer;  // between players, in milliseconds
-   int      port;   // TCP/IP port
-   Identity bots[3];
+/*****************************************************************************/
+typedef struct
+{
+    int      timer;  // between players, in milliseconds
+    int      port;   // TCP/IP port
+    Identity bots[3];
 } ServerOptions;
 
 /*****************************************************************************/
@@ -53,18 +55,18 @@ class ServerConfig
 {
 
 private:
-   ServerOptions options;
+    ServerOptions options;
 
 public:
-   ServerConfig();
+    ServerConfig();
 
-   bool     load();
-   bool     save();
+    bool     load();
+    bool     save();
 
-   ServerOptions *getOptions();
+    ServerOptions *getOptions();
 
-   void        setOptions( ServerOptions *newOptions );
-   static void setDefault( ServerOptions *opt );
+    void        setOptions(ServerOptions *newOptions);
+    static void setDefault(ServerOptions *opt);
 };
 
 #endif // _CONFIGFILE_H

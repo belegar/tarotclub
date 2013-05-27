@@ -32,7 +32,7 @@
 /*****************************************************************************/
 ClientConfig::ClientConfig()
 {
-    setDefault( &options );
+    setDefault(&options);
 }
 /*****************************************************************************/
 ClientOptions *ClientConfig::getOptions()
@@ -40,7 +40,7 @@ ClientOptions *ClientConfig::getOptions()
     return(&options);
 }
 /*****************************************************************************/
-void ClientConfig::setOptions( ClientOptions *newOptions )
+void ClientConfig::setOptions(ClientOptions *newOptions)
 {
     options = *newOptions;
 }
@@ -48,12 +48,12 @@ void ClientConfig::setOptions( ClientOptions *newOptions )
 bool ClientConfig::load()
 {
     QDomDocument doc;
-    QFile f( Config::path + CLIENT_CONFIG_FILE );
+    QFile f(Config::path + CLIENT_CONFIG_FILE);
     QString txt;
     int val;
 
     // Fichier non trouvé, on en crée un par défaut et on sort
-    if( f.open(QIODevice::ReadOnly) == false )
+    if (f.open(QIODevice::ReadOnly) == false)
     {
         return save();
     }
@@ -61,25 +61,26 @@ bool ClientConfig::load()
     f.close();
 
     // On teste le tag racine "TarotClub"
-    QDomElement root=doc.documentElement();
-    if(root.tagName() != "tarotclub")
+    QDomElement root = doc.documentElement();
+    if (root.tagName() != "tarotclub")
     {
         return (false);
     }
 
-    if(root.attribute("version","0") != QString(CLIENT_XML_VERSION))
+    if (root.attribute("version", "0") != QString(CLIENT_XML_VERSION))
     {
         return (false);
     }
 
     // On parse les données
-    QDomElement child=root.firstChild().toElement();
-    while(!child.isNull()) {
+    QDomElement child = root.firstChild().toElement();
+    while (!child.isNull())
+    {
 
-        if(child.tagName() == "show_avatars")
+        if (child.tagName() == "show_avatars")
         {
             val = child.text().toInt();
-            if( val == 1 )
+            if (val == 1)
             {
                 options.showAvatars = true;
             }
@@ -88,19 +89,21 @@ bool ClientConfig::load()
                 options.showAvatars = false;
             }
 
-        } else if(child.tagName() == "background_color")
+        }
+        else if (child.tagName() == "background_color")
         {
             options.backgroundColor = child.text();
         }
-        else if(child.tagName() == "language")
+        else if (child.tagName() == "language")
         {
             options.language = child.text().toInt();
-            if( options.language >= NB_LANGUES )
+            if (options.language >= MAX_LANGUAGES)
             {
                 options.language = 0;
             }
 
-        } else if(child.tagName() == "delay_before_cleaning")
+        }
+        else if (child.tagName() == "delay_before_cleaning")
         {
             options.delayBeforeCleaning = child.text().toInt();
             if (options.delayBeforeCleaning > 5000)
@@ -109,10 +112,10 @@ bool ClientConfig::load()
             }
 
         }
-        else if(child.tagName() == "click_to_clean")
+        else if (child.tagName() == "click_to_clean")
         {
             val = child.text().toInt();
-            if( val == 1 )
+            if (val == 1)
             {
                 options.enableDelayBeforeCleaning = true;
             }
@@ -121,24 +124,33 @@ bool ClientConfig::load()
                 options.enableDelayBeforeCleaning = false;
             }
         }
-        else if(child.tagName() == "identity")
+        else if (child.tagName() == "identity")
         {
             QDomElement lastchild = child.firstChild().toElement();
-            while(!lastchild.isNull()) {
-                if(lastchild.tagName() == "name") {
+            while (!lastchild.isNull())
+            {
+                if (lastchild.tagName() == "name")
+                {
                     txt = lastchild.text();
-                    if( txt.isEmpty() ) {
+                    if (txt.isEmpty())
+                    {
                         txt = "Unknown";
                     }
                     options.identity.name = txt;
 
-                } else if(lastchild.tagName() == "quote") {
+                }
+                else if (lastchild.tagName() == "quote")
+                {
                     options.identity.quote = lastchild.text();
 
-                } else if(lastchild.tagName() == "sex") {
+                }
+                else if (lastchild.tagName() == "sex")
+                {
                     options.identity.sex = (SexType)lastchild.text().toInt();
 
-                } else if(lastchild.tagName() == "avatar") {
+                }
+                else if (lastchild.tagName() == "avatar")
+                {
                     options.identity.avatar = lastchild.text();
                 }
                 lastchild = lastchild.nextSibling().toElement();
@@ -160,10 +172,10 @@ bool ClientConfig::save()
     QDomElement sexNode;
     QDomElement quoteNode;
 
-    doc.appendChild( doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" ) );
+    doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
     doc.appendChild(doc.createTextNode("\n"));
 
-    doc.appendChild(doc.createComment( QString("Generated by ")+QString("TarotClub ")+QString(TAROT_VERSION) ) );
+    doc.appendChild(doc.createComment(QString("Generated by ") + QString("TarotClub ") + QString(TAROT_VERSION)));
     doc.appendChild(doc.createTextNode("\n"));
 
     // root node
@@ -173,27 +185,27 @@ bool ClientConfig::save()
 
     // Show avatar on the board or not?
     QDomElement affAvatarNode = doc.createElement("show_avatars");
-    affAvatarNode.appendChild(doc.createTextNode( QString().setNum(options.showAvatars == true ? 1 : 0) ));
+    affAvatarNode.appendChild(doc.createTextNode(QString().setNum(options.showAvatars == true ? 1 : 0)));
     rootNode.appendChild(affAvatarNode);
 
     // Background board color
     QDomElement tapisNode = doc.createElement("background_color");
-    tapisNode.appendChild(doc.createTextNode( options.backgroundColor ));
+    tapisNode.appendChild(doc.createTextNode(options.backgroundColor));
     rootNode.appendChild(tapisNode);
 
     // Language
     QDomElement langueNode = doc.createElement("language");
-    langueNode.appendChild(doc.createTextNode( QString().setNum(options.language) ));
+    langueNode.appendChild(doc.createTextNode(QString().setNum(options.language)));
     rootNode.appendChild(langueNode);
 
     // Delay before cleaning
     QDomElement delayeNode = doc.createElement("delay_before_cleaning");
-    delayeNode.appendChild(doc.createTextNode( QString().setNum(options.delayBeforeCleaning) ));
+    delayeNode.appendChild(doc.createTextNode(QString().setNum(options.delayBeforeCleaning)));
     rootNode.appendChild(delayeNode);
 
     // click to clean cards after one turn
     QDomElement clickNode = doc.createElement("click_to_clean");
-    clickNode.appendChild(doc.createTextNode( QString().setNum(options.enableDelayBeforeCleaning == true ? 1 : 0) ));
+    clickNode.appendChild(doc.createTextNode(QString().setNum(options.enableDelayBeforeCleaning == true ? 1 : 0)));
     rootNode.appendChild(clickNode);
 
     // Player's indentity
@@ -202,27 +214,27 @@ bool ClientConfig::save()
 
     // name
     nameNode = doc.createElement("name");
-    nameNode.appendChild(doc.createTextNode( options.identity.name ));
+    nameNode.appendChild(doc.createTextNode(options.identity.name));
     identityNode.appendChild(nameNode);
 
     // avatar
     avatarNode = doc.createElement("avatar");
-    avatarNode.appendChild(doc.createTextNode( options.identity.avatar ));
+    avatarNode.appendChild(doc.createTextNode(options.identity.avatar));
     identityNode.appendChild(avatarNode);
 
     // sex
     sexNode = doc.createElement("sex");
-    sexNode.appendChild(doc.createTextNode( QString().setNum( options.identity.sex ) ));
+    sexNode.appendChild(doc.createTextNode(QString().setNum(options.identity.sex)));
     identityNode.appendChild(sexNode);
 
     // quote
     quoteNode = doc.createElement("quote");
-    quoteNode.appendChild(doc.createTextNode( options.identity.quote ));
+    quoteNode.appendChild(doc.createTextNode(options.identity.quote));
     identityNode.appendChild(quoteNode);
 
     // Save DOM XML into file
-    QFile f( Config::path + CLIENT_CONFIG_FILE );
-    if(!f.open(QIODevice::WriteOnly))
+    QFile f(Config::path + CLIENT_CONFIG_FILE);
+    if (!f.open(QIODevice::WriteOnly))
     {
         qDebug("Saving client's configuration failed.");
         return false;
@@ -237,7 +249,7 @@ bool ClientConfig::save()
     return true;
 }
 /*****************************************************************************/
-void ClientConfig::setDefault( ClientOptions *opt )
+void ClientConfig::setDefault(ClientOptions *opt)
 {
     opt->showAvatars = AVATARS_DEF;
     opt->backgroundColor = "#008000";

@@ -27,55 +27,72 @@
 #include "textes.h"
 
 /*****************************************************************************/
-ResultWindow::ResultWindow( QWidget* parent )
+ResultWindow::ResultWindow(QWidget *parent)
     : QDialog(parent)
 {
     ui.setupUi(this);
 }
 /*****************************************************************************/
-void ResultWindow::setCalcul( ScoreInfos *score, GameInfos *infos )
+void ResultWindow::SetResult(ScoreInfo &score, GameState &info)
 {
-   QString result_str;
+    QString result_str;
 
-	// On affiche les caractéristiques de la partie
-    if( infos->preneur == SUD ) {
-        ui.lblPreneur->setText(STR_SUD);
-    } else if( infos->preneur == EST ) {
-		ui.lblPreneur->setText(STR_EST);
-   }else if( infos->preneur == NORD ) {
-		ui.lblPreneur->setText(STR_NORD);
-   } else {
-		ui.lblPreneur->setText(STR_OUEST);
-   }
+    // On affiche les caractéristiques de la partie
+    if (info.taker == SUD)
+    {
+        ui.lblTaker->setText(STR_SUD);
+    }
+    else if (info.taker == EST)
+    {
+        ui.lblTaker->setText(STR_EST);
+    }
+    else if (info.taker == NORD)
+    {
+        ui.lblTaker->setText(STR_NORD);
+    }
+    else
+    {
+        ui.lblTaker->setText(STR_OUEST);
+    }
 
-   if( infos->contrat == PRISE ) {
-		ui.lblContrat->setText(STR_PRISE);
-   } else if( infos->contrat == GARDE ) {
-		ui.lblContrat->setText(STR_GARDE);
-   } else if( infos->contrat == GARDE_SANS ) {
-		ui.lblContrat->setText(STR_GARDE_SANS);
-   } else {
-		ui.lblContrat->setText(STR_GARDE_CONTRE);
-   }
+    if (info.contract == PRISE)
+    {
+        ui.lblContrat->setText(STR_PRISE);
+    }
+    else if (info.contract == GARDE)
+    {
+        ui.lblContrat->setText(STR_GARDE);
+    }
+    else if (info.contract == GARDE_SANS)
+    {
+        ui.lblContrat->setText(STR_GARDE_SANS);
+    }
+    else
+    {
+        ui.lblContrat->setText(STR_GARDE_CONTRE);
+    }
 
-   ui.lblNbBouts->setNum( score->bouts );
-   ui.lblPoints->setNum( (int)score->attaque );
+    ui.lblNbBouts->setNum(score.bouts);
+    ui.lblPoints->setNum((int)score.attaque);
 
-   if( (int)(score->attaque) >= score->pointsAFaire ) {
-      result_str = QString("<font color=\"#0D851B\">") + STR_WIN;
-	} else {
-      result_str = QString("<font color=\"red\">") + STR_LOSE;
-	}
-   ui.lblResultat->setText(result_str + QString().setNum( score->difference ) + 
-                           STR_POINTS + QString("</font>"));
+    if ((int)(score.attaque) >= score.pointsAFaire)
+    {
+        result_str = QString("<font color=\"#0D851B\">") + STR_WIN;
+    }
+    else
+    {
+        result_str = QString("<font color=\"red\">") + STR_LOSE;
+    }
+    ui.lblResultat->setText(result_str + QString().setNum(score.difference) +
+                            STR_POINTS + QString("</font>"));
 
-    ui.lblGains->setNum( score->difference );
-    ui.lblPetit->setNum( score->points_petit_au_bout );
-    ui.lblMultiple->setNum( score->multiplicateur );
-    ui.lblPoignee->setNum( score->points_poignee );
-    ui.lblChelem->setNum( score->points_chelem );
-    ui.lblTotalDefense->setText( QString().setNum( score->points_defense ) + STR_POINTS );
-    ui.lblTotalAttaque->setText( QString().setNum( score->points_defense*(-3) ) + STR_POINTS );
+    ui.lblGains->setNum(score.difference);
+    ui.lblPetit->setNum(score.points_petit_au_bout);
+    ui.lblMultiple->setNum(score.multiplicateur);
+    ui.lblPoignee->setNum(score.points_poignee);
+    ui.lblChelem->setNum(score.points_chelem);
+    ui.lblTotalDefense->setText(QString().setNum(score.points_defense) + STR_POINTS);
+    ui.lblTotalAttaque->setText(QString().setNum(score.points_defense * (-3)) + STR_POINTS);
 }
 
 

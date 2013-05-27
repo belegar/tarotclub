@@ -31,7 +31,7 @@
 /*****************************************************************************/
 ServerConfig::ServerConfig()
 {
-    setDefault( &options );
+    setDefault(&options);
 }
 /*****************************************************************************/
 ServerOptions *ServerConfig::getOptions()
@@ -39,7 +39,7 @@ ServerOptions *ServerConfig::getOptions()
     return(&options);
 }
 /*****************************************************************************/
-void ServerConfig::setOptions( ServerOptions *newOptions )
+void ServerConfig::setOptions(ServerOptions *newOptions)
 {
     options = *newOptions;
 }
@@ -47,12 +47,12 @@ void ServerConfig::setOptions( ServerOptions *newOptions )
 bool ServerConfig::load()
 {
     QDomDocument doc;
-    QFile f( Config::path + SERVER_CONFIG_FILE );
+    QFile f(Config::path + SERVER_CONFIG_FILE);
     QString txt;
     int val;
 
     // File not found, we create default one and quit loading
-    if( f.open(QIODevice::ReadOnly) == false )
+    if (f.open(QIODevice::ReadOnly) == false)
     {
         return save();
     }
@@ -60,59 +60,71 @@ bool ServerConfig::load()
     f.close();
 
     // test of root element "tarotclubd"
-    QDomElement root=doc.documentElement();
-    if(root.tagName()!="tarotclubd") {
+    QDomElement root = doc.documentElement();
+    if (root.tagName() != "tarotclubd")
+    {
         return (false);
     }
 
-    if(root.attribute("version","0") != QString(SERVER_XML_VERSION)) {
+    if (root.attribute("version", "0") != QString(SERVER_XML_VERSION))
+    {
         return (false);
     }
 
     // Parsing data
-    QDomElement child=root.firstChild().toElement();
-    while(!child.isNull()) {
+    QDomElement child = root.firstChild().toElement();
+    while (!child.isNull())
+    {
 
-        if(child.tagName() == "pause")
+        if (child.tagName() == "pause")
         {
             val = child.text().toInt();
-            if( val<0 || val>9000 )
+            if (val < 0 || val > 9000)
             {
                 val = TIMER1_DEF;
             }
             options.timer = val;
 
         }
-        else if(child.tagName() == "port")
+        else if (child.tagName() == "port")
         {
             options.port = child.text().toInt();
 
         }
-        else if(child.tagName() == "identity")
+        else if (child.tagName() == "identity")
         {
             int pos;
-            pos = child.attribute("pos","-1").toInt();
-            if (pos<0 || pos>2)
+            pos = child.attribute("pos", "-1").toInt();
+            if (pos < 0 || pos > 2)
             {
                 return false;
             }
 
             QDomElement lastchild = child.firstChild().toElement();
-            while(!lastchild.isNull()) {
-                if(lastchild.tagName() == "name") {
+            while (!lastchild.isNull())
+            {
+                if (lastchild.tagName() == "name")
+                {
                     txt = lastchild.text();
-                    if( txt.isEmpty() ) {
+                    if (txt.isEmpty())
+                    {
                         txt = "Unknown";
                     }
                     options.bots[pos].name = txt;
 
-                } else if(lastchild.tagName() == "quote") {
+                }
+                else if (lastchild.tagName() == "quote")
+                {
                     options.bots[pos].quote = lastchild.text();
 
-                } else if(lastchild.tagName() == "sex") {
+                }
+                else if (lastchild.tagName() == "sex")
+                {
                     options.bots[pos].sex = (SexType)lastchild.text().toInt();
 
-                } else if(lastchild.tagName() == "avatar") {
+                }
+                else if (lastchild.tagName() == "avatar")
+                {
                     options.bots[pos].avatar = lastchild.text();
                 }
                 lastchild = lastchild.nextSibling().toElement();
@@ -133,10 +145,10 @@ bool ServerConfig::save()
     QDomElement sexNode;
     QDomElement quoteNode;
 
-    doc.appendChild( doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" ) );
+    doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
     doc.appendChild(doc.createTextNode("\n"));
 
-    doc.appendChild(doc.createComment( QString("Généré par ")+QString("TarotClub ")+QString(TAROT_VERSION) ) );
+    doc.appendChild(doc.createComment(QString("Généré par ") + QString("TarotClub ") + QString(TAROT_VERSION)));
     doc.appendChild(doc.createTextNode("\n"));
 
     // root node
@@ -146,16 +158,16 @@ bool ServerConfig::save()
 
     // Réglage du timing entre chaque joueur
     QDomElement temps1Node = doc.createElement("pause");
-    temps1Node.appendChild(doc.createTextNode( QString().setNum( options.timer ) ));
+    temps1Node.appendChild(doc.createTextNode(QString().setNum(options.timer)));
     rootNode.appendChild(temps1Node);
 
     // Port réseau
     QDomElement portNode = doc.createElement("port");
-    portNode.appendChild(doc.createTextNode( QString().setNum( options.port ) ));
+    portNode.appendChild(doc.createTextNode(QString().setNum(options.port)));
     rootNode.appendChild(portNode);
 
     // Parameter of each bot
-    for( int i=0; i<3; i++ )
+    for (int i = 0; i < 3; i++)
     {
         identityNode = doc.createElement("identity");
         rootNode.appendChild(identityNode);
@@ -163,28 +175,28 @@ bool ServerConfig::save()
 
         // name
         nameNode = doc.createElement("name");
-        nameNode.appendChild(doc.createTextNode( options.bots[i].name ));
+        nameNode.appendChild(doc.createTextNode(options.bots[i].name));
         identityNode.appendChild(nameNode);
 
         // avatar
         avatarNode = doc.createElement("avatar");
-        avatarNode.appendChild(doc.createTextNode( options.bots[i].avatar ));
+        avatarNode.appendChild(doc.createTextNode(options.bots[i].avatar));
         identityNode.appendChild(avatarNode);
 
         // sex
         sexNode = doc.createElement("sex");
-        sexNode.appendChild(doc.createTextNode( QString().setNum( options.bots[i].sex ) ));
+        sexNode.appendChild(doc.createTextNode(QString().setNum(options.bots[i].sex)));
         identityNode.appendChild(sexNode);
 
         // quote
         quoteNode = doc.createElement("quote");
-        quoteNode.appendChild(doc.createTextNode( options.bots[i].quote ));
+        quoteNode.appendChild(doc.createTextNode(options.bots[i].quote));
         identityNode.appendChild(quoteNode);
     }
 
     // Save DOM XML tree into file
-    QFile f( Config::path + SERVER_CONFIG_FILE );
-    if(!f.open(QIODevice::WriteOnly))
+    QFile f(Config::path + SERVER_CONFIG_FILE);
+    if (!f.open(QIODevice::WriteOnly))
     {
         qDebug("Saving server's configuration failed.");
         return false;
@@ -199,7 +211,7 @@ bool ServerConfig::save()
     return true;
 }
 /*****************************************************************************/
-void ServerConfig::setDefault( ServerOptions *opt )
+void ServerConfig::setDefault(ServerOptions *opt)
 {
     opt->timer = TIMER1_DEF;
     opt->port = DEFAULT_PORT;

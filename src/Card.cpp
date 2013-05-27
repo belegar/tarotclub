@@ -26,97 +26,96 @@
 #include "Card.h"
 
 /*****************************************************************************/
-QString Card::getCardName()
+QString Card::GetName()
 {
-   QString name;
-   QTextStream stream(&name);
+    QString name;
+    QTextStream stream(&name);
 
-   stream << value;
-   if (cardType == ATOUT || (cardType == EXCUSE))
-   {
-      stream << "-A";
-   }
-   else
-   {
-      // Color
-      if (color == PIC)
-      {
-         stream << "-S"; // spades
-      }
-      else if (color == COEUR)
-      {
-         stream << "-H"; // heart
-      }
-      else if (color == TREFLE)
-      {
-         stream << "-C"; // club
-      }
-      else
-      {
-         stream << "-D"; // diamond
-      }
-   }
-   return name;
+    stream << value;
+    if (type == TRUMPS)
+    {
+        stream << "-A";
+    }
+    else
+    {
+        if (suit == SPADES)
+        {
+            stream << "-S"; // spades
+        }
+        else if (suit == HEARTS)
+        {
+            stream << "-H"; // heart
+        }
+        else if (suit == CLUBS)
+        {
+            stream << "-C"; // club
+        }
+        else
+        {
+            stream << "-D"; // diamond
+        }
+    }
+    return name;
 }
 /*****************************************************************************/
-void Card::setType( CardType t )
+void Card::SetType(Card::Type t)
 {
-   cardType = t;
+    type = t;
 }
 /*****************************************************************************/
-void Card::setColor( CardColor cardColor )
+void Card::SetSuit(Card::Suit s)
 {
-   color = cardColor;
+    suit = s;
 }
 /*****************************************************************************/
-void Card::setPoints( float cardPoints )
+void Card::SetPoints(float p)
 {
-   points = cardPoints;
+    points = p;
 }
 /*****************************************************************************/
-void Card::setId( int i )
+void Card::SetId(int i)
 {
-   id = i;
+    id = i;
 }
 /*****************************************************************************/
-void Card::setOwner( Place p )
+void Card::SetOwner(Place p)
 {
-   owner = p;
+    owner = p;
 }
 /*****************************************************************************/
-void Card::setValue( int cardValue )
+void Card::SetValue(int v)
 {
-   value = cardValue;
+    value = v;
 }
 /*****************************************************************************/
-CardType Card::getType()
+Card::Type Card::GetType()
 {
-   return cardType;
+    return type;
 }
 /*****************************************************************************/
-CardColor Card::getColor()
+Card::Suit Card::GetSuit()
 {
-   return color;
+    return suit;
 }
 /*****************************************************************************/
-float Card::getPoints()
+float Card::GetPoints()
 {
-   return points;
+    return points;
 }
 /*****************************************************************************/
-int Card::getId()
+int Card::GetId()
 {
-   return id;
+    return id;
 }
 /*****************************************************************************/
-Place Card::getOwner()
+Place Card::GetOwner()
 {
-   return owner;
+    return owner;
 }
 /*****************************************************************************/
-int Card::getValue()
+int Card::GetValue()
 {
-   return value;
+    return value;
 }
 
 //=============================================================================

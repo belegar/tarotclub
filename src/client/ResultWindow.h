@@ -29,21 +29,23 @@
 // Includes Qt
 #include <QDialog>
 
-// Includes locales
+// Local includes
 #include "../defines.h"
+#include "../GameState.h"
+#include "../ScoreInfo.h"
 #include <ui_ResultUI.h>
 
 /*****************************************************************************/
 class ResultWindow : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
 private:
     Ui::ResultUI ui;
 public:
-    ResultWindow( QWidget* parent = 0);
+    ResultWindow(QWidget *parent = 0);
 
-	void	setCalcul(  ScoreInfos *score, GameInfos *infos );
+    void SetResult(ScoreInfo &score, GameState &info);
 
 };
 

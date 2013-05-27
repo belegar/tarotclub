@@ -40,8 +40,8 @@ class CardShadow : public QGraphicsRectItem
 {
 
 public:
-   CardShadow(QRectF &pos, QGraphicsScene *canvas);
-   void paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
+    CardShadow(QRectF &pos, QGraphicsScene *canvas);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
 };
 
@@ -54,20 +54,36 @@ class TextBox : public QGraphicsRectItem
 {
 
 private:
-   QString  text;
-   int penWidth;
-   QColor penColor;
-   QColor fillColor;
+    QString  text;
+    int penWidth;
+    QColor penColor;
+    QColor fillColor;
 
 public:
-   TextBox(const QPointF &pos, QGraphicsScene *canvas);
-   void paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
+    TextBox(const QPointF &pos, QGraphicsScene *canvas);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-   void move( int x, int y ) { setPos( x, y ); }
-   void setText(const QString &s) { text = s; text.truncate(10); }
-   void setPenWidth(int w) { penWidth = w; }
-   void setPenColor(Qt::GlobalColor c) { penColor = c; }
-   void setFillColor(QColor &c) { fillColor = c; }
+    void move(int x, int y)
+    {
+        setPos(x, y);
+    }
+    void setText(const QString &s)
+    {
+        text = s;
+        text.truncate(10);
+    }
+    void setPenWidth(int w)
+    {
+        penWidth = w;
+    }
+    void setPenColor(Qt::GlobalColor c)
+    {
+        penColor = c;
+    }
+    void setFillColor(QColor &c)
+    {
+        fillColor = c;
+    }
 };
 
 /*****************************************************************************/
@@ -77,15 +93,15 @@ public:
 class PlayerBox : public TextBox
 {
 private:
-   QGraphicsPixmapItem		*avatar;
+    QGraphicsPixmapItem      *avatar;
 
 public:
-   PlayerBox(const QPointF &pos, QGraphicsScene *canvas);
+    PlayerBox(const QPointF &pos, QGraphicsScene *canvas);
 
-   void selectPlayer(bool selected);
-   void highlightPlayer(bool highlighted);
-   void setAvatar(const QString & avatar);
-   void enableAvatar(bool enable);
+    void selectPlayer(bool selected);
+    void highlightPlayer(bool highlighted);
+    void setAvatar(const QString &avatar);
+    void enableAvatar(bool enable);
 
 };
 

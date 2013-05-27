@@ -28,41 +28,42 @@
  */
 void myMessageOutput(QtMsgType type, const char *msg)
 {
-   switch (type) {
-      case QtDebugMsg:
-         cout << "Debug: " << msg << endl;
-         break;
-      case QtWarningMsg:
-         cout << "Warning: " << msg << endl;
-         break;
-      case QtCriticalMsg:
-         cout << "Critical: " << msg << endl;
-         break;
-      case QtFatalMsg:
-         cout << "Fatal: " << msg << endl;
-         abort(); // deliberately core dump
-         break;
-      default:
-         break;
-   }
+    switch (type)
+    {
+        case QtDebugMsg:
+            cout << "Debug: " << msg << endl;
+            break;
+        case QtWarningMsg:
+            cout << "Warning: " << msg << endl;
+            break;
+        case QtCriticalMsg:
+            cout << "Critical: " << msg << endl;
+            break;
+        case QtFatalMsg:
+            cout << "Fatal: " << msg << endl;
+            abort(); // deliberately core dump
+            break;
+        default:
+            break;
+    }
 }
 /*****************************************************************************/
 /**
  * Point d'entrée de l'application
  */
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 #ifdef _DEBUG
-   qInstallMsgHandler(myMessageOutput);
+    qInstallMsgHandler(myMessageOutput);
 #endif
 
-   QCoreApplication app(argc, argv);
-   cout << "TarotClub server " TAROT_VERSION << endl;
+    QCoreApplication app(argc, argv);
+    cout << "TarotClub server " TAROT_VERSION << endl;
 
-   TarotServer server;
-   server.start();
+    TarotServer server;
+    server.start();
 
-   return app.exec();
+    return app.exec();
 }
 
 //=============================================================================

@@ -39,41 +39,41 @@
 /*****************************************************************************/
 class OptionsWindow : public QDialog
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   Ui::OptionsUI  ui;
-   ClientOptions    clientOptions;
-   ServerOptions    serverOptions;
-   unsigned int     indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
-   QString colorName;
+    Ui::OptionsUI  ui;
+    ClientOptions    clientOptions;
+    ServerOptions    serverOptions;
+    unsigned int     indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
+    QString colorName;
 
-   QString choixAvatar(QString defaultAvatar);
-   void    refresh();
+    QString choixAvatar(QString defaultAvatar);
+    void    refresh();
 
 public:
-   OptionsWindow( QWidget* parent = 0);
+    OptionsWindow(QWidget *parent = 0);
 
-   void setClientOptions(ClientOptions *opt);
-   void setServerOptions(ServerOptions *opt);
+    void setClientOptions(ClientOptions *opt);
+    void setServerOptions(ServerOptions *opt);
 
-   ClientOptions *getClientOptions();
-   ServerOptions *getServerOptions();
+    ClientOptions *getClientOptions();
+    ServerOptions *getServerOptions();
 
 public slots:
-   void slotBtnOk();
-   void slotBtnDefaut();
+    void slotBtnOk();
+    void slotBtnDefaut();
 
-   void slotClickOptionChanged(int state);
+    void slotClickOptionChanged(int state);
 
-   // Widgets
-   void slider1Changed( int );
-   void slider2Changed( int );
-   void slotBtnPixSud();
-   void slotBtnPixEst();
-   void slotBtnPixNord();
-   void slotBtnPixOuest();
-   void slotColorPicker();
+    // Widgets
+    void slider1Changed(int);
+    void slider2Changed(int);
+    void slotBtnPixSud();
+    void slotBtnPixEst();
+    void slotBtnPixNord();
+    void slotBtnPixOuest();
+    void slotColorPicker();
 };
 
 #endif // _OPTIONSWINDOW_H

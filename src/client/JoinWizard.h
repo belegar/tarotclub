@@ -35,50 +35,62 @@
 class JoinWizardPage1 : public QWizardPage
 {
 private:
-   Ui::Page1 ui;
+    Ui::Page1 ui;
 public:
-   JoinWizardPage1(QWidget * parent = 0);
+    JoinWizardPage1(QWidget *parent = 0);
 
-   void initializePage();
+    void initializePage();
 
-   QString getIp() { return ui.ipAddress->text(); }
-   int getPort() { return ui.portNumber->value(); }
+    QString getIp()
+    {
+        return ui.ipAddress->text();
+    }
+    int getPort()
+    {
+        return ui.portNumber->value();
+    }
 };
 /*****************************************************************************/
 class JoinWizardPage2 : public QWizardPage
 {
 private:
-   Ui::Page2 ui;
+    Ui::Page2 ui;
 public:
-   JoinWizardPage2(QWidget * parent = 0);
+    JoinWizardPage2(QWidget *parent = 0);
 
-   void initializePage();
-   void setInfos(QString &txt) { ui.infos->setText(txt); }
-   void setSaloons(const QStringList &list) { ui.saloonList->addItems(list); }
+    void initializePage();
+    void setInfos(QString &txt)
+    {
+        ui.infos->setText(txt);
+    }
+    void setSaloons(const QStringList &list)
+    {
+        ui.saloonList->addItems(list);
+    }
 };
 /*****************************************************************************/
 class JoinWizard : public QWizard
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   JoinWizardPage1 *page1;
-   JoinWizardPage2 *page2;
+    JoinWizardPage1 *page1;
+    JoinWizardPage2 *page2;
 
-   QTcpSocket  socket;
+    QTcpSocket  socket;
 
 public:
-   enum { Page_Server, Page_Lobby };
+    enum { Page_Server, Page_Lobby };
 
-   JoinWizard(QWidget *parent);
+    JoinWizard(QWidget *parent);
 
 public slots:
-   void slotServerConnection(int id);
-   void socketReadData();
-   void socketConnected();
-   void socketHostFound();
-   void socketClosed();
-   void socketError( QAbstractSocket::SocketError code );
+    void slotServerConnection(int id);
+    void socketReadData();
+    void socketConnected();
+    void socketHostFound();
+    void socketClosed();
+    void socketError(QAbstractSocket::SocketError code);
 };
 
 

@@ -35,10 +35,10 @@ CardShadow::CardShadow(QRectF &pos, QGraphicsScene *canvas)
     canvas->addItem(this);
 }
 /*****************************************************************************/
-void CardShadow::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget )
+void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED( option );
-    Q_UNUSED( widget );
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
 
     // Paint with specified color and pen
     painter->setRenderHint(QPainter::Antialiasing);
@@ -55,7 +55,7 @@ void CardShadow::paint ( QPainter *painter, const QStyleOptionGraphicsItem * opt
 
 /*****************************************************************************/
 TextBox::TextBox(const QPointF &pos, QGraphicsScene *canvas)
-    : QGraphicsRectItem( pos.x(), pos.y(), TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT)
+    : QGraphicsRectItem(pos.x(), pos.y(), TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT)
 {
     penWidth = 1;
     penColor = Qt::black;
@@ -65,10 +65,10 @@ TextBox::TextBox(const QPointF &pos, QGraphicsScene *canvas)
 
 }
 /*****************************************************************************/
-void TextBox::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget )
+void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED( option );
-    Q_UNUSED( widget );
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
 
     // Paint with specified color and pen
     painter->setRenderHint(QPainter::Antialiasing);
@@ -77,8 +77,8 @@ void TextBox::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option
     gradient.setColorAt(0.0, Qt::transparent);
     gradient.setColorAt(1.0, fillColor);
     painter->setBrush(gradient);
-    painter->drawRoundRect(rect(), (int) (25 * rect().height()
-                                          / rect().width()), 25);
+    painter->drawRoundRect(rect(), (int)(25 * rect().height()
+                                         / rect().width()), 25);
 
     // Text inside the box
     painter->save();
@@ -96,38 +96,38 @@ void TextBox::paint ( QPainter *painter, const QStyleOptionGraphicsItem * option
 /*****************************************************************************/
 
 
-PlayerBox::PlayerBox(const QPointF &pos, QGraphicsScene *canvas )
-    : TextBox( pos, canvas)
+PlayerBox::PlayerBox(const QPointF &pos, QGraphicsScene *canvas)
+    : TextBox(pos, canvas)
 {
     QColor color(255, 255, 255, 127);
     setFillColor(color); // transparent
 
     // Init with defaut image
-    avatar = new QGraphicsPixmapItem( QPixmap( ":/images/vide.png"));
+    avatar = new QGraphicsPixmapItem(QPixmap(":/images/vide.png"));
     avatar->hide();
 
     // we set it to the right place
-    avatar->setPos( rect().x() + rect().width() + 10, rect().y()-5 );
+    avatar->setPos(rect().x() + rect().width() + 10, rect().y() - 5);
 
     // we add the item to the scene
     canvas->addItem(avatar);
 }
 /*****************************************************************************/
-void PlayerBox::setAvatar( const QString &av )
+void PlayerBox::setAvatar(const QString &av)
 {
-    QFile f( av );
+    QFile f(av);
 
-    if( f.exists() == false )
+    if (f.exists() == false)
     {
         return;
     }
 
-    avatar->setPixmap( QPixmap(av) );
+    avatar->setPixmap(QPixmap(av));
 }
 /*****************************************************************************/
 void PlayerBox::enableAvatar(bool enable)
 {
-    if( enable == true )
+    if (enable == true)
     {
         avatar->show();
     }

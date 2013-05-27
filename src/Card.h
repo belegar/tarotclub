@@ -33,42 +33,64 @@
 /*****************************************************************************/
 class Card
 {
+    /**
+     * @brief The Color enum, lowest value to highest
+     */
+    enum Suit
+    {
+        SPADES = 0,
+        HEARTS = 1,
+        DIAMONDS = 2,
+        CLUBS = 3,
+        NO_SUIT = 4
+    };
 
-private:
-   CardType    cardType;   // Type de carte (voir enum correspondant)
-   CardColor   color;      // insignifiant si la carte est un atout ou l'excuse
-   float       points;     // points de la carte
-   int         id;         // identificateur unique, usage multiple (classement, etc.)
-   Place       owner;      // A qui appartient cette carte (OUEST, EST ...)
-   int         value;
-
-   // valeur :
-   // si excuse : insignifiant
-   // Si atout : [1..21]
-   // Pour les autres cartes : [1..14]
-   //    avec :
-   //          Roi         = 14
-   //          Dame     = 13
-   //          Cavalier = 12
-   //          Valet    = 11
+    /**
+     * @brief The Type enum
+     */
+    enum Type
+    {
+        CARD = 0,
+        TRUMPS = 1
+    };
 
 public:
-   // Mutateurs
-   void  setType( CardType t );
-   void  setColor( CardColor );
-   void  setPoints( float);
-   void  setId( int );
-   void  setOwner( Place );
-   void  setValue( int );
+    //  Setters
+    void  SetType(Type t);
+    void  SetSuit(Suit s);
+    void  SetPoints(float p);
+    void  SetId(int);
+    void  SetOwner(Place);
+    void  SetValue(int v);
 
-   // Accesseurs
-   CardType    getType();
-   CardColor   getColor();
-   float       getPoints();
-   int         getId();
-   Place       getOwner();
-   int         getValue();
-   QString     getCardName();
+    // Getters
+    Type    GetType();
+    Suit    GetSuit();
+    float   GetPoints();
+    int     GetId();
+    Place   GetOwner();
+    int     GetValue();
+    QString GetName();
+
+private:
+    Type    type;
+    Suit    suit;
+    float   points;
+    int     id;         // unique identifier
+    Place   owner;      // original owner of the card of this deal
+
+    /**
+     * @brief The value is the number written on the card
+     *
+     * Fool: not significant
+     * Trumps: [1..21]
+     * Other cards: [1..14] with:
+     *      King    = 14
+     *      Queen   = 13
+     *      Knight  = 12
+     *      Jack    = 11
+     */
+    int     value;
 
 };
 

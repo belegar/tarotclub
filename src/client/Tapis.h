@@ -45,100 +45,96 @@ enum CardStatus { CARD_NORMAL, CARD_SELECTED };
 class GfxCard : public QGraphicsSvgItem
 {
 private:
-   CardStatus status;
+    CardStatus status;
 public:
-   GfxCard ( const QString & fileName, QGraphicsItem * parent = 0 );
+    GfxCard(const QString &fileName, QGraphicsItem *parent = 0);
 
-   enum { Type = UserType + 1 };
-   int type() const;
-   CardStatus  getStatus();
-   void setStatus(CardStatus s);
-   void toggleStatus();
+    enum { Type = UserType + 1 };
+    int type() const;
+    CardStatus  getStatus();
+    void setStatus(CardStatus s);
+    void toggleStatus();
 };
 
 /*****************************************************************************/
 class Tapis : public QGraphicsView
 {
 
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   Filter filter;
-   QVector<GfxCard *> cardsPics;
-   QVector<CardShadow *> cardShadows;
-   QGraphicsScene scene;
+    Filter filter;
+    QVector<GfxCard *> cardsPics;
+    QVector<CardShadow *> cardShadows;
+    QGraphicsScene scene;
 
-   // Graphiques
-   QMap<Place, PlayerBox *> playerBox;
-   QMap<Place, TextBox *>  textBox;
+    // Graphiques
+    QMap<Place, PlayerBox *> playerBox;
+    QMap<Place, TextBox *>  textBox;
 
-   QGroupBox      *groupBoutons;
-   QPushButton    *boutonPasse;
-   QPushButton    *boutonPrise;
-   QPushButton    *boutonGarde;
-   QPushButton    *boutonGardeSans;
-   QPushButton    *boutonGardeContre;
-   QCheckBox      *chelem;
-   QPushButton    *boutonAccepterChien;
-   QPushButton    *boutonPresenterPoignee;
+    QGroupBox      *groupBoutons;
+    QPushButton    *boutonPasse;
+    QPushButton    *boutonPrise;
+    QPushButton    *boutonGarde;
+    QPushButton    *boutonGardeSans;
+    QPushButton    *boutonGardeContre;
+    QCheckBox      *chelem;
+    QPushButton    *boutonAccepterChien;
+    QPushButton    *boutonPresenterPoignee;
 
-   QPointF CalculateCardPosition(Place p);
-   void DrawCardShadows();
+    QPointF CalculateCardPosition(Place p);
+    void DrawCardShadows();
 
 protected:
-   void  mousePressEvent( QMouseEvent *e );
-   void  mouseMoveEvent( QMouseEvent * e );
-   void  resizeEvent( QResizeEvent * );
+    void  mousePressEvent(QMouseEvent *e);
+    void  mouseMoveEvent(QMouseEvent *e);
+    void  resizeEvent(QResizeEvent *);
 
 public:
-   Tapis(QWidget *parent);
+    Tapis(QWidget *parent);
 
-   void setCursorType( CursorType t );
-   void setText(Place p, const QString &txt);
-   void setAvatar(Place p, const QString &file);
-   void setFilter( Filter );
-   void setBackground(const QString &fichier);
-   void setAccepterChienVisible(bool v);
-   void setBoutonPoigneeVisible(bool v);
-   void setCardScale(float factor);
+    void setCursorType(CursorType t);
+    void setText(Place p, const QString &txt);
+    void setAvatar(Place p, const QString &file);
+    void setFilter(Filter);
+    void setBackground(const QString &fichier);
+    void setAccepterChienVisible(bool v);
+    void setBoutonPoigneeVisible(bool v);
+    void setCardScale(float factor);
 
-   GfxCard *getGfxCard(int i);
-   Card *getObjectCard(GfxCard *gc);
+    GfxCard *getGfxCard(int i);
+    Card *getObjectCard(GfxCard *gc);
 
-   bool loadCards(ClientOptions *opt);
-   void colorisePreneur( Place  preneur );
-   void setPlayerNames( QList<Identity> &players, Place p );
-   void afficheSelection( Place );
-   void DrawCard(GfxCard *c, Place p);
-   void cacheEncheres();
-   void cacheBoutons();
-   void showAvatars(bool b);
-   void razTapis(bool shadow = false);
-   void resetCards();
-
-   /**
-    * Utility methods
-    */
-   static Place SwapPlace(Place origin, Place absolute);
+    bool loadCards(ClientOptions *opt);
+    void colorisePreneur(Place  preneur);
+    void setPlayerNames(QList<Identity> &players, Place p);
+    void afficheSelection(Place);
+    void DrawCard(GfxCard *c, Place p);
+    void cacheEncheres();
+    void cacheBoutons();
+    void showAvatars(bool b);
+    void razTapis(bool shadow = false);
+    void resetCards();
+    Place SwapPlace(Place origin, Place absolute);
 
 public slots:
-   void slotBoutton1();
-   void slotBoutton2();
-   void slotBoutton3();
-   void slotBoutton4();
-   void slotBoutton5();
-   void slotAccepteChien();
-   void slotAfficheBoutons( Contrat contrat );
-   void slotAfficheEnchere(Place enchereur,Contrat cont);
-   void slotPresenterPoignee();
+    void slotBoutton1();
+    void slotBoutton2();
+    void slotBoutton3();
+    void slotBoutton4();
+    void slotBoutton5();
+    void slotAccepteChien();
+    void slotAfficheBoutons(Contrat contrat);
+    void slotAfficheEnchere(Place enchereur, Contrat cont);
+    void slotPresenterPoignee();
 
 signals:
-   void sgnlViewportClicked();
-   void sgnlClickCard( GfxCard * );
-   void sgnlMoveCursor( GfxCard * );
-   void sgnlContrat(Contrat c);
-   void sgnlAccepteChien();
-   void sgnlPresenterPoignee();
+    void sigViewportClicked();
+    void sigClickCard(GfxCard *);
+    void sigMoveCursor(GfxCard *);
+    void sigContrat(Contrat c);
+    void sigAccepteChien();
+    void sigPresenterPoignee();
 };
 
 #endif // TAPIS_H

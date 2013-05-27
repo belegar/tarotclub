@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Client.cpp
  *=============================================================================
- * Classe modÃ©lisant un client connectÃ© Ã  une partie serveur.
+ * This class manages the network protocol and is used to join a online game
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -37,11 +37,11 @@ using namespace std;
 Client::Client() : Player()
 {
     // événements sur le socket
-    connect( &socket, SIGNAL(readyRead()),this, SLOT(socketReadData()));
-    connect( &socket, SIGNAL(disconnected()),this, SLOT(socketClosed()));
-    connect( &socket, SIGNAL(connected()),this, SLOT(socketConnected()));
-    connect( &socket, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(socketError(QAbstractSocket::SocketError)));
-    connect( &socket, SIGNAL(hostFound()),this, SLOT(socketHostFound()));
+    connect(&socket, SIGNAL(readyRead()), this, SLOT(socketReadData()));
+    connect(&socket, SIGNAL(disconnected()), this, SLOT(socketClosed()));
+    connect(&socket, SIGNAL(connected()), this, SLOT(socketConnected()));
+    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)));
+    connect(&socket, SIGNAL(hostFound()), this, SLOT(socketHostFound()));
 }
 /*****************************************************************************/
 DeckStats *Client::getStats()
@@ -49,9 +49,14 @@ DeckStats *Client::getStats()
     return (&stats);
 }
 /*****************************************************************************/
-Card *Client::getCardMainDeck(int i)
+Card *Client::GetMainDeckCard(int i)
 {
     return(mainDeck.at(i));
+}
+/*****************************************************************************/
+int Client::GetMainDeckSize()
+{
+    return mainDeck.size();
 }
 /*****************************************************************************/
 void Client::emptyChien()
@@ -61,7 +66,8 @@ void Client::emptyChien()
 /*****************************************************************************/
 void Client::removeCardChien(Card *c)
 {
-    if( chien.contains(c) == true ) {
+    if (chien.contains(c) == true)
+    {
         chien.removeAll(c);
     }
 }
@@ -93,7 +99,8 @@ void Client::addCardPoignee(Card *c)
 /*****************************************************************************/
 void Client::removeCardPoignee(Card *c)
 {
-    if( poignee.contains(c) == true ) {
+    if (poignee.contains(c) == true)
+    {
         poignee.removeAll(c);
     }
 }
@@ -111,28 +118,33 @@ bool Client::testPoignee()
 {
     bool excuseInPoignee = false;
 
-    for( int i=0; i<poignee.size(); i++) {
+    for (int i = 0; i < poignee.size(); i++)
+    {
         Card *c = poignee.at(i);
-        if(c->getType() == EXCUSE) {
+        if (c->getType() == EXCUSE)
+        {
             excuseInPoignee = true;
         }
     }
 
-    if(excuseInPoignee == true && stats.atouts > poignee.size()) {
+    if (excuseInPoignee == true && stats.atouts > poignee.size())
+    {
         return false;
-    } else {
+    }
+    else
+    {
         return true;
     }
 }
 /*****************************************************************************/
-GameInfos *Client::getGameInfos()
+GameInfo &Client::GetGameInfo()
 {
-    return &infos;
+    return info;
 }
 /*****************************************************************************/
-Score *Client::getScore()
+Score &Client::GetScore()
 {
-    return(&score);
+    return score;
 }
 /*****************************************************************************/
 /**
@@ -179,18 +191,26 @@ Contrat Client::calculEnchere()
     updateStats();
 
     // On distribue des points en fonction des stats
-    if( stats.vingtEtUn == true ) {
+    if (stats.vingtEtUn == true)
+    {
         total += 9;
     }
-    if( stats.excuse == true ) {
+    if (stats.excuse == true)
+    {
         total += 7;
     }
-    if( stats.petit == true ) {
-        if( stats.atouts == 5 ) {
+    if (stats.petit == true)
+    {
+        if (stats.atouts == 5)
+        {
             total += 5;
-        } else if( stats.atouts == 6 || stats.atouts == 7 ) {
+        }
+        else if (stats.atouts == 6 || stats.atouts == 7)
+        {
             total += 7;
-        } else if( stats.atouts > 7 ) {
+        }
+        else if (stats.atouts > 7)
+        {
             total += 8;
         }
     }
@@ -210,21 +230,30 @@ Contrat Client::calculEnchere()
     total += stats.sequences * 4;
 
     // on décide de l'enchère :
-    if( total <= 35 ) {
+    if (total <= 35)
+    {
         cont = PASSE;
-    } else if( total >= 36  && total <= 50 ) {
+    }
+    else if (total >= 36  && total <= 50)
+    {
         cont = PRISE;
-    } else if( total >= 51  && total <= 65 ) {
+    }
+    else if (total >= 51  && total <= 65)
+    {
         cont = GARDE;
-    } else if( total >= 66  && total <= 75 ) {
+    }
+    else if (total >= 66  && total <= 75)
+    {
         cont = GARDE_SANS;
-    } else {
+    }
+    else
+    {
         cont = GARDE_CONTRE;
     }
     return cont;
 }
 /*****************************************************************************/
-void Client::choixChien( Deck *deckChien )
+void Client::choixChien(Deck *deckChien)
 {
     int i, j, k;
     Card *c, *cdeck;
@@ -233,10 +262,12 @@ void Client::choixChien( Deck *deckChien )
     // contenu du chien avant
     ofstream f("chien_avant.txt");
 
-    for( i=0; i<deckChien->count(); i++) {
+    for (i = 0; i < deckChien->count(); i++)
+    {
         c = deckChien->at(i);
 
-        if (f.is_open()) {
+        if (f.is_open())
+        {
             f << "Couleur : " << c->getColor() << endl;
             f << "Type : " << c->getType() << endl;
             f << "Valeur : " << c->getValue() << endl;
@@ -247,34 +278,41 @@ void Client::choixChien( Deck *deckChien )
     f.close();
 #endif
 
-    bool ok=false;
-    i=0;
+    bool ok = false;
+    i = 0;
 
     // on cherche si il y a un atout, une excuse, ou un roi dans le chien
     // et on les remplace par des cartes valides
-    while( ok == false ) {
+    while (ok == false)
+    {
 
-        c = deckChien->at( i );
-        if( c->getType() == ATOUT || c->getType() == EXCUSE || ( c->getType() == CARTE && c->getValue() == 14 ) ) {
+        c = deckChien->at(i);
+        if (c->getType() == ATOUT || c->getType() == EXCUSE || (c->getType() == CARTE && c->getValue() == 14))
+        {
             // on cherche une carte de remplacement
             k = myDeck.count();
-            for( j=0; j<k; j++ ) {
-                cdeck = myDeck.at( j );
-                if( cdeck->getType() == CARTE && cdeck->getValue() < 14 ) {
+            for (j = 0; j < k; j++)
+            {
+                cdeck = myDeck.at(j);
+                if (cdeck->getType() == CARTE && cdeck->getValue() < 14)
+                {
                     // ok, on procède à l'échange
-                    myDeck.removeAll( cdeck );
-                    myDeck.append( c );
-                    deckChien->removeAll( c );
-                    deckChien->append( cdeck );
+                    myDeck.removeAll(cdeck);
+                    myDeck.append(c);
+                    deckChien->removeAll(c);
+                    deckChien->append(cdeck);
                     break;
                 }
             }
-            i=0;
-        } else {
+            i = 0;
+        }
+        else
+        {
             i++;
         }
 
-        if( i == 6 ) {
+        if (i == 6)
+        {
             ok = true;
         }
     }
@@ -284,10 +322,12 @@ void Client::choixChien( Deck *deckChien )
     // contenu du chien après
     f.open("chien_apres.txt");
 
-    for( i=0; i<deckChien->count(); i++) {
+    for (i = 0; i < deckChien->count(); i++)
+    {
         c = deckChien->at(i);
 
-        if (f.is_open()) {
+        if (f.is_open())
+        {
             f << "Couleur : " << c->getColor() << endl;
             f << "Type : " << c->getType() << endl;
             f << "Valeur : " << c->getValue() << endl;
@@ -317,25 +357,31 @@ void Client::updateStats()
     stats.nbCards = getCardNumber();
 
     // recherche des atouts
-    for( i=0; i<myDeck.count(); i++) {
+    for (i = 0; i < myDeck.count(); i++)
+    {
         c = myDeck.at(i);
-        if( c->getType() == ATOUT ) {
+        if (c->getType() == ATOUT)
+        {
             stats.atouts++;
             val = c->getValue();
-            if( val >= 15 ) {
+            if (val >= 15)
+            {
                 stats.atoutsMajeurs++; // atout majeur
             }
-            if( val == 21 ) {
+            if (val == 21)
+            {
                 stats.vingtEtUn = true;
                 stats.bouts++;
             }
-            if( val == 1 ) {
+            if (val == 1)
+            {
                 stats.petit = true;
                 stats.bouts++;
             }
         }
 
-        if( c->getType() == EXCUSE ) {
+        if (c->getType() == EXCUSE)
+        {
             stats.atouts++;
             stats.bouts++;
             stats.excuse = true;
@@ -345,62 +391,87 @@ void Client::updateStats()
     int distr[14] = {0}; // teste une distribution
 
     // on s'occupe maintenant des couleurs
-    for( i=0; i<4; i++ ) {
-        if( i==0 ) {
+    for (i = 0; i < 4; i++)
+    {
+        if (i == 0)
+        {
             coul = PIC;
-        } else if( i==1 ) {
+        }
+        else if (i == 1)
+        {
             coul = COEUR;
-        } else if( i==2 ) {
+        }
+        else if (i == 2)
+        {
             coul = TREFLE;
-        } else {
+        }
+        else
+        {
             coul = CARREAU;
         }
 
-        for( k=0; k<14; k++ ) {
+        for (k = 0; k < 14; k++)
+        {
             distr[k] = 0;
         }
         count = 0;
 
-        for( k=0; k<myDeck.count(); k++ ) {
+        for (k = 0; k < myDeck.count(); k++)
+        {
             c = myDeck.at(k);
-            if( c->getType() == CARTE && c->getColor() == coul ) {
+            if (c->getType() == CARTE && c->getColor() == coul)
+            {
                 count++;
                 val = c->getValue();
-                distr[val-1] = 1;
-                if( val == 11 ) {
+                distr[val - 1] = 1;
+                if (val == 11)
+                {
                     stats.valets++; // valet
                 }
-                if( val == 12 ) {
+                if (val == 12)
+                {
                     stats.cavaliers++; // cavalier
                 }
             }
         }
 
-        if( count == 1 ) {
+        if (count == 1)
+        {
             stats.singletons++;     // singleton
         }
-        if( count == 0 ) {
+        if (count == 0)
+        {
             stats.coupes++;         // coupe
         }
 
         // Nombre de cartes dans chaque couleur
-        if( i==0 ) {
+        if (i == 0)
+        {
             stats.pics = count;
-        } else if( i==1 ) {
+        }
+        else if (i == 1)
+        {
             stats.coeurs = count;
-        } else if( i==2 ) {
+        }
+        else if (i == 2)
+        {
             stats.trefles = count;
-        } else {
+        }
+        else
+        {
             stats.carreaux = count;
         }
 
-        if( distr[13] == 1 && distr[12] == 1 ) {
+        if (distr[13] == 1 && distr[12] == 1)
+        {
             stats.mariages++; // mariage (dame+roi)
         }
-        if( distr[13] == 1 ) {
+        if (distr[13] == 1)
+        {
             stats.rois++;     // roi sans dame
         }
-        if( distr[12] == 1 ) {
+        if (distr[12] == 1)
+        {
             stats.dames++;    // dame sans roi
         }
 
@@ -409,25 +480,34 @@ void Client::updateStats()
         flag = 0;   // couleur trouvée : on est dans la séquence
         longue = 0;
 
-        for( k=0; k<14; k++ ) {
-            if( distr[k] == 1 ) {
+        for (k = 0; k < 14; k++)
+        {
+            if (distr[k] == 1)
+            {
                 longue++;
                 // début d'une séquence
-                if( flag == 0 ) {
+                if (flag == 0)
+                {
                     flag = 1;
                     count++;
-                } else {
+                }
+                else
+                {
                     count++;
                 }
-            } else if( flag == 1 ) {
-                if( count >= 5 ) {
+            }
+            else if (flag == 1)
+            {
+                if (count >= 5)
+                {
                     stats.sequences++;
                 }
                 count = 0;
                 flag = 0;
             }
         }
-        if( longue >=5 ) {
+        if (longue >= 5)
+        {
             stats.longues++;
         }
     }
@@ -478,69 +558,83 @@ Card *Client::play()
     int i, n;
 
     n = myDeck.count();
-    for( i=0; i<n; i++ ) {
-        c = myDeck.at( i );
-        if( canPlayCard( &mainDeck, c, infos.gameCounter, NB_PLAYERS ) == true ) {
+    for (i = 0; i < n; i++)
+    {
+        c = myDeck.at(i);
+        if (canPlayCard(&mainDeck, c, infos.gameCounter, NB_PLAYERS) == true)
+        {
             break;
         }
     }
     return (c);
 }
 /*****************************************************************************/
-bool Client::isValid( Card *c )
+bool Client::isValid(Card *c)
 {
-    return(canPlayCard( &mainDeck, c, infos.gameCounter, NB_PLAYERS ));
+    return(canPlayCard(&mainDeck, c, infos.gameCounter, NB_PLAYERS));
 }
 
 
 /*****************************************************************************/
 void Client::socketReadData()
 {
-    QDataStream in( &socket );
+    QDataStream in(&socket);
     quint16 blockSize = 0;
     bool trameEnPlus = false;
-    unsigned int total=0;
+    unsigned int total = 0;
     qint64 bytes = socket.bytesAvailable();
 
-    for( ;; ) {
-        if( blockSize == 0 ) {
-            if( bytes < (qint64)sizeof(quint16) ) {
+    for (;;)
+    {
+        if (blockSize == 0)
+        {
+            if (bytes < (qint64)sizeof(quint16))
+            {
                 break;
             }
             in >> blockSize;
         }
 
         // fin de la trame ?
-        if( blockSize == 0xFFFF ) {
-            if( trameEnPlus == true ) {
+        if (blockSize == 0xFFFF)
+        {
+            if (trameEnPlus == true)
+            {
                 blockSize = 0;
                 trameEnPlus = false;
                 continue;
-            } else {
+            }
+            else
+            {
                 break;
             }
         }
 
         total += blockSize + 2;
 
-        if( bytes < total ) {
+        if (bytes < total)
+        {
             break;
-        } else if( bytes > total ) {
+        }
+        else if (bytes > total)
+        {
             trameEnPlus = true;
-        } else {
+        }
+        else
+        {
             trameEnPlus = false;
         }
 
         // On déode le trame reçue
-        doAction( in );
+        doAction(in);
         blockSize = 0;
     }
 
 }
 /*****************************************************************************/
-void Client::connectToHost( const QString &hostName, quint16 port )
+void Client::connectToHost(const QString &hostName, quint16 port)
 {
-    socket.connectToHost(hostName,port);
+    socket.connectToHost(hostName, port);
 }
 /*****************************************************************************/
 void Client::close()
@@ -550,307 +644,316 @@ void Client::close()
 /*****************************************************************************/
 void Client::socketConnected()
 {
-    emit sgnlMessage( identity.name + trUtf8(" est connecté.") );
+    emit sgnlMessage(identity.name + trUtf8(" est connecté."));
 }
 /*****************************************************************************/
 void Client::socketHostFound()
 {
-    emit sgnlMessage( identity.name + trUtf8(" se connecte au serveur ...") );
+    emit sgnlMessage(identity.name + trUtf8(" se connecte au serveur ..."));
 }
 /*****************************************************************************/
 void Client::socketClosed()
 {
-    emit sgnlMessage( trUtf8("Le serveur a mis fin à la connexion.") );
+    emit sgnlMessage(trUtf8("Le serveur a mis fin à la connexion."));
 }
 /*****************************************************************************/
-void Client::socketError( QAbstractSocket::SocketError code )
+void Client::socketError(QAbstractSocket::SocketError code)
 {
     QString message;
 
-    switch( code ) {
-    case QAbstractSocket::ConnectionRefusedError:
-        message = trUtf8("Erreur réseau : connexion refusée.");
-        break;
-    case QAbstractSocket::HostNotFoundError:
-        message = trUtf8("Erreur réseau : serveur introuvable.");
-        break;
-    default:
-        message = trUtf8("Erreur réseau : la transmission de données a échoué.");
-        break;
+    switch (code)
+    {
+        case QAbstractSocket::ConnectionRefusedError:
+            message = trUtf8("Erreur réseau : connexion refusée.");
+            break;
+        case QAbstractSocket::HostNotFoundError:
+            message = trUtf8("Erreur réseau : serveur introuvable.");
+            break;
+        default:
+            message = trUtf8("Erreur réseau : la transmission de données a échoué.");
+            break;
     }
-    emit sgnlMessage( message );
+    emit sgnlMessage(message);
 }
 /*****************************************************************************/
 /**
  * On agit en fonction du type de bloc reçu
  */
-void Client::doAction( QDataStream &in )
+void Client::doAction(QDataStream &in)
 {
     quint8 type;  // type de trame
 
     in >> type;
-    switch( type ) {
-
-    /**
-       * On reçoit un message de quelqu'un
-       */
-    case NET_MESSAGE:
+    switch (type)
     {
-        QString message;
-        in >> message;
-        emit sgnlMessage(message);
-        break;
-    }
 
-        /**
-       * Le serveur nous demande notre identité
-       */
-    case NET_IDENTIFICATION:
-    {
-        quint8 p;
-
-        in >> p;
-        identity.place = (Place)p;
-        sendIdentity();
-        break;
-    }
-
-        /**
-       * On reçoit la liste des joueurs qui sont connectés
-       */
-    case NET_LISTE_JOUEURS:
-    {
-        quint8 nombre;
-        QList<Identity> players;
-
-        in >> nombre;
-        for( int i=0; i<nombre; i++) {
-            Identity ident;
-            in >> ident;
-            players.append(ident);
+            /**
+                       * On reçoit un message de quelqu'un
+                       */
+        case NET_MESSAGE:
+        {
+            QString message;
+            in >> message;
+            emit sgnlMessage(message);
+            break;
         }
-        emit sgnlListeDesJoueurs( players );
-        break;
-    }
 
         /**
-       * On reçoit ses cartes et les paramètres du jeu
-       */
-    case NET_RECEPTION_CARTES:
-    {
-        int i;
-        quint8 n;
+        * Le serveur nous demande notre identité
+        */
+        case NET_IDENTIFICATION:
+        {
+            quint8 p;
 
-        in >> n;
-        if( n == 4 ) {
-            myDeck.clear();
-            for( i=0; i<NB_HAND_CARDS; i++ ) {
-                in >> n;
-                myDeck.append(Jeu::getCard( n ));
+            in >> p;
+            identity.place = (Place)p;
+            sendIdentity();
+            break;
+        }
+
+        /**
+        * On reçoit la liste des joueurs qui sont connectés
+        */
+        case NET_LISTE_JOUEURS:
+        {
+            quint8 nombre;
+            QList<Identity> players;
+
+            in >> nombre;
+            for (int i = 0; i < nombre; i++)
+            {
+                Identity ident;
+                in >> ident;
+                players.append(ident);
             }
-            score.reset();
-            emit sgnlReceptionCartes();
+            emit sgnlListeDesJoueurs(players);
+            break;
         }
-        break;
-    }
 
         /**
-       * Le serveur nous indique à qui est le tour
-       */
-    case NET_SELECTION_JOUEUR:
-    {
-        quint8 p;
+        * On reçoit ses cartes et les paramètres du jeu
+        */
+        case NET_RECEPTION_CARTES:
+        {
+            int i;
+            quint8 n;
 
-        in >> p;
-        infos.gameCounter++;
-        emit sgnlAfficheSelection((Place)p);
-        break;
-    }
-
-        /**
-       * Le serveur nous demande notre enchère
-       */
-    case NET_DEMANDE_ENCHERE:
-    {
-        quint8 c;
-
-        in >> c; // contrat le plus élevé annoncé précédemment
-        emit sgnlChoixEnchere((Contrat)c);
-        break;
-    }
-
-        /**
-       * On reçoit l'enchère proposée par un joueur
-       */
-    case NET_ENCHERE_JOUEUR:
-    {
-        qint8 c, p;
-        in >> p;
-        in >> c;
-        emit sgnlAfficheEnchere( (Place)p, (Contrat)c );
-        break;
-    }
-
-
-        /**
-       * Le serveur nous montre le chien
-       */
-    case NET_MONTRE_CHIEN:
-    {
-        int i;
-        qint8 carte_id;
-
-        chien.clear();
-        for( i=0; i<6; i++ ) {
-            in >> carte_id;
-            chien.append( Jeu::getCard(carte_id) );
+            in >> n;
+            if (n == 4)
+            {
+                myDeck.clear();
+                for (i = 0; i < NB_HAND_CARDS; i++)
+                {
+                    in >> n;
+                    myDeck.append(Jeu::getCard(n));
+                }
+                score.reset();
+                emit sgnlReceptionCartes();
+            }
+            break;
         }
-        chien.sort();
-        emit sgnlAfficheChien();
-        break;
-    }
 
         /**
-       * Le serveur nous demande de faire notre chien
-       */
-    case NET_FAIT_CHIEN:
-    {
-        emit sgnlPrepareChien();
-        break;
-    }
+        * Le serveur nous indique à qui est le tour
+        */
+        case NET_SELECTION_JOUEUR:
+        {
+            quint8 p;
 
-        /**
-       * On commence à jouer cette donne
-       */
-    case NET_DEPART_DONNE:
-    {
-        qint8 preneur;
-        qint8 contrat;
-
-        in >> preneur;
-        in >> contrat;
-        infos.preneur = (Place)preneur;
-        infos.contrat = (Contrat)contrat;
-        mainDeck.clear();
-        infos.gameCounter = 0;
-        emit sgnlDepartDonne((Place)preneur,(Contrat)contrat);
-        break;
-    }
-
-        /**
-       * C'est à notre tour de jouer
-       */
-    case NET_JOUE_CARTE:
-    {
-        emit sgnlJoueCarte();
-        break;
-    }
-
-        /**
-       * On reçoit la carte jouée par un joueur
-       */
-    case NET_MONTRE_CARTE:
-    {
-        quint8 id;
-        quint8 tour;
-
-        in >> id;
-        in >> tour;
-        mainDeck.append(Jeu::getCard(id));
-        emit sgnlAfficheCarte((int)id, (Place)tour);
-        break;
-    }
-
-        /**
-       * Le serveur nous demande si on a bien vu les cartes de ce tour
-       */
-    case NET_SERVER_WAIT_PLI:
-    {
-        quint8 winner;
-        quint32 points;
-
-        in >> winner;
-        in >> points;
-        emit sgnlWaitPli((Place)winner, (float)points);
-        break;
-    }
-
-        /**
-       * On prévient la fin de cette donne, on affiche les scores
-       */
-    case NET_FIN_DONNE:
-    {
-        qint32 tmp;
-        ScoreInfos score_inf;
-        quint8 var8;
-        bool lastDeal;
-
-        in >> tmp;
-        score_inf.attaque = (float)tmp;
-        in >> tmp;
-        score_inf.defense = (float)tmp;
-        in >> tmp;
-        score_inf.bouts = (int)tmp;
-        in >> tmp;
-        score_inf.pointsAFaire = (int)tmp;
-        in >> tmp;
-        score_inf.difference = (int)tmp;
-        in >> tmp;
-        score_inf.points_petit_au_bout = (int)tmp;
-        in >> tmp;
-        score_inf.multiplicateur = (int)tmp;
-        in >> tmp;
-        score_inf.points_poignee = (int)tmp;
-        in >> tmp;
-        score_inf.points_chelem = (int)tmp;
-        in >> tmp;
-        score_inf.points_defense = (int)tmp;
-
-        score.setScoreInfos(score_inf);
-        score.setPoints(infos);
-        in >> var8;
-        if (var8 == 1) {
-            lastDeal = true;
-        } else {
-            lastDeal = false;
+            in >> p;
+            infos.gameCounter++;
+            emit sgnlAfficheSelection((Place)p);
+            break;
         }
-        in >> var8;
-        in >> tmp;
-
-        emit sgnlFinDonne( (Place)var8, (float)tmp, lastDeal);
-        break;
-    }
 
         /**
-       * Tous les joueurs ont passé, le serveur nous demande si on veut redistribuer
-       */
-    case NET_SERVER_REDIST:
-    {
-        emit sgnlRedist();
-        break;
-    }
+        * Le serveur nous demande notre enchère
+        */
+        case NET_DEMANDE_ENCHERE:
+        {
+            quint8 c;
 
-    default:
-        emit sgnlMessage( trUtf8("Paquet reçu non valide.") );
-        break;
+            in >> c; // contrat le plus élevé annoncé précédemment
+            emit sgnlChoixEnchere((Contrat)c);
+            break;
+        }
+
+        /**
+        * On reçoit l'enchère proposée par un joueur
+        */
+        case NET_ENCHERE_JOUEUR:
+        {
+            qint8 c, p;
+            in >> p;
+            in >> c;
+            emit sgnlAfficheEnchere((Place)p, (Contrat)c);
+            break;
+        }
+
+
+        /**
+        * Le serveur nous montre le chien
+        */
+        case NET_MONTRE_CHIEN:
+        {
+            int i;
+            qint8 carte_id;
+
+            chien.clear();
+            for (i = 0; i < 6; i++)
+            {
+                in >> carte_id;
+                chien.append(Jeu::getCard(carte_id));
+            }
+            chien.sort();
+            emit sgnlAfficheChien();
+            break;
+        }
+
+        /**
+        * Le serveur nous demande de faire notre chien
+        */
+        case NET_FAIT_CHIEN:
+        {
+            emit sgnlPrepareChien();
+            break;
+        }
+
+        /**
+        * On commence à jouer cette donne
+        */
+        case NET_DEPART_DONNE:
+        {
+            qint8 preneur;
+            qint8 contrat;
+
+            in >> preneur;
+            in >> contrat;
+            infos.preneur = (Place)preneur;
+            infos.contrat = (Contrat)contrat;
+            mainDeck.clear();
+            infos.gameCounter = 0;
+            emit sgnlDepartDonne((Place)preneur, (Contrat)contrat);
+            break;
+        }
+
+        /**
+        * C'est à notre tour de jouer
+        */
+        case NET_JOUE_CARTE:
+        {
+            emit sgnlJoueCarte();
+            break;
+        }
+
+        /**
+        * On reçoit la carte jouée par un joueur
+        */
+        case NET_MONTRE_CARTE:
+        {
+            quint8 id;
+            quint8 tour;
+
+            in >> id;
+            in >> tour;
+            mainDeck.append(Jeu::getCard(id));
+            emit sgnlAfficheCarte((int)id, (Place)tour);
+            break;
+        }
+
+        /**
+        * Le serveur nous demande si on a bien vu les cartes de ce tour
+        */
+        case NET_SERVER_WAIT_PLI:
+        {
+            quint8 winner;
+            quint32 points;
+
+            in >> winner;
+            in >> points;
+            emit sgnlWaitPli((Place)winner, (float)points);
+            break;
+        }
+
+        /**
+        * On prévient la fin de cette donne, on affiche les scores
+        */
+        case NET_FIN_DONNE:
+        {
+            qint32 tmp;
+            ScoreInfos score_inf;
+            quint8 var8;
+            bool lastDeal;
+
+            in >> tmp;
+            score_inf.attaque = (float)tmp;
+            in >> tmp;
+            score_inf.defense = (float)tmp;
+            in >> tmp;
+            score_inf.bouts = (int)tmp;
+            in >> tmp;
+            score_inf.pointsAFaire = (int)tmp;
+            in >> tmp;
+            score_inf.difference = (int)tmp;
+            in >> tmp;
+            score_inf.points_petit_au_bout = (int)tmp;
+            in >> tmp;
+            score_inf.multiplicateur = (int)tmp;
+            in >> tmp;
+            score_inf.points_poignee = (int)tmp;
+            in >> tmp;
+            score_inf.points_chelem = (int)tmp;
+            in >> tmp;
+            score_inf.points_defense = (int)tmp;
+
+            score.setScoreInfos(score_inf);
+            score.setPoints(infos);
+            in >> var8;
+            if (var8 == 1)
+            {
+                lastDeal = true;
+            }
+            else
+            {
+                lastDeal = false;
+            }
+            in >> var8;
+            in >> tmp;
+
+            emit sgnlFinDonne((Place)var8, (float)tmp, lastDeal);
+            break;
+        }
+
+        /**
+        * Tous les joueurs ont passé, le serveur nous demande si on veut redistribuer
+        */
+        case NET_SERVER_REDIST:
+        {
+            emit sgnlRedist();
+            break;
+        }
+
+        default:
+            emit sgnlMessage(trUtf8("Paquet reçu non valide."));
+            break;
     }
 }
 /*****************************************************************************/
 void Client::sendIdentity()
 {
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
-    out.setVersion( 5 );
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(5);
     out << (quint16)0 << (quint8)NET_CLIENT_INFOS
-        << QString( TAROT_VERSION ) // version de TarotClub pour de futurs tests de compatibilité
+        << QString(TAROT_VERSION)   // version de TarotClub pour de futurs tests de compatibilité
         << identity
         << (quint16)0xFFFF;
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
     socket.write(block);
 }
 /*****************************************************************************/
-void Client::sendMessage( const QString &message )
+void Client::sendMessage(const QString &message)
 {
     QByteArray block;
     QString msg;
@@ -859,14 +962,14 @@ void Client::sendMessage( const QString &message )
     msg = identity.name + "> " + message;
 
     // Préparation de la trame
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_MSG
         << msg
         << (quint16)0xFFFF;
 
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);
@@ -879,13 +982,13 @@ void Client::sendMessage( const QString &message )
 void Client::sendReady()
 {
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_READY
         << (quint16)0xFFFF;
 
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);
@@ -898,13 +1001,13 @@ void Client::sendReady()
 void Client::sendError()
 {
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_ERROR
         << (quint16)0xFFFF;
 
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);
@@ -914,17 +1017,17 @@ void Client::sendError()
 /**
  * Le client envoie son choix d'enchère
  */
-void Client::sendEnchere( Contrat c )
+void Client::sendEnchere(Contrat c)
 {
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_ENCHERE
         << (quint8)c
         << (quint16)0xFFFF;
 
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);
@@ -939,17 +1042,18 @@ void Client::sendChien()
     int i;
 
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_CHIEN;
 
-    for( i=0; i<chien.count(); i++ ) {
+    for (i = 0; i < chien.count(); i++)
+    {
         out << (quint8)chien.at(i)->getId();
     }
 
     out << (quint16)0xFFFF;
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);
@@ -964,19 +1068,20 @@ void Client::sendPoignee()
     int i;
 
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_POIGNEE;
 
     out << (quint8)poignee.size();
 
-    for( i=0; i<poignee.size(); i++ ) {
+    for (i = 0; i < poignee.size(); i++)
+    {
         out << (quint8)(poignee.at(i)->getId());
     }
 
     out << (quint16)0xFFFF;
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);
@@ -986,19 +1091,19 @@ void Client::sendPoignee()
 /**
  * Send card to play to the server
  */
-void Client::sendCard( Card *c )
+void Client::sendCard(Card *c)
 {
     if (c != NULL)
     {
         QByteArray block;
-        QDataStream out( &block, QIODevice::WriteOnly );
+        QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QT_STREAMVER);
         out << (quint16)0 << (quint8)NET_CLIENT_CARTE
             << (quint8)c->getId()
             << (quint16)0xFFFF;
 
         out.device()->seek(0);
-        out << (quint16)( block.size() - sizeof(quint16) );
+        out << (quint16)(block.size() - sizeof(quint16));
 
         // On envoie la trame au serveur
         socket.write(block);
@@ -1016,13 +1121,13 @@ void Client::sendCard( Card *c )
 void Client::sendVuChien()
 {
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_VU_CHIEN
         << (quint16)0xFFFF;
 
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);
@@ -1035,13 +1140,13 @@ void Client::sendVuChien()
 void Client::sendVuPli()
 {
     QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
+    QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)NET_CLIENT_VU_PLI
         << (quint16)0xFFFF;
 
     out.device()->seek(0);
-    out << (quint16)( block.size() - sizeof(quint16) );
+    out << (quint16)(block.size() - sizeof(quint16));
 
     // On envoie la trame au serveur
     socket.write(block);

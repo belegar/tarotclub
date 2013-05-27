@@ -89,8 +89,12 @@ HEADERS = AboutWindow.h \
     TarotEngine.h \
     Score.h \
     Identity.h \
-    Table.h \
-    JoinWizard.h
+    JoinWizard.h \
+    GameState.h \
+    ScoreInfo.h \
+    Protocol.h \
+    Server.h \
+    ../src/Table.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -132,5 +136,9 @@ SOURCES = AboutWindow.cpp \
     Bot.cpp \
     TarotEngine.cpp \
     Score.cpp \
-    JoinWizard.cpp
+    JoinWizard.cpp \
+    GameState.cpp \
+    Protocol.cpp \
+    Server.cpp \
+    ../src/Table.cpp
 

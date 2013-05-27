@@ -30,44 +30,45 @@
 #include "defines.h"
 #include "Deck.h"
 #include "Identity.h"
+#include "GameState.h"
 
 /*****************************************************************************/
 class Player : public QObject
 {
 
-protected:
-   Identity    identity;   // identité du joueur
-   Deck        myDeck;     // cartes en main
+private:
+    Identity    identity;   // player's identification
+    Deck        myDeck;     // players cards
 
 public:
-   Player();
+    Player();
 
-   // Opérations sur l'identité
-   void setName( const QString & );
-   void setQuote( const QString & );
-   void setSex( SexType );
-   void setAvatar( const QString & );
-   void setIdentity( Identity &ident );
-   void setPlace(Place p);
+    // Opérations sur l'identité
+    void setName(const QString &);
+    void setQuote(const QString &);
+    void setSex(SexType);
+    void setAvatar(const QString &);
+    void setIdentity(Identity &ident);
+    void setPlace(Place p);
 
-   QString getName();
-   QString getQuote();
-   SexType getSex();
-   QString getAvatar();
-   Identity *getIdentity();
-   Place getPlace();
+    QString getName();
+    QString getQuote();
+    SexType getSex();
+    QString getAvatar();
+    Identity *getIdentity();
+    Place getPlace();
 
-   // Opérations sur les cartes du joueur
-   void tidyDeck();
-   void addCard( Card * );
-   void removeCard( Card * );
-   void emptyDeck();
-   bool cardExists( Card * );
-   bool canPlayCard( Deck *, Card *, int, int);
-   int getCardNumber();
-   Card *getCard( int );
-   Card *getCardById( int );
-   Card *GetCardByName(const QString &i_name);
+    // Opérations sur les cartes du joueur
+    void tidyDeck();
+    void addCard(Card *);
+    void removeCard(Card *);
+    void emptyDeck();
+    bool HasCard(Card *);
+    bool CanPlayCard(Deck *, Card *, GameState &info);
+    int getCardNumber();
+    Card *getCard(int);
+    Card *getCardById(int);
+    Card *GetCardByName(const QString &i_name);
 };
 
 #endif // _PLAYER_H

@@ -34,22 +34,26 @@
 #define NORTH_BOX_POS_Y   10
 
 
-static const QPointF coordPlayerBox[NB_PLAYERS] = {
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+452),      // SUD
-    QPointF(NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+103),  // EST
+static const QPointF coordPlayerBox[5] =
+{
+    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 452),    // SUD
+    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 103), // EST
     QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y),          // NORD
-    QPointF(NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+103)   // OUEST
+    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 103), // OUEST
+    QPointF(0, 0)                                       // NORD-OUEST
 };
 
-static const QPointF coordTextBox[NB_PLAYERS] = {
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+412),      // SUD
-    QPointF(NORTH_BOX_POS_X+230, NORTH_BOX_POS_Y+143),  // EST
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y+40),       // NORD
-    QPointF(NORTH_BOX_POS_X-230, NORTH_BOX_POS_Y+143)   // OUEST
+static const QPointF coordTextBox[5] =
+{
+    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 412),    // SUD
+    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 143), // EST
+    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 40),     // NORD
+    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 143), // OUEST
+    QPointF(0, 0)                                       // NORD-OUEST
 };
 
 /*****************************************************************************/
-GfxCard::GfxCard ( const QString & fileName, QGraphicsItem * parent ) : QGraphicsSvgItem(fileName, parent)
+GfxCard::GfxCard(const QString &fileName, QGraphicsItem *parent) : QGraphicsSvgItem(fileName, parent)
 
 {
     status = CARD_NORMAL;
@@ -73,10 +77,13 @@ void GfxCard::setStatus(CardStatus s)
 /*****************************************************************************/
 void GfxCard::toggleStatus()
 {
-    if (status == CARD_NORMAL) {
+    if (status == CARD_NORMAL)
+    {
         status = CARD_SELECTED;
         this->moveBy(0.0, -20.0);
-    } else {
+    }
+    else
+    {
         status = CARD_NORMAL;
         this->moveBy(0.0, 20.0);
     }
@@ -88,15 +95,15 @@ void GfxCard::toggleStatus()
 /*****************************************************************************/
 
 
-Tapis::Tapis( QWidget *parent )
-    : QGraphicsView( parent )
+Tapis::Tapis(QWidget *parent)
+    : QGraphicsView(parent)
 {
     setScene(&scene);
 
     //==============================================================
     //       BOUTONS ENCHERES
     //==============================================================
-    groupBoutons = new QGroupBox( trUtf8("Enchères"), this );
+    groupBoutons = new QGroupBox(trUtf8("Enchères"), this);
     groupBoutons->hide();
 
     boutonPasse = new QPushButton(STR_PASSE);
@@ -115,43 +122,45 @@ Tapis::Tapis( QWidget *parent )
     vbox->addWidget(chelem);
     groupBoutons->setLayout(vbox);
 
-    groupBoutons->move(10,300);
+    groupBoutons->move(10, 300);
 
     //==============================================================
 
     boutonAccepterChien = new QPushButton(trUtf8("Accepter le chien"), this);
     boutonAccepterChien->move(800, 462);
-    boutonAccepterChien->setMinimumSize( boutonAccepterChien->sizeHint() );
+    boutonAccepterChien->setMinimumSize(boutonAccepterChien->sizeHint());
     boutonAccepterChien->hide();
 
     //==============================================================
 
     boutonPresenterPoignee = new QPushButton(trUtf8("PrÃ©senter poignÃ©e"), this);
     boutonPresenterPoignee->move(800, 462);
-    boutonPresenterPoignee->setMinimumSize( boutonPresenterPoignee->sizeHint() );
+    boutonPresenterPoignee->setMinimumSize(boutonPresenterPoignee->sizeHint());
     boutonPresenterPoignee->hide();
 
     //==============================================================
     //       ELEMENTS DU CANVAS
     //==============================================================
 
-    for (int i=0; i<NB_PLAYERS; i++) {
+    // 4 players by default
+    for (int i = 0; i < 4; i++)
+    {
         PlayerBox *pb = new PlayerBox(coordPlayerBox[i], &scene);
         pb->show();
         TextBox *tb = new TextBox(coordTextBox[i], &scene);
         tb->hide();
 
         playerBox.insert((Place)i, pb);
-        textBox.insert((Place)i, tb);      
+        textBox.insert((Place)i, tb);
     }
 
-    connect( boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()) );
-    connect( boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()) );
-    connect( boutonGarde, SIGNAL(clicked()), this, SLOT(slotBoutton3()) );
-    connect( boutonGardeSans, SIGNAL(clicked()), this, SLOT(slotBoutton4()) );
-    connect( boutonGardeContre, SIGNAL(clicked()), this, SLOT(slotBoutton5()) );
-    connect( boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()) );
-    connect( boutonPresenterPoignee, SIGNAL(clicked()), this, SLOT(slotPresenterPoignee()) );
+    connect(boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()));
+    connect(boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()));
+    connect(boutonGarde, SIGNAL(clicked()), this, SLOT(slotBoutton3()));
+    connect(boutonGardeSans, SIGNAL(clicked()), this, SLOT(slotBoutton4()));
+    connect(boutonGardeContre, SIGNAL(clicked()), this, SLOT(slotBoutton5()));
+    connect(boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()));
+    connect(boutonPresenterPoignee, SIGNAL(clicked()), this, SLOT(slotPresenterPoignee()));
 
     // call mouseEvent as soon as the mouse is moving, without any click buttons
     viewport()->setMouseTracking(true);
@@ -161,7 +170,8 @@ Tapis::Tapis( QWidget *parent )
 void Tapis::setBackground(const QString &fichier)
 {
     QColor color(fichier);
-    if (color.isValid()) {
+    if (color.isValid())
+    {
         scene.setBackgroundBrush(color);
     }
 }
@@ -174,8 +184,10 @@ GfxCard *Tapis::getGfxCard(int i)
 Card *Tapis::getObjectCard(GfxCard *gc)
 {
     Card *c = NULL;
-    for( int i=0; i<cardsPics.size(); i++ ) {
-        if( cardsPics.at(i) == gc ) {
+    for (int i = 0; i < cardsPics.size(); i++)
+    {
+        if (cardsPics.at(i) == gc)
+        {
             c = Jeu::getCard(i);
             break;
         }
@@ -185,71 +197,93 @@ Card *Tapis::getObjectCard(GfxCard *gc)
 /*****************************************************************************/
 void Tapis::setAccepterChienVisible(bool v)
 {
-    if (v == true) {
+    if (v == true)
+    {
         boutonAccepterChien->show();
-    } else {
+    }
+    else
+    {
         boutonAccepterChien->hide();
     }
 }
 /*****************************************************************************/
 void Tapis::setBoutonPoigneeVisible(bool v)
 {
-    if (v == true) {
+    if (v == true)
+    {
         boutonPresenterPoignee->show();
-    } else {
+    }
+    else
+    {
         boutonPresenterPoignee->hide();
     }
 }
 /*****************************************************************************/
 bool Tapis::loadCards(ClientOptions *opt)
 {
-    int i,j,n;
+    int i, j, n;
     QString varImg;
     QString image;
     QString path = QCoreApplication::applicationDirPath() + "/" + opt->deckFilePath + "/";
 
     //----- 4 couleurs
-    for( i=0; i<4; i++ ){
-        if( i==0 ) {
+    for (i = 0; i < 4; i++)
+    {
+        if (i == 0)
+        {
             varImg = "pique";
-        } else if( i==1 ) {
+        }
+        else if (i == 1)
+        {
             varImg = "coeur";
-        } else if( i==2 ) {
+        }
+        else if (i == 2)
+        {
             varImg = "trefle";
-        } else {
+        }
+        else
+        {
             varImg = "carreau";
         }
 
         // de l'as au roi (14 cartes)
-        for( j=0; j<14; j++ ) {
-            n = i*14+j;
-            image = path + varImg + QString("-") + QString().sprintf("%02d.svg",j+1);
+        for (j = 0; j < 14; j++)
+        {
+            n = i * 14 + j;
+            image = path + varImg + QString("-") + QString().sprintf("%02d.svg", j + 1);
 
             // Test if file exists
             QFile fileTest(image);
-            if (fileTest.exists()) {
+            if (fileTest.exists())
+            {
                 GfxCard *item = new GfxCard(image);
                 item->hide();
                 cardsPics.insert(n, item);
                 scene.addItem(item);
-            } else {
+            }
+            else
+            {
                 return false;
             }
         }
     }
 
     //----- 21 atouts
-    for( i=56; i<77; i++) {
-        image = path + "atout-" + QString().sprintf("%02d.svg",i-55);
+    for (i = 56; i < 77; i++)
+    {
+        image = path + "atout-" + QString().sprintf("%02d.svg", i - 55);
 
         // Test if file exists
         QFile fileTest(image);
-        if (fileTest.exists()) {
+        if (fileTest.exists())
+        {
             GfxCard *item = new GfxCard(image);
             item->hide();
             cardsPics.insert(i, item);
             scene.addItem(item);
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -259,12 +293,15 @@ bool Tapis::loadCards(ClientOptions *opt)
 
     // Test if file exists
     QFile fileTest(image);
-    if (fileTest.exists()) {
+    if (fileTest.exists())
+    {
         GfxCard *item = new GfxCard(image);
         item->hide();
         cardsPics.insert(77, item);
         scene.addItem(item);
-    } else {
+    }
+    else
+    {
         return false;
     }
 
@@ -276,35 +313,40 @@ bool Tapis::loadCards(ClientOptions *opt)
     return true;
 }
 /*****************************************************************************/
-void Tapis::resizeEvent( QResizeEvent *e )
+void Tapis::resizeEvent(QResizeEvent *e)
 {
     QSize s;
     s = e->size();
-    setSceneRect( 0, 0, s.width(), s.height() );
+    setSceneRect(0, 0, s.width(), s.height());
 }
 /*****************************************************************************/
 void Tapis::setCardScale(float factor)
 {
-    for(int i=0; i<cardsPics.size(); i++) {
+    for (int i = 0; i < cardsPics.size(); i++)
+    {
         cardsPics.at(i)->setScale(factor);
     }
 }
 /*****************************************************************************/
-void Tapis::mousePressEvent( QMouseEvent *e )
+void Tapis::mousePressEvent(QMouseEvent *e)
 {
     QList<QGraphicsItem *> list;
 
-    emit sgnlViewportClicked();
+    emit sigViewportClicked();
 
-    if( filter == AUCUN ) {
+    if (filter == AUCUN)
+    {
         return;
     }
-    if( filter == JEU ) {
+    if (filter == JEU)
+    {
         list = scene.items(e->pos());
-        if ( !list.isEmpty() ) {
-            if( list.first()->type() == GfxCard::Type ) {
+        if (!list.isEmpty())
+        {
+            if (list.first()->type() == GfxCard::Type)
+            {
                 GfxCard *c = (GfxCard *)list.first();
-                emit sgnlClickCard( c );
+                emit sigClickCard(c);
             }
         }
     }
@@ -313,24 +355,29 @@ void Tapis::mousePressEvent( QMouseEvent *e )
 /*
  * Emit a signal each time the cursor goes over a card
  */
-void Tapis::mouseMoveEvent( QMouseEvent * e )
+void Tapis::mouseMoveEvent(QMouseEvent *e)
 {
     QList<QGraphicsItem *> list;
 
-    if( filter == AUCUN ) {
+    if (filter == AUCUN)
+    {
         return;
     }
 
     list = scene.items(e->pos());
 
-    if ( !list.isEmpty() ) {
+    if (!list.isEmpty())
+    {
         // Si c'est une carte, retourne l'obet, sinon 0
-        if( list.first()->type() == GfxCard::Type ) {
+        if (list.first()->type() == GfxCard::Type)
+        {
             GfxCard *c = (GfxCard *)list.first();
-            emit sgnlMoveCursor( c );
+            emit sigMoveCursor(c);
         }
-    } else {
-        setCursorType( ARROW );
+    }
+    else
+    {
+        setCursorType(ARROW);
     }
 }
 /*****************************************************************************/
@@ -338,18 +385,21 @@ void Tapis::mouseMoveEvent( QMouseEvent * e )
  * n==0 : norma icon with an arrow
  * n==1 : forbidden icon
  */
-void Tapis::setCursorType( CursorType t )
+void Tapis::setCursorType(CursorType t)
 {
-    if( t == ARROW ) {
-        QCursor cu( Qt::ArrowCursor );
-        setCursor( cu );
-    } else {
-        QCursor cu( Qt::ForbiddenCursor );
-        setCursor( cu );
+    if (t == ARROW)
+    {
+        QCursor cu(Qt::ArrowCursor);
+        setCursor(cu);
+    }
+    else
+    {
+        QCursor cu(Qt::ForbiddenCursor);
+        setCursor(cu);
     }
 }
 /*****************************************************************************/
-void Tapis::colorisePreneur( Place preneur )
+void Tapis::colorisePreneur(Place preneur)
 {
     playerBox.value(preneur)->highlightPlayer(true);
 }
@@ -378,22 +428,23 @@ Place Tapis::SwapPlace(Place origin, Place absolute)
 {
     Place pl = SUD;
 
-    if(origin == OUEST)
+    if (origin == OUEST)
     {
         Place tab[] = {EST, NORD, OUEST, SUD};
         pl = tab[absolute];
     }
-    else if(origin == NORD)
+    else if (origin == NORD)
     {
         Place tab[] = {NORD, OUEST, SUD, EST};
         pl = tab[absolute];
     }
-    else if(origin == EST)
+    else if (origin == EST)
     {
         Place tab[] = {OUEST, SUD, EST, NORD};
         pl = tab[absolute];
     }
-    else {
+    else
+    {
         Place tab[] = {SUD, EST, NORD, OUEST};
         pl = tab[absolute];
     }
@@ -404,15 +455,13 @@ Place Tapis::SwapPlace(Place origin, Place absolute)
 /**
  * Show names on the board, bottom player is always south
  */
-void Tapis::setPlayerNames( QList<Identity> &players, Place p )
+void Tapis::setPlayerNames(QList<Identity> &players, Place p)
 {
-    if (players.size() != NB_PLAYERS)
-        return;
+    p = SwapPlace(p, SUD);   // always south
 
-    p = SwapPlace( p, SUD ); // always south
-
-    for (int i = 0; i < players.size(); ++i) {
-        Place rel = SwapPlace( p, players.at(i).place); // relative place
+    for (int i = 0; i < players.size(); ++i)
+    {
+        Place rel = SwapPlace(p, players.at(i).place);  // relative place
 
         playerBox.value(rel)->setText(players.at(i).name);
         playerBox.value(rel)->setAvatar(":/images/avatars/" + players.at(i).avatar);
@@ -456,7 +505,7 @@ QPointF Tapis::CalculateCardPosition(Place p)
     x = playerBox.value(p)->rect().x();
     y = playerBox.value(p)->rect().y();
 
-    x = x + (TEXT_BOX_WIDTH - width)/4;
+    x = x + (TEXT_BOX_WIDTH - width) / 4;
     if (p == SUD)
     {
         y = y - height - TEXT_BOX_HEIGHT - 40;
@@ -477,7 +526,7 @@ QPointF Tapis::CalculateCardPosition(Place p)
  */
 void Tapis::DrawCardShadows()
 {
-    for (int i=0; i<NB_PLAYERS; i++)
+    for (int i = 0; i < 4; i++)
     {
         QRectF rect = cardsPics.at(0)->boundingRect();
         QPointF pos = CalculateCardPosition((Place)i);
@@ -491,7 +540,7 @@ void Tapis::DrawCardShadows()
     }
 }
 /*****************************************************************************/
-void Tapis::afficheSelection( Place p )
+void Tapis::afficheSelection(Place p)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
     while (i.hasNext())
@@ -508,19 +557,28 @@ void Tapis::afficheSelection( Place p )
     }
 }
 /*****************************************************************************/
-void Tapis::slotAfficheEnchere( Place enchereur, Contrat cont )
+void Tapis::slotAfficheEnchere(Place enchereur, Contrat cont)
 {
     QString txt;
 
-    if( cont == GARDE_CONTRE ) {
+    if (cont == GARDE_CONTRE)
+    {
         txt = STR_GARDE_CONTRE;
-    } else if( cont == GARDE_SANS ) {
+    }
+    else if (cont == GARDE_SANS)
+    {
         txt = STR_GARDE_SANS;
-    } else if( cont == GARDE ) {
+    }
+    else if (cont == GARDE)
+    {
         txt = STR_GARDE;
-    } else if( cont == PRISE ) {
+    }
+    else if (cont == PRISE)
+    {
         txt = STR_PRISE;
-    } else {
+    }
+    else
+    {
         txt = STR_PASSE;
     }
 
@@ -538,23 +596,27 @@ void Tapis::cacheEncheres()
     }
 }
 /*****************************************************************************/
-void Tapis::slotAfficheBoutons( Contrat contrat )
+void Tapis::slotAfficheBoutons(Contrat contrat)
 {
     boutonPrise->show();
     boutonGarde->show();
     boutonGardeSans->show();
     boutonGardeContre->show();
 
-    if( contrat >= PRISE ) {
+    if (contrat >= PRISE)
+    {
         boutonPrise->hide();
     }
-    if( contrat >= GARDE ) {
+    if (contrat >= GARDE)
+    {
         boutonGarde->hide();
     }
-    if( contrat >= GARDE_SANS ) {
+    if (contrat >= GARDE_SANS)
+    {
         boutonGardeSans->hide();
     }
-    if( contrat >= GARDE_CONTRE ) {
+    if (contrat >= GARDE_CONTRE)
+    {
         boutonGardeContre->hide();
     }
     groupBoutons->show();
@@ -563,7 +625,8 @@ void Tapis::slotAfficheBoutons( Contrat contrat )
 void Tapis::showAvatars(bool b)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
-    while (i.hasNext()) {
+    while (i.hasNext())
+    {
         i.next();
         i.value()->enableAvatar(b);
     }
@@ -587,7 +650,7 @@ void Tapis::razTapis(bool shadow)
         i.value()->selectPlayer(false);
     }
 
-    for (int c=0; c<cardShadows.size(); c++)
+    for (int c = 0; c < cardShadows.size(); c++)
     {
         if (shadow == true)
         {
@@ -603,7 +666,7 @@ void Tapis::razTapis(bool shadow)
 /*****************************************************************************/
 void Tapis::resetCards()
 {
-    for(int i=0; i<cardsPics.size(); i++ )
+    for (int i = 0; i < cardsPics.size(); i++)
     {
         cardsPics.at(i)->hide();
         cardsPics.at(i)->setStatus(CARD_NORMAL);
@@ -612,40 +675,40 @@ void Tapis::resetCards()
 /*****************************************************************************/
 void Tapis::slotBoutton1()
 {
-    emit sgnlContrat( PASSE );
+    emit sigContrat(PASSE);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton2()
 {
-    emit sgnlContrat( PRISE );
+    emit sigContrat(PRISE);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton3()
 {
-    emit sgnlContrat( GARDE );
+    emit sigContrat(GARDE);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton4()
 {
-    emit sgnlContrat( GARDE_SANS );
+    emit sigContrat(GARDE_SANS);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton5()
 {
-    emit sgnlContrat( GARDE_CONTRE );
+    emit sigContrat(GARDE_CONTRE);
 }
 /*****************************************************************************/
 void Tapis::slotAccepteChien()
 {
-    emit sgnlAccepteChien();
+    emit sigAccepteChien();
 }
 /*****************************************************************************/
 void Tapis::slotPresenterPoignee()
 {
-    emit sgnlPresenterPoignee();
+    emit sigPresenterPoignee();
 }
 /*****************************************************************************/
-void Tapis::setFilter( Filter f )
+void Tapis::setFilter(Filter f)
 {
     filter = f;
 }

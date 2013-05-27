@@ -39,16 +39,16 @@
 class InfosDock : public QDockWidget
 {
 private:
-   Ui::infosDock  ui;
+    Ui::infosDock  ui;
 
 public:
-   InfosDock( QWidget *parent );
+    InfosDock(QWidget *parent);
 
-   void clear();
-   void setContrat( Contrat c );
-   void setPreneur( QString preneur );
-   void setDonne( int n );
-   void printStats(DeckStats *stats);
+    void clear();
+    void setContrat(Contrat c);
+    void setPreneur(QString preneur);
+    void setDonne(int n);
+    void printStats(DeckStats *stats);
 };
 
 #endif // INFOSDOCK_H

@@ -26,26 +26,26 @@
 /*****************************************************************************/
 class Lobby : public QObject
 {
-   Q_OBJECT
+    Q_OBJECT
 
 private:
-   QString saloonName;
-   QTcpServer socket;
+    QString saloonName;
+    QTcpServer socket;
 
-   // available game tables
-   TarotEngine tables[SERVER_MAX_TABLES];
+    // available game tables
+    TarotEngine tables[SERVER_MAX_TABLES];
 
 public:
-   Lobby();
+    Lobby();
 
-   void setupTables(ServerOptions &opt);
-   void startGames();
+    void setupTables(ServerOptions &opt);
+    void startGames();
 
 public slots:
-   // Connections to the lobby
-   void slotNewConnection();
-   void slotClientClosed();
-   void slotReadData();
+    // Connections to the lobby
+    void slotNewConnection();
+    void slotClientClosed();
+    void slotReadData();
 };
 
 #endif // LOBBY_H

@@ -46,8 +46,8 @@ QVariant HelpBrowser::loadResource(int type, const QUrl &url)
     }
 }
 /*****************************************************************************/
-HelpWindow::HelpWindow( QWidget* parent  )
-    : QDialog( parent )
+HelpWindow::HelpWindow(QWidget *parent)
+    : QDialog(parent)
 {
     ui.setupUi(this);
 
@@ -62,18 +62,18 @@ HelpWindow::HelpWindow( QWidget* parent  )
     ui.splitter->insertWidget(1, browser);
     ui.splitter->setStretchFactor(1, 2);
 
- //   connect(helpEngine->contentWidget(), SIGNAL(linkActivated(const QUrl &)),
- //               helpBrowser, SLOT(setSource(const QUrl &)));
+    //   connect(helpEngine->contentWidget(), SIGNAL(linkActivated(const QUrl &)),
+    //               helpBrowser, SLOT(setSource(const QUrl &)));
 
     connect(helpEngine->contentWidget(), SIGNAL(linkActivated(const QUrl &)),
-                    this, SLOT(DisplayUrl(const QUrl &)));
+            this, SLOT(DisplayUrl(const QUrl &)));
 
     DisplayUrl(QUrl("qthelp://tarotclub.fr/help/index.html"));
 }
 /*****************************************************************************/
 void HelpWindow::DisplayUrl(const QUrl &url)
 {
-//    qDebug(url.toDisplayString().toLatin1().constData());
+    //    qDebug(url.toDisplayString().toLatin1().constData());
 
     browser->setSource(url);
 

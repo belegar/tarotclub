@@ -28,33 +28,34 @@ using namespace std;
 class ServerConsole;
 typedef void (ServerConsole::*console_function)(QStringList args);
 
-typedef struct {
-   QString cmd;
-   QString help;
-   console_function func;
-   
+typedef struct
+{
+    QString cmd;
+    QString help;
+    console_function func;
+
 } Command_t;
 
 /*****************************************************************************/
 class ServerConsole : public QThread
 {
 private:
-   char line[256];
-   QList<Command_t> list;
-   QObject *obj;
+    char line[256];
+    QList<Command_t> list;
+    QObject *obj;
 
 public:
-   ServerConsole( QObject *o );
+    ServerConsole(QObject *o);
 
-   void addCommand( QString cmd, QString help, console_function func );
-   void parseCommand();
-   void run();
+    void addCommand(QString cmd, QString help, console_function func);
+    void parseCommand();
+    void run();
 
-// Ci-dessous la liste des commandes supportées, toutes doivent commencer par le préfixe c_
-   void c_exit(QStringList args);
-   void c_help(QStringList args);
-   void c_start(QStringList args);
-   void c_stop(QStringList args);
+    // Ci-dessous la liste des commandes supportées, toutes doivent commencer par le préfixe c_
+    void c_exit(QStringList args);
+    void c_help(QStringList args);
+    void c_start(QStringList args);
+    void c_stop(QStringList args);
 };
 
 #endif // _SERVERCONSOLE_H
