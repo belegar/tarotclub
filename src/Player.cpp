@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Player.cpp
  *=============================================================================
- * Base class for all players.
+ * Basic modelization of a tarot player
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -38,71 +38,6 @@ Player::Player()
 
 }
 /*****************************************************************************/
-void Player::addCard(Card *newCard)
-{
-    myDeck.append(newCard);
-}
-/*****************************************************************************/
-void Player::removeCard(Card *c)
-{
-    myDeck.removeAll(c);
-}
-/*****************************************************************************/
-void Player::emptyDeck()
-{
-    myDeck.clear();
-}
-/*****************************************************************************/
-void Player::tidyDeck()
-{
-    myDeck.sort();
-}
-/*****************************************************************************/
-int Player::getCardNumber()
-{
-    return myDeck.count();
-}
-/*****************************************************************************/
-Card *Player::getCard(int i)
-{
-    return (myDeck.at(i));
-}
-/*****************************************************************************/
-Card *Player::getCardById(int i)
-{
-    return (myDeck.getCardById(i));
-}
-/*****************************************************************************/
-Card *Player::GetCardByName(const QString &i_name)
-{
-    Card *c = NULL;
-
-    for (int i = 0; i < myDeck.size(); i++)
-    {
-        c = myDeck.at(i);
-        if (c->getCardName() == i_name)
-        {
-            return c;
-        }
-    }
-    return c;
-}
-/*****************************************************************************/
-/**
- * Retourne true si la carte est présente dans les main du joueur, sinon false
- */
-bool Player::HasCard(Card *c)
-{
-    if (myDeck.indexOf(c) == -1)
-    {
-        return (false);
-    }
-    else
-    {
-        return (true);
-    }
-}
-/*****************************************************************************/
 /**
  * @brief Player::canPlayCard
  *
@@ -115,19 +50,20 @@ bool Player::HasCard(Card *c)
  * @param nbPlayers
  * @return true if the card can be played
  */
-bool Player::CanPlayCard(Deck *mainDeck, Card *cVerif, GameState &info)
+bool Player::CanPlayCard(Card *cVerif, Deck &trick, GameState &info)
 {
-    CardType    type; // required card
-    CardColor   coul; // required color
+    Card::Suit   suit; // required suit
 
-    bool hasColor = false; // true if the player has the requested color
-    bool possedeAtout = false;   // vrai si le joueur possède un atout
-    bool precedentAtout = false; // vrai si un atout max précédent
-    int  precAtoutMax = 0;
-    int  atoutMax = 0; // atout maxi possédé
-    bool ret = true;
+    // player's cards in hand
+    bool hasSuit = false;           // true if the player has the requested color
+    bool hasTrump = false;          // true if the player has some trumps
+    int  highestTrumpValue = 0;     // value of the maximum trump in hand
+
+    bool previousTrump = false;       // true if there is previous trump played
+    int  maxPreviousTrump = 0;      // maximum value of the previous trump played
+
     Card *c = NULL;
-    int i, n;
+    int i;
 
     // The player is the first of the trick, he can play all the cards
     if (info.trickCounter == 0)
@@ -136,97 +72,88 @@ bool Player::CanPlayCard(Deck *mainDeck, Card *cVerif, GameState &info)
     }
 
     // Simple use case, the excuse can always be played
-    if (cVerif->getType() == EXCUSE)
+    if (cVerif->IsFool())
     {
         return true;
     }
 
-    // We retreive the requested color by looking at the first card played
-    c = mainDeck->at(debut);
+    // We retreive the requested suit by looking at the first card played
+    c = trick.at(0);
 
-    type = c->getType();
-    coul = c->getColor();
-    if (type == EXCUSE)
+    if (c->IsFool())
     {
-        // The first card is a Excuse
-        if (rang == 2)
+        // The first card is a Excuse...
+        if (info.trickCounter == 1)
         {
-            // The player can play everything he wants
+            // ...the player can play everything he wants
             return true;
         }
-        c = mainDeck->at(debut + 1);   // la couleur demandée est donc la seconde carte
-        type = c->getType();
-        coul = c->getColor();
+        // The requested suit is the second card
+        c = trick.at(1);
     }
+    suit = c->GetSuit();
 
-    if (type == CARTE && cVerif->getColor() == coul)
+    // Some indications about previous played cards
+    for (i = 0; i < trick.size(); i++)
     {
-        return true;
-    }
-
-    // Quelques indications sur les plis précédents
-    // On regarde s'il y a un atout
-    for (i = 0; i < rang - 1; i++)
-    {
-        c = mainDeck->at(debut + i);
-        if (c->getType() == ATOUT)
+        c = trick.at(i);
+        if (c->GetSuit() == Card::TRUMPS)
         {
-            precedentAtout = true;
-            if (c->getValue() > precAtoutMax)
+            previousTrump = true;
+            if (c->GetValue() > maxPreviousTrump)
             {
-                precAtoutMax = c->getValue();
+                maxPreviousTrump = c->GetValue();
             }
         }
     }
 
-    // Quelques indications sur les cartes du joueur
-    n = myDeck.count();
-
-    for (i = 0; i < n; i++)
+    // Some indications on the player cards in hand
+    for (i = 0; i < myDeck.count(); i++)
     {
         c = myDeck.at(i);
-
-        if (c->getType() == ATOUT)
+        if (c->GetSuit() == Card::TRUMPS)
         {
-            possedeAtout = true;
-            if (c->getValue() > atoutMax)
+            hasTrump = true;
+            if (c->GetValue() > highestTrumpValue)
             {
-                atoutMax = c->getValue();
+                highestTrumpValue = c->GetValue();
             }
         }
-        else if (c->getType() == CARTE)
+        else
         {
-            if (c->getColor() == coul)
+            if (c->GetSuit() == suit)
             {
-                hasColor = true;
+                hasSuit = true;
             }
         }
     }
 
     // Card type requested is a trump
-    if (type == ATOUT)
+    if (suit == Card::TRUMPS)
     {
-        if (cVerif->getType() == ATOUT)
+        if (cVerif->GetSuit() == Card::TRUMPS)
         {
-            if (cVerif->getValue() > precAtoutMax)
+            // If we have trumps, we must play higher than the highest previous played trump,
+            // if we have the card, only. Otherwise, every trump value is ok.
+            if (cVerif->GetValue() > maxPreviousTrump)
             {
                 return true;
             }
             else
             {
-                if (atoutMax > precAtoutMax)
+                if (highestTrumpValue > maxPreviousTrump)
                 {
-                    return false;  // doit surcouper !
+                    return false;  // we must play higher trump we have
                 }
                 else
                 {
-                    return true;   // sinon tant pis, on doit quand même jouer la couleur demandée
+                    return true;   // any card is ok
                 }
             }
         }
         else
         {
-            if (possedeAtout == true)
+            if (hasTrump == true)
             {
                 return false;
             }
@@ -239,30 +166,38 @@ bool Player::CanPlayCard(Deck *mainDeck, Card *cVerif, GameState &info)
     // Card type requested is a standard card
     else
     {
-        // le joueur possède la couleur demandée, il doit donc la jouer cela
-        if (hasColor == true)
+        // The card is the required suit
+        if (cVerif->GetSuit() == suit)
         {
+            return true;
+        }
+        else if (hasSuit == true)
+        {
+            // not the required card, but he has the suit in hands
+            // he must play the required suit
             return false;
         }
         else
         {
-            // pas la couleur demandée
-            if (cVerif->getType() == ATOUT)
+            // We are here if the player has not the requested suit
+            // He must play a trump if he has some, or any other cards in other case
+
+            if (cVerif->GetSuit() == Card::TRUMPS)
             {
-                // doit-il surcouper ?
-                if (precedentAtout == true)
+                // He may have to play a higher trump
+                if (previousTrump == true)
                 {
-                    if (cVerif->getValue() > precAtoutMax)
+                    if (cVerif->GetValue() > maxPreviousTrump)
                     {
-                        // carte de surcoupe
+                        // higher card, ok!
                         return true;
                     }
                     else
                     {
-                        // a-t-il alors un atout plus fort ?
-                        if (atoutMax > precAtoutMax)
+                        // does he have a higher trump in hands?
+                        if (highestTrumpValue > maxPreviousTrump)
                         {
-                            return false; // oui, il doit donc surcouper
+                            return false; // yes, he must play it
                         }
                         else
                         {
@@ -274,78 +209,43 @@ bool Player::CanPlayCard(Deck *mainDeck, Card *cVerif, GameState &info)
             else
             {
                 // a-t-il un atout pour couper ?
-                if (possedeAtout == true)
+                if (hasTrump == true)
                 {
-                    return false; // oui, il DOIT couper
+                    return false; // he must play a trump
                 }
                 else
                 {
-                    return true; // non, il peut se défausser
+                    return true; // he can play any card
                 }
             }
         }
     }
-    return ret;
+    return true;
 }
 /*****************************************************************************/
-void Player::setName(const QString &n)
-{
-    identity.name = n;
-}
-/*****************************************************************************/
-void Player::setQuote(const QString &q)
-{
-    identity.quote = q;
-}
-/*****************************************************************************/
-void Player::setSex(SexType s)
-{
-    identity.sex = s;
-}
-/*****************************************************************************/
-void Player::setAvatar(const QString &a)
-{
-    identity.avatar = a;
-}
-/*****************************************************************************/
-void Player::setIdentity(Identity &ident)
+void Player::SetIdentity(Identity &ident)
 {
     identity = ident;
 }
 /*****************************************************************************/
-void Player::setPlace(Place p)
+void Player::SetPlace(Place p)
 {
-    identity.place = p;
+    place = p;
 }
 /*****************************************************************************/
-QString Player::getName()
+Identity &Player::GetIdentity()
 {
-    return (identity.name);
+    return identity;
 }
 /*****************************************************************************/
-QString Player::getQuote()
+Place Player::GetPlace()
 {
-    return (identity.quote);
+    return place;
 }
 /*****************************************************************************/
-SexType  Player::getSex()
+Deck &Player::GetDeck()
 {
-    return (identity.sex);
-}
-/*****************************************************************************/
-QString  Player::getAvatar()
-{
-    return (identity.avatar);
-}
-/*****************************************************************************/
-Identity *Player::getIdentity()
-{
-    return (&identity);
-}
-/*****************************************************************************/
-Place Player::getPlace()
-{
-    return identity.place;
+    return myDeck;
 }
 
 //=============================================================================

@@ -25,7 +25,9 @@
 #ifndef GameState_H
 #define GameState_H
 
+#include "defines.h"
 
+/*****************************************************************************/
 class GameState
 {
 
@@ -64,6 +66,11 @@ public:
     int GetNumberOfCards();
     int FirstCard();
 
+    /**
+     * @brief Compute the next player to play, counter-clockwise
+     * @param j
+     * @return
+     */
     Place NextPlayer(Place j);
 
     void Stop();
@@ -73,16 +80,15 @@ public:
      */
     void Start();
 
-private:
-    Place   taker;             // who has taken
-    Contrat contract;          // taker's contract
-    bool    slamAnnounced;     // true if the taker has announced a slam (chelem)
-    int     position;          // Current position, [0..numberOfPlayers-1]
-    int     numberOfPlayers;   // 3, 4 or 5
-    int     trickCounter;      // number of tricks played [0..17] for 4 players
-    Place   dealer;            // who has dealt the cards
-    Place   currentPlayer;
-    Sequence   sequence;
+    Place       taker;             // who has taken
+    Contract    contract;          // taker's contract
+    bool        slamAnnounced;     // true if the taker has announced a slam (chelem)
+    int         position;          // Current position, [0..numberOfPlayers-1]
+    int         numberOfPlayers;   // 3, 4 or 5
+    int         trickCounter;      // number of tricks played [0..17] for 4 players
+    Place       dealer;            // who has dealt the cards
+    Place       currentPlayer;
+    Sequence    sequence;
 
 };
 

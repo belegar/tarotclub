@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Score.cpp
+ * TarotClub - Deal.cpp
  *=============================================================================
- * Calcule les scores en fonction des paramètres du jeu
+ * This class stores a complete deal history and calculate final points
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,27 +23,26 @@
  *=============================================================================
  */
 
-#include "Score.h"
+#include "Deal.h"
 #include <stdlib.h>
 #include <QFile>
 #include <QString>
 #include <QTextStream>
 
 /*****************************************************************************/
-Score::Score()
+Deal::Deal()
 {
-    init();
+    Initialize();
     reset();
 }
 /*****************************************************************************/
-void Score::Initialize()
+void Deal::Initialize()
 {
-    // RAZ des totaux
-    for (int i = 0; i < MAX_ROUNDS; i++)
+    for (int i = 0; i <MAX_ROUNDS; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            scores[i][j] = 0;
+            deals[i][j] = 0;
         }
     }
     turn = 0;
@@ -53,7 +52,7 @@ void Score::Initialize()
 /**
  * Est appelé juste avant le premier tour
  */
-void Score::reset()
+void Deal::reset()
 {
     for (int i = 0; i < 78; i++)
     {
@@ -75,19 +74,19 @@ void Score::reset()
     typePoigneeD = P_SANS;
     typePoigneeA = P_SANS;
 
-    score_inf.pointsAFaire = 0;
-    score_inf.difference = 0;
-    score_inf.points_petit_au_bout = 0;
-    score_inf.multiplicateur = 0;
-    score_inf.points_poignee = 0;
-    score_inf.points_chelem = 0;
-    score_inf.points_defense = 0;
-    score_inf.attaque = 0.0;
-    score_inf.defense = 0.0;
-    score_inf.bouts = 0;
+    Deal_inf.pointsAFaire = 0;
+    Deal_inf.difference = 0;
+    Deal_inf.points_petit_au_bout = 0;
+    Deal_inf.multiplicateur = 0;
+    Deal_inf.points_poignee = 0;
+    Deal_inf.points_chelem = 0;
+    Deal_inf.points_defense = 0;
+    Deal_inf.attaque = 0.0;
+    Deal_inf.defense = 0.0;
+    Deal_inf.bouts = 0;
 }
 /*****************************************************************************/
-void Score::setPli(int i, Place p)
+void Deal::setPli(int i, Place p)
 {
     if (i > 77 || i < 0)
     {
@@ -96,17 +95,17 @@ void Score::setPli(int i, Place p)
     plis[i] = p;
 }
 /*****************************************************************************/
-void Score::setPoigneeDefense(Poignee p)
+void Deal::setPoigneeDefense(Poignee p)
 {
     typePoigneeD = p;
 }
 /*****************************************************************************/
-void Score::setPoigneeAttaque(Poignee p)
+void Deal::setPoigneeAttaque(Poignee p)
 {
     typePoigneeA = p;
 }
 /*****************************************************************************/
-Place Score::getPli(int i)
+Place Deal::getPli(int i)
 {
     if (i > 77 || i < 0)
     {
@@ -115,22 +114,22 @@ Place Score::getPli(int i)
     return plis[i];
 }
 /*****************************************************************************/
-void Score::setChelemDeclare(bool c)
+void Deal::setChelemDeclare(bool c)
 {
     chelemDeclare = c;
 }
 /*****************************************************************************/
-void Score::setExcuse(Place p)
+void Deal::setExcuse(Place p)
 {
     carteExcuse = p;
 }
 /*****************************************************************************/
-Place Score::getExcuse()
+Place Deal::getExcuse()
 {
     return carteExcuse;
 }
 /*****************************************************************************/
-int Score::getTotalPoints(Place p)
+int Deal::getTotalPoints(Place p)
 {
     int i;
     int total;
@@ -138,12 +137,12 @@ int Score::getTotalPoints(Place p)
     total = 0;
     for (i = 0; i < turn; i++)
     {
-        total += scores[i][p];
+        total += Deals[i][p];
     }
     return(total);
 }
 /*****************************************************************************/
-QList<Place> Score::getPodium()
+QList<Place> Deal::getPodium()
 {
     QList<Place> placePodium;
     QList<int> pointsPodium;
@@ -153,7 +152,7 @@ QList<Place> Score::getPodium()
     for (i = 0; i < NB_PLAYERS; i++)
     {
         placePodium.append((Place)i);
-        pointsPodium.append(scores[turn - 1][i]);
+        pointsPodium.append(Deals[turn - 1][i]);
     }
 
     // bubble sort
@@ -172,29 +171,29 @@ QList<Place> Score::getPodium()
     return placePodium;
 }
 /*****************************************************************************/
-ScoreInfo &Score::GetScoreInfo()
+DealInfo &Deal::GetDealInfo()
 {
-    return score_inf;
+    return Deal_inf;
 }
 /*****************************************************************************/
-void Score::SetScoreInfo(const ScoreInfo &inf)
+void Deal::SetDealInfo(const DealInfo &inf)
 {
-    score_inf = inf;
+    Deal_inf = inf;
 }
 /*****************************************************************************/
 /**
  * Calcule les points de la défense et de l'attaque
  */
-void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
+void Deal::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
 {
     int i;
     float n;
     Card *c;
     int flag = 0;
 
-    score_inf.bouts = 0;
-    score_inf.attaque = 0.0;
-    score_inf.defense = 0.0;
+    Deal_inf.bouts = 0;
+    Deal_inf.attaque = 0.0;
+    Deal_inf.defense = 0.0;
     petitAuBout = false;
     petitAttaque = false;
 
@@ -224,12 +223,12 @@ void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
             {
                 if (carteExcuse == infos.preneur)
                 {
-                    score_inf.attaque += n;
-                    score_inf.bouts++;
+                    Deal_inf.attaque += n;
+                    Deal_inf.bouts++;
                 }
                 else
                 {
-                    score_inf.defense += n;
+                    Deal_inf.defense += n;
                     flag = 1;
                 }
             }
@@ -237,13 +236,13 @@ void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
             {
                 if (carteExcuse != infos.preneur)
                 {
-                    score_inf.defense += n;
+                    Deal_inf.defense += n;
                 }
                 else
                 {
-                    score_inf.attaque += n;
+                    Deal_inf.attaque += n;
                     flag = 1;
-                    score_inf.bouts++;
+                    Deal_inf.bouts++;
                 }
             }
         }
@@ -255,36 +254,36 @@ void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
                 flag = 2;
                 if (carteExcuse == infos.preneur)
                 {
-                    score_inf.defense += 0.5;
+                    Deal_inf.defense += 0.5;
                 }
                 else
                 {
-                    score_inf.attaque += 0.5;
+                    Deal_inf.attaque += 0.5;
                 }
             }
             else
             {
                 if (plis[i] == infos.preneur)
                 {
-                    score_inf.attaque += n;
+                    Deal_inf.attaque += n;
                     if (c->getType() == ATOUT)
                     {
                         if (c->getValue() == 21 || c->getValue() == 1)
                         {
-                            score_inf.bouts++;
+                            Deal_inf.bouts++;
                         }
                     }
                 }
                 else
                 {
-                    score_inf.defense += n;
+                    Deal_inf.defense += n;
                 }
             }
         }
 
 #ifndef QT_NO_DEBUG
-        f << " Attaque : " << score_inf.attaque;
-        f << " Defense : " << score_inf.defense << endl;
+        f << " Attaque : " << Deal_inf.attaque;
+        f << " Defense : " << Deal_inf.defense << endl;
 #endif
 
     }
@@ -314,43 +313,43 @@ void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
             if (c->getType() == ATOUT)
             {
                 if (c->getValue() == 21 || c->getValue() == 1)
-                    score_inf.bouts++;
+                    Deal_inf.bouts++;
             }
             else if (c->getType() == EXCUSE)
-                score_inf.bouts++;
+                Deal_inf.bouts++;
         }
     }
 
     if (infos.contrat == GARDE_CONTRE)
     {
-        score_inf.defense += n;
+        Deal_inf.defense += n;
     }
     else
     {
-        score_inf.attaque += n;
+        Deal_inf.attaque += n;
     }
 
 #ifndef QT_NO_DEBUG
-    f << " Attaque : " << score_inf.attaque;
-    f << " Defense : " << score_inf.defense << endl;
+    f << " Attaque : " << Deal_inf.attaque;
+    f << " Defense : " << Deal_inf.defense << endl;
     out_file.close();
 #endif
 
     // On teste le Chelem
-    if (score_inf.attaque == 86.5 && score_inf.defense == 4.5)
+    if (Deal_inf.attaque == 86.5 && Deal_inf.defense == 4.5)
     {
         // On arrondit, conformément aux règles du Tarot
-        score_inf.attaque = 87.0;
-        score_inf.defense = 4.0;
+        Deal_inf.attaque = 87.0;
+        Deal_inf.defense = 4.0;
         chelemRealise = true;
         chelemDefense = false;
 
     }
-    else if (score_inf.attaque == 4.5 && score_inf.defense == 86.5)
+    else if (Deal_inf.attaque == 4.5 && Deal_inf.defense == 86.5)
     {
         // On arrondit, conformément aux règles du Tarot
-        score_inf.attaque = 4.0;
-        score_inf.defense = 87.0;
+        Deal_inf.attaque = 4.0;
+        Deal_inf.defense = 87.0;
         chelemRealise = true;
         chelemDefense = true;
 
@@ -385,46 +384,46 @@ void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
     //---------------------------
     // On connait les points des
     // deux camps, on en déduit
-    // donc les scores
+    // donc les Deals
     //---------------------------
 
-    if (score_inf.bouts == 0)
+    if (Deal_inf.bouts == 0)
     {
-        score_inf.pointsAFaire = 56;
+        Deal_inf.pointsAFaire = 56;
     }
-    else if (score_inf.bouts == 1)
+    else if (Deal_inf.bouts == 1)
     {
-        score_inf.pointsAFaire = 51;
+        Deal_inf.pointsAFaire = 51;
     }
-    else if (score_inf.bouts == 2)
+    else if (Deal_inf.bouts == 2)
     {
-        score_inf.pointsAFaire = 41;
+        Deal_inf.pointsAFaire = 41;
     }
     else
     {
-        score_inf.pointsAFaire = 36;
+        Deal_inf.pointsAFaire = 36;
     }
 
     if (infos.contrat == PRISE)
     {
-        score_inf.multiplicateur = 1;
+        Deal_inf.multiplicateur = 1;
     }
     else if (infos.contrat == GARDE)
     {
-        score_inf.multiplicateur = 2;
+        Deal_inf.multiplicateur = 2;
     }
     else if (infos.contrat == GARDE_SANS)
     {
-        score_inf.multiplicateur = 4;
+        Deal_inf.multiplicateur = 4;
     }
     else     // GARDE_CONTRE
     {
-        score_inf.multiplicateur = 6;
+        Deal_inf.multiplicateur = 6;
     }
 
-    score_inf.difference = (int)(score_inf.attaque - score_inf.pointsAFaire);
+    Deal_inf.difference = (int)(Deal_inf.attaque - Deal_inf.pointsAFaire);
 
-    if (score_inf.difference >= 0)
+    if (Deal_inf.difference >= 0)
     {
         gagne = true;
     }
@@ -433,44 +432,44 @@ void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
         gagne = false;
     }
 
-    score_inf.difference = abs(score_inf.difference);
+    Deal_inf.difference = abs(Deal_inf.difference);
 
     if (petitAuBout == true)
     {
         if (petitAttaque == true)
         {
-            score_inf.points_petit_au_bout = -10;
+            Deal_inf.points_petit_au_bout = -10;
         }
         else
         {
-            score_inf.points_petit_au_bout = 10;
+            Deal_inf.points_petit_au_bout = 10;
         }
     }
     else
     {
-        score_inf.points_petit_au_bout = 0;
+        Deal_inf.points_petit_au_bout = 0;
     }
 
     // Les points des Poignées déclarées
     if (poigneeDefense == true)
     {
-        score_inf.points_poignee = 10 + 10 * typePoigneeD;
+        Deal_inf.points_poignee = 10 + 10 * typePoigneeD;
         if (gagne == true)
         {
-            score_inf.points_poignee *= -1;   // Les points vont au camp gagnant
+            Deal_inf.points_poignee *= -1;   // Les points vont au camp gagnant
         }
     }
     else if (poigneeAttaque == true)
     {
-        score_inf.points_poignee = (-1) * (10 + 10 * typePoigneeA);
+        Deal_inf.points_poignee = (-1) * (10 + 10 * typePoigneeA);
         if (gagne == false)
         {
-            score_inf.points_poignee *= -1;   // Les points vont au camp gagnant
+            Deal_inf.points_poignee *= -1;   // Les points vont au camp gagnant
         }
     }
     else
     {
-        score_inf.points_poignee = 0;
+        Deal_inf.points_poignee = 0;
     }
 
     // Les points des Chelem déclarés
@@ -480,48 +479,48 @@ void Score::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
         {
             if (chelemDefense == true)
             {
-                score_inf.points_chelem = 200;
+                Deal_inf.points_chelem = 200;
             }
             else
             {
-                score_inf.points_chelem = -400;
+                Deal_inf.points_chelem = -400;
             }
         }
         else
         {
-            score_inf.points_chelem = 200;
+            Deal_inf.points_chelem = 200;
         }
     }
     else if (chelemRealise == true)
     {
         if (chelemDefense == true)
         {
-            score_inf.points_chelem = 200;
+            Deal_inf.points_chelem = 200;
         }
         else
         {
-            score_inf.points_chelem = -200;
+            Deal_inf.points_chelem = -200;
         }
     }
     else
     {
-        score_inf.points_chelem = 0;
+        Deal_inf.points_chelem = 0;
     }
 
     // Le total de points pour chaque défenseur est donc de :
-    score_inf.points_defense = (25 + abs(score_inf.difference) + score_inf.points_petit_au_bout) * score_inf.multiplicateur +
-                               score_inf.points_poignee + score_inf.points_chelem;
+    Deal_inf.points_defense = (25 + abs(Deal_inf.difference) + Deal_inf.points_petit_au_bout) * Deal_inf.multiplicateur +
+                               Deal_inf.points_poignee + Deal_inf.points_chelem;
 
     // Le preneur a rempli son contrat, il prend donc les points à la défense
     if (gagne == true)
     {
-        score_inf.points_defense *= (-1);
+        Deal_inf.points_defense *= (-1);
     }
 
     setPoints(infos);
 }
 /*****************************************************************************/
-void Score::setPoints(const GameInfos &infos)
+void Deal::setPoints(const GameInfos &infos)
 {
     int i;
 
@@ -529,16 +528,16 @@ void Score::setPoints(const GameInfos &infos)
     {
         if (i == infos.preneur)
         {
-            scores[turn][i] = score_inf.points_defense * (-3);
+            Deals[turn][i] = Deal_inf.points_defense * (-3);
         }
         else
         {
-            scores[turn][i] = score_inf.points_defense;
+            Deals[turn][i] = Deal_inf.points_defense;
         }
     }
     turn++;
 }
 
 //=============================================================================
-// End of file Score.h
+// End of file Deal.h
 //=============================================================================

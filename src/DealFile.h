@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - defines.h
+ * TarotClub - DealFile.h
  *=============================================================================
- * Global types
+ * Manage saving and loading XML files of custom deals
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,49 +22,31 @@
  *
  *=============================================================================
  */
+#ifndef DEALFILE_H
+#define DEALFILE_H
 
-#ifndef _DEFINES_H
-#define _DEFINES_H
-
-#include <QtCore>
-
+#include <QString>
+#include "Deck.h"
 
 /*****************************************************************************/
-// Game definitions
-
-/**
- * @brief The version string uses Semantic Versioning format
- * @see http://semver.org
- */
-#define TAROT_VERSION   "2.1.0-alpha.1"
-#define TAROT_TITRE     "TarotClub"
-#define TAROT_VNAME     "GLaDOS"
-
-#define NB_LANGUAGE     2
-#define QT_STREAMVER    QDataStream::Qt_5_0
-#define MAX_ROUNDS      5
-
-#define TEXT_BOX_WIDTH  115
-#define TEXT_BOX_HEIGHT 30
-
-namespace Config
+class DealFile
 {
-const QString path = QDir::homePath() + "/.tarotclub/";
-}
+public:
+    DealFile();
 
-/*****************************************************************************/
-enum Place      { SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3, BROADCAST = 462, HYPERSPACE = 0xFFFF };
-enum Contract   { PASS = 0, TAKE = 1, GUARD = 2, GUARD_WITHOUT = 3, GUARD_AGAINST = 4 };
-enum Filter     { AUCUN, JEU };
-enum Handle     { NOTHING, SIMPLE_HANDLE, DOUBLE_HANDLE, TRIPLE_HANDLE };
-enum CursorType { FORBIDDEN, ARROW };
-enum Team       { ATTACK, DEFENSE };
+    void LoadFile(QString fileName);
+    void SaveFile(QString fileName);
 
-/*****************************************************************************/
+    Deck  southDeck;
+    Deck  northDeck;
+    Deck  westDeck;
+    Deck  eastDeck;
+    Deck  chienDeck;
 
+};
 
-#endif // _DEFINES_H
+#endif // DEALFILE_H
 
 //=============================================================================
-// End of file defines.h
+// End of file DealFile.h
 //=============================================================================

@@ -34,16 +34,20 @@
 class Identity
 {
 public:
+    enum Gender
+    {   MALE,
+        FEMALE
+    };
+
     Identity()
     {
         sex = MALE;
     }
 
-    QString  name;    // nom du joueur
-    QString  quote;   // citation
-    QString  avatar;  // Avatar (nom du fichier ressource)
-    SexType  sex;     // homme=1, femme=0, comme à la sécu
-    Place    place;   // place assignée par le serveur autour de la table
+    QString  name;
+    QString  quote;
+    QString  avatar;  // can be only an embedded resource for the moment
+    Gender   sex;
 
     // operator overload to easily serialize parameters
     friend QDataStream &operator<<(QDataStream &out, Identity &ident)
@@ -53,8 +57,7 @@ public:
         out << ident.name
             << fi.fileName()
             << ident.quote
-            << (quint8)ident.sex
-            << (quint8)ident.place;
+            << (quint8)ident.sex;
         return out;
     }
 
@@ -66,12 +69,9 @@ public:
         in >> ident.avatar;
         in >> ident.quote;
         in >> var8;
-        ident.sex = (SexType)var8;
-        in >> var8;
-        ident.place = (Place)var8;
+        ident.sex = (Gender)var8;
         return in;
     }
-
 };
 
 #endif // IDENTITY_H

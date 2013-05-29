@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Score.h
+ * TarotClub - ScoreInfo.h
  *=============================================================================
- * Calcule les scores en fonction des paramètres du jeu
+ * Helper class that stores various scoring information
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,74 +22,71 @@
  *
  *=============================================================================
  */
-
 #ifndef _SCORE_H
 #define _SCORE_H
 
-// Game includes
-#include <QList>
-#include "Card.h"
-#include "Deck.h"
-#include "defines.h"
-#include "GameState.h"
-#include "ScoreInfo.h"
-
-/*****************************************************************************/
 class Score
 {
-
-private:
-
-    Place plis[78];      // indique quelle carte a été remportée par quel joueur
-    bool  gagne;         // vrai si le coup est gagné par l'attaque
-    Place carteExcuse;   // A qui appartient l'excuse
-
-    // Informations sur le petit au bout
-    bool  petitAuBout;   // vrai si le petit a été mené au bout
-    bool  petitAttaque;  // vrai si le petit au bout a été remporté par l'attaque
-    // Informations sur le Chelem
-    bool  chelemRealise; // vrai si le Chelem a été réalisé
-    bool  chelemDefense; // vrai si le Chelem a été réalisé par la défense
-    // Informations sur les poignées
-    bool  poigneeDefense;   // vrai si la défense a déclaré une poignée
-    bool  poigneeAttaque;   // vrai si l'attaque a déclaré une poignée
-    Poignee  typePoigneeD;  // (Défense) simple, double ou triple
-    Poignee  typePoigneeA;  // (Attaque) simple, double ou triple
-
-    // Informations calculées à partir du jeu
-    ScoreInfo  score_inf;
-
-    // scores of each turn
-    int turn;
-    int scores[MAX_ROUNDS][5];   // score of each turn players, 5 players max
-
 public:
-    Score();
 
-    void Initialize();
-    void reset();
-    void setPli(int i, Place p);
-    void calcul(Deck &mainDeck, Deck &deckChien, GameState &info);
+    float attaque;
+    float defense;
+    int   bouts;
+    int   pointsAFaire;
+    int   difference;
+    int   points_petit_au_bout;
+    int   multiplicateur;
+    int   points_poignee;
+    int   points_chelem;
+    int   points_defense;
 
-    // Mutateurs
-    void setChelemDeclare(bool);
-    void setExcuse(Place p);
-    void setPoigneeDefense(Poignee p);
-    void setPoigneeAttaque(Poignee p);
-    void setPoints(const GameState &infos);
-    void SetScoreInfo(const ScoreInfo &inf);
+    friend QDataStream &operator<<(QDataStream &out, ScoreInfo &info)
+    {
+        out << (qint32)info.attaque
+            << (qint32)info.defense
+            << (qint32)info.bouts
+            << (qint32)info.pointsAFaire
+            << (qint32)info.difference
+            << (qint32)info.points_petit_au_bout
+            << (qint32)info.multiplicateur
+            << (qint32)info.points_poignee
+            << (qint32)info.points_chelem
+            << (qint32)info.points_defense;
+        return out;
+    }
 
-    // Accesseurs
-    Place getExcuse();
-    Place getPli(int i);
-    int  getTotalPoints(Place p);
-    ScoreInfo  &GetScoreInfo();
-    QList<Place> getPodium();
+    friend QDataStream &operator>>(QDataStream &in, ScoreInfo &info)
+    {
+        qint32 val32;
+        float valF;
+
+        in >> valF;
+        info.attaque = valF;
+        in >> valF;
+        info.defense = valF;
+        in >> val32;
+        info.bouts = val32;
+        in >> val32;
+        info.pointsAFaire = val32;
+        in >> val32;
+        info.difference = val32;
+        in >> val32;
+        info.points_petit_au_bout = val32;
+        in >> val32;
+        info.multiplicateur = val32;
+        in >> val32;
+        info.points_poignee = val32;
+        in >> val32;
+        info.points_chelem = val32;
+        in >> val32;
+        info.points_defense = val32;
+        return in;
+    }
+
 };
-
 
 #endif // _SCORE_H
 
 //=============================================================================
-// End of file Score.h
+// End of file ScoreInfo.h
 //=============================================================================

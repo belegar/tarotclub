@@ -72,15 +72,26 @@ class Deck : public QList<Card *>
 {
 
 public:
+
     Deck();
 
     void Shuffle(int seed);
-    Card *GetCardById(int);               // Renvoi un pointeur vers une carte
+    Card *GetCardById(int);
+    Card *GetCardByName(const QString &i_name);
     void Sort();
     QString GetCardList();
+    bool HasCard(Card *c);
+    void SetOwner(Team o);
+    Team GetOwner();
 
 private:
     static bool LessThanCards(Card *carte1, Card *carte2);
+
+    /**
+     * @brief This variable can be use to store a deck owner
+     * information, tricks won for example
+     */
+    Team owner;
 };
 
 #endif // _DECK_H

@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - DealEditorFile.h
+ * TarotClub - TarotDeck.h
  *=============================================================================
- * Manage saving and loading XML files of custom deals
+ * Static class in memory to store cards of the game.
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,31 +22,24 @@
  *
  *=============================================================================
  */
-#ifndef DEALEDITORFILE_H
-#define DEALEDITORFILE_H
 
-#include <QString>
-#include "Deck.h"
+#ifndef _TAROT_DECK_H
+#define _TAROT_DECK_H
+
+#include "Card.h"
 
 /*****************************************************************************/
-class DealEditorFile
+class TarotDeck
 {
+    static Card cards[78];
 public:
-    DealEditorFile();
-
-    void loadFile(QString fileName);
-    void saveFile(QString fileName);
-
-    Deck  southDeck;
-    Deck  northDeck;
-    Deck  westDeck;
-    Deck  eastDeck;
-    Deck  chienDeck;
-
+    TarotDeck();
+    static void Initialize();
+    static Card *GetCard(int id);
 };
 
-#endif // DEALEDITORFILE_H
+#endif // _TAROT_DECK_H
 
 //=============================================================================
-// End of file DealEditorFile.h
+// End of file TarotDeck.h
 //=============================================================================

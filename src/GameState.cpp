@@ -40,7 +40,6 @@ void GameState::Initialize()
     position = 0;
     trickCounter = 0;
     numberOfPlayers = 4;
-    state = GAME_STOPPED;
     dealer = static_cast<Place>(qrand() % 4);
 }
 /*****************************************************************************/
@@ -116,21 +115,21 @@ Place GameState::NextPlayer(Place j)
 {
     Place p;
 
-    if (j == SUD)
+    if (j == SOUTH)
     {
-        p = EST;
+        p = EAST;
     }
-    else if (j == EST)
+    else if (j == EAST)
     {
-        p = NORD;
+        p = NORTH;
     }
-    else if (j == NORD)
+    else if (j == NORTH)
     {
-        p = OUEST;
+        p = WEST;
     }
-    else     // OUEST
+    else
     {
-        p = SUD;
+        p = SOUTH;
     }
     return(p);
 }

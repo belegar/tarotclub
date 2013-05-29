@@ -1,5 +1,5 @@
 /*=============================================================================
- * TarotClub - Jeu.cpp
+ * TarotClub - TarotDeck.cpp
  *=============================================================================
  * Static class in memory to store cards of the game.
  *=============================================================================
@@ -23,105 +23,99 @@
  *=============================================================================
  */
 
-#include "Jeu.h"
+#include "TarotDeck.h"
 
-Card Jeu::cards[78];
+Card TarotDeck::cards[78];
 
 /*****************************************************************************/
-Jeu::Jeu()
+TarotDeck::TarotDeck()
 {
 
 }
 /*****************************************************************************/
-void Jeu::init()
+void TarotDeck::Initialize()
 {
     int i, j, n;
-    CardColor coul;
+    Card::Suit suit;
     int id;
 
-    //----- 4 couleurs
+    // The 4 suits
     for (i = 0; i < 4; i++)
     {
         if (i == 0)
         {
-            coul = PIC;
+            suit = Card::SPADES;
             id = 0;
         }
         else if (i == 1)
         {
-            coul = COEUR;
+            suit = Card::HEARTS;
             id = 14;
         }
         else if (i == 2)
         {
-            coul = TREFLE;
+            suit = Card::CLUBS;
             id = 28;
         }
         else
         {
-            coul = CARREAU;
+            suit = Card::DIAMONDS;
             id = 42;
         }
 
-        // de l'as au roi (14 cartes)
+        // From ace to the king, 14 cards
         for (j = 0; j < 14; j++)
         {
             n = i * 14 + j;
-            cards[n].setColor(coul);
-            cards[n].setType(CARTE);
-            cards[n].setValue(j + 1);  // [1..14]
-            cards[n].setId(id + j);
+            cards[n].SetSuit(suit);
+            cards[n].SetValue(j + 1);  // [1..14]
+            cards[n].SetId(id + j);
 
             if (j == 10) // Valet
             {
-                cards[n].setPoints(1.5);
+                cards[n].SetPoints(1.5);
             }
             else if (j == 11)   // Cavalier
             {
-                cards[n].setPoints(2.5);
+                cards[n].SetPoints(2.5);
             }
             else if (j == 12)   // Dame
             {
-                cards[n].setPoints(3.5);
+                cards[n].SetPoints(3.5);
             }
             else if (j == 13)   // Roi
             {
-                cards[n].setPoints(4.5);
+                cards[n].SetPoints(4.5);
             }
             else
             {
-                cards[n].setPoints(0.5);
+                cards[n].SetPoints(0.5);
             }
         }
     }
 
-    //----- Les 21 atouts
-    for (i = 56; i < 77; i++)
+    // The 22 trumps, including the fool
+    for (i = 56; i < 78; i++)
     {
-        cards[i].setType(ATOUT);
-        cards[i].setValue(i - 55); // [1..21]
-        cards[i].setColor(NO_COLOR);
-        cards[i].setId(i);
+        cards[i].SetValue(i - 56); // [0..21]
+        cards[i].SetSuit(Card::TRUMPS);
+        cards[i].SetId(i);
 
-        if (i == 56 || i == 76) // Petit ou 21
+        // More points for the oudlers
+        if ((i == 56) ||    // Fool
+            (i == 57) ||    // 1
+            (i == 77))      // 21
         {
-            cards[i].setPoints(4.5);
+            cards[i].SetPoints(4.5);
         }
         else
         {
-            cards[i].setPoints(0.5);
+            cards[i].SetPoints(0.5);
         }
     }
-
-    //----- L'excuse
-    cards[77].setType(EXCUSE);
-    cards[77].setColor(NO_COLOR);
-    cards[77].setValue(0);
-    cards[77].setPoints(4.5);
-    cards[77].setId(77);
 }
 /*****************************************************************************/
-Card *Jeu::getCard(int id)
+Card *TarotDeck::GetCard(int id)
 {
     if (id < 0 || id > 77)
     {
@@ -134,5 +128,5 @@ Card *Jeu::getCard(int id)
 }
 
 //=============================================================================
-// End of file Jeu.cpp
+// End of file TarotDeck.cpp
 //=============================================================================

@@ -76,9 +76,10 @@ HEADERS = AboutWindow.h \
     TextBox.h \
     ClientConfig.h \
     ServerConfig.h \
-    DealEditorFile.h \
+    DealFile.h \
     Game.h \
     Jeu.h \
+    TarotDeck.h \
     Deck.h \
     Card.h \
     Player.h \
@@ -87,14 +88,14 @@ HEADERS = AboutWindow.h \
     defines.h \
     textes.h \
     TarotEngine.h \
-    Score.h \
+    Deal.h \
     Identity.h \
     JoinWizard.h \
     GameState.h \
-    ScoreInfo.h \
+    Score.h \
     Protocol.h \
     Server.h \
-    ../src/Table.h
+    Table.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -125,20 +126,20 @@ SOURCES = AboutWindow.cpp \
     TextBox.cpp \
     ClientConfig.cpp \
     ServerConfig.cpp \
-    DealEditorFile.cpp \
+    DealFile.cpp \
     Game.cpp \
     main.cpp \
-    Jeu.cpp \
+    TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
     Player.cpp \
     Client.cpp \
     Bot.cpp \
     TarotEngine.cpp \
-    Score.cpp \
+    Deal.cpp \
     JoinWizard.cpp \
     GameState.cpp \
     Protocol.cpp \
     Server.cpp \
-    ../src/Table.cpp
+    Table.cpp
 

@@ -73,12 +73,38 @@ void Deck::Shuffle(int seed)
 /*****************************************************************************/
 Card *Deck::GetCardById(int id)
 {
-    for (int i = 0; i < this->size(); ++i)
+    for (int i = 0; i < this->size(); i++)
     {
         if (this->at(i)->GetId() == id)
+        {
             return this->at(i);
+        }
     }
-    return (NULL);
+    return NULL;
+}
+/*****************************************************************************/
+Card *Deck::GetCardByName(const QString &i_name)
+{
+    for (int i = 0; i < this->size(); i++)
+    {
+        if (this->at(i)->GetName() == i_name)
+        {
+            return this->at(i);
+        }
+    }
+    return NULL;
+}
+/*****************************************************************************/
+bool Deck::HasCard(Card *c)
+{
+    if (this->indexOf(c) == -1)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 /*****************************************************************************/
 void Deck::Sort()
@@ -90,6 +116,17 @@ bool Deck::LessThanCards(Card *c1, Card *c2)
 {
     return c1->GetId() > c2->GetId();
 }
+/*****************************************************************************/
+void Deck::SetOwner(Team team)
+{
+    owner = team;
+}
+/*****************************************************************************/
+Team Deck::GetOwner()
+{
+    return owner;
+}
+
 //=============================================================================
 // End of file Deck.cpp
 //=============================================================================

@@ -29,9 +29,9 @@
 #include <QThread>
 #include "Card.h"
 #include "Deck.h"
-#include "Score.h"
+#include "Deal.h"
 #include "Player.h"
-#include "Jeu.h"
+#include "TarotDeck.h"
 #include "defines.h"
 #include "GameState.h"
 #include "ServerConfig.h"
@@ -82,10 +82,8 @@ public:
 
 private:
     Player      players[5];     // [3..5] players
-    Score       score;
-    Deck        deckChien;     // the dog
     Deck        mainDeck;      // the main deck of cards
-    Deck        poigneeDeck;   // la poignee déclarée (FIXME: une seule poignée ?? théoriquement 2 max possibles !!)
+    Deal        deal;
     GameState   gameState;
     DealType    dealType;
     int         dealNumber;

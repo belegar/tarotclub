@@ -29,7 +29,6 @@
 #include <QByteArray>
 #include <QDataStream>
 #include "Player.h"
-#include "ScoreInfo.h"
 
 class Protocol
 {

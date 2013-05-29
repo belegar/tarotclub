@@ -33,6 +33,8 @@
 /*****************************************************************************/
 class Card
 {
+
+public:
     /**
      * @brief The Color enum, lowest value to highest
      */
@@ -42,21 +44,10 @@ class Card
         HEARTS = 1,
         DIAMONDS = 2,
         CLUBS = 3,
-        NO_SUIT = 4
+        TRUMPS = 4
     };
 
-    /**
-     * @brief The Type enum
-     */
-    enum Type
-    {
-        CARD = 0,
-        TRUMPS = 1
-    };
-
-public:
     //  Setters
-    void  SetType(Type t);
     void  SetSuit(Suit s);
     void  SetPoints(float p);
     void  SetId(int);
@@ -64,7 +55,6 @@ public:
     void  SetValue(int v);
 
     // Getters
-    Type    GetType();
     Suit    GetSuit();
     float   GetPoints();
     int     GetId();
@@ -72,8 +62,10 @@ public:
     int     GetValue();
     QString GetName();
 
+    // helpers
+    bool IsFool();
+
 private:
-    Type    type;
     Suit    suit;
     float   points;
     int     id;         // unique identifier

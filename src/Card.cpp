@@ -32,35 +32,27 @@ QString Card::GetName()
     QTextStream stream(&name);
 
     stream << value;
-    if (type == TRUMPS)
+    if (suit == SPADES)
     {
-        stream << "-A";
+        stream << "-S"; // spades
+    }
+    else if (suit == HEARTS)
+    {
+        stream << "-H"; // heart
+    }
+    else if (suit == CLUBS)
+    {
+        stream << "-C"; // club
+    }
+    else if (suit == DIAMONDS)
+    {
+        stream << "-D"; // diamond
     }
     else
     {
-        if (suit == SPADES)
-        {
-            stream << "-S"; // spades
-        }
-        else if (suit == HEARTS)
-        {
-            stream << "-H"; // heart
-        }
-        else if (suit == CLUBS)
-        {
-            stream << "-C"; // club
-        }
-        else
-        {
-            stream << "-D"; // diamond
-        }
+        stream << "-T"; // Trumps
     }
     return name;
-}
-/*****************************************************************************/
-void Card::SetType(Card::Type t)
-{
-    type = t;
 }
 /*****************************************************************************/
 void Card::SetSuit(Card::Suit s)
@@ -88,11 +80,6 @@ void Card::SetValue(int v)
     value = v;
 }
 /*****************************************************************************/
-Card::Type Card::GetType()
-{
-    return type;
-}
-/*****************************************************************************/
 Card::Suit Card::GetSuit()
 {
     return suit;
@@ -116,6 +103,19 @@ Place Card::GetOwner()
 int Card::GetValue()
 {
     return value;
+}
+/*****************************************************************************/
+bool Card::IsFool()
+{
+    if ((suit == Card::TRUMPS) &&
+        (value == 0))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 //=============================================================================

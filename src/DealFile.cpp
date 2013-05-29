@@ -1,5 +1,5 @@
 /*=============================================================================
- * TarotClub - DealEditorFile.cpp
+ * TarotClub - DealFile.cpp
  *=============================================================================
  * Manage saving and loading XML files of custom deals
  *=============================================================================
@@ -23,20 +23,20 @@
  *=============================================================================
  */
 
-#include "DealEditorFile.h"
+#include "DealFile.h"
 #include "defines.h"
-#include "Jeu.h"
+#include "TarotDeck.h"
 #include <QtXml>
 
 #define DEAL_XML_VERSION  "1.0"
 
 /*****************************************************************************/
-DealEditorFile::DealEditorFile()
+DealFile::DealFile()
 {
 
 }
 /*****************************************************************************/
-void DealEditorFile::loadFile(QString fileName)
+void DealFile::LoadFile(QString fileName)
 {
     QDomDocument doc;
     QFile f(fileName);
@@ -85,7 +85,7 @@ void DealEditorFile::loadFile(QString fileName)
                     {
                         return;
                     }
-                    chienDeck.append(Jeu::getCard(val));
+                    chienDeck.append(TarotDeck::GetCard(val));
                 }
                 subchild = subchild.nextSibling().toElement();
             }
@@ -104,7 +104,7 @@ void DealEditorFile::loadFile(QString fileName)
                     {
                         return;
                     }
-                    southDeck.append(Jeu::getCard(val));
+                    southDeck.append(TarotDeck::GetCard(val));
                 }
                 subchild = subchild.nextSibling().toElement();
             }
@@ -123,7 +123,7 @@ void DealEditorFile::loadFile(QString fileName)
                     {
                         return;
                     }
-                    northDeck.append(Jeu::getCard(val));
+                    northDeck.append(TarotDeck::GetCard(val));
                 }
                 subchild = subchild.nextSibling().toElement();
             }
@@ -142,7 +142,7 @@ void DealEditorFile::loadFile(QString fileName)
                     {
                         return;
                     }
-                    westDeck.append(Jeu::getCard(val));
+                    westDeck.append(TarotDeck::GetCard(val));
                 }
                 subchild = subchild.nextSibling().toElement();
             }
@@ -161,7 +161,7 @@ void DealEditorFile::loadFile(QString fileName)
                     {
                         return;
                     }
-                    eastDeck.append(Jeu::getCard(val));
+                    eastDeck.append(TarotDeck::GetCard(val));
                 }
                 subchild = subchild.nextSibling().toElement();
             }
@@ -170,7 +170,7 @@ void DealEditorFile::loadFile(QString fileName)
     }
 }
 /*****************************************************************************/
-void DealEditorFile::saveFile(QString fileName)
+void DealFile::SaveFile(QString fileName)
 {
     // On crée le document
     QDomDocument doc("CustomDeal");
@@ -192,7 +192,7 @@ void DealEditorFile::saveFile(QString fileName)
     for (int i = 0; i < chienDeck.count(); i++)
     {
         QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(chienDeck.at(i)->getId())));
+        node.appendChild(doc.createTextNode(QString().setNum(chienDeck.at(i)->GetId())));
         chienNode.appendChild(node);
     }
 
@@ -202,7 +202,7 @@ void DealEditorFile::saveFile(QString fileName)
     for (int i = 0; i < southDeck.count(); i++)
     {
         QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(southDeck.at(i)->getId())));
+        node.appendChild(doc.createTextNode(QString().setNum(southDeck.at(i)->GetId())));
         southNode.appendChild(node);
     }
 
@@ -212,7 +212,7 @@ void DealEditorFile::saveFile(QString fileName)
     for (int i = 0; i < westDeck.count(); i++)
     {
         QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(westDeck.at(i)->getId())));
+        node.appendChild(doc.createTextNode(QString().setNum(westDeck.at(i)->GetId())));
         westNode.appendChild(node);
     }
 
@@ -222,7 +222,7 @@ void DealEditorFile::saveFile(QString fileName)
     for (int i = 0; i < northDeck.count(); i++)
     {
         QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(northDeck.at(i)->getId())));
+        node.appendChild(doc.createTextNode(QString().setNum(northDeck.at(i)->GetId())));
         northNode.appendChild(node);
     }
 
@@ -232,7 +232,7 @@ void DealEditorFile::saveFile(QString fileName)
     for (int i = 0; i < eastDeck.count(); i++)
     {
         QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(eastDeck.at(i)->getId())));
+        node.appendChild(doc.createTextNode(QString().setNum(eastDeck.at(i)->GetId())));
         eastNode.appendChild(node);
     }
 
@@ -251,5 +251,5 @@ void DealEditorFile::saveFile(QString fileName)
 }
 
 //=============================================================================
-// End of file DealEditorFile.cpp
+// End of file DealFile.cpp
 //=============================================================================

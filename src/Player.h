@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Player.h
  *=============================================================================
- * Stores the identity of a player
+ * Basic modelization of a tarot player
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -33,42 +33,25 @@
 #include "GameState.h"
 
 /*****************************************************************************/
-class Player : public QObject
+class Player
 {
 
 private:
     Identity    identity;   // player's identification
     Deck        myDeck;     // players cards
+    Place       place;   // place assignée par le serveur autour de la table
 
 public:
     Player();
 
-    // Opérations sur l'identité
-    void setName(const QString &);
-    void setQuote(const QString &);
-    void setSex(SexType);
-    void setAvatar(const QString &);
-    void setIdentity(Identity &ident);
-    void setPlace(Place p);
+    void SetIdentity(Identity &ident);
+    void SetPlace(Place p);
 
-    QString getName();
-    QString getQuote();
-    SexType getSex();
-    QString getAvatar();
-    Identity *getIdentity();
-    Place getPlace();
+    Identity &GetIdentity();
+    Place GetPlace();
+    Deck &GetDeck();
 
-    // Opérations sur les cartes du joueur
-    void tidyDeck();
-    void addCard(Card *);
-    void removeCard(Card *);
-    void emptyDeck();
-    bool HasCard(Card *);
-    bool CanPlayCard(Deck *, Card *, GameState &info);
-    int getCardNumber();
-    Card *getCard(int);
-    Card *getCardById(int);
-    Card *GetCardByName(const QString &i_name);
+    bool CanPlayCard(Card *, Deck &trick, GameState &info);
 };
 
 #endif // _PLAYER_H

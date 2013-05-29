@@ -27,7 +27,6 @@
 
 #include <QtNetwork>
 #include "Player.h"
-#include "ScoreInfo.h"
 #include "Protocol.h"
 #include "TarotEngine.h"
 #include "Bot.h"
