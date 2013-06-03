@@ -26,11 +26,10 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include <QObject>
 #include "defines.h"
 #include "Deck.h"
 #include "Identity.h"
-#include "GameState.h"
+#include "Game.h"
 
 /*****************************************************************************/
 class Player
@@ -51,7 +50,7 @@ public:
     Place GetPlace();
     Deck &GetDeck();
 
-    bool CanPlayCard(Card *, Deck &trick, GameState &info);
+    bool CanPlayCard(Card *, Deck &trick, Game &info);
 };
 
 #endif // _PLAYER_H

@@ -107,6 +107,19 @@ bool Deck::HasCard(Card *c)
     }
 }
 /*****************************************************************************/
+bool Deck::HasOneOfTrump()
+{
+    for (int i = 0; i < this->count(); i++)
+    {
+        if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
+            (this->at(i)->GetValue() == 1))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+/*****************************************************************************/
 void Deck::Sort()
 {
     qSort(this->begin(), this->end(), LessThanCards);
@@ -125,6 +138,210 @@ void Deck::SetOwner(Team team)
 Team Deck::GetOwner()
 {
     return owner;
+}
+/*****************************************************************************/
+void Deck::Statistics::Reset()
+{
+    nbCards = 0;
+
+    oudlers = 0;
+    bouts = 0;
+    atoutsMajeurs = 0;
+
+    rois = 0;
+    dames = 0;
+    cavaliers = 0;
+    valets = 0;
+
+    mariages = 0;
+    longues = 0;
+    coupes = 0;
+    singletons = 0;
+    sequences = 0;
+
+    trefles = 0;
+    pics = 0;
+    coeurs = 0;
+    carreaux = 0;
+
+    petit = false;
+    vingtEtUn = false;
+    excuse = false;
+
+    points = 0.0;
+}
+/*****************************************************************************/
+void Deck::AnalyzeTrumps(Statistics &stats)
+{
+    int i, val;
+    Card *c;
+
+    stats.nbCards = this->size();
+
+    // looking for trumps
+    for (i = 0; i < this->count(); i++)
+    {
+        c = this->at(i);
+        if (c->GetSuit() == Card::TRUMPS)
+        {
+            stats.oudlers++;
+            val = c->GetValue();
+            if (val >= 15)
+            {
+                stats.atoutsMajeurs++;
+            }
+            if (val == 21)
+            {
+                stats.vingtEtUn = true;
+                stats.bouts++;
+            }
+            if (val == 1)
+            {
+                stats.petit = true;
+                stats.bouts++;
+            }
+            if (val == 0)
+            {
+                stats.excuse = true;
+                stats.bouts++;
+            }
+        }
+        stats.points += c->GetPoints();
+    }
+}
+/*****************************************************************************/
+void Deck::AnalyzeSuits(Statistics &stats)
+{
+    Card::Suit suit;
+    int longue;
+    int count = 0;
+    int flag = 0;
+    Card *c;
+    int i, k;
+
+    int distr[14] = {0}; // test of a distribution
+
+    // Normal suits
+    for (i = 0; i<4; i++)
+    {
+        if (i == 0)
+        {
+            suit = Card::SPADES;
+        }
+        else if (i == 1)
+        {
+            suit = Card::HEARTS;
+        }
+        else if (i == 2)
+        {
+            suit = Card::CLUBS;
+        }
+        else
+        {
+            suit = Card::DIAMONDS;
+        }
+
+        for (k = 0; k<14; k++)
+        {
+            distr[k] = 0;
+        }
+        count = 0;
+
+        for (k = 0; k<this->count(); k++)
+        {
+            c = this->at(k);
+            if (c->GetSuit() == suit)
+            {
+                count++;
+                int val = c->GetValue();
+                distr[val - 1] = 1;
+                if (val == 11)
+                {
+                    stats.valets++;
+                }
+                if (val == 12)
+                {
+                    stats.cavaliers++;
+                }
+            }
+        }
+
+        if (count == 1)
+        {
+            stats.singletons++;
+        }
+        if (count == 0)
+        {
+            stats.coupes++;
+        }
+
+        // Number of cards in each normal suit
+        if (i == 0)
+        {
+            stats.pics = count;
+        }
+        else if (i == 1)
+        {
+            stats.coeurs = count;
+        }
+        else if (i == 2)
+        {
+            stats.trefles = count;
+        }
+        else
+        {
+            stats.carreaux = count;
+        }
+
+        if (distr[13] == 1 && distr[12] == 1)
+        {
+            stats.mariages++; // mariage (king + queen)
+        }
+        if (distr[13] == 1)
+        {
+            stats.rois++;     // king without queen
+        }
+        if (distr[12] == 1)
+        {
+            stats.dames++;    // queen without kings
+        }
+
+        // test des séquences :
+        count = 0;  // longueur de la séquence
+        flag = 0;   // couleur trouvée : on est dans la séquence
+        longue = 0;
+
+        for (k = 0; k < 14; k++)
+        {
+            if (distr[k] == 1)
+            {
+                longue++;
+                // début d'une séquence
+                if (flag == 0)
+                {
+                    flag = 1;
+                    count++;
+                }
+                else
+                {
+                    count++;
+                }
+            }
+            else if (flag == 1)
+            {
+                if (count >= 5)
+                {
+                    stats.sequences++;
+                }
+                count = 0;
+                flag = 0;
+            }
+        }
+        if (longue >= 5)
+        {
+            stats.longues++;
+        }
+    }
 }
 
 //=============================================================================

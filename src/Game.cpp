@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - GameState.cpp
+ * TarotClub - Game.cpp
  *=============================================================================
- * Utility class to store various game information
+ * Utility class to store various game state information
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,73 +23,78 @@
  *=============================================================================
  */
 
-#include "GameState.h"
+#include "Game.h"
 #include "defines.h"
 #include <QMap>
 
 /*****************************************************************************/
-GameState::GameState()
+Game::Game()
 {
     qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime())); // seed init
 
     Initialize();
 }
 /*****************************************************************************/
-void GameState::Initialize()
+void Game::Initialize()
 {
     position = 0;
     trickCounter = 0;
     numberOfPlayers = 4;
     dealer = static_cast<Place>(qrand() % 4);
-}
-/*****************************************************************************/
-void GameState::Start()
-{
 
+   // FIXME initialize all variables
 }
 /*****************************************************************************/
-void GameState::Stop()
+void Game::NewDeal()
+{
+   // FIXME En cas d'annonce du Chelem, l'entame revient de droit au joueur qui l’a demandé, quel que soit le donneur.
+
+    dealer = nextPlayer(dealer);
+    contract = PASS;
+    currentPlayer = nextPlayer(dealer); // The first player on the dealer's right begins the bid
+}
+/*****************************************************************************/
+void Game::Stop()
 {
     sequence = STOP;
 }
 /*****************************************************************************/
-/**
- * @brief operator ++
- *
- * Increment the gamecounter, the turn counter is automatically incremented
- * if required, depending of the number of players
- *
- * @return
- */
-GameState &GameState::operator++()
+bool Game::IsDealFinished()
 {
+    if (trickCounter >= GetNumberOfCards())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+/*****************************************************************************/
+bool Game::Next()
+{
+    bool endOfTrick = false;
     position++;
     if (!(position > numberOfPlayers))
     {
         position = 0;
         trickCounter++;
+        endOfTrick = true;
     }
-    return *this;
+    else
+    {
+        currentPlayer = NextPlayer(currentPlayer);
+        endOfTrick = false;
+    }
+    return endOfTrick;
 }
 /*****************************************************************************/
-GameState GameState::operator++(int unused)
-{
-    Q_UNUSED(unused);
-    GameState result = *this;
-    ++(*this); // call GameState::operator++()
-    return result;
-}
-/*****************************************************************************/
-/**
- * @brief GameState::RemainingTurns
- * @return number of turns remainings
- */
-int GameState::GetRemainingTurns()
+int Game::GetRemainingTurns()
 {
     return (GetNumberOfCards() - trickCounter);
 }
 /*****************************************************************************/
-int GameState::GetNumberOfCards()
+int Game::GetNumberOfCards()
 {
     if (numberOfPlayers == 3)
     {
@@ -106,12 +111,7 @@ int GameState::GetNumberOfCards()
     }
 }
 /*****************************************************************************/
-int GameState::FirstCard()
-{
-    return trickCounter*numberOfPlayers;
-}
-/*****************************************************************************/
-Place GameState::NextPlayer(Place j)
+Place Game::NextPlayer(Place j)
 {
     Place p;
 
@@ -135,5 +135,5 @@ Place GameState::NextPlayer(Place j)
 }
 
 //=============================================================================
-// End of file GameState.cpp
+// End of file Game.cpp
 //=============================================================================

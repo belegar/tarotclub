@@ -30,10 +30,10 @@
 #include "Card.h"
 #include "Deck.h"
 #include "Player.h"
-#include "Jeu.h"
+#include "TarotDeck.h"
 #include "defines.h"
 #include "Score.h"
-#include "GameState.h"
+#include "Game.h"
 
 class Client : public Player
 {
@@ -56,8 +56,6 @@ public:
         score.init();
     }
     Contrat     calculEnchere();
-    void        razStats();
-    void        updateStats();
     Card        *play();
     bool        isValid(Card *c);
     DeckStats   *getStats();

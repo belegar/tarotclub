@@ -217,34 +217,6 @@ void Server::DoAction(QDataStream &in)
                 gameState.state = GAME_STARTED;
                 nouvelleDonne();
             }
-
-            /*
-              TODO: same nickname allowed or don't care ???
-                     bool ok = false;
-                     // On cherche si le nick n'existe pas déjà
-                     QMapIterator<QTcpSocket*, Player*> i(players);
-                     while (i.hasNext()) {
-                        i.next();
-                        if (i.value()->getName() == ident.name) {
-                           ok = true;
-                           break;
-                        }
-                     }
-
-                     if( ok == true ) {
-                        // On prévient le joueur que son nick est déjà pris
-                        QString message = "Votre pseudonyme \"" + ident.name + "\" existe déjà sur le serveur."+
-                           " Changez le et reconnectez-vous.";
-
-                        // et on annule sa connexion
-                        sendMessage( message, players[cnx]->getPlace() );
-                        connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
-                        cnx->close();
-                        players.remove(cnx);
-
-                     } else {
-                     }
-            */
             break;
         }
 

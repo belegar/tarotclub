@@ -26,7 +26,7 @@
 #include <QtNetwork>
 #include <QCoreApplication>
 #include "TarotEngine.h"
-#include "DealEditorFile.h"
+#include "DealFile.h"
 #include "Identity.h"
 
 #ifndef QT_NO_DEBUG
@@ -80,7 +80,7 @@ Player &TarotEngine::GetPlayer(Place p)
 /*****************************************************************************/
 Score &TarotEngine::GetScore()
 {
-    return score;
+    return deal.GetScore();
 }
 /*****************************************************************************/
 int TarotEngine::GetDealNumber()
@@ -92,10 +92,10 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
 {
     bool ret = false;
 
-    if (sequence == CHIEN)
+    if (gameState.sequence == Game::BUILD_DOG)
     {
-        if (c->getType() == ATOUT || c->getType() == EXCUSE ||
-                (c->getType() == CARTE && c->getValue() == 14))
+        if ((c->GetSuit() == Card::TRUMPS) ||
+            ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
             ret = false;
         }
@@ -104,9 +104,9 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
             ret = true;
         }
     }
-    else if (sequence == GAME)
+    else if (gameState.sequence == Game::PLAY_TRICK)
     {
-        ret =  players[p].CanPlayCard(&mainDeck, c, gameState);
+        ret =  players[p].CanPlayCard(c, &currentTrick, gameState);
     }
 
     return (ret);
@@ -114,257 +114,141 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
 /*****************************************************************************/
 bool TarotEngine::HasCard(Card *c, Place p)
 {
-    return players[p].HasCard(c);
+    return players[p].GetDeck().HasCard(c);
 }
 /*****************************************************************************/
 Place TarotEngine::CalculateTrickWinner()
 {
-    Card *c;
+    Card *cLeader;
+    int maxValue = 0;
+    bool trumpDetected = false;
 
-    // First card
-    Card::Type type;
-    Card::Suit suit;
-    Place pl = NORD;
+    cLeader = currentTrick.at(0);   // First card played this trick
 
-    int i, debut = 0;
-    int leader = 0; // 0 est le premier joueur a joué etc. jusqu'à 4
-    // par défaut, celui qui entame est le leader (car couleur demandée)
-
-    // étape 1 : on cherche la couleur demandée
-
-    c = mainDeck.at(gameState.FirstCard());   // première carte jouée à ce tour
-
-    type = c->getType();
-    color = c->getColor();
-
-    // aïe, le joueur a commencé avec une excuse
-    if (type == EXCUSE)
+    for (int i = 0; i<currentTrick.size(); i++)
     {
-        c = mainDeck.at(infos.gameCounter - NB_PLAYERS + 1);   // la couleur demandée est donc la seconde carte
-        debut = 1;
-        type = c->getType();
-        color = c->getColor();
-        leader = 2;
-    }
+        Card *c = currentTrick.at(i);
+        int value = c->GetValue();
 
-    debut = debut + infos.gameCounter - NB_PLAYERS + 1 ; // le début est décalé si le premier pli est l'excuse
-
-    int  drapeau; // indique une coupe, donc le leader est forcément un atout
-    int  valLeader;
-    valLeader = c->getValue();
-
-    if (type == ATOUT)
-    {
-        drapeau = 1;   // on cherche une éventuelle surcoupe
-    }
-    else
-    {
-        drapeau = 0;   // on cherche une coupe
-    }
-
-    for (i = debut; i < infos.gameCounter; i++)
-    {
-        c = mainDeck.at(i);
-
-        // coupe !
-        if (c->getType() == ATOUT)
+        if (c->GetSuit() == Card::TRUMPS)
         {
-            if (c->getValue() > valLeader && drapeau == 1)    // surcoupe ??
+            trumpDetected = true;
+            if (value > maxValue)
             {
-                valLeader = c->getValue();
-                leader = i - (infos.gameCounter - NB_PLAYERS);
+                maxValue = value;
+                cLeader = c;
             }
-            else if (drapeau == 0)
-            {
-                valLeader = c->getValue();
-                leader = i - (infos.gameCounter - NB_PLAYERS);
-                drapeau = 1;
-            }
-
-            // pas de coupe détectée
         }
-        else if (c->getType() == CARTE && drapeau == 0)
+        else if (trumpDetected == false)
         {
-            if (c->getColor() == color)   // ahah, même couleur !
+            if (value > maxValue)
             {
-                if (c->getValue() > valLeader)
-                {
-                    valLeader = c->getValue();
-                    leader = i - (infos.gameCounter - NB_PLAYERS);
-                }
+                maxValue = value;
+                cLeader = c;
             }
         }
     }
 
-    // place du leader
-    if (tour == SUD)
-    {
-        Place tab[] = {EST, NORD, OUEST, SUD};
-        pl = tab[leader];
-    }
-    else if (tour == EST)
-    {
-        Place tab[] = {NORD, OUEST, SUD, EST};
-        pl = tab[leader];
-    }
-    else if (tour == NORD)
-    {
-        Place tab[] = {OUEST, SUD, EST, NORD};
-        pl = tab[leader];
-    }
-    else
-    {
-        Place tab[] = {SUD, EST, NORD, OUEST};
-        pl = tab[leader];
-    }
-
-    return pl;
+    return cLeader->GetOwner();
 }
 /*****************************************************************************/
 void TarotEngine::NewDeal()
 {
-    if (dealType == CUSTOM_DEAL)
-    {
-        CustomDeal();
-    }
-    else
-    {
-        RandomDeal();
-    }
-    score.reset();
-    donneur = nextPlayer(donneur);
-    infos.contrat = PASSE;
-    infos.gameCounter = 0;
-    tour = nextPlayer(donneur); // Le joueur à la droite du donneur commence les enchères
-    selectPlayer(tour);
-    askBid(infos.contrat);
+    // 1. Give cards to all players
+    CreateDeal();
+
+    // 2. Initialize internal states
+    deal.NewDeal();
+    gameState.NewDeal();
+
+    // 3. Start the bid sequence
+    emit sigSelectPlayer(gameState.currentPlayer);
+    emit sigAskBid(gameState.contract);
 }
-/*****************************************************************************/
-#ifndef QT_NO_DEBUG
-/**
- * @brief Generate a file with all played cards of the deal
- *
- * This file also contains useful information such as ower of cards, points ...
- * The log contains 2 parts, the main deck and the dog, each parts has 4 lines
- * line 1: name of cards
- * line 2: points of each card
- * line 3: the original owner of the card
- * line 4: the final owner of the card
- */
-void TarotEngine::GenerateEndDealLog()
-{
-    ofstream f("round_cards.csv");
 
-    QString line1 = "Card;" + mainDeck.GetCardList();
-    QString line2 = "Points";
-    QString line3 = "Base owner";
-    QString line4 = "Final owner";
-
-    // Card type
-    for (int j = 0; j < mainDeck.size(); j++)
-    {
-        QString n;
-        Card *c = mainDeck.at(j);
-        line2 += ";" + n.setNum(c->getPoints());
-        line3 += ";" + n.setNum((int)c->getOwner());
-        line4 += ";" + n.setNum(score.getPli(j));
-    }
-
-    f << "Main deck" << endl;
-    f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
-
-    line1 = line2 = line3 = line4 = "";
-
-    // Card type
-    line1 = deckChien.GetCardList();
-    for (int j = 0; j < deckChien.size(); j++)
-    {
-        QString n;
-        Card *c = deckChien.at(j);
-        line2 += n.setNum(c->getPoints()) + ";";
-        line3 += n.setNum((int)c->getOwner()) + ";";
-        line4 += n.setNum(score.getPli(j)) + ";";
-    }
-    f << "Dog deck" << endl;
-    f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
-
-    f << "Game infos" << endl;
-    f << "Taker;" << infos.preneur << endl << "Bid;" << infos.contrat << endl;
-
-    f.close();
-}
-#endif // QT_NO_DEBUG
 /*****************************************************************************/
 void TarotEngine::GameSateMachine()
 {
-    bool ret;
-    float points;
-    bool lastDeal;
-
-    if (!(infos.gameCounter % NB_PLAYERS) && infos.gameCounter)
+    if (gameState.Next() == true)
     {
-        ret = finLevee(points);
+        // The current trick winner will begin the next trick
+        gameState.currentPlayer = CalculateTrickWinner();
+        deal.SetTrick(currentTrick, gameState.trickCounter);
 
-        // end of the deal?
-        if (ret == true)
+        if (gameState.IsDealFinished() == true)
         {
-#ifndef QT_NO_DEBUG
-            GenerateEndDealLog();
-#endif
+            deal.Calculate(gameState);
             dealCounter++;
-            // end of deal, send score to all players
-            if (dealCounter < MAX_ROUNDS && gameType == LOC_TOURNAMENT)
+
+            // Manage tournaments
+            if ((dealCounter<MAX_ROUNDS) && (gameMode == LOCAL_TOURNAMENT))
             {
-                lastDeal = false;
-                sequence = SEQ_WAIT_PLAYER;
+                 gameState.sequence = Game::WAIT_PLAYER;
             }
             else
             {
-                lastDeal = true;
-                gameState.state = GAME_FINISHED;
-                sequence = VIDE;
+                 gameState.sequence = Game::STOP;
             }
 
             cptVuDonne = 0;
-            sendFinDonne(score.getScoreInfos(), lastDeal, points);
+            emit sigEndOfDeal();
         }
         else
         {
             cptVuPli = 0;
-            sequence = SEQ_WAIT_PLI;
-            sendWaitPli(points);
+            gameState.sequence = Game::WAIT_TRICK;
+            emit sigEndOfTrick();
         }
     }
     else
     {
-        tour = nextPlayer(tour);
-        gameState++;
-        selectPlayer(tour);
-        sendJoueCarte();
+        emit sigSelectPlayer(gameState.currentPlayer);
+        emit sigPlayCard(gameState.currentPlayer);
     }
 }
 /*****************************************************************************/
 void TarotEngine::BidSequence()
 {
-    if (tour == donneur)
+    if (gameState.Next() == true)
     {
-        if (infos.contrat == PASSE)
+        if (gameState.contract == PASS)
         {
-            // si tous les joueurs ont passé on s'arrête et on prévient tout le monde
+            // All the players have passed, deal again new cards
             cptVuDonne = 0;
-            sequence = SEQ_WAIT_PLAYER;
-            sendRedist();
+            gameState.sequence = Game::WAIT_PLAYER;
+            emit sigDealAgain();
         }
         else
         {
-            montreChien();
+            if (gameState.contract != GUARD_AGAINST)
+            {
+                deal.SetDogOwner(ATTACK);
+            }
+            else
+            {
+                // With this contract, the dog belongs to the defense
+                deal.SetDogOwner(DEFENSE);
+            }
+
+            if (infos.contrat == GARDE_SANS || infos.contrat == GARDE_CONTRE)
+            {
+                // On n'affiche pas le chien et on commence la partie immédiatement
+                sendDepartDonne();
+                jeu();
+                return;
+            }
+            else
+            {
+                cptVuChien = 0;
+                gameState.sequence = WAIT_CHIEN; // Waiting for the taker's discard
+                emit sigShowDog();
+            }
         }
     }
     else
     {
-        tour = nextPlayer(tour);
-        selectPlayer(tour);
-        askBid(infos.contrat);
+        emit sigSelectPlayer(gameState.currentPlayer);
+        emit sigAskBid(gameState.contract);
     }
 }
 /*****************************************************************************/
@@ -373,96 +257,11 @@ void TarotEngine::ShowDog()
     int i;
     Card *c;
 
-    // On précise quel joueur possède le chien en fonction du contrat
-    for (i = 0; i < deckChien.count(); i++)
-    {
-        c = deckChien.at(i);
-        if (infos.contrat != GARDE_CONTRE)
-        {
-            c->setOwner(infos.preneur);
-        }
-        else
-        {
-            // En cas de garde contre, le chien appartient à la défense
-            c->setOwner(HYPERSPACE);
-        }
-    }
 
-    if (infos.contrat == GARDE_SANS || infos.contrat == GARDE_CONTRE)
-    {
-        // On n'affiche pas le chien et on commence la partie immédiatement
-        sendDepartDonne();
-        jeu();
-        return;
-    }
 
-    cptVuChien = 0;
-    sequence = WAIT_CHIEN; // et on attend le chien écarté par le preneur
+
+
     sendShowChien(); // Prise ou garde, on affiche le chien chez tout le monde
-}
-/*****************************************************************************/
-bool TarotEngine::EndOfTrick(float &points)
-{
-    int i;
-    Card *c;
-
-#ifndef QT_NO_DEBUG
-    QFile f("debug.txt");
-    QTextStream fout(&f);
-    f.open(QIODevice::Append | QIODevice::Text);
-    fout << "----- tour avant : " << tour << endl;
-#endif
-
-    // On détecte qui a remporté le pli, c'est lui qui entame le prochain tour
-    tour = calculGagnantPli();
-
-    points = 0;
-    for (i = (infos.gameCounter - NB_PLAYERS); i < infos.gameCounter; i++)
-    {
-        c = mainDeck.at(i);
-        score.setPli(i, tour);
-        // calculate points won by the taker, with the special case of the Excuse
-        if (tour == infos.preneur)
-        {
-            // here, the taker won the round but the Excuse stays to the Defenders
-            if (c->getType() != EXCUSE)
-            {
-                points += c->getPoints();
-            }
-            else
-            {
-                points += 0.5;
-            }
-        }
-        else
-        {
-            // here, the taker lost the round, he can keep his Excuse
-            if (c->getType() == EXCUSE && c->getOwner() == tour)
-            {
-                points += c->getPoints() + 0.5;
-            }
-        }
-
-#ifndef QT_NO_DEBUG
-        fout << c->getId() << " i=" << i << ", tour=" << tour << " ";
-#endif
-    }
-
-#ifndef QT_NO_DEBUG
-    fout << endl << "-----" << endl;
-    f.close();
-#endif
-
-    if (infos.gameCounter < 72)
-    {
-        return false;
-    }
-    else     // fin du jeu
-    {
-        score.calcul(mainDeck, deckChien, infos);
-        return true;
-    }
-
 }
 /*****************************************************************************/
 /**
@@ -474,8 +273,7 @@ void TarotEngine::CustomDeal()
     Card *c;
     quint8 params[NB_HAND_CARDS] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
 
-    DealEditorFile editor;
-    editor.loadFile(dealFile);
+
 
     QMapIterator<QTcpSocket *, Player *> i(players);
     while (i.hasNext())
@@ -520,62 +318,61 @@ void TarotEngine::CustomDeal()
     mainDeck.clear();
 }
 /*****************************************************************************/
-/**
- * On distribue les cartes entre les joueurs et le chien
- */
-void TarotEngine::RandomDeal()
+void TarotEngine::CreateDeal()
 {
-    int n, j;
-    Card *c;
-    int index;
-    Place p;
-    quint8 params[NB_HAND_CARDS] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
+    currentTrick.clear();
 
-
-    // on ajoute les cartes dans le deck
-    mainDeck.clear();
-    for (int i = 0; i < 78; i++)
+    if (dealType == RANDOM_DEAL)
     {
-        mainDeck.append(Jeu::getCard(i));
+        DealFile editor;
+        if (editor.LoadFile(dealFile) == true)
+        {
+            // SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3,
+            currentTrick.append(editor.southDeck);
+            currentTrick.append(editor.eastDeck);
+            currentTrick.append(editor.northDeck);
+            currentTrick.append(editor.westDeck);
+            currentTrick.append(editor.dogDeck);
+        }
+        else
+        {
+            // Fall back to default mode
+            // FIXME: load a problem into the logging mechanism
+            dealType = RANDOM_DEAL;
+        }
     }
+
     if (dealType == RANDOM_DEAL)
     {
         dealNumber = qrand() % RAND_MAX;
-    }
-    mainDeck.shuffle(dealNumber);
-    deckChien.clear();
-
-    n = 0;
-    QMapIterator<QTcpSocket *, Player *> i(players);
-    while (i.hasNext())
-    {
-        i.next();
-        i.value()->emptyDeck();
-        p = i.value()->getPlace();
-
-        for (j = 0; j < NB_HAND_CARDS; j++)
+        for (int i = 0; i < 78; i++)
         {
-            index = n * NB_HAND_CARDS + j;
-            c = mainDeck.at(index);
-            if (c->getType() == EXCUSE)
-            {
-                score.setExcuse(p);
-            }
-            c->setOwner(p);
-            i.value()->addCard(c);
-            params[j] = c->getId();
+            currentTrick.append(TarotDeck::GetCard(i));
         }
-        sendCards(p, params);
+        currentTrick.shuffle(dealNumber);
+    }
+
+    int n = 0;
+    for (int i=0; i<Game.numberOfPlayers; i++)
+    {
+        players[i].GetDeck().clear();
+        Place p = players[i].GetPlace();
+
+        for (j = 0; j<Game.GetNumberOfCards(); j++)
+        {
+            int index = n * Game.GetNumberOfCards() + j;
+            Card *c = currentTrick.at(index);
+            c->SetOwner(p);
+            players[i].GetDeck().append(c);
+        }
         n++;
     }
 
-    // Les cartes restantes vont au chien
-    for (j = 78 - NB_CHIEN_CARDS; j < 78; j++)
-    {
-        c = mainDeck.at(j);
-        deckChien.append(c);
-    }
-    mainDeck.clear();
+
+    // Remaining cards go to the dog
+    Deck dog = currentTrick.mid(n * Game.GetNumberOfCards());
+    deal.SetDog(dog);
+    currentTrick.clear();
 }
 
 

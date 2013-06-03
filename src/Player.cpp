@@ -50,7 +50,7 @@ Player::Player()
  * @param nbPlayers
  * @return true if the card can be played
  */
-bool Player::CanPlayCard(Card *cVerif, Deck &trick, GameState &info)
+bool Player::CanPlayCard(Card *cVerif, Deck &trick, Game &info)
 {
     Card::Suit   suit; // required suit
 
@@ -66,7 +66,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick, GameState &info)
     int i;
 
     // The player is the first of the trick, he can play all the cards
-    if (info.trickCounter == 0)
+    if (info.position == 0)
     {
         return true;
     }
@@ -83,7 +83,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick, GameState &info)
     if (c->IsFool())
     {
         // The first card is a Excuse...
-        if (info.trickCounter == 1)
+        if (info.position == 1)
         {
             // ...the player can play everything he wants
             return true;

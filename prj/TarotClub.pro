@@ -77,7 +77,7 @@ HEADERS = AboutWindow.h \
     ClientConfig.h \
     ServerConfig.h \
     DealFile.h \
-    Game.h \
+    TarotClub.h \
     Jeu.h \
     TarotDeck.h \
     Deck.h \
@@ -91,7 +91,7 @@ HEADERS = AboutWindow.h \
     Deal.h \
     Identity.h \
     JoinWizard.h \
-    GameState.h \
+    Game.h \
     Score.h \
     Protocol.h \
     Server.h \
@@ -127,7 +127,7 @@ SOURCES = AboutWindow.cpp \
     ClientConfig.cpp \
     ServerConfig.cpp \
     DealFile.cpp \
-    Game.cpp \
+    TarotClub.cpp \
     main.cpp \
     TarotDeck.cpp \
     Deck.cpp \
@@ -138,7 +138,7 @@ SOURCES = AboutWindow.cpp \
     TarotEngine.cpp \
     Deal.cpp \
     JoinWizard.cpp \
-    GameState.cpp \
+    Game.cpp \
     Protocol.cpp \
     Server.cpp \
     Table.cpp

@@ -36,7 +36,7 @@ DealFile::DealFile()
 
 }
 /*****************************************************************************/
-void DealFile::LoadFile(QString fileName)
+bool DealFile::LoadFile(QString fileName)
 {
     QDomDocument doc;
     QFile f(fileName);
@@ -44,130 +44,94 @@ void DealFile::LoadFile(QString fileName)
     // Fichier non trouvé, on sort
     if (f.open(QIODevice::ReadOnly) == false)
     {
-        return;
+        return false;
     }
     doc.setContent(&f);
     f.close();
 
-    chienDeck.clear();
+    dogDeck.clear();
     southDeck.clear();
     northDeck.clear();
     westDeck.clear();
     eastDeck.clear();
 
-    // On teste le tag racine "TarotClub"
+    // Root element "custom_deal"
     QDomElement root = doc.documentElement();
-    if (root.tagName() != "CustomDeal")
+    if (root.tagName() != "custom_deal")
     {
-        return;
+        return false;
     }
 
     if (root.attribute("version", "0") != QString(DEAL_XML_VERSION))
     {
-        return;
+        return false;
     }
 
-    // On parse les données
+    // Parsing data
     QDomElement child = root.firstChild().toElement();
     while (!child.isNull())
     {
-        // Section "chien"
-        if (child.tagName() == "chien")
+        // Section "Dog"
+        if (child.tagName() == "dog")
         {
-            QDomElement subchild = child.firstChild().toElement();
-            while (!subchild.isNull())
+            if (FillDeck(dogDeck, child) == false)
             {
-                int val;
-                if (subchild.tagName() == "card")
-                {
-                    val = subchild.text().toInt();
-                    if (val < 0 || val > 77)
-                    {
-                        return;
-                    }
-                    chienDeck.append(TarotDeck::GetCard(val));
-                }
-                subchild = subchild.nextSibling().toElement();
+                return false;
             }
-            // Section "south"
         }
         else if (child.tagName() == "south")
         {
-            QDomElement subchild = child.firstChild().toElement();
-            while (!subchild.isNull())
+            if (FillDeck(southDeck, child) == false)
             {
-                int val;
-                if (subchild.tagName() == "card")
-                {
-                    val = subchild.text().toInt();
-                    if (val < 0 || val > 77)
-                    {
-                        return;
-                    }
-                    southDeck.append(TarotDeck::GetCard(val));
-                }
-                subchild = subchild.nextSibling().toElement();
+                return false;
             }
-            // Section "north"
         }
         else if (child.tagName() == "north")
         {
-            QDomElement subchild = child.firstChild().toElement();
-            while (!subchild.isNull())
+            if (FillDeck(northDeck, child) == false)
             {
-                int val;
-                if (subchild.tagName() == "card")
-                {
-                    val = subchild.text().toInt();
-                    if (val < 0 || val > 77)
-                    {
-                        return;
-                    }
-                    northDeck.append(TarotDeck::GetCard(val));
-                }
-                subchild = subchild.nextSibling().toElement();
+                return false;
             }
-            // Section "west"
         }
         else if (child.tagName() == "west")
         {
-            QDomElement subchild = child.firstChild().toElement();
-            while (!subchild.isNull())
+            if (FillDeck(westDeck, child) == false)
             {
-                int val;
-                if (subchild.tagName() == "card")
-                {
-                    val = subchild.text().toInt();
-                    if (val < 0 || val > 77)
-                    {
-                        return;
-                    }
-                    westDeck.append(TarotDeck::GetCard(val));
-                }
-                subchild = subchild.nextSibling().toElement();
+                return false;
             }
-            // Section "east"
         }
         else if (child.tagName() == "east")
         {
-            QDomElement subchild = child.firstChild().toElement();
-            while (!subchild.isNull())
+            if (FillDeck(eastDeck, child) == false)
             {
-                int val;
-                if (subchild.tagName() == "card")
-                {
-                    val = subchild.text().toInt();
-                    if (val < 0 || val > 77)
-                    {
-                        return;
-                    }
-                    eastDeck.append(TarotDeck::GetCard(val));
-                }
-                subchild = subchild.nextSibling().toElement();
+                return false;
             }
         }
         child = child.nextSibling().toElement();
     }
+
+    return true;
+}
+/*****************************************************************************/
+bool DealFile::FillDeck(Deck &deck, QDomElement &child)
+{
+    QDomElement subchild = child.firstChild().toElement();
+    while (!subchild.isNull())
+    {
+        int val;
+        if (subchild.tagName() == "card")
+        {
+            val = subchild.text().toInt();
+            if (val < 0 || val > 77)
+            {
+                return false;
+            }
+            deck.append(TarotDeck::GetCard(val));
+        }
+        subchild = subchild.nextSibling().toElement();
+    }
+
+    return true;
 }
 /*****************************************************************************/
 void DealFile::SaveFile(QString fileName)
@@ -182,7 +146,7 @@ void DealFile::SaveFile(QString fileName)
     doc.appendChild(doc.createTextNode("\n"));
 
     // root node
-    QDomElement rootNode = doc.createElement("CustomDeal");
+    QDomElement rootNode = doc.createElement("custom_deal");
     rootNode.setAttribute("version", QString(DEAL_XML_VERSION));
     doc.appendChild(rootNode);
 

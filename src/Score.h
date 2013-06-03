@@ -25,61 +25,78 @@
 #ifndef _SCORE_H
 #define _SCORE_H
 
+#include "defines.h"
+
 class Score
 {
 public:
 
-    float attaque;
-    float defense;
-    int   bouts;
-    int   pointsAFaire;
-    int   difference;
-    int   points_petit_au_bout;
-    int   multiplicateur;
-    int   points_poignee;
-    int   points_chelem;
-    int   points_defense;
+    int pointsAttack;   // Points of cards
+    int scoreAttack;    // Final score calculated, including all bonuses
+    int pointsToDo;
+    int difference;
+    int multiplier;
+    int littleEndianPoints; // positive if attack bonus, otherwise negative
+    int handlePoints;
+    int slamPoints;
 
-    friend QDataStream &operator<<(QDataStream &out, ScoreInfo &info)
+    Team Winner()
     {
-        out << (qint32)info.attaque
-            << (qint32)info.defense
-            << (qint32)info.bouts
-            << (qint32)info.pointsAFaire
+        if (pointsAttack >= pointsToDo)
+        {
+            return ATTACK;
+        }
+        else
+        {
+            return DEFENSE;
+        }
+    }
+
+    void Reset()
+    {
+        pointsAttack = 0;
+        scoreAttack = 0;
+        pointsToDo = 0;
+        difference = 0;
+        multiplier = 0;
+        littleEndianPoints = 0;
+        handlePoints = 0;
+        slamPoints = 0;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, Score &info)
+    {
+        out << (qint32)info.pointsAttack
+            << (qint32)info.scoreAttack
+            << (qint32)info.pointsToDo
             << (qint32)info.difference
-            << (qint32)info.points_petit_au_bout
-            << (qint32)info.multiplicateur
-            << (qint32)info.points_poignee
-            << (qint32)info.points_chelem
-            << (qint32)info.points_defense;
+            << (qint32)info.multiplier
+            << (qint32)info.littleEndianPoints
+            << (qint32)info.handlePoints
+            << (qint32)info.slamPoints;
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, ScoreInfo &info)
+    friend QDataStream &operator>>(QDataStream &in, Score &info)
     {
-        qint32 val32;
-        float valF;
+        qint32 val;
 
-        in >> valF;
-        info.attaque = valF;
-        in >> valF;
-        info.defense = valF;
-        in >> val32;
-        info.bouts = val32;
-        in >> val32;
-        info.pointsAFaire = val32;
-        in >> val32;
-        info.difference = val32;
-        in >> val32;
-        info.points_petit_au_bout = val32;
-        in >> val32;
-        info.multiplicateur = val32;
-        in >> val32;
-        info.points_poignee = val32;
-        in >> val32;
-        info.points_chelem = val32;
-        in >> val32;
-        info.points_defense = val32;
+        in >> val;
+        info.pointsAttack = val;
+        in >> val;
+        info.scoreAttack = val;
+        in >> val;
+        info.pointsToDo = val;
+        in >> val;
+        info.difference = val;
+        in >> val;
+        info.multiplier = val;
+        in >> val;
+        info.littleEndianPoints = val;
+        in >> val;
+        info.handlePoints = val;
+        in >> val;
+        info.slamPoints = val;
         return in;
     }
 

@@ -60,11 +60,12 @@ public:
         SERVER_START_DEAL       = 0x79,
         SERVER_PLAY_CARD        = 0x80,
         SERVER_SHOW_CARD        = 0x81, // card played broadcasted to all clients
-        SERVER_SYNC_TRICK       = 0x82,
-        SERVER_END_OF_DEAL      = 0x83,
-        SERVER_NEW_DEAL         = 0x84, // new deal, because of all players has passed for instance
-        SERVER_SHOW_HANDLE      = 0x85, // show a handle to all players
-        SERVER_END_OF_GAME      = 0x86  // end of the game mode (tournament ...)
+        SERVER_END_OF_TRICK     = 0x82,
+        SERVER_SYNC_TRICK       = 0x83,
+        SERVER_END_OF_DEAL      = 0x84,
+        SERVER_NEW_DEAL         = 0x85, // new deal, because of all players has passed for instance
+        SERVER_SHOW_HANDLE      = 0x86, // show a handle to all players
+        SERVER_END_OF_GAME      = 0x87  // end of the game mode (tournament ...)
     };
 
     void DecodePacket(QDataStream &in, qint64 bytes);

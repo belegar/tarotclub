@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Game.h
+ * TarotClub - TarotClub.h
  *=============================================================================
- * Derived class from MainWindow class. Central class for the game engine.
+ * Graphical TarotClub client class, contains an embedded server.
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _GAME_H
-#define _GAME_H
+#ifndef _TAROTCLUB_H
+#define _TAROTCLUB_H
 
 // Qt includes
 #include <QtNetwork>
@@ -44,7 +44,7 @@
  * joueur 2 : ordi NORD (ou NORD-EST)
  * joueur 3 : ordi OUEST
  */
-class Game : public MainWindow
+class TarotClub : public MainWindow
 {
     Q_OBJECT
 
@@ -62,8 +62,8 @@ private:
     Card *getCardFromPix(GfxCard *gc);
 
 public:
-    Game();
-    ~Game();
+    TarotClub();
+    ~TarotClub();
 
     void applyOptions();
     int setTheme();
@@ -98,7 +98,7 @@ public slots:
     void slotWaitPli(Place winner, float pointsTaker);
     void slotSetEnchere(Contrat cont);
 
-    // événements du tapis
+    // Board events
     void slotPresenterPoignee();
     void slotAccepteChien();
     void slotClickCard(GfxCard *c);
@@ -107,8 +107,8 @@ public slots:
 
 };
 
-#endif // _GAME_H
+#endif // _TAROTCLUB_H
 
 //=============================================================================
-// End of file Game.h
+// End of file TarotClub.h
 //=============================================================================

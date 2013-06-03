@@ -34,14 +34,17 @@ class DealFile
 public:
     DealFile();
 
-    void LoadFile(QString fileName);
+    bool LoadFile(QString fileName);
     void SaveFile(QString fileName);
 
     Deck  southDeck;
     Deck  northDeck;
     Deck  westDeck;
     Deck  eastDeck;
-    Deck  chienDeck;
+    Deck  dogDeck;
+
+private:
+    bool FillDeck(Deck &deck, QDomElement &child);
 
 };
 

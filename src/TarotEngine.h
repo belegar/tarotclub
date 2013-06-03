@@ -25,21 +25,21 @@
 #ifndef _TAROTENGINE_H
 #define _TAROTENGINE_H
 
+#include <QObject>
 #include <QMap>
-#include <QThread>
 #include "Card.h"
 #include "Deck.h"
 #include "Deal.h"
 #include "Player.h"
 #include "TarotDeck.h"
 #include "defines.h"
-#include "GameState.h"
+#include "Game.h"
 #include "ServerConfig.h"
 
-
 /*****************************************************************************/
-class TarotEngine
+class TarotEngine : public QObject
 {
+    Q_OBJECT
 
 public:
     /**
@@ -66,10 +66,6 @@ public:
     TarotEngine();
     ~TarotEngine();
 
-#ifndef QT_NO_DEBUG
-    void GenerateEndDealLog();
-#endif // QT_NO_DEBUG
-
     Player &GetPlayer(Place p);
     Score &GetScore();
     int GetDealNumber();
@@ -82,12 +78,12 @@ public:
 
 private:
     Player      players[5];     // [3..5] players
-    Deck        mainDeck;      // the main deck of cards
+    Deck        currentTrick;   // the main deck of cards
     Deal        deal;
-    GameState   gameState;
+    Game        gameState;
     DealType    dealType;
     int         dealNumber;
-    int         dealCounter;   // number of deals for the tournament game
+    int         dealCounter;    // number of deals for the tournament game
     QString     dealFile;
     GameMode    gameMode;
 
@@ -96,15 +92,24 @@ private:
     int         cptVuPli;   // end of a round
     int         cptVuDonne; // end of a deal
 
-
     void NewGame();
     void StopGame();
     void NewDeal();
 
     bool IsCardValid(Card *c, Place p);
     bool HasCard(Card *c, Place p);
-    void CustomDeal();
-    void RandomDeal();
+    void CreateDeal();
+
+    /**
+     * @brief CalculateTrickWinner
+     * Each trick is won by the highest trump in it, or the highest card
+     * of the suit led if no trumps were played.
+     *
+     * This methods does not verify if the trick is consistent with the rules; this
+     * is supposed to have been previously verified.
+     *
+     * @return The place of the winner of this trick
+     */
     Place CalculateTrickWinner();
     void BidSequence();
     void ShowDog();
@@ -122,6 +127,15 @@ private:
      */
     bool EndOfTrick(float &points);
 
+signals:
+    void sigSelectPlayer(Place p);
+    void sigAskBid(Place p);
+    void sigDealAgain();
+    void sigPlayCard(Place p);
+    void sigEndOfTrick();
+    void sigEndOfDeal();
+    void sigSendCards();
+    void sigShowDog();
 
 };
 

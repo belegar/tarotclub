@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - GameState.h
+ * TarotClub - Game.h
  *=============================================================================
- * Utility class to store various game information
+ * Utility class to store various game state information
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,13 +22,13 @@
  *
  *=============================================================================
  */
-#ifndef GameState_H
-#define GameState_H
+#ifndef _GAME_H
+#define _GAME_H
 
 #include "defines.h"
 
 /*****************************************************************************/
-class GameState
+class Game
 {
 
 public:
@@ -37,35 +37,84 @@ public:
         STOP,
         DEAL,
         BID,
+        BUILD_DOG,
         SHOW_DOG,
         WAIT_DOG,
-        DOG,
         BUILD_HANDLE,
         SHOW_HANDLE,
-        GAME,
+        PLAY_TRICK,
         WAIT_TRICK,
         WAIT_PLAYER
     };
 
-    GameState();
+    struct HandleInfo
+    {
+        Handle type;
+        bool declared;
+    };
+
+    Game();
 
     /**
      * @brief operator ++
      *
      * Overloaded operators to manage game counters
-     * Just increment the GameState object each time a players is playing a card
+     * Just increment the Game object each time a players is playing a card
      *
      * @return
      */
-    GameState& operator++();
-    GameState operator++(int unused);
+    Game& operator++();
+    Game operator++(int unused);
 
     void Initialize();
 
+    /**
+     * @brief Game::RemainingTurns
+     * @return number of turns remainings
+     */
     int GetRemainingTurns();
-    int GetNumberOfCards();
-    int FirstCard();
 
+    /**
+     * @brief GetNumberOfCards
+     * @return
+     */
+    int GetNumberOfCards();
+
+    /**
+     * @brief Starts a new deal
+     */
+    void NewDeal();
+
+    /**
+     * @brief Next
+     * @return
+     */
+    bool Next();
+
+    /**
+     * @brief Stop
+     */
+    void Stop();
+
+
+    bool IsDealFinished();
+
+    // Various information of the current deal
+    Place       taker;             // who has taken
+    Contract    contract;          // taker's contract
+    bool        slamAnnounced;     // true if the taker has announced a slam (chelem)
+    HandleInfo  attackHandle;
+    HandleInfo  defenseHandle;
+    int         numberOfPlayers;   // 3, 4 or 5
+
+    // Various game states and counters
+    int         position;          // Current position, [0..numberOfPlayers-1]
+    int         trickCounter;      // number of tricks played [0..17] for 4 players
+    Place       dealer;            // who has dealt the cards
+    Place       currentPlayer;
+    Sequence    sequence;
+
+private:
     /**
      * @brief Compute the next player to play, counter-clockwise
      * @param j
@@ -73,27 +122,11 @@ public:
      */
     Place NextPlayer(Place j);
 
-    void Stop();
-
-    /**
-     * @brief Start a new deal
-     */
-    void Start();
-
-    Place       taker;             // who has taken
-    Contract    contract;          // taker's contract
-    bool        slamAnnounced;     // true if the taker has announced a slam (chelem)
-    int         position;          // Current position, [0..numberOfPlayers-1]
-    int         numberOfPlayers;   // 3, 4 or 5
-    int         trickCounter;      // number of tricks played [0..17] for 4 players
-    Place       dealer;            // who has dealt the cards
-    Place       currentPlayer;
-    Sequence    sequence;
 
 };
 
-#endif // GameState_H
+#endif // _GAME_H
 
 //=============================================================================
-// End of file GameState.h
+// End of file Game.h
 //=============================================================================

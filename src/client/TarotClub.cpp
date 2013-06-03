@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Game.cpp
+ * TarotClub - TarotClub.cpp
  *=============================================================================
- * Derived class from MainWindow class. Central class for the game engine.
+ * Graphical TarotClub client class, contains an embedded server.
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -26,15 +26,15 @@
 #include <QStatusBar>
 #include <QInputDialog>
 #include <QMessageBox>
-#include "Game.h"
-#include "../Jeu.h"
+#include "TarotClub.h"
+#include "../TarotDeck.h"
 #include "ui_NumberedDealUI.h"
 #include "ui_WinUI.h"
 
 #define SOUTH_CARDS_POS     522
 
 /*****************************************************************************/
-Game::Game() : MainWindow()
+TarotClub::TarotClub() : MainWindow()
 {
     // Check user's directory and create it if not exists
     if (!QDir(Config::path).exists())
@@ -106,7 +106,7 @@ Game::Game() : MainWindow()
     server.start();
 }
 /*****************************************************************************/
-Game::~Game()
+TarotClub::~Game()
 {
 
 }
@@ -114,14 +114,14 @@ Game::~Game()
 /**
  * This method allows a proper cleanup before closing the application
  */
-void Game::slotQuitTarotClub()
+void TarotClub::slotQuitTarotClub()
 {
     server.closeServerGame();
     server.exit();
     server.wait(); // block until thread has finished execution
 }
 /*****************************************************************************/
-void Game::slotNewTournamentGame()
+void TarotClub::slotNewTournamentGame()
 {
     gameType = LOC_TOURNAMENT;
     server.setGameType(LOC_TOURNAMENT);
@@ -129,7 +129,7 @@ void Game::slotNewTournamentGame()
     newLocalGame();
 }
 /*****************************************************************************/
-void Game::slotNewNumberedDeal()
+void TarotClub::slotNewNumberedDeal()
 {
     QDialog *widget = new QDialog;
     Ui::NumberedDeal ui;
@@ -145,7 +145,7 @@ void Game::slotNewNumberedDeal()
     }
 }
 /*****************************************************************************/
-void Game::slotNewCustomDeal()
+void TarotClub::slotNewCustomDeal()
 {
     QString fileName = QFileDialog::getOpenFileName(this);
 
@@ -159,14 +159,14 @@ void Game::slotNewCustomDeal()
     }
 }
 /*****************************************************************************/
-void Game::slotNewQuickGame()
+void TarotClub::slotNewQuickGame()
 {
     server.setGameType(LOC_ONEDEAL);
     server.setDealType(RANDOM_DEAL);
     newLocalGame();
 }
 /*****************************************************************************/
-void Game::newLocalGame()
+void TarotClub::newLocalGame()
 {
     scoresDock->clear();
     infosDock->clear();
@@ -186,12 +186,12 @@ void Game::newLocalGame()
     server.connectBots();
 }
 /*****************************************************************************/
-void Game::slotJoinNetworkGame()
+void TarotClub::slotJoinNetworkGame()
 {
     joinWizard->exec();
 }
 /*****************************************************************************/
-void Game::applyOptions()
+void TarotClub::applyOptions()
 {
     ClientOptions *options = clientConfig.getOptions();
 
@@ -204,7 +204,7 @@ void Game::applyOptions()
     tapis->setBackground(options->backgroundColor);
 }
 /*****************************************************************************/
-void Game::slotShowOptions()
+void TarotClub::slotShowOptions()
 {
     optionsWindow->setClientOptions(clientConfig.getOptions());
     optionsWindow->setServerOptions(serverConfig.getOptions());
@@ -221,7 +221,7 @@ void Game::slotShowOptions()
     }
 }
 /*****************************************************************************/
-void Game::slotClickTapis()
+void TarotClub::slotClickTapis()
 {
     if (sequence == MONTRE_CHIEN)
     {
@@ -239,7 +239,7 @@ void Game::slotClickTapis()
     }
 }
 /*****************************************************************************/
-void Game::hidePli()
+void TarotClub::hidePli()
 {
     int i;
     Card *c;
@@ -255,13 +255,13 @@ void Game::hidePli()
 }
 /*****************************************************************************/
 /**
- * @brief Game::slotMoveCursor
+ * @brief TarotClub::slotMoveCursor
  *
  * This function is called every time the mouse cursor moves
  *
  * @param gc
  */
-void Game::slotMoveCursor(GfxCard *gc)
+void TarotClub::slotMoveCursor(GfxCard *gc)
 {
     Card *c = tapis->getObjectCard(gc);
 
@@ -306,7 +306,7 @@ void Game::slotMoveCursor(GfxCard *gc)
     }
 }
 /*****************************************************************************/
-void Game::slotClickCard(GfxCard *gc)
+void TarotClub::slotClickCard(GfxCard *gc)
 {
     Card *c = tapis->getObjectCard(gc);
 
@@ -403,13 +403,13 @@ void Game::slotClickCard(GfxCard *gc)
     }
 }
 /*****************************************************************************/
-void Game::slotListeDesJoueurs(QList<Identity> pl)
+void TarotClub::slotListeDesJoueurs(QList<Identity> pl)
 {
     players = pl;
     tapis->setPlayerNames(players, SUD);
 }
 /*****************************************************************************/
-void Game::slotReceptionCartes()
+void TarotClub::slotReceptionCartes()
 {
     client.updateStats();
     infosDock->printStats(client.getStats());
@@ -417,12 +417,12 @@ void Game::slotReceptionCartes()
     afficheCartesJoueur(0);
 }
 /*****************************************************************************/
-void Game::slotAfficheSelection(Place p)
+void TarotClub::slotAfficheSelection(Place p)
 {
     tapis->afficheSelection(p);
 }
 /*****************************************************************************/
-void Game::slotAccepteChien()
+void TarotClub::slotAccepteChien()
 {
     Card *c;
     GfxCard *gc;
@@ -442,7 +442,7 @@ void Game::slotAccepteChien()
     client.sendChien();
 }
 /*****************************************************************************/
-void Game::slotPresenterPoignee()
+void TarotClub::slotPresenterPoignee()
 {
     if (client.testPoignee() == false)
     {
@@ -458,20 +458,20 @@ void Game::slotPresenterPoignee()
     statusBar()->showMessage(trUtf8("Ã votre tour de jouer une carte."));
 }
 /*****************************************************************************/
-void Game::slotSetEnchere(Contrat cont)
+void TarotClub::slotSetEnchere(Contrat cont)
 {
     client.sendEnchere(cont);
     tapis->cacheBoutons();
 }
 /*****************************************************************************/
 /**
- * @brief Game::afficheCartesJoueur
+ * @brief TarotClub::afficheCartesJoueur
  *
  * Show current player's cards
  *
  * @param pos = 0 for 18-cards in the hand, otherwise 1 (with cards from the chien)
  */
-void Game::afficheCartesJoueur(int pos)
+void TarotClub::afficheCartesJoueur(int pos)
 {
     qreal i, x, y, pas;
     Card *c;
@@ -502,7 +502,7 @@ void Game::afficheCartesJoueur(int pos)
     }
 }
 /*****************************************************************************/
-void Game::slotAfficheChien()
+void TarotClub::slotAfficheChien()
 {
     int i, n, x, y;
     Card *c;
@@ -525,7 +525,7 @@ void Game::slotAfficheChien()
     statusBar()->showMessage(trUtf8("Cliquez sur le tapis une fois que vous avez vu le Chien."));
 }
 /*****************************************************************************/
-void Game::hideChien()
+void TarotClub::hideChien()
 {
     int i;
     Card *c;
@@ -539,7 +539,7 @@ void Game::hideChien()
     }
 }
 /*****************************************************************************/
-void Game::slotRedist()
+void TarotClub::slotRedist()
 {
     sequence = GAME;
     infosDock->clear();
@@ -552,7 +552,7 @@ void Game::slotRedist()
     client.sendReady();
 }
 /*****************************************************************************/
-void Game::slotPrepareChien()
+void TarotClub::slotPrepareChien()
 {
     Card *c;
 
@@ -570,7 +570,7 @@ void Game::slotPrepareChien()
     statusBar()->showMessage(trUtf8("Sélectionnez des cartes pour construire votre chien."));
 }
 /*****************************************************************************/
-void Game::slotDepartDonne(Place p, Contrat c)
+void TarotClub::slotDepartDonne(Place p, Contrat c)
 {
     firstTurn = true;
     turnCounter = 0;
@@ -594,7 +594,7 @@ void Game::slotDepartDonne(Place p, Contrat c)
     tapis->colorisePreneur(p);
 }
 /*****************************************************************************/
-void Game::slotJoueCarte()
+void TarotClub::slotJoueCarte()
 {
     tapis->setFilter(JEU);
 
@@ -623,14 +623,14 @@ void Game::slotJoueCarte()
     }
 }
 /*****************************************************************************/
-void Game::slotAfficheCarte(int id, Place tour)
+void TarotClub::slotAfficheCarte(int id, Place tour)
 {
     GfxCard *gc = tapis->getGfxCard(id);
     tapis->DrawCard(gc, tour);
     roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/
-void Game::showVictoryWindow()
+void TarotClub::showVictoryWindow()
 {
 
     /*
@@ -667,7 +667,7 @@ void Game::showVictoryWindow()
     */
 }
 /*****************************************************************************/
-void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
+void TarotClub::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 {
     roundDock->selectWinner(turnCounter, winner);
     roundDock->pointsToTaker(turnCounter, pointsTaker);
@@ -694,7 +694,7 @@ void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 }
 /*****************************************************************************/
 /**
- * @brief Game::slotWaitPli
+ * @brief TarotClub::slotWaitPli
  *
  * This method is called at the end of each turn, when all the players have
  * played a card.
@@ -702,7 +702,7 @@ void Game::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
  * @param winner player who won the current turn
  * @param pointsTaker points earn by the taker
  */
-void Game::slotWaitPli(Place winner, float pointsTaker)
+void TarotClub::slotWaitPli(Place winner, float pointsTaker)
 {
     roundDock->selectWinner(turnCounter, winner);
     roundDock->pointsToTaker(turnCounter, pointsTaker);
@@ -721,5 +721,5 @@ void Game::slotWaitPli(Place winner, float pointsTaker)
 
 
 //=============================================================================
-// End of file Game.cpp
+// End of file TarotClub.cpp
 //=============================================================================

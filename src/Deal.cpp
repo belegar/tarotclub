@@ -33,132 +33,105 @@
 Deal::Deal()
 {
     Initialize();
-    reset();
+    NewDeal();
 }
 /*****************************************************************************/
 void Deal::Initialize()
 {
-    for (int i = 0; i <MAX_ROUNDS; i++)
+    for (int i = 0; i<MAX_ROUNDS; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j<5; j++)
         {
-            deals[i][j] = 0;
+            scores[i][j] = 0;
         }
     }
-    turn = 0;
-    carteExcuse = HYPERSPACE;
+    dealCounter = 0;
 }
 /*****************************************************************************/
-/**
- * Est appelé juste avant le premier tour
- */
-void Deal::reset()
+void Deal::NewDeal()
 {
-    for (int i = 0; i < 78; i++)
+    dogDeck.clear();
+    attackHandleDeck.clear();
+    defenseHandleDeck.clear();
+
+    for (int i=0; i<24; i++)
     {
-        plis[i] = HYPERSPACE;
+        tricks[i].clear();
     }
 
-    gagne = false;
-
-    chelemDeclare = false;
-    chelemRealise = false;
-    chelemDefense = false;
-
-    petitAuBout = false;
-    petitAttaque = false;
-
-    poigneeDefense = false;
-    poigneeAttaque = false;
-
-    typePoigneeD = P_SANS;
-    typePoigneeA = P_SANS;
-
-    Deal_inf.pointsAFaire = 0;
-    Deal_inf.difference = 0;
-    Deal_inf.points_petit_au_bout = 0;
-    Deal_inf.multiplicateur = 0;
-    Deal_inf.points_poignee = 0;
-    Deal_inf.points_chelem = 0;
-    Deal_inf.points_defense = 0;
-    Deal_inf.attaque = 0.0;
-    Deal_inf.defense = 0.0;
-    Deal_inf.bouts = 0;
+    littleEndianOudler = false;
+    slamDone = false;
 }
 /*****************************************************************************/
-void Deal::setPli(int i, Place p)
+void Deal::SetTrick(Deck &trick, int turn)
 {
-    if (i > 77 || i < 0)
+    turn--;
+    if ((turn>=0) && (turn<24))
     {
-        return;
+        tricks[turn] = trick;
     }
-    plis[i] = p;
 }
 /*****************************************************************************/
-void Deal::setPoigneeDefense(Poignee p)
+void Deal::SetDogOwner(Team team)
 {
-    typePoigneeD = p;
+    dogDeck.SetOwner(team);
 }
 /*****************************************************************************/
-void Deal::setPoigneeAttaque(Poignee p)
+Deck Deal::GetTrick(int turn)
 {
-    typePoigneeA = p;
-}
-/*****************************************************************************/
-Place Deal::getPli(int i)
-{
-    if (i > 77 || i < 0)
+    if ((turn<0) || (turn>=24))
     {
-        return HYPERSPACE;
+        turn = 0;
     }
-    return plis[i];
+    return tricks[turn];
 }
 /*****************************************************************************/
-void Deal::setChelemDeclare(bool c)
+void Deal::SetHandle(Deck &handle, Team team)
 {
-    chelemDeclare = c;
+    if (team == ATTACK)
+    {
+        attackHandleDeck = handle;
+    }
+    else
+    {
+        defenseHandleDeck = handle;
+    }
 }
 /*****************************************************************************/
-void Deal::setExcuse(Place p)
-{
-    carteExcuse = p;
-}
-/*****************************************************************************/
-Place Deal::getExcuse()
-{
-    return carteExcuse;
-}
-/*****************************************************************************/
-int Deal::getTotalPoints(Place p)
+int Deal::GetTotalPoints(Place p)
 {
     int i;
     int total;
 
     total = 0;
-    for (i = 0; i < turn; i++)
+    for (i = 0; i<dealCounter; i++)
     {
-        total += Deals[i][p];
+        total += scores[i][p];
     }
     return(total);
 }
 /*****************************************************************************/
-QList<Place> Deal::getPodium()
+QList<Place> Deal::GetPodium()
 {
     QList<Place> placePodium;
+
+
+    /* FIXME uncomment and recode the algorithm
+
     QList<int> pointsPodium;
     int i, j;
 
     // init lists
-    for (i = 0; i < NB_PLAYERS; i++)
+    for (i = 0; i<5; i++)
     {
         placePodium.append((Place)i);
-        pointsPodium.append(Deals[turn - 1][i]);
+        pointsPodium.append(scores[dealCounter - 1][i]);
     }
 
     // bubble sort
-    for (i = 0; i < NB_PLAYERS; i++)
+    for (i = 0; i<5; i++)
     {
-        for (j = 0; j < (NB_PLAYERS - 1); j++)
+        for (j = 0; j<( - 1); j++)
         {
             if (pointsPodium[j] < pointsPodium[j + 1])
             {
@@ -167,361 +140,21 @@ QList<Place> Deal::getPodium()
             }
         }
     }
-
+*/
     return placePodium;
 }
 /*****************************************************************************/
-DealInfo &Deal::GetDealInfo()
+Score &Deal::GetScore()
 {
-    return Deal_inf;
+    return score;
 }
 /*****************************************************************************/
-void Deal::SetDealInfo(const DealInfo &inf)
+void Deal::SetScore(const Score &s)
 {
-    Deal_inf = inf;
-}
-/*****************************************************************************/
-/**
- * Calcule les points de la défense et de l'attaque
- */
-void Deal::calcul(Deck &mainDeck, Deck &deckChien, GameInfo &info)
-{
-    int i;
-    float n;
-    Card *c;
-    int flag = 0;
+    score = s;
 
-    Deal_inf.bouts = 0;
-    Deal_inf.attaque = 0.0;
-    Deal_inf.defense = 0.0;
-    petitAuBout = false;
-    petitAttaque = false;
-
-#ifndef QT_NO_DEBUG
-    QString filename = "plis_" + QDateTime::currentDateTime().toString() + ".txt" ;
-    QFile out_file(filename);
-    out_file.open(QIODevice::WriteOnly | QIODevice::Text);
-    QTextStream f(&out_file);
-#endif
-
-    for (i = 0; i < 72; i++)
-    {
-        c = mainDeck.at(i);
-        n = c->getPoints();
-
-#ifndef QT_NO_DEBUG
-        f << " Couleur : " << c->getColor();
-        f << " Type : " << c->getType();
-        f << " Valeur : " << c->getValue();
-        f << " Owner : " << c->getOwner();
-        f << " Pli : " << plis[i];
-#endif
-
-        if (c->getType() == EXCUSE)
-        {
-            if (plis[i] == infos.preneur)
-            {
-                if (carteExcuse == infos.preneur)
-                {
-                    Deal_inf.attaque += n;
-                    Deal_inf.bouts++;
-                }
-                else
-                {
-                    Deal_inf.defense += n;
-                    flag = 1;
-                }
-            }
-            else
-            {
-                if (carteExcuse != infos.preneur)
-                {
-                    Deal_inf.defense += n;
-                }
-                else
-                {
-                    Deal_inf.attaque += n;
-                    flag = 1;
-                    Deal_inf.bouts++;
-                }
-            }
-        }
-        else
-        {
-            // il doit rendre une carte basse à la place de son excuse
-            if (flag == 1 && n == 0.5 && plis[i] == carteExcuse)
-            {
-                flag = 2;
-                if (carteExcuse == infos.preneur)
-                {
-                    Deal_inf.defense += 0.5;
-                }
-                else
-                {
-                    Deal_inf.attaque += 0.5;
-                }
-            }
-            else
-            {
-                if (plis[i] == infos.preneur)
-                {
-                    Deal_inf.attaque += n;
-                    if (c->getType() == ATOUT)
-                    {
-                        if (c->getValue() == 21 || c->getValue() == 1)
-                        {
-                            Deal_inf.bouts++;
-                        }
-                    }
-                }
-                else
-                {
-                    Deal_inf.defense += n;
-                }
-            }
-        }
-
-#ifndef QT_NO_DEBUG
-        f << " Attaque : " << Deal_inf.attaque;
-        f << " Defense : " << Deal_inf.defense << endl;
-#endif
-
-    }
-
-
-#ifndef QT_NO_DEBUG
-    f << "*** Chien ***" << endl;
-#endif
-
-    // les points du chien
-    n = 0;
-    for (i = 0; i < 6; i++)
-    {
-        c = deckChien.at(i);
-        n += c->getPoints();
-
-#ifndef QT_NO_DEBUG
-        f << " Couleur : " << c->getColor();
-        f << " Type : " << c->getType();
-        f << " Valeur : " << c->getValue();
-        f << " Owner : " << c->getOwner() << endl;
-#endif
-
-        // on compte les possibles bouts dans le chien
-        if (infos.contrat == GARDE_SANS)    // seul cas possible avec des bouts dans le Chien
-        {
-            if (c->getType() == ATOUT)
-            {
-                if (c->getValue() == 21 || c->getValue() == 1)
-                    Deal_inf.bouts++;
-            }
-            else if (c->getType() == EXCUSE)
-                Deal_inf.bouts++;
-        }
-    }
-
-    if (infos.contrat == GARDE_CONTRE)
-    {
-        Deal_inf.defense += n;
-    }
-    else
-    {
-        Deal_inf.attaque += n;
-    }
-
-#ifndef QT_NO_DEBUG
-    f << " Attaque : " << Deal_inf.attaque;
-    f << " Defense : " << Deal_inf.defense << endl;
-    out_file.close();
-#endif
-
-    // On teste le Chelem
-    if (Deal_inf.attaque == 86.5 && Deal_inf.defense == 4.5)
-    {
-        // On arrondit, conformément aux règles du Tarot
-        Deal_inf.attaque = 87.0;
-        Deal_inf.defense = 4.0;
-        chelemRealise = true;
-        chelemDefense = false;
-
-    }
-    else if (Deal_inf.attaque == 4.5 && Deal_inf.defense == 86.5)
-    {
-        // On arrondit, conformément aux règles du Tarot
-        Deal_inf.attaque = 4.0;
-        Deal_inf.defense = 87.0;
-        chelemRealise = true;
-        chelemDefense = true;
-
-    }
-    else
-    {
-        chelemRealise = false;
-        chelemDefense = false;
-    }
-
-    // recherche du petit au bout
-    for (i = 68; i < 72; i++)
-    {
-        c = mainDeck.at(i);
-        if (c->getType() == ATOUT && c->getValue() == 1)
-        {
-            petitAuBout = true;
-            break;
-        }
-    }
-
-    if (petitAuBout == true)
-    {
-        // A qui appartient le petit au bout
-        // On prend la dernière carte du pli
-        if (plis[71] == infos.preneur)
-        {
-            petitAttaque = true;
-        }
-    }
-
-    //---------------------------
-    // On connait les points des
-    // deux camps, on en déduit
-    // donc les Deals
-    //---------------------------
-
-    if (Deal_inf.bouts == 0)
-    {
-        Deal_inf.pointsAFaire = 56;
-    }
-    else if (Deal_inf.bouts == 1)
-    {
-        Deal_inf.pointsAFaire = 51;
-    }
-    else if (Deal_inf.bouts == 2)
-    {
-        Deal_inf.pointsAFaire = 41;
-    }
-    else
-    {
-        Deal_inf.pointsAFaire = 36;
-    }
-
-    if (infos.contrat == PRISE)
-    {
-        Deal_inf.multiplicateur = 1;
-    }
-    else if (infos.contrat == GARDE)
-    {
-        Deal_inf.multiplicateur = 2;
-    }
-    else if (infos.contrat == GARDE_SANS)
-    {
-        Deal_inf.multiplicateur = 4;
-    }
-    else     // GARDE_CONTRE
-    {
-        Deal_inf.multiplicateur = 6;
-    }
-
-    Deal_inf.difference = (int)(Deal_inf.attaque - Deal_inf.pointsAFaire);
-
-    if (Deal_inf.difference >= 0)
-    {
-        gagne = true;
-    }
-    else
-    {
-        gagne = false;
-    }
-
-    Deal_inf.difference = abs(Deal_inf.difference);
-
-    if (petitAuBout == true)
-    {
-        if (petitAttaque == true)
-        {
-            Deal_inf.points_petit_au_bout = -10;
-        }
-        else
-        {
-            Deal_inf.points_petit_au_bout = 10;
-        }
-    }
-    else
-    {
-        Deal_inf.points_petit_au_bout = 0;
-    }
-
-    // Les points des Poignées déclarées
-    if (poigneeDefense == true)
-    {
-        Deal_inf.points_poignee = 10 + 10 * typePoigneeD;
-        if (gagne == true)
-        {
-            Deal_inf.points_poignee *= -1;   // Les points vont au camp gagnant
-        }
-    }
-    else if (poigneeAttaque == true)
-    {
-        Deal_inf.points_poignee = (-1) * (10 + 10 * typePoigneeA);
-        if (gagne == false)
-        {
-            Deal_inf.points_poignee *= -1;   // Les points vont au camp gagnant
-        }
-    }
-    else
-    {
-        Deal_inf.points_poignee = 0;
-    }
-
-    // Les points des Chelem déclarés
-    if (chelemDeclare == true)
-    {
-        if (chelemRealise == true)
-        {
-            if (chelemDefense == true)
-            {
-                Deal_inf.points_chelem = 200;
-            }
-            else
-            {
-                Deal_inf.points_chelem = -400;
-            }
-        }
-        else
-        {
-            Deal_inf.points_chelem = 200;
-        }
-    }
-    else if (chelemRealise == true)
-    {
-        if (chelemDefense == true)
-        {
-            Deal_inf.points_chelem = 200;
-        }
-        else
-        {
-            Deal_inf.points_chelem = -200;
-        }
-    }
-    else
-    {
-        Deal_inf.points_chelem = 0;
-    }
-
-    // Le total de points pour chaque défenseur est donc de :
-    Deal_inf.points_defense = (25 + abs(Deal_inf.difference) + Deal_inf.points_petit_au_bout) * Deal_inf.multiplicateur +
-                               Deal_inf.points_poignee + Deal_inf.points_chelem;
-
-    // Le preneur a rempli son contrat, il prend donc les points à la défense
-    if (gagne == true)
-    {
-        Deal_inf.points_defense *= (-1);
-    }
-
-    setPoints(infos);
-}
-/*****************************************************************************/
-void Deal::setPoints(const GameInfos &infos)
-{
+    // FIXME, if championship, add score to the list of deals
+    /*
     int i;
 
     for (i = 0; i < NB_PLAYERS; i++)
@@ -536,6 +169,266 @@ void Deal::setPoints(const GameInfos &infos)
         }
     }
     turn++;
+    */
+}
+/*****************************************************************************/
+#ifndef QT_NO_DEBUG
+/**
+ * @brief Generate a file with all played cards of the deal
+ *
+ * This file also contains useful information such as ower of cards, points ...
+ * The log contains 2 parts, the main deck and the dog, each parts has 4 lines
+ * line 1: name of cards
+ * line 2: points of each card
+ * line 3: the original owner of the card
+ * line 4: the final owner of the card
+ */
+void Deal::GenerateEndDealLog()
+{
+    /*
+
+    QString filename = "round_cards_" + QDateTime::currentDateTime().toString() + ".csv" ;
+
+    ofstream f(filename);
+
+    QString line1 = "Card;" + mainDeck.GetCardList();
+    QString line2 = "Points";
+    QString line3 = "Base owner";
+    QString line4 = "Final owner";
+
+    // Card type
+    for (int j = 0; j < mainDeck.size(); j++)
+    {
+        QString n;
+        Card *c = mainDeck.at(j);
+        line2 += ";" + n.setNum(c->getPoints());
+        line3 += ";" + n.setNum((int)c->getOwner());
+        line4 += ";" + n.setNum(score.getPli(j));
+    }
+
+    f << "Main deck" << endl;
+    f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
+
+    line1 = line2 = line3 = line4 = "";
+
+    // Card type
+    line1 = dogDeck.GetCardList();
+    for (int j = 0; j < dogDeck.size(); j++)
+    {
+        QString n;
+        Card *c = dogDeck.at(j);
+        line2 += n.setNum(c->GetPoints()) + ";";
+        line3 += n.setNum((int)c->GetOwner()) + ";";
+        line4 += n.setNum(score.getPli(j)) + ";";
+    }
+    f << "Dog deck" << endl;
+    f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
+
+    f << "Game infos" << endl;
+    f << "Taker;" << infos.preneur << endl << "Bid;" << infos.contrat << endl;
+
+    f.close();
+        */
+}
+#endif // QT_NO_DEBUG
+/*****************************************************************************/
+void Deal::Calculate(Game &info)
+{
+    score.Reset();
+
+#ifndef QT_NO_DEBUG
+    GenerateEndDealLog();
+#endif
+
+    AnalyzeGame(info);
+    CalculateScore(info);
+}
+/*****************************************************************************/
+/**
+ * @brief Deal::AnalyzeGame
+ *
+ * 1. Attacker points
+ * 2. Slam detection
+ * 3. 1 of Trump at last trick detection (attack or defense?)
+ * 4. Fool owner (lost if played during last trick, except in case of Chelem)
+ * 5. Oudler counts deduct points to do
+ *
+ * @param info
+ */
+void Deal::AnalyzeGame(Game &info)
+{
+    int i;
+    Deck::Statistics statsAttack;
+    int tricksWon;
+
+    // Get the number of tricks played depending of the number of players
+    int numberOfTricks = info.GetNumberOfCards();
+
+    // 1. Attacker points
+    statsAttack.Reset();
+    tricksWon = 0;
+    for (i = 0; i<numberOfTricks; i++)
+    {
+        if (tricks[i].GetOwner() == ATTACK)
+        {
+            tricks[i].AnalyzeTrumps(statsAttack);
+            tricksWon++;
+        }
+    }
+    // We add the dog if needed
+    if (dogDeck.GetOwner() == ATTACK)
+    {
+        dogDeck.AnalyzeTrumps(statsAttack);
+    }
+
+    // 2. Slam detection
+    if (tricksWon == numberOfTricks)
+    {
+        slamDone = true;
+        slamOwner = ATTACK;
+    }
+    if (tricksWon == 0)
+    {
+        slamDone = true;
+        slamOwner = DEFENSE;
+    }
+
+    // 3. 1 of Trump at last trick detection (attack or defense?)
+    i = numberOfTricks-1; // last trick
+    if (slamDone)
+    {
+        // With a slam, the 1 of Trump bonus is valid if played
+        // in the penultimate trick
+        i--;
+    }
+    if (tricks[i].HasOneOfTrump())
+    {
+        littleEndianOudler = true;
+        littleEndianOwner = tricks[i].GetOwner();
+    }
+
+    // 4. Fool owner (lost if played during last trick, except in case of Chelem)
+
+    // FIXME Complete
+
+    // 5. Oudler counts deduct points to do
+    if (statsAttack.oudlers == 0)
+    {
+        score.pointsToDo = 56;
+    }
+    else if (statsAttack.oudlers == 1)
+    {
+        score.pointsToDo = 51;
+    }
+    else if (statsAttack.oudlers == 2)
+    {
+        score.pointsToDo = 41;
+    }
+    else // 3 oudlers
+    {
+        score.pointsToDo = 36;
+    }
+}
+/*****************************************************************************/
+/**
+ * @brief Calculate the final score of all players
+ *
+ * We calculate the points with the following formula:
+ *   points = ((25 + pt + pb) * mu) + pg + ch
+ *
+ * pt = difference between the card points the taker actually won and the minimum number of points he needed
+ * pb = the petit au bout bonus is added or subtracted if applicable
+ * mu = factor (mu) depending on the bid (1, 2, 4 or 6)
+ * pg = the handle bonus (20, 30 or 40)
+ * ch = the slam bonus (200 or 400)
+ *
+ */
+void Deal::CalculateScore(Game &info)
+{
+    if (info.contract == TAKE)
+    {
+        score.multiplier = 1;
+    }
+    else if (info.contract == GUARD)
+    {
+        score.multiplier = 2;
+    }
+    else if (info.contract == GUARD_WITHOUT)
+    {
+        score.multiplier = 4;
+    }
+    else     // GUARD_AGAINST
+    {
+        score.multiplier = 6;
+    }
+
+    // Handle bonus: Ces primes gardent la même valeur quel que soit le contrat.
+    // La prime est acquise au camp vainqueur de la donne.
+    if (info.attackHandle.declared)
+    {
+        score.handlePoints += GetHandlePoints(info.attackHandle.type);
+    }
+    if (info.defenseHandle.declared)
+    {
+        score.handlePoints += GetHandlePoints(info.defenseHandle.type);
+    }
+
+    // Little endian bonus:
+    // Le camp qui réalise la dernière levée, à condition que cette levée
+    // comprenne le Petit, bénéficie d'une prime de 10 points,
+    // multipliable selon le contrat, quel que soit le résultat de la donne.
+    if (littleEndianOudler == true)
+    {
+        if (littleEndianOwner == score.Winner())
+        {
+            score.littleEndianPoints = 10;
+        }
+        else
+        {
+            score.littleEndianPoints = -10;
+        }
+    }
+
+    // Slam bonus
+    if (slamDone)
+    {
+        if (info.slamAnnounced == true)
+        {
+            score.slamPoints = 400;
+        }
+        else
+        {
+            score.slamPoints = 200;
+        }
+    }
+    else
+    {
+        // announced but not realized
+        if (info.slamAnnounced == true)
+        {
+            score.slamPoints = -200;
+        }
+    }
+
+    score.difference = score.pointsAttack - score.pointsToDo;
+    // Final scoring
+    score.scoreAttack = (25 + abs(score.difference) + score.littleEndianPoints) * score.multiplier + score.handlePoints + score.slamPoints;
+}
+/*****************************************************************************/
+int Deal::GetHandlePoints(Handle h)
+{
+    if (h == SIMPLE_HANDLE)
+    {
+        return 20;
+    }
+    else if (h == DOUBLE_HANDLE)
+    {
+        return 30;
+    }
+    else
+    {
+        return 40;
+    }
 }
 
 //=============================================================================
