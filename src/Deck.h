@@ -32,6 +32,7 @@
 // Game includes
 #include "Card.h"
 #include "defines.h"
+#include "TarotDeck.h"
 
 /*****************************************************************************/
 class Deck : public QList<Card *>
@@ -45,8 +46,8 @@ public:
 
         int   nbCards;
 
-        int   oudlers;  // nombres d'atouts , en comptant les bouts et l'excuse
-        int   bouts;   // 0, 1, 2 ou 3
+        int   trumps;  // nombres d'atouts , en comptant les bouts et l'excuse
+        int   oudlers;   // 0, 1, 2 ou 3
         int   atoutsMajeurs; // atouts >= 15
 
         int   rois;
@@ -83,6 +84,7 @@ public:
     void Sort();
     bool HasCard(Card *c);
     bool HasOneOfTrump();
+    bool HasFool();
 
     // Getters
     Card *GetCardById(int);
@@ -92,6 +94,28 @@ public:
     // Setters
     void SetOwner(Team o);
     Team GetOwner();
+
+    friend QDataStream &operator<<(QDataStream &out, const Deck &deck)
+    {
+        for (int i = 0; i < deck.size(); i++)
+        {
+            out << (quint8)deck.at(i)->GetId();
+        }
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, Deck &deck)
+    {
+        quint8 card_id;
+        while(in.atEnd() == false)
+        {
+            in >> card_id;
+            deck.append(TarotDeck::GetCard(card_id));
+        }
+        return in;
+    }
+
+
 
 private:
     static bool LessThanCards(Card *carte1, Card *carte2);

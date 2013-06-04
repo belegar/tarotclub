@@ -1,5 +1,5 @@
 /*=============================================================================
- * TarotClub - ScoreInfo.h
+ * TarotClub - Score.h
  *=============================================================================
  * Helper class that stores various scoring information
  *=============================================================================
@@ -40,29 +40,8 @@ public:
     int handlePoints;
     int slamPoints;
 
-    Team Winner()
-    {
-        if (pointsAttack >= pointsToDo)
-        {
-            return ATTACK;
-        }
-        else
-        {
-            return DEFENSE;
-        }
-    }
-
-    void Reset()
-    {
-        pointsAttack = 0;
-        scoreAttack = 0;
-        pointsToDo = 0;
-        difference = 0;
-        multiplier = 0;
-        littleEndianPoints = 0;
-        handlePoints = 0;
-        slamPoints = 0;
-    }
+    Team Winner();
+    void Reset();
 
     friend QDataStream &operator<<(QDataStream &out, Score &info)
     {
@@ -105,5 +84,5 @@ public:
 #endif // _SCORE_H
 
 //=============================================================================
-// End of file ScoreInfo.h
+// End of file Score.h
 //=============================================================================

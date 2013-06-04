@@ -95,6 +95,7 @@ private:
     void NewGame();
     void StopGame();
     void NewDeal();
+    void StartDeal();
 
     bool IsCardValid(Card *c, Place p);
     bool HasCard(Card *c, Place p);
@@ -129,13 +130,14 @@ private:
 
 signals:
     void sigSelectPlayer(Place p);
-    void sigAskBid(Place p);
+    void sigAskBid(Contract p);
     void sigDealAgain();
     void sigPlayCard(Place p);
     void sigEndOfTrick();
     void sigEndOfDeal();
     void sigSendCards();
     void sigShowDog();
+    void sigStartDeal();
 
 };
 

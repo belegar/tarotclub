@@ -141,5 +141,6 @@ SOURCES = AboutWindow.cpp \
     Game.cpp \
     Protocol.cpp \
     Server.cpp \
-    Table.cpp
+    Table.cpp \
+    Score.cpp
 

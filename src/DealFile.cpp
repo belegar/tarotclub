@@ -26,7 +26,6 @@
 #include "DealFile.h"
 #include "defines.h"
 #include "TarotDeck.h"
-#include <QtXml>
 
 #define DEAL_XML_VERSION  "1.0"
 
@@ -153,10 +152,10 @@ void DealFile::SaveFile(QString fileName)
     // Cartes du Chien
     QDomElement chienNode = doc.createElement("chien");
     rootNode.appendChild(chienNode);
-    for (int i = 0; i < chienDeck.count(); i++)
+    for (int i = 0; i < dogDeck.count(); i++)
     {
         QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(chienDeck.at(i)->GetId())));
+        node.appendChild(doc.createTextNode(QString().setNum(dogDeck.at(i)->GetId())));
         chienNode.appendChild(node);
     }
 

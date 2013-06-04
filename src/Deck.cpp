@@ -120,6 +120,19 @@ bool Deck::HasOneOfTrump()
     return false;
 }
 /*****************************************************************************/
+bool Deck::HasFool()
+{
+    for (int i = 0; i < this->count(); i++)
+    {
+        if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
+            (this->at(i)->GetValue() == 0))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+/*****************************************************************************/
 void Deck::Sort()
 {
     qSort(this->begin(), this->end(), LessThanCards);
@@ -145,7 +158,7 @@ void Deck::Statistics::Reset()
     nbCards = 0;
 
     oudlers = 0;
-    bouts = 0;
+    trumps = 0;
     atoutsMajeurs = 0;
 
     rois = 0;
@@ -184,7 +197,7 @@ void Deck::AnalyzeTrumps(Statistics &stats)
         c = this->at(i);
         if (c->GetSuit() == Card::TRUMPS)
         {
-            stats.oudlers++;
+            stats.trumps++;
             val = c->GetValue();
             if (val >= 15)
             {
@@ -193,17 +206,17 @@ void Deck::AnalyzeTrumps(Statistics &stats)
             if (val == 21)
             {
                 stats.vingtEtUn = true;
-                stats.bouts++;
+                stats.oudlers++;
             }
             if (val == 1)
             {
                 stats.petit = true;
-                stats.bouts++;
+                stats.oudlers++;
             }
             if (val == 0)
             {
                 stats.excuse = true;
-                stats.bouts++;
+                stats.oudlers++;
             }
         }
         stats.points += c->GetPoints();

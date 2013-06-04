@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - TarotEngine.cpp
  *=============================================================================
- * Moteur de jeu principal + serveur de jeu réseau
+ * Main Tarot engine 
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -106,7 +106,7 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
     }
     else if (gameState.sequence == Game::PLAY_TRICK)
     {
-        ret =  players[p].CanPlayCard(c, &currentTrick, gameState);
+        ret =  players[p].CanPlayCard(c, currentTrick, gameState);
     }
 
     return (ret);
@@ -165,7 +165,14 @@ void TarotEngine::NewDeal()
     emit sigSelectPlayer(gameState.currentPlayer);
     emit sigAskBid(gameState.contract);
 }
-
+/*****************************************************************************/
+void TarotEngine::StartDeal()
+{
+    gameState.StartDeal();
+    emit sigStartDeal();
+    emit sigSelectPlayer(gameState.currentPlayer);
+    emit sigPlayCard(gameState.currentPlayer);
+}
 /*****************************************************************************/
 void TarotEngine::GameSateMachine()
 {
@@ -230,17 +237,16 @@ void TarotEngine::BidSequence()
                 deal.SetDogOwner(DEFENSE);
             }
 
-            if (infos.contrat == GARDE_SANS || infos.contrat == GARDE_CONTRE)
+            if ((gameState.contract == GUARD_WITHOUT) || (gameState.contract == GUARD_AGAINST))
             {
-                // On n'affiche pas le chien et on commence la partie immédiatement
-                sendDepartDonne();
-                jeu();
+                // We do not display the dog and start the deal immediatly
+                StartDeal();
                 return;
             }
             else
             {
                 cptVuChien = 0;
-                gameState.sequence = WAIT_CHIEN; // Waiting for the taker's discard
+                gameState.sequence = Game::WAIT_DOG; // Waiting for the taker's discard
                 emit sigShowDog();
             }
         }
@@ -250,72 +256,6 @@ void TarotEngine::BidSequence()
         emit sigSelectPlayer(gameState.currentPlayer);
         emit sigAskBid(gameState.contract);
     }
-}
-/*****************************************************************************/
-void TarotEngine::ShowDog()
-{
-    int i;
-    Card *c;
-
-
-
-
-
-    sendShowChien(); // Prise ou garde, on affiche le chien chez tout le monde
-}
-/*****************************************************************************/
-/**
- * Use a custom deal for the game
- */
-void TarotEngine::CustomDeal()
-{
-    int j;
-    Card *c;
-    quint8 params[NB_HAND_CARDS] = {0};   // cartes du joueur (3 joueurs: 24 cartes, 4j:18, 5j:15)
-
-
-
-    QMapIterator<QTcpSocket *, Player *> i(players);
-    while (i.hasNext())
-    {
-        i.next();
-        i.value()->emptyDeck();
-        Place p = i.value()->getPlace();
-        Deck *d;
-
-        if (p == SUD)
-        {
-            d = &editor.southDeck;
-        }
-        else if (p == EST)
-        {
-            d = &editor.eastDeck;
-        }
-        else if (p == OUEST)
-        {
-            d = &editor.westDeck;
-        }
-        else
-        {
-            d = &editor.northDeck;
-        }
-
-        for (j = 0; j < NB_HAND_CARDS; j++)
-        {
-            c = d->at(j);
-            if (c->getType() == EXCUSE)
-            {
-                score.setExcuse(p);
-            }
-            c->setOwner(p);
-            i.value()->addCard(c);
-            params[j] = c->getId();
-        }
-        sendCards(p, params);
-    }
-
-    deckChien = editor.chienDeck;
-    mainDeck.clear();
 }
 /*****************************************************************************/
 void TarotEngine::CreateDeal()
@@ -349,18 +289,18 @@ void TarotEngine::CreateDeal()
         {
             currentTrick.append(TarotDeck::GetCard(i));
         }
-        currentTrick.shuffle(dealNumber);
+        currentTrick.Shuffle(dealNumber);
     }
 
     int n = 0;
-    for (int i=0; i<Game.numberOfPlayers; i++)
+    for (int i=0; i<gameState.numberOfPlayers; i++)
     {
         players[i].GetDeck().clear();
         Place p = players[i].GetPlace();
 
-        for (j = 0; j<Game.GetNumberOfCards(); j++)
+        for (int j = 0; j<gameState.GetNumberOfCards(); j++)
         {
-            int index = n * Game.GetNumberOfCards() + j;
+            int index = n * gameState.GetNumberOfCards() + j;
             Card *c = currentTrick.at(index);
             c->SetOwner(p);
             players[i].GetDeck().append(c);
@@ -370,7 +310,8 @@ void TarotEngine::CreateDeal()
 
 
     // Remaining cards go to the dog
-    Deck dog = currentTrick.mid(n * Game.GetNumberOfCards());
+    Deck dog;
+    dog.append(currentTrick.mid(n * gameState.GetNumberOfCards()));
     deal.SetDog(dog);
     currentTrick.clear();
 }

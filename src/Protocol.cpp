@@ -33,7 +33,7 @@ QByteArray Protocol::BuildCommand(QDataStream &in, Command cmd)
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
     out << (quint16)0 << (quint8)cmd
-        << in // command data
+        << in // data
         << (quint16)0xFFFF;
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));

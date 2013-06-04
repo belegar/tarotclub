@@ -81,6 +81,12 @@ public:
     int GetNumberOfCards();
 
     /**
+     * @brief GetNumberOfDogCards
+     * @return
+     */
+    int GetNumberOfDogCards();
+
+    /**
      * @brief Starts a new deal
      */
     void NewDeal();
@@ -90,6 +96,11 @@ public:
      * @return
      */
     bool Next();
+
+    /**
+     * @brief StartDeal
+     */
+    void StartDeal();
 
     /**
      * @brief Stop

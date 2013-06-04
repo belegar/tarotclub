@@ -31,104 +31,115 @@
 #include "Deck.h"
 #include "Player.h"
 #include "TarotDeck.h"
+#include "Protocol.h"
 #include "defines.h"
 #include "Score.h"
 #include "Game.h"
 
-class Client : public Player
+class Client : public Protocol
 {
     Q_OBJECT
-
-protected:
-    QTcpSocket  socket;
-    DeckStats   stats;      // statistics on player's cards
-    GameState    info;       // Helper class to store various game information
-    Score       score;
-    Deck        chien;
-    Deck        mainDeck;
-    Deck        poignee;    // declared poignee by the player
 
 public:
     Client();
 
-    void        init()
-    {
-        score.init();
-    }
-    Contrat     calculEnchere();
-    Card        *play();
-    bool        isValid(Card *c);
-    DeckStats   *getStats();
-    GameState    &GetGameState();
-    Score       &GetScore();
+    // Helpers
+    void Initialize();
 
-    // opérations sur le deck principal
-    Card *GetMainDeckCard(int i);
-    int GetMainDeckSize();
+    /**
+     * @brief A fool in an handle means that the player has no more trumps
+     * return true if it is the case, otherwise false
+     */
+    bool TestHandle();
+    Contract CalculateBid();
+    void UpdateStatistics();
 
-    // opérations sur le deck Chien
-    void emptyChien();
-    Card *getCardChien(int i);
-    void addCardChien(Card *c);
-    void removeCardChien(Card *c);
-    int  getTailleChien();
-    void choixChien(Deck *);   // méthode qui génère un chien valide au hasard
+    /**
+     * @brief Return the first valid card in the player's hand deck
+     */
+    Card *Play();
+    bool IsValid(Card *c);
 
-    // opération sur la poignée
-    void emptyPoignee();
-    void addCardPoignee(Card *c);
-    void removeCardPoignee(Card *c);
-    int  getTaillePoignee();
-    bool testPoignee();
+    /**
+     * @brief Build a valid discard at random
+     */
+    void BuildDogDeck(Deck &deck);
 
-    // Réseau
-    void connectToHost(const QString &hostName, quint16 port);
-    void close();
-    void sendIdentity();
-    void sendMessage(const QString &message);
-    void sendEnchere(Contrat c);
-    void sendChien();
-    void sendPoignee();
-    void sendCard(Card *c);
-    void sendReady();
-    void sendError();
-    void sendVuChien();
-    void sendVuPli();
-    void doAction(QDataStream &in);
+    // Getters
+    Deck::Statistics &GetStatistics();
+    Deck &GetMainDeck();
+    Deck &GetDogDeck();
+    Deck &GetHandleDeck();
+    Game &GetGameInfo();
+    Score &GetScore();
 
 public slots:
-    void socketReadData();
-    void socketConnected();
-    void socketHostFound();
-    void socketClosed();
-    void socketError(QAbstractSocket::SocketError code);
+    void SocketReadData();
+    void SocketConnected();
+    void SocketHostFound();
+    void SocketClosed();
+    void SocketError(QAbstractSocket::SocketError code);
 
 signals:
 
-   /**
-    * @brief Emitted when a chat message has been broadcasted by one player or the server
-    * @param message
-    */
-    void sgnlMessage(const QString &message);
+    /**
+     * @brief Emitted when a chat message has been broadcasted by one player or the server
+     * @param message
+     */
+    void sigMessage(const QString &message);
 
-   /**
-    * @brief Emitted when the server has assigned a place around the table
-    * @param p Place assigned by the server
-    */
-   void sgnlAssignedPlace(Place p);
-    void sgnlListeDesJoueurs(QList<Identity> players);
-    void sgnlReceptionCartes();
-    void sgnlAfficheSelection(Place);
-    void sgnlChoixEnchere(Contrat);
-    void sgnlAfficheEnchere(Place, Contrat); // Affiche le 'Contrat' du joueur 'Place'
-    void sgnlDepartDonne(Place, Contrat); // Place indique le preneur, Contrat indique le contrat finalement adopté
-    void sgnlAfficheChien();
-    void sgnlPrepareChien();
-    void sgnlRedist();
-    void sgnlJoueCarte();
-    void sgnlAfficheCarte(int, Place);
-    void sgnlFinDonne(Place, float, bool lastDeal);
-    void sgnlWaitPli(Place, float);
+    /**
+     * @brief Emitted when the server has assigned a place around the table
+     * @param p Place assigned by the server
+     */
+    void sigAssignedPlace(Place p);
+
+    /**
+     * @brief Emitted when the client has received the identity of the players in game
+     * @param players
+     */
+    void sigPlayersList(QList<Identity> players);
+    void sigReceivedCards();
+    void sigSelectPlayer(Place);
+    void sigRequestBid(Contract);
+    void sigShowBid(Place, Contract);
+    void sigStartDeal(Place, Contract);
+    void sigShowDog();
+    void sigBuildDiscard();
+    void sigDealAgain();
+    void sigPlayCard();
+    void sigShowCard(int, Place);
+    void sigWaitTrick(Place, float);
+    void sigEndOfDeal();
+    void sigEndOfGame();
+
+private:
+
+    Player      player;
+    QTcpSocket  socket;
+    Deck::Statistics   stats;      // statistics on player's cards
+    Game        info;       // Helper class to store various game information
+    Score       score;
+    Deck        dogDeck;
+    Deck        mainDeck;
+    Deck        handleDeck;    // declared poignee by the player
+    Deck        currentTrick;
+
+    // Network methods
+    void ConnectToHost(const QString &hostName, quint16 port);
+    void Close();
+    void SendIdentity();
+    void SendChatMessage(const QString &message);
+    void SendBid(Contract c);
+    void SendDog();
+    void SendHandle();
+    void SendCard(Card *c);
+    void SendReady();
+    void SendError();
+    void SendSyncDog();
+    void SendSyncTrick();
+    void SendSyncHandle();
+    void DoAction(QDataStream &in);  
 
 };
 

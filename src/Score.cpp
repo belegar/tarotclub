@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Trick.h
+ * TarotClub - Score.cpp
  *=============================================================================
- * This class stores a trick of cards, can be complete or not
+ * Helper class that stores various scoring information
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,33 +23,34 @@
  *=============================================================================
  */
 
-#ifndef TRICK_H
-#define TRICK_H
-
-#include "Deck.h"
+#include "Score.h"
 
 /*****************************************************************************/
-class Trick : public Deck
+Team Score::Winner()
 {
-public:
-    enum Owner
+    if (pointsAttack >= pointsToDo)
     {
-        ATTACK,
-        DEFENSE
-    };
-
-    Trick();
-
-    void SetOwner();
-    Owner GetOwner();
-
-private:
-    Owner owner;
-
-};
-
-#endif // TRICK_H
+        return ATTACK;
+    }
+    else
+    {
+        return DEFENSE;
+    }
+}
+/*****************************************************************************/
+void Score::Reset()
+{
+    pointsAttack = 0;
+    scoreAttack = 0;
+    pointsToDo = 0;
+    difference = 0;
+    multiplier = 0;
+    littleEndianPoints = 0;
+    handlePoints = 0;
+    slamPoints = 0;
+}
 
 //=============================================================================
-// End of file Trick.h
+// End of file Score.cpp
 //=============================================================================
+

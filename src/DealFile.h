@@ -26,6 +26,7 @@
 #define DEALFILE_H
 
 #include <QString>
+#include <QtXml>
 #include "Deck.h"
 
 /*****************************************************************************/

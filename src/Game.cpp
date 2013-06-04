@@ -41,22 +41,42 @@ void Game::Initialize()
     trickCounter = 0;
     numberOfPlayers = 4;
     dealer = static_cast<Place>(qrand() % 4);
-
-   // FIXME initialize all variables
+    contract = PASS;
+    slamAnnounced = false;
+    attackHandle.declared = false;
+    defenseHandle.declared = false;
 }
 /*****************************************************************************/
 void Game::NewDeal()
 {
-   // FIXME En cas d'annonce du Chelem, l'entame revient de droit au joueur qui l’a demandé, quel que soit le donneur.
-
-    dealer = nextPlayer(dealer);
+    dealer = NextPlayer(dealer);
     contract = PASS;
-    currentPlayer = nextPlayer(dealer); // The first player on the dealer's right begins the bid
+    slamAnnounced = false;
+    attackHandle.declared = false;
+    defenseHandle.declared = false;
+    position = 0;
+    trickCounter = 0;
+    currentPlayer = NextPlayer(dealer); // The first player on the dealer's right begins the bid
 }
 /*****************************************************************************/
 void Game::Stop()
 {
     sequence = STOP;
+}
+/*****************************************************************************/
+void Game::StartDeal()
+{
+    sequence = PLAY_TRICK;
+    // In case of Chelem, the first player to play is the taker.
+    // Otherwise, it is the player on the right of the dealer
+    if (slamAnnounced == true)
+    {
+        currentPlayer = taker;
+    }
+    else
+    {
+        currentPlayer = NextPlayer(dealer); // The first player on the dealer's right
+    }
 }
 /*****************************************************************************/
 bool Game::IsDealFinished()
@@ -109,6 +129,11 @@ int Game::GetNumberOfCards()
         // 4 players
         return 18;
     }
+}
+/*****************************************************************************/
+int Game::GetNumberOfDogCards()
+{
+    return (78-(GetNumberOfCards()*numberOfPlayers));
 }
 /*****************************************************************************/
 Place Game::NextPlayer(Place j)

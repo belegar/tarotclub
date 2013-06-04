@@ -33,7 +33,6 @@
 #include "defines.h"
 #include "Game.h"
 #include "Score.h"
-#include "Trick.h"
 
 /*****************************************************************************/
 class Deal
