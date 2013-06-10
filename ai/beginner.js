@@ -512,6 +512,17 @@ function EnterGame(place)
 }
 
 /**
+ * @brief This function is called when we receive our cards for the new deal
+ *
+ * @param[in] cards The list of cards, string format
+ */
+function ReceiveCard(cards)
+{
+	// FIXME: store cards into memory
+}
+
+
+/**
  * @brief This function is called when any card is played (even bot's ones)
  *
  * @param[in] cardName The name of the card, string format
@@ -573,7 +584,7 @@ function PlayCard(gameCounter)
  * @return The bid announced, use the definition forrmat
  * @see Variable 'Contract'
  */
-function CalculateBid()
+function AnnounceBid()
 {
    total = 0;
    

@@ -35,13 +35,13 @@ class StatsWrapper: public QObject
     Q_OBJECT
 public:
 
-    StatsWrapper(DeckStats &stats)
+    StatsWrapper(Deck::Statistics &stats)
         : mDeck(stats)
     {
 
     }
 
-    DeckStats &mDeck;
+    Deck::Statistics &mDeck;
 
 public slots:
     int getNumberOfCards()
@@ -51,12 +51,12 @@ public slots:
 
     int getNumberOfAtouts()
     {
-        return mDeck.atouts;
+        return mDeck.trumps;
     }
 
     int getNumberOfBouts()
     {
-        return mDeck.bouts;   // 0, 1, 2 ou 3
+        return mDeck.oudlers;   // 0, 1, 2 ou 3
     }
 
     int getNumberOfAtoutsMajeurs()
@@ -146,76 +146,49 @@ public slots:
 
 };
 /*****************************************************************************/
-class DeckWrapper: public QObject
-{
-    Q_OBJECT
-public:
-
-    DeckWrapper(Deck &i_botDeck, Deck &i_mainDeck)
-        :   mBotDeck(i_botDeck)
-        ,   mMainDeck(i_mainDeck)
-    {
-
-    }
-
-    Deck &mBotDeck;
-    Deck &mMainDeck;    // FIXME: not necessary, delete
-
-public slots:
-    QString GetBotCards()
-    {
-        return mBotDeck.GetCardList();
-    }
-
-    QString GetMainCards()
-    {
-        return mMainDeck.GetCardList();
-    }
-};
-/*****************************************************************************/
 class Bot : public Client
 {
     Q_OBJECT
-
-private:
-    QTimer  timeBeforeSend;
-    QScriptEngine botEngine;
-
-#ifndef QT_NO_DEBUG
-    QScriptEngineDebugger debugger;
-#endif
-
-    // Exposed object to the Javascript
-    StatsWrapper statsObj;
-    DeckWrapper deckObj;
-
-    bool initializeScriptContext();
 
 public:
     Bot();
     ~Bot();
 
-    void setTimeBeforeSend(int t);
+    void SetTimeBeforeSend(int t);
 
-    // Private slots are not visible in a QtScript
+private:
+    QTimer  timeBeforeSend;
+    QScriptEngine botEngine;
+    // Exposed object to the Javascript
+    StatsWrapper statsObj;
+
+#ifndef QT_NO_DEBUG
+    QScriptEngineDebugger debugger;
+#endif
+
+    QScriptValue CallScript(const QString &function, QScriptValueList &args);
+    bool InitializeScriptContext();
+
 private slots:
     void slotTimeBeforeSend();
 
     // client events
-    void slotMessage(const QString &text);
-   void slotAssignedPlace(Place p);
-    void slotReceptionCartes();
-    void slotAfficheSelection(Place p);
-    void slotChoixEnchere(Contrat highestBid);
-    void slotAfficheEnchere(Place place, Contrat contract);
-    void slotRedist();
-    void slotAfficheChien();
-    void slotPrepareChien();
-    void slotDepartDonne(Place i_taker, Contrat i_contract);
-    void slotJoueCarte();
-    void slotAfficheCarte(int id, Place p);
-    void slotFinDonne(Place, float, bool lastDeal);
-    void slotWaitPli(Place p, float points);
+    void slotMessage(const QString &message);
+    void slotAssignedPlace(Place p);
+    void slotPlayersList(QList<Identity> &players);
+    void slotReceiveCards();
+    void slotSelectPlayer(Place p);
+    void slotRequestBid(Contract highestBid);
+    void slotShowBid(Place, Contract contract);
+    void slotStartDeal(Place, Contract contract);
+    void slotShowDog();
+    void slotBuildDiscard();
+    void slotDealAgain();
+    void slotPlayCard();
+    void slotShowCard(int id, Place p);
+    void slotWaitTrick(Place winner);
+    void slotEndOfDeal();
+    void slotEndOfGame();
 
 
 };

@@ -66,15 +66,42 @@ public:
     TarotEngine();
     ~TarotEngine();
 
+    // Helpers
+    void NewGame(GameMode mode);
+    void StopGame();
+    void NewDeal();
+    void StartDeal();
+    bool SyncDog();
+    void SyncTrick();
+    void SyncReady();
+    void BidSequence(Contract c, Place p);
+
+    // Getters
     Player &GetPlayer(Place p);
     Score &GetScore();
     int GetDealNumber();
+    Game &GetGameInfo();
+    Deal &GetDeal();
 
+    // Setters
     void SetDealType(DealType type);
     void SetDealNumber(int deal);
     void SetDealFile(QString file);
-    void SetGameMode(GameMode mode);
     void SetOptions(ServerOptions &opt);
+    void SetDiscard(Deck &discard);
+    void SetHandle(Deck &handle, Place p);
+    void SetCard(Card *c, Place p);
+
+signals:
+    void sigSelectPlayer(Place p);
+    void sigRequestBid(Contract c, Place p);
+    void sigDealAgain();
+    void sigPlayCard(Place p);
+    void sigEndOfTrick(Place p);
+    void sigEndOfDeal();
+    void sigSendCards();
+    void sigShowDog();
+    void sigStartDeal();
 
 private:
     Player      players[5];     // [3..5] players
@@ -88,14 +115,9 @@ private:
     GameMode    gameMode;
 
     // synchonization counters
-    int         cptVuChien; // players saw the dog
-    int         cptVuPli;   // end of a round
-    int         cptVuDonne; // end of a deal
-
-    void NewGame();
-    void StopGame();
-    void NewDeal();
-    void StartDeal();
+    int         cntSyncDog;     // players saw the dog
+    int         cntSyncTrick;   // end of a round
+    int         cntSyncReady;    // end of a deal
 
     bool IsCardValid(Card *c, Place p);
     bool HasCard(Card *c, Place p);
@@ -112,7 +134,6 @@ private:
      * @return The place of the winner of this trick
      */
     Place CalculateTrickWinner();
-    void BidSequence();
     void ShowDog();
     void GameSateMachine();
 
@@ -127,17 +148,6 @@ private:
      * @return
      */
     bool EndOfTrick(float &points);
-
-signals:
-    void sigSelectPlayer(Place p);
-    void sigAskBid(Contract p);
-    void sigDealAgain();
-    void sigPlayCard(Place p);
-    void sigEndOfTrick();
-    void sigEndOfDeal();
-    void sigSendCards();
-    void sigShowDog();
-    void sigStartDeal();
 
 };
 

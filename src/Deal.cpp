@@ -144,6 +144,11 @@ QList<Place> Deal::GetPodium()
     return placePodium;
 }
 /*****************************************************************************/
+Deck &Deal::GetDog()
+{
+    return dogDeck;
+}
+/*****************************************************************************/
 Score &Deal::GetScore()
 {
     return score;
@@ -251,7 +256,7 @@ void Deal::Calculate(Game &info)
  * 2. Slam detection
  * 3. 1 of Trump at last trick detection (attack or defense?)
  * 4. Fool owner (lost if played during last trick, except in case of Chelem)
- * 5. Oudler counts deduct points to do
+ * 5. Oudler counter decides points to do
  *
  * @param info
  */
@@ -311,23 +316,8 @@ void Deal::AnalyzeGame(Game &info)
 
     // FIXME Complete
 
-    // 5. Oudler counts deduct points to do
-    if (statsAttack.oudlers == 0)
-    {
-        score.pointsToDo = 56;
-    }
-    else if (statsAttack.oudlers == 1)
-    {
-        score.pointsToDo = 51;
-    }
-    else if (statsAttack.oudlers == 2)
-    {
-        score.pointsToDo = 41;
-    }
-    else // 3 oudlers
-    {
-        score.pointsToDo = 36;
-    }
+    // 5. Oudler counter decides points to do
+    score.SetPointsToDo(statsAttack.oudlers);
 }
 /*****************************************************************************/
 /**

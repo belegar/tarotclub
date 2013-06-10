@@ -26,6 +26,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include <QtNetwork>
 #include "defines.h"
 #include "Deck.h"
 #include "Identity.h"
@@ -43,14 +44,52 @@ private:
 public:
     Player();
 
-    void SetIdentity(Identity &ident);
-    void SetPlace(Place p);
+    // Helpers
+    bool CanPlayCard(Card *, Deck &trick, Game &info);
 
+    // Getters
     Identity &GetIdentity();
     Place GetPlace();
     Deck &GetDeck();
 
-    bool CanPlayCard(Card *, Deck &trick, Game &info);
+    // Setters
+    void SetIdentity(const Identity &ident);
+    void SetPlace(Place p);
+
+};
+/*****************************************************************************/
+class NetPlayer : public QObject
+{
+public:
+    NetPlayer();
+
+    // Helpers
+    bool IsFree();
+    void SendData(QByteArray &data);
+    void Close();
+
+    // Getters
+    Identity &GetIdentity();
+    QTcpSocket *GetSocket();
+    QByteArray GetData();
+
+    // Setters
+    void SetConnection(QTcpSocket *s, Place p);
+    void SetIdentity(const Identity &ident);
+
+signals:
+    void sigDisconnected(Place);
+    void sigReadyRead(Place);
+
+private:
+    QTcpSocket *socket;
+    bool freePlace;
+    Player player;
+
+private slots:
+    void slotClientClosed();
+    void slotReadData();
+
 };
 
 #endif // _PLAYER_H

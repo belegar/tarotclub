@@ -26,87 +26,112 @@
 #include "Server.h"
 #include <QCoreApplication>
 
+
 /*****************************************************************************/
 Server::Server()
 {
-
+    connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    QObject::connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
+    QObject::connect(&engine, &TarotEngine::sigStartDeal, this, &Server::slotSendStartDeal);
+    QObject::connect(&engine, &TarotEngine::sigSelectPlayer, this, &Server::slotSendSelectPlayer);
+    QObject::connect(&engine, &TarotEngine::sigPlayCard, this, &Server::slotSendStartDeal);
+    QObject::connect(&engine, &TarotEngine::sigRequestBid, this, &Server::slotSendRequestBid);
+    QObject::connect(&engine, &TarotEngine::sigShowDog, this, &Server::slotSendShowDog);
+    QObject::connect(&engine, &TarotEngine::sigDealAgain, this, &Server::slotSendDealAgain);
+    QObject::connect(&engine, &TarotEngine::sigEndOfDeal, this, &Server::slotSendEndOfDeal);
 }
 /*****************************************************************************/
 void Server::SetMaximumPlayers(int n)
 {
-    table.maximumPlayers = n;
+    maximumPlayers = n;
 }
 /*****************************************************************************/
 void Server::slotNewConnection()
 {
-    QTcpSocket *cnx = server.nextPendingConnection();
-    int n = players.size();
-
-    if (n == table.maximumPlayers)
+    while(tcpServer.hasPendingConnections())
     {
-        SendErrorServerFull(cnx);
-        cnx->close();
-    }
-    else
-    {
-        Player *player = new Player();
-        Place p;
+        QTcpSocket *cnx = tcpServer.nextPendingConnection();
+        if (GetNumberOfConnectedPlayers() == maximumPlayers)
+        {
+            SendErrorServerFull(cnx);
+        }
+        else
+        {
+            Place p = NOWHERE;
 
-        p = table.reserveFreePlace(); // TODO: add protection here, test HYPERSPACE retun?
-        player->setPlace(p);
+            // Look for free space
+            for (int i=0; i<maximumPlayers; i++)
+            {
+                if (players[i].IsFree() == true)
+                {
+                    p = (Place) p;
+                    break;
+                }
+            }
 
-        connect(cnx, SIGNAL(disconnected()), this, SLOT(slotClientClosed()));
-        connect(cnx, SIGNAL(readyRead()), this, SLOT(slotReadData()));
-
-        players[cnx] = player; // on ajoute ce client à la liste
-        askIdentity(cnx, p);
+            if (p != NOWHERE)
+            {
+                players[p].SetConnection(cnx, p);
+                connect(&players[p], SIGNAL(sigDisconnected(Place)), this, SLOT(slotClientClosed(Place)));
+                connect(&players[p], SIGNAL(sigReadyRead(Place)), this, SLOT(slotReadData(Place)));
+                SendRequestIdentity(p);
+            }
+            else
+            {
+                qDebug() << "Error, cannot find any free place." << endl;
+            }
+        }
     }
 }
 /*****************************************************************************/
-void TarotEngine::setOptions(ServerOptions &opt)
+void Server::SetOptions(ServerOptions &opt)
 {
     int i;
 
     options = opt;
     for (i = 0; i < 3; i++)
     {
-        bots[i].setIdentity(options.bots[i]);
-        bots[i].setTimeBeforeSend(options.timer);
+        bots[i].SetMyIdentity(options.bots[i]);
+        bots[i].SetTimeBeforeSend(options.timer);
     }
 }
 /*****************************************************************************/
-QList<Identity> TarotEngine::getConnectedPlayers()
+QList<Identity> Server::GetPlayers()
 {
     QList<Identity> idents;
-
-    QMapIterator<QTcpSocket *, Player *> i(players);
-    while (i.hasNext())
+    for (int i=0; i<maximumPlayers; i++)
     {
-        i.next();
-        idents.append(*i.value()->getIdentity());
+        if (players[i].IsFree() == false)
+        {
+            idents.append(players[i].GetIdentity());
+        }
     }
     return idents;
 }
 /*****************************************************************************/
-int TarotEngine::getNumberOfConnectedPlayers()
+int Server::GetNumberOfConnectedPlayers()
 {
-    return players.size();
+    int p = 0;
+    for (int i=0; i<maximumPlayers; i++)
+    {
+        if (players[i].IsFree() == false)
+        {
+            p++;
+        }
+    }
+    return p;
 }
 /*****************************************************************************/
-void TarotEngine::newServerGame()
+void Server::NewServerGame(TarotEngine::GameMode mode)
 {
-    int i;
     int port;
 
-    closeClients();
-    server.close();
-    table.freePlace(BROADCAST);
+    CloseClients();
+    tcpServer.close();
 
-    // 4 joueurs max + une connexion en plus pour avertir aux nouveaux arrivants
-    // que le serveur est plein
-    server.setMaxPendingConnections(NB_PLAYERS + 1);
+    tcpServer.setMaxPendingConnections(maximumPlayers + 3); // Add few players to the maximum for clients trying to access
 
-    if (gameType == NET_GAME_SERVER)
+    if (mode == TarotEngine::NET_GAME_SERVER)
     {
         port = options.port;
     }
@@ -115,71 +140,54 @@ void TarotEngine::newServerGame()
         // if local game, always use the default port
         port = DEFAULT_PORT;
     }
-    server.listen(QHostAddress::LocalHost, port);
+    tcpServer.listen(QHostAddress::LocalHost, port);
 
     // Init everything
-    gameState.Initialize();
-    score.Initialize();
-    dealCounter = 0;
-    emit sigPrintMessage("Server started.\r\n");
+    engine.NewGame(mode);
+    emit sigServerMessage("Server started.\r\n");
 }
 /*****************************************************************************/
-void TarotEngine::connectBots()
+void Server::ConnectBots()
 {
     int i;
 
     qApp->processEvents(QEventLoop::AllEvents, 100);
     for (i = 0; i < 3; i++)
     {
-        bots[i].connectToHost("127.0.0.1", options.port);
+        bots[i].ConnectToHost("127.0.0.1", options.port);
         qApp->processEvents(QEventLoop::AllEvents, 100);
     }
 }
 /*****************************************************************************/
-void CloseClients()
+void Server::CloseClients()
 {
-    QMapIterator<QTcpSocket *, Player *> i(players);
-    while (i.hasNext())
+    for (int i=0; i<maximumPlayers; i++)
     {
-        i.next();
-        QTcpSocket *cnx = i.key();
-        connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
-        cnx->close();
-        players.remove(cnx);
+        players[i].Close();
     }
 }
 /*****************************************************************************/
-void Server::slotClientClosed()
+void Server::slotClientClosed(Place p)
 {
-    // retrieve our sender QTcpSocket
-    QTcpSocket *cnx = qobject_cast<QTcpSocket *>(sender());
-    Player *player = players[cnx];
-    if (player == NULL)
-    {
-        return;
-    }
-    QString message = "Le joueur " + player->getName() + " a quitté la partie.";
-    connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
-    cnx->close();
-    players.remove(cnx);
-    sendMessage(message, BROADCAST);
-    sendPlayersList();
+    players[p].Close();
+    SendChatMessage( "The player " + players[p].GetIdentity().name + " has quit the game.");
+    SendPlayersList();
 
     // FIXME: if a player has quit during a game, replace it by a bot
 }
 /*****************************************************************************/
-void Server::slotReadData()
+void Server::slotReadData(Place p)
 {
-    // retrieve our sender QTcpSocket
-    QTcpSocket *cnx = qobject_cast<QTcpSocket *>(sender());
-    qint64 bytes = cnx->bytesAvailable();
+    QByteArray data = players[p].GetData();
+    QDataStream in(data);
 
-    QDataStream in(cnx);
-
-    DecodePacket(in, bytes);
+    while (DecodePacket(in, data.size()) == true)
+    {
+        DoAction(in, p);
+    }
 }
 /*****************************************************************************/
-void Server::DoAction(QDataStream &in)
+void Server::DoAction(QDataStream &in, Place p)
 {
     // First byte is the command
     quint8 cmd;
@@ -187,486 +195,251 @@ void Server::DoAction(QDataStream &in)
 
     switch (cmd)
     {
-        case Command::CLIENT_MESSAGE:
-        {
-            // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-            QString message;
-            in >> message;
-            sendMessage(message, BROADCAST);
-            emit sigPrintMessage(QString("Client message: ") + message);
-            break;
-        }
-
-        case Command::CLIENT_INFOS:
-        {
-            Identity ident;
-            QString version;
-
-            in >> version; // TODO: test protocol version or already done by Qt in lower layers?
-            in >> ident;
-
-            ident.avatar = ":/images/avatars/" + ident.avatar;
-            players[cnx]->setIdentity(ident);
-            QString m = "Le joueur " + ident.name + " a rejoint la partie.";
-            sendMessage(m , BROADCAST);
-            emit sigPrintMessage(m);
-
-            if (getNumberOfConnectedPlayers() == NB_PLAYERS)
-            {
-                sendPlayersList();
-                gameState.state = GAME_STARTED;
-                nouvelleDonne();
-            }
-            break;
-        }
-
-        /**
-         * Contrat d'un joueur
-         */
-        case NET_CLIENT_ENCHERE:
-        {
-            quint8 c;
-            // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-            in >> c;
-            if ((Contrat)c > infos.contrat)
-            {
-                infos.contrat = (Contrat)c;
-                infos.preneur = tour;
-            }
-            sendBid(tour, (Contrat)c);
-            sequenceEncheres();
-            break;
-        }
-
-        case NET_CLIENT_VU_CHIEN:
-            if (sequence == WAIT_CHIEN)
-            {
-                cptVuChien++;
-                if (cptVuChien >= NB_PLAYERS)
-                {
-                    sequence = CHIEN;
-                    sendDoChien(); // On ordonne au preneur de faire le chien et on attend
-                }
-            }
-            break;
-
-        case NET_CLIENT_VU_PLI:
-            if (sequence == SEQ_WAIT_PLI)
-            {
-                cptVuPli++;
-                if (cptVuPli >= NB_PLAYERS)
-                {
-                    NextPlayer();
-                }
-            }
-            break;
-
-            /**
-             * Chien d'un client
-             */
-        case NET_CLIENT_CHIEN:
-        {
-            quint8 id;
-            int nb_cartes_chien;
-            int i;
-            Card *c;
-            // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-            if (NB_PLAYERS == 3)
-            {
-                nb_cartes_chien = 6;
-            }
-            else if (NB_PLAYERS == 4)
-            {
-                nb_cartes_chien = 6;
-            }
-            else     // 5 joueurs
-            {
-                nb_cartes_chien = 3;
-            }
-            deckChien.clear();
-            for (i = 0; i < nb_cartes_chien; i++)
-            {
-                in >> id;
-                c = Jeu::getCard(id);
-                deckChien.append(c);
-            }
-            sequence = GAME;
-            tour = donneur;
-            sendDepartDonne();
-            jeu();
-            break;
-        }
-
-        /**
-         * Un client a déclaré une poignée
-         */
-        case NET_CLIENT_POIGNEE:
-        {
-            quint8 dummy;
-            in >> dummy;
-            quint8 id;
-            Poignee p;
-            // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-            // TODO: add protection, limits ...
-            poigneeDeck.clear();
-            for (int i = 0; i < dummy; i++)
-            {
-                in >> id;
-                poigneeDeck.append(Jeu::getCard(id));
-            }
-            // TODO: add robustness here!!
-            if (dummy == 10)
-            {
-                p = P_SIMPLE;
-            }
-            else if (dummy == 13)
-            {
-                p = P_DOUBLE;
-            }
-            else
-            {
-                p = P_TRIPLE;
-            }
-
-            if (players[cnx]->getPlace() == infos.preneur)
-            {
-                score.setPoigneeAttaque(p);
-            }
-            else
-            {
-                score.setPoigneeDefense(p);
-            }
-            /*
-             Tester :
-             1) L'origine du client (sud, est ... ip ??)
-             2) La validité de la poignée (présence dans le deck du joueur, utilisation de l'excuse)
-             3) La poignée doit être déclarée avant de jouer la première carte
-             4) Puis envoyer la poignée à tout le monde ...
-            */
-            break;
-        }
-
-        /**
-         * Carte d'un client
-         */
-        case NET_CLIENT_CARTE:
-        {
-            quint8 id;
-            Card *c;
-            // TODO: tester la validité de la carte (ID + présence dans le jeu du joueur)
-            // si erreur : logguer et prévenir quelqu'un ??
-            // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-            in >> id;
-            c = Jeu::getCard(id);
-            mainDeck.append(c);
-            players[cnx]->removeCard(c);
-            sendCard(c);
-            jeu();
-            break;
-        }
-
-        case NET_CLIENT_READY:
-            if (sequence == SEQ_WAIT_PLAYER)
-            {
-                cptVuDonne++;
-                if (cptVuDonne >= NB_PLAYERS)
-                {
-                    nouvelleDonne();
-                }
-            }
-            break;
-
-        default:
-            break;
-    }
-}
-/*****************************************************************************/
-void Server::SendErrorServerFull(QTcpSocket *cnx)
-{
-    QString message = "Le serveur est complet.";
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_MESSAGE
-        << message
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-
-    connect(cnx, SIGNAL(disconnected()), cnx, SLOT(deleteLater()));
-    cnx->write(block);
-    cnx->flush();
-}
-/*****************************************************************************/
-void Server::SendAskIdentity(QTcpSocket *cnx, Place p)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_IDENTIFICATION
-        << (quint8)p // assignate place around table
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    cnx->write(block);
-    cnx->flush();
-}
-/*****************************************************************************/
-void Server::SendCards(Place p, quint8 *params)
-{
-    int j;
-    QByteArray block;
-
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_RECEPTION_CARTES
-        << (quint8)4;
-    for (j = 0; j < NB_HAND_CARDS; j++)
+    case Protocol::CLIENT_MESSAGE:
     {
-        out << (quint8)params[j];
+        QString message;
+        in >> message;
+        SendChatMessage(message);
+        emit sigServerMessage(QString("Client message: ") + message);
+        break;
     }
-    out << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
 
-    QTcpSocket *s = getConnection(p);
-    s->write(block);
-    s->flush();
-}
-/*****************************************************************************/
-void Server::SendAskBid(Contrat c)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_DEMANDE_ENCHERE
-        << (quint8)c   // le contrat précédent
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-
-    QTcpSocket *s = getConnection(tour);
-    s->write(block);
-    s->flush();
-}
-/*****************************************************************************/
-void Server::SendBid(Place p, Contrat c)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_ENCHERE_JOUEUR
-        << (quint8)p   // la place de celui qui vient d'enchérir
-        << (quint8)c   // le contrat à afficher
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);
-}
-/*****************************************************************************/
-void Server::SendSelectPlayer(Place p)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_SELECTION_JOUEUR
-        << (quint8)p   // la place du joueur qui est en train de jouer
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);
-}
-/*****************************************************************************/
-void Server::SendMessage(const QString &message, Place p)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_MESSAGE
-        << message
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-
-    if (p == BROADCAST)
+    case Protocol::CLIENT_INFOS:
     {
-        broadcast(block);
+        Identity ident;
+        in >> ident;
+
+        ident.avatar = ":/images/avatars/" + ident.avatar;
+        players[p].SetIdentity(ident);
+        const QString m = "The player " + ident.name + " has joined the game.";
+        SendChatMessage(m);
+        emit sigServerMessage(m);
+        SendPlayersList();
+
+        if (GetNumberOfConnectedPlayers() == maximumPlayers)
+        {
+            engine.NewDeal();
+        }
+        break;
     }
-    else
+
+    case Protocol::CLIENT_BID:
     {
-        QTcpSocket *s = getConnection(p);
-        s->write(block);
-        s->flush();
+        quint8 c;
+        // FIXME: add protection like client origin, current sequence...
+        in >> c;
+        engine.BidSequence((Contract)c, p);
+        SendBid((Contract)c, p);
+        break;
     }
+
+    case Protocol::CLIENT_SYNC_DOG:
+        if (engine.SyncDog() == true)
+        {
+            SendBuildDiscard();
+        }
+        break;
+
+    case Protocol::CLIENT_DISCARD:
+    {
+        Deck discard;
+        in >> discard;
+        engine.SetDiscard(discard);
+        break;
+    }
+
+    case Protocol::CLIENT_HANDLE:
+    {
+        // FIXME: add protection, limits ...
+        quint8 size;
+        Deck handle;
+        in >> size; // FIXME: delete this unused variable?
+        in >> handle;
+        engine.SetHandle(handle, p);
+        SendShowHandle(handle);
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_TRICK:
+    {
+        engine.SyncTrick();
+        break;
+    }
+
+    case Protocol::CLIENT_CARD:
+    {
+        quint8 id;
+        Card *c;
+        // TODO: tester la validité de la carte (ID + présence dans le jeu du joueur)
+        // si erreur : logguer et prévenir quelqu'un ??
+        // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
+        in >> id;
+        c = TarotDeck::GetCard(id);
+        engine.SetCard(c, p);
+        SendShowCard(c);
+        break;
+    }
+
+    case Protocol::CLIENT_READY:
+        engine.SyncReady();
+        break;
+
+    default:
+        break;
+    }
+}
+/*****************************************************************************/
+void Server::SendRequestIdentity(Place p)
+{
+    QDataStream out;
+    out << (quint8)p; // assigned place
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_REQUEST_IDENTITY);
+    players[p].SendData(packet);
+}
+/*****************************************************************************/
+void Server::SendCards()
+{
+    for (int i=0; i<engine.GetGameInfo().numberOfPlayers; i++)
+    {
+        QDataStream out;
+        out << (quint8)4 // number of players in the current game
+            << engine.GetPlayer((Place)i).GetDeck();
+        QByteArray packet = BuildCommand(out, Protocol::SERVER_SEND_CARDS);
+        players[i].SendData(packet);
+    }
+}
+/*****************************************************************************/
+void Server::SendBid(Contract c, Place p)
+{
+    QDataStream out;
+    out << (quint8)p   // current player bid
+        << (quint8)c;  // contract to show
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_PLAYER_BID);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::SendChatMessage(const QString &message)
+{
+    QDataStream out;
+    out << message;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_MESSAGE);
+    Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendPlayersList()
 {
-    QByteArray block;
-    QList<Identity> idents;
+    QList<Identity> list = GetPlayers();
 
-    idents = getConnectedPlayers();
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_LISTE_JOUEURS
-        << (quint8)idents.size(); // nombre de joueurs
-
-    for (int i = 0; i < idents.size(); i++)
+    QDataStream out;
+    out << (quint8)list.size(); // number of players
+    for (int i = 0; i<list.size(); i++)
     {
-        out << idents[i];
+        out << list[i];
     }
-    out << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);   // to connected clients
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_PLAYERS_LIST);
+    Broadcast(packet);
 }
 /*****************************************************************************/
-void Server::SendShowChien()
+void Server::SendBuildDiscard()
 {
-    int i;
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_MONTRE_CHIEN;
-    for (i = 0; i < deckChien.count(); i++)
+    QDataStream out;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_BUILD_DISCARD);
+    players[engine.GetGameInfo().taker].SendData(packet);
+}
+/*****************************************************************************/
+void Server::SendShowCard(Card *c)
+{
+    QDataStream out;
+    out << (quint8)c->GetId()
+        << (quint8)engine.GetGameInfo().currentPlayer;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_CARD);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::SendShowHandle(Deck &handle)
+{
+    QDataStream out;
+    out << handle;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_HANDLE);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::slotSendEndOfDeal()
+{
+    QDataStream out;
+    out << engine.GetScore();
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_END_OF_DEAL);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::slotSendWaitTrick(Place winner)
+{
+    QDataStream out;
+    out << (quint8)winner;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_END_OF_TRICK);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::slotSendStartDeal()
+{
+    QDataStream out;
+    out << (quint8)engine.GetGameInfo().taker
+        << (quint8)engine.GetGameInfo().contract;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_START_DEAL);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::slotSendSelectPlayer(Place p)
+{
+    QDataStream out;
+    out << (quint8)p;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_SELECT_PLAYER);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::slotSendPlayCard(Place p)
+{
+    QDataStream out;
+    out << (quint8)p;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_PLAY_CARD);
+    players[p].SendData(packet);
+}
+/*****************************************************************************/
+void Server::slotSendRequestBid(Contract c, Place p)
+{
+    QDataStream out;
+    out << (quint8)c; // previous bid
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_REQUEST_BID);
+    players[p].SendData(packet);
+}
+/*****************************************************************************/
+void Server::slotSendShowDog()
+{
+    QDataStream out;
+    out << engine.GetDeal().GetDog();
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_DOG);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::slotSendDealAgain()
+{
+    QDataStream out;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_DEAL_AGAIN);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::Broadcast(QByteArray &block)
+{
+    for (int i=0; i<maximumPlayers; i++)
     {
-        out << (quint8)deckChien.at(i)->getId();
-    }
-    out << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);   // to connected clients
-}
-/*****************************************************************************/
-void Server::SendDoChien()
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_FAIT_CHIEN
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-
-    QTcpSocket *s = getConnection(infos.preneur);
-    s->write(block);
-    s->flush();
-}
-/*****************************************************************************/
-void Server::SendDepartDonne()
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_DEPART_DONNE
-        << (quint8)infos.preneur
-        << (quint8)infos.contrat
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);   // to connected clients
-}
-/*****************************************************************************/
-void Server::SendJoueCarte()
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_JOUE_CARTE
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-
-    QTcpSocket *s = getConnection(tour);
-    s->write(block);
-    s->flush();
-}
-/*****************************************************************************/
-void Server::SendCard(Card *c)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_MONTRE_CARTE
-        << (quint8)c->getId()
-        << (quint8)tour
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);   // to connected clients
-}
-/*****************************************************************************/
-void Server::SendRedist()
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_SERVER_REDIST
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);   // to connected clients
-}
-/*****************************************************************************/
-void Server::SendFinDonne(ScoreInfo &score_inf, bool lastDeal, float pointsTour)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_FIN_DONNE
-        << score_inf;
-
-    if (lastDeal == true)
-    {
-        out << (quint8)1;
-    }
-    else
-    {
-        out << (quint8)0;
-    }
-
-    out << (quint8)tour // winner of the current turn
-        << (quint32)pointsTour // points won by the taker
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);   // to connected clients
-}
-/*****************************************************************************/
-void Server::SendWaitPli(float pointsTour)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)NET_SERVER_WAIT_PLI
-        << (quint8)tour // winner of the current turn
-        << (quint32)pointsTour // points won by the taker
-        << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-    broadcast(block);   // to connected clients
-}
-/*****************************************************************************/
-void Server::broadcast(QByteArray &block)
-{
-    QMapIterator<QTcpSocket *, Player *> i(players);
-    while (i.hasNext())
-    {
-        i.next();
-        i.key()->write(block);
-        i.key()->flush();
+        players[i].SendData(block);
     }
 }
+
 
 
 //=============================================================================
 // End of file Server.cpp
 //=============================================================================
+
+

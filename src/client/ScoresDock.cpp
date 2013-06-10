@@ -69,7 +69,7 @@ void ScoresDock::setPlayers(QList<Identity> &players)
     tableScores->setHorizontalHeaderLabels(header);
 }
 /*****************************************************************************/
-void ScoresDock::SetNewScore(Score &score)
+void ScoresDock::SetNewScore(Deal &deal)
 {
     int n, total;
 
@@ -78,7 +78,7 @@ void ScoresDock::SetNewScore(Score &score)
 
     for (int i = 0; i < tableScores->columnCount(); i++)
     {
-        total = score.getTotalPoints((Place)i);
+        total = deal.getTotalPoints((Place)i);
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(total));
         tableScores->setItem(n - 1, i, newItem);
     }

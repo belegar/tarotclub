@@ -48,7 +48,7 @@ TarotEngine::~TarotEngine()
 
 }
 /*****************************************************************************/
-void TarotEngine::SetGameMode(GameMode mode)
+void TarotEngine::NewGame(GameMode mode)
 {
     gameMode = mode;
 }
@@ -66,6 +66,60 @@ void TarotEngine::SetDealType(DealType type)
 void TarotEngine::SetDealFile(QString file)
 {
     dealFile = file;
+}
+/*****************************************************************************/
+void TarotEngine::SetDiscard(Deck &discard)
+{
+    deal.SetDog(discard);
+    // as soon as the discard has been done, the deal can start
+    StartDeal();
+}
+/*****************************************************************************/
+void TarotEngine::SetHandle(Deck &handle, Place p)
+{
+    /* FIXME: add protections
+    1) L'origine du client (sud, est ... ip ??)
+    2) La validité de la poignée (présence dans le deck du joueur, utilisation de l'excuse)
+    3) La poignée doit être déclarée avant de jouer la première carte
+    4) Puis envoyer la poignée à tout le monde ...
+    */
+    Team handleOwner;
+    Handle type;
+
+    if (handle.size() == 10)
+    {
+        type = SIMPLE_HANDLE;
+    }
+    else if (handle.size() == 13)
+    {
+        type = DOUBLE_HANDLE;
+    }
+    else
+    {
+        type = TRIPLE_HANDLE;
+    }
+
+    if (p == gameState.taker)
+    {
+        handleOwner = ATTACK;
+        gameState.attackHandle.declared = true;
+        gameState.attackHandle.type = type;
+    }
+    else
+    {
+        handleOwner = DEFENSE;
+        gameState.defenseHandle.declared = true;
+        gameState.defenseHandle.type = type;
+    }
+
+    deal.SetHandle(handle, handleOwner);
+}
+/*****************************************************************************/
+void TarotEngine::SetCard(Card *c, Place p)
+{
+    currentTrick.append(c);
+    players[p].GetDeck().removeAll(c);
+    GameSateMachine();
 }
 /*****************************************************************************/
 void TarotEngine::StopGame()
@@ -86,6 +140,16 @@ Score &TarotEngine::GetScore()
 int TarotEngine::GetDealNumber()
 {
     return dealNumber;
+}
+/*****************************************************************************/
+Game &TarotEngine::GetGameInfo()
+{
+    return gameState;
+}
+/*****************************************************************************/
+Deal &TarotEngine::GetDeal()
+{
+    return deal;
 }
 /*****************************************************************************/
 bool TarotEngine::IsCardValid(Card *c, Place p)
@@ -163,7 +227,7 @@ void TarotEngine::NewDeal()
 
     // 3. Start the bid sequence
     emit sigSelectPlayer(gameState.currentPlayer);
-    emit sigAskBid(gameState.contract);
+    emit sigRequestBid(gameState.contract, gameState.currentPlayer);
 }
 /*****************************************************************************/
 void TarotEngine::StartDeal()
@@ -174,6 +238,47 @@ void TarotEngine::StartDeal()
     emit sigPlayCard(gameState.currentPlayer);
 }
 /*****************************************************************************/
+bool TarotEngine::SyncDog()
+{
+    bool finished = false;
+    if (gameState.sequence == Game::SYNC_DOG)
+    {
+        cntSyncDog++;
+        if (cntSyncDog >= gameState.numberOfPlayers)
+        {
+            finished = true;
+            gameState.sequence = Game::BUILD_DOG;
+        }
+    }
+    return finished;
+}
+/*****************************************************************************/
+void TarotEngine::SyncTrick()
+{
+    if (gameState.sequence == Game::SYNC_TRICK)
+    {
+        cntSyncTrick++;
+        if (cntSyncTrick >= gameState.numberOfPlayers)
+        {
+            gameState.sequence = Game::PLAY_TRICK;
+            GameSateMachine();
+        }
+    }
+}
+/*****************************************************************************/
+void TarotEngine::SyncReady()
+{
+    if (gameState.sequence == Game::SYNC_READY)
+    {
+        cntSyncReady++;
+        if (cntSyncReady >= gameState.numberOfPlayers)
+        {
+            gameState.sequence = Game::DEAL;
+            NewDeal();
+        }
+    }
+}
+/*****************************************************************************/
 void TarotEngine::GameSateMachine()
 {
     if (gameState.Next() == true)
@@ -181,6 +286,7 @@ void TarotEngine::GameSateMachine()
         // The current trick winner will begin the next trick
         gameState.currentPlayer = CalculateTrickWinner();
         deal.SetTrick(currentTrick, gameState.trickCounter);
+        currentTrick.clear();
 
         if (gameState.IsDealFinished() == true)
         {
@@ -190,7 +296,7 @@ void TarotEngine::GameSateMachine()
             // Manage tournaments
             if ((dealCounter<MAX_ROUNDS) && (gameMode == LOCAL_TOURNAMENT))
             {
-                 gameState.sequence = Game::WAIT_PLAYER;
+                 gameState.sequence = Game::SYNC_PLAYER;
             }
             else
             {
@@ -203,8 +309,8 @@ void TarotEngine::GameSateMachine()
         else
         {
             cptVuPli = 0;
-            gameState.sequence = Game::WAIT_TRICK;
-            emit sigEndOfTrick();
+            gameState.sequence = Game::SYNC_TRICK;
+            emit sigEndOfTrick(gameState.currentPlayer);
         }
     }
     else
@@ -214,15 +320,21 @@ void TarotEngine::GameSateMachine()
     }
 }
 /*****************************************************************************/
-void TarotEngine::BidSequence()
+void TarotEngine::BidSequence(Contract c, Place p)
 {
+    if (c > gameState.contract)
+    {
+        gameState.contract = c;
+        gameState.taker = p;
+    }
+
     if (gameState.Next() == true)
     {
         if (gameState.contract == PASS)
         {
             // All the players have passed, deal again new cards
             cptVuDonne = 0;
-            gameState.sequence = Game::WAIT_PLAYER;
+            gameState.sequence = Game::SYNC_READY;
             emit sigDealAgain();
         }
         else
@@ -245,8 +357,8 @@ void TarotEngine::BidSequence()
             }
             else
             {
-                cptVuChien = 0;
-                gameState.sequence = Game::WAIT_DOG; // Waiting for the taker's discard
+                cntSyncDog = 0;
+                gameState.sequence = Game::SYNC_DOG; // Waiting for the taker's discard
                 emit sigShowDog();
             }
         }
@@ -254,7 +366,7 @@ void TarotEngine::BidSequence()
     else
     {
         emit sigSelectPlayer(gameState.currentPlayer);
-        emit sigAskBid(gameState.contract);
+        emit sigRequestBid(gameState.contract, gameState.currentPlayer);
     }
 }
 /*****************************************************************************/
@@ -307,7 +419,6 @@ void TarotEngine::CreateDeal()
         }
         n++;
     }
-
 
     // Remaining cards go to the dog
     Deck dog;

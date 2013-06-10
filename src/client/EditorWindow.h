@@ -29,7 +29,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include "../defines.h"
-#include "../Jeu.h"
+#include "../Card.h"
 #include <ui_DealEditorUI.h>
 
 /*****************************************************************************/
@@ -41,10 +41,10 @@ public:
     CardListItem(Card *ref) : QListWidgetItem()
     {
         c = ref;
-        setText(c->getCardName());
+        setText(c->GetName());
     }
 
-    Card *getCard()
+    Card *GetCard()
     {
         return c;
     }
@@ -62,8 +62,8 @@ private:
 public:
     EditorWindow(QWidget *parent = 0);
 
-    void init();
-    void addToList(int id, QListWidget *list, QListWidgetItem *item);
+    void Initialize();
+    void AddToList(int id, QListWidget *list, QListWidgetItem *item);
 
 public slots:
     void slotOpenDeal();

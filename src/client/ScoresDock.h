@@ -42,7 +42,7 @@ public:
 
     void clear();
     void setPlayers(QList<Identity> &players);
-    void SetNewScore(Score &score);
+    void SetNewScore(Deal &deal);
 
 protected:
     void closeEvent(QCloseEvent *e);

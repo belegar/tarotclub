@@ -124,15 +124,15 @@ public slots:
     void slotBoutton4();
     void slotBoutton5();
     void slotAccepteChien();
-    void slotAfficheBoutons(Contrat contrat);
-    void slotAfficheEnchere(Place enchereur, Contrat cont);
+    void slotAfficheBoutons(Contract contrat);
+    void slotAfficheEnchere(Place enchereur, Contract cont);
     void slotPresenterPoignee();
 
 signals:
     void sigViewportClicked();
     void sigClickCard(GfxCard *);
     void sigMoveCursor(GfxCard *);
-    void sigContrat(Contrat c);
+    void sigContrat(Contract c);
     void sigAccepteChien();
     void sigPresenterPoignee();
 };

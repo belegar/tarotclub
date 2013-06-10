@@ -31,8 +31,8 @@
 
 // Local includes
 #include "../defines.h"
-#include "../GameState.h"
-#include "../ScoreInfo.h"
+#include "../Game.h"
+#include "../Score.h"
 #include <ui_ResultUI.h>
 
 /*****************************************************************************/
@@ -45,7 +45,7 @@ private:
 public:
     ResultWindow(QWidget *parent = 0);
 
-    void SetResult(ScoreInfo &score, GameState &info);
+    void SetResult(Score &score, Game &info);
 
 };
 

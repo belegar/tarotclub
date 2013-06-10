@@ -32,20 +32,20 @@
 /*****************************************************************************/
 ClientConfig::ClientConfig()
 {
-    setDefault(&options);
+    SetDefault(options);
 }
 /*****************************************************************************/
-ClientOptions *ClientConfig::getOptions()
+ClientOptions &ClientConfig::GetOptions()
 {
-    return(&options);
+    return options;
 }
 /*****************************************************************************/
-void ClientConfig::setOptions(ClientOptions *newOptions)
+void ClientConfig::SetOptions(ClientOptions &newOptions)
 {
-    options = *newOptions;
+    options = newOptions;
 }
 /*****************************************************************************/
-bool ClientConfig::load()
+bool ClientConfig::Load()
 {
     QDomDocument doc;
     QFile f(Config::path + CLIENT_CONFIG_FILE);
@@ -162,7 +162,7 @@ bool ClientConfig::load()
     return true;
 }
 /*****************************************************************************/
-bool ClientConfig::save()
+bool ClientConfig::Save()
 {
     // On crée le document
     QDomDocument doc("tarotclub");
@@ -249,20 +249,20 @@ bool ClientConfig::save()
     return true;
 }
 /*****************************************************************************/
-void ClientConfig::setDefault(ClientOptions *opt)
+void ClientConfig::SetDefault(ClientOptions &opt)
 {
-    opt->showAvatars = AVATARS_DEF;
-    opt->backgroundColor = "#008000";
-    opt->language = 0;
-    opt->deckFilePath = "default";
+    opt.showAvatars = AVATARS_DEF;
+    opt.backgroundColor = "#008000";
+    opt.language = 0;
+    opt.deckFilePath = "default";
 
-    opt->delayBeforeCleaning = CLIENT_TIMER_DEF;
-    opt->enableDelayBeforeCleaning = true;
+    opt.delayBeforeCleaning = CLIENT_TIMER_DEF;
+    opt.enableDelayBeforeCleaning = true;
 
-    opt->identity.name = "Moi";
-    opt->identity.avatar = ":/images/avatars/inconnu.png";
-    opt->identity.quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
-    opt->identity.sex = MALE;
+    opt.identity.name = "Moi";
+    opt.identity.avatar = ":/images/avatars/inconnu.png";
+    opt.identity.quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
+    opt.identity.sex = MALE;
 }
 
 //=============================================================================

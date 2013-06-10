@@ -39,12 +39,12 @@ public:
         BID,
         BUILD_DOG,
         SHOW_DOG,
-        WAIT_DOG,
         BUILD_HANDLE,
         SHOW_HANDLE,
         PLAY_TRICK,
-        WAIT_TRICK,
-        WAIT_PLAYER
+        SYNC_TRICK,
+        SYNC_DOG,
+        SYNC_READY
     };
 
     struct HandleInfo

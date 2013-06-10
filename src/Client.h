@@ -36,6 +36,7 @@
 #include "Score.h"
 #include "Game.h"
 
+/*****************************************************************************/
 class Client : public Protocol
 {
     Q_OBJECT
@@ -63,43 +64,47 @@ public:
     /**
      * @brief Build a valid discard at random
      */
-    void BuildDogDeck(Deck &deck);
+    void BuildDogDeck();
 
     // Getters
     Deck::Statistics &GetStatistics();
     Deck &GetMainDeck();
     Deck &GetDogDeck();
     Deck &GetHandleDeck();
+    Deck &GetMyDeck();
+    Identity &GetMyIdentity();
     Game &GetGameInfo();
     Score &GetScore();
 
+    // Setters
+    void SetMyIdentity(const Identity &ident);
+
+    // Network
+    void ConnectToHost(const QString &hostName, quint16 port);
+    void Close();
+
+    // Protocol methods
+    void SendBid(Contract c);
+    void SendSyncDog();
+    void SendDog();
+    void SendReady();
+    void SendError();
+    void SendCard(Card *c);
+    void SendSyncTrick();
+
 public slots:
-    void SocketReadData();
-    void SocketConnected();
-    void SocketHostFound();
-    void SocketClosed();
-    void SocketError(QAbstractSocket::SocketError code);
+    void slotSocketReadData();
+    void slotSocketConnected();
+    void slotSocketHostFound();
+    void slotSocketClosed();
+    void slotSocketError(QAbstractSocket::SocketError code);
 
 signals:
 
-    /**
-     * @brief Emitted when a chat message has been broadcasted by one player or the server
-     * @param message
-     */
     void sigMessage(const QString &message);
-
-    /**
-     * @brief Emitted when the server has assigned a place around the table
-     * @param p Place assigned by the server
-     */
     void sigAssignedPlace(Place p);
-
-    /**
-     * @brief Emitted when the client has received the identity of the players in game
-     * @param players
-     */
-    void sigPlayersList(QList<Identity> players);
-    void sigReceivedCards();
+    void sigPlayersList(QList<Identity> &players);
+    void sigReceiveCards();
     void sigSelectPlayer(Place);
     void sigRequestBid(Contract);
     void sigShowBid(Place, Contract);
@@ -109,7 +114,7 @@ signals:
     void sigDealAgain();
     void sigPlayCard();
     void sigShowCard(int, Place);
-    void sigWaitTrick(Place, float);
+    void sigWaitTrick(Place);
     void sigEndOfDeal();
     void sigEndOfGame();
 
@@ -125,19 +130,10 @@ private:
     Deck        handleDeck;    // declared poignee by the player
     Deck        currentTrick;
 
-    // Network methods
-    void ConnectToHost(const QString &hostName, quint16 port);
-    void Close();
+    // TarotClub Protocol methods
     void SendIdentity();
     void SendChatMessage(const QString &message);
-    void SendBid(Contract c);
-    void SendDog();
     void SendHandle();
-    void SendCard(Card *c);
-    void SendReady();
-    void SendError();
-    void SendSyncDog();
-    void SendSyncTrick();
     void SendSyncHandle();
     void DoAction(QDataStream &in);  
 

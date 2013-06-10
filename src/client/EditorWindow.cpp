@@ -26,7 +26,8 @@
 #include "EditorWindow.h"
 #include <QObject>
 #include <QFileDialog>
-#include "../DealEditorFile.h"
+#include "../DealFile.h"
+#include "../TarotDeck.h"
 
 /*****************************************************************************/
 EditorWindow::EditorWindow(QWidget *parent)
@@ -50,7 +51,7 @@ EditorWindow::EditorWindow(QWidget *parent)
     connect(ui.eastList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(slotRemoveEastCard(QListWidgetItem *)));
 }
 /*****************************************************************************/
-void EditorWindow::init()
+void EditorWindow::Initialize()
 {
     ui.mainCardList->clear();
     ui.eastList->clear();
@@ -60,11 +61,11 @@ void EditorWindow::init()
 
     for (int i = 0; i < 78; i++)
     {
-        ui.mainCardList->addItem(new CardListItem(Jeu::getCard(i)));
+        ui.mainCardList->addItem(new CardListItem(TarotDeck::GetCard(i)));
     }
 }
 /*****************************************************************************/
-void EditorWindow::addToList(int id, QListWidget *list, QListWidgetItem *item)
+void EditorWindow::AddToList(int id, QListWidget *list, QListWidgetItem *item)
 {
     int i;
 
@@ -72,7 +73,7 @@ void EditorWindow::addToList(int id, QListWidget *list, QListWidgetItem *item)
     for (i = 0; i < list->count(); i++)
     {
         CardListItem *el = (CardListItem *)list->item(i);
-        if (id < el->getCard()->getId())
+        if (id < el->GetCard()->GetId())
         {
             break;
         }
@@ -87,8 +88,8 @@ void EditorWindow::slotToSouth()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-    addToList(c->getId(), ui.southList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.southList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotToNorth()
@@ -98,8 +99,8 @@ void EditorWindow::slotToNorth()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-    addToList(c->getId(), ui.northList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.northList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotToWest()
@@ -109,8 +110,8 @@ void EditorWindow::slotToWest()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-    addToList(c->getId(), ui.westList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.westList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotToEast()
@@ -120,8 +121,8 @@ void EditorWindow::slotToEast()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-    addToList(c->getId(), ui.eastList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.eastList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveSouthCard(QListWidgetItem *item)
@@ -130,9 +131,8 @@ void EditorWindow::slotRemoveSouthCard(QListWidgetItem *item)
 
     int row = ui.southList->currentRow();
     QListWidgetItem *element = ui.southList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-
-    addToList(c->getId(), ui.mainCardList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveNorthCard(QListWidgetItem *item)
@@ -141,9 +141,8 @@ void EditorWindow::slotRemoveNorthCard(QListWidgetItem *item)
 
     int row = ui.northList->currentRow();
     QListWidgetItem *element = ui.northList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-
-    addToList(c->getId(), ui.mainCardList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveWestCard(QListWidgetItem *item)
@@ -152,9 +151,8 @@ void EditorWindow::slotRemoveWestCard(QListWidgetItem *item)
 
     int row = ui.westList->currentRow();
     QListWidgetItem *element = ui.westList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-
-    addToList(c->getId(), ui.mainCardList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveEastCard(QListWidgetItem *item)
@@ -163,14 +161,13 @@ void EditorWindow::slotRemoveEastCard(QListWidgetItem *item)
 
     int row = ui.eastList->currentRow();
     QListWidgetItem *element = ui.eastList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->getCard();
-
-    addToList(c->getId(), ui.mainCardList, element);
+    Card *c = ((CardListItem *)(element))->GetCard();
+    AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
 void EditorWindow::slotOpenDeal()
 {
-
+    // FIXME: add the loading mechanism
 }
 /*****************************************************************************/
 void EditorWindow::slotSaveDeal()
@@ -185,8 +182,8 @@ void EditorWindow::slotSaveDeal()
     if (fileName.isEmpty())
         return;
 
-    DealEditorFile editor;
-    editor.chienDeck.clear();
+    DealFile editor;
+    editor.dogDeck.clear();
     editor.eastDeck.clear();
     editor.northDeck.clear();
     editor.southDeck.clear();
@@ -196,34 +193,34 @@ void EditorWindow::slotSaveDeal()
     for (int i = 0; i < ui.mainCardList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.mainCardList->item(i);
-        editor.chienDeck.append(((CardListItem *)el)->getCard());
+        editor.dogDeck.append(((CardListItem *)el)->GetCard());
     }
     // East
     for (int i = 0; i < ui.eastList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.eastList->item(i);
-        editor.eastDeck.append(((CardListItem *)el)->getCard());
+        editor.eastDeck.append(((CardListItem *)el)->GetCard());
     }
     // West
     for (int i = 0; i < ui.westList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.westList->item(i);
-        editor.westDeck.append(((CardListItem *)el)->getCard());
+        editor.westDeck.append(((CardListItem *)el)->GetCard());
     }
     // South
     for (int i = 0; i < ui.southList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.southList->item(i);
-        editor.southDeck.append(((CardListItem *)el)->getCard());
+        editor.southDeck.append(((CardListItem *)el)->GetCard());
     }
     // North
     for (int i = 0; i < ui.northList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.northList->item(i);
-        editor.northDeck.append(((CardListItem *)el)->getCard());
+        editor.northDeck.append(((CardListItem *)el)->GetCard());
     }
 
-    editor.saveFile(fileName);
+    editor.SaveFile(fileName);
 }
 
 //=============================================================================

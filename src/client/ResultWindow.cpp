@@ -33,20 +33,20 @@ ResultWindow::ResultWindow(QWidget *parent)
     ui.setupUi(this);
 }
 /*****************************************************************************/
-void ResultWindow::SetResult(ScoreInfo &score, GameState &info)
+void ResultWindow::SetResult(Score &score, Game &info)
 {
     QString result_str;
 
     // On affiche les caractéristiques de la partie
-    if (info.taker == SUD)
+    if (info.taker == SOUTH)
     {
         ui.lblTaker->setText(STR_SUD);
     }
-    else if (info.taker == EST)
+    else if (info.taker == EAST)
     {
         ui.lblTaker->setText(STR_EST);
     }
-    else if (info.taker == NORD)
+    else if (info.taker == NORTH)
     {
         ui.lblTaker->setText(STR_NORD);
     }
@@ -55,15 +55,15 @@ void ResultWindow::SetResult(ScoreInfo &score, GameState &info)
         ui.lblTaker->setText(STR_OUEST);
     }
 
-    if (info.contract == PRISE)
+    if (info.contract == PASS)
     {
         ui.lblContrat->setText(STR_PRISE);
     }
-    else if (info.contract == GARDE)
+    else if (info.contract == GUARD)
     {
         ui.lblContrat->setText(STR_GARDE);
     }
-    else if (info.contract == GARDE_SANS)
+    else if (info.contract == GUARD_WITHOUT)
     {
         ui.lblContrat->setText(STR_GARDE_SANS);
     }
@@ -72,10 +72,10 @@ void ResultWindow::SetResult(ScoreInfo &score, GameState &info)
         ui.lblContrat->setText(STR_GARDE_CONTRE);
     }
 
-    ui.lblNbBouts->setNum(score.bouts);
-    ui.lblPoints->setNum((int)score.attaque);
+    ui.lblNbBouts->setNum(score.GetNumberOfOudlers());
+    ui.lblPoints->setNum((int)score.pointsAttack);
 
-    if ((int)(score.attaque) >= score.pointsAFaire)
+    if ((int)(score.pointsAttack) >= score.pointsToDo)
     {
         result_str = QString("<font color=\"#0D851B\">") + STR_WIN;
     }
@@ -87,12 +87,12 @@ void ResultWindow::SetResult(ScoreInfo &score, GameState &info)
                             STR_POINTS + QString("</font>"));
 
     ui.lblGains->setNum(score.difference);
-    ui.lblPetit->setNum(score.points_petit_au_bout);
-    ui.lblMultiple->setNum(score.multiplicateur);
-    ui.lblPoignee->setNum(score.points_poignee);
-    ui.lblChelem->setNum(score.points_chelem);
-    ui.lblTotalDefense->setText(QString().setNum(score.points_defense) + STR_POINTS);
-    ui.lblTotalAttaque->setText(QString().setNum(score.points_defense * (-3)) + STR_POINTS);
+    ui.lblPetit->setNum(score.littleEndianPoints);
+    ui.lblMultiple->setNum(score.multiplier);
+    ui.lblPoignee->setNum(score.handlePoints);
+    ui.lblChelem->setNum(score.slamPoints);
+    ui.lblTotalDefense->setText(QString().setNum(score.scoreAttack) + STR_POINTS);
+    ui.lblTotalAttaque->setText(QString().setNum(score.scoreAttack * (-3)) + STR_POINTS);
 }
 
 

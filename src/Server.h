@@ -33,39 +33,25 @@
 #include "ServerConfig.h"
 
 /*****************************************************************************/
-class NetPlayer
-{
-public:
-    NetPlayer()
-        : freePlace(true)
-    {
-
-    }
-    QTcpSocket  socket;
-    bool    freePlace;
-};
-/*****************************************************************************/
 class Server : public Protocol
 {
 public:
-    TarotServer();
+    Server();
 
-    // Server management
+    // Helpers
+    void NewServerGame(TarotEngine::GameMode mode);
+    void ConnectBots();
+
+    // Getters
     QList<Identity> GetPlayers();
-    int GetNumberOfPlayers();
-    QTcpSocket *GetConnection(Place p);
+    int GetNumberOfConnectedPlayers();
+
+    // Setters
     void SetMaximumPlayers(int n);
+    void SetOptions(ServerOptions &opt);
 
 signals:
-    void sigPrintMessage(const QString &);
-
-public slots:
-    void slotClientClosed();
-
-    /**
-     * @brief Decode received network packet
-     */
-    void slotReadData();
+    void sigServerMessage(const QString &);
 
 private:
 
@@ -78,11 +64,7 @@ private:
     ServerOptions  options;
 
     void CloseClients();
-
-    /**
-     * @brief Implementation of data management
-     */
-    void DoAction(QDataStream &in);
+    void DoAction(QDataStream &in, Place p);
 
     /**
      * @brief Broadcast a packet to connected players
@@ -91,23 +73,32 @@ private:
     void Broadcast(QByteArray &block);
 
     // Protocol methods
-    void SendAskIdentity(QTcpSocket *cnx, Place p);
-    void SendCards(Place p, quint8 *params);
-    void SendAskBid(Contrat c);
-    void SendBid(Place p, Contrat c);
-    void SendErrorServerFull(QTcpSocket *cnx);
-    void SendMessage(const QString &message, Place p);
-    void SendPlayersList();
-    void SendShowChien();
-    void SendDoChien();
-    void SendJoueCarte();
-    void SendCard(Card *c);
-    void SendDepartDonne();
-    void SendRedist();
-    void SendFinDonne(ScoreInfo &score_inf, bool lastDeal, float pointsTour);
-    void SendWaitPli(float pointsTour);
-    void SendSelectPlayer(Place p);
+    void SendRequestIdentity(Place p);
+    void SendCards();
 
+    void SendBid(Contract c, Place p);
+    void SendErrorServerFull(QTcpSocket *cnx);
+    void SendChatMessage(const QString &message);
+    void SendPlayersList();
+    void SendBuildDiscard();
+    void SendShowCard(Card *c);
+    void SendShowHandle(Deck &handle);
+
+private slots:
+    // TarotClub protocol
+    void slotNewConnection();
+    void slotSendWaitTrick(Place winner);
+    void slotSendStartDeal();
+    void slotSendSelectPlayer(Place p);
+    void slotSendPlayCard(Place p);
+    void slotSendRequestBid(Contract c, Place p);
+    void slotSendShowDog();
+    void slotSendDealAgain();
+    void slotSendEndOfDeal();
+
+    // client sockets
+    void slotClientClosed(Place p);
+    void slotReadData(Place p);
 };
 
 #endif // SERVER_H

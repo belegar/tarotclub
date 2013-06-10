@@ -64,13 +64,13 @@ private:
 public:
     ClientConfig();
 
-    bool     load();
-    bool     save();
+    bool     Load();
+    bool     Save();
 
-    ClientOptions *getOptions();
+    ClientOptions &GetOptions();
 
-    void        setOptions(ClientOptions *newOptions);
-    static void setDefault(ClientOptions *opt);
+    void        SetOptions(ClientOptions &newOptions);
+    static void SetDefault(ClientOptions &opt);
 };
 
 #endif // _CLIENTCONFIG_H

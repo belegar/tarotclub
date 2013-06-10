@@ -102,11 +102,11 @@ void OptionsWindow::slotBtnOk()
     clientOptions.identity.quote = ui.citationSud->text();
     if (ui.sexeM->isChecked())
     {
-        clientOptions.identity.sex = MALE;
+        clientOptions.identity.sex = Identity::MALE;
     }
     else
     {
-        clientOptions.identity.sex = FEMALE;
+        clientOptions.identity.sex = Identity::FEMALE;
     }
 
     if (ui.afficheAvatars->isChecked())
@@ -140,17 +140,17 @@ void OptionsWindow::slotBtnOk()
     serverOptions.timer = ui.slider1->value();
     serverOptions.port = QString(ui.portReseau->text()).toInt();
 
-    serverOptions.bots[BOT_EAST].name = ui.nomJoueurEst->text();
-    serverOptions.bots[BOT_NORTH].name = ui.nomJoueurNord->text();
-    serverOptions.bots[BOT_WEST].name = ui.nomJoueurOuest->text();
+    serverOptions.bots[ServerConfig::BOT_EAST].name = ui.nomJoueurEst->text();
+    serverOptions.bots[ServerConfig::BOT_NORTH].name = ui.nomJoueurNord->text();
+    serverOptions.bots[ServerConfig::BOT_WEST].name = ui.nomJoueurOuest->text();
 
     accept();
 }
 /*****************************************************************************/
 void OptionsWindow::slotBtnDefaut()
 {
-    ClientConfig::setDefault(&clientOptions);
-    ServerConfig::setDefault(&serverOptions);
+    ClientConfig::SetDefault(clientOptions);
+    ServerConfig::SetDefault(serverOptions);
     refresh();
 }
 /*****************************************************************************/
@@ -237,12 +237,12 @@ void OptionsWindow::slotBtnPixEst()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(serverOptions.bots[BOT_EAST].avatar);
+    s = choixAvatar(serverOptions.bots[ServerConfig::BOT_EAST].avatar);
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[BOT_EAST].avatar = s;
+    serverOptions.bots[ServerConfig::BOT_EAST].avatar = s;
     ui.pixEst->setPixmap(im);
 }
 /*****************************************************************************/
@@ -251,12 +251,12 @@ void OptionsWindow::slotBtnPixNord()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(serverOptions.bots[BOT_NORTH].avatar);
+    s = choixAvatar(serverOptions.bots[ServerConfig::BOT_NORTH].avatar);
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[BOT_NORTH].avatar = s;
+    serverOptions.bots[ServerConfig::BOT_NORTH].avatar = s;
     ui.pixNord->setPixmap(im);
 }
 /*****************************************************************************/
@@ -265,12 +265,12 @@ void OptionsWindow::slotBtnPixOuest()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(serverOptions.bots[BOT_WEST].avatar);
+    s = choixAvatar(serverOptions.bots[ServerConfig::BOT_WEST].avatar);
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[BOT_WEST].avatar = s;
+    serverOptions.bots[ServerConfig::BOT_WEST].avatar = s;
     ui.pixOuest->setPixmap(im);
 }
 /*****************************************************************************/
@@ -283,7 +283,7 @@ void OptionsWindow::refresh()
 
     ui.nomJoueurSud->setText(clientOptions.identity.name);
     ui.citationSud->setText(clientOptions.identity.quote);
-    if (clientOptions.identity.sex == MALE)
+    if (clientOptions.identity.sex == Identity::MALE)
     {
         ui.sexeM->setChecked(true);
     }
@@ -323,19 +323,19 @@ void OptionsWindow::refresh()
     // server stuff
     ui.slider1->setValue(serverOptions.timer);
     ui.portReseau->setValue(serverOptions.port);
-    ui.nomJoueurEst->setText(serverOptions.bots[BOT_EAST].name);
-    ui.nomJoueurNord->setText(serverOptions.bots[BOT_NORTH].name);
-    ui.nomJoueurOuest->setText(serverOptions.bots[BOT_WEST].name);
+    ui.nomJoueurEst->setText(serverOptions.bots[ServerConfig::BOT_EAST].name);
+    ui.nomJoueurNord->setText(serverOptions.bots[ServerConfig::BOT_NORTH].name);
+    ui.nomJoueurOuest->setText(serverOptions.bots[ServerConfig::BOT_WEST].name);
 
-    if (im.load(serverOptions.bots[BOT_EAST].avatar) == true)
+    if (im.load(serverOptions.bots[ServerConfig::BOT_EAST].avatar) == true)
     {
         ui.pixEst->setPixmap(im);
     }
-    if (im.load(serverOptions.bots[BOT_NORTH].avatar) == true)
+    if (im.load(serverOptions.bots[ServerConfig::BOT_NORTH].avatar) == true)
     {
         ui.pixNord->setPixmap(im);
     }
-    if (im.load(serverOptions.bots[BOT_WEST].avatar) == true)
+    if (im.load(serverOptions.bots[ServerConfig::BOT_WEST].avatar) == true)
     {
         ui.pixOuest->setPixmap(im);
     }

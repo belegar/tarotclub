@@ -54,19 +54,30 @@ typedef struct
 class ServerConfig
 {
 
+public:
+    enum BotPlace
+    {
+        BOT_WEST = 0,
+        BOT_NORTH = 1,
+        BOT_EAST
+    };
+
+    ServerConfig();
+
+    // Helpers
+    bool     Load();
+    bool     Save();
+
+    // Getters
+    ServerOptions &GetOptions();
+
+    // Setters
+    void        SetOptions(ServerOptions &newOptions);
+    static void SetDefault(ServerOptions &opt);
+
 private:
     ServerOptions options;
 
-public:
-    ServerConfig();
-
-    bool     load();
-    bool     save();
-
-    ServerOptions *getOptions();
-
-    void        setOptions(ServerOptions *newOptions);
-    static void setDefault(ServerOptions *opt);
 };
 
 #endif // _CONFIGFILE_H

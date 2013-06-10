@@ -42,6 +42,8 @@ public:
 
     Team Winner();
     void Reset();
+    int GetNumberOfOudlers();
+    void SetPointsToDo(int oudlers);
 
     friend QDataStream &operator<<(QDataStream &out, Score &info)
     {

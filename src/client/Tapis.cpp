@@ -557,7 +557,7 @@ void Tapis::afficheSelection(Place p)
     }
 }
 /*****************************************************************************/
-void Tapis::slotAfficheEnchere(Place enchereur, Contrat cont)
+void Tapis::slotAfficheEnchere(Place enchereur, Contract cont)
 {
     QString txt;
 
@@ -596,7 +596,7 @@ void Tapis::cacheEncheres()
     }
 }
 /*****************************************************************************/
-void Tapis::slotAfficheBoutons(Contrat contrat)
+void Tapis::slotAfficheBoutons(Contract contrat)
 {
     boutonPrise->show();
     boutonGarde->show();

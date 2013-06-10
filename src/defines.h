@@ -53,7 +53,7 @@ const QString path = QDir::homePath() + "/.tarotclub/";
 }
 
 /*****************************************************************************/
-enum Place      { SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3, FIFTH = 4, BROADCAST = 462, NO_BODY = 0xFFFF };
+enum Place      { SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3, FIFTH = 4, NOWHERE = 0xFFFF };
 enum Contract   { PASS = 0, TAKE = 1, GUARD = 2, GUARD_WITHOUT = 3, GUARD_AGAINST = 4 };
 enum Team       { ATTACK, DEFENSE };
 enum Handle     { SIMPLE_HANDLE = 0, DOUBLE_HANDLE = 1, TRIPLE_HANDLE = 2 };

@@ -39,7 +39,7 @@ public:
         CLIENT_MESSAGE      = 0x10, //!< Chat message
         CLIENT_INFOS        = 0x11, //!< Client sends its identity to the server
         CLIENT_BID          = 0x12,
-        CLIENT_DOG          = 0x13, //!< Client send the discard
+        CLIENT_DISCARD      = 0x13, //!< Client send the discard
         CLIENT_CARD         = 0x14,
         CLIENT_HANDLE       = 0x15, //!< Client has declared a handle
         CLIENT_READY        = 0x16,
@@ -50,7 +50,7 @@ public:
 
         // server -> client
         SERVER_MESSAGE          = 0x70, //!< chat message broadcasted to all clients
-        SERVER_IDENTITY         = 0x71, //!< Server assigns a place to a client and he must reply back the identity
+        SERVER_REQUEST_IDENTITY = 0x71, //!< Server assigns a place to a client and he must reply back the identity
         SERVER_PLAYERS_LIST     = 0x72,
         SERVER_SEND_CARDS       = 0x73,
         SERVER_SELECT_PLAYER    = 0x74,
@@ -68,18 +68,9 @@ public:
         SERVER_END_OF_GAME      = 0x86  //!< end of the game mode (tournament ...)
     };
 
-    void DecodePacket(QDataStream &in, qint64 bytes);
+    bool DecodePacket(QDataStream &in, qint64 bytes);
 
     QByteArray BuildCommand(QDataStream &in, Command cmd);
-
-    /**
-     * @brief Child classes must implement the data management
-     *
-     * Child classes are Server or Client
-     *
-     * @param in
-     */
-    virtual void DoAction(QDataStream &in) = 0;
 
 };
 

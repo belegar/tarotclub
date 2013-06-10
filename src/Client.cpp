@@ -37,11 +37,11 @@ using namespace std;
 Client::Client()
 {
     // Events on the socket
-    connect(&socket, SIGNAL(readyRead()), this, SLOT(SocketReadData()));
-    connect(&socket, SIGNAL(disconnected()), this, SLOT(SocketClosed()));
-    connect(&socket, SIGNAL(connected()), this, SLOT(SocketConnected()));
-    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(SocketError(QAbstractSocket::SocketError)));
-    connect(&socket, SIGNAL(hostFound()), this, SLOT(SocketHostFound()));
+    connect(&socket, SIGNAL(readyRead()), this, SLOT(slotSocketReadData()));
+    connect(&socket, SIGNAL(disconnected()), this, SLOT(slotSocketClosed()));
+    connect(&socket, SIGNAL(connected()), this, SLOT(slotSocketConnected()));
+    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotSocketError(QAbstractSocket::SocketError)));
+    connect(&socket, SIGNAL(hostFound()), this, SLOT(slotSocketHostFound()));
 }
 /*****************************************************************************/
 void Client::Initialize()
@@ -69,6 +69,16 @@ Deck &Client::GetHandleDeck()
     return handleDeck;
 }
 /*****************************************************************************/
+Deck &Client::GetMyDeck()
+{
+    return player.GetDeck();
+}
+/*****************************************************************************/
+Identity &Client::GetMyIdentity()
+{
+    return player.GetIdentity();
+}
+/*****************************************************************************/
 bool Client::TestHandle()
 {
     player.GetDeck().AnalyzeTrumps(stats);
@@ -90,6 +100,11 @@ Game &Client::GetGameInfo()
 Score &Client::GetScore()
 {
     return score;
+}
+/*****************************************************************************/
+void Client::SetMyIdentity(const Identity &ident)
+{
+    player.SetIdentity(ident);
 }
 /*****************************************************************************/
 Contract Client::CalculateBid()
@@ -168,7 +183,7 @@ void Client::UpdateStatistics()
     player.GetDeck().AnalyzeSuits(stats);
 }
 /*****************************************************************************/
-void Client::BuildDogDeck(Deck &deck)
+void Client::BuildDogDeck()
 {
     int i;
     Card *c, *cdeck;
@@ -176,7 +191,7 @@ void Client::BuildDogDeck(Deck &deck)
 #ifndef QT_NO_DEBUG
     // Dog before
     ofstream f("dog_before.txt");
-    f << deck.GetCardList().toStdString() << endl;
+    f << dogDeck.GetCardList().toStdString() << endl;
     f.close();
 #endif
 
@@ -190,7 +205,7 @@ void Client::BuildDogDeck(Deck &deck)
     // them by other valid cards
     while (ok == false)
     {
-        c = deck.at(i);
+        c = dogDeck.at(i);
         if ((c->GetSuit() == Card::TRUMPS) ||
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
@@ -204,8 +219,8 @@ void Client::BuildDogDeck(Deck &deck)
                     // Swap cards
                     player.GetDeck().removeAll(cdeck);
                     player.GetDeck().append(c);
-                    deck.removeAll(c);
-                    deck.append(cdeck);
+                    dogDeck.removeAll(c);
+                    dogDeck.append(cdeck);
                     break;
                 }
             }
@@ -225,7 +240,7 @@ void Client::BuildDogDeck(Deck &deck)
 #ifndef QT_NO_DEBUG
     // Dog after
     f.open("dog_after.txt");
-    f << deck.GetCardList().toStdString() << endl;
+    f << dogDeck.GetCardList().toStdString() << endl;
     f.close();
 #endif
 }
@@ -250,14 +265,6 @@ bool Client::IsValid(Card *c)
     return player.CanPlayCard(c, currentTrick, info);
 }
 /*****************************************************************************/
-void Client::SocketReadData()
-{
-    qint64 bytes = socket.bytesAvailable();
-    QDataStream in(&socket);
-
-    DecodePacket(in, bytes);
-}
-/*****************************************************************************/
 void Client::ConnectToHost(const QString &hostName, quint16 port)
 {
     socket.connectToHost(hostName, port);
@@ -268,25 +275,25 @@ void Client::Close()
     socket.close();
 }
 /*****************************************************************************/
-void Client::SocketConnected()
+void Client::slotSocketConnected()
 {
     QString msg = player.GetIdentity().name + trUtf8(" is connected.");
     qDebug() << msg.toLatin1().constData();
 }
 /*****************************************************************************/
-void Client::SocketHostFound()
+void Client::slotSocketHostFound()
 {
     QString msg = player.GetIdentity().name + trUtf8(" is trying to connect...");
     qDebug() << msg.toLatin1().constData();
 }
 /*****************************************************************************/
-void Client::SocketClosed()
+void Client::slotSocketClosed()
 {
     QString msg = player.GetIdentity().name + trUtf8(" connection has been closed.");
     qDebug() << msg.toLatin1().constData();
 }
 /*****************************************************************************/
-void Client::SocketError(QAbstractSocket::SocketError code)
+void Client::slotSocketError(QAbstractSocket::SocketError code)
 {
     QString message = player.GetIdentity().name;
 
@@ -305,6 +312,17 @@ void Client::SocketError(QAbstractSocket::SocketError code)
     qDebug() << message.toLatin1().constData();
 }
 /*****************************************************************************/
+void Client::slotSocketReadData()
+{
+    qint64 bytes = socket.bytesAvailable();
+    QDataStream in(&socket);
+
+    while (DecodePacket(in, data.size()) == true)
+    {
+        DoAction(in);
+    }
+}
+/*****************************************************************************/
 void Client::DoAction(QDataStream &in)
 {
     quint8 type;  // type de trame
@@ -320,7 +338,7 @@ void Client::DoAction(QDataStream &in)
         break;
     }
 
-    case Protocol::SERVER_IDENTITY:
+    case Protocol::SERVER_REQUEST_IDENTITY:
     {
         quint8 p;
 
@@ -364,7 +382,7 @@ void Client::DoAction(QDataStream &in)
                 player.GetDeck().append(TarotDeck::GetCard(n));
             }
             score.Reset();
-            emit sigReceivedCards();
+            emit sigReceiveCards();
         }
         break;
     }
@@ -429,7 +447,7 @@ void Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_SHOW_HANDLE:
     {
-        // FIXME
+        // FIXME: emit signal with handle deck
         break;
     }
 
@@ -460,11 +478,8 @@ void Client::DoAction(QDataStream &in)
     case Protocol::SERVER_END_OF_TRICK:
     {
         quint8 winner;
-        quint32 points;
-
         in >> winner;
-        in >> points;
-        emit sigWaitTrick((Place)winner, (float)points);
+        emit sigWaitTrick((Place)winner);
         break;
     }
 
@@ -540,7 +555,7 @@ void Client::SendDog()
 {
     QDataStream out;
     out << dogDeck;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_DOG);
+    QByteArray packet = BuildCommand(out, Protocol::CLIENT_DISCARD);
     socket.write(packet);
     socket.flush();
 }

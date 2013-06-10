@@ -31,20 +31,20 @@
 /*****************************************************************************/
 ServerConfig::ServerConfig()
 {
-    setDefault(&options);
+    SetDefault(&options);
 }
 /*****************************************************************************/
-ServerOptions *ServerConfig::getOptions()
+ServerOptions &ServerConfig::GetOptions()
 {
-    return(&options);
+    return options;
 }
 /*****************************************************************************/
-void ServerConfig::setOptions(ServerOptions *newOptions)
+void ServerConfig::SetOptions(ServerOptions &newOptions)
 {
-    options = *newOptions;
+    options = newOptions;
 }
 /*****************************************************************************/
-bool ServerConfig::load()
+bool ServerConfig::Load()
 {
     QDomDocument doc;
     QFile f(Config::path + SERVER_CONFIG_FILE);
@@ -135,7 +135,7 @@ bool ServerConfig::load()
     return true;
 }
 /*****************************************************************************/
-bool ServerConfig::save()
+bool ServerConfig::Save()
 {
     // Document creation
     QDomDocument doc("tarotclubd");
@@ -211,25 +211,25 @@ bool ServerConfig::save()
     return true;
 }
 /*****************************************************************************/
-void ServerConfig::setDefault(ServerOptions *opt)
+void ServerConfig::SetDefault(ServerOptions &opt)
 {
-    opt->timer = TIMER1_DEF;
-    opt->port = DEFAULT_PORT;
+    opt.timer = TIMER1_DEF;
+    opt.port = DEFAULT_PORT;
 
-    opt->bots[BOT_WEST].name = "Ouest";
-    opt->bots[BOT_WEST].avatar = ":/images/avatars/robot.png";
-    opt->bots[BOT_WEST].quote = QString::fromUtf8("Quand on mettra les cons sur orbite, t'as pas fini de tourner.");
-    opt->bots[BOT_WEST].sex = MALE;
+    opt.bots[BOT_WEST].name = "Ouest";
+    opt.bots[BOT_WEST].avatar = ":/images/avatars/robot.png";
+    opt.bots[BOT_WEST].quote = QString::fromUtf8("Quand on mettra les cons sur orbite, t'as pas fini de tourner.");
+    opt.bots[BOT_WEST].sex = MALE;
 
-    opt->bots[BOT_NORTH].name = "Nord";
-    opt->bots[BOT_NORTH].avatar = ":/images/avatars/robot.png";
-    opt->bots[BOT_NORTH].quote = QString::fromUtf8("J'ai fait un test de QI, les resultats étaient negatifs.");
-    opt->bots[BOT_NORTH].sex = MALE;
+    opt.bots[BOT_NORTH].name = "Nord";
+    opt.bots[BOT_NORTH].avatar = ":/images/avatars/robot.png";
+    opt.bots[BOT_NORTH].quote = QString::fromUtf8("J'ai fait un test de QI, les resultats étaient negatifs.");
+    opt.bots[BOT_NORTH].sex = MALE;
 
-    opt->bots[BOT_EAST].name = "Est";
-    opt->bots[BOT_EAST].avatar = ":/images/avatars/robot.png";
-    opt->bots[BOT_EAST].quote = "Plus je grossis, plus je m'aigris.";
-    opt->bots[BOT_EAST].sex = MALE;
+    opt.bots[BOT_EAST].name = "Est";
+    opt.bots[BOT_EAST].avatar = ":/images/avatars/robot.png";
+    opt.bots[BOT_EAST].quote = "Plus je grossis, plus je m'aigris.";
+    opt.bots[BOT_EAST].sex = MALE;
 }
 
 //=============================================================================

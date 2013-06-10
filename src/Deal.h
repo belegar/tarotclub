@@ -40,38 +40,25 @@ class Deal
 public:
     Deal();
 
-    /**
-     * @brief Initialize all the variables to default or zero value
-     */
+    // Helpers
     void Initialize();
-
-    /**
-     * @brief Reset variables for a new deal
-     */
     void NewDeal();
-
-    /**
-     * @brief Calculate
-     *
-     * Call this methdo at the end of a deal to calculate the score
-     *
-     * @param info
-     */
     void Calculate(Game &info);
 
-    // Mutateurs
+    // Getters
+    Deck GetTrick(int turn);
+    int  GetTotalPoints(Place p);
+    Score  &GetScore();
+    QList<Place> GetPodium();
+    Deck &GetDog();
+
+    // Setters
     void SetHandle(Deck &handle, Team team);
     void SetPoints(const Game &infos);
     void SetScore(const Score &score);
     void SetDog(Deck &dog);
     void SetTrick(Deck &trick, int turn);
     void SetDogOwner(Team team);
-
-    // Accesseurs
-    Deck GetTrick(int turn);
-    int  GetTotalPoints(Place p);
-    Score  &GetScore();
-    QList<Place> GetPodium();
 
 private:
 

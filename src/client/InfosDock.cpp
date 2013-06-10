@@ -56,7 +56,7 @@ void InfosDock::setPreneur(QString preneur)
     ui.preneurVar->setText("<b>" + preneur + "</b>");
 }
 /*****************************************************************************/
-void InfosDock::setContrat(Contrat cont)
+void InfosDock::setContrat(Contract cont)
 {
     QString mot;
 
@@ -83,7 +83,7 @@ void InfosDock::setContrat(Contrat cont)
     ui.contratVar->setText("<b>" + mot + "</b>");
 }
 /*****************************************************************************/
-void InfosDock::printStats(DeckStats *stats)
+void InfosDock::printStats(Deck::Statistics *stats)
 {
     QString buffer, tmp;
 

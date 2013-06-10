@@ -49,6 +49,50 @@ void Score::Reset()
     handlePoints = 0;
     slamPoints = 0;
 }
+/*****************************************************************************/
+int Score::GetNumberOfOudlers()
+{
+    int oudlers;
+
+    if (pointsToDo == 36)
+    {
+        oudlers = 3;
+    }
+    else if (pointsToDo == 41)
+    {
+        oudlers = 2;
+    }
+    else if (pointsToDo == 51)
+    {
+        oudlers = 1;
+    }
+    else
+    {
+        oudlers = 0;
+    }
+
+    return oudlers;
+}
+/*****************************************************************************/
+void Score::SetPointsToDo(int oudlers)
+{
+    if (oudlers == 0)
+    {
+        pointsToDo = 56;
+    }
+    else if (oudlers == 1)
+    {
+        pointsToDo = 51;
+    }
+    else if (oudlers == 2)
+    {
+        pointsToDo = 41;
+    }
+    else // 3 oudlers
+    {
+        pointsToDo = 36;
+    }
+}
 
 //=============================================================================
 // End of file Score.cpp

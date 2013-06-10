@@ -269,7 +269,7 @@ void MainWindow::SetupMenus()
 /*****************************************************************************/
 void MainWindow::slotDealEditor()
 {
-    editorWindow->init();
+    editorWindow->Initialize();
     editorWindow->exec();
 }
 /*****************************************************************************/

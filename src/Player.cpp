@@ -223,7 +223,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick, Game &info)
     return true;
 }
 /*****************************************************************************/
-void Player::SetIdentity(Identity &ident)
+void Player::SetIdentity(const Identity &ident)
 {
     identity = ident;
 }
@@ -247,6 +247,92 @@ Deck &Player::GetDeck()
 {
     return myDeck;
 }
+/*****************************************************************************/
+/*              *           *           *           *           *            */
+/*****************************************************************************/
+NetPlayer::NetPlayer()
+    : socket(NULL)
+    , freePlace(true)
+{
+
+}
+/*****************************************************************************/
+bool NetPlayer::IsFree()
+{
+    return freePlace;
+}
+/*****************************************************************************/
+void NetPlayer::Close()
+{
+    QObject::connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
+    socket->close();
+    socket->waitForDisconnected();
+    socket = NULL;
+    freePlace = true;
+}
+/*****************************************************************************/
+Identity &NetPlayer::GetIdentity()
+{
+    return player.GetIdentity();
+}
+/*****************************************************************************/
+void NetPlayer::SetConnection(QTcpSocket *s, Place p)
+{
+    socket = s;
+    freePlace = false;
+    player.SetPlace(p);
+    connect(socket, SIGNAL(disconnected()), this, SLOT(slotClientClosed()));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(slotReadData()));
+}
+/*****************************************************************************/
+void NetPlayer::SetIdentity(const Identity &ident)
+{
+    player.SetIdentity(ident);
+}
+/*****************************************************************************/
+void NetPlayer::SendData(QByteArray &data)
+{
+    if (socket != NULL)
+    {
+        if (socket->isValid())
+        {
+            socket->write(data);
+            socket->flush();
+        }
+        else
+        {
+            qDebug() << "Send data to a non-connected socket" << endl;
+        }
+    }
+    else
+    {
+        qDebug() << "Send data to a non-valid socket" << endl;
+    }
+}
+/*****************************************************************************/
+QByteArray NetPlayer::GetData()
+{
+    QByteArray data;
+    if (socket != NULL)
+    {
+        if (socket->isValid())
+        {
+            data = socket->readAll();
+        }
+    }
+    return data;
+}
+/*****************************************************************************/
+void NetPlayer::slotClientClosed()
+{
+    emit sigDisconnected(player.GetPlace());
+}
+/*****************************************************************************/
+void NetPlayer::slotReadData()
+{
+    emit sigReadyRead(player.GetPlace());
+}
+
 
 //=============================================================================
 // End of file Player.cpp

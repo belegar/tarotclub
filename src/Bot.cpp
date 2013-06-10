@@ -30,24 +30,24 @@ using namespace std;
 
 /*****************************************************************************/
 Bot::Bot() :
-    Client()
-    , statsObj(stats)
-    , deckObj(myDeck, mainDeck)
+     statsObj(GetStatistics())
 {
-    connect(this, SIGNAL(sgnlMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
-    connect( this, SIGNAL(sgnlAssignedPlace(Place)), this, SLOT(slotAssignedPlace(Place)));
-    connect(this, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
-    connect(this, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
-    connect(this, SIGNAL(sgnlChoixEnchere(Contrat)), this, SLOT(slotChoixEnchere(Contrat)));
-    connect(this, SIGNAL(sgnlAfficheEnchere(Place, Contrat)), this, SLOT(slotAfficheEnchere(Place, Contrat)));
-    connect(this, SIGNAL(sgnlRedist()), this, SLOT(slotRedist()));
-    connect(this, SIGNAL(sgnlAfficheChien()), this, SLOT(slotAfficheChien()));
-    connect(this, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
-    connect(this, SIGNAL(sgnlDepartDonne(Place, Contrat)), this, SLOT(slotDepartDonne(Place, Contrat)));
-    connect(this, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
-    connect(this, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
-    connect(this, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
-    connect(this, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
+    connect(this, SIGNAL(sigMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
+    connect(this, SIGNAL(sigAssignedPlace(Place)), this, SLOT(slotAssignedPlace(Place)));
+    connect(this, SIGNAL(sigPlayersList(QList<Identity> &)), this, SLOT(slotPlayersList(QList<Identity> &)));
+    connect(this, SIGNAL(sigReceiveCards()), this, SLOT(slotReceiveCards()));
+    connect(this, SIGNAL(sigSelectPlayer(Place)), this, SLOT(slotSelectPlayer(Place)));
+    connect(this, SIGNAL(sigRequestBid(Contract)), this, SLOT(slotRequestBid(Contract)));
+    connect(this, SIGNAL(sigShowBid(Place, Contract)), this, SLOT(slotShowBid(Place, Contract)));
+    connect(this, SIGNAL(sigStartDeal(Place, Contract)), this, SLOT(slotStartDeal(Place, Contract)));
+    connect(this, SIGNAL(sigShowDog()), this, SLOT(slotShowDog()));
+    connect(this, SIGNAL(sigBuildDiscard()), this, SLOT(slotBuildDiscard()));
+    connect(this, SIGNAL(sigDealAgain()), this, SLOT(slotDealAgain()));
+    connect(this, SIGNAL(sigPlayCard()), this, SLOT(slotPlayCard()));
+    connect(this, SIGNAL(sigShowCard(int, Place)), this, SLOT(slotShowCard(int, Place)));
+    connect(this, SIGNAL(sigWaitTrick(Place)), this, SLOT(slotWaitTrick(Place)));
+    connect(this, SIGNAL(sigEndOfDeal()), this, SLOT(slotEndOfDeal()));
+    connect(this, SIGNAL(sigEndOfGame()), this, SLOT(slotEndOfGame()));
 
     timeBeforeSend.setSingleShot(true);
     timeBeforeSend.setInterval(0);
@@ -63,7 +63,145 @@ Bot::~Bot()
 
 }
 /*****************************************************************************/
-void Bot::setTimeBeforeSend(int t)
+void Bot::slotMessage(const QString &message)
+{
+    Q_UNUSED(message);
+    // A bot cannot reply (yet :)
+}
+/*****************************************************************************/
+void Bot::slotAssignedPlace(Place p)
+{
+    InitializeScriptContext();
+
+    QScriptValueList args;
+    args << p;
+    CallScript("EnterGame", args);
+}
+/*****************************************************************************/
+void Bot::slotPlayersList(QList<Identity> &players)
+{
+    Q_UNUSED(players);
+}
+/*****************************************************************************/
+void Bot::slotReceiveCards()
+{
+    UpdateStatistics();
+
+    QScriptValueList args;
+    args << GetMyDeck().GetCardList();
+    CallScript("ReceiveCard", args);
+}
+/*****************************************************************************/
+void Bot::slotSelectPlayer(Place p)
+{
+    Q_UNUSED(p);
+    // nada aussi
+}
+/*****************************************************************************/
+void Bot::slotRequestBid(Contract highestBid)
+{
+    int ret;
+    Contract botContract;
+
+    QScriptValueList args;
+    args << (int)highestBid;
+    ret = CallScript("AnnounceBid", args).toInteger();
+
+    // security test
+    if ((ret >= PASS) && (ret <= GUARD_AGAINST))
+    {
+        botContract = (Contract)ret;
+    }
+    else
+    {
+        botContract = CalculateBid(); // propose our algorithm if the user's one failed
+    }
+
+    // only bid over previous one is allowed
+    if (botContract <= highestBid)
+    {
+        botContract = PASS;
+    }
+    SendBid(botContract);
+}
+/*****************************************************************************/
+void Bot::slotShowBid(Place place, Contract contract)
+{
+    Q_UNUSED(place);
+    Q_UNUSED(contract);
+}
+/*****************************************************************************/
+void Bot::slotStartDeal(Place taker, Contract contract)
+{
+    QScriptValueList args;
+    args << taker << contract;
+    CallScript("StartGame", args);
+}
+/*****************************************************************************/
+void Bot::slotShowDog()
+{
+    SendSyncDog();
+}
+/*****************************************************************************/
+void Bot::slotBuildDiscard()
+{
+    QScriptValueList args;
+    args << GetDogDeck().GetCardList();
+    QString ret = CallScript("BuildDiscard", args).toString();
+
+    // We receive the discard made by the bot script
+    // FIXME: verify the validity of the deck. If not valid, build the
+    // discard automatically
+
+    BuildDogDeck();
+    SendDog();
+}
+/*****************************************************************************/
+void Bot::slotDealAgain()
+{
+    // Re-inititialize script context
+    if (InitializeScriptContext() == true)
+    {
+        SendReady();
+    }
+    else
+    {
+        SendError();
+    }
+}
+/*****************************************************************************/
+void Bot::slotPlayCard()
+{
+    timeBeforeSend.start();
+}
+/*****************************************************************************/
+void Bot::slotShowCard(int id, Place p)
+{
+    QScriptValueList args;
+    args << TarotDeck::GetCard(id)->GetName() << (int)p;
+    CallScript("PlayedCard", args);
+ }
+/*****************************************************************************/
+void Bot::slotWaitTrick(Place winner)
+{
+    Q_UNUSED(winner);
+    // FIXME Call script and pass the winner
+
+    SendSyncTrick();
+}
+/*****************************************************************************/
+void Bot::slotEndOfDeal()
+{
+    // FIXME Call the script and pass the score?
+    SendReady();
+}
+/*****************************************************************************/
+void Bot::slotEndOfGame()
+{
+    // FIXME What must we do?
+}
+/*****************************************************************************/
+void Bot::SetTimeBeforeSend(int t)
 {
     timeBeforeSend.setInterval(t);
 }
@@ -71,97 +209,30 @@ void Bot::setTimeBeforeSend(int t)
 void Bot::slotTimeBeforeSend()
 {
     Card *c = NULL;
-    QString ret;
-
-    QScriptValue createFunc = botEngine.evaluate("PlayCard");
-
-    if (botEngine.hasUncaughtException())
-    {
-        QScriptValue exception = botEngine.uncaughtException();
-        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
-        return;
-    }
-
-    if (!createFunc.isFunction())
-    {
-        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
-    }
 
     QScriptValueList args;
-    args << infos.gameCounter;
-    ret = createFunc.call(QScriptValue(), args).toString();
-
-    if (botEngine.hasUncaughtException())
-    {
-        QScriptValue exception = botEngine.uncaughtException();
-        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
-        return;
-    }
+    QString ret = CallScript("PlayCard", args).toString();
 
     // Test validity of card
-    c = GetCardByName(ret);
+    c = GetMyDeck().GetCardByName(ret);
     if (c != NULL)
     {
-        if (isValid(c) == false)
+        if (IsValid(c) == false)
         {
-            QString message = getName() + QString(" played a non-valid card: ") + ret;
+            QString message = GetMyIdentity().name + QString(" played a non-valid card: ") + ret;
             qDebug() << message.toLatin1().constData();
             // The show must go on, play a random card
-            c = play();
+            c = Play();
         }
     }
     else
     {
         // The show must go on, play a random card
-        c = play();
+        c = Play();
     }
 
-    removeCard(c);
-    sendCard(c);
-}
-/*****************************************************************************/
-void Bot::slotMessage(const QString &text)
-{
-    Q_UNUSED(text);
-    // A bot cannot reply (yet :)
-}
-/*****************************************************************************/
-void Bot::slotAssignedPlace(Place p)
-{
-    initializeScriptContext();
-
-    QScriptValue createFunc = botEngine.evaluate("EnterGame");
-
-    if (botEngine.hasUncaughtException()) {
-        QScriptValue exception = botEngine.uncaughtException();
-        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
-        return;
-    }
-
-    if (!createFunc.isFunction()) {
-        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
-    }
-
-    QScriptValueList args;
-    args << p;
-    createFunc.call(QScriptValue(), args);
-
-    if (botEngine.hasUncaughtException()) {
-        QScriptValue exception = botEngine.uncaughtException();
-        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
-        return;
-    }
-}
-/*****************************************************************************/
-void Bot::slotReceptionCartes()
-{
-    updateStats();
-}
-/*****************************************************************************/
-void Bot::slotAfficheSelection(Place p)
-{
-    Q_UNUSED(p);
-    // nada aussi
+    GetMyDeck().removeAll(c);
+    SendCard(c);
 }
 /*****************************************************************************/
 QScriptValue myPrint(QScriptContext *context, QScriptEngine *eng)
@@ -180,7 +251,7 @@ QScriptValue myPrint(QScriptContext *context, QScriptEngine *eng)
     return QScriptValue();
 }
 /*****************************************************************************/
-bool Bot::initializeScriptContext()
+bool Bot::InitializeScriptContext()
 {
 #ifndef QT_NO_DEBUG
 #ifdef Q_OS_WIN32
@@ -195,8 +266,7 @@ bool Bot::initializeScriptContext()
 
     // Give access to some objects from the JavaScript engine
     botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
-    botEngine.globalObject().setProperty("TDeck", botEngine.newQObject(&deckObj));
-    botEngine.globalObject().setProperty("print", botEngine.newFunction(&myPrint));
+    botEngine.globalObject().setProperty("TPrint", botEngine.newFunction(&myPrint));
 
     QFile scriptFile(fileName);
 
@@ -237,18 +307,15 @@ bool Bot::initializeScriptContext()
     return true;
 }
 /*****************************************************************************/
-void Bot::slotChoixEnchere(Contrat highestBid)
+QScriptValue Bot::CallScript(const QString &function, QScriptValueList &args)
 {
-    int ret;
-    Contrat mon_contrat;
-
-    QScriptValue createFunc = botEngine.evaluate("CalculateBid");
-
+    QScriptValue ret;
+    QScriptValue createFunc = botEngine.globalObject().property(function);
     if (botEngine.hasUncaughtException())
     {
         QScriptValue exception = botEngine.uncaughtException();
         QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
-        return;
+        return ret;
     }
 
     if (!createFunc.isFunction())
@@ -256,147 +323,20 @@ void Bot::slotChoixEnchere(Contrat highestBid)
         QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
     }
 
-    QScriptValueList args;
-    args << (int)highestBid;
-    ret = createFunc.call(QScriptValue(), args).toInteger();
+    ret = createFunc.call(QScriptValue(), args);
 
     if (botEngine.hasUncaughtException())
     {
         QScriptValue exception = botEngine.uncaughtException();
         qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
-        return;
     }
 
-    // security test
-    if (ret >= PASSE && ret <= GARDE_CONTRE)
-    {
-        mon_contrat = (Contrat)ret;
-    }
-    else
-    {
-        mon_contrat = calculEnchere(); // propose our algorithm if the user's one failed
-    }
-
-    // only bid over previous one is allowed
-    if (mon_contrat <= highestBid)
-    {
-        mon_contrat = PASSE;
-    }
-    sendEnchere(mon_contrat);
+    return ret;
 }
-/*****************************************************************************/
-void Bot::slotAfficheEnchere(Place place, Contrat contract)
-{
-    Q_UNUSED(place);
-    Q_UNUSED(contract);
-}
-/*****************************************************************************/
-void Bot::slotRedist()
-{
-    // Re-inititialize script context
-    if (initializeScriptContext() == true)
-    {
-        sendReady();
-    }
-    else
-    {
-        sendError();
-    }
-}
-/*****************************************************************************/
-void Bot::slotAfficheChien()
-{
-    sendVuChien();
-}
-/*****************************************************************************/
-void Bot::slotPrepareChien()
-{
-    choixChien(&chien);
-    sendChien();
-}
-/*****************************************************************************/
-void Bot::slotDepartDonne(Place i_taker, Contrat i_contract)
-{
-    QScriptValue createFunc = botEngine.evaluate("StartGame");
 
-    if (botEngine.hasUncaughtException())
-    {
-        QScriptValue exception = botEngine.uncaughtException();
-        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
-        return;
-    }
-
-    if (!createFunc.isFunction())
-    {
-        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
-    }
-
-    QScriptValueList args;
-    args << i_taker << i_contract;
-    createFunc.call(QScriptValue(), args);
-
-    if (botEngine.hasUncaughtException())
-    {
-        QScriptValue exception = botEngine.uncaughtException();
-        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
-        return;
-    }
-}
-/*****************************************************************************/
-void Bot::slotJoueCarte()
-{
-    timeBeforeSend.start();
-}
-/*****************************************************************************/
-void Bot::slotAfficheCarte(int id, Place p)
-{
-    Q_UNUSED(id);
-    Q_UNUSED(p);
-
-    QScriptValue createFunc = botEngine.evaluate("PlayedCard");
-
-    if (botEngine.hasUncaughtException())
-    {
-        QScriptValue exception = botEngine.uncaughtException();
-        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
-        return;
-    }
-
-    if (!createFunc.isFunction())
-    {
-        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
-    }
-
-    QScriptValueList args;
-    args << Jeu::getCard(id)->getCardName() << (int)p;
-    createFunc.call(QScriptValue(), args);
-
-    if (botEngine.hasUncaughtException())
-    {
-        QScriptValue exception = botEngine.uncaughtException();
-        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
-        return;
-    }
-}
-/*****************************************************************************/
-void Bot::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
-{
-    Q_UNUSED(winner);
-    Q_UNUSED(pointsTaker);
-    if (lastDeal == false)
-    {
-        sendReady();
-    }
-}
-/*****************************************************************************/
-void Bot::slotWaitPli(Place winner, float pointsTaker)
-{
-    Q_UNUSED(winner);
-    Q_UNUSED(pointsTaker);
-    sendVuPli();
-}
 
 //=============================================================================
 // End of file Bot.cpp
 //=============================================================================
+
 

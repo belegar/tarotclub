@@ -45,10 +45,10 @@ public:
     InfosDock(QWidget *parent);
 
     void clear();
-    void setContrat(Contrat c);
+    void setContrat(Contract c);
     void setPreneur(QString preneur);
     void setDonne(int n);
-    void printStats(DeckStats *stats);
+    void printStats(Deck::Statistics *stats);
 };
 
 #endif // INFOSDOCK_H

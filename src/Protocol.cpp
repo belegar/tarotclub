@@ -40,57 +40,32 @@ QByteArray Protocol::BuildCommand(QDataStream &in, Command cmd)
 
     return block;
 }
-
 /*****************************************************************************/
-void Protocol::DecodePacket(QDataStream &in, qint64 bytes)
+bool Protocol::DecodePacket(QDataStream &in, qint64 bytes)
 {
     quint16 blockSize = 0;
-    bool morePacket = false;
     unsigned int total = 0;
 
-    for (;;)
+    if (bytes < (qint64)sizeof(quint16))
     {
-        if (blockSize == 0)
-        {
-            if (bytes < (qint64)sizeof(quint16))
-            {
-                break;
-            }
-            in >> blockSize;
-        }
+        return false;
+    }
+    in >> blockSize;
 
-        // end of packet?
-        if (blockSize == 0xFFFF)
-        {
-            if (morePacket == true)
-            {
-                blockSize = 0;
-                morePacket = false;
-                continue;
-            }
-            else
-            {
-                break;
-            }
-        }
+    // end of packet?
+    if (blockSize == 0xFFFF)
+    {
+        return false;
+    }
 
-        total += blockSize + 2;
-        if (bytes < total)
-        {
-            break;
-        }
-        else if (bytes > total)
-        {
-            morePacket = true;
-        }
-        else
-        {
-            morePacket = false;
-        }
-
-        // Perform data management
-        DoAction(in);
-        blockSize = 0;
+    total = blockSize + 2;
+    if (bytes < total)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
     }
 }
 
