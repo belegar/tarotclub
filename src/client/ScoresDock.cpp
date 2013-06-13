@@ -78,7 +78,7 @@ void ScoresDock::SetNewScore(Deal &deal)
 
     for (int i = 0; i < tableScores->columnCount(); i++)
     {
-        total = deal.getTotalPoints((Place)i);
+        total = deal.GetTotalPoints((Place)i);
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(total));
         tableScores->setItem(n - 1, i, newItem);
     }

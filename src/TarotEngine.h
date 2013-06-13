@@ -42,32 +42,25 @@ class TarotEngine : public QObject
     Q_OBJECT
 
 public:
-    /**
-     * @brief The GameMode enum
-     */
-    enum GameMode
-    {
-        LOCAL_ONEDEAL,
-        LOCAL_TOURNAMENT,
-        NET_GAME_SERVER,
-        NET_GAME_CLIENT
-    };
-
-    /**
-     * @brief The DealType enum
-     */
-    enum DealType
+    enum ShuffleType
     {
         RANDOM_DEAL,
         CUSTOM_DEAL,
         NUMBERED_DEAL
     };
 
+    struct Shuffle
+    {
+        ShuffleType type;
+        QString     file;
+        int         seed;
+    };
+
     TarotEngine();
     ~TarotEngine();
 
     // Helpers
-    void NewGame(GameMode mode);
+    void NewGame(Game::Mode mode);
     void StopGame();
     void NewDeal();
     void StartDeal();
@@ -84,10 +77,7 @@ public:
     Deal &GetDeal();
 
     // Setters
-    void SetDealType(DealType type);
-    void SetDealNumber(int deal);
-    void SetDealFile(QString file);
-    void SetOptions(ServerOptions &opt);
+    void SetShuffle(Shuffle &s);
     void SetDiscard(Deck &discard);
     void SetHandle(Deck &handle, Place p);
     void SetCard(Card *c, Place p);
@@ -108,11 +98,8 @@ private:
     Deck        currentTrick;   // the main deck of cards
     Deal        deal;
     Game        gameState;
-    DealType    dealType;
-    int         dealNumber;
+    Shuffle     shuffle;
     int         dealCounter;    // number of deals for the tournament game
-    QString     dealFile;
-    GameMode    gameMode;
 
     // synchonization counters
     int         cntSyncDog;     // players saw the dog

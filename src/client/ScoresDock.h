@@ -26,7 +26,7 @@
 #include <QDockWidget>
 #include <QTableWidget>
 #include "../defines.h"
-#include "../Score.h"
+#include "../Deal.h"
 #include "../Identity.h"
 
 /*****************************************************************************/

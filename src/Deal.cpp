@@ -154,27 +154,25 @@ Score &Deal::GetScore()
     return score;
 }
 /*****************************************************************************/
-void Deal::SetScore(const Score &s)
+void Deal::SetScore(const Score &s, const Game &info)
 {
     score = s;
 
-    // FIXME, if championship, add score to the list of deals
-    /*
-    int i;
-
-    for (i = 0; i < NB_PLAYERS; i++)
+    if (info.gameMode == Game::LOCAL_TOURNAMENT)
     {
-        if (i == infos.preneur)
+        for (int i = 0; i<info.numberOfPlayers; i++)
         {
-            Deals[turn][i] = Deal_inf.points_defense * (-3);
+            if (i == info.taker)
+            {
+                scores[dealCounter][i] = s.scoreAttack;
+            }
+            else
+            {
+                scores[dealCounter][i] = s.scoreAttack / (-3);
+            }
         }
-        else
-        {
-            Deals[turn][i] = Deal_inf.points_defense;
-        }
+        dealCounter++;
     }
-    turn++;
-    */
 }
 /*****************************************************************************/
 #ifndef QT_NO_DEBUG

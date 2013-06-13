@@ -352,14 +352,17 @@ void Client::DoAction(QDataStream &in)
     case Protocol::SERVER_PLAYERS_LIST:
     {
         quint8 nombre;
-        QList<Identity> players;
+        QMap<Place, Identity> players;
 
         in >> nombre;
         for (int i = 0; i < nombre; i++)
         {
             Identity ident;
+            quint8 place;
+
+            in >> place;
             in >> ident;
-            players.append(ident);
+            players[place] = ident;
         }
         emit sigPlayersList(players);
         break;

@@ -31,7 +31,7 @@
 /*****************************************************************************/
 ServerConfig::ServerConfig()
 {
-    SetDefault(&options);
+    SetDefault(options);
 }
 /*****************************************************************************/
 ServerOptions &ServerConfig::GetOptions()
@@ -54,7 +54,7 @@ bool ServerConfig::Load()
     // File not found, we create default one and quit loading
     if (f.open(QIODevice::ReadOnly) == false)
     {
-        return save();
+        return Save();
     }
     doc.setContent(&f);
     f.close();
@@ -120,7 +120,7 @@ bool ServerConfig::Load()
                 }
                 else if (lastchild.tagName() == "sex")
                 {
-                    options.bots[pos].sex = (SexType)lastchild.text().toInt();
+                    options.bots[pos].sex = (Identity::Gender)lastchild.text().toInt();
 
                 }
                 else if (lastchild.tagName() == "avatar")
@@ -219,17 +219,17 @@ void ServerConfig::SetDefault(ServerOptions &opt)
     opt.bots[BOT_WEST].name = "Ouest";
     opt.bots[BOT_WEST].avatar = ":/images/avatars/robot.png";
     opt.bots[BOT_WEST].quote = QString::fromUtf8("Quand on mettra les cons sur orbite, t'as pas fini de tourner.");
-    opt.bots[BOT_WEST].sex = MALE;
+    opt.bots[BOT_WEST].sex = Identity::MALE;
 
     opt.bots[BOT_NORTH].name = "Nord";
     opt.bots[BOT_NORTH].avatar = ":/images/avatars/robot.png";
     opt.bots[BOT_NORTH].quote = QString::fromUtf8("J'ai fait un test de QI, les resultats étaient negatifs.");
-    opt.bots[BOT_NORTH].sex = MALE;
+    opt.bots[BOT_NORTH].sex = Identity::MALE;
 
     opt.bots[BOT_EAST].name = "Est";
     opt.bots[BOT_EAST].avatar = ":/images/avatars/robot.png";
     opt.bots[BOT_EAST].quote = "Plus je grossis, plus je m'aigris.";
-    opt.bots[BOT_EAST].sex = MALE;
+    opt.bots[BOT_EAST].sex = Identity::MALE;
 }
 
 //=============================================================================

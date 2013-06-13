@@ -175,7 +175,7 @@ private slots:
     // client events
     void slotMessage(const QString &message);
     void slotAssignedPlace(Place p);
-    void slotPlayersList(QList<Identity> &players);
+    void slotPlayersList(QMap<Place, Identity> &players);
     void slotReceiveCards();
     void slotSelectPlayer(Place p);
     void slotRequestBid(Contract highestBid);

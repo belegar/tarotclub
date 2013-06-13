@@ -40,28 +40,28 @@ public:
 
     // Helpers
     void NewServerGame(TarotEngine::GameMode mode);
+    void StopServer();
     void ConnectBots();
 
     // Getters
     QList<Identity> GetPlayers();
     int GetNumberOfConnectedPlayers();
+    TarotEngine &GetEngine();
 
     // Setters
     void SetMaximumPlayers(int n);
-    void SetOptions(ServerOptions &opt);
+    void SetTcpPort(int port);
 
 signals:
     void sigServerMessage(const QString &);
 
 private:
-
     int maximumPlayers;
     int size;
     NetPlayer players[5]; // [3..5] players
     QTcpServer tcpServer;
     TarotEngine engine;
-    Bot         bots[3];       // the computer
-    ServerOptions  options;
+    int tcpPort;
 
     void CloseClients();
     void DoAction(QDataStream &in, Place p);

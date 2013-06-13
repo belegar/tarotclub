@@ -35,6 +35,7 @@
 #include "defines.h"
 #include "Score.h"
 #include "Game.h"
+#include "Deal.h"
 
 /*****************************************************************************/
 class Client : public Protocol
@@ -103,7 +104,7 @@ signals:
 
     void sigMessage(const QString &message);
     void sigAssignedPlace(Place p);
-    void sigPlayersList(QList<Identity> &players);
+    void sigPlayersList(QMap<Place, Identity> &players);
     void sigReceiveCards();
     void sigSelectPlayer(Place);
     void sigRequestBid(Contract);

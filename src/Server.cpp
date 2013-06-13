@@ -29,16 +29,17 @@
 
 /*****************************************************************************/
 Server::Server()
+    : tcpPort(DEFAULT_PORT)
 {
     connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
-    QObject::connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
-    QObject::connect(&engine, &TarotEngine::sigStartDeal, this, &Server::slotSendStartDeal);
-    QObject::connect(&engine, &TarotEngine::sigSelectPlayer, this, &Server::slotSendSelectPlayer);
-    QObject::connect(&engine, &TarotEngine::sigPlayCard, this, &Server::slotSendStartDeal);
-    QObject::connect(&engine, &TarotEngine::sigRequestBid, this, &Server::slotSendRequestBid);
-    QObject::connect(&engine, &TarotEngine::sigShowDog, this, &Server::slotSendShowDog);
-    QObject::connect(&engine, &TarotEngine::sigDealAgain, this, &Server::slotSendDealAgain);
-    QObject::connect(&engine, &TarotEngine::sigEndOfDeal, this, &Server::slotSendEndOfDeal);
+    connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
+    connect(&engine, &TarotEngine::sigStartDeal, this, &Server::slotSendStartDeal);
+    connect(&engine, &TarotEngine::sigSelectPlayer, this, &Server::slotSendSelectPlayer);
+    connect(&engine, &TarotEngine::sigPlayCard, this, &Server::slotSendStartDeal);
+    connect(&engine, &TarotEngine::sigRequestBid, this, &Server::slotSendRequestBid);
+    connect(&engine, &TarotEngine::sigShowDog, this, &Server::slotSendShowDog);
+    connect(&engine, &TarotEngine::sigDealAgain, this, &Server::slotSendDealAgain);
+    connect(&engine, &TarotEngine::sigEndOfDeal, this, &Server::slotSendEndOfDeal);
 }
 /*****************************************************************************/
 void Server::SetMaximumPlayers(int n)
@@ -84,29 +85,9 @@ void Server::slotNewConnection()
     }
 }
 /*****************************************************************************/
-void Server::SetOptions(ServerOptions &opt)
+void Server::SetTcpPort(int port)
 {
-    int i;
-
-    options = opt;
-    for (i = 0; i < 3; i++)
-    {
-        bots[i].SetMyIdentity(options.bots[i]);
-        bots[i].SetTimeBeforeSend(options.timer);
-    }
-}
-/*****************************************************************************/
-QList<Identity> Server::GetPlayers()
-{
-    QList<Identity> idents;
-    for (int i=0; i<maximumPlayers; i++)
-    {
-        if (players[i].IsFree() == false)
-        {
-            idents.append(players[i].GetIdentity());
-        }
-    }
-    return idents;
+    tcpPort = port;
 }
 /*****************************************************************************/
 int Server::GetNumberOfConnectedPlayers()
@@ -122,13 +103,16 @@ int Server::GetNumberOfConnectedPlayers()
     return p;
 }
 /*****************************************************************************/
+TarotEngine &Server::GetEngine()
+{
+    return engine;
+}
+/*****************************************************************************/
 void Server::NewServerGame(TarotEngine::GameMode mode)
 {
     int port;
 
-    CloseClients();
-    tcpServer.close();
-
+    StopServer();
     tcpServer.setMaxPendingConnections(maximumPlayers + 3); // Add few players to the maximum for clients trying to access
 
     if (mode == TarotEngine::NET_GAME_SERVER)
@@ -147,16 +131,10 @@ void Server::NewServerGame(TarotEngine::GameMode mode)
     emit sigServerMessage("Server started.\r\n");
 }
 /*****************************************************************************/
-void Server::ConnectBots()
+void Server::StopServer()
 {
-    int i;
-
-    qApp->processEvents(QEventLoop::AllEvents, 100);
-    for (i = 0; i < 3; i++)
-    {
-        bots[i].ConnectToHost("127.0.0.1", options.port);
-        qApp->processEvents(QEventLoop::AllEvents, 100);
-    }
+    CloseClients();
+    tcpServer.close();
 }
 /*****************************************************************************/
 void Server::CloseClients()
@@ -328,13 +306,15 @@ void Server::SendChatMessage(const QString &message)
 /*****************************************************************************/
 void Server::SendPlayersList()
 {
-    QList<Identity> list = GetPlayers();
-
     QDataStream out;
-    out << (quint8)list.size(); // number of players
-    for (int i = 0; i<list.size(); i++)
+    out << (quint8)GetNumberOfConnectedPlayers();
+    for (int i=0; i<maximumPlayers; i++)
     {
-        out << list[i];
+        if (players[i].IsFree() == false)
+        {
+            out << players[i].GetPlace()
+                << players[i].GetIdentity();
+        }
     }
     QByteArray packet = BuildCommand(out, Protocol::SERVER_PLAYERS_LIST);
     Broadcast(packet);

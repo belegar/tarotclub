@@ -28,7 +28,7 @@
 #include <QResizeEvent>
 #include <QMouseEvent>
 #include "textes.h"
-#include "../Jeu.h"
+#include "../TarotDeck.h"
 
 #define NORTH_BOX_POS_X   350
 #define NORTH_BOX_POS_Y   10
@@ -36,20 +36,20 @@
 
 static const QPointF coordPlayerBox[5] =
 {
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 452),    // SUD
-    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 103), // EST
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y),          // NORD
-    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 103), // OUEST
-    QPointF(0, 0)                                       // NORD-OUEST
+    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 452),    // SOUTH
+    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 103), // EAST
+    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y),          // NORTH
+    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 103), // WEST
+    QPointF(0, 0)                                       // NORTH-WEST
 };
 
 static const QPointF coordTextBox[5] =
 {
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 412),    // SUD
-    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 143), // EST
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 40),     // NORD
-    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 143), // OUEST
-    QPointF(0, 0)                                       // NORD-OUEST
+    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 412),    // SOUTH
+    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 143), // EAST
+    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 40),     // NORTH
+    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 143), // WEST
+    QPointF(0, 0)                                       // NORTH-WEST
 };
 
 /*****************************************************************************/
@@ -188,7 +188,7 @@ Card *Tapis::getObjectCard(GfxCard *gc)
     {
         if (cardsPics.at(i) == gc)
         {
-            c = Jeu::getCard(i);
+            c = TarotDeck::GetCard(i);
             break;
         }
     }
@@ -219,12 +219,12 @@ void Tapis::setBoutonPoigneeVisible(bool v)
     }
 }
 /*****************************************************************************/
-bool Tapis::loadCards(ClientOptions *opt)
+bool Tapis::loadCards(ClientOptions &opt)
 {
     int i, j, n;
     QString varImg;
     QString image;
-    QString path = QCoreApplication::applicationDirPath() + "/" + opt->deckFilePath + "/";
+    QString path = QCoreApplication::applicationDirPath() + "/" + opt.deckFilePath + "/";
 
     //----- 4 couleurs
     for (i = 0; i < 4; i++)
@@ -269,9 +269,9 @@ bool Tapis::loadCards(ClientOptions *opt)
     }
 
     //----- 21 atouts
-    for (i = 56; i < 77; i++)
+    for (i = 57; i < 78; i++)
     {
-        image = path + "atout-" + QString().sprintf("%02d.svg", i - 55);
+        image = path + "atout-" + QString().sprintf("%02d.svg", i - 56);
 
         // Test if file exists
         QFile fileTest(image);
@@ -297,7 +297,7 @@ bool Tapis::loadCards(ClientOptions *opt)
     {
         GfxCard *item = new GfxCard(image);
         item->hide();
-        cardsPics.insert(77, item);
+        cardsPics.insert(56, item);
         scene.addItem(item);
     }
     else
@@ -309,7 +309,6 @@ bool Tapis::loadCards(ClientOptions *opt)
 
     // Draw shadows under cards after SVG graphics are initialized to get the size
     DrawCardShadows();
-
     return true;
 }
 /*****************************************************************************/
@@ -368,7 +367,7 @@ void Tapis::mouseMoveEvent(QMouseEvent *e)
 
     if (!list.isEmpty())
     {
-        // Si c'est une carte, retourne l'obet, sinon 0
+        // Si c'EAST une carte, retourne l'obet, sinon 0
         if (list.first()->type() == GfxCard::Type)
         {
             GfxCard *c = (GfxCard *)list.first();
@@ -426,26 +425,26 @@ void Tapis::setAvatar(Place p, const QString &file)
  */
 Place Tapis::SwapPlace(Place origin, Place absolute)
 {
-    Place pl = SUD;
+    Place pl = SOUTH;
 
-    if (origin == OUEST)
+    if (origin == WEST)
     {
-        Place tab[] = {EST, NORD, OUEST, SUD};
+        Place tab[] = {EAST, NORTH, WEST, SOUTH};
         pl = tab[absolute];
     }
-    else if (origin == NORD)
+    else if (origin == NORTH)
     {
-        Place tab[] = {NORD, OUEST, SUD, EST};
+        Place tab[] = {NORTH, WEST, SOUTH, EAST};
         pl = tab[absolute];
     }
-    else if (origin == EST)
+    else if (origin == EAST)
     {
-        Place tab[] = {OUEST, SUD, EST, NORD};
+        Place tab[] = {WEST, SOUTH, EAST, NORTH};
         pl = tab[absolute];
     }
     else
     {
-        Place tab[] = {SUD, EST, NORD, OUEST};
+        Place tab[] = {SOUTH, EAST, NORTH, WEST};
         pl = tab[absolute];
     }
 
@@ -455,16 +454,17 @@ Place Tapis::SwapPlace(Place origin, Place absolute)
 /**
  * Show names on the board, bottom player is always south
  */
-void Tapis::setPlayerNames(QList<Identity> &players, Place p)
+void Tapis::setPlayerNames(QMap<Place, Identity> &players, Place p)
 {
-    p = SwapPlace(p, SUD);   // always south
+    p = SwapPlace(p, SOUTH);   // always south
 
-    for (int i = 0; i < players.size(); ++i)
+    QMapIterator<Place, Identity> i(players);
+    while (i.hasNext())
     {
-        Place rel = SwapPlace(p, players.at(i).place);  // relative place
+        Place rel = SwapPlace(p, i.key());  // relative place
 
-        playerBox.value(rel)->setText(players.at(i).name);
-        playerBox.value(rel)->setAvatar(":/images/avatars/" + players.at(i).avatar);
+        playerBox.value(rel)->setText(i.value().name);
+        playerBox.value(rel)->setAvatar(":/images/avatars/" + i.value().avatar);
     }
 }
 /*****************************************************************************/
@@ -472,7 +472,7 @@ void Tapis::setPlayerNames(QList<Identity> &players, Place p)
  * @brief Draw a card at a player's position
  *
  * @arg[in] c The graphics card to show
- * @arg[in] p = NORD, OUEST, SUD, EST
+ * @arg[in] p = NORTH, WEST, SOUTH, EAST
  */
 void Tapis::DrawCard(GfxCard *c, Place p)
 {
@@ -506,7 +506,7 @@ QPointF Tapis::CalculateCardPosition(Place p)
     y = playerBox.value(p)->rect().y();
 
     x = x + (TEXT_BOX_WIDTH - width) / 4;
-    if (p == SUD)
+    if (p == SOUTH)
     {
         y = y - height - TEXT_BOX_HEIGHT - 40;
     }
@@ -522,7 +522,7 @@ QPointF Tapis::CalculateCardPosition(Place p)
  * @brief Draw a card at a player's position
  *
  * @arg[in] c The graphics card to show
- * @arg[in] p = NORD, OUEST, SUD, EST
+ * @arg[in] p = NORTH, WEST, SOUTH, EAST
  */
 void Tapis::DrawCardShadows()
 {
@@ -561,19 +561,19 @@ void Tapis::slotAfficheEnchere(Place enchereur, Contract cont)
 {
     QString txt;
 
-    if (cont == GARDE_CONTRE)
+    if (cont == GUARD_AGAINST)
     {
         txt = STR_GARDE_CONTRE;
     }
-    else if (cont == GARDE_SANS)
+    else if (cont == GUARD_WITHOUT)
     {
         txt = STR_GARDE_SANS;
     }
-    else if (cont == GARDE)
+    else if (cont == GUARD)
     {
         txt = STR_GARDE;
     }
-    else if (cont == PRISE)
+    else if (cont == TAKE)
     {
         txt = STR_PRISE;
     }
@@ -603,19 +603,19 @@ void Tapis::slotAfficheBoutons(Contract contrat)
     boutonGardeSans->show();
     boutonGardeContre->show();
 
-    if (contrat >= PRISE)
+    if (contrat >= TAKE)
     {
         boutonPrise->hide();
     }
-    if (contrat >= GARDE)
+    if (contrat >= GUARD)
     {
         boutonGarde->hide();
     }
-    if (contrat >= GARDE_SANS)
+    if (contrat >= GUARD_WITHOUT)
     {
         boutonGardeSans->hide();
     }
-    if (contrat >= GARDE_CONTRE)
+    if (contrat >= GUARD_AGAINST)
     {
         boutonGardeContre->hide();
     }
@@ -675,27 +675,27 @@ void Tapis::resetCards()
 /*****************************************************************************/
 void Tapis::slotBoutton1()
 {
-    emit sigContrat(PASSE);
+    emit sigContrat(PASS);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton2()
 {
-    emit sigContrat(PRISE);
+    emit sigContrat(TAKE);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton3()
 {
-    emit sigContrat(GARDE);
+    emit sigContrat(GUARD);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton4()
 {
-    emit sigContrat(GARDE_SANS);
+    emit sigContrat(GUARD_WITHOUT);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton5()
 {
-    emit sigContrat(GARDE_CONTRE);
+    emit sigContrat(GUARD_AGAINST);
 }
 /*****************************************************************************/
 void Tapis::slotAccepteChien()

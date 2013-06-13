@@ -38,9 +38,8 @@ using namespace std;
 /*****************************************************************************/
 TarotEngine::TarotEngine()
 {
-    dealNumber = 0;
-    dealType = RANDOM_DEAL;
-    gameMode = LOCAL_ONEDEAL;
+    shuffle.type = RANDOM_DEAL;
+    shuffle.seed = 0;
 }
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
@@ -48,24 +47,14 @@ TarotEngine::~TarotEngine()
 
 }
 /*****************************************************************************/
-void TarotEngine::NewGame(GameMode mode)
+void TarotEngine::NewGame(Game::Mode mode)
 {
-    gameMode = mode;
+    gameState.gameMode = mode;
 }
 /*****************************************************************************/
-void TarotEngine::SetDealNumber(int deal)
+void TarotEngine::SetShuffle(TarotEngine::Shuffle &s)
 {
-    dealNumber = deal;
-}
-/*****************************************************************************/
-void TarotEngine::SetDealType(DealType type)
-{
-    dealType = type;
-}
-/*****************************************************************************/
-void TarotEngine::SetDealFile(QString file)
-{
-    dealFile = file;
+    shuffle = s;
 }
 /*****************************************************************************/
 void TarotEngine::SetDiscard(Deck &discard)
@@ -294,9 +283,9 @@ void TarotEngine::GameSateMachine()
             dealCounter++;
 
             // Manage tournaments
-            if ((dealCounter<MAX_ROUNDS) && (gameMode == LOCAL_TOURNAMENT))
+            if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::LOCAL_TOURNAMENT))
             {
-                 gameState.sequence = Game::SYNC_PLAYER;
+                 gameState.sequence = Game::SYNC_READY;
             }
             else
             {
@@ -374,10 +363,10 @@ void TarotEngine::CreateDeal()
 {
     currentTrick.clear();
 
-    if (dealType == RANDOM_DEAL)
+    if (shuffle.type == CUSTOM_DEAL)
     {
         DealFile editor;
-        if (editor.LoadFile(dealFile) == true)
+        if (editor.LoadFile(shuffle.file) == true)
         {
             // SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3,
             currentTrick.append(editor.southDeck);
@@ -390,18 +379,25 @@ void TarotEngine::CreateDeal()
         {
             // Fall back to default mode
             // FIXME: load a problem into the logging mechanism
-            dealType = RANDOM_DEAL;
+            shuffle.type = RANDOM_DEAL;
         }
     }
 
-    if (dealType == RANDOM_DEAL)
+    if (shuffle.type != CUSTOM_DEAL)
     {
-        dealNumber = qrand() % RAND_MAX;
         for (int i = 0; i < 78; i++)
         {
             currentTrick.append(TarotDeck::GetCard(i));
         }
-        currentTrick.Shuffle(dealNumber);
+
+        if (shuffle.type == RANDOM_DEAL)
+        {
+            currentTrick.Shuffle(qrand() % RAND_MAX);
+        }
+        else
+        {
+            currentTrick.Shuffle(shuffle.seed);
+        }
     }
 
     int n = 0;

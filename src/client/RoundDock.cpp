@@ -70,10 +70,10 @@ void RoundDock::addRound(int turn, Place p, QString txt)
     ui.tableWidget->item(turn, p + 1)->setText(txt);
 }
 /*****************************************************************************/
-void RoundDock::selectWinner(int turn, Place p)
+void RoundDock::selectWinner(Game &info, Place p)
 {
     QBrush brush(Qt::darkGreen);
-    ui.tableWidget->item(turn, p + 1)->setBackground(brush);
+    ui.tableWidget->item(info.trickCounter, p + 1)->setBackground(brush);
 }
 /*****************************************************************************/
 void RoundDock::pointsToTaker(int turn, float points)

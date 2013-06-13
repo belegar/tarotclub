@@ -26,6 +26,7 @@
 #include <QDockWidget>
 #include <QTableWidget>
 #include "../defines.h"
+#include "../Game.h"
 #include "ui_RoundUI.h"
 
 /*****************************************************************************/
@@ -41,7 +42,7 @@ public:
 
     void clear();
     void addRound(int turn, Place p, QString txt);
-    void selectWinner(int turn, Place p);
+    void selectWinner(Game &info, Place p);
     void pointsToTaker(int turn, float points);
     void selectFirstPlayer(int turn, Place p);
 

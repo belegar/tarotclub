@@ -323,6 +323,11 @@ QByteArray NetPlayer::GetData()
     return data;
 }
 /*****************************************************************************/
+Place NetPlayer::GetPlace()
+{
+    return player.GetPlace();
+}
+/*****************************************************************************/
 void NetPlayer::slotClientClosed()
 {
     emit sigDisconnected(player.GetPlace());

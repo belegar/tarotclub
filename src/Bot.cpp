@@ -32,26 +32,26 @@ using namespace std;
 Bot::Bot() :
      statsObj(GetStatistics())
 {
-    connect(this, SIGNAL(sigMessage(const QString &)), this, SLOT(slotMessage(const QString &)));
-    connect(this, SIGNAL(sigAssignedPlace(Place)), this, SLOT(slotAssignedPlace(Place)));
-    connect(this, SIGNAL(sigPlayersList(QList<Identity> &)), this, SLOT(slotPlayersList(QList<Identity> &)));
-    connect(this, SIGNAL(sigReceiveCards()), this, SLOT(slotReceiveCards()));
-    connect(this, SIGNAL(sigSelectPlayer(Place)), this, SLOT(slotSelectPlayer(Place)));
-    connect(this, SIGNAL(sigRequestBid(Contract)), this, SLOT(slotRequestBid(Contract)));
-    connect(this, SIGNAL(sigShowBid(Place, Contract)), this, SLOT(slotShowBid(Place, Contract)));
-    connect(this, SIGNAL(sigStartDeal(Place, Contract)), this, SLOT(slotStartDeal(Place, Contract)));
-    connect(this, SIGNAL(sigShowDog()), this, SLOT(slotShowDog()));
-    connect(this, SIGNAL(sigBuildDiscard()), this, SLOT(slotBuildDiscard()));
-    connect(this, SIGNAL(sigDealAgain()), this, SLOT(slotDealAgain()));
-    connect(this, SIGNAL(sigPlayCard()), this, SLOT(slotPlayCard()));
-    connect(this, SIGNAL(sigShowCard(int, Place)), this, SLOT(slotShowCard(int, Place)));
-    connect(this, SIGNAL(sigWaitTrick(Place)), this, SLOT(slotWaitTrick(Place)));
-    connect(this, SIGNAL(sigEndOfDeal()), this, SLOT(slotEndOfDeal()));
-    connect(this, SIGNAL(sigEndOfGame()), this, SLOT(slotEndOfGame()));
+    connect(this, &Client::sigPlayersList, this, &Bot::slotPlayersList);
+    connect(this, &Client::sigMessage, this, &Bot::slotMessage);
+    connect(this, &Client::sigAssignedPlace, this, &Bot::slotAssignedPlace);
+    connect(this, &Client::sigReceiveCards, this, &Bot::slotReceiveCards);
+    connect(this, &Client::sigSelectPlayer, this, &Bot::slotSelectPlayer);
+    connect(this, &Client::sigRequestBid, this, &Bot::slotRequestBid);
+    connect(this, &Client::sigShowBid, this, &Bot::slotShowBid);
+    connect(this, &Client::sigStartDeal, this, &Bot::slotStartDeal);
+    connect(this, &Client::sigShowDog, this, &Bot::slotShowDog);
+    connect(this, &Client::sigBuildDiscard, this, &Bot::slotBuildDiscard);
+    connect(this, &Client::sigDealAgain, this, &Bot::slotDealAgain);
+    connect(this, &Client::sigPlayCard, this, &Bot::slotPlayCard);
+    connect(this, &Client::sigShowCard, this, &Bot::slotShowCard);
+    connect(this, &Client::sigWaitTrick, this, &Bot::slotWaitTrick);
+    connect(this, &Client::sigEndOfDeal, this, &Bot::slotEndOfDeal);
+    connect(this, &Client::sigEndOfGame, this, &Bot::slotEndOfGame);
 
     timeBeforeSend.setSingleShot(true);
     timeBeforeSend.setInterval(0);
-    connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
+    connect(&timeBeforeSend, &Client::timeout, this, &Bot::slotTimeBeforeSend);
 
 #ifndef QT_NO_DEBUG
     debugger.attachTo(&botEngine);
@@ -78,7 +78,7 @@ void Bot::slotAssignedPlace(Place p)
     CallScript("EnterGame", args);
 }
 /*****************************************************************************/
-void Bot::slotPlayersList(QList<Identity> &players)
+void Bot::slotPlayersList(QMap<Place, Identity> &players)
 {
     Q_UNUSED(players);
 }

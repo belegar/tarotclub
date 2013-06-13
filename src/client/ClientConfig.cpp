@@ -55,7 +55,7 @@ bool ClientConfig::Load()
     // Fichier non trouvé, on en crée un par défaut et on sort
     if (f.open(QIODevice::ReadOnly) == false)
     {
-        return save();
+        return Save();
     }
     doc.setContent(&f);
     f.close();
@@ -146,7 +146,7 @@ bool ClientConfig::Load()
                 }
                 else if (lastchild.tagName() == "sex")
                 {
-                    options.identity.sex = (SexType)lastchild.text().toInt();
+                    options.identity.sex = (Identity::Gender)lastchild.text().toInt();
 
                 }
                 else if (lastchild.tagName() == "avatar")
@@ -262,7 +262,7 @@ void ClientConfig::SetDefault(ClientOptions &opt)
     opt.identity.name = "Moi";
     opt.identity.avatar = ":/images/avatars/inconnu.png";
     opt.identity.quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
-    opt.identity.sex = MALE;
+    opt.identity.sex = Identity::MALE;
 }
 
 //=============================================================================

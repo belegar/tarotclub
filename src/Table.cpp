@@ -29,20 +29,66 @@ Table::Table()
 {
 }
 /*****************************************************************************/
-void Table::StartGame()
+void Table::Initialize()
 {
     // 1. Create the server thread
     server.moveToThread(&thread);
 
     // 2. Load server configuration
-    // FIXME
+    serverConfig.Load();
+
+    // 3. Apply configuration
+    for (int i = 0; i < 3; i++)
+    {
+        bots[i].SetMyIdentity(serverConfig.GetOptions().bots[i]);
+        bots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
+    }
 
     // 3. Start the thread
     thread.start();
+}
+/*****************************************************************************/
+void Table::CreateGame(Game::Mode gameMode, Table::Mode tableMode)
+{
+    mode = tableMode;
+    server.NewServerGame(gameMode);
+}
+/*****************************************************************************/
+void Table::Start()
+{
+    if (mode == USE_BOTS)
+    {
+        ConnectBots();
+    }
+}
+/*****************************************************************************/
+void Table::Stop()
+{
+    server.StopServer();
+    thread.exit();
+    thread.wait(); // block until thread has finished execution
+}
+/*****************************************************************************/
+Server &Table::GetServer()
+{
+    return server;
+}
+/*****************************************************************************/
+void Table::SetShuffle(TarotEngine::Shuffle &s)
+{
+    server.GetEngine().SetShuffle(s);
+}
+/*****************************************************************************/
+void Table::ConnectBots()
+{
+    int i;
 
-    // 4. Start the server
-    // FIXME
-
+    qApp->processEvents(QEventLoop::AllEvents, 100);
+    for (i = 0; i < 3; i++)
+    {
+        bots[i].ConnectToHost("127.0.0.1", options.port);
+        qApp->processEvents(QEventLoop::AllEvents, 100);
+    }
 }
 
 //=============================================================================

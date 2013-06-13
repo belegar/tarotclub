@@ -55,7 +55,7 @@ public:
     // Setters
     void SetHandle(Deck &handle, Team team);
     void SetPoints(const Game &infos);
-    void SetScore(const Score &score);
+    void SetScore(const Score &score, const Game &info);
     void SetDog(Deck &dog);
     void SetTrick(Deck &trick, int turn);
     void SetDogOwner(Team team);

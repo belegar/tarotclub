@@ -31,8 +31,7 @@
 
 // Game includes
 #include "../defines.h"
-#include "../Client.h"
-#include "../TarotEngine.h"
+#include "../Table.h"
 #include "MainWindow.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
@@ -48,33 +47,38 @@ class TarotClub : public MainWindow
 {
     Q_OBJECT
 
-private:
-    TarotEngine server;         // built-in server, to run local games or to host network games
-    ClientConfig  clientConfig;
-    ServerConfig  serverConfig;
-    Client      client; // The human player
-    Sequence    sequence;
-    bool        firstTurn;
-    int         turnCounter;
-    QList<Identity> players;
-    GameType    gameType;
-
-    Card *getCardFromPix(GfxCard *gc);
-
 public:
-    TarotClub();
-    ~TarotClub();
+    enum ServerLoc {
+        REMOTE,
+        LOCAL
+    };
 
+    TarotClub();
+
+    // Helpers
+    void Initialize(); // First time initialization
     void applyOptions();
-    int setTheme();
     void afficheCartesJoueur(int pos);
     void hidePli();
     void hideChien();
     void newLocalGame();
     void showVictoryWindow();
 
-public slots:
+    // Setters
+    int setTheme();
 
+private:
+    Table table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
+    ClientConfig clientConfig;
+    Client      client; // The human player
+    bool        firstTurn;
+    QMap<Place, Identity> players;
+    Deal        deal;
+    ServerLoc   serverLoc;
+
+    Card *getCardFromPix(GfxCard *gc);
+
+private slots:
     // Menus
     void slotNewTournamentGame();
     void slotNewNumberedDeal();
@@ -84,19 +88,23 @@ public slots:
     void slotShowOptions();
     void slotQuitTarotClub();
 
-    // client events
-    void slotListeDesJoueurs(QList<Identity> pl);
-    void slotReceptionCartes();
-    void slotAfficheSelection(Place p);
-    void slotAfficheChien();
-    void slotRedist();
-    void slotPrepareChien();
-    void slotDepartDonne(Place p, Contrat c);
-    void slotJoueCarte();
-    void slotAfficheCarte(int id, Place tour);
-    void slotFinDonne(Place winner, float pointsTaker, bool);
-    void slotWaitPli(Place winner, float pointsTaker);
-    void slotSetEnchere(Contrat cont);
+    // client events  
+    void slotMessage(const QString &message);
+    void slotAssignedPlace(Place p);
+    void slotPlayersList(QMap<Place, Identity> &pl);
+    void slotReceiveCards();
+    void slotSelectPlayer(Place p);
+    void slotRequestBid(Contract highestBid);
+    void slotShowBid(Place, Contract contract);
+    void slotStartDeal(Place, Contract contract);
+    void slotShowDog();
+    void slotBuildDiscard();
+    void slotDealAgain();
+    void slotPlayCard();
+    void slotShowCard(int id, Place p);
+    void slotWaitTrick(Place winner);
+    void slotEndOfDeal();
+    void slotEndOfGame();
 
     // Board events
     void slotPresenterPoignee();
@@ -104,7 +112,6 @@ public slots:
     void slotClickCard(GfxCard *c);
     void slotClickTapis();
     void slotMoveCursor(GfxCard *c);
-
 };
 
 #endif // _TAROTCLUB_H

@@ -47,6 +47,12 @@ public:
         SYNC_READY
     };
 
+    enum Mode
+    {
+        ONE_DEAL,
+        TOURNAMENT
+    };
+
     struct HandleInfo
     {
         Handle type;
@@ -55,60 +61,18 @@ public:
 
     Game();
 
-    /**
-     * @brief operator ++
-     *
-     * Overloaded operators to manage game counters
-     * Just increment the Game object each time a players is playing a card
-     *
-     * @return
-     */
-    Game& operator++();
-    Game operator++(int unused);
-
+    // Helpers
     void Initialize();
-
-    /**
-     * @brief Game::RemainingTurns
-     * @return number of turns remainings
-     */
-    int GetRemainingTurns();
-
-    /**
-     * @brief GetNumberOfCards
-     * @return
-     */
-    int GetNumberOfCards();
-
-    /**
-     * @brief GetNumberOfDogCards
-     * @return
-     */
-    int GetNumberOfDogCards();
-
-    /**
-     * @brief Starts a new deal
-     */
     void NewDeal();
-
-    /**
-     * @brief Next
-     * @return
-     */
-    bool Next();
-
-    /**
-     * @brief StartDeal
-     */
     void StartDeal();
-
-    /**
-     * @brief Stop
-     */
+    bool Next();
     void Stop();
-
-
     bool IsDealFinished();
+
+    // Getters
+    int GetRemainingTurns();
+    int GetNumberOfCards();
+    int GetNumberOfDogCards();
 
     // Various information of the current deal
     Place       taker;             // who has taken
@@ -117,6 +81,7 @@ public:
     HandleInfo  attackHandle;
     HandleInfo  defenseHandle;
     int         numberOfPlayers;   // 3, 4 or 5
+    Mode        gameMode;
 
     // Various game states and counters
     int         position;          // Current position, [0..numberOfPlayers-1]

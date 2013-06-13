@@ -33,13 +33,34 @@ class Table
 {
 
 public:
+    enum Mode {
+        USE_BOTS,
+        MULTIPLAYERS
+    };
+
     Table();
 
-    void StartGame();
+    // Helpers
+    void Initialize();
+    void CreateGame(Game::Mode gameMode, Table::Mode tableMode);
+    void Start();
+    void Stop();
+
+    // Getters
+    Server &GetServer();
+
+    // Setters
+    void SetShuffle(TarotEngine::Shuffle &s);
 
 private:
     Server server;
+    ServerConfig serverConfig;
     QThread thread;
+    Mode mode;
+    Bot bots[3];
+
+    void ConnectBots();
+
 };
 
 #endif // TABLE_H

@@ -72,6 +72,7 @@ public:
     Identity &GetIdentity();
     QTcpSocket *GetSocket();
     QByteArray GetData();
+    Place GetPlace();
 
     // Setters
     void SetConnection(QTcpSocket *s, Place p);

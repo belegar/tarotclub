@@ -34,14 +34,14 @@
 #include <iostream>
 
 // Specific game includes
-#include "Game.h"
+#include "TarotClub.h"
 #include "DebugDock.h"
 
 using namespace std;
 
 /*****************************************************************************/
 /**
- * Affiche sur la console les messages Qt (warnings, erreurs...)
+ * Redirect debug messages to the console (FIXME: or Log file?)
  */
 #ifndef QT_NO_DEBUG
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -89,15 +89,16 @@ int main(int argc, char **argv)
     QSplashScreen splash(pixmap);
     splash.show();
 
-    Game window;
+    TarotClub tarot;
+    tarot.Initialize(); // Init internal stuff before showing the interface
 
-    window.resize(1280, 770);
-    QRect r = window.geometry();
+    tarot.resize(1280, 770);
+    QRect r = tarot.geometry();
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
-    window.setGeometry(r);
-    window.show();
+    tarot.setGeometry(r);
+    tarot.show();
 
-    splash.finish(&window);
+    splash.finish(&tarot);
 
     return app.exec();
 }

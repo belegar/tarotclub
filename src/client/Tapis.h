@@ -62,35 +62,19 @@ class Tapis : public QGraphicsView
 
     Q_OBJECT
 
-private:
-    Filter filter;
-    QVector<GfxCard *> cardsPics;
-    QVector<CardShadow *> cardShadows;
-    QGraphicsScene scene;
-
-    // Graphiques
-    QMap<Place, PlayerBox *> playerBox;
-    QMap<Place, TextBox *>  textBox;
-
-    QGroupBox      *groupBoutons;
-    QPushButton    *boutonPasse;
-    QPushButton    *boutonPrise;
-    QPushButton    *boutonGarde;
-    QPushButton    *boutonGardeSans;
-    QPushButton    *boutonGardeContre;
-    QCheckBox      *chelem;
-    QPushButton    *boutonAccepterChien;
-    QPushButton    *boutonPresenterPoignee;
-
-    QPointF CalculateCardPosition(Place p);
-    void DrawCardShadows();
-
-protected:
-    void  mousePressEvent(QMouseEvent *e);
-    void  mouseMoveEvent(QMouseEvent *e);
-    void  resizeEvent(QResizeEvent *);
-
 public:
+    enum Filter
+    {
+        AUCUN,
+        JEU
+    };
+
+    enum CursorType
+    {
+        FORBIDDEN,
+        ARROW
+    };
+
     Tapis(QWidget *parent);
 
     void setCursorType(CursorType t);
@@ -105,9 +89,9 @@ public:
     GfxCard *getGfxCard(int i);
     Card *getObjectCard(GfxCard *gc);
 
-    bool loadCards(ClientOptions *opt);
+    bool loadCards(ClientOptions &opt);
     void colorisePreneur(Place  preneur);
-    void setPlayerNames(QList<Identity> &players, Place p);
+    void setPlayerNames(QMap<Place, Identity> &players, Place p);
     void afficheSelection(Place);
     void DrawCard(GfxCard *c, Place p);
     void cacheEncheres();
@@ -135,6 +119,34 @@ signals:
     void sigContrat(Contract c);
     void sigAccepteChien();
     void sigPresenterPoignee();
+
+protected:
+    void  mousePressEvent(QMouseEvent *e);
+    void  mouseMoveEvent(QMouseEvent *e);
+    void  resizeEvent(QResizeEvent *);
+
+private:
+    Filter filter;
+    QVector<GfxCard *> cardsPics;
+    QVector<CardShadow *> cardShadows;
+    QGraphicsScene scene;
+
+    // Graphiques
+    QMap<Place, PlayerBox *> playerBox;
+    QMap<Place, TextBox *>  textBox;
+
+    QGroupBox      *groupBoutons;
+    QPushButton    *boutonPasse;
+    QPushButton    *boutonPrise;
+    QPushButton    *boutonGarde;
+    QPushButton    *boutonGardeSans;
+    QPushButton    *boutonGardeContre;
+    QCheckBox      *chelem;
+    QPushButton    *boutonAccepterChien;
+    QPushButton    *boutonPresenterPoignee;
+
+    QPointF CalculateCardPosition(Place p);
+    void DrawCardShadows();
 };
 
 #endif // TAPIS_H

@@ -36,23 +36,7 @@
 /*****************************************************************************/
 TarotClub::TarotClub() : MainWindow()
 {
-    // Check user's directory and create it if not exists
-    if (!QDir(Config::path).exists())
-    {
-        QDir().mkdir(Config::path);
-    }
-
-    clientConfig.load();
-    serverConfig.load();
-
-    Jeu::init();
-    if (tapis->loadCards(clientConfig.getOptions()) == false)
-    {
-        qFatal("Cannot load SVG images, exiting...");
-    }
-    applyOptions();
-
-    // Board clic events
+    // Board click events
     connect(tapis, SIGNAL(sgnlViewportClicked()), this, SLOT(slotClickTapis()));
     connect(tapis, SIGNAL(sgnlClickCard(GfxCard *)), this, SLOT(slotClickCard(GfxCard *)));
     connect(tapis, SIGNAL(sgnlMoveCursor(GfxCard *)), this, SLOT(slotMoveCursor(GfxCard *)));
@@ -68,23 +52,25 @@ TarotClub::TarotClub() : MainWindow()
     connect( clientWindow, SIGNAL(sgnlDeconnection()), this, SLOT(slotClientDeconnexion()));
     */
     // Network window (server)
-    connect(&server, SIGNAL(sigPrintMessage(const QString &)), serverUI.textBrowser, SLOT(append(const QString &)));
+    connect(&table.GetServer(), &Server::sigServerMessage, serverUI.textBrowser, &QTextBrowser::append);
 
     // Client events connection
-    connect(&client, SIGNAL(sgnlMessage(const QString &)), chatDock, SLOT(message(const QString &)));
-    connect(&client, SIGNAL(sgnlListeDesJoueurs(QList<Identity>)), this, SLOT(slotListeDesJoueurs(QList<Identity>)));
-    connect(&client, SIGNAL(sgnlReceptionCartes()), this, SLOT(slotReceptionCartes()));
-    connect(&client, SIGNAL(sgnlAfficheSelection(Place)), this, SLOT(slotAfficheSelection(Place)));
-    connect(&client, SIGNAL(sgnlChoixEnchere(Contrat)), tapis, SLOT(slotAfficheBoutons(Contrat)));
-    connect(&client, SIGNAL(sgnlAfficheEnchere(Place, Contrat)), tapis, SLOT(slotAfficheEnchere(Place, Contrat)));
-    connect(&client, SIGNAL(sgnlAfficheChien()), this, SLOT(slotAfficheChien()));
-    connect(&client, SIGNAL(sgnlRedist()), this, SLOT(slotRedist()));
-    connect(&client, SIGNAL(sgnlPrepareChien()), this, SLOT(slotPrepareChien()));
-    connect(&client, SIGNAL(sgnlDepartDonne(Place, Contrat)), this, SLOT(slotDepartDonne(Place, Contrat)));
-    connect(&client, SIGNAL(sgnlJoueCarte()), this, SLOT(slotJoueCarte()));
-    connect(&client, SIGNAL(sgnlAfficheCarte(int, Place)), this, SLOT(slotAfficheCarte(int, Place)));
-    connect(&client, SIGNAL(sgnlFinDonne(Place, float, bool)), this, SLOT(slotFinDonne(Place, float, bool)));
-    connect(&client, SIGNAL(sgnlWaitPli(Place, float)), this, SLOT(slotWaitPli(Place, float)));
+    connect(&client, &Client::sigPlayersList, this, &TarotClub::slotPlayersList);
+    connect(&client, &Client::sigMessage, this, &TarotClub::slotMessage);
+    connect(&client, &Client::sigAssignedPlace, this, &TarotClub::slotAssignedPlace);
+    connect(&client, &Client::sigReceiveCards, this, &TarotClub::slotReceiveCards);
+    connect(&client, &Client::sigSelectPlayer, this, &TarotClub::slotSelectPlayer);
+    connect(&client, &Client::sigRequestBid, this, &TarotClub::slotRequestBid);
+    connect(&client, &Client::sigShowBid, this, &TarotClub::slotShowBid);
+    connect(&client, &Client::sigStartDeal, this, &TarotClub::slotStartDeal);
+    connect(&client, &Client::sigShowDog, this, &TarotClub::slotShowDog);
+    connect(&client, &Client::sigBuildDiscard, this, &TarotClub::slotBuildDiscard);
+    connect(&client, &Client::sigDealAgain, this, &TarotClub::slotDealAgain);
+    connect(&client, &Client::sigPlayCard, this, &TarotClub::slotPlayCard);
+    connect(&client, &Client::sigShowCard, this, &TarotClub::slotShowCard);
+    connect(&client, &Client::sigWaitTrick, this, &TarotClub::slotWaitTrick);
+    connect(&client, &Client::sigEndOfDeal, this, &TarotClub::slotEndOfDeal);
+    connect(&client, &Client::sigEndOfGame, this, &TarotClub::slotEndOfGame);
 
     // Game Menu
     connect(newQuickGameAct, SIGNAL(triggered()), this, SLOT(slotNewQuickGame()));
@@ -101,14 +87,28 @@ TarotClub::TarotClub() : MainWindow()
 
     // Exit catching to terminate the game properly
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotQuitTarotClub()));
-
-    // Lancement du thread serveur
-    server.start();
 }
 /*****************************************************************************/
-TarotClub::~Game()
+void TarotClub::Initialize()
 {
+    // Check user's directory and create it if not exists
+    if (!QDir(Config::path).exists())
+    {
+        QDir().mkdir(Config::path);
+    }
 
+    clientConfig.Load();
+
+    TarotDeck::Initialize();
+    if (tapis->loadCards(clientConfig.GetOptions()) == false)
+    {
+        qFatal("Cannot load SVG images, exiting...");
+    }
+    applyOptions();
+
+    networkMode = LOCAL_STAND_ALONE;
+    table.Initialize();
+    deal.Initialize();
 }
 /*****************************************************************************/
 /**
@@ -116,16 +116,13 @@ TarotClub::~Game()
  */
 void TarotClub::slotQuitTarotClub()
 {
-    server.closeServerGame();
-    server.exit();
-    server.wait(); // block until thread has finished execution
+    table.Stop();
 }
 /*****************************************************************************/
 void TarotClub::slotNewTournamentGame()
 {
-    gameType = LOC_TOURNAMENT;
-    server.setGameType(LOC_TOURNAMENT);
-    server.setDealType(RANDOM_DEAL);
+    serverLoc = LOCAL;
+    table.CreateGame(Game::TOURNAMENT, Table::USE_BOTS);
     newLocalGame();
 }
 /*****************************************************************************/
@@ -137,10 +134,9 @@ void TarotClub::slotNewNumberedDeal()
 
     if (widget->exec() == QDialog::Accepted)
     {
-        gameType = LOC_ONEDEAL;
-        server.setGameType(LOC_ONEDEAL);
-        server.setDealType(NUMBERED_DEAL);
-        server.setDealNumber(ui.dealNumber->value());
+        serverLoc = LOCAL;
+        table.SetDealNumber(ui.dealNumber->value());
+        table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
         newLocalGame();
     }
 }
@@ -161,29 +157,27 @@ void TarotClub::slotNewCustomDeal()
 /*****************************************************************************/
 void TarotClub::slotNewQuickGame()
 {
-    server.setGameType(LOC_ONEDEAL);
-    server.setDealType(RANDOM_DEAL);
+    table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
     newLocalGame();
 }
 /*****************************************************************************/
 void TarotClub::newLocalGame()
 {
+    // GUI initialization
     scoresDock->clear();
     infosDock->clear();
     tapis->razTapis();
     tapis->resetCards();
     roundDock->clear();
-    tapis->setFilter(AUCUN);
-    sequence = GAME;
-    client.init();
+    tapis->setFilter(Tapis::AUCUN);
 
-    // start server
-    server.newServerGame();
-    // connect first, to be south
-    client.close();
-    client.connectToHost("127.0.0.1", DEFAULT_PORT);
-    // connect bots
-    server.connectBots();
+    // Connect us to the server
+    client.Initialize();
+    client.Close();
+    client.ConnectToHost("127.0.0.1", DEFAULT_PORT);
+
+    // start game
+    table.Start();
 }
 /*****************************************************************************/
 void TarotClub::slotJoinNetworkGame()
@@ -193,11 +187,11 @@ void TarotClub::slotJoinNetworkGame()
 /*****************************************************************************/
 void TarotClub::applyOptions()
 {
-    ClientOptions *options = clientConfig.getOptions();
+    ClientOptions &options = clientConfig.GetOptions();
 
     scoresDock->setPlayers(players);
 
-    server.setOptions(*serverConfig.getOptions());
+    table.SetOptions(serverConfig.getOptions());
     client.setIdentity(options->identity);
 
     tapis->showAvatars(options->showAvatars);
@@ -219,6 +213,43 @@ void TarotClub::slotShowOptions()
 
         applyOptions();
     }
+}
+/*****************************************************************************/
+void TarotClub::showVictoryWindow()
+{
+
+    /*
+    QGraphicsTextItem *txt;
+
+    QDialog *widget = new QDialog;
+    Ui::WinUI ui;
+    ui.setupUi(widget);
+
+    QGraphicsScene *scene = new QGraphicsScene();
+    QGraphicsSvgItem *victory = new QGraphicsSvgItem(":images/podium.svg");
+
+    ui.tournamentGraph->setScene(scene);
+    scene->addItem(victory);
+    ui.tournamentGraph->centerOn(victory);
+    */
+    Score &score = client.GetScore();
+    QList<Place> podium = score.getPodium();
+
+    QMessageBox::information(this, trUtf8("Résultat du tournoi"),
+                             trUtf8("Le gagnant du tournoi est ") + players[podium[0]].name,
+                             QMessageBox::Ok);
+
+    /*
+    // add the three best players to the image
+    txt = scene->addText(players[podium[0]].name);
+    txt->setPos(20+150, 450);
+    txt = scene->addText(players[podium[1]].name);
+    txt->setPos(20, 450);
+    txt = scene->addText(players[podium[2]].name);
+    txt->setPos(20+300, 450);
+
+    widget->exec();
+    */
 }
 /*****************************************************************************/
 void TarotClub::slotClickTapis()
@@ -403,7 +434,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
     }
 }
 /*****************************************************************************/
-void TarotClub::slotListeDesJoueurs(QList<Identity> pl)
+void TarotClub::slotPlayersList(QMap<Place, Identity> &pl)
 {
     players = pl;
     tapis->setPlayerNames(players, SUD);
@@ -630,60 +661,20 @@ void TarotClub::slotAfficheCarte(int id, Place tour)
     roundDock->addRound(turnCounter, tour, Jeu::getCard(id)->getCardName());
 }
 /*****************************************************************************/
-void TarotClub::showVictoryWindow()
+void TarotClub::slotEndOfDeal()
 {
-
-    /*
-    QGraphicsTextItem *txt;
-
-    QDialog *widget = new QDialog;
-    Ui::WinUI ui;
-    ui.setupUi(widget);
-
-    QGraphicsScene *scene = new QGraphicsScene();
-    QGraphicsSvgItem *victory = new QGraphicsSvgItem(":images/podium.svg");
-
-    ui.tournamentGraph->setScene(scene);
-    scene->addItem(victory);
-    ui.tournamentGraph->centerOn(victory);
-    */
-    Score &score = client.GetScore();
-    QList<Place> podium = score.getPodium();
-
-    QMessageBox::information(this, trUtf8("Résultat du tournoi"),
-                             trUtf8("Le gagnant du tournoi est ") + players[podium[0]].name,
-                             QMessageBox::Ok);
-
-    /*
-    // add the three best players to the image
-    txt = scene->addText(players[podium[0]].name);
-    txt->setPos(20+150, 450);
-    txt = scene->addText(players[podium[1]].name);
-    txt->setPos(20, 450);
-    txt = scene->addText(players[podium[2]].name);
-    txt->setPos(20+300, 450);
-
-    widget->exec();
-    */
-}
-/*****************************************************************************/
-void TarotClub::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
-{
-    roundDock->selectWinner(turnCounter, winner);
-    roundDock->pointsToTaker(turnCounter, pointsTaker);
-
-    statusBar()->showMessage(trUtf8("Fin de la donne."));
-    sequence = VIDE;
-    tapis->setFilter(AUCUN);
+    statusBar()->showMessage(trUtf8("End of the deal."));
+    tapis->setFilter(Tapis::AUCUN);
     tapis->razTapis();
     tapis->resetCards();
 
-    resultWindow->SetResult(client.GetScore().GetScoreInfo(), client.GetGameState());
+    resultWindow->SetResult(client.GetScore(), client.GetGameInfo());
     resultWindow->exec();
 
-    scoresDock->SetNewScore(client.GetScore());
+    deal.SetScore(client.GetScore(), client.GetGameInfo());
+    scoresDock->SetNewScore(deal);
 
-    if (lastDeal == true && gameType == LOC_TOURNAMENT)
+    if (lastDeal == true && client.GetGameInfo().gameMode == Game::LOCAL_TOURNAMENT)
     {
         showVictoryWindow();
     }
@@ -694,27 +685,22 @@ void TarotClub::slotFinDonne(Place winner, float pointsTaker, bool lastDeal)
 }
 /*****************************************************************************/
 /**
- * @brief TarotClub::slotWaitPli
+ * @brief TarotClub::slotWaitTrick
  *
  * This method is called at the end of each turn, when all the players have
  * played a card.
- *
- * @param winner player who won the current turn
- * @param pointsTaker points earn by the taker
  */
-void TarotClub::slotWaitPli(Place winner, float pointsTaker)
+void TarotClub::slotWaitTrick(Place winner)
 {
-    roundDock->selectWinner(turnCounter, winner);
-    roundDock->pointsToTaker(turnCounter, pointsTaker);
-    turnCounter++;
-    sequence = SEQ_WAIT_PLI;
-    tapis->setFilter(AUCUN);
+    roundDock->selectWinner(client.GetGameInfo(), winner);
+//    roundDock->pointsToTaker(turnCounter, 0); // FIXME: calculate points won by the taker this turn?
+    tapis->setFilter(Tapis::AUCUN);
     statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer."));
 
     // launch timer to clean cards, if needed
-    if (clientConfig.getOptions()->enableDelayBeforeCleaning == true)
+    if (clientConfig.GetOptions().enableDelayBeforeCleaning == true)
     {
-        QTimer::singleShot(clientConfig.getOptions()->delayBeforeCleaning, this, SLOT(slotClickTapis()));
+        QTimer::singleShot(clientConfig.GetOptions().delayBeforeCleaning, this, SLOT(slotClickTapis()));
     }
 }
 

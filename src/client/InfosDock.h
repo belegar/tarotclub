@@ -48,7 +48,7 @@ public:
     void setContrat(Contract c);
     void setPreneur(QString preneur);
     void setDonne(int n);
-    void printStats(Deck::Statistics *stats);
+    void printStats(Deck::Statistics &stats);
 };
 
 #endif // INFOSDOCK_H
