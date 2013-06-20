@@ -57,7 +57,7 @@ public:
 
     // Helpers
     void Initialize(); // First time initialization
-    void applyOptions();
+    void ApplyOptions();
     void afficheCartesJoueur(int pos);
     void hidePli();
     void hideChien();
@@ -95,8 +95,8 @@ private slots:
     void slotReceiveCards();
     void slotSelectPlayer(Place p);
     void slotRequestBid(Contract highestBid);
-    void slotShowBid(Place, Contract contract);
-    void slotStartDeal(Place, Contract contract);
+    void slotShowBid(Place p, Contract c);
+    void slotStartDeal(Place p, Contract c);
     void slotShowDog();
     void slotBuildDiscard();
     void slotDealAgain();
@@ -109,6 +109,7 @@ private slots:
     // Board events
     void slotPresenterPoignee();
     void slotAccepteChien();
+    void slotSetEnchere(Contract cont);
     void slotClickCard(GfxCard *c);
     void slotClickTapis();
     void slotMoveCursor(GfxCard *c);

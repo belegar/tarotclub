@@ -56,7 +56,7 @@ static const QPointF coordTextBox[5] =
 GfxCard::GfxCard(const QString &fileName, QGraphicsItem *parent) : QGraphicsSvgItem(fileName, parent)
 
 {
-    status = CARD_NORMAL;
+    status = NORMAL;
 }
 /*****************************************************************************/
 int GfxCard::type() const
@@ -65,26 +65,26 @@ int GfxCard::type() const
     return Type;
 }
 /*****************************************************************************/
-CardStatus GfxCard::getStatus()
+GfxCard::Status GfxCard::GetStatus()
 {
     return status;
 }
 /*****************************************************************************/
-void GfxCard::setStatus(CardStatus s)
+void GfxCard::SetStatus(GfxCard::Status s)
 {
     status = s;
 }
 /*****************************************************************************/
-void GfxCard::toggleStatus()
+void GfxCard::ToggleStatus()
 {
-    if (status == CARD_NORMAL)
+    if (status == NORMAL)
     {
-        status = CARD_SELECTED;
+        status = SELECTED;
         this->moveBy(0.0, -20.0);
     }
     else
     {
-        status = CARD_NORMAL;
+        status = NORMAL;
         this->moveBy(0.0, 20.0);
     }
 }
@@ -557,7 +557,7 @@ void Tapis::afficheSelection(Place p)
     }
 }
 /*****************************************************************************/
-void Tapis::slotAfficheEnchere(Place enchereur, Contract cont)
+void Tapis::ShowBid(Place p, Contract cont)
 {
     QString txt;
 
@@ -582,8 +582,8 @@ void Tapis::slotAfficheEnchere(Place enchereur, Contract cont)
         txt = STR_PASSE;
     }
 
-    textBox.value(enchereur)->setText(txt);
-    textBox.value(enchereur)->show();
+    textBox.value(p)->setText(txt);
+    textBox.value(p)->show();
 }
 /*****************************************************************************/
 void Tapis::cacheEncheres()
@@ -596,7 +596,7 @@ void Tapis::cacheEncheres()
     }
 }
 /*****************************************************************************/
-void Tapis::slotAfficheBoutons(Contract contrat)
+void Tapis::ShowBidsChoice(Contract contrat)
 {
     boutonPrise->show();
     boutonGarde->show();
@@ -622,6 +622,11 @@ void Tapis::slotAfficheBoutons(Contract contrat)
     groupBoutons->show();
 }
 /*****************************************************************************/
+void Tapis::HideBidsChoice()
+{
+    groupBoutons->hide();
+}
+/*****************************************************************************/
 void Tapis::showAvatars(bool b)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
@@ -630,11 +635,6 @@ void Tapis::showAvatars(bool b)
         i.next();
         i.value()->enableAvatar(b);
     }
-}
-/*****************************************************************************/
-void Tapis::cacheBoutons()
-{
-    groupBoutons->hide();
 }
 /*****************************************************************************/
 void Tapis::razTapis(bool shadow)
@@ -669,33 +669,33 @@ void Tapis::resetCards()
     for (int i = 0; i < cardsPics.size(); i++)
     {
         cardsPics.at(i)->hide();
-        cardsPics.at(i)->setStatus(CARD_NORMAL);
+        cardsPics.at(i)->SetStatus(GfxCard::NORMAL);
     }
 }
 /*****************************************************************************/
 void Tapis::slotBoutton1()
 {
-    emit sigContrat(PASS);
+    emit sigContract(PASS);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton2()
 {
-    emit sigContrat(TAKE);
+    emit sigContract(TAKE);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton3()
 {
-    emit sigContrat(GUARD);
+    emit sigContract(GUARD);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton4()
 {
-    emit sigContrat(GUARD_WITHOUT);
+    emit sigContract(GUARD_WITHOUT);
 }
 /*****************************************************************************/
 void Tapis::slotBoutton5()
 {
-    emit sigContrat(GUARD_AGAINST);
+    emit sigContract(GUARD_AGAINST);
 }
 /*****************************************************************************/
 void Tapis::slotAccepteChien()

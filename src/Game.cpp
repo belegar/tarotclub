@@ -45,7 +45,7 @@ void Game::Initialize()
     slamAnnounced = false;
     attackHandle.declared = false;
     defenseHandle.declared = false;
-    gameMode = LOCAL_ONEDEAL;
+    gameMode = ONE_DEAL;
 }
 /*****************************************************************************/
 void Game::NewDeal()

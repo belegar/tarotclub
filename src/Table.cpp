@@ -35,6 +35,14 @@ void Table::Initialize()
     server.moveToThread(&thread);
 
     // 2. Load server configuration
+    LoadConfiguration();
+
+    // 3. Start the thread
+    thread.start();
+}
+/*****************************************************************************/
+void Table::LoadConfiguration()
+{
     serverConfig.Load();
 
     // 3. Apply configuration
@@ -43,9 +51,12 @@ void Table::Initialize()
         bots[i].SetMyIdentity(serverConfig.GetOptions().bots[i]);
         bots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
     }
-
-    // 3. Start the thread
-    thread.start();
+}
+/*****************************************************************************/
+void Table::SaveConfiguration(ServerOptions &opt)
+{
+    serverConfig.SetOptions(opt);
+    serverConfig.Save();
 }
 /*****************************************************************************/
 void Table::CreateGame(Game::Mode gameMode, Table::Mode tableMode)
@@ -74,6 +85,11 @@ Server &Table::GetServer()
     return server;
 }
 /*****************************************************************************/
+ServerOptions &Table::GetOptions()
+{
+    return serverConfig.GetOptions();
+}
+/*****************************************************************************/
 void Table::SetShuffle(TarotEngine::Shuffle &s)
 {
     server.GetEngine().SetShuffle(s);
@@ -86,7 +102,7 @@ void Table::ConnectBots()
     qApp->processEvents(QEventLoop::AllEvents, 100);
     for (i = 0; i < 3; i++)
     {
-        bots[i].ConnectToHost("127.0.0.1", options.port);
+        bots[i].ConnectToHost("127.0.0.1", GetOptions().port);
         qApp->processEvents(QEventLoop::AllEvents, 100);
     }
 }

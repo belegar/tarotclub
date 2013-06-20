@@ -42,15 +42,18 @@ public:
 
     // Helpers
     void Initialize();
+    void LoadConfiguration();
     void CreateGame(Game::Mode gameMode, Table::Mode tableMode);
     void Start();
     void Stop();
 
     // Getters
     Server &GetServer();
+    ServerOptions &GetOptions();
 
     // Setters
     void SetShuffle(TarotEngine::Shuffle &s);
+    void SaveConfiguration(ServerOptions &opt);
 
 private:
     Server server;

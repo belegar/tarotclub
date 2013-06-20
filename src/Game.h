@@ -34,6 +34,7 @@ class Game
 public:
     enum Sequence
     {
+        IDLE,
         STOP,
         DEAL,
         BID,

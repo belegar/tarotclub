@@ -65,9 +65,9 @@ void RoundDock::clear()
     }
 }
 /*****************************************************************************/
-void RoundDock::addRound(int turn, Place p, QString txt)
+void RoundDock::addRound(Game &info, Place p, QString txt)
 {
-    ui.tableWidget->item(turn, p + 1)->setText(txt);
+    ui.tableWidget->item(info.trickCounter, p + 1)->setText(txt);
 }
 /*****************************************************************************/
 void RoundDock::selectWinner(Game &info, Place p)

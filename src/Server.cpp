@@ -108,23 +108,12 @@ TarotEngine &Server::GetEngine()
     return engine;
 }
 /*****************************************************************************/
-void Server::NewServerGame(TarotEngine::GameMode mode)
+void Server::NewServerGame(Game::Mode mode)
 {
-    int port;
-
     StopServer();
     tcpServer.setMaxPendingConnections(maximumPlayers + 3); // Add few players to the maximum for clients trying to access
 
-    if (mode == TarotEngine::NET_GAME_SERVER)
-    {
-        port = options.port;
-    }
-    else
-    {
-        // if local game, always use the default port
-        port = DEFAULT_PORT;
-    }
-    tcpServer.listen(QHostAddress::LocalHost, port);
+    tcpServer.listen(QHostAddress::LocalHost, tcpPort);
 
     // Init everything
     engine.NewGame(mode);
@@ -265,6 +254,14 @@ void Server::DoAction(QDataStream &in, Place p)
     default:
         break;
     }
+}
+/*****************************************************************************/
+void Server::SendErrorServerFull(QTcpSocket *cnx)
+{
+    QDataStream out;
+    QByteArray packet = BuildCommand(out, Protocol::SERVER_ERROR_FULL);
+    cnx->write(packet);
+    cnx->flush();
 }
 /*****************************************************************************/
 void Server::SendRequestIdentity(Place p)

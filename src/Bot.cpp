@@ -51,7 +51,7 @@ Bot::Bot() :
 
     timeBeforeSend.setSingleShot(true);
     timeBeforeSend.setInterval(0);
-    connect(&timeBeforeSend, &Client::timeout, this, &Bot::slotTimeBeforeSend);
+    connect(&timeBeforeSend, &QTimer::timeout, this, &Bot::slotTimeBeforeSend);
 
 #ifndef QT_NO_DEBUG
     debugger.attachTo(&botEngine);

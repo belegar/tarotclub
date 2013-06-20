@@ -47,29 +47,16 @@ public:
 
     // Helpers
     void Initialize();
-
-    /**
-     * @brief A fool in an handle means that the player has no more trumps
-     * return true if it is the case, otherwise false
-     */
     bool TestHandle();
     Contract CalculateBid();
     void UpdateStatistics();
-
-    /**
-     * @brief Return the first valid card in the player's hand deck
-     */
     Card *Play();
     bool IsValid(Card *c);
-
-    /**
-     * @brief Build a valid discard at random
-     */
     void BuildDogDeck();
 
     // Getters
     Deck::Statistics &GetStatistics();
-    Deck &GetMainDeck();
+    Deck &GetCurrentTrick();
     Deck &GetDogDeck();
     Deck &GetHandleDeck();
     Deck &GetMyDeck();
@@ -92,6 +79,7 @@ public:
     void SendError();
     void SendCard(Card *c);
     void SendSyncTrick();
+    void SendHandle();
 
 public slots:
     void slotSocketReadData();
@@ -127,14 +115,12 @@ private:
     Game        info;       // Helper class to store various game information
     Score       score;
     Deck        dogDeck;
-    Deck        mainDeck;
     Deck        handleDeck;    // declared poignee by the player
     Deck        currentTrick;
 
     // TarotClub Protocol methods
     void SendIdentity();
     void SendChatMessage(const QString &message);
-    void SendHandle();
     void SendSyncHandle();
     void DoAction(QDataStream &in);  
 

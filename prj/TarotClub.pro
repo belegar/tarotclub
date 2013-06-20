@@ -95,7 +95,8 @@ HEADERS = AboutWindow.h \
     Score.h \
     Protocol.h \
     Server.h \
-    Table.h
+    Table.h \
+    NetPlayer.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -142,5 +143,6 @@ SOURCES = AboutWindow.cpp \
     Protocol.cpp \
     Server.cpp \
     Table.cpp \
-    Score.cpp
+    Score.cpp \
+    NetPlayer.cpp
 

@@ -26,7 +26,7 @@
 #define SERVER_H
 
 #include <QtNetwork>
-#include "Player.h"
+#include "NetPlayer.h"
 #include "Protocol.h"
 #include "TarotEngine.h"
 #include "Bot.h"
@@ -35,11 +35,13 @@
 /*****************************************************************************/
 class Server : public Protocol
 {
+    Q_OBJECT
+
 public:
     Server();
 
     // Helpers
-    void NewServerGame(TarotEngine::GameMode mode);
+    void NewServerGame(Game::Mode mode);
     void StopServer();
     void ConnectBots();
 
@@ -53,7 +55,7 @@ public:
     void SetTcpPort(int port);
 
 signals:
-    void sigServerMessage(const QString &);
+    void sigServerMessage(QString const &);
 
 private:
     int maximumPlayers;

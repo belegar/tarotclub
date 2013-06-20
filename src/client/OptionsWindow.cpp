@@ -63,26 +63,26 @@ OptionsWindow::OptionsWindow(QWidget *parent)
 
 }
 /*****************************************************************************/
-void OptionsWindow::setClientOptions(ClientOptions *cfg)
+void OptionsWindow::SetClientOptions(ClientOptions &cfg)
 {
-    clientOptions = *cfg;
+    clientOptions = cfg;
     refresh();
 }
 /*****************************************************************************/
-void OptionsWindow::setServerOptions(ServerOptions *cfg)
+void OptionsWindow::SetServerOptions(ServerOptions &cfg)
 {
-    serverOptions = *cfg;
+    serverOptions = cfg;
     refresh();
 }
 /*****************************************************************************/
-ClientOptions *OptionsWindow::getClientOptions()
+ClientOptions &OptionsWindow::GetClientOptions()
 {
-    return &clientOptions;
+    return clientOptions;
 }
 /*****************************************************************************/
-ServerOptions *OptionsWindow::getServerOptions()
+ServerOptions &OptionsWindow::GetServerOptions()
 {
-    return &serverOptions;
+    return serverOptions;
 }
 /*****************************************************************************/
 void OptionsWindow::slotColorPicker()

@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - RoundDock.h
+ * TarotClub - NetPlayer.h
  *=============================================================================
- * Fenêtre dockable affichant les plis réalisés à chaque tour de jeu
+ * Networked remote player, used in the server side
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,37 +23,55 @@
  *=============================================================================
  */
 
-#include <QDockWidget>
-#include <QTableWidget>
-#include "../defines.h"
-#include "../Game.h"
-#include "ui_RoundUI.h"
+#ifndef _NET_PLAYER_H
+#define _NET_PLAYER_H
+
+#include <QtNetwork>
+#include "defines.h"
+#include "Deck.h"
+#include "Identity.h"
+#include "Player.h"
 
 /*****************************************************************************/
-class RoundDock : public QDockWidget
+class NetPlayer : public QObject
 {
     Q_OBJECT
 
-private:
-    Ui::RoundUI ui;
-
 public:
-    RoundDock(QWidget *parent);
+    NetPlayer();
 
-    void clear();
-    void addRound(Game &info, Place p, QString txt);
-    void selectWinner(Game &info, Place p);
-    void pointsToTaker(int turn, float points);
-    void selectFirstPlayer(int turn, Place p);
+    // Helpers
+    bool IsFree();
+    void SendData(QByteArray &data);
+    void Close();
 
-protected:
-    void closeEvent(QCloseEvent *e);
+    // Getters
+    Identity &GetIdentity();
+    QTcpSocket *GetSocket();
+    QByteArray GetData();
+    Place GetPlace();
+
+    // Setters
+    void SetConnection(QTcpSocket *s, Place p);
+    void SetIdentity(const Identity &ident);
 
 signals:
-    void sgnlClose();
+    void sigDisconnected(Place);
+    void sigReadyRead(Place);
+
+private:
+    QTcpSocket *socket;
+    bool freePlace;
+    Player player;
+
+private slots:
+    void slotClientClosed();
+    void slotReadData();
 
 };
 
+#endif // _NET_PLAYER_H
+
 //=============================================================================
-// Fin du fichier RoundDock.h
+// End of file NetPlayer.h
 //=============================================================================

@@ -39,21 +39,26 @@
 #include "TextBox.h"
 #include "ClientConfig.h"
 
-enum CardStatus { CARD_NORMAL, CARD_SELECTED };
-
 /*****************************************************************************/
 class GfxCard : public QGraphicsSvgItem
 {
-private:
-    CardStatus status;
 public:
+    enum Status
+    {
+        NORMAL,
+        SELECTED
+    };
+
     GfxCard(const QString &fileName, QGraphicsItem *parent = 0);
 
     enum { Type = UserType + 1 };
     int type() const;
-    CardStatus  getStatus();
-    void setStatus(CardStatus s);
-    void toggleStatus();
+    Status GetStatus();
+    void SetStatus(Status s);
+    void ToggleStatus();
+
+private:
+    Status status;
 };
 
 /*****************************************************************************/
@@ -77,6 +82,26 @@ public:
 
     Tapis(QWidget *parent);
 
+    // Helpers
+    bool loadCards(ClientOptions &opt);
+    void colorisePreneur(Place  preneur);
+    void setPlayerNames(QMap<Place, Identity> &players, Place p);
+    void afficheSelection(Place);
+    void DrawCard(GfxCard *c, Place p);
+    void ShowBidsChoice(Contract contrat);
+    void ShowBid(Place p, Contract cont);
+    void cacheEncheres();
+    void HideBidsChoice();
+    void showAvatars(bool b);
+    void razTapis(bool shadow = false);
+    void resetCards();
+    Place SwapPlace(Place origin, Place absolute);
+
+    // Getters
+    GfxCard *getGfxCard(int i);
+    Card *getObjectCard(GfxCard *gc);
+
+    // Setters
     void setCursorType(CursorType t);
     void setText(Place p, const QString &txt);
     void setAvatar(Place p, const QString &file);
@@ -86,21 +111,6 @@ public:
     void setBoutonPoigneeVisible(bool v);
     void setCardScale(float factor);
 
-    GfxCard *getGfxCard(int i);
-    Card *getObjectCard(GfxCard *gc);
-
-    bool loadCards(ClientOptions &opt);
-    void colorisePreneur(Place  preneur);
-    void setPlayerNames(QMap<Place, Identity> &players, Place p);
-    void afficheSelection(Place);
-    void DrawCard(GfxCard *c, Place p);
-    void cacheEncheres();
-    void cacheBoutons();
-    void showAvatars(bool b);
-    void razTapis(bool shadow = false);
-    void resetCards();
-    Place SwapPlace(Place origin, Place absolute);
-
 public slots:
     void slotBoutton1();
     void slotBoutton2();
@@ -108,15 +118,13 @@ public slots:
     void slotBoutton4();
     void slotBoutton5();
     void slotAccepteChien();
-    void slotAfficheBoutons(Contract contrat);
-    void slotAfficheEnchere(Place enchereur, Contract cont);
     void slotPresenterPoignee();
 
 signals:
     void sigViewportClicked();
     void sigClickCard(GfxCard *);
     void sigMoveCursor(GfxCard *);
-    void sigContrat(Contract c);
+    void sigContract(Contract c);
     void sigAccepteChien();
     void sigPresenterPoignee();
 

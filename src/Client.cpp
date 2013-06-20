@@ -54,9 +54,9 @@ Deck::Statistics &Client::GetStatistics()
     return stats;
 }
 /*****************************************************************************/
-Deck &Client::GetMainDeck()
+Deck &Client::GetCurrentTrick()
 {
-    return mainDeck;
+    return currentTrick;
 }
 /*****************************************************************************/
 Deck &Client::GetDogDeck()
@@ -317,7 +317,7 @@ void Client::slotSocketReadData()
     qint64 bytes = socket.bytesAvailable();
     QDataStream in(&socket);
 
-    while (DecodePacket(in, data.size()) == true)
+    while (DecodePacket(in, bytes) == true)
     {
         DoAction(in);
     }
@@ -362,7 +362,7 @@ void Client::DoAction(QDataStream &in)
 
             in >> place;
             in >> ident;
-            players[place] = ident;
+            players[(Place)place] = ident;
         }
         emit sigPlayersList(players);
         break;
@@ -443,7 +443,7 @@ void Client::DoAction(QDataStream &in)
         in >> contrat;
         info.taker = (Place)preneur;
         info.contract = (Contract)contrat;
-        mainDeck.clear();
+        currentTrick.clear();
         emit sigStartDeal((Place)preneur, (Contract)contrat);
         break;
     }
@@ -591,6 +591,8 @@ void Client::SendCard(Card *c)
 /*****************************************************************************/
 void Client::SendSyncDog()
 {
+    info.sequence = Game::IDLE;
+
     QDataStream out;
     QByteArray packet = BuildCommand(out, Protocol::CLIENT_SYNC_DOG);
     socket.write(packet);
@@ -599,6 +601,9 @@ void Client::SendSyncDog()
 /*****************************************************************************/
 void Client::SendSyncTrick()
 {
+    info.sequence = Game::IDLE;
+    currentTrick.clear();
+
     QDataStream out;
     QByteArray packet = BuildCommand(out, Protocol::CLIENT_SYNC_TRICK);
     socket.write(packet);

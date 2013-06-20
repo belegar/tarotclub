@@ -32,6 +32,8 @@
 
 class Protocol : public QObject
 {
+    Q_OBJECT
+
 public:
     enum Command
     {
@@ -65,7 +67,8 @@ public:
         SERVER_SHOW_HANDLE      = 0x83, //!< show a handle to all players
         SERVER_END_OF_TRICK     = 0x84,
         SERVER_END_OF_DEAL      = 0x85,
-        SERVER_END_OF_GAME      = 0x86  //!< end of the game mode (tournament ...)
+        SERVER_END_OF_GAME      = 0x86, //!< end of the game mode (tournament ...)
+        SERVER_ERROR_FULL       = 0x87  //!< Server is full, cannot join game
     };
 
     bool DecodePacket(QDataStream &in, qint64 bytes);

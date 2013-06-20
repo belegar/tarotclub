@@ -128,7 +128,7 @@ Score &TarotEngine::GetScore()
 /*****************************************************************************/
 int TarotEngine::GetDealNumber()
 {
-    return dealNumber;
+    return shuffle.seed;
 }
 /*****************************************************************************/
 Game &TarotEngine::GetGameInfo()
@@ -283,7 +283,7 @@ void TarotEngine::GameSateMachine()
             dealCounter++;
 
             // Manage tournaments
-            if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::LOCAL_TOURNAMENT))
+            if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::TOURNAMENT))
             {
                  gameState.sequence = Game::SYNC_READY;
             }
@@ -292,12 +292,12 @@ void TarotEngine::GameSateMachine()
                  gameState.sequence = Game::STOP;
             }
 
-            cptVuDonne = 0;
+            cntSyncReady = 0;
             emit sigEndOfDeal();
         }
         else
         {
-            cptVuPli = 0;
+            cntSyncTrick = 0;
             gameState.sequence = Game::SYNC_TRICK;
             emit sigEndOfTrick(gameState.currentPlayer);
         }
@@ -322,7 +322,7 @@ void TarotEngine::BidSequence(Contract c, Place p)
         if (gameState.contract == PASS)
         {
             // All the players have passed, deal again new cards
-            cptVuDonne = 0;
+            cntSyncReady = 0;
             gameState.sequence = Game::SYNC_READY;
             emit sigDealAgain();
         }

@@ -54,17 +54,17 @@ void ScoresDock::clear()
     tableScores->setRowCount(0);
 }
 /*****************************************************************************/
-void ScoresDock::setPlayers(QList<Identity> &players)
+void ScoresDock::setPlayers(QMap<Place, Identity> &players)
 {
-    int i;
     QStringList header;
 
     tableScores->setColumnCount(players.size());
 
-    // Les noms des joueurs
-    for (i = 0; i < players.size(); i++)
+    QMapIterator<Place, Identity> i(players);
+    while (i.hasNext())
     {
-        header += players.at(i).name;
+        i.next();
+        header += i.value().name;
     }
     tableScores->setHorizontalHeaderLabels(header);
 }

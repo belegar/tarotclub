@@ -54,11 +54,13 @@ private:
 public:
     OptionsWindow(QWidget *parent = 0);
 
-    void setClientOptions(ClientOptions *opt);
-    void setServerOptions(ServerOptions *opt);
+    // Getters
+    ClientOptions &GetClientOptions();
+    ServerOptions &GetServerOptions();
 
-    ClientOptions *getClientOptions();
-    ServerOptions *getServerOptions();
+    // Setters
+    void SetClientOptions(ClientOptions &opt);
+    void SetServerOptions(ServerOptions &opt);
 
 public slots:
     void slotBtnOk();

@@ -158,7 +158,7 @@ void Deal::SetScore(const Score &s, const Game &info)
 {
     score = s;
 
-    if (info.gameMode == Game::LOCAL_TOURNAMENT)
+    if (info.gameMode == Game::TOURNAMENT)
     {
         for (int i = 0; i<info.numberOfPlayers; i++)
         {
@@ -173,6 +173,11 @@ void Deal::SetScore(const Score &s, const Game &info)
         }
         dealCounter++;
     }
+}
+/*****************************************************************************/
+void Deal::SetDog(Deck &dog)
+{
+    dogDeck = dog;
 }
 /*****************************************************************************/
 #ifndef QT_NO_DEBUG
