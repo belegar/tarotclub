@@ -78,7 +78,6 @@ HEADERS = AboutWindow.h \
     ServerConfig.h \
     DealFile.h \
     TarotClub.h \
-    Jeu.h \
     TarotDeck.h \
     Deck.h \
     Card.h \
