@@ -71,10 +71,10 @@ public:
         SERVER_ERROR_FULL       = 0x87  //!< Server is full, cannot join game
     };
 
-    bool DecodePacket(QDataStream &in, qint64 bytes);
 
-    QByteArray BuildCommand(QDataStream &in, Command cmd);
+    bool DecodePacket(QDataStream &in);
 
+    QByteArray BuildCommand(QByteArray &packet, Command cmd);
 };
 
 #endif // PROTOCOL_H

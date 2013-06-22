@@ -314,21 +314,28 @@ void Client::slotSocketError(QAbstractSocket::SocketError code)
 /*****************************************************************************/
 void Client::slotSocketReadData()
 {
-    qint64 bytes = socket.bytesAvailable();
-    QDataStream in(&socket);
-
-    while (DecodePacket(in, bytes) == true)
+    do
     {
-        DoAction(in);
+        QDataStream in(&socket);
+        if (DecodePacket(in) == true)
+        {
+            if (DoAction(in) == false)
+            {
+                // bad packet received, exit decoding
+                return;
+            }
+        }
     }
+    while (socket.bytesAvailable() > 0);
 }
 /*****************************************************************************/
-void Client::DoAction(QDataStream &in)
+bool Client::DoAction(QDataStream &in)
 {
-    quint8 type;  // type de trame
+    quint8 command;
+    bool ret = true;
 
-    in >> type;
-    switch (type)
+    in >> command;
+    switch (command)
     {
     case Protocol::SERVER_MESSAGE:
     {
@@ -503,72 +510,79 @@ void Client::DoAction(QDataStream &in)
     default:
         QString msg = player.GetIdentity().name + trUtf8(": Unkown packet received.");
         qDebug() << msg.toLatin1().constData();
+        ret = false;
         break;
     }
+    return ret;
 }
 /*****************************************************************************/
 void Client::SendIdentity()
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << player.GetIdentity();
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_INFOS);
+    packet = BuildCommand(packet, Protocol::CLIENT_INFOS);
     socket.write(packet);
     socket.flush();
 }
 /*****************************************************************************/
 void Client::SendChatMessage(const QString &message)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     QString msg;
 
     // We add the nickname before the message
     msg = player.GetIdentity().name + "> " + message;
     out << msg;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_MESSAGE);
+    packet = BuildCommand(packet, Protocol::CLIENT_MESSAGE);
     socket.write(packet);
     socket.flush();
 }
 /*****************************************************************************/
 void Client::SendReady()
 {
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_READY);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_READY);
     socket.write(packet);
     socket.flush();
 }
 /*****************************************************************************/
 void Client::SendError()
 {
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_ERROR);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_ERROR);
     socket.write(packet);
     socket.flush();
 }
 /*****************************************************************************/
 void Client::SendBid(Contract c)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)c;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_BID);
+    packet = BuildCommand(packet, Protocol::CLIENT_BID);
     socket.write(packet);
     socket.flush();
 }
 /*****************************************************************************/
 void Client::SendDog()
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << dogDeck;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_DISCARD);
+    packet = BuildCommand(packet, Protocol::CLIENT_DISCARD);
     socket.write(packet);
     socket.flush();
 }
 /*****************************************************************************/
 void Client::SendHandle()
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << handleDeck.size();
     out << handleDeck;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_HANDLE);
+    packet = BuildCommand(packet, Protocol::CLIENT_HANDLE);
     socket.write(packet);
     socket.flush();
 }
@@ -577,9 +591,10 @@ void Client::SendCard(Card *c)
 {
     if (c != NULL)
     {
-        QDataStream out;
+        QByteArray packet;
+        QDataStream out(&packet, QIODevice::WriteOnly);
         out << (quint8)c->GetId();
-        QByteArray packet = BuildCommand(out, Protocol::CLIENT_CARD);
+        packet = BuildCommand(packet, Protocol::CLIENT_CARD);
         socket.write(packet);
         socket.flush();
     }
@@ -593,8 +608,8 @@ void Client::SendSyncDog()
 {
     info.sequence = Game::IDLE;
 
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_SYNC_DOG);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_DOG);
     socket.write(packet);
     socket.flush();
 }
@@ -604,16 +619,16 @@ void Client::SendSyncTrick()
     info.sequence = Game::IDLE;
     currentTrick.clear();
 
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_SYNC_TRICK);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_TRICK);
     socket.write(packet);
     socket.flush();
 }
 /*****************************************************************************/
 void Client::SendSyncHandle()
 {
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::CLIENT_SYNC_HANDLE);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_HANDLE);
     socket.write(packet);
     socket.flush();
 }

@@ -27,22 +27,24 @@
 #include <QCoreApplication>
 
 /*****************************************************************************/
-QByteArray Protocol::BuildCommand(QDataStream &in, Command cmd)
+QByteArray Protocol::BuildCommand(QByteArray &packet, Command cmd)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)cmd
-        << in // data
-        << (quint16)0xFFFF;
+    out << (quint16)0 << (quint8)cmd;
+    block += packet;
+    out.device()->seek(block.size());
+    out << (quint16)0xFFFF;
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
 
     return block;
 }
 /*****************************************************************************/
-bool Protocol::DecodePacket(QDataStream &in, qint64 bytes)
+bool Protocol::DecodePacket(QDataStream &in)
 {
+    qint64 bytes = in.device()->bytesAvailable();
     quint16 blockSize = 0;
     unsigned int total = 0;
 
@@ -68,6 +70,7 @@ bool Protocol::DecodePacket(QDataStream &in, qint64 bytes)
         return true;
     }
 }
+
 
 //=============================================================================
 // End of file Protocol.cpp

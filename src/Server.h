@@ -66,7 +66,7 @@ private:
     int tcpPort;
 
     void CloseClients();
-    void DoAction(QDataStream &in, Place p);
+    bool DoAction(QDataStream &in, Place p);
 
     /**
      * @brief Broadcast a packet to connected players

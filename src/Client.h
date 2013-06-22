@@ -122,7 +122,7 @@ private:
     void SendIdentity();
     void SendChatMessage(const QString &message);
     void SendSyncHandle();
-    void DoAction(QDataStream &in);  
+    bool DoAction(QDataStream &in);
 
 };
 

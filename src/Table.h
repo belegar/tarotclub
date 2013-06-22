@@ -43,7 +43,7 @@ public:
     // Helpers
     void Initialize();
     void LoadConfiguration();
-    void CreateGame(Game::Mode gameMode, Table::Mode tableMode);
+    void CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers = 4);
     void Start();
     void Stop();
 

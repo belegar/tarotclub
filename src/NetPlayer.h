@@ -44,6 +44,7 @@ public:
     bool IsFree();
     void SendData(QByteArray &data);
     void Close();
+    bool HasData();
 
     // Getters
     Identity &GetIdentity();

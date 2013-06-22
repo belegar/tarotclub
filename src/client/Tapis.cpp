@@ -97,6 +97,7 @@ void GfxCard::ToggleStatus()
 
 Tapis::Tapis(QWidget *parent)
     : QGraphicsView(parent)
+    , cardsPics(0)
 {
     setScene(&scene);
 
@@ -226,6 +227,8 @@ bool Tapis::loadCards(ClientOptions &opt)
     QString image;
     QString path = QCoreApplication::applicationDirPath() + "/" + opt.deckFilePath + "/";
 
+    cardsPics.clear();
+
     //----- 4 couleurs
     for (i = 0; i < 4; i++)
     {
@@ -258,7 +261,7 @@ bool Tapis::loadCards(ClientOptions &opt)
             {
                 GfxCard *item = new GfxCard(image);
                 item->hide();
-                cardsPics.insert(n, item);
+                cardsPics.append(item);
                 scene.addItem(item);
             }
             else
@@ -266,6 +269,23 @@ bool Tapis::loadCards(ClientOptions &opt)
                 return false;
             }
         }
+    }
+
+    //----- L'excuse
+    image = path + "excuse.svg";
+
+    // Test if file exists
+    QFile fileTest(image);
+    if (fileTest.exists())
+    {
+        GfxCard *item = new GfxCard(image);
+        item->hide();
+        cardsPics.append(item);
+        scene.addItem(item);
+    }
+    else
+    {
+        return false;
     }
 
     //----- 21 atouts
@@ -279,30 +299,13 @@ bool Tapis::loadCards(ClientOptions &opt)
         {
             GfxCard *item = new GfxCard(image);
             item->hide();
-            cardsPics.insert(i, item);
+            cardsPics.append(item);
             scene.addItem(item);
         }
         else
         {
             return false;
         }
-    }
-
-    //----- L'excuse
-    image = path + "excuse.svg";
-
-    // Test if file exists
-    QFile fileTest(image);
-    if (fileTest.exists())
-    {
-        GfxCard *item = new GfxCard(image);
-        item->hide();
-        cardsPics.insert(56, item);
-        scene.addItem(item);
-    }
-    else
-    {
-        return false;
     }
 
     setCardScale(1.5);
@@ -461,6 +464,7 @@ void Tapis::setPlayerNames(QMap<Place, Identity> &players, Place p)
     QMapIterator<Place, Identity> i(players);
     while (i.hasNext())
     {
+        i.next();
         Place rel = SwapPlace(p, i.key());  // relative place
 
         playerBox.value(rel)->setText(i.value().name);

@@ -40,11 +40,25 @@ bool NetPlayer::IsFree()
 /*****************************************************************************/
 void NetPlayer::Close()
 {
-    QObject::connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
-    socket->close();
-    socket->waitForDisconnected();
-    socket = NULL;
+    if (socket != NULL)
+    {
+        QObject::connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
+        socket->close();
+        socket = NULL;
+    }
     freePlace = true;
+}
+/*****************************************************************************/
+bool NetPlayer::HasData()
+{
+    if (socket->bytesAvailable())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 /*****************************************************************************/
 Identity &NetPlayer::GetIdentity()

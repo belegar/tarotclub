@@ -29,13 +29,14 @@
 
 /*****************************************************************************/
 Server::Server()
-    : tcpPort(DEFAULT_PORT)
+    : maximumPlayers(4)
+    , tcpPort(DEFAULT_PORT)
 {
     connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
     connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
     connect(&engine, &TarotEngine::sigStartDeal, this, &Server::slotSendStartDeal);
     connect(&engine, &TarotEngine::sigSelectPlayer, this, &Server::slotSendSelectPlayer);
-    connect(&engine, &TarotEngine::sigPlayCard, this, &Server::slotSendStartDeal);
+    connect(&engine, &TarotEngine::sigPlayCard, this, &Server::slotSendPlayCard);
     connect(&engine, &TarotEngine::sigRequestBid, this, &Server::slotSendRequestBid);
     connect(&engine, &TarotEngine::sigShowDog, this, &Server::slotSendShowDog);
     connect(&engine, &TarotEngine::sigDealAgain, this, &Server::slotSendDealAgain);
@@ -65,7 +66,7 @@ void Server::slotNewConnection()
             {
                 if (players[i].IsFree() == true)
                 {
-                    p = (Place) p;
+                    p = (Place) i;
                     break;
                 }
             }
@@ -144,18 +145,27 @@ void Server::slotClientClosed(Place p)
 }
 /*****************************************************************************/
 void Server::slotReadData(Place p)
-{
-    QByteArray data = players[p].GetData();
-    QDataStream in(data);
-
-    while (DecodePacket(in, data.size()) == true)
+{    
+    do
     {
-        DoAction(in, p);
+        QByteArray data = players[p].GetData();
+        QDataStream in(data);
+        if (DecodePacket(in) == true)
+        {
+            if (DoAction(in, p) == false)
+            {
+                // bad packet received, exit decoding
+                return;
+            }
+        }
     }
+    while (players[p].HasData());
 }
 /*****************************************************************************/
-void Server::DoAction(QDataStream &in, Place p)
+bool Server::DoAction(QDataStream &in, Place p)
 {
+    bool ret = true;
+
     // First byte is the command
     quint8 cmd;
     in >> cmd;
@@ -181,10 +191,10 @@ void Server::DoAction(QDataStream &in, Place p)
         const QString m = "The player " + ident.name + " has joined the game.";
         SendChatMessage(m);
         emit sigServerMessage(m);
-        SendPlayersList();
 
         if (GetNumberOfConnectedPlayers() == maximumPlayers)
         {
+            SendPlayersList();
             engine.NewDeal();
         }
         break;
@@ -252,23 +262,28 @@ void Server::DoAction(QDataStream &in, Place p)
         break;
 
     default:
+        qDebug() <<  trUtf8(": Unkown packet received.") << endl;
+        ret = false;
         break;
     }
+
+    return ret;
 }
 /*****************************************************************************/
 void Server::SendErrorServerFull(QTcpSocket *cnx)
 {
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_ERROR_FULL);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::SERVER_ERROR_FULL);
     cnx->write(packet);
     cnx->flush();
 }
 /*****************************************************************************/
 void Server::SendRequestIdentity(Place p)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::ReadWrite);
     out << (quint8)p; // assigned place
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_REQUEST_IDENTITY);
+    packet = BuildCommand(packet, Protocol::SERVER_REQUEST_IDENTITY);
     players[p].SendData(packet);
 }
 /*****************************************************************************/
@@ -276,132 +291,146 @@ void Server::SendCards()
 {
     for (int i=0; i<engine.GetGameInfo().numberOfPlayers; i++)
     {
-        QDataStream out;
+        QByteArray packet;
+        QDataStream out(&packet, QIODevice::WriteOnly);
         out << (quint8)4 // number of players in the current game
             << engine.GetPlayer((Place)i).GetDeck();
-        QByteArray packet = BuildCommand(out, Protocol::SERVER_SEND_CARDS);
+        packet = BuildCommand(packet, Protocol::SERVER_SEND_CARDS);
         players[i].SendData(packet);
     }
 }
 /*****************************************************************************/
 void Server::SendBid(Contract c, Place p)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)p   // current player bid
         << (quint8)c;  // contract to show
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_PLAYER_BID);
+    packet = BuildCommand(packet, Protocol::SERVER_SHOW_PLAYER_BID);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendChatMessage(const QString &message)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << message;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_MESSAGE);
+    packet = BuildCommand(packet, Protocol::SERVER_MESSAGE);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendPlayersList()
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)GetNumberOfConnectedPlayers();
     for (int i=0; i<maximumPlayers; i++)
     {
         if (players[i].IsFree() == false)
         {
-            out << players[i].GetPlace()
-                << players[i].GetIdentity();
+            Identity ident = players[i].GetIdentity();
+            out << (quint8)players[i].GetPlace();
+            out << ident;
         }
     }
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_PLAYERS_LIST);
+    packet = BuildCommand(packet, Protocol::SERVER_PLAYERS_LIST);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendBuildDiscard()
 {
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_BUILD_DISCARD);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::SERVER_BUILD_DISCARD);
     players[engine.GetGameInfo().taker].SendData(packet);
 }
 /*****************************************************************************/
 void Server::SendShowCard(Card *c)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)c->GetId()
         << (quint8)engine.GetGameInfo().currentPlayer;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_CARD);
+    packet = BuildCommand(packet, Protocol::SERVER_SHOW_CARD);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendShowHandle(Deck &handle)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << handle;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_HANDLE);
+    packet = BuildCommand(packet, Protocol::SERVER_SHOW_HANDLE);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendEndOfDeal()
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << engine.GetScore();
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_END_OF_DEAL);
+    packet = BuildCommand(packet, Protocol::SERVER_END_OF_DEAL);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendWaitTrick(Place winner)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)winner;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_END_OF_TRICK);
+    packet = BuildCommand(packet, Protocol::SERVER_END_OF_TRICK);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendStartDeal()
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)engine.GetGameInfo().taker
         << (quint8)engine.GetGameInfo().contract;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_START_DEAL);
+    packet = BuildCommand(packet, Protocol::SERVER_START_DEAL);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendSelectPlayer(Place p)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)p;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_SELECT_PLAYER);
+    packet = BuildCommand(packet, Protocol::SERVER_SELECT_PLAYER);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendPlayCard(Place p)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)p;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_PLAY_CARD);
+    packet = BuildCommand(packet, Protocol::SERVER_PLAY_CARD);
     players[p].SendData(packet);
 }
 /*****************************************************************************/
 void Server::slotSendRequestBid(Contract c, Place p)
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)c; // previous bid
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_REQUEST_BID);
+    packet = BuildCommand(packet, Protocol::SERVER_REQUEST_BID);
     players[p].SendData(packet);
 }
 /*****************************************************************************/
 void Server::slotSendShowDog()
 {
-    QDataStream out;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
     out << engine.GetDeal().GetDog();
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_SHOW_DOG);
+    packet = BuildCommand(packet, Protocol::SERVER_SHOW_DOG);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendDealAgain()
 {
-    QDataStream out;
-    QByteArray packet = BuildCommand(out, Protocol::SERVER_DEAL_AGAIN);
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::SERVER_DEAL_AGAIN);
     Broadcast(packet);
 }
 /*****************************************************************************/

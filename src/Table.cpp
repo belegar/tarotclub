@@ -32,7 +32,9 @@ Table::Table()
 void Table::Initialize()
 {
     // 1. Create the server thread
-    server.moveToThread(&thread);
+//    bots[0].moveToThread(&thread);
+//    bots[1].moveToThread(&thread);
+//    bots[2].moveToThread(&thread);
 
     // 2. Load server configuration
     LoadConfiguration();
@@ -59,9 +61,15 @@ void Table::SaveConfiguration(ServerOptions &opt)
     serverConfig.Save();
 }
 /*****************************************************************************/
-void Table::CreateGame(Game::Mode gameMode, Table::Mode tableMode)
+void Table::CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers)
 {
+    // TODO: add support for 3 and 5 players game
+    if (nbPlayers != 4)
+    {
+        return;
+    }
     mode = tableMode;
+    server.SetMaximumPlayers(nbPlayers);
     server.NewServerGame(gameMode);
 }
 /*****************************************************************************/
