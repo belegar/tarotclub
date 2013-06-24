@@ -97,6 +97,7 @@ public:
 
     friend QDataStream &operator<<(QDataStream &out, const Deck &deck)
     {
+        out << quint8(deck.size());
         for (int i = 0; i < deck.size(); i++)
         {
             out << (quint8)deck.at(i)->GetId();
@@ -104,18 +105,22 @@ public:
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, Deck &deck)
+    friend QDataStream &operator>>(QDataStream &s, Deck &l)
     {
-        quint8 card_id;
-        while(in.atEnd() == false)
+        l.clear();
+        quint8 c;
+        s >> c;
+        l.reserve(c);
+        for(quint8 i = 0; i < c; ++i)
         {
-            in >> card_id;
-            deck.append(TarotDeck::GetCard(card_id));
+            quint8 t;
+            s >> t;
+            l.append(TarotDeck::GetCard(t));
+            if (s.atEnd())
+                break;
         }
-        return in;
+        return s;
     }
-
-
 
 private:
     static bool LessThanCards(Card *carte1, Card *carte2);

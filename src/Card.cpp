@@ -55,6 +55,14 @@ QString Card::GetName()
     return name;
 }
 /*****************************************************************************/
+Card::Card()
+    : suit(Card::CLUBS)
+    , points(0.0)
+    , id(0)
+    , owner(NOWHERE)
+{
+}
+/*****************************************************************************/
 void Card::SetSuit(Card::Suit s)
 {
     suit = s;

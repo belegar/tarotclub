@@ -32,14 +32,15 @@ Game::Game()
 {
     qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime())); // seed init
 
-    Initialize();
+    Initialize(4);
 }
 /*****************************************************************************/
-void Game::Initialize()
+void Game::Initialize(int players)
 {
+    // One time initialization
     position = 0;
     trickCounter = 0;
-    numberOfPlayers = 4;
+    numberOfPlayers = players;
     dealer = static_cast<Place>(qrand() % 4);
     contract = PASS;
     slamAnnounced = false;
@@ -96,7 +97,7 @@ bool Game::Next()
 {
     bool endOfTrick = false;
     position++;
-    if (!(position > numberOfPlayers))
+    if (position > numberOfPlayers)
     {
         position = 0;
         trickCounter++;

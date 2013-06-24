@@ -63,7 +63,7 @@ public:
     Game();
 
     // Helpers
-    void Initialize();
+    void Initialize(int players);
     void NewDeal();
     void StartDeal();
     bool Next();

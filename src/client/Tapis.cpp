@@ -222,7 +222,7 @@ void Tapis::setBoutonPoigneeVisible(bool v)
 /*****************************************************************************/
 bool Tapis::loadCards(ClientOptions &opt)
 {
-    int i, j, n;
+    int i, j;
     QString varImg;
     QString image;
     QString path = QCoreApplication::applicationDirPath() + "/" + opt.deckFilePath + "/";
@@ -252,7 +252,7 @@ bool Tapis::loadCards(ClientOptions &opt)
         // de l'as au roi (14 cartes)
         for (j = 0; j < 14; j++)
         {
-            n = i * 14 + j;
+          //  n = i * 14 + j;
             image = path + varImg + QString("-") + QString().sprintf("%02d.svg", j + 1);
 
             // Test if file exists

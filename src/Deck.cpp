@@ -135,7 +135,10 @@ bool Deck::HasFool()
 /*****************************************************************************/
 void Deck::Sort()
 {
-    qSort(this->begin(), this->end(), LessThanCards);
+    if (this->size() != 0)
+    {
+        qSort(this->begin(), this->end(), LessThanCards);
+    }
 }
 /*****************************************************************************/
 bool Deck::LessThanCards(Card *c1, Card *c2)

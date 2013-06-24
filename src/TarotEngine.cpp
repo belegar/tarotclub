@@ -207,12 +207,13 @@ Place TarotEngine::CalculateTrickWinner()
 /*****************************************************************************/
 void TarotEngine::NewDeal()
 {
-    // 1. Give cards to all players
-    CreateDeal();
-
-    // 2. Initialize internal states
+    // 1. Initialize internal states
     deal.NewDeal();
     gameState.NewDeal();
+
+    // 2. Give cards to all players
+    CreateDeal();
+    emit sigSendCards();
 
     // 3. Start the bid sequence
     emit sigSelectPlayer(gameState.currentPlayer);

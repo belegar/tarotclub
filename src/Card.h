@@ -47,6 +47,9 @@ public:
         TRUMPS = 4
     };
 
+    // Constructor/destructor
+    Card();
+
     //  Setters
     void  SetSuit(Suit s);
     void  SetPoints(float p);

@@ -103,7 +103,8 @@ PlayerBox::PlayerBox(const QPointF &pos, QGraphicsScene *canvas)
     setFillColor(color); // transparent
 
     // Init with defaut image
-    avatar = new QGraphicsPixmapItem(QPixmap(":/images/vide.png"));
+    avatar = new AvatarItem(QPixmap(":/images/vide.png"));
+    avatar->setSize(40);
     avatar->hide();
 
     // we set it to the right place
@@ -121,8 +122,11 @@ void PlayerBox::setAvatar(const QString &av)
     {
         return;
     }
+    QPixmap img(av);
+  //  img.scaledToHeight(40);
 
-    avatar->setPixmap(QPixmap(av));
+    avatar->setPixmap(img);
+
 }
 /*****************************************************************************/
 void PlayerBox::enableAvatar(bool enable)

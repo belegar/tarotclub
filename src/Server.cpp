@@ -35,6 +35,7 @@ Server::Server()
     connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
     connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
     connect(&engine, &TarotEngine::sigStartDeal, this, &Server::slotSendStartDeal);
+    connect(&engine, &TarotEngine::sigSendCards, this, &Server::slotSendCards);
     connect(&engine, &TarotEngine::sigSelectPlayer, this, &Server::slotSendSelectPlayer);
     connect(&engine, &TarotEngine::sigPlayCard, this, &Server::slotSendPlayCard);
     connect(&engine, &TarotEngine::sigRequestBid, this, &Server::slotSendRequestBid);
@@ -227,10 +228,8 @@ bool Server::DoAction(QDataStream &in, Place p)
 
     case Protocol::CLIENT_HANDLE:
     {
-        // FIXME: add protection, limits ...
-        quint8 size;
+        // FIXME: add protections: handle validity, game sequence ...
         Deck handle;
-        in >> size; // FIXME: delete this unused variable?
         in >> handle;
         engine.SetHandle(handle, p);
         SendShowHandle(handle);
@@ -283,21 +282,9 @@ void Server::SendRequestIdentity(Place p)
     QByteArray packet;
     QDataStream out(&packet, QIODevice::ReadWrite);
     out << (quint8)p; // assigned place
+    out << (quint8)4; // number of players in the current game
     packet = BuildCommand(packet, Protocol::SERVER_REQUEST_IDENTITY);
     players[p].SendData(packet);
-}
-/*****************************************************************************/
-void Server::SendCards()
-{
-    for (int i=0; i<engine.GetGameInfo().numberOfPlayers; i++)
-    {
-        QByteArray packet;
-        QDataStream out(&packet, QIODevice::WriteOnly);
-        out << (quint8)4 // number of players in the current game
-            << engine.GetPlayer((Place)i).GetDeck();
-        packet = BuildCommand(packet, Protocol::SERVER_SEND_CARDS);
-        players[i].SendData(packet);
-    }
 }
 /*****************************************************************************/
 void Server::SendBid(Contract c, Place p)
@@ -361,6 +348,18 @@ void Server::SendShowHandle(Deck &handle)
     out << handle;
     packet = BuildCommand(packet, Protocol::SERVER_SHOW_HANDLE);
     Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::slotSendCards()
+{
+    for (int i=0; i<engine.GetGameInfo().numberOfPlayers; i++)
+    {
+        QByteArray packet;
+        QDataStream out(&packet, QIODevice::WriteOnly);
+        out << engine.GetPlayer((Place)i).GetDeck();
+        packet = BuildCommand(packet, Protocol::SERVER_SEND_CARDS);
+        players[i].SendData(packet);
+    }
 }
 /*****************************************************************************/
 void Server::slotSendEndOfDeal()

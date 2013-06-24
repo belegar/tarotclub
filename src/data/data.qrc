@@ -27,5 +27,13 @@
         <file>images/version.png</file>
         <file>images/wizard.png</file>
         <file>images/avatars/bender.png</file>
+        <file>images/avatars/amy.png</file>
+        <file>images/avatars/farnsworth.png</file>
+        <file>images/avatars/fry.png</file>
+        <file>images/avatars/hermes.png</file>
+        <file>images/avatars/leela.png</file>
+        <file>images/avatars/nibbler.png</file>
+        <file>images/avatars/scruffy.png</file>
+        <file>images/avatars/zoidberg.png</file>
     </qresource>
 </RCC>

@@ -31,6 +31,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsScene>
+#include <QPainter>
 
 /*****************************************************************************/
 /**
@@ -93,7 +94,45 @@ public:
 class PlayerBox : public TextBox
 {
 private:
-    QGraphicsPixmapItem      *avatar;
+
+    class AvatarItem: public QGraphicsPixmapItem
+    {
+    public:
+        AvatarItem(const QPixmap &pixmap, QGraphicsItem *parentItem=0, int size=0)
+            : QGraphicsPixmapItem(pixmap,parentItem)
+        {
+            setCacheMode(NoCache);
+            setSize(size);
+        }
+        ~AvatarItem() {}
+
+    public:
+        QRectF boundingRect() const
+        {
+            // Return defined 'size'
+            return QRectF(QPointF(0,0),QSizeF(mSize,mSize));
+        }
+        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0)
+        {
+            // Scale QGraphicsPixmapItem to wanted 'size' and keep the aspect ratio using boundingRect()
+            painter->drawPixmap(boundingRect().toRect(), pixmap());
+            Q_UNUSED(option);
+            Q_UNUSED(widget);
+
+            // NOTE: Does not use base class paint for painting now, that does not scale QPixmap
+            //QGraphicsPixmapItem::paint(painter, option, widget);
+        }
+        void setSize(int size)
+        {
+            mSize = size;
+        }
+
+    private:
+        int mSize;
+    };
+
+
+    AvatarItem      *avatar;
 
 public:
     PlayerBox(const QPointF &pos, QGraphicsScene *canvas);

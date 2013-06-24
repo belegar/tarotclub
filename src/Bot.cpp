@@ -85,11 +85,9 @@ void Bot::slotPlayersList(QMap<Place, Identity> &players)
 /*****************************************************************************/
 void Bot::slotReceiveCards()
 {
-    UpdateStatistics();
-
     QScriptValueList args;
     args << GetMyDeck().GetCardList();
-    CallScript("ReceiveCard", args);
+    CallScript("ReceiveCards", args);
 }
 /*****************************************************************************/
 void Bot::slotSelectPlayer(Place p)
@@ -244,7 +242,7 @@ QScriptValue myPrint(QScriptContext *context, QScriptEngine *eng)
     {
         return context->throwError(
                    QScriptContext::TypeError,
-                   QString::fromLatin1("print(): expected string argument"));
+                   QString::fromLatin1("ScriptDebug(): expected string argument"));
     }
     QString toPrint = QString("Bot script: ") + arg.toString();
     qDebug() << toPrint.toLatin1().constData();
@@ -255,7 +253,7 @@ bool Bot::InitializeScriptContext()
 {
 #ifndef QT_NO_DEBUG
 #ifdef Q_OS_WIN32
-    QString fileName = "E:/Personnel/tarotclub/ai/beginner.js";
+    QString fileName = "E:/tarotclub_big_changes/ai/beginner.js";
 #else
     QString fileName = "/home/anthony/Documents/tarotclub/ai/beginner.js";
 #endif
@@ -266,19 +264,19 @@ bool Bot::InitializeScriptContext()
 
     // Give access to some objects from the JavaScript engine
     botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
-    botEngine.globalObject().setProperty("TPrint", botEngine.newFunction(&myPrint));
+    botEngine.globalObject().setProperty("ScriptDebug", botEngine.newFunction(&myPrint));
 
     QFile scriptFile(fileName);
 
     if (! scriptFile.exists())
     {
-        QMessageBox::critical(0, "Error", "Could not find program file!");
+        qDebug() << "Script error: could not find program file!";
         return false;
     }
 
     if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        QMessageBox::critical(0, "Error", "Could not open program file!");
+        qDebug() <<  "Script error: could not open program file!";
         return false;
     }
 
@@ -287,7 +285,7 @@ bool Bot::InitializeScriptContext()
     // do static check so far of code:
     if (! botEngine.canEvaluate(strProgram))
     {
-        QMessageBox::critical(0, "Error", "canEvaluate returned false!");
+        qDebug() <<  "Script error: canEvaluate returned false!";
         return false;
     }
 #ifndef QT_NO_DEBUG
@@ -314,13 +312,13 @@ QScriptValue Bot::CallScript(const QString &function, QScriptValueList &args)
     if (botEngine.hasUncaughtException())
     {
         QScriptValue exception = botEngine.uncaughtException();
-        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception while looking for create func: ") + exception.toString());
+        qDebug() <<  "Script error: script threw an uncaught exception while looking for create func: " << exception.toString();
         return ret;
     }
 
     if (!createFunc.isFunction())
     {
-        QMessageBox::critical(0, "Script Error", "createFunc is not a function!");
+        qDebug() <<  "Script error: " << function << " is not a function!";
     }
 
     ret = createFunc.call(QScriptValue(), args);

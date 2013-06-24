@@ -159,6 +159,15 @@ function Deck()
 		this.cards[this.cards.length] = new Card(cardName, place);
 	}
 	
+	// Take out one card from the deck
+	// Return the card name (string format) of a card
+	this.TakeCard = function(index)
+	{
+		var card = this.cards[index].GetName();
+		this.cards[index] = undefined;
+		return card;
+	}
+	
 	this.SetCards = function(list)
 	{
 		var result = list.split(/;/g);		
@@ -178,7 +187,6 @@ function Player(place)
 {
 	this.position = place;
 	this.hasSuits = new Array(5);
-	this.deck = new Deck();
 	
 /********* Methods *********/
 	this.Initialize = function()
@@ -186,7 +194,6 @@ function Player(place)
 		for (var i=0; i<this.hasSuits.length; i++) {
 			this.hasSuits[i] = true;
 		}
-		this.deck.Clear();
 	}
 	
 	this.Print = function()
@@ -216,16 +223,6 @@ function Player(place)
 		}
 		return missed;
 	}
-	
-	/**
-	 * @brief Retreive a card in the players deck. Replaced by an empty slot
-	 */
-	this.GetCard = function(index)
-	{
-		var card = this.deck[index];
-		this.deck[index] = undefined;
-		return card;
-	}
 }
 
 /*****************************************************************************/
@@ -233,7 +230,7 @@ function Player(place)
 
 function GameState()
 {
-// Variables
+	// Player statistics
 	this.players = new Array(4);
 	for(var i=0; i<this.players.length; i++) {
 		this.players[i] = new Player(i); // position of players is assigned here
@@ -245,13 +242,15 @@ function GameState()
 		this.playedCards[i] = new Deck();
 	}
 	
-	this.turnCounter = 0;		// number of turns, 18 with 4 players
-	this.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
-	
 	// Game variables
 	this.contract;
 	this.taker;
+	this.trickCounter = 0;		// number of turns, 18 with 4 players
+	this.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
+
+	// Bot variables
 	this.myPlace;
+	this.myDeck = new Deck();
 	
 	// Variables of the current turn
 	this.trickColor;
@@ -265,17 +264,17 @@ function GameState()
 		if (this.currentPosition == 0) {
 			this.startedWithExcuse = false;
 			// First played card is the color to play, except in case of excuse (0-A)
-			this.trickColor = this.playedCards[this.turnCounter].cards[0].color;
-			this.firstCardValue = this.playedCards[this.turnCounter].cards[0].value;
+			this.trickColor = this.playedCards[this.trickCounter].cards[0].color;
+			this.firstCardValue = this.playedCards[this.trickCounter].cards[0].value;
 			
 			// special case of excuse
 			if ((this.trickColor == "A") && (this.firstCardValue == "0")) {
 				this.startedWithExcuse = true;			
 			}
 		} else if ((this.currentPosition == 1) && (this.startedWithExcuse == true)) {
-			this.trickColor = this.playedCards[this.turnCounter].cards[1].color;
+			this.trickColor = this.playedCards[this.trickCounter].cards[1].color;
 		} else {
-			if (this.playedCards[this.turnCounter].cards[this.currentPosition].color != this.trickColor) {
+			if (this.playedCards[this.trickCounter].cards[this.currentPosition].color != this.trickColor) {
 				this.players[place].SetMissedColor(this.trickColor);
 			}
 		}
@@ -294,7 +293,7 @@ function GameState()
 		for(var i=0; i<this.players.length; i++) {
 			this.players[i].Initialize();
 		}
-		this.turnCounter = 0;
+		this.trickCounter = 0;
 		this.currentPosition = 0;
 		
 		for(var i=0; i<this.playedCards.length; i++) {
@@ -312,188 +311,48 @@ function GameState()
 	
 	this.SetPlayedCard = function(cardName, place)
 	{
-		this.playedCards[this.turnCounter].AddOneCard(cardName, place);
+		this.playedCards[this.trickCounter].AddOneCard(cardName, place);
 	
 		this.AnalyzeTrick(place);
 	
 		this.currentPosition++;
 		if (this.currentPosition >= 4) {
 			this.currentPosition = 0;
-			this.turnCounter++;
+			this.trickCounter++;
+			
+			// TODO: detect who won the trick
 		}
 	}
 	
 	this.PlayDefenseStrategy = function()
 	{
-		var myDeck = new Deck();
-		
-		// Retreive my cards
-		myDeck.SetCards(TDeck.GetBotCards());
-		
-		// just play the first card available ... (let the game engine take a valid card if necessary)
-		return myDeck.cards[0].GetName();
+		// Just play the first card available ... (let the game engine take a valid card if necessary)
+		return this.myDeck.cards[0].GetName();
 	}
 	
 	this.PlayAttackStrategy = function()
 	{
-	
-	
+		return this.PlayDefenseStrategy();
 	}
 	
 	this.GetRandomCard = function(place)
 	{
-		for (var i=0; this.players[place].deck.length; i++) {
-			var card = this.players[place].GetCard(i);
-			if (card != undefined) {
-				card.Print();
-				//this.IsValid();
+		var index = 0;
+		for (var i=0; this.myDeck.cards.length; i++) {
+			if (this.myDeck.cards[i] != undefined) {
+				if (this.IsValid(this.myDeck.cards[i].GetName()) == true) {
+					index = i;
+				}
 			}
 		}
+		return this.myDeck.cards.TakeCard(index);
 	}
 
-	this.IsValid = function(place, card)
+	this.IsValid = function(card)
 	{
+		// FIXME
 		return true;
 	}
-	
-/*		
-		if (card.color)
-	
-		bool Player::canPlayCard( Deck *mainDeck, Card *cVerif , int gameCounter, int nbPlayers )
-{
-    int debut;
-    int rang;
-    debut = (gameCounter-1)/nbPlayers;
-    debut = debut*nbPlayers;
-
-    rang = gameCounter - debut;
-
-    // Le joueur entame le tour, il peut commencer comme il veut
-    if( rang == 1 ) {
-        return true;
-    }
-
-    // on traite un cas simple
-    if( cVerif->getType() == EXCUSE ) {
-        return true;
-    }
-
-    // première carte (couleur demandée)
-    CardType type;
-    CardColor   coul;
-    //////////////
-
-    bool possedeCouleur=false; // vrai si le joueur posseède la couleur demandee
-    bool possedeAtout=false;   // vrai si le joueur possède un atout
-    bool precedentAtout=false; // vrai si un atout max précédent
-    int  precAtoutMax=0;
-    int  atoutMax=0; // atout maxi possédé
-    bool ret=true;
-    Card *c;
-    int i,n;
-
-    // on cherche la couleur demandée
-    c = mainDeck->at( debut ); // première carte jouée à ce tour
-
-    type = c->getType();
-    coul = c->getColor();
-    if( type == EXCUSE ) { // aïe, le joueur a commencé avec une excuse
-        // le joueur peut jouer n'importe quelle carte après l'excuse, c'est lui qui décide alors de la couleur
-        if( rang == 2 ) {
-            return true;
-        }
-        c = mainDeck->at( debut + 1 ); // la couleur demandée est donc la seconde carte
-        type = c->getType();
-        coul = c->getColor();
-    }
-
-    if( type == CARTE && cVerif->getColor() == coul ) {
-        return true;
-    }
-
-    // Quelques indications sur les plis précédents
-    // On regarde s'il y a un atout
-    for( i=0; i<rang-1; i++ ) {
-        c = mainDeck->at( debut + i );
-        if( c->getType() == ATOUT ) {
-            precedentAtout = true;
-            if( c->getValue() > precAtoutMax ) {
-                precAtoutMax = c->getValue();
-            }
-        }
-    }
-
-    // Quelques indications sur les cartes du joueur
-    n = myDeck.count();
-
-    for( i=0; i<n; i++ ) {
-        c = myDeck.at( i );
-
-        if( c->getType() == ATOUT ) {
-            possedeAtout=true;
-            if( c->getValue() > atoutMax ) {
-                atoutMax = c->getValue();
-            }
-        }
-        else if( c->getType() == CARTE ) {
-            if( c->getColor() == coul ) {
-                possedeCouleur = true;
-            }
-        }
-    }
-
-    // cas 1 : le type demandé est ATOUT
-    if( type == ATOUT ) {
-        if( cVerif->getType() == ATOUT ) {
-            if( cVerif->getValue() > precAtoutMax ) {
-                return true;
-            } else {
-                if( atoutMax > precAtoutMax ) {
-                    return false;  // doit surcouper !
-                } else {
-                    return true;   // sinon tant pis, on doit quand même jouer la couleur demandée
-                }
-            }
-        } else {
-            if( possedeAtout == true ) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-    } else {// cas 2 : le type demandé est CARTE
-        // le joueur possède la couleur demandée, il doit donc la jouer cela
-        if( possedeCouleur == true ) {
-            return false;
-        } else { // pas la couleur demandée
-            if( cVerif->getType() == ATOUT ) {
-                // doit-il surcouper ?
-                if( precedentAtout==true ) {
-                    if( cVerif->getValue() > precAtoutMax ) { // carte de surcoupe
-                        return true;
-                    } else {
-                        // a-t-il alors un atout plus fort ?
-                        if( atoutMax > precAtoutMax ) {
-                            return false; // oui, il doit donc surcouper
-                        } else {
-                            return true;
-                        }
-                    }
-                }
-            } else {
-                // a-t-il un atout pour couper ?
-                if( possedeAtout == true ) {
-                    return false; // oui, il DOIT couper
-                } else {
-                    return true; // non, il peut se défausser
-                }
-            }
-        }
-    }
-    return ret;
-}
-	*/
-	
 }
 
 var CurrentGame = new GameState();
@@ -512,70 +371,13 @@ function EnterGame(place)
 }
 
 /**
- * @brief This function is called when we receive our cards for the new deal
+ * @brief This function is called when the cards are delt to players
  *
- * @param[in] cards The list of cards, string format
+ * @param[in] cards Cards of the bots (18 for 4 players), string format 
  */
-function ReceiveCard(cards)
+function ReceiveCards(cards)
 {
-	// FIXME: store cards into memory
-}
-
-
-/**
- * @brief This function is called when any card is played (even bot's ones)
- *
- * @param[in] cardName The name of the card, string format
- * @param[in] place The place of the player's card just played
- */
-function PlayedCard(cardName, place)
-{
-	CurrentGame.SetPlayedCard(cardName, parseInt(place));
-}
-
-/**
- * @brief This function is called to indicate a new game
- * 
- * Informational purpose, the script should memorize the arguments for later use
- *
- * @param[in] taker Indicates the place of the taker
- * @param[in] contract Indicates the contract announed by the taker
- */
-function StartGame(taker, contract)
-{
-	CurrentGame.taker = taker;
-	CurrentGame.contract = contract;
-}
-
-/**
- * @brief This function is called when the bot must play a card
- * 
- * The counter in parameter is useful to calculate the current position
- * in the current turn and to know what are the cards played by the 
- * previous players. 
- *
- * Use this counter along with the main deck of cards to analyse the game.
- *
- * Notice that in case of a non-valid card returned, the game engine will take
- * a random valid card in the bot's deck.
- *
- * @param[in] gameCounter Current game counter, incremented at each player's turn  [1..72]
- * @return The card played, string format
- */
-function PlayCard(gameCounter)
-{
-	// FIXME: delete gameCounter, not necessary for AI
-//	debugger;
-
-	var cardName;
-	
-	if (CurrentGame.taker == CurrentGame.myPlace) {
-		cardName = CurrentGame.PlayAttackStrategy();
-	} else {
-		cardName = CurrentGame.PlayDefenseStrategy();
-	}
-
-	return cardName;
+	CurrentGame.myDeck.SetCards(cards);
 }
 
 /**
@@ -636,14 +438,71 @@ function AnnounceBid()
    return cont;
 }
 
+/**
+ * @brief This function is called to indicate a new game
+ * 
+ * Informational purpose, the script should memorize the arguments for later use
+ *
+ * @param[in] taker Indicates the place of the taker
+ * @param[in] contract Indicates the contract announed by the taker
+ */
+function StartGame(taker, contract)
+{
+	CurrentGame.taker = taker;
+	CurrentGame.contract = contract;
+}
+
+/**
+ * @brief This function is called when the bot must play a card
+ * 
+ * The counter in parameter is useful to calculate the current position
+ * in the current turn and to know what are the cards played by the 
+ * previous players. 
+ *
+ * Use this counter along with the main deck of cards to analyse the game.
+ *
+ * Notice that in case of a non-valid card returned, the game engine will take
+ * a random valid card in the bot's deck.
+ *
+ * @param[in] gameCounter Current game counter, incremented at each player's turn  [1..72]
+ * @return The card played, string format
+ */
+function PlayCard(gameCounter)
+{
+	// FIXME: delete gameCounter, not necessary for AI
+//	debugger;
+
+	var cardName;
+	
+	if (CurrentGame.taker == CurrentGame.myPlace) {
+		cardName = CurrentGame.PlayAttackStrategy();
+	} else {
+		cardName = CurrentGame.PlayDefenseStrategy();
+	}
+
+	return cardName;
+}
+
+/**
+ * @brief This function is called when any card is played (even bot's ones)
+ *
+ * @param[in] cardName The name of the card, string format
+ * @param[in] place The place of the player's card just played
+ */
+function PlayedCard(cardName, place)
+{
+	CurrentGame.SetPlayedCard(cardName, parseInt(place));
+}
+
 /*****************************************************************************/
 // JAVASCRIPT UNIT TEST OF BASE CLASSES
 
 function SystemPrint(message)
 {
-	//document.write(message + "<br />");
-	//print(message + "<br />");
+//	document.write(message + "<br />");
+	ScriptDebug(message + "<br />");
 }
+
 
 
 

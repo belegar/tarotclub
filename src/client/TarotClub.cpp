@@ -704,7 +704,7 @@ void TarotClub::slotEndOfDeal()
  */
 void TarotClub::slotWaitTrick(Place winner)
 {
-    roundDock->selectWinner(client.GetGameInfo(), winner);
+//    roundDock->selectWinner(client.GetGameInfo(), winner); FIXME: correct this method, index seems not correct
 //    roundDock->pointsToTaker(turnCounter, 0); // FIXME: calculate points won by the taker this turn?
     tapis->setFilter(Tapis::AUCUN);
     statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer."));

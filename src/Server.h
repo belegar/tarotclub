@@ -76,7 +76,6 @@ private:
 
     // Protocol methods
     void SendRequestIdentity(Place p);
-    void SendCards();
 
     void SendBid(Contract c, Place p);
     void SendErrorServerFull(QTcpSocket *cnx);
@@ -88,6 +87,7 @@ private:
 
 private slots:
     // TarotClub protocol
+    void slotSendCards();
     void slotNewConnection();
     void slotSendWaitTrick(Place winner);
     void slotSendStartDeal();

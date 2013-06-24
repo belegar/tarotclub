@@ -94,10 +94,6 @@ void NetPlayer::SendData(QByteArray &data)
             qDebug() << "Send data to a non-connected socket" << endl;
         }
     }
-    else
-    {
-        qDebug() << "Send data to a non-valid socket" << endl;
-    }
 }
 /*****************************************************************************/
 QByteArray NetPlayer::GetData()

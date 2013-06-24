@@ -179,6 +179,7 @@ Contract Client::CalculateBid()
 /*****************************************************************************/
 void Client::UpdateStatistics()
 {
+    stats.Reset();
     player.GetDeck().AnalyzeTrumps(stats);
     player.GetDeck().AnalyzeSuits(stats);
 }
@@ -347,12 +348,16 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_REQUEST_IDENTITY:
     {
-        quint8 p;
+        quint8 place;
+        quint8 nbPlayers;
 
-        in >> p;
-        player.SetPlace((Place)p);
+        in >> place;
+        in >> nbPlayers;
+
+        player.SetPlace((Place)place);
+        info.Initialize(nbPlayers);
         SendIdentity();
-        emit sigAssignedPlace((Place)p);
+        emit sigAssignedPlace((Place)place);
         break;
     }
 
@@ -377,23 +382,10 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_SEND_CARDS:
     {
-        int i;
-        quint8 n;
-
-        in >> n;
-        info.Initialize();
-        info.numberOfPlayers = n;
-        if (n == 4)
-        {
-            player.GetDeck().clear();
-            for (i = 0; i<info.GetNumberOfCards(); i++)
-            {
-                in >> n;
-                player.GetDeck().append(TarotDeck::GetCard(n));
-            }
-            score.Reset();
-            emit sigReceiveCards();
-        }
+        in >> player.GetDeck();
+        score.Reset();
+        UpdateStatistics();
+        emit sigReceiveCards();
         break;
     }
 
@@ -428,9 +420,17 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_SHOW_DOG:
     {
-        dogDeck.clear();
         in >> dogDeck;
+        /*
+        QList<quint8> list;
+        in >> list;
+        for (int i=0; i<list.size(); i++)
+        {
+            quint8 id = list.at(0);
+            dogDeck.append(TarotDeck::GetCard(id));
+        }*/
         dogDeck.Sort();
+        info.sequence = Game::SHOW_DOG;
         emit sigShowDog();
         break;
     }
@@ -580,7 +580,6 @@ void Client::SendHandle()
 {
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << handleDeck.size();
     out << handleDeck;
     packet = BuildCommand(packet, Protocol::CLIENT_HANDLE);
     socket.write(packet);
