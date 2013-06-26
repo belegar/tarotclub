@@ -68,7 +68,7 @@ void Game::Stop()
 /*****************************************************************************/
 void Game::StartDeal()
 {
-    sequence = PLAY_TRICK;
+    sequence = SYNC_START;
     // In case of Chelem, the first player to play is the taker.
     // Otherwise, it is the player on the right of the dealer
     if (slamAnnounced == true)

@@ -25,11 +25,11 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <QThread>
+#include <QObject>
 #include "Server.h"
 
 /*****************************************************************************/
-class Table
+class Table : public QObject
 {
 
 public:
@@ -41,7 +41,6 @@ public:
     Table();
 
     // Helpers
-    void Initialize();
     void LoadConfiguration();
     void CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers = 4);
     void Start();
@@ -58,7 +57,6 @@ public:
 private:
     Server server;
     ServerConfig serverConfig;
-    QThread thread;
     Mode mode;
     Bot bots[3];
 

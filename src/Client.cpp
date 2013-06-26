@@ -421,14 +421,6 @@ bool Client::DoAction(QDataStream &in)
     case Protocol::SERVER_SHOW_DOG:
     {
         in >> dogDeck;
-        /*
-        QList<quint8> list;
-        in >> list;
-        for (int i=0; i<list.size(); i++)
-        {
-            quint8 id = list.at(0);
-            dogDeck.append(TarotDeck::GetCard(id));
-        }*/
         dogDeck.Sort();
         info.sequence = Game::SHOW_DOG;
         emit sigShowDog();
@@ -437,6 +429,7 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_BUILD_DISCARD:
     {
+        info.sequence = Game::BUILD_DOG;
         emit sigBuildDiscard();
         break;
     }
@@ -448,9 +441,11 @@ bool Client::DoAction(QDataStream &in)
 
         in >> preneur;
         in >> contrat;
+        info.NewDeal();
         info.taker = (Place)preneur;
         info.contract = (Contract)contrat;
         currentTrick.clear();
+        info.sequence = Game::IDLE;
         emit sigStartDeal((Place)preneur, (Contract)contrat);
         break;
     }
@@ -463,6 +458,7 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_PLAY_CARD:
     {
+        info.sequence = Game::PLAY_TRICK;
         emit sigPlayCard();
         break;
     }
@@ -474,6 +470,7 @@ bool Client::DoAction(QDataStream &in)
 
         in >> id;
         in >> tour;
+        info.Next();
         currentTrick.append(TarotDeck::GetCard(id));
         emit sigShowCard((int)id, (Place)tour);
         break;

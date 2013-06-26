@@ -439,6 +439,16 @@ function AnnounceBid()
 }
 
 /**
+ * @brief This function is called for the bot to build the discard
+ * 
+ * @param[in] dog Dog deck, string format
+ */
+function BuildDiscard(dog)
+{
+
+}
+
+/**
  * @brief This function is called to indicate a new game
  * 
  * Informational purpose, the script should memorize the arguments for later use

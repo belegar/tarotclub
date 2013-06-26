@@ -108,7 +108,7 @@ void TarotEngine::SetCard(Card *c, Place p)
 {
     currentTrick.append(c);
     players[p].GetDeck().removeAll(c);
-    GameSateMachine();
+    gameState.sequence = Game::SYNC_CARD;
 }
 /*****************************************************************************/
 void TarotEngine::StopGame()
@@ -216,16 +216,14 @@ void TarotEngine::NewDeal()
     emit sigSendCards();
 
     // 3. Start the bid sequence
-    emit sigSelectPlayer(gameState.currentPlayer);
-    emit sigRequestBid(gameState.contract, gameState.currentPlayer);
+    BidSequence(gameState.contract, gameState.currentPlayer);
 }
 /*****************************************************************************/
 void TarotEngine::StartDeal()
 {
+    cntSyncStart = 0;
     gameState.StartDeal();
     emit sigStartDeal();
-    emit sigSelectPlayer(gameState.currentPlayer);
-    emit sigPlayCard(gameState.currentPlayer);
 }
 /*****************************************************************************/
 bool TarotEngine::SyncDog()
@@ -241,6 +239,32 @@ bool TarotEngine::SyncDog()
         }
     }
     return finished;
+}
+/*****************************************************************************/
+void TarotEngine::SyncStart()
+{
+    if (gameState.sequence == Game::SYNC_START)
+    {
+        cntSyncStart++;
+        if (cntSyncStart >= gameState.numberOfPlayers)
+        {
+            gameState.sequence = Game::PLAY_TRICK;
+            GameSateMachine();
+        }
+    }
+}
+/*****************************************************************************/
+void TarotEngine::SyncCard()
+{
+    if (gameState.sequence == Game::SYNC_CARD)
+    {
+        cntSyncCard++;
+        if (cntSyncCard >= gameState.numberOfPlayers)
+        {
+            gameState.sequence = Game::PLAY_TRICK;
+            GameSateMachine();
+        }
+    }
 }
 /*****************************************************************************/
 void TarotEngine::SyncTrick()
@@ -305,7 +329,9 @@ void TarotEngine::GameSateMachine()
     }
     else
     {
+        cntSyncCard = 0;
         emit sigSelectPlayer(gameState.currentPlayer);
+        qApp->processEvents(QEventLoop::AllEvents, 100);
         emit sigPlayCard(gameState.currentPlayer);
     }
 }
@@ -356,6 +382,7 @@ void TarotEngine::BidSequence(Contract c, Place p)
     else
     {
         emit sigSelectPlayer(gameState.currentPlayer);
+        qApp->processEvents(QEventLoop::AllEvents, 100);
         emit sigRequestBid(gameState.contract, gameState.currentPlayer);
     }
 }

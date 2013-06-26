@@ -109,7 +109,8 @@ void TarotClub::Initialize()
     ApplyOptions();
 
     serverLoc = LOCAL;
-    table.Initialize();
+    table.moveToThread(&thread);
+    thread.start();
     deal.Initialize();
 }
 /*****************************************************************************/
@@ -268,6 +269,21 @@ void TarotClub::showVictoryWindow()
     */
 }
 /*****************************************************************************/
+void TarotClub::hidePli()
+{
+    int i;
+    Card *c;
+    GfxCard *gc;
+    Deck &trick = client.GetCurrentTrick();
+
+    for (i = 0; i < trick.size(); i++)
+    {
+        c = trick.at(i);
+        gc = tapis->getGfxCard(c->GetId());
+        gc->hide();
+    }
+}
+/*****************************************************************************/
 void TarotClub::slotClickTapis()
 {
     if (client.GetGameInfo().sequence == Game::SHOW_DOG)
@@ -281,21 +297,6 @@ void TarotClub::slotClickTapis()
         hidePli();
         statusBar()->clearMessage();
         client.SendSyncTrick();
-    }
-}
-/*****************************************************************************/
-void TarotClub::hidePli()
-{
-    int i;
-    Card *c;
-    GfxCard *gc;
-    Deck &trick = client.GetCurrentTrick();
-
-    for (i = 0; i < trick.size(); i++)
-    {
-        c = trick.at(i);
-        gc = tapis->getGfxCard(c->GetId());
-        gc->hide();
     }
 }
 /*****************************************************************************/
@@ -374,7 +375,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
         client.SendCard(c);
 
     }
-    else if (client.GetGameInfo().sequence == Game::PLAY_TRICK)
+    else if (client.GetGameInfo().sequence == Game::BUILD_DOG)
     {
 
         if ((c->GetSuit() == Card::TRUMPS) ||

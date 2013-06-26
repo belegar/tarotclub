@@ -50,6 +50,10 @@ bool Protocol::DecodePacket(QDataStream &in)
 
     if (bytes < (qint64)sizeof(quint16))
     {
+        // Gets remaining data to avoid infinite loop
+        quint8 dummy;
+        in >> dummy;
+        qDebug() << "Error: buffer too small!" << endl;
         return false;
     }
     in >> blockSize;

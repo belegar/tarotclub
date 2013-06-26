@@ -29,20 +29,6 @@ Table::Table()
 {
 }
 /*****************************************************************************/
-void Table::Initialize()
-{
-    // 1. Create the server thread
-//    bots[0].moveToThread(&thread);
-//    bots[1].moveToThread(&thread);
-//    bots[2].moveToThread(&thread);
-
-    // 2. Load server configuration
-    LoadConfiguration();
-
-    // 3. Start the thread
-    thread.start();
-}
-/*****************************************************************************/
 void Table::LoadConfiguration()
 {
     serverConfig.Load();
@@ -84,8 +70,6 @@ void Table::Start()
 void Table::Stop()
 {
     server.StopServer();
-    thread.exit();
-    thread.wait(); // block until thread has finished execution
 }
 /*****************************************************************************/
 Server &Table::GetServer()
@@ -110,6 +94,7 @@ void Table::ConnectBots()
     qApp->processEvents(QEventLoop::AllEvents, 100);
     for (i = 0; i < 3; i++)
     {
+        bots[i].Initialize();
         bots[i].ConnectToHost("127.0.0.1", GetOptions().port);
         qApp->processEvents(QEventLoop::AllEvents, 100);
     }

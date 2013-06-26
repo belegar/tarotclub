@@ -236,6 +236,12 @@ bool Server::DoAction(QDataStream &in, Place p)
         break;
     }
 
+    case Protocol::CLIENT_SYNC_START:
+    {
+        engine.SyncStart();
+        break;
+    }
+
     case Protocol::CLIENT_SYNC_TRICK:
     {
         engine.SyncTrick();
@@ -252,9 +258,15 @@ bool Server::DoAction(QDataStream &in, Place p)
         in >> id;
         c = TarotDeck::GetCard(id);
         engine.SetCard(c, p);
+
+        // Broadcast played card, and wait for all acknowlegements
         SendShowCard(c);
         break;
     }
+
+    case Protocol::CLIENT_SYNC_CARD:
+        engine.SyncCard();
+        break;
 
     case Protocol::CLIENT_READY:
         engine.SyncReady();
@@ -402,8 +414,6 @@ void Server::slotSendSelectPlayer(Place p)
 void Server::slotSendPlayCard(Place p)
 {
     QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)p;
     packet = BuildCommand(packet, Protocol::SERVER_PLAY_CARD);
     players[p].SendData(packet);
 }
@@ -438,6 +448,8 @@ void Server::Broadcast(QByteArray &block)
     for (int i=0; i<maximumPlayers; i++)
     {
         players[i].SendData(block);
+        // Calm down packets sending
+        qApp->processEvents(QEventLoop::AllEvents, 100);
     }
 }
 

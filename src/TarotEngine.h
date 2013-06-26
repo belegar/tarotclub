@@ -67,6 +67,8 @@ public:
     bool SyncDog();
     void SyncTrick();
     void SyncReady();
+    void SyncCard();
+    void SyncStart();
     void BidSequence(Contract c, Place p);
 
     // Getters
@@ -104,7 +106,9 @@ private:
     // synchonization counters
     int         cntSyncDog;     // players saw the dog
     int         cntSyncTrick;   // end of a round
-    int         cntSyncReady;    // end of a deal
+    int         cntSyncReady;   // end of a deal
+    int         cntSyncStart;   // start of a deal
+    int         cntSyncCard;    // players saw the played card
 
     bool IsCardValid(Card *c, Place p);
     bool HasCard(Card *c, Place p);

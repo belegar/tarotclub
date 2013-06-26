@@ -43,6 +43,8 @@ public:
         BUILD_HANDLE,
         SHOW_HANDLE,
         PLAY_TRICK,
+        SYNC_START,
+        SYNC_CARD,
         SYNC_TRICK,
         SYNC_DOG,
         SYNC_READY
@@ -85,8 +87,8 @@ public:
     Mode        gameMode;
 
     // Various game states and counters
-    int         position;          // Current position, [0..numberOfPlayers-1]
-    int         trickCounter;      // number of tricks played [0..17] for 4 players
+    int         position;          // Current position, [1..numberOfPlayers]
+    int         trickCounter;      // number of tricks played [1..18] for 4 players
     Place       dealer;            // who has dealt the cards
     Place       currentPlayer;
     Sequence    sequence;

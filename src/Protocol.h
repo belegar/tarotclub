@@ -47,8 +47,10 @@ public:
         CLIENT_READY        = 0x16,
         CLIENT_ERROR        = 0x17,
         CLIENT_SYNC_DOG     = 0x18, //!< Used to synchronize all clients that are looking at the dog cards
-        CLIENT_SYNC_HANDLE  = 0x19, //!< Used to synchronize all clients that are looking at the trick cards
+        CLIENT_SYNC_HANDLE  = 0x19, //!< Used to synchronize all clients that are looking at the handle cards
         CLIENT_SYNC_TRICK   = 0x20, //!< Used to synchronize all clients that are looking at the trick cards
+        CLIENT_SYNC_CARD    = 0x21, //!< Used to synchronize all clients to ensure that they have received the card played
+        CLIENT_SYNC_START   = 0x22, //!< Used to synchronize all clients to start the deal
 
         // server -> client
         SERVER_MESSAGE          = 0x70, //!< chat message broadcasted to all clients

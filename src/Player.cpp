@@ -66,7 +66,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick, Game &info)
     int i;
 
     // The player is the first of the trick, he can play all the cards
-    if (info.position == 0)
+    if (info.position == 1)
     {
         return true;
     }
@@ -83,7 +83,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick, Game &info)
     if (c->IsFool())
     {
         // The first card is a Excuse...
-        if (info.position == 1)
+        if (info.position == 2)
         {
             // ...the player can play everything he wants
             return true;

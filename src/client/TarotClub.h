@@ -35,6 +35,7 @@
 #include "MainWindow.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
+#include <QThread>
 
 /*****************************************************************************/
 /**
@@ -69,6 +70,7 @@ public:
 
 private:
     Table table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
+    QThread thread;
     ClientConfig clientConfig;
     Client      client; // The human player
     bool        firstTurn;
