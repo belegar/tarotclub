@@ -69,7 +69,8 @@ public:
     void SyncReady();
     void SyncCard();
     void SyncStart();
-    void BidSequence(Contract c, Place p);
+    void SyncBid();
+    void BidSequence();
 
     // Getters
     Player &GetPlayer(Place p);
@@ -83,9 +84,9 @@ public:
     void SetDiscard(Deck &discard);
     void SetHandle(Deck &handle, Place p);
     void SetCard(Card *c, Place p);
+    Contract SetBid(Contract c, Place p);
 
 signals:
-    void sigSelectPlayer(Place p);
     void sigRequestBid(Contract c, Place p);
     void sigDealAgain();
     void sigPlayCard(Place p);
@@ -105,6 +106,7 @@ private:
 
     // synchonization counters
     int         cntSyncDog;     // players saw the dog
+    int         cntSyncBid;     // players saw the bid
     int         cntSyncTrick;   // end of a round
     int         cntSyncReady;   // end of a deal
     int         cntSyncStart;   // start of a deal

@@ -36,7 +36,6 @@ Server::Server()
     connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
     connect(&engine, &TarotEngine::sigStartDeal, this, &Server::slotSendStartDeal);
     connect(&engine, &TarotEngine::sigSendCards, this, &Server::slotSendCards);
-    connect(&engine, &TarotEngine::sigSelectPlayer, this, &Server::slotSendSelectPlayer);
     connect(&engine, &TarotEngine::sigPlayCard, this, &Server::slotSendPlayCard);
     connect(&engine, &TarotEngine::sigRequestBid, this, &Server::slotSendRequestBid);
     connect(&engine, &TarotEngine::sigShowDog, this, &Server::slotSendShowDog);
@@ -206,17 +205,21 @@ bool Server::DoAction(QDataStream &in, Place p)
         quint8 c;
         // FIXME: add protection like client origin, current sequence...
         in >> c;
-        engine.BidSequence((Contract)c, p);
-        SendBid((Contract)c, p);
+        Contract declared = engine.SetBid((Contract)c, p);
+
+        // Broadcast player's bid, and wait for all acknowlegements
+        SendShowBid(declared, p);
         break;
     }
 
     case Protocol::CLIENT_SYNC_DOG:
+    {
         if (engine.SyncDog() == true)
         {
             SendBuildDiscard();
         }
         break;
+    }
 
     case Protocol::CLIENT_DISCARD:
     {
@@ -239,6 +242,12 @@ bool Server::DoAction(QDataStream &in, Place p)
     case Protocol::CLIENT_SYNC_START:
     {
         engine.SyncStart();
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_BID:
+    {
+        engine.SyncBid();
         break;
     }
 
@@ -265,12 +274,16 @@ bool Server::DoAction(QDataStream &in, Place p)
     }
 
     case Protocol::CLIENT_SYNC_CARD:
+    {
         engine.SyncCard();
         break;
+    }
 
     case Protocol::CLIENT_READY:
+    {
         engine.SyncReady();
         break;
+    }
 
     default:
         qDebug() <<  trUtf8(": Unkown packet received.") << endl;
@@ -299,7 +312,7 @@ void Server::SendRequestIdentity(Place p)
     players[p].SendData(packet);
 }
 /*****************************************************************************/
-void Server::SendBid(Contract c, Place p)
+void Server::SendShowBid(Contract c, Place p)
 {
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
@@ -402,20 +415,13 @@ void Server::slotSendStartDeal()
     Broadcast(packet);
 }
 /*****************************************************************************/
-void Server::slotSendSelectPlayer(Place p)
-{
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)p;
-    packet = BuildCommand(packet, Protocol::SERVER_SELECT_PLAYER);
-    Broadcast(packet);
-}
-/*****************************************************************************/
 void Server::slotSendPlayCard(Place p)
 {
     QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
+    out << (quint8)p; // this player has to play a card
     packet = BuildCommand(packet, Protocol::SERVER_PLAY_CARD);
-    players[p].SendData(packet);
+    Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendRequestBid(Contract c, Place p)
@@ -423,8 +429,9 @@ void Server::slotSendRequestBid(Contract c, Place p)
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)c; // previous bid
+    out << (quint8)p; // player to declare something
     packet = BuildCommand(packet, Protocol::SERVER_REQUEST_BID);
-    players[p].SendData(packet);
+    Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendShowDog()

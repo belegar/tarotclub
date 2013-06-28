@@ -77,7 +77,7 @@ private:
     // Protocol methods
     void SendRequestIdentity(Place p);
 
-    void SendBid(Contract c, Place p);
+    void SendShowBid(Contract c, Place p);
     void SendErrorServerFull(QTcpSocket *cnx);
     void SendChatMessage(const QString &message);
     void SendPlayersList();
@@ -91,7 +91,6 @@ private slots:
     void slotNewConnection();
     void slotSendWaitTrick(Place winner);
     void slotSendStartDeal();
-    void slotSendSelectPlayer(Place p);
     void slotSendPlayCard(Place p);
     void slotSendRequestBid(Contract c, Place p);
     void slotSendShowDog();

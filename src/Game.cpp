@@ -105,7 +105,10 @@ bool Game::Next()
     }
     else
     {
-        currentPlayer = NextPlayer(currentPlayer);
+        if (position > 1)
+        {
+            currentPlayer = NextPlayer(currentPlayer);
+        }
         endOfTrick = false;
     }
     return endOfTrick;

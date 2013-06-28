@@ -426,32 +426,12 @@ void Tapis::setAvatar(Place p, const QString &file)
  * @param absolute
  * @return
  */
-Place Tapis::SwapPlace(Place origin, Place absolute)
+Place Tapis::SwapPlace(Place my_place, Place absolute)
 {
-    Place pl = SOUTH;
+    // FIXME: generalize this algorithm with the number of players from GameInfo
+    Place pl = (Place)((absolute+4-my_place)%4);
 
-    if (origin == WEST)
-    {
-        Place tab[] = {EAST, NORTH, WEST, SOUTH};
-        pl = tab[absolute];
-    }
-    else if (origin == NORTH)
-    {
-        Place tab[] = {NORTH, WEST, SOUTH, EAST};
-        pl = tab[absolute];
-    }
-    else if (origin == EAST)
-    {
-        Place tab[] = {WEST, SOUTH, EAST, NORTH};
-        pl = tab[absolute];
-    }
-    else
-    {
-        Place tab[] = {SOUTH, EAST, NORTH, WEST};
-        pl = tab[absolute];
-    }
-
-    return (pl);
+    return pl;
 }
 /*****************************************************************************/
 /**
@@ -459,8 +439,6 @@ Place Tapis::SwapPlace(Place origin, Place absolute)
  */
 void Tapis::setPlayerNames(QMap<Place, Identity> &players, Place p)
 {
-    p = SwapPlace(p, SOUTH);   // always south
-
     QMapIterator<Place, Identity> i(players);
     while (i.hasNext())
     {

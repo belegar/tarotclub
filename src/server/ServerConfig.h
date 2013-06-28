@@ -57,9 +57,9 @@ class ServerConfig
 public:
     enum BotPlace
     {
-        BOT_WEST = 0,
+        BOT_EAST = 0,
         BOT_NORTH = 1,
-        BOT_EAST
+        BOT_WEST
     };
 
     ServerConfig();

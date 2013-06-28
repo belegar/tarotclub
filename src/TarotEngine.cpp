@@ -106,9 +106,27 @@ void TarotEngine::SetHandle(Deck &handle, Place p)
 /*****************************************************************************/
 void TarotEngine::SetCard(Card *c, Place p)
 {
+    c->SetOwner(p);
     currentTrick.append(c);
     players[p].GetDeck().removeAll(c);
+    cntSyncCard = 0;
     gameState.sequence = Game::SYNC_CARD;
+}
+/*****************************************************************************/
+Contract TarotEngine::SetBid(Contract c, Place p)
+{
+    if (c > gameState.contract)
+    {
+        gameState.contract = c;
+        gameState.taker = p;
+    }
+    else
+    {
+        c = PASS;
+    }
+    cntSyncBid = 0;
+    gameState.sequence = Game::SYNC_BID;
+    return c;
 }
 /*****************************************************************************/
 void TarotEngine::StopGame()
@@ -216,7 +234,7 @@ void TarotEngine::NewDeal()
     emit sigSendCards();
 
     // 3. Start the bid sequence
-    BidSequence(gameState.contract, gameState.currentPlayer);
+    BidSequence();
 }
 /*****************************************************************************/
 void TarotEngine::StartDeal()
@@ -250,6 +268,19 @@ void TarotEngine::SyncStart()
         {
             gameState.sequence = Game::PLAY_TRICK;
             GameSateMachine();
+        }
+    }
+}
+/*****************************************************************************/
+void TarotEngine::SyncBid()
+{
+    if (gameState.sequence == Game::SYNC_BID)
+    {
+        cntSyncBid++;
+        if (cntSyncBid >= gameState.numberOfPlayers)
+        {
+            gameState.sequence = Game::BID;
+            BidSequence();
         }
     }
 }
@@ -329,21 +360,12 @@ void TarotEngine::GameSateMachine()
     }
     else
     {
-        cntSyncCard = 0;
-        emit sigSelectPlayer(gameState.currentPlayer);
-        qApp->processEvents(QEventLoop::AllEvents, 100);
         emit sigPlayCard(gameState.currentPlayer);
     }
 }
 /*****************************************************************************/
-void TarotEngine::BidSequence(Contract c, Place p)
+void TarotEngine::BidSequence()
 {
-    if (c > gameState.contract)
-    {
-        gameState.contract = c;
-        gameState.taker = p;
-    }
-
     if (gameState.Next() == true)
     {
         if (gameState.contract == PASS)
@@ -381,8 +403,6 @@ void TarotEngine::BidSequence(Contract c, Place p)
     }
     else
     {
-        emit sigSelectPlayer(gameState.currentPlayer);
-        qApp->processEvents(QEventLoop::AllEvents, 100);
         emit sigRequestBid(gameState.contract, gameState.currentPlayer);
     }
 }

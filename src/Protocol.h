@@ -51,13 +51,13 @@ public:
         CLIENT_SYNC_TRICK   = 0x20, //!< Used to synchronize all clients that are looking at the trick cards
         CLIENT_SYNC_CARD    = 0x21, //!< Used to synchronize all clients to ensure that they have received the card played
         CLIENT_SYNC_START   = 0x22, //!< Used to synchronize all clients to start the deal
+        CLIENT_SYNC_BID     = 0x23, //!< Used to synchronize all clients that are looking the bid declared
 
         // server -> client
         SERVER_MESSAGE          = 0x70, //!< chat message broadcasted to all clients
         SERVER_REQUEST_IDENTITY = 0x71, //!< Server assigns a place to a client and he must reply back the identity
         SERVER_PLAYERS_LIST     = 0x72,
         SERVER_SEND_CARDS       = 0x73,
-        SERVER_SELECT_PLAYER    = 0x74,
         SERVER_REQUEST_BID      = 0x75, //!< ask for a bid
         SERVER_BUILD_DISCARD    = 0x76,
         SERVER_START_DEAL       = 0x77,

@@ -187,7 +187,7 @@ void TarotClub::newLocalGame()
     infosDock->clear();
     tapis->razTapis();
     tapis->resetCards();
-    roundDock->clear();
+    roundDock->Clear();
     tapis->setFilter(Tapis::AUCUN);
 
     // Connect us to the server
@@ -463,6 +463,7 @@ void TarotClub::slotRequestBid(Contract highestBid)
 void TarotClub::slotShowBid(Place p, Contract c)
 {
     tapis->ShowBid(p, c);
+    client.SendSyncBid();
 }
 /*****************************************************************************/
 void TarotClub::slotAccepteChien()
@@ -611,7 +612,7 @@ void TarotClub::slotBuildDiscard()
 void TarotClub::slotStartDeal(Place p, Contract c)
 {
     firstTurn = true;
-    roundDock->clear();
+    roundDock->Clear();
     infosDock->setContrat(c);
 
     QString name = "ERROR";
@@ -625,6 +626,9 @@ void TarotClub::slotStartDeal(Place p, Contract c)
     tapis->setFilter(Tapis::AUCUN);
     tapis->razTapis(true);
     tapis->colorisePreneur(p);
+
+    // We are ready, let's inform the server about that
+    client.SendSyncStart();
 }
 /*****************************************************************************/
 void TarotClub::slotPlayCard()
@@ -660,7 +664,10 @@ void TarotClub::slotShowCard(int id, Place p)
 {
     GfxCard *gc = tapis->getGfxCard(id);
     tapis->DrawCard(gc, p);
-    roundDock->addRound(client.GetGameInfo(), p, TarotDeck::GetCard(id)->GetName());
+    roundDock->AddRound(client.GetGameInfo(), p, TarotDeck::GetCard(id)->GetName());
+
+    // We have seen the card, let's inform the server about that
+    client.SendSyncCard();
 }
 /*****************************************************************************/
 void TarotClub::slotEndOfDeal()
@@ -705,8 +712,7 @@ void TarotClub::slotEndOfDeal()
  */
 void TarotClub::slotWaitTrick(Place winner)
 {
-//    roundDock->selectWinner(client.GetGameInfo(), winner); FIXME: correct this method, index seems not correct
-//    roundDock->pointsToTaker(turnCounter, 0); // FIXME: calculate points won by the taker this turn?
+    roundDock->SelectWinner(client.GetGameInfo(), winner);
     tapis->setFilter(Tapis::AUCUN);
     statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer."));
 

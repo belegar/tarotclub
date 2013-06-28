@@ -389,25 +389,21 @@ bool Client::DoAction(QDataStream &in)
         break;
     }
 
-    case Protocol::SERVER_SELECT_PLAYER:
-    {
-        quint8 p;
-
-        in >> p;
-        info.Next();
-        emit sigSelectPlayer((Place)p);
-        break;
-    }
-
     case Protocol::SERVER_REQUEST_BID:
     {
         quint8 c;
+        quint8 p;
 
         in >> c; // Most important contract announced before
-        emit sigRequestBid((Contract)c);
+        in >> p;
+        emit sigSelectPlayer((Place)p);
+        if (p == player.GetPlace())
+        {
+            // The request bid is for us! We must declare something
+            emit sigRequestBid((Contract)c);
+        }
         break;
     }
-
 
     case Protocol::SERVER_SHOW_PLAYER_BID:
     {
@@ -445,7 +441,7 @@ bool Client::DoAction(QDataStream &in)
         info.taker = (Place)preneur;
         info.contract = (Contract)contrat;
         currentTrick.clear();
-        info.sequence = Game::IDLE;
+        info.sequence = Game::SYNC_START;
         emit sigStartDeal((Place)preneur, (Contract)contrat);
         break;
     }
@@ -453,13 +449,6 @@ bool Client::DoAction(QDataStream &in)
     case Protocol::SERVER_SHOW_HANDLE:
     {
         // FIXME: emit signal with handle deck
-        break;
-    }
-
-    case Protocol::SERVER_PLAY_CARD:
-    {
-        info.sequence = Game::PLAY_TRICK;
-        emit sigPlayCard();
         break;
     }
 
@@ -472,7 +461,23 @@ bool Client::DoAction(QDataStream &in)
         in >> tour;
         info.Next();
         currentTrick.append(TarotDeck::GetCard(id));
+        info.sequence = Game::SYNC_CARD;
         emit sigShowCard((int)id, (Place)tour);
+        break;
+    }
+
+    case Protocol::SERVER_PLAY_CARD:
+    {
+        qint8 p;
+        in >> p;
+
+        emit sigSelectPlayer((Place)p);
+        if (p == player.GetPlace())
+        {
+            // Our turn to play a card
+            info.sequence = Game::PLAY_TRICK;
+            emit sigPlayCard();
+        }
         break;
     }
 
@@ -486,6 +491,7 @@ bool Client::DoAction(QDataStream &in)
     {
         quint8 winner;
         in >> winner;
+        info.sequence = Game::SYNC_TRICK;
         emit sigWaitTrick((Place)winner);
         break;
     }
@@ -493,6 +499,7 @@ bool Client::DoAction(QDataStream &in)
     case Protocol::SERVER_END_OF_DEAL:
     {
         in >> score;
+        info.sequence = Game::SYNC_READY;
         emit sigEndOfDeal();
         break;
     }
@@ -606,6 +613,36 @@ void Client::SendSyncDog()
 
     QByteArray packet;
     packet = BuildCommand(packet, Protocol::CLIENT_SYNC_DOG);
+    socket.write(packet);
+    socket.flush();
+}
+/*****************************************************************************/
+void Client::SendSyncStart()
+{
+    info.sequence = Game::IDLE;
+
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_START);
+    socket.write(packet);
+    socket.flush();
+}
+/*****************************************************************************/
+void Client::SendSyncCard()
+{
+    info.sequence = Game::IDLE;
+
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_CARD);
+    socket.write(packet);
+    socket.flush();
+}
+/*****************************************************************************/
+void Client::SendSyncBid()
+{
+    info.sequence = Game::IDLE;
+
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_BID);
     socket.write(packet);
     socket.flush();
 }

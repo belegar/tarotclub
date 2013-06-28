@@ -35,7 +35,7 @@ RoundDock::RoundDock(QWidget *parent)
 
     ui.tableWidget->setRowCount(18);
 
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 4; i++)
     {
         for (j = 0; j < 18; j++)
         {
@@ -50,12 +50,12 @@ void RoundDock::closeEvent(QCloseEvent *e)
     emit sgnlClose();
 }
 /*****************************************************************************/
-void RoundDock::clear()
+void RoundDock::Clear()
 {
     int i, j;
     QBrush brush(Qt::white);
 
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 4; i++)
     {
         for (j = 0; j < 18; j++)
         {
@@ -65,29 +65,21 @@ void RoundDock::clear()
     }
 }
 /*****************************************************************************/
-void RoundDock::addRound(Game &info, Place p, QString txt)
+void RoundDock::AddRound(Game &info, Place p, QString txt)
 {
-    ui.tableWidget->item(info.trickCounter, p + 1)->setText(txt);
+    ui.tableWidget->item(info.trickCounter, p)->setText(txt);
 }
 /*****************************************************************************/
-void RoundDock::selectWinner(Game &info, Place p)
+void RoundDock::SelectWinner(Game &info, Place p)
 {
     QBrush brush(Qt::darkGreen);
-    ui.tableWidget->item(info.trickCounter, p + 1)->setBackground(brush);
+    ui.tableWidget->item(info.trickCounter, p)->setBackground(brush);
 }
 /*****************************************************************************/
-void RoundDock::pointsToTaker(int turn, float points)
-{
-    QString txt;
-
-    txt.setNum(points);
-    ui.tableWidget->item(turn, 0)->setText(txt);
-}
-/*****************************************************************************/
-void RoundDock::selectFirstPlayer(int turn, Place p)
+void RoundDock::SelectFirstPlayer(int turn, Place p)
 {
     QBrush brush(Qt::lightGray);
-    ui.tableWidget->item(turn, p + 1)->setBackground(brush);
+    ui.tableWidget->item(turn, p)->setBackground(brush);
 }
 
 //=============================================================================

@@ -80,6 +80,9 @@ public:
     void SendCard(Card *c);
     void SendSyncTrick();
     void SendHandle();
+    void SendSyncStart();
+    void SendSyncCard();
+    void SendSyncBid();
 
 public slots:
     void slotSocketReadData();

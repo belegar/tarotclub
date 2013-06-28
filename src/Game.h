@@ -47,6 +47,7 @@ public:
         SYNC_CARD,
         SYNC_TRICK,
         SYNC_DOG,
+        SYNC_BID,
         SYNC_READY
     };
 
@@ -87,7 +88,6 @@ public:
     Mode        gameMode;
 
     // Various game states and counters
-    int         position;          // Current position, [1..numberOfPlayers]
     int         trickCounter;      // number of tricks played [1..18] for 4 players
     Place       dealer;            // who has dealt the cards
     Place       currentPlayer;
@@ -101,7 +101,7 @@ private:
      */
     Place NextPlayer(Place j);
 
-
+    int         position;          // Current position, [1..numberOfPlayers]
 };
 
 #endif // _GAME_H

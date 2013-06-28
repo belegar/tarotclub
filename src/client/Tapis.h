@@ -95,7 +95,7 @@ public:
     void showAvatars(bool b);
     void razTapis(bool shadow = false);
     void resetCards();
-    Place SwapPlace(Place origin, Place absolute);
+    Place SwapPlace(Place my_place, Place absolute);
 
     // Getters
     GfxCard *getGfxCard(int i);

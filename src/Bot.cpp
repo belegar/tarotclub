@@ -128,6 +128,7 @@ void Bot::slotShowBid(Place place, Contract contract)
 {
     Q_UNUSED(place);
     Q_UNUSED(contract);
+    SendSyncBid();
 }
 /*****************************************************************************/
 void Bot::slotStartDeal(Place taker, Contract contract)
@@ -135,6 +136,9 @@ void Bot::slotStartDeal(Place taker, Contract contract)
     QScriptValueList args;
     args << taker << contract;
     CallScript("StartGame", args);
+
+    // We are ready, let's inform the server about that
+    SendSyncStart();
 }
 /*****************************************************************************/
 void Bot::slotShowDog()
@@ -179,6 +183,9 @@ void Bot::slotShowCard(int id, Place p)
     QScriptValueList args;
     args << TarotDeck::GetCard(id)->GetName() << (int)p;
     CallScript("PlayedCard", args);
+
+    // We have seen the card, let's inform the server about that
+    SendSyncCard();
  }
 /*****************************************************************************/
 void Bot::slotWaitTrick(Place winner)
@@ -226,6 +233,8 @@ void Bot::slotTimeBeforeSend()
     }
     else
     {
+        QString message = GetMyIdentity().name + QString(" played an unkown card: ") + ret;
+        qDebug() << message.toLatin1().constData();
         // The show must go on, play a random card
         c = Play();
     }
