@@ -672,10 +672,6 @@ void TarotClub::slotShowCard(int id, Place p)
 /*****************************************************************************/
 void TarotClub::slotEndOfDeal()
 {
-
-    // FIXME: allow the user to see the last trick, in every game mode
-    // Split this method into several method, prepare the next "clic" on the board
-
     statusBar()->showMessage(trUtf8("End of the deal."));
     tapis->setFilter(Tapis::AUCUN);
     tapis->razTapis();
@@ -684,9 +680,6 @@ void TarotClub::slotEndOfDeal()
     resultWindow->SetResult(client.GetScore(), client.GetGameInfo());
     resultWindow->exec();
 
-    deal.SetScore(client.GetScore(), client.GetGameInfo());
-    scoresDock->SetNewScore(deal);
-
     /*
      * FIXME:
         - If tournament mode, show the deal winner, then send a sync on window closing
@@ -694,11 +687,15 @@ void TarotClub::slotEndOfDeal()
         - Otherwise, show the deal winner
      */
 
-//    if (lastDeal == true) && client.GetGameInfo().gameMode == Game::LOCAL_TOURNAMENT)
+    if (client.GetGameInfo().gameMode == Game::TOURNAMENT)
     {
+        deal.SetScore(client.GetScore(), client.GetGameInfo());
+        scoresDock->SetNewScore(deal);
+
+        // Continue next deal (FIXME: test if it is the last deal)
         showVictoryWindow();
     }
- //   else
+    else
     {
         client.SendReady();
     }

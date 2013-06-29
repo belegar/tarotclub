@@ -305,8 +305,29 @@ void TarotEngine::SyncTrick()
         cntSyncTrick++;
         if (cntSyncTrick >= gameState.numberOfPlayers)
         {
-            gameState.sequence = Game::PLAY_TRICK;
-            GameSateMachine();
+            if (gameState.IsDealFinished() == true)
+            {
+                deal.Calculate(gameState);
+                dealCounter++;
+
+                // Manage tournaments
+                if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::TOURNAMENT))
+                {
+                     gameState.sequence = Game::SYNC_READY;
+                }
+                else
+                {
+                     gameState.sequence = Game::STOP;
+                }
+
+                cntSyncReady = 0;
+                emit sigEndOfDeal();
+            }
+            else
+            {
+                gameState.sequence = Game::PLAY_TRICK;
+                GameSateMachine();
+            }
         }
     }
 }
@@ -332,31 +353,10 @@ void TarotEngine::GameSateMachine()
         gameState.currentPlayer = CalculateTrickWinner();
         deal.SetTrick(currentTrick, gameState.trickCounter);
         currentTrick.clear();
+        cntSyncTrick = 0;
+        gameState.sequence = Game::SYNC_TRICK;
+        emit sigEndOfTrick(gameState.currentPlayer);
 
-        if (gameState.IsDealFinished() == true)
-        {
-            deal.Calculate(gameState);
-            dealCounter++;
-
-            // Manage tournaments
-            if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::TOURNAMENT))
-            {
-                 gameState.sequence = Game::SYNC_READY;
-            }
-            else
-            {
-                 gameState.sequence = Game::STOP;
-            }
-
-            cntSyncReady = 0;
-            emit sigEndOfDeal();
-        }
-        else
-        {
-            cntSyncTrick = 0;
-            gameState.sequence = Game::SYNC_TRICK;
-            emit sigEndOfTrick(gameState.currentPlayer);
-        }
     }
     else
     {

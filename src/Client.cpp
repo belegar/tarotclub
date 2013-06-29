@@ -491,6 +491,7 @@ bool Client::DoAction(QDataStream &in)
     {
         quint8 winner;
         in >> winner;
+        info.Next();
         info.sequence = Game::SYNC_TRICK;
         emit sigWaitTrick((Place)winner);
         break;

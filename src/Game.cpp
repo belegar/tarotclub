@@ -83,7 +83,7 @@ void Game::StartDeal()
 /*****************************************************************************/
 bool Game::IsDealFinished()
 {
-    if (trickCounter >= GetNumberOfCards())
+    if (trickCounter > GetNumberOfCards())
     {
         return true;
     }

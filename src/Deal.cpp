@@ -114,10 +114,6 @@ int Deal::GetTotalPoints(Place p)
 QList<Place> Deal::GetPodium()
 {
     QList<Place> placePodium;
-
-
-    /* FIXME uncomment and recode the algorithm
-
     QList<int> pointsPodium;
     int i, j;
 
@@ -140,7 +136,6 @@ QList<Place> Deal::GetPodium()
             }
         }
     }
-*/
     return placePodium;
 }
 /*****************************************************************************/
@@ -158,19 +153,20 @@ void Deal::SetScore(const Score &s, const Game &info)
 {
     score = s;
 
+    for (int i = 0; i<info.numberOfPlayers; i++)
+    {
+        if (i == info.taker)
+        {
+            scores[dealCounter][i] = s.scoreAttack;
+        }
+        else
+        {
+            scores[dealCounter][i] = s.scoreAttack / (-3);
+        }
+    }
+
     if (info.gameMode == Game::TOURNAMENT)
     {
-        for (int i = 0; i<info.numberOfPlayers; i++)
-        {
-            if (i == info.taker)
-            {
-                scores[dealCounter][i] = s.scoreAttack;
-            }
-            else
-            {
-                scores[dealCounter][i] = s.scoreAttack / (-3);
-            }
-        }
         dealCounter++;
     }
 }
