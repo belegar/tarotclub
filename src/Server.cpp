@@ -138,7 +138,7 @@ void Server::CloseClients()
 void Server::slotClientClosed(Place p)
 {
     players[p].Close();
-    SendChatMessage( "The player " + players[p].GetIdentity().name + " has quit the game.");
+    SendChatMessage( "The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
     SendPlayersList();
 
     // FIXME: if a player has quit during a game, replace it by a bot
@@ -187,7 +187,7 @@ bool Server::DoAction(QDataStream &in, Place p)
         in >> ident;
 
         ident.avatar = ":/images/avatars/" + ident.avatar;
-        players[p].SetIdentity(ident);
+        engine.GetPlayer(p).SetIdentity(ident);
         const QString m = "The player " + ident.name + " has joined the game.";
         SendChatMessage(m);
         emit sigServerMessage(m);
@@ -340,8 +340,8 @@ void Server::SendPlayersList()
     {
         if (players[i].IsFree() == false)
         {
-            Identity ident = players[i].GetIdentity();
-            out << (quint8)players[i].GetPlace();
+            Identity ident = engine.GetPlayer((Place)i).GetIdentity();
+            out << (quint8)i;
             out << ident;
         }
     }

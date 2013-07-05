@@ -129,6 +129,7 @@ private:
     Place CalculateTrickWinner();
     void ShowDog();
     void GameSateMachine();
+    void EndOfDeal();
 
     /**
      * @brief EndOfTrick

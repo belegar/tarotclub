@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - ClientConfig.h
  *=============================================================================
- * Classe de gestion du fichier d'options en XML (client graphique)
+ * Option file parameters management for the client configuration
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine

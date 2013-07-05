@@ -47,14 +47,11 @@ public:
     bool HasData();
 
     // Getters
-    Identity &GetIdentity();
     QTcpSocket *GetSocket();
     QByteArray GetData();
-    Place GetPlace();
 
     // Setters
     void SetConnection(QTcpSocket *s, Place p);
-    void SetIdentity(const Identity &ident);
 
 signals:
     void sigDisconnected(Place);
@@ -63,7 +60,7 @@ signals:
 private:
     QTcpSocket *socket;
     bool freePlace;
-    Player player;
+    Place       place;      // place assignée par le serveur autour de la table
 
 private slots:
     void slotClientClosed();

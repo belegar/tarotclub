@@ -69,6 +69,8 @@ void Game::Stop()
 void Game::StartDeal()
 {
     sequence = SYNC_START;
+    trickCounter = 0;
+
     // In case of Chelem, the first player to play is the taker.
     // Otherwise, it is the player on the right of the dealer
     if (slamAnnounced == true)
@@ -83,7 +85,7 @@ void Game::StartDeal()
 /*****************************************************************************/
 bool Game::IsDealFinished()
 {
-    if (trickCounter > GetNumberOfCards())
+    if (trickCounter >= GetNumberOfCards())
     {
         return true;
     }

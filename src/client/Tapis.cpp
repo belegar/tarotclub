@@ -27,7 +27,7 @@
 #include <QtCore>
 #include <QResizeEvent>
 #include <QMouseEvent>
-#include "textes.h"
+#include "../Tools.h"
 #include "../TarotDeck.h"
 
 #define NORTH_BOX_POS_X   350

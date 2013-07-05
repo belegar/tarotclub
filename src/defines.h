@@ -49,7 +49,8 @@
 
 namespace Config
 {
-const QString path = QDir::homePath() + "/.tarotclub/";
+const QString HomePath  = QDir::homePath() + "/.tarotclub/";
+const QString LogPath   = HomePath + "/logs/";
 }
 
 /*****************************************************************************/
@@ -58,7 +59,6 @@ enum Contract   { PASS = 0, TAKE = 1, GUARD = 2, GUARD_WITHOUT = 3, GUARD_AGAINS
 enum Team       { ATTACK, DEFENSE };
 enum Handle     { SIMPLE_HANDLE = 0, DOUBLE_HANDLE = 1, TRIPLE_HANDLE = 2 };
 /*****************************************************************************/
-
 
 #endif // _DEFINES_H
 

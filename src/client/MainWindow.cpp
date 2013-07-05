@@ -28,7 +28,7 @@
 #include <QMenuBar>
 #include <QDateTime>
 #include <QDir>
-#include "textes.h"
+#include "../Tools.h"
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
@@ -98,17 +98,17 @@ void MainWindow::SetupDocks()
     tabifyDockWidget(chatDock, serverDock);
     tabifyDockWidget(serverDock, debugDock);
 
-//#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG
     // Debug
     debugDock->show();
     serverDock->show();
     chatDock->show();
-//#else
+#else
     // Release
     debugDock->hide();
     serverDock->hide();
     chatDock->hide();
-//#endif
+#endif
 
     // ----------  Right Docks ------------------------
 
@@ -143,45 +143,45 @@ void MainWindow::SetupMenus()
     // Menu Jeu
     //----------
     //----- Local
-    newQuickGameAct = new QAction("&Nouvelle partie rapide", this);
-    newQuickGameAct->setShortcut(QString("Ctrl+N"));
-    newQuickGameAct->setStatusTip("Lance une partie solitaire contre l'ordinateur");
+    newQuickGameAct = new QAction(tr("&New quick game"), this);
+    newQuickGameAct->setShortcut(tr("Ctrl+N"));
+    newQuickGameAct->setStatusTip(tr("Start a one player game against computer"));
 
-    newTournamentAct = new QAction(trUtf8("Nouveau &tournoi"), this);
-    newTournamentAct->setShortcut(trUtf8("Ctrl+T"));
-    newTournamentAct->setStatusTip(trUtf8("Enchaînez plusieurs donne contre l'ordinateur"));
+    newTournamentAct = new QAction(tr("New &tournament"), this);
+    newTournamentAct->setShortcut(tr("Ctrl+T"));
+    newTournamentAct->setStatusTip(tr("Play five deals against the computer"));
 
-    newNumberedDealAct = new QAction(trUtf8("Nouvelle donne nu&mérotée"), this);
-    newNumberedDealAct->setShortcut(trUtf8("Ctrl+M"));
-    newNumberedDealAct->setStatusTip(trUtf8("Redistribue les cartes avec une donne précise"));
+    newNumberedDealAct = new QAction(tr("New nu&mbered deal"), this);
+    newNumberedDealAct->setShortcut(tr("Ctrl+M"));
+    newNumberedDealAct->setStatusTip(tr("Deal cards with a predefined deal number"));
 
-    newCustomDealAct = new QAction(trUtf8("Nouvelle donne manuelle"), this);
-    newCustomDealAct->setShortcut(trUtf8("Ctrl+C"));
-    newCustomDealAct->setStatusTip(trUtf8("Redistribue les cartes avec une donne construite avec l'éditeur"));
+    newCustomDealAct = new QAction(tr("New manua&l deal"), this);
+    newCustomDealAct->setShortcut(tr("Ctrl+L"));
+    newCustomDealAct->setStatusTip(tr("Deal cards with a deal created with the editor"));
 
     //----- Network
-    netGameServerAct = new QAction(trUtf8("Créer une partie en &réseau (serveur)"), this);
-    netGameServerAct->setShortcut(trUtf8("Ctrl+R"));
-    netGameServerAct->setStatusTip(trUtf8("Crée une partie en réseau en tant que serveur"));
+    netGameServerAct = new QAction(tr("Create a new network game (serve&r)"), this);
+    netGameServerAct->setShortcut(tr("Ctrl+R"));
+    netGameServerAct->setStatusTip(tr("Crate a network game and invite friends to join the game"));
     netGameServerAct->setEnabled(false);
 
-    netGameClientAct = new QAction(trUtf8("Re&joindre une partie en réseau"), this);
-    netGameClientAct->setShortcut(trUtf8("Ctrl+J"));
-    netGameClientAct->setStatusTip(trUtf8("Connexion à un serveur sur Internet ou en réseau local"));
+    netGameClientAct = new QAction(tr("&Join a network game"), this);
+    netGameClientAct->setShortcut(tr("Ctrl+J"));
+    netGameClientAct->setStatusTip(tr("Join a game server over Internet or over a local area network"));
 
     //----- Misc
-    pliPrecAct = new QAction(trUtf8("&Pli précédent"), this);
-    pliPrecAct->setShortcut(trUtf8("Ctrl+P"));
-    pliPrecAct->setStatusTip(trUtf8("Affiche le pli précédent"));
+    pliPrecAct = new QAction(tr("&Previous trick"), this);
+    pliPrecAct->setShortcut(tr("Ctrl+P"));
+    pliPrecAct->setStatusTip(tr("Show the previous trick played"));
     pliPrecAct->setEnabled(false);
 
-    QAction *exitAct = new QAction(trUtf8("&Quitter"), this);
-    exitAct->setShortcut(trUtf8("Ctrl+Q"));
-    exitAct->setStatusTip(trUtf8("Quitte le jeu"));
+    QAction *exitAct = new QAction(tr("&Quit"), this);
+    exitAct->setShortcut(tr("Ctrl+Q"));
+    exitAct->setStatusTip(tr("Quit the game"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-    // On ajoute les actions au menu 'Jeu'
-    gameMenu = menuBar()->addMenu(trUtf8("Jeu"));
+    // Add action to the main menu
+    gameMenu = menuBar()->addMenu(tr("Game"));
     gameMenu->addAction(newQuickGameAct);
     gameMenu->addAction(newTournamentAct);
     gameMenu->addAction(newNumberedDealAct);
@@ -195,48 +195,48 @@ void MainWindow::SetupMenus()
     gameMenu->addAction(exitAct);
 
     //---------------
-    // Menu Paramètres
+    // Parameter menu
     //---------------
-    optionsAct = new QAction(trUtf8("&Options"), this);
-    optionsAct->setShortcut(trUtf8("Ctrl+O"));
-    optionsAct->setStatusTip(trUtf8("Options du jeu"));
+    optionsAct = new QAction(tr("&Options"), this);
+    optionsAct->setShortcut(tr("Ctrl+O"));
+    optionsAct->setStatusTip(tr("Game options"));
 
-    dealEditorAct = new QAction(trUtf8("É&diteur de donne"), this);
-    dealEditorAct->setShortcut(trUtf8("Ctrl+D"));
-    dealEditorAct->setStatusTip(trUtf8("Choisissez les cartes de chaque joueurs pour une donne particulière."));
+    dealEditorAct = new QAction(tr("Deal e&ditor"), this);
+    dealEditorAct->setShortcut(tr("Ctrl+D"));
+    dealEditorAct->setStatusTip(tr("Create a pre-defined deal by choosing the cards of each player"));
     connect(dealEditorAct, SIGNAL(triggered()), this, SLOT(slotDealEditor()));
 
-    scoresAct = new QAction(trUtf8("Scores"), this);
+    scoresAct = new QAction(tr("Score"), this);
     scoresAct->setCheckable(true);
-    scoresAct->setStatusTip(trUtf8("Montre/cache la fenêtre des scores"));
+    scoresAct->setStatusTip(tr("Show/hide the score window"));
     connect(scoresAct, SIGNAL(triggered()), this, SLOT(slotScoresDock()));
     scoresAct->setChecked(true);
 
-    infosAct = new QAction(trUtf8("Informations"), this);
+    infosAct = new QAction(tr("Information"), this);
     infosAct->setCheckable(true);
-    infosAct->setStatusTip(trUtf8("Montre/cache la fenêtre d'informations"));
+    infosAct->setStatusTip(tr("Show/hide the information window"));
     connect(infosAct, SIGNAL(triggered()), this, SLOT(slotInfosDock()));
     infosAct->setChecked(true);
 
-    chatAct = new QAction(trUtf8("Discussion"), this);
+    chatAct = new QAction(tr("Chat"), this);
     chatAct->setCheckable(true);
-    chatAct->setStatusTip(trUtf8("Montre/cache la fenêtre de discussion"));
+    chatAct->setStatusTip(tr("Show/hide the chat window"));
     connect(chatAct, SIGNAL(triggered()), this, SLOT(slotChatDock()));
     chatAct->setChecked(false);
 
-    serverAct = new QAction(trUtf8("Serveur"), this);
+    serverAct = new QAction(tr("Server"), this);
     serverAct->setCheckable(true);
-    serverAct->setStatusTip(trUtf8("Montre/cache la fenêtre de serveur"));
+    serverAct->setStatusTip(tr("Show/hide the server window"));
     connect(serverAct, SIGNAL(triggered()), this, SLOT(slotServerDock()));
     serverAct->setChecked(false);
 
-    debugAct = new QAction(trUtf8("Debug"), this);
+    debugAct = new QAction(tr("Debug"), this);
     debugAct->setCheckable(true);
-    debugAct->setStatusTip(trUtf8("Montre/cache la fenêtre de debug"));
+    debugAct->setStatusTip(tr("Show/hide the debug window"));
     connect(debugAct, SIGNAL(triggered()), this, SLOT(slotDebugDock()));
     debugAct->setChecked(false);
 
-    paramsMenu = menuBar()->addMenu(trUtf8("Paramètres"));
+    paramsMenu = menuBar()->addMenu(tr("Parameters"));
     paramsMenu->addAction(optionsAct);
     paramsMenu->addAction(dealEditorAct);
     paramsMenu->addSeparator();
@@ -249,18 +249,18 @@ void MainWindow::SetupMenus()
     //-----------
     // Menu Help
     //-----------
-    QAction *aboutAct = new QAction(trUtf8("&À propos..."), this);
-    aboutAct->setShortcut(trUtf8("Ctrl+A"));
-    aboutAct->setStatusTip(trUtf8("À propos de TarotClub"));
+    QAction *aboutAct = new QAction(tr("&About..."), this);
+    aboutAct->setShortcut(tr("Ctrl+A"));
+    aboutAct->setStatusTip(tr("About TarotClub"));
     connect(aboutAct, SIGNAL(triggered()), about, SLOT(show()));
 
-    QAction *helpAct = new QAction(trUtf8("Aide et manuel"), this);
-    helpAct->setShortcut(trUtf8("Ctrl+H"));
-    helpAct->setStatusTip(trUtf8("Affiche l'aide sur le jeu et les règles de Tarot"));
+    QAction *helpAct = new QAction(tr("&Help and manual"), this);
+    helpAct->setShortcut(tr("Ctrl+H"));
+    helpAct->setStatusTip(tr("Show game help and Tarot rules"));
     connect(helpAct, SIGNAL(triggered()), helpWindow, SLOT(show()));
 
-    // On ajoute les actions au menu 'Help'
-    helpMenu = menuBar()->addMenu(trUtf8("Aide"));
+    // Add actions to the Help menu
+    helpMenu = menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(helpAct);
 

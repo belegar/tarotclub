@@ -40,6 +40,10 @@ TarotEngine::TarotEngine()
 {
     shuffle.type = RANDOM_DEAL;
     shuffle.seed = 0;
+    for (int i=0; i<5; i++)
+    {
+        players[i].SetPlace((Place)i);
+    }
 }
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
@@ -307,21 +311,7 @@ void TarotEngine::SyncTrick()
         {
             if (gameState.IsDealFinished() == true)
             {
-                deal.Calculate(gameState);
-                dealCounter++;
-
-                // Manage tournaments
-                if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::TOURNAMENT))
-                {
-                     gameState.sequence = Game::SYNC_READY;
-                }
-                else
-                {
-                     gameState.sequence = Game::STOP;
-                }
-
-                cntSyncReady = 0;
-                emit sigEndOfDeal();
+                EndOfDeal();
             }
             else
             {
@@ -362,6 +352,35 @@ void TarotEngine::GameSateMachine()
     {
         emit sigPlayCard(gameState.currentPlayer);
     }
+}
+/*****************************************************************************/
+void TarotEngine::EndOfDeal()
+{
+    QMap<Place, Identity> list;
+
+    // Create a QMap list of players
+    for (int i = 0; i<gameState.numberOfPlayers; i++)
+    {
+        list.insert((Place)i, players[i].GetIdentity());
+    }
+
+    deal.GenerateEndDealLog(gameState, list);
+
+    deal.Calculate(gameState);
+    dealCounter++;
+
+    // Manage tournaments
+    if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::TOURNAMENT))
+    {
+         gameState.sequence = Game::SYNC_READY;
+    }
+    else
+    {
+         gameState.sequence = Game::STOP;
+    }
+
+    cntSyncReady = 0;
+    emit sigEndOfDeal();
 }
 /*****************************************************************************/
 void TarotEngine::BidSequence()
@@ -452,13 +471,12 @@ void TarotEngine::CreateDeal()
     for (int i=0; i<gameState.numberOfPlayers; i++)
     {
         players[i].GetDeck().clear();
-        Place p = players[i].GetPlace();
 
         for (int j = 0; j<gameState.GetNumberOfCards(); j++)
         {
             int index = n * gameState.GetNumberOfCards() + j;
             Card *c = currentTrick.at(index);
-            c->SetOwner(p);
+            c->SetOwner((Place)i);
             players[i].GetDeck().append(c);
         }
         n++;

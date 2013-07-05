@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Cartes jouées à chaque tour</string>
+   <string>Cards played each turn</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
@@ -19,9 +19,6 @@
      <widget class="QTableWidget" name="tableWidget">
       <property name="enabled">
        <bool>true</bool>
-      </property>
-      <property name="toolTip">
-       <string>Les points sont ceux uniquement remportés par le preneur</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
@@ -64,49 +61,25 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Sud</string>
+        <string>South</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Est</string>
+        <string>East</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Nord</string>
+        <string>North</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Ouest</string>
+        <string>West</string>
        </property>
       </column>
      </widget>
-    </item>
-    <item row="1" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="saveButton">
-        <property name="text">
-         <string>Save</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>

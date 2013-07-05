@@ -33,6 +33,7 @@
 #include "defines.h"
 #include "Game.h"
 #include "Score.h"
+#include "Player.h"
 
 /*****************************************************************************/
 class Deal
@@ -44,6 +45,7 @@ public:
     void Initialize();
     void NewDeal();
     void Calculate(Game &info);
+    void GenerateEndDealLog(Game &info, QMap<Place, Identity> &players);
 
     // Getters
     Deck GetTrick(int turn);
@@ -61,15 +63,11 @@ public:
     void SetDogOwner(Team team);
 
 private:
-
-#ifndef QT_NO_DEBUG
-    void GenerateEndDealLog();
-#endif
-
     void AnalyzeGame(Game &info);
     void CalculateScore(Game &info);
 
     int GetHandlePoints(Handle h);
+    QStringList GetSortedTrick(int trick);
 
     // We store played cards to count points
     Deck dogDeck;

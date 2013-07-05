@@ -35,7 +35,7 @@ DealFile::DealFile()
 
 }
 /*****************************************************************************/
-bool DealFile::LoadFile(QString fileName)
+bool DealFile::LoadFile(QString &fileName)
 {
     QDomDocument doc;
     QFile f(fileName);
@@ -133,9 +133,9 @@ bool DealFile::FillDeck(Deck &deck, QDomElement &child)
     return true;
 }
 /*****************************************************************************/
-void DealFile::SaveFile(QString fileName)
+void DealFile::SaveFile(QString &fileName)
 {
-    // On crée le document
+    // XML document creation
     QDomDocument doc("CustomDeal");
 
     doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
@@ -149,7 +149,7 @@ void DealFile::SaveFile(QString fileName)
     rootNode.setAttribute("version", QString(DEAL_XML_VERSION));
     doc.appendChild(rootNode);
 
-    // Cartes du Chien
+    // Dog cards
     QDomElement chienNode = doc.createElement("chien");
     rootNode.appendChild(chienNode);
     for (int i = 0; i < dogDeck.count(); i++)
@@ -159,7 +159,7 @@ void DealFile::SaveFile(QString fileName)
         chienNode.appendChild(node);
     }
 
-    // Cartes Sud
+    // South cards
     QDomElement southNode = doc.createElement("south");
     rootNode.appendChild(southNode);
     for (int i = 0; i < southDeck.count(); i++)
@@ -169,7 +169,7 @@ void DealFile::SaveFile(QString fileName)
         southNode.appendChild(node);
     }
 
-    // Cartes Ouest
+    // West cards
     QDomElement westNode = doc.createElement("west");
     rootNode.appendChild(westNode);
     for (int i = 0; i < westDeck.count(); i++)
@@ -179,7 +179,7 @@ void DealFile::SaveFile(QString fileName)
         westNode.appendChild(node);
     }
 
-    // Cartes Nord
+    // North cards
     QDomElement northNode = doc.createElement("north");
     rootNode.appendChild(northNode);
     for (int i = 0; i < northDeck.count(); i++)
@@ -189,7 +189,7 @@ void DealFile::SaveFile(QString fileName)
         northNode.appendChild(node);
     }
 
-    // Cartes Est
+    // East cards
     QDomElement eastNode = doc.createElement("east");
     rootNode.appendChild(eastNode);
     for (int i = 0; i < eastDeck.count(); i++)
@@ -199,11 +199,11 @@ void DealFile::SaveFile(QString fileName)
         eastNode.appendChild(node);
     }
 
-    // Sauvegarde du document DOM en mémoire
+    // Dump XML document into a file
     QFile f(fileName);
     if (!f.open(QIODevice::WriteOnly))
     {
-        return; // problème de création du fichier
+        return;
     }
 
     QString out = doc.toString();

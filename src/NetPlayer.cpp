@@ -61,23 +61,13 @@ bool NetPlayer::HasData()
     }
 }
 /*****************************************************************************/
-Identity &NetPlayer::GetIdentity()
-{
-    return player.GetIdentity();
-}
-/*****************************************************************************/
 void NetPlayer::SetConnection(QTcpSocket *s, Place p)
 {
     socket = s;
     freePlace = false;
-    player.SetPlace(p);
+    place = p;
     connect(socket, &QTcpSocket::disconnected, this, &NetPlayer::slotClientClosed);
     connect(socket, &QTcpSocket::readyRead, this, &NetPlayer::slotReadData);
-}
-/*****************************************************************************/
-void NetPlayer::SetIdentity(const Identity &ident)
-{
-    player.SetIdentity(ident);
 }
 /*****************************************************************************/
 void NetPlayer::SendData(QByteArray &data)
@@ -109,22 +99,17 @@ QByteArray NetPlayer::GetData()
     return data;
 }
 /*****************************************************************************/
-Place NetPlayer::GetPlace()
-{
-    return player.GetPlace();
-}
-/*****************************************************************************/
 void NetPlayer::slotClientClosed()
 {
-    emit sigDisconnected(player.GetPlace());
+    emit sigDisconnected(place);
 }
 /*****************************************************************************/
 void NetPlayer::slotReadData()
 {
-    emit sigReadyRead(player.GetPlace());
+    emit sigReadyRead(place);
 }
 
 
 //=============================================================================
-// End of file Netlayer.cpp
+// End of file NetPlayer.cpp
 //=============================================================================

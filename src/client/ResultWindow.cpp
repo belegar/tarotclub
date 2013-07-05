@@ -24,7 +24,7 @@
  */
 
 #include "ResultWindow.h"
-#include "textes.h"
+#include "../Tools.h"
 
 /*****************************************************************************/
 ResultWindow::ResultWindow(QWidget *parent)

@@ -94,9 +94,13 @@ TarotClub::TarotClub() : MainWindow()
 void TarotClub::Initialize()
 {
     // Check user's directory and create it if not exists
-    if (!QDir(Config::path).exists())
+    if (!QDir(Config::HomePath).exists())
     {
-        QDir().mkdir(Config::path);
+        QDir().mkdir(Config::HomePath);
+    }
+    if (!QDir(Config::LogPath).exists())
+    {
+        QDir().mkdir(Config::LogPath);
     }
 
     clientConfig.Load();

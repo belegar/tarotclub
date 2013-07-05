@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - textes.h
+ * TarotClub - Tools.h
  *=============================================================================
- * Chaînes de caractères regroupées pour faciliter la traduction
+ * Various place for utility classes and character strings
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,27 +23,49 @@
  *=============================================================================
  */
 
-#ifndef _TEXTES_H
-#define _TEXTES_H
+#ifndef _TOOLS_H
+#define _TOOLS_H
 
-#define STR_PASSE           trUtf8("Passe")
-#define STR_PRISE           trUtf8("Prise")
-#define STR_GARDE           trUtf8("Garde")
-#define STR_GARDE_SANS      trUtf8("Garde sans")
-#define STR_GARDE_CONTRE    trUtf8("Garde contre")
+#include <QtCore>
+#include "defines.h"
 
-#define STR_SUD      trUtf8("Sud")
-#define STR_EST      trUtf8("Est")
-#define STR_NORD     trUtf8("Nord")
-#define STR_OUEST    trUtf8("Ouest")
+#define STR_PASSE           QT_TR_NOOP("Pass")
+#define STR_PRISE           QT_TR_NOOP("Take")
+#define STR_GARDE           QT_TR_NOOP("Guard")
+#define STR_GARDE_SANS      QT_TR_NOOP("Guard without")
+#define STR_GARDE_CONTRE    QT_TR_NOOP("Guard against")
 
-#define STR_WIN      trUtf8("Contrat réussi de ")
-#define STR_LOSE     trUtf8("Contrat chuté de ")
-#define STR_POINTS   trUtf8(" points")
+#define STR_SUD      QT_TR_NOOP("South")
+#define STR_EST      QT_TR_NOOP("East")
+#define STR_NORD     QT_TR_NOOP("North")
+#define STR_OUEST    QT_TR_NOOP("West")
+
+#define STR_WIN      QT_TR_NOOP("Contract succeded by ")
+#define STR_LOSE     QT_TR_NOOP("Contract failed by ")
+#define STR_POINTS   QT_TR_NOOP(" points")
 
 
-#endif // _TEXTES_H
+class Util
+{
+public:
+
+    static QString ToString(Place p)
+    {
+        QStringList places;
+        places << STR_SUD << STR_EST << STR_NORD << STR_OUEST;
+        return places[p];
+    }
+
+    static QString ToString(Contract c)
+    {
+        QStringList contracts;
+        contracts << STR_PASSE << STR_PRISE << STR_GARDE << STR_GARDE_SANS << STR_GARDE_CONTRE;
+        return contracts[c];
+    }
+};
+
+#endif // _TAROT_STRINGS_H
 
 //=============================================================================
-// End of file defines.h
+// End of file Tools.h
 //=============================================================================

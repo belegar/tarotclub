@@ -47,7 +47,7 @@ void ServerConfig::SetOptions(ServerOptions &newOptions)
 bool ServerConfig::Load()
 {
     QDomDocument doc;
-    QFile f(Config::path + SERVER_CONFIG_FILE);
+    QFile f(Config::HomePath + SERVER_CONFIG_FILE);
     QString txt;
     int val;
 
@@ -195,7 +195,7 @@ bool ServerConfig::Save()
     }
 
     // Save DOM XML tree into file
-    QFile f(Config::path + SERVER_CONFIG_FILE);
+    QFile f(Config::HomePath + SERVER_CONFIG_FILE);
     if (!f.open(QIODevice::WriteOnly))
     {
         qDebug("Saving server's configuration failed.");

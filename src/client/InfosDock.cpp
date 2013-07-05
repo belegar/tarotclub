@@ -30,7 +30,7 @@
 
 // Includes locales
 #include "InfosDock.h"
-#include "textes.h"
+#include "../Tools.h"
 
 /*****************************************************************************/
 InfosDock::InfosDock(QWidget *parent)

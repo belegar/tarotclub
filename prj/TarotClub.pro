@@ -85,7 +85,7 @@ HEADERS = AboutWindow.h \
     Client.h \
     Bot.h \
     defines.h \
-    textes.h \
+    Tools.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \

@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - ClientConfig.cpp
  *=============================================================================
- * Classe de gestion du fichier d'options en XML (client graphique)
+ * Option file parameters management for the client configuration
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -48,7 +48,7 @@ void ClientConfig::SetOptions(ClientOptions &newOptions)
 bool ClientConfig::Load()
 {
     QDomDocument doc;
-    QFile f(Config::path + CLIENT_CONFIG_FILE);
+    QFile f(Config::HomePath + CLIENT_CONFIG_FILE);
     QString txt;
     int val;
 
@@ -233,7 +233,7 @@ bool ClientConfig::Save()
     identityNode.appendChild(quoteNode);
 
     // Save DOM XML into file
-    QFile f(Config::path + CLIENT_CONFIG_FILE);
+    QFile f(Config::HomePath + CLIENT_CONFIG_FILE);
     if (!f.open(QIODevice::WriteOnly))
     {
         qDebug("Saving client's configuration failed.");

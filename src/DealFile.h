@@ -35,8 +35,8 @@ class DealFile
 public:
     DealFile();
 
-    bool LoadFile(QString fileName);
-    void SaveFile(QString fileName);
+    bool LoadFile(QString &fileName);
+    void SaveFile(QString &fileName);
 
     Deck  southDeck;
     Deck  northDeck;
