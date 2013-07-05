@@ -67,12 +67,20 @@ void Deal::NewDeal()
     slamDone = false;
 }
 /*****************************************************************************/
-void Deal::SetTrick(Deck &trick, int turn)
+void Deal::SetTrick(Deck &trick, Game &info)
 {
-    turn--;
+    int turn = info.trickCounter-1;
     if ((turn>=0) && (turn<24))
     {
         tricks[turn] = trick;
+        if (info.currentPlayer == info.taker)
+        {
+            tricks[turn].SetOwner(ATTACK);
+        }
+        else
+        {
+            tricks[turn].SetOwner(DEFENSE);
+        }
     }
 }
 /*****************************************************************************/
@@ -252,6 +260,9 @@ void Deal::AnalyzeGame(Game &info)
 
     // 5. Oudler counter decides points to do
     score.SetPointsToDo(statsAttack.oudlers);
+
+    // 6. We save the points done by the attacker
+    score.pointsAttack = statsAttack.points;
 }
 /*****************************************************************************/
 /**
@@ -367,9 +378,10 @@ QStringList Deal::GetSortedTrick(int trick)
     return list;
 }
 /*****************************************************************************/
-void Deal::SetDog(Deck &dog)
+void Deal::SetDog(Deck &dog, Team owner)
 {
     dogDeck = dog;
+    dogDeck.SetOwner(owner);
 }
 /*****************************************************************************/
 #ifndef QT_NO_DEBUG
@@ -465,47 +477,6 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
     QTextStream fout(&f);
     fout << out;
     f.close();
-/*
-
-    QString line1 = "Card;" + mainDeck.GetCardList();
-    QString line2 = "Points";
-    QString line3 = "Base owner";
-    QString line4 = "Final owner";
-
-    // Card type
-    for (int j = 0; j < mainDeck.size(); j++)
-    {
-        QString n;
-        Card *c = mainDeck.at(j);
-        line2 += ";" + n.setNum(c->getPoints());
-        line3 += ";" + n.setNum((int)c->getOwner());
-        line4 += ";" + n.setNum(score.getPli(j));
-    }
-
-    f << "Main deck" << endl;
-    f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
-
-    line1 = line2 = line3 = line4 = "";
-
-    // Card type
-
-    for (int j = 0; j < dogDeck.size(); j++)
-    {
-        QString n;
-        Card *c = dogDeck.at(j);
-        line2 += n.setNum(c->GetPoints()) + ";";
-        line3 += n.setNum((int)c->GetOwner()) + ";";
-        line4 += n.setNum(score.getPli(j)) + ";";
-    }
-    f << "Dog deck" << endl;
-    f << line1.toStdString() << "\n" << line2.toStdString() << "\n" << line3.toStdString() << "\n" << line4.toStdString() << "\n\n";
-
-
-
-   QString filename = "round_cards_" + QDateTime::currentDateTime().toString() + ".csv" ;
-    f.close();
-
-    */
 }
 #endif // QT_NO_DEBUG
 
