@@ -373,10 +373,11 @@ void TarotClub::slotClickCard(GfxCard *gc)
         }
         tapis->setFilter(Tapis::AUCUN);
         statusBar()->clearMessage();
-        afficheCartesJoueur(0);
 
         client.GetMyDeck().removeAll(c);
         client.SendCard(c);
+
+        afficheCartesJoueur(0);
 
     }
     else if (client.GetGameInfo().sequence == Game::BUILD_DOG)

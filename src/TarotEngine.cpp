@@ -63,7 +63,7 @@ void TarotEngine::SetShuffle(TarotEngine::Shuffle &s)
 /*****************************************************************************/
 void TarotEngine::SetDiscard(Deck &discard)
 {
-    deal.SetDog(discard);
+    deal.SetDog(discard, ATTACK);
     // as soon as the discard has been done, the deal can start
     StartDeal();
 }
@@ -341,7 +341,7 @@ void TarotEngine::GameSateMachine()
     {
         // The current trick winner will begin the next trick
         gameState.currentPlayer = CalculateTrickWinner();
-        deal.SetTrick(currentTrick, gameState.trickCounter);
+        deal.SetTrick(currentTrick, gameState);
         currentTrick.clear();
         cntSyncTrick = 0;
         gameState.sequence = Game::SYNC_TRICK;
@@ -396,18 +396,19 @@ void TarotEngine::BidSequence()
         }
         else
         {
-            if (gameState.contract != GUARD_AGAINST)
-            {
-                deal.SetDogOwner(ATTACK);
-            }
-            else
-            {
-                // With this contract, the dog belongs to the defense
-                deal.SetDogOwner(DEFENSE);
-            }
-
             if ((gameState.contract == GUARD_WITHOUT) || (gameState.contract == GUARD_AGAINST))
             {
+                // No discard is made, set the owner of the dog
+                if (gameState.contract != GUARD_AGAINST)
+                {
+                    deal.SetDogOwner(ATTACK);
+                }
+                else
+                {
+                    // Guard _against_, the dog belongs to the defense
+                    deal.SetDogOwner(DEFENSE);
+                }
+
                 // We do not display the dog and start the deal immediatly
                 StartDeal();
                 return;
@@ -485,7 +486,7 @@ void TarotEngine::CreateDeal()
     // Remaining cards go to the dog
     Deck dog;
     dog.append(currentTrick.mid(n * gameState.GetNumberOfCards()));
-    deal.SetDog(dog);
+    deal.SetDog(dog, NO_TEAM);
     currentTrick.clear();
 }
 
