@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>À propos...</string>
+   <string>About...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>

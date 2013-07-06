@@ -53,7 +53,7 @@
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Résumé</string>
+      <string>Summary</string>
      </property>
      <layout class="QGridLayout">
       <property name="leftMargin">
@@ -108,28 +108,28 @@
           <item>
            <widget class="QLabel" name="TextLabel1">
             <property name="text">
-             <string>Preneur :</string>
+             <string>Taker:</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="TextLabel2">
             <property name="text">
-             <string>Contrat :</string>
+             <string>Contract:</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="TextLabel3">
             <property name="text">
-             <string>Nombre de bouts :</string>
+             <string>Number of oudlers:</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="TextLabel5">
             <property name="text">
-             <string>Points réalisés :</string>
+             <string>Points done:</string>
             </property>
            </widget>
           </item>
@@ -175,7 +175,7 @@
           <item>
            <widget class="QLabel" name="lblNbBouts">
             <property name="text">
-             <string>0 bouts</string>
+             <string>0 oudlers</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -215,7 +215,7 @@
    <item row="1" column="1">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Calcul</string>
+      <string>Calculation</string>
      </property>
      <layout class="QGridLayout">
       <property name="leftMargin">
@@ -270,7 +270,7 @@
           <item>
            <widget class="QLabel" name="TextLabel1_2">
             <property name="text">
-             <string>Contrat :</string>
+             <string>Contract :</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -280,7 +280,7 @@
           <item>
            <widget class="QLabel" name="TextLabel2_2">
             <property name="text">
-             <string>Gain / perte :</string>
+             <string>Earn / loss</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -290,7 +290,7 @@
           <item>
            <widget class="QLabel" name="TextLabel4_2">
             <property name="text">
-             <string>Petit au bout :</string>
+             <string>Little endian bonus:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -300,7 +300,7 @@
           <item>
            <widget class="QLabel" name="TextLabel3_2">
             <property name="text">
-             <string>Multiplicateur contrat :</string>
+             <string>Contract multiplier:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -310,7 +310,7 @@
           <item>
            <widget class="QLabel" name="TextLabel5_2">
             <property name="text">
-             <string>Poignée :</string>
+             <string>Handle:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -320,7 +320,7 @@
           <item>
            <widget class="QLabel" name="TextLabel6_2">
             <property name="text">
-             <string>Chelem :</string>
+             <string>Slam:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -341,7 +341,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Total défense :</string>
+             <string>Total defense:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -362,7 +362,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Total attaque :</string>
+             <string>Total attack:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

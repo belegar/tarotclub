@@ -60,6 +60,8 @@ win32 {
    INSTALLS += target cards copying
 }
 
+TRANSLATIONS = tarotclub_fr.ts \
+               tarotclub_en.ts
 
 HEADERS = AboutWindow.h \
     MainWindow.h \

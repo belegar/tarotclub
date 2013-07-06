@@ -23,7 +23,16 @@
       <string/>
      </property>
      <layout class="QGridLayout">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
        <number>8</number>
       </property>
       <property name="spacing">
@@ -55,186 +64,6 @@
         <property name="viewMode">
          <enum>QListView::IconMode</enum>
         </property>
-        <item>
-         <property name="text">
-          <string extracomment="Hop">Alien</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/alien.png</normaloff>:/images/avatars/alien.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Batterie</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/batterie.png</normaloff>:/images/avatars/batterie.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Bonhomme</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/bonhomme.png</normaloff>:/images/avatars/bonhomme.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Canard</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/canard.png</normaloff>:/images/avatars/canard.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Démon</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/demon.png</normaloff>:/images/avatars/demon.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Dragon</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/dragon.png</normaloff>:/images/avatars/dragon.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Fourmi</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/fourmi.png</normaloff>:/images/avatars/fourmi.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Inconnu</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/inconnu.png</normaloff>:/images/avatars/inconnu.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Oiseau</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/oiseau.png</normaloff>:/images/avatars/oiseau.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Papillon</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/papillon.png</normaloff>:/images/avatars/papillon.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pingouin</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/pingouin.png</normaloff>:/images/avatars/pingouin.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Poisson</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/poisson.png</normaloff>:/images/avatars/poisson.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pomme</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/pomme.png</normaloff>:/images/avatars/pomme.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Robot</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/robot.png</normaloff>:/images/avatars/robot.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Tigre</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../data/data.qrc">
-           <normaloff>:/images/avatars/tigre.png</normaloff>:/images/avatars/tigre.png</iconset>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEnabled</set>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>
@@ -265,7 +94,7 @@
      <item>
       <widget class="QPushButton" name="cancelButton">
        <property name="text">
-        <string>&amp;Annuler</string>
+        <string>&amp;Cancel</string>
        </property>
       </widget>
      </item>
@@ -273,9 +102,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../data/data.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>okButton</sender>

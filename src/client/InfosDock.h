@@ -38,6 +38,8 @@
 /*****************************************************************************/
 class InfosDock : public QDockWidget
 {
+    Q_OBJECT
+
 private:
     Ui::infosDock  ui;
 

@@ -34,6 +34,8 @@
 /*****************************************************************************/
 class JoinWizardPage1 : public QWizardPage
 {
+    Q_OBJECT
+
 private:
     Ui::Page1 ui;
 public:
@@ -53,6 +55,8 @@ public:
 /*****************************************************************************/
 class JoinWizardPage2 : public QWizardPage
 {
+    Q_OBJECT
+
 private:
     Ui::Page2 ui;
 public:

@@ -34,7 +34,7 @@
 
 /*****************************************************************************/
 ChatDock::ChatDock(QWidget *parent)
-    : QDockWidget(trUtf8("Discussion"), parent)
+    : QDockWidget(trUtf8("Chat"), parent)
 {
     chatWindow = new QTextBrowser();
     textLine = new QLineEdit();

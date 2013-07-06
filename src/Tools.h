@@ -29,20 +29,20 @@
 #include <QtCore>
 #include "defines.h"
 
-#define STR_PASSE           QT_TR_NOOP("Pass")
-#define STR_PRISE           QT_TR_NOOP("Take")
-#define STR_GARDE           QT_TR_NOOP("Guard")
-#define STR_GARDE_SANS      QT_TR_NOOP("Guard without")
-#define STR_GARDE_CONTRE    QT_TR_NOOP("Guard against")
+#define STR_PASSE           QObject::tr("Pass")
+#define STR_PRISE           QObject::tr("Take")
+#define STR_GARDE           QObject::tr("Guard")
+#define STR_GARDE_SANS      QObject::tr("Guard without")
+#define STR_GARDE_CONTRE    QObject::tr("Guard against")
 
-#define STR_SUD      QT_TR_NOOP("South")
-#define STR_EST      QT_TR_NOOP("East")
-#define STR_NORD     QT_TR_NOOP("North")
-#define STR_OUEST    QT_TR_NOOP("West")
+#define STR_SUD      QObject::tr("South")
+#define STR_EST      QObject::tr("East")
+#define STR_NORD     QObject::tr("North")
+#define STR_OUEST    QObject::tr("West")
 
-#define STR_WIN      QT_TR_NOOP("Contract succeded by ")
-#define STR_LOSE     QT_TR_NOOP("Contract failed by ")
-#define STR_POINTS   QT_TR_NOOP(" points")
+#define STR_WIN      QObject::tr("Contract succeded by ")
+#define STR_LOSE     QObject::tr("Contract failed by ")
+#define STR_POINTS   QObject::tr(" points")
 
 
 class Util

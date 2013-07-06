@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Choisissez les cartes pour chaque joueur. Les cartes restantes dans la colonne de gauche constituent le chien. Double-cliquez sur la carte d'un joueur pour la remettre dans la colonne de gauche.</string>
+      <string>Assign the card to each player. Remaining cards on the left side are the dog deck. Double-click on a card to move it back to the left column.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -34,7 +34,7 @@
        <item>
         <widget class="QPushButton" name="toSouth">
          <property name="text">
-          <string>Sud</string>
+          <string>South</string>
          </property>
          <property name="icon">
           <iconset resource="../data/data.qrc">
@@ -45,7 +45,7 @@
        <item>
         <widget class="QPushButton" name="toWest">
          <property name="text">
-          <string>Ouest</string>
+          <string>West</string>
          </property>
          <property name="icon">
           <iconset resource="../data/data.qrc">
@@ -70,7 +70,7 @@
        <item>
         <widget class="QPushButton" name="toNorth">
          <property name="text">
-          <string>Nord</string>
+          <string>North</string>
          </property>
          <property name="icon">
           <iconset resource="../data/data.qrc">
@@ -81,7 +81,7 @@
        <item>
         <widget class="QPushButton" name="toEast">
          <property name="text">
-          <string>Est</string>
+          <string>East</string>
          </property>
          <property name="icon">
           <iconset resource="../data/data.qrc">
@@ -133,21 +133,21 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Ouvrir</string>
+          <string>Open</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="saveButton">
          <property name="text">
-          <string>Sauvegarder</string>
+          <string>Save</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_5">
          <property name="text">
-          <string>Fermer</string>
+          <string>Close</string>
          </property>
         </widget>
        </item>

@@ -121,8 +121,8 @@ void OptionsWindow::slotBtnOk()
 
     if (indexLangue != clientOptions.language)
     {
-        QMessageBox::information(this, trUtf8("Information"),
-                                 trUtf8("Vous devez redémarrer le jeu pour que le changement de langue soit actif.\n\n"));
+        QMessageBox::information(this, tr("Information"),
+                                 tr("You must restart TarotClub to enable the new language.\n\n"));
     }
     clientOptions.backgroundColor = colorName;
     clientOptions.delayBeforeCleaning = ui.slider2->value();
@@ -156,12 +156,12 @@ void OptionsWindow::slotBtnDefaut()
 /*****************************************************************************/
 void OptionsWindow::slider1Changed(int value)
 {
-    ui.temps1->setText(trUtf8("%1 secondes").arg((float)(value / 100) / 10));
+    ui.temps1->setText(tr("%1 seconds").arg((float)(value / 100) / 10));
 }
 /*****************************************************************************/
 void OptionsWindow::slider2Changed(int value)
 {
-    ui.temps2->setText(trUtf8("%1 secondes").arg((float)(value / 100) / 10));
+    ui.temps2->setText(tr("%1 seconds").arg((float)(value / 100) / 10));
 }
 /*****************************************************************************/
 void OptionsWindow::slotClickOptionChanged(int state)

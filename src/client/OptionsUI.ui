@@ -26,17 +26,17 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget_2">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Identité</string>
+       <string>Identity</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_6">
          <property name="title">
-          <string>Identité</string>
+          <string>Identity</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="0">
@@ -144,7 +144,7 @@
               <item>
                <widget class="QGroupBox" name="groupBox_7">
                 <property name="title">
-                 <string>Sexe</string>
+                 <string>Genre</string>
                 </property>
                 <layout class="QGridLayout" name="_8">
                  <property name="leftMargin">
@@ -182,14 +182,14 @@
                    <item>
                     <widget class="QRadioButton" name="sexeM">
                      <property name="text">
-                      <string>Masculin</string>
+                      <string>Male</string>
                      </property>
                     </widget>
                    </item>
                    <item>
                     <widget class="QRadioButton" name="sexeF">
                      <property name="text">
-                      <string>Féminin</string>
+                      <string>Female</string>
                      </property>
                     </widget>
                    </item>
@@ -235,7 +235,7 @@
             <item>
              <widget class="QLabel" name="TextLabel2_3_2">
               <property name="text">
-               <string>Pseudonyme :</string>
+               <string>Nick name:</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -274,7 +274,7 @@
             <item>
              <widget class="QLabel" name="TextLabel3_2_2">
               <property name="text">
-               <string>Citation :</string>
+               <string>Quote:</string>
               </property>
              </widget>
             </item>
@@ -313,19 +313,19 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Préférences</string>
+       <string>Preferences</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_10">
          <property name="title">
-          <string>Général</string>
+          <string>General</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <widget class="QCheckBox" name="afficheAvatars">
             <property name="text">
-             <string>Afficher les avatars sur le tapis</string>
+             <string>Show avatars on the board</string>
             </property>
            </widget>
           </item>
@@ -349,7 +349,7 @@
             <item>
              <widget class="QLabel" name="TextLabel1_3">
               <property name="text">
-               <string>Port TCP/IP :</string>
+               <string>TCP/IP port:</string>
               </property>
              </widget>
             </item>
@@ -388,7 +388,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Langue</string>
+               <string>Language</string>
               </property>
              </widget>
             </item>
@@ -425,7 +425,7 @@
             <item>
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>Couleur du tapis</string>
+               <string>Background color</string>
               </property>
              </widget>
             </item>
@@ -459,7 +459,7 @@
             <item>
              <widget class="QLabel" name="TextLabel1">
               <property name="text">
-               <string>Délai entre deux joueurs</string>
+               <string>Delay between two players</string>
               </property>
              </widget>
             </item>
@@ -482,7 +482,7 @@
             <item>
              <widget class="QLabel" name="temps1">
               <property name="text">
-               <string>0.0 secondes</string>
+               <string>0.0 seconds</string>
               </property>
               <property name="scaledContents">
                <bool>false</bool>
@@ -497,7 +497,7 @@
           <item>
            <widget class="QCheckBox" name="clic">
             <property name="text">
-             <string>Activer le ramassage des cartes automatique</string>
+             <string>Activate automatic trick flushing</string>
             </property>
            </widget>
           </item>
@@ -506,7 +506,7 @@
             <item>
              <widget class="QLabel" name="label2">
               <property name="text">
-               <string>Délai avant ramassage des cartes</string>
+               <string>Delay before trick flush:</string>
               </property>
              </widget>
             </item>
@@ -529,7 +529,7 @@
             <item>
              <widget class="QLabel" name="temps2">
               <property name="text">
-               <string>0.0 secondes</string>
+               <string>0.0 seconds</string>
               </property>
              </widget>
             </item>
@@ -555,7 +555,7 @@
      </widget>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
-       <string>Adversaires</string>
+       <string>Opponents</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
@@ -574,7 +574,7 @@
        <item row="0" column="1" colspan="2">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
-          <string>Joueur Nord</string>
+          <string>North player</string>
          </property>
          <layout class="QGridLayout" name="_20">
           <property name="leftMargin">
@@ -612,14 +612,14 @@
             <item>
              <widget class="QLabel" name="label_2_2">
               <property name="text">
-               <string>Nom</string>
+               <string>Name</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_3_2">
               <property name="text">
-               <string>Niveau</string>
+               <string>Level</string>
               </property>
              </widget>
             </item>
@@ -737,7 +737,7 @@
        <item row="1" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
-          <string>Joueur Ouest</string>
+          <string>West player</string>
          </property>
          <layout class="QGridLayout" name="_24">
           <property name="leftMargin">
@@ -775,14 +775,14 @@
             <item>
              <widget class="QLabel" name="label_2_3">
               <property name="text">
-               <string>Nom</string>
+               <string>Name</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_3_3">
               <property name="text">
-               <string>Niveau</string>
+               <string>Level</string>
               </property>
              </widget>
             </item>
@@ -893,7 +893,7 @@
        <item row="1" column="2" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>Joueur Est</string>
+          <string>East player</string>
          </property>
          <layout class="QGridLayout" name="_16">
           <property name="leftMargin">
@@ -1024,14 +1024,14 @@
             <item>
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>Nom</string>
+               <string>Name</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_3">
               <property name="text">
-               <string>Niveau</string>
+               <string>Level</string>
               </property>
              </widget>
             </item>
@@ -1062,7 +1062,7 @@
      <item>
       <widget class="QPushButton" name="btnDefaut">
        <property name="text">
-        <string>&amp;Défaut</string>
+        <string>Default</string>
        </property>
       </widget>
      </item>
@@ -1101,7 +1101,7 @@
      <item>
       <widget class="QPushButton" name="btnAnnuler">
        <property name="text">
-        <string>A&amp;nnuler</string>
+        <string>Cancel</string>
        </property>
        <property name="autoDefault">
         <bool>true</bool>
