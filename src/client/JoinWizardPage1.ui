@@ -40,14 +40,14 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Adresse IP</string>
+          <string>IP address:</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Port</string>
+          <string>Port:</string>
          </property>
         </widget>
        </item>
@@ -58,7 +58,7 @@
        <item>
         <widget class="QLineEdit" name="ipAddress">
          <property name="inputMask">
-          <string>000.000.000.000; </string>
+          <string>000.000.000.000</string>
          </property>
          <property name="text">
           <string>...</string>

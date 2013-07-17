@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Résultat</string>
+   <string>Deal score result</string>
   </property>
   <layout class="QGridLayout">
    <item row="0" column="0" colspan="2">
@@ -280,7 +280,7 @@
           <item>
            <widget class="QLabel" name="TextLabel2_2">
             <property name="text">
-             <string>Earn / loss</string>
+             <string>Earn / loss:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

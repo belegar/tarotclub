@@ -102,9 +102,9 @@ Tapis::Tapis(QWidget *parent)
     setScene(&scene);
 
     //==============================================================
-    //       BOUTONS ENCHERES
+    //       BIDS BUTTONS
     //==============================================================
-    groupBoutons = new QGroupBox(trUtf8("Enchères"), this);
+    groupBoutons = new QGroupBox(trUtf8("Bids"), this);
     groupBoutons->hide();
 
     boutonPasse = new QPushButton(STR_PASSE);
@@ -112,7 +112,7 @@ Tapis::Tapis(QWidget *parent)
     boutonGarde = new QPushButton(STR_GARDE);
     boutonGardeSans = new QPushButton(STR_GARDE_SANS);
     boutonGardeContre = new QPushButton(STR_GARDE_CONTRE);
-    chelem = new QCheckBox("Chelem");
+    chelem = new QCheckBox("Slam");
 
     QVBoxLayout *vbox = new QVBoxLayout;
     vbox->addWidget(boutonPasse);
@@ -127,20 +127,20 @@ Tapis::Tapis(QWidget *parent)
 
     //==============================================================
 
-    boutonAccepterChien = new QPushButton(trUtf8("Accepter le chien"), this);
+    boutonAccepterChien = new QPushButton(trUtf8("Accept the discard"), this);
     boutonAccepterChien->move(800, 462);
     boutonAccepterChien->setMinimumSize(boutonAccepterChien->sizeHint());
     boutonAccepterChien->hide();
 
     //==============================================================
 
-    boutonPresenterPoignee = new QPushButton(trUtf8("PrÃ©senter poignÃ©e"), this);
+    boutonPresenterPoignee = new QPushButton(trUtf8("Declare a handle"), this);
     boutonPresenterPoignee->move(800, 462);
     boutonPresenterPoignee->setMinimumSize(boutonPresenterPoignee->sizeHint());
     boutonPresenterPoignee->hide();
 
     //==============================================================
-    //       ELEMENTS DU CANVAS
+    //       CANVAS ELEMENTS
     //==============================================================
 
     // 4 players by default

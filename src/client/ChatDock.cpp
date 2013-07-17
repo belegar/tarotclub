@@ -38,7 +38,7 @@ ChatDock::ChatDock(QWidget *parent)
 {
     chatWindow = new QTextBrowser();
     textLine = new QLineEdit();
-    options = new QPushButton(trUtf8("Commandes"));
+    options = new QPushButton(trUtf8("Commands"));
     playersList = new QListWidget();
 
     QHBoxLayout *lay1 = new QHBoxLayout();

@@ -7,17 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>254</width>
-    <height>102</height>
+    <height>104</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Choisissez une donne numérotée</string>
+   <string>Choose a numbered deal</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Entrez le numéro de la donne :</string>
+      <string>Enter the numbered deal:</string>
      </property>
     </widget>
    </item>

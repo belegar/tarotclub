@@ -90,6 +90,19 @@ int main(int argc, char **argv)
     QSplashScreen splash(pixmap);
     splash.show();
 
+    QString locale = QLocale::system().name();
+    QTranslator translator;
+
+#ifdef QT_DEBUG
+    locale = "fr";
+#endif
+
+    if (translator.load(QString("tarotclub_") + locale) == false)
+    {
+        cout << "Cannot load translation file: tarotclub_xx." << endl;
+    }
+    app.installTranslator(&translator);
+
     TarotClub tarot;
     tarot.Initialize(); // Init internal stuff before showing the interface
 

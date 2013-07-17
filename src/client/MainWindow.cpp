@@ -162,7 +162,7 @@ void MainWindow::SetupMenus()
     //----- Network
     netGameServerAct = new QAction(tr("Create a new network game (serve&r)"), this);
     netGameServerAct->setShortcut(tr("Ctrl+R"));
-    netGameServerAct->setStatusTip(tr("Crate a network game and invite friends to join the game"));
+    netGameServerAct->setStatusTip(tr("Create a network game and invite friends to join the game"));
     netGameServerAct->setEnabled(false);
 
     netGameClientAct = new QAction(tr("&Join a network game"), this);
