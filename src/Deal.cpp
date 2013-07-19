@@ -65,23 +65,137 @@ void Deal::NewDeal()
 
     littleEndianOudler = false;
     slamDone = false;
+    slamOwner = NO_TEAM;
+    foolSwap = false;
+    foolOwner = NO_TEAM;
+    tricksWon = 0;
+    statsAttack.Reset();
+    score.Reset();
 }
 /*****************************************************************************/
-void Deal::SetTrick(Deck &trick, Game &info)
+/**
+ * @brief SetTrick
+ *
+ * Store the current trick into memory and calculate the trick winner.
+ *
+ * Each trick is won by the highest trump in it, or the highest card
+ * of the suit led if no trumps were played.
+ *
+ * This methods does not verify if the trick is consistent with the rules; this
+ * is supposed to have been previously verified.
+ *
+ * @return The place of the winner of this trick
+ */
+Place Deal::SetTrick(Deck &trick, Game &info)
 {
     int turn = info.trickCounter-1;
+    Place winner = NOWHERE;
+
+    // Get the number of tricks we must play, it depends of the number of players
+    int numberOfTricks = info.GetNumberOfCards();
+
     if ((turn>=0) && (turn<24))
     {
         tricks[turn] = trick;
-        if (info.currentPlayer == info.taker)
+
+        Card *cLeader = NULL;
+        Card *cFool = NULL;
+        int maxValue = 0;
+        bool trumpDetected = false;
+
+        cLeader = trick.at(0);   // First card played this trick
+
+        for (int i = 0; i<trick.size(); i++)
+        {
+            Card *c = trick.at(i);
+            int value = c->GetValue();
+
+            if (c->GetSuit() == Card::TRUMPS)
+            {
+                // trick here: if there is a fool played, we do not detect it ... (value = 0)
+                if (value > maxValue)
+                {
+                    trumpDetected = true;
+                    maxValue = value;
+                    cLeader = c;
+                }
+            }
+            else if (trumpDetected == false)
+            {
+                if (value > maxValue)
+                {
+                    maxValue = value;
+                    cLeader = c;
+                }
+            }
+        }
+
+        // The trick winner is the card leader owner
+        winner = cLeader->GetOwner();
+
+        if (tricks[turn].HasFool())
+        {
+            cFool = tricks[turn].GetCardByName("0-T");
+            if (info.IsDealFinished() == true)
+            {
+                // Special case of the fool: if played at last turn with a slam realized, it wins the trick
+                if ((tricksWon == (numberOfTricks-1)) &&
+                    (cFool->GetOwner() == info.taker))
+                {
+                    winner = info.taker;
+                }
+                // Otherwise, the fool is _always_ lost if played at the last trick, even if the
+                // fool belongs to the same team than the winner of the trick.
+                else
+                {
+                    foolSwap = true;
+                    if (cFool->GetOwner() == info.taker)
+                    {
+                        foolOwner = DEFENSE;
+                    }
+                    else
+                    {
+                        foolOwner = ATTACK;
+                    }
+                }
+            }
+            else
+            {
+                // In all other cases, the fool is kept by the owner. If the trick is won by a
+                // different team than the fool owner, they must exchange 1 low card with the fool.
+                if (winner != cFool->GetOwner())
+                {
+                    foolSwap = true;
+                    if (winner == info.taker)
+                    {
+                        foolOwner = DEFENSE;
+                    }
+                    else
+                    {
+                        foolOwner = ATTACK;
+                    }
+                }
+                // else, the trick is won by the attacker, it keeps the fool
+            }
+        }
+
+        if (winner == info.taker)
         {
             tricks[turn].SetOwner(ATTACK);
+            tricks[turn].AnalyzeTrumps(statsAttack);
+            tricksWon++;
         }
         else
         {
             tricks[turn].SetOwner(DEFENSE);
         }
     }
+    else
+    {
+        qDebug() << "Index out of scope!" << endl;
+    }
+
+    return winner;
 }
 /*****************************************************************************/
 void Deal::SetDogOwner(Team team)
@@ -185,50 +299,16 @@ void Deal::SetScore(const Score &s, const Game &info)
 /*****************************************************************************/
 void Deal::Calculate(Game &info)
 {
-    score.Reset();
-
     AnalyzeGame(info);
     CalculateScore(info);
 }
 /*****************************************************************************/
-/**
- * @brief Deal::AnalyzeGame
- *
- * 1. Attacker points
- * 2. Slam detection
- * 3. 1 of Trump at last trick detection (attack or defense?)
- * 4. Fool owner (lost if played during last trick, except in case of Chelem)
- * 5. Oudler counter decides points to do
- *
- * @param info
- */
 void Deal::AnalyzeGame(Game &info)
 {
-    int i;
-    Deck::Statistics statsAttack;
-    int tricksWon;
-
-    // Get the number of tricks played depending of the number of players
     int numberOfTricks = info.GetNumberOfCards();
+    int lastTrick = numberOfTricks-1;
 
-    // 1. Attacker points
-    statsAttack.Reset();
-    tricksWon = 0;
-    for (i = 0; i<numberOfTricks; i++)
-    {
-        if (tricks[i].GetOwner() == ATTACK)
-        {
-            tricks[i].AnalyzeTrumps(statsAttack);
-            tricksWon++;
-        }
-    }
-    // We add the dog if needed
-    if (dogDeck.GetOwner() == ATTACK)
-    {
-        dogDeck.AnalyzeTrumps(statsAttack);
-    }
-
-    // 2. Slam detection
+    // 1. Slam detection
     if (tricksWon == numberOfTricks)
     {
         slamDone = true;
@@ -240,25 +320,36 @@ void Deal::AnalyzeGame(Game &info)
         slamOwner = DEFENSE;
     }
 
-    // 3. 1 of Trump at last trick detection (attack or defense?)
-    i = numberOfTricks-1; // last trick
+    // 2. Attacker points, we add the dog if needed
+    if (dogDeck.GetOwner() == ATTACK)
+    {
+        dogDeck.AnalyzeTrumps(statsAttack);
+    }
+
+    // 3. Fool owner. If the attacker has lost a fool, it changes some key elements such as:
+    //    - The number of oudlers
+    //    - The points to do
+
+    if ((foolSwap == true) && (foolOwner == DEFENSE))
+    {
+        statsAttack.points -= 4; // defense keeps its points
+        statsAttack.oudlers--; // attack looses an oudler! what a pity!
+    }
+
+    // 4. One of trumps in the last trick bonus detection
     if (slamDone)
     {
         // With a slam, the 1 of Trump bonus is valid if played
         // in the penultimate trick
-        i--;
+        lastTrick--;
     }
-    if (tricks[i].HasOneOfTrump())
+    if (tricks[lastTrick].HasOneOfTrump())
     {
         littleEndianOudler = true;
-        littleEndianOwner = tricks[i].GetOwner();
+        littleEndianOwner = tricks[lastTrick].GetOwner();
     }
 
-    // 4. Fool owner (lost if played during last trick, except in case of Chelem)
-
-    // FIXME Complete
-
-    // 5. Oudler counter decides points to do
+    // 5. The number of oudler(s) decides the points to do
     score.SetPointsToDo(statsAttack.oudlers);
 
     // 6. We save the points done by the attacker
@@ -410,7 +501,7 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
     rootNode.setAttribute("version", QString(DEAL_RESULT_XML_VERSION));
     doc.appendChild(rootNode);
 
-    // Game information
+    //========================== Game information ==========================
     QDomElement infoNode = doc.createElement("deal_info");
     rootNode.appendChild(infoNode);
 
@@ -441,12 +532,16 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
     entameNode.appendChild(doc.createTextNode(Util::ToString(tricks[0].at(0)->GetOwner())));
     infoNode.appendChild(entameNode);
 
-    // Discard cards
+    QDomElement scoreNode = doc.createElement("score");
+    scoreNode.appendChild(doc.createTextNode(score.ToString()));
+    infoNode.appendChild(scoreNode);
+
+    //========================== Discard cards ==========================
     QDomElement discardNode = doc.createElement("discard");
     discardNode.appendChild(doc.createTextNode(dogDeck.GetCardList()));
     rootNode.appendChild(discardNode);
 
-    // List of tricks and card played
+    //========================== Played cards ==========================
     QDomElement tricksNode = doc.createElement("tricks");
     rootNode.appendChild(tricksNode);
     for (int i=0; i<info.GetNumberOfCards(); i++)

@@ -44,6 +44,7 @@ public:
     void Reset();
     int GetNumberOfOudlers();
     void SetPointsToDo(int oudlers);
+    QString ToString();
 
     friend QDataStream &operator<<(QDataStream &out, Score &info)
     {

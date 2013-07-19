@@ -192,41 +192,6 @@ bool TarotEngine::HasCard(Card *c, Place p)
     return players[p].GetDeck().HasCard(c);
 }
 /*****************************************************************************/
-Place TarotEngine::CalculateTrickWinner()
-{
-    Card *cLeader;
-    int maxValue = 0;
-    bool trumpDetected = false;
-
-    cLeader = currentTrick.at(0);   // First card played this trick
-
-    for (int i = 0; i<currentTrick.size(); i++)
-    {
-        Card *c = currentTrick.at(i);
-        int value = c->GetValue();
-
-        if (c->GetSuit() == Card::TRUMPS)
-        {
-            trumpDetected = true;
-            if (value > maxValue)
-            {
-                maxValue = value;
-                cLeader = c;
-            }
-        }
-        else if (trumpDetected == false)
-        {
-            if (value > maxValue)
-            {
-                maxValue = value;
-                cLeader = c;
-            }
-        }
-    }
-
-    return cLeader->GetOwner();
-}
-/*****************************************************************************/
 void TarotEngine::NewDeal()
 {
     // 1. Initialize internal states
@@ -340,8 +305,7 @@ void TarotEngine::GameSateMachine()
     if (gameState.Next() == true)
     {
         // The current trick winner will begin the next trick
-        gameState.currentPlayer = CalculateTrickWinner();
-        deal.SetTrick(currentTrick, gameState);
+        gameState.currentPlayer = deal.SetTrick(currentTrick, gameState);
         currentTrick.clear();
         cntSyncTrick = 0;
         gameState.sequence = Game::SYNC_TRICK;
@@ -364,9 +328,9 @@ void TarotEngine::EndOfDeal()
         list.insert((Place)i, players[i].GetIdentity());
     }
 
+    deal.Calculate(gameState);
     deal.GenerateEndDealLog(gameState, list);
 
-    deal.Calculate(gameState);
     dealCounter++;
 
     // Manage tournaments

@@ -59,7 +59,7 @@ public:
     void SetPoints(const Game &infos);
     void SetScore(const Score &score, const Game &info);
     void SetDog(Deck &dog, Team owner);
-    void SetTrick(Deck &trick, Game &info);
+    Place SetTrick(Deck &trick, Game &info);
     void SetDogOwner(Team team);
 
 private:
@@ -74,6 +74,8 @@ private:
     Deck attackHandleDeck;
     Deck defenseHandleDeck;
     Deck tricks[24];    // 24 tricks max with 3 players
+    int tricksWon;
+    Deck::Statistics statsAttack;
 
     // Bonus: little oudler (1 of trump) played at the last trick
     bool littleEndianOudler;     // true if the little oudler has been played at the last trick
@@ -83,7 +85,11 @@ private:
     bool slamDone;  // true if the slam has been successfully done
     Team slamOwner; // the defense can also perform a slam if everything goes wrong
 
-    // Informations calculées à partir du jeu
+    // Bonus: Fool
+    bool foolSwap;  // true if the fool has been swaped of teams
+    Team foolOwner; // the final owner of the fool
+
+    // Last score
     Score  score;
 
     // scores of previous deals

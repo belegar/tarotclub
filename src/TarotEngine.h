@@ -116,32 +116,9 @@ private:
     bool HasCard(Card *c, Place p);
     void CreateDeal();
 
-    /**
-     * @brief CalculateTrickWinner
-     * Each trick is won by the highest trump in it, or the highest card
-     * of the suit led if no trumps were played.
-     *
-     * This methods does not verify if the trick is consistent with the rules; this
-     * is supposed to have been previously verified.
-     *
-     * @return The place of the winner of this trick
-     */
-    Place CalculateTrickWinner();
     void ShowDog();
     void GameSateMachine();
     void EndOfDeal();
-
-    /**
-     * @brief EndOfTrick
-     *
-     * Fin d'un tour, on calcule le gagnant du pli et on prépare la suite
-     * On retourne également le nombre de points réalisés par le preneur
-     * retourne true si la partie est terminée, sinon false
-     *
-     * @param points
-     * @return
-     */
-    bool EndOfTrick(float &points);
 
 };
 

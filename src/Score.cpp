@@ -93,6 +93,22 @@ void Score::SetPointsToDo(int oudlers)
         pointsToDo = 36;
     }
 }
+/*****************************************************************************/
+QString Score::ToString()
+{
+    QString temp;
+
+    temp = QObject::tr("Attacker points: ") + QString::number(pointsAttack);
+    temp += "\n" + QObject::tr("Attacker score: ") + QString::number(scoreAttack);
+    temp += "\n" + QObject::tr("Attacker objective: ") + QString::number(pointsToDo);
+    temp += "\n" + QObject::tr("Difference: ") + QString::number(difference);
+    temp += "\n" + QObject::tr("Multiplier: ") + QString::number(multiplier);
+    temp += "\n" + QObject::tr("Little endian: ") + QString::number(littleEndianPoints);
+    temp += "\n" + QObject::tr("Handle bonus: ") + QString::number(handlePoints);
+    temp += "\n" + QObject::tr("Slam bonus: ") + QString::number(slamPoints);
+
+    return temp;
+}
 
 //=============================================================================
 // End of file Score.cpp
