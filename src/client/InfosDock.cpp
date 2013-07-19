@@ -39,51 +39,29 @@ InfosDock::InfosDock(QWidget *parent)
     ui.setupUi(this);
 }
 /*****************************************************************************/
-void InfosDock::clear()
+void InfosDock::Clear()
 {
     ui.donneVar->setText("");
     ui.preneurVar->setText("");
     ui.contratVar->setText("");
 }
 /*****************************************************************************/
-void InfosDock::setDonne(int n)
+void InfosDock::SetDealNumber(int n)
 {
     ui.donneVar->setText(QString("<b>") + QString::number(n) + QString("</b>"));
 }
 /*****************************************************************************/
-void InfosDock::setPreneur(QString preneur)
+void InfosDock::SetTaker(QString &name, Place place)
 {
-    ui.preneurVar->setText("<b>" + preneur + "</b>");
+    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + Util::ToString(place) + ")");
 }
 /*****************************************************************************/
-void InfosDock::setContrat(Contract cont)
+void InfosDock::SetContract(Contract contract)
 {
-    QString mot;
-
-    if (cont == GUARD_AGAINST)
-    {
-        mot = STR_GARDE_CONTRE;
-    }
-    else if (cont == GUARD_WITHOUT)
-    {
-        mot = STR_GARDE_SANS;
-    }
-    else if (cont == GUARD)
-    {
-        mot = STR_GARDE;
-    }
-    else if (cont == TAKE)
-    {
-        mot = STR_PRISE;
-    }
-    else
-    {
-        mot = STR_PASSE;
-    }
-    ui.contratVar->setText("<b>" + mot + "</b>");
+    ui.contratVar->setText("<b>" + Util::ToString(contract) + "</b>");
 }
 /*****************************************************************************/
-void InfosDock::printStats(Deck::Statistics &stats)
+void InfosDock::PrintStats(Deck::Statistics &stats)
 {
     QString buffer, tmp;
 

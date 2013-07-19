@@ -37,43 +37,12 @@ void ResultWindow::SetResult(Score &score, Game &info)
 {
     QString result_str;
 
-    // On affiche les caractéristiques de la partie
-    if (info.taker == SOUTH)
-    {
-        ui.lblTaker->setText(STR_SUD);
-    }
-    else if (info.taker == EAST)
-    {
-        ui.lblTaker->setText(STR_EST);
-    }
-    else if (info.taker == NORTH)
-    {
-        ui.lblTaker->setText(STR_NORD);
-    }
-    else
-    {
-        ui.lblTaker->setText(STR_OUEST);
-    }
-
-    if (info.contract == PASS)
-    {
-        ui.lblContrat->setText(STR_PRISE);
-    }
-    else if (info.contract == GUARD)
-    {
-        ui.lblContrat->setText(STR_GARDE);
-    }
-    else if (info.contract == GUARD_WITHOUT)
-    {
-        ui.lblContrat->setText(STR_GARDE_SANS);
-    }
-    else
-    {
-        ui.lblContrat->setText(STR_GARDE_CONTRE);
-    }
-
+    // Deal caracteristics
+    ui.lblTaker->setText(Util::ToString(info.taker));
+    ui.lblContrat->setText(Util::ToString(info.contract));
     ui.lblNbBouts->setNum(score.GetNumberOfOudlers());
     ui.lblPoints->setNum((int)score.pointsAttack);
+    ui.lblPointsToDo->setNum((int)score.pointsToDo);
 
     if ((int)(score.pointsAttack) >= score.pointsToDo)
     {
@@ -83,10 +52,10 @@ void ResultWindow::SetResult(Score &score, Game &info)
     {
         result_str = QString("<font color=\"red\">") + STR_LOSE;
     }
-    ui.lblResultat->setText(result_str + QString().setNum(score.difference) +
+    ui.lblResultat->setText(result_str + QString().setNum(abs(score.difference)) +
                             STR_POINTS + QString("</font>"));
 
-    ui.lblGains->setNum(score.difference);
+    ui.lblGains->setNum(abs(score.difference));
     ui.lblPetit->setNum(score.littleEndianPoints);
     ui.lblMultiple->setNum(score.multiplier);
     ui.lblPoignee->setNum(score.handlePoints);

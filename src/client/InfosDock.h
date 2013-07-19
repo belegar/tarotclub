@@ -46,11 +46,11 @@ private:
 public:
     InfosDock(QWidget *parent);
 
-    void clear();
-    void setContrat(Contract c);
-    void setPreneur(QString preneur);
-    void setDonne(int n);
-    void printStats(Deck::Statistics &stats);
+    void Clear();
+    void SetContract(Contract contract);
+    void SetTaker(QString &name, Place place);
+    void SetDealNumber(int n);
+    void PrintStats(Deck::Statistics &stats);
 };
 
 #endif // INFOSDOCK_H

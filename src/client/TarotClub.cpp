@@ -188,7 +188,7 @@ void TarotClub::newLocalGame()
 {
     // GUI initialization
     scoresDock->clear();
-    infosDock->clear();
+    infosDock->Clear();
     tapis->razTapis();
     tapis->resetCards();
     roundDock->Clear();
@@ -450,7 +450,7 @@ void TarotClub::slotPlayersList(QMap<Place, Identity> &pl)
 /*****************************************************************************/
 void TarotClub::slotReceiveCards()
 {
-    infosDock->printStats(client.GetStatistics());
+    infosDock->PrintStats(client.GetStatistics());
     tapis->resetCards();
     afficheCartesJoueur(0);
 }
@@ -587,7 +587,7 @@ void TarotClub::hideChien()
 /*****************************************************************************/
 void TarotClub::slotDealAgain()
 {
-    infosDock->clear();
+    infosDock->Clear();
     tapis->setFilter(Tapis::AUCUN);
     tapis->razTapis();
 
@@ -618,7 +618,7 @@ void TarotClub::slotStartDeal(Place p, Contract c)
 {
     firstTurn = true;
     roundDock->Clear();
-    infosDock->setContrat(c);
+    infosDock->SetContract(c);
 
     QString name = "ERROR";
 
@@ -626,8 +626,8 @@ void TarotClub::slotStartDeal(Place p, Contract c)
     {
         name = players.value(p).name;
     }
-    infosDock->setPreneur(name);
-    infosDock->setDonne(table.GetServer().GetEngine().GetDealNumber());
+    infosDock->SetTaker(name, p);
+    infosDock->SetDealNumber(table.GetServer().GetEngine().GetDealNumber());
     tapis->setFilter(Tapis::AUCUN);
     tapis->razTapis(true);
     tapis->colorisePreneur(p);
