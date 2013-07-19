@@ -256,8 +256,8 @@ void TarotClub::showVictoryWindow()
     */
     QList<Place> podium = deal.GetPodium();
 
-    QMessageBox::information(this, trUtf8("Résultat du tournoi"),
-                             trUtf8("Le gagnant du tournoi est ") + players[podium[0]].name,
+    QMessageBox::information(this, trUtf8("Tournament result"),
+                             trUtf8("The winner of the tournament is ") + players[podium[0]].name,
                              QMessageBox::Ok);
 
     /*
@@ -716,7 +716,7 @@ void TarotClub::slotWaitTrick(Place winner)
 {
     roundDock->SelectWinner(client.GetGameInfo(), winner);
     tapis->setFilter(Tapis::AUCUN);
-    statusBar()->showMessage(trUtf8("Cliquez sur le tapis pour continuer."));
+    statusBar()->showMessage(trUtf8("Click on the board to continue."));
 
     // launch timer to clean cards, if needed
     if (clientConfig.GetOptions().enableDelayBeforeCleaning == true)

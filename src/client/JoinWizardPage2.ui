@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Salons</string>
+        <string>Rooms</string>
        </property>
       </widget>
      </item>

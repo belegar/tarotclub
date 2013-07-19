@@ -122,7 +122,7 @@ void OptionsWindow::slotBtnOk()
     if (indexLangue != clientOptions.language)
     {
         QMessageBox::information(this, tr("Information"),
-                                 tr("You must restart TarotClub to enable the new language.\n\n"));
+                                 tr("You must restart TarotClub to enable the new language.") + "\n\n");
     }
     clientOptions.backgroundColor = colorName;
     clientOptions.delayBeforeCleaning = ui.slider2->value();

@@ -71,12 +71,12 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
     <name>ChatDock</name>
     <message>
         <location filename="../src/client/ChatDock.cpp" line="37"/>
-        <source>Discussion</source>
+        <source>Chat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/ChatDock.cpp" line="41"/>
-        <source>Commandes</source>
+        <source>Commands</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -120,9 +120,9 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 </context>
 <context>
     <name>DealEditorUI</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/DealEditorUI.ui" line="14"/>
-        <source>Éditeur de donne</source>
+        <source>Deal editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -213,7 +213,7 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
     <name>HelpUI</name>
     <message>
         <location filename="../src/client/HelpUI.ui" line="14"/>
-        <source>Aide</source>
+        <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -226,164 +226,146 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="90"/>
-        <source>Atouts: </source>
+        <source>Trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="91"/>
-        <source>
-Atouts majeurs: </source>
+        <source>Major trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="93"/>
-        <source>
-Bouts: </source>
+        <source>Oudlers: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="94"/>
-        <source>
-Excuse: </source>
+        <source>Fool: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="95"/>
-        <source>
-21: </source>
+        <source>21 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="96"/>
-        <source>
-Petit: </source>
+        <source>1 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="98"/>
-        <source>
-Longues: </source>
+        <source>Long suits: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="99"/>
-        <source>
-Mariages: </source>
+        <source>Weddings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="100"/>
-        <source>
-Sequences: </source>
+        <source>Sequences: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="101"/>
-        <source>
-Singletons: </source>
+        <source>Singletons: </source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/InfosDock.cpp" line="103"/>
-        <source>
-Trèfles: </source>
+        <source>Clubs: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="104"/>
-        <source>
-Carreaux: </source>
+        <source>Diamonds: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="105"/>
-        <source>
-Pics: </source>
+        <source>Spades: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="106"/>
-        <source>
-Coeurs: </source>
+        <source>Hearts: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="108"/>
-        <source>
-Rois: </source>
+        <source>Kings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="109"/>
-        <source>
-Coupes: </source>
+        <source>Voids: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="110"/>
-        <source>
-Dames: </source>
+        <source>Queens: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="111"/>
-        <source>
-Cavaliers: </source>
+        <source>Knights: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="112"/>
-        <source>
-Valets: </source>
+        <source>Jacks: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>JoinWizard</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/JoinWizard.cpp" line="114"/>
-        <source>Connecté au serveur.</source>
+        <source>Connected to the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/JoinWizard.cpp" line="125"/>
-        <source>Connexion au serveur ....</source>
+        <source>Connection to the server ....</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/JoinWizard.cpp" line="131"/>
-        <source>Le serveur a mis fin à la connexion.</source>
+        <source>The connection has been closed by the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/JoinWizard.cpp" line="137"/>
-        <source>Erreur socket. Code :</source>
+        <source>Socket error - code: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>JoinWizardPage1</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/JoinWizard.cpp" line="34"/>
-        <source>Connexion à un serveur TarotClub</source>
+        <source>Connection to a TarotClub server</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/JoinWizard.cpp" line="35"/>
-        <source>Un serveur de jeu peut être créé à partir d&apos;une version de TarotClub ou d&apos;un serveur dédié.</source>
+        <source>A game server can be created using a TarotClub cient or a dedicated server.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>JoinWizardPage2</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/JoinWizard.cpp" line="54"/>
-        <source>Connexion à un serveur TarotClub</source>
+        <source>Connection to a TarotClub server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/JoinWizard.cpp" line="55"/>
-        <source>Choisissez votre salon et votre table de jeu.</source>
+        <source>Choose your room and game table.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -461,7 +443,7 @@ Valets: </source>
     </message>
     <message>
         <location filename="../src/client/MainWindow.cpp" line="165"/>
-        <source>Crate a network game and invite friends to join the game</source>
+        <source>Create a network game and invite friends to join the game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -637,14 +619,14 @@ Valets: </source>
 </context>
 <context>
     <name>NumberedDeal</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/NumberedDealUI.ui" line="14"/>
-        <source>Choisissez une donne numérotée</source>
+        <source>Choose a numbered deal</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/NumberedDealUI.ui" line="20"/>
-        <source>Entrez le numéro de la donne :</source>
+        <source>Enter the numbered deal:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -811,9 +793,7 @@ Valets: </source>
     </message>
     <message>
         <location filename="../src/client/OptionsWindow.cpp" line="125"/>
-        <source>You must restart TarotClub to enable the new language.
-
-</source>
+        <source>You must restart TarotClub to enable the new language.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -832,17 +812,17 @@ Valets: </source>
     </message>
     <message>
         <location filename="../src/client/JoinWizardPage1.ui" line="43"/>
-        <source>Adresse IP</source>
+        <source>IP address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/JoinWizardPage1.ui" line="50"/>
-        <source>Port</source>
+        <source>Port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/JoinWizardPage1.ui" line="61"/>
-        <source>000.000.000.000; </source>
+        <source>000.000.000.000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -860,7 +840,7 @@ Valets: </source>
     </message>
     <message>
         <location filename="../src/client/JoinWizardPage2.ui" line="22"/>
-        <source>Salons</source>
+        <source>Rooms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -939,9 +919,9 @@ Valets: </source>
 </context>
 <context>
     <name>ResultUI</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/ResultUI.ui" line="14"/>
-        <source>Résultat</source>
+        <source>Deal score result</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1004,7 +984,7 @@ Valets: </source>
     </message>
     <message>
         <location filename="../src/client/ResultUI.ui" line="283"/>
-        <source>Earn / loss</source>
+        <source>Earn / loss:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1107,96 +1087,96 @@ Valets: </source>
 </context>
 <context>
     <name>Tapis</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/Tapis.cpp" line="107"/>
-        <source>Enchères</source>
+        <source>Bids</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/Tapis.cpp" line="130"/>
-        <source>Accepter le chien</source>
+        <source>Accept the discard</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/Tapis.cpp" line="137"/>
-        <source>PrÃ©senter poignÃ©e</source>
+        <source>Declare a handle</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TarotClub</name>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/TarotClub.cpp" line="259"/>
-        <source>Résultat du tournoi</source>
+        <source>Tournament result</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/TarotClub.cpp" line="260"/>
-        <source>Le gagnant du tournoi est </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="496"/>
-        <location filename="../src/client/TarotClub.cpp" line="593"/>
-        <source>Information</source>
+        <source>The winner of the tournament is </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/client/TarotClub.cpp" line="497"/>
+        <location filename="../src/client/TarotClub.cpp" line="594"/>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/client/TarotClub.cpp" line="498"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="504"/>
+        <location filename="../src/client/TarotClub.cpp" line="505"/>
         <source>Please, play a card, it&apos;s your turn!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="570"/>
+        <location filename="../src/client/TarotClub.cpp" line="571"/>
         <source>Click on the board once you have seen the dog.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="594"/>
+        <location filename="../src/client/TarotClub.cpp" line="595"/>
         <source>All the players have passed.
 New deal will begin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="613"/>
+        <location filename="../src/client/TarotClub.cpp" line="614"/>
         <source>Select cards to build your discard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="649"/>
+        <location filename="../src/client/TarotClub.cpp" line="650"/>
         <source>Handle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="650"/>
+        <location filename="../src/client/TarotClub.cpp" line="651"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="657"/>
+        <location filename="../src/client/TarotClub.cpp" line="658"/>
         <source>Build your handle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="663"/>
+        <location filename="../src/client/TarotClub.cpp" line="664"/>
         <source>It&apos;s your turn to play a card.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="679"/>
+        <location filename="../src/client/TarotClub.cpp" line="680"/>
         <source>End of the deal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="718"/>
-        <source>Cliquez sur le tapis pour continuer.</source>
+        <location filename="../src/client/TarotClub.cpp" line="719"/>
+        <source>Click on the board to continue.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1212,8 +1192,8 @@ Do you want to declare it?</source>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Fin du tournoi&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;OxygenSans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:16pt; font-weight:600;&quot;&gt;End of the tournament&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

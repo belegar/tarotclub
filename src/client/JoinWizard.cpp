@@ -31,8 +31,8 @@
 JoinWizardPage1::JoinWizardPage1(QWidget *parent) : QWizardPage(parent)
 {
     ui.setupUi(this);
-    setTitle(trUtf8("Connexion à un serveur TarotClub"));
-    setSubTitle(trUtf8("Un serveur de jeu peut être créé à partir d'une version de TarotClub ou d'un serveur dédié."));
+    setTitle(trUtf8("Connection to a TarotClub server"));
+    setSubTitle(trUtf8("A game server can be created using a TarotClub cient or a dedicated server."));
 }
 /*****************************************************************************/
 void JoinWizardPage1::initializePage()
@@ -51,8 +51,8 @@ void JoinWizardPage1::initializePage()
 JoinWizardPage2::JoinWizardPage2(QWidget *parent) : QWizardPage(parent)
 {
     ui.setupUi(this);
-    setTitle(trUtf8("Connexion à un serveur TarotClub"));
-    setSubTitle(trUtf8("Choisissez votre salon et votre table de jeu."));
+    setTitle(trUtf8("Connection to a TarotClub server"));
+    setSubTitle(trUtf8("Choose your room and game table."));
 }
 /*****************************************************************************/
 void JoinWizardPage2::initializePage()
@@ -111,7 +111,7 @@ void JoinWizard::socketReadData()
 /*****************************************************************************/
 void JoinWizard::socketConnected()
 {
-    QString txt = trUtf8("Connecté au serveur.");
+    QString txt = trUtf8("Connected to the server.");
     page2->setInfos(txt);
 
     // get list of playing rooms
@@ -122,19 +122,19 @@ void JoinWizard::socketConnected()
 /*****************************************************************************/
 void JoinWizard::socketHostFound()
 {
-    QString txt = trUtf8("Connexion au serveur ....");
+    QString txt = trUtf8("Connection to the server ....");
     page2->setInfos(txt);
 }
 /*****************************************************************************/
 void JoinWizard::socketClosed()
 {
-    QString txt = trUtf8("Le serveur a mis fin à la connexion.");
+    QString txt = trUtf8("The connection has been closed by the server.");
     page2->setInfos(txt);
 }
 /*****************************************************************************/
 void JoinWizard::socketError(QAbstractSocket::SocketError code)
 {
-    QString txt = trUtf8("Erreur socket. Code :") + QString().setNum((int)code);
+    QString txt = trUtf8("Socket error - code: ") + QString().setNum((int)code);
     page2->setInfos(txt);
 }
 
