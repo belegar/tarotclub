@@ -4,7 +4,7 @@
 ; Customize the Qt dir installation and version
 [Code]
 #define QT_DIR 	      "C:\Qt\Qt5.0.2\5.0.2\mingw47_32\bin"
-#define VERSION       "2.1.0-alpha.1"
+#define VERSION       "2.1.0-alpha.2"
 #define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_0_2_MinGW_32bit-Release"
 
 [Setup]
@@ -42,6 +42,9 @@ Source: ..\src\data\cards\default\*; DestDir: {app}\default; Flags: ignoreversio
 Source: ..\doc\tarotclub.qch; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\doc\tarotclub.qhc; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\ai\beginner.js; DestDir: {app}\ai; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\prj\tarotclub_en.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\prj\tarotclub_fr.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\lib\tarotclub.xsl; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Miscellaneous information text files
 Source: ..\BUILD; DestDir: {app}; Flags: ignoreversion
@@ -54,7 +57,6 @@ Source: ..\README; DestDir: {app}; Flags: ignoreversion
 ; Fonts used in SVG files
 Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {app}; Flags: ignoreversion
 Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {fonts}; FontInstall: Kanzlei; Flags: onlyifdoesntexist uninsneveruninstall
-
 
 ; Qt DLL files
 Source: {#QT_DIR}\D3DCompiler_43.dll; DestDir: {app}; Flags: ignoreversion

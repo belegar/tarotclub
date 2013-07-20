@@ -263,7 +263,7 @@ Card *Client::Play()
 /*****************************************************************************/
 bool Client::IsValid(Card *c)
 {
-    return player.CanPlayCard(c, currentTrick, info);
+    return player.CanPlayCard(c, currentTrick);
 }
 /*****************************************************************************/
 void Client::ConnectToHost(const QString &hostName, quint16 port)

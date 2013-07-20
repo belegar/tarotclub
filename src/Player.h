@@ -45,7 +45,7 @@ public:
     Player();
 
     // Helpers
-    bool CanPlayCard(Card *, Deck &trick, Game &info);
+    bool CanPlayCard(Card *, Deck &trick);
 
     // Getters
     Identity &GetIdentity();

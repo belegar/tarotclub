@@ -181,7 +181,7 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
     }
     else if (gameState.sequence == Game::PLAY_TRICK)
     {
-        ret =  players[p].CanPlayCard(c, currentTrick, gameState);
+        ret =  players[p].CanPlayCard(c, currentTrick);
     }
 
     return (ret);
@@ -424,12 +424,9 @@ void TarotEngine::CreateDeal()
 
         if (shuffle.type == RANDOM_DEAL)
         {
-            currentTrick.Shuffle(qrand() % RAND_MAX);
+            shuffle.seed = qrand() % RAND_MAX;
         }
-        else
-        {
-            currentTrick.Shuffle(shuffle.seed);
-        }
+        currentTrick.Shuffle(shuffle.seed);
     }
 
     int n = 0;

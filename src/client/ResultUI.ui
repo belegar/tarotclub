@@ -51,11 +51,11 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupBox1">
      <property name="title">
       <string>Summary</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QGridLayout" name="gridLayout1">
       <item row="0" column="0">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -464,7 +464,7 @@
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
-    <layout class="QHBoxLayout">
+    <layout class="QHBoxLayout" name="_2">
      <item>
       <spacer>
        <property name="orientation">

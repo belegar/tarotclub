@@ -50,7 +50,7 @@ Player::Player()
  * @param nbPlayers
  * @return true if the card can be played
  */
-bool Player::CanPlayCard(Card *cVerif, Deck &trick, Game &info)
+bool Player::CanPlayCard(Card *cVerif, Deck &trick)
 {
     Card::Suit   suit; // required suit
 

@@ -263,7 +263,7 @@ bool Bot::InitializeScriptContext()
 {
 #ifndef QT_NO_DEBUG
 #ifdef Q_OS_WIN32
-    QString fileName = "E:/tarotclub_big_changes/ai/beginner.js";
+    QString fileName = "E:/tarotclub/ai/beginner.js";
 #else
     QString fileName = "/home/anthony/Documents/tarotclub/ai/beginner.js";
 #endif

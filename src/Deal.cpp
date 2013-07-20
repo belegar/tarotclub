@@ -475,7 +475,6 @@ void Deal::SetDog(Deck &dog, Team owner)
     dogDeck.SetOwner(owner);
 }
 /*****************************************************************************/
-#ifndef QT_NO_DEBUG
 /**
  * @brief Generate a file with all played cards of the deal
  *
@@ -574,8 +573,6 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
     fout << out;
     f.close();
 }
-#endif // QT_NO_DEBUG
-
 
 //=============================================================================
 // End of file Deal.h
