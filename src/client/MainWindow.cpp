@@ -98,17 +98,9 @@ void MainWindow::SetupDocks()
     tabifyDockWidget(chatDock, serverDock);
     tabifyDockWidget(serverDock, debugDock);
 
-#ifndef QT_NO_DEBUG
-    // Debug
-    debugDock->show();
-    serverDock->show();
-    chatDock->show();
-#else
-    // Release
     debugDock->hide();
     serverDock->hide();
     chatDock->hide();
-#endif
 
     // ----------  Right Docks ------------------------
 
