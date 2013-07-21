@@ -150,7 +150,7 @@ void DealFile::SaveFile(QString &fileName)
     doc.appendChild(rootNode);
 
     // Dog cards
-    QDomElement chienNode = doc.createElement("chien");
+    QDomElement chienNode = doc.createElement("dog");
     rootNode.appendChild(chienNode);
     for (int i = 0; i < dogDeck.count(); i++)
     {
