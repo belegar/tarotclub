@@ -1,4 +1,4 @@
-?package(tortoisehg):\
+?package(tarotclub):\
     needs="X11"\
     section="Applications/Games/Card"\
     title="TarotClub"\

@@ -1,14 +1,22 @@
 #!/bin/bash
+# This is the main TarotClub install script
+# It will generate two files:
+#   - A tarball file containing the current TarotClub binaries architecture
+#   - A Debian package (i386 or amd64)
+
+# The script needs at least one argument, $# is the number of parameters
+if [ $# -ne 1 ]; then
+  echo "Please specify an architecture (i386 or amd64), eg: make_packages.sh amd64"
+  exit 1
+fi
 
 # Argument is  or amd64
-
-
 if [ $1 == "i386" ] || [ $1 == "amd64" ]; then
   ARCH=$1
   echo "Using arch: ${ARCH}"
 else
-  ARCH=i386
-  echo "Using default arch i386"
+  echo "Invalid architecture, supported options are: i386 or amd64"
+  exit 1
 fi
 
 # Edit TarotClub version
@@ -24,7 +32,7 @@ fi
 TEMP_DIR=tarotclub
 
 # version is in defines.h file in the following format:
-# #define TAROT_VERSION   "2.1.0a1"
+# #define TAROT_VERSION   "2.1.0-alpha.2"
 VERSION=$(grep -Po '([-0-9]*\.[0-9]*\.[0-9]*-[A-Za-z]*\.[0-9]*)' ${TAROT_ROOT}/src/defines.h)
 
 ####################  TARBALL PACKAGE ###########################
@@ -54,6 +62,9 @@ cp ${TAROT_ROOT}/doc/tarotclub.qch .
 cp ${TAROT_ROOT}/doc/tarotclub.qhc .
 cp ${TAROT_ROOT}/ai/beginner.js ./ai
 cp ${TAROT_ROOT}/lib/icon256x256.png .
+cp ${TAROT_ROOT}/lib/tarotclub.xsl .
+cp ${TAROT_ROOT}/prj/tarotclub_en.qm .
+cp ${TAROT_ROOT}/prj/tarotclub_fr.qm .
 
 # copy install script
 cp ${TAROT_ROOT}/pkg/ubuntu/install.sh .
