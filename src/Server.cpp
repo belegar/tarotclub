@@ -235,7 +235,7 @@ bool Server::DoAction(QDataStream &in, Place p)
         Deck handle;
         in >> handle;
         engine.SetHandle(handle, p);
-        SendShowHandle(handle);
+        SendShowHandle(handle, p);
         break;
     }
 
@@ -254,6 +254,12 @@ bool Server::DoAction(QDataStream &in, Place p)
     case Protocol::CLIENT_SYNC_TRICK:
     {
         engine.SyncTrick();
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_HANDLE:
+    {
+        engine.SyncHandle();
         break;
     }
 
@@ -366,10 +372,11 @@ void Server::SendShowCard(Card *c)
     Broadcast(packet);
 }
 /*****************************************************************************/
-void Server::SendShowHandle(Deck &handle)
+void Server::SendShowHandle(Deck &handle, Place p)
 {
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
+    out << (quint8)p;
     out << handle;
     packet = BuildCommand(packet, Protocol::SERVER_SHOW_HANDLE);
     Broadcast(packet);
@@ -459,8 +466,6 @@ void Server::Broadcast(QByteArray &block)
         qApp->processEvents(QEventLoop::AllEvents, 100);
     }
 }
-
-
 
 //=============================================================================
 // End of file Server.cpp

@@ -83,7 +83,7 @@ private:
     void SendPlayersList();
     void SendBuildDiscard();
     void SendShowCard(Card *c);
-    void SendShowHandle(Deck &handle);
+    void SendShowHandle(Deck &handle, Place p);
 
 private slots:
     // TarotClub protocol

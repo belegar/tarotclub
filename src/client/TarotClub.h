@@ -104,6 +104,7 @@ private slots:
     void slotDealAgain();
     void slotPlayCard();
     void slotShowCard(int id, Place p);
+    void slotShowHandle();
     void slotWaitTrick(Place winner);
     void slotEndOfDeal();
     void slotEndOfGame();

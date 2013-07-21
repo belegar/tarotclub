@@ -70,6 +70,7 @@ public:
     void SyncCard();
     void SyncStart();
     void SyncBid();
+    void SyncHandle();
     void BidSequence();
 
     // Getters
@@ -109,6 +110,7 @@ private:
     int         cntSyncBid;     // players saw the bid
     int         cntSyncTrick;   // end of a round
     int         cntSyncReady;   // end of a deal
+    int         cntSyncHandle;   // show a declared handle to all players
     int         cntSyncStart;   // start of a deal
     int         cntSyncCard;    // players saw the played card
 

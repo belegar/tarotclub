@@ -45,6 +45,7 @@ Bot::Bot() :
     connect(this, &Client::sigDealAgain, this, &Bot::slotDealAgain);
     connect(this, &Client::sigPlayCard, this, &Bot::slotPlayCard);
     connect(this, &Client::sigShowCard, this, &Bot::slotShowCard);
+    connect(this, &Client::sigShowHandle, this, &Bot::slotShowHandle);
     connect(this, &Client::sigWaitTrick, this, &Bot::slotWaitTrick);
     connect(this, &Client::sigEndOfDeal, this, &Bot::slotEndOfDeal);
     connect(this, &Client::sigEndOfGame, this, &Bot::slotEndOfGame);
@@ -186,7 +187,17 @@ void Bot::slotShowCard(int id, Place p)
 
     // We have seen the card, let's inform the server about that
     SendSyncCard();
- }
+}
+/*****************************************************************************/
+void Bot::slotShowHandle()
+{
+    QScriptValueList args;
+    args << GetHandleDeck().GetCardList() << (int)GetHandleDeck().GetOwner();
+    CallScript("ShowHandle", args);
+
+    // We have seen the handle, let's inform the server about that
+    SendSyncHandle();
+}
 /*****************************************************************************/
 void Bot::slotWaitTrick(Place winner)
 {

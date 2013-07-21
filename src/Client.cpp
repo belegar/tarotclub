@@ -448,7 +448,18 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_SHOW_HANDLE:
     {
-        // FIXME: emit signal with handle deck
+        quint8 p;
+        in >> p;
+        in >> handleDeck;
+        if (GetGameInfo().taker == (Place)p)
+        {
+            handleDeck.SetOwner(ATTACK);
+        }
+        else
+        {
+            handleDeck.SetOwner(DEFENSE);
+        }
+        emit sigShowHandle();
         break;
     }
 
@@ -507,7 +518,6 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_END_OF_GAME:
     {
-        // FIXME
         emit sigEndOfGame();
         break;
     }

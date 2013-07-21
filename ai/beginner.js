@@ -449,6 +449,16 @@ function BuildDiscard(dog)
 }
 
 /**
+ * @brief This function is called when a player as declared a handle
+ * 
+ * @param[in] handle declared, card list in string format
+ * @param[in] team, Attack or Defense
+ */
+function ShowHandle(handle, team)
+{
+}
+
+/**
  * @brief This function is called to indicate a new game
  * 
  * Informational purpose, the script should memorize the arguments for later use

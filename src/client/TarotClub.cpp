@@ -70,6 +70,7 @@ TarotClub::TarotClub() : MainWindow()
     connect(&client, &Client::sigDealAgain, this, &TarotClub::slotDealAgain);
     connect(&client, &Client::sigPlayCard, this, &TarotClub::slotPlayCard);
     connect(&client, &Client::sigShowCard, this, &TarotClub::slotShowCard);
+    connect(&client, &Client::sigShowHandle, this, &TarotClub::slotShowHandle);
     connect(&client, &Client::sigWaitTrick, this, &TarotClub::slotWaitTrick);
     connect(&client, &Client::sigEndOfDeal, this, &TarotClub::slotEndOfDeal);
     connect(&client, &Client::sigEndOfGame, this, &TarotClub::slotEndOfGame);
@@ -502,6 +503,7 @@ void TarotClub::slotPresenterPoignee()
     tapis->setBoutonPoigneeVisible(false);
     client.SendHandle();
     afficheCartesJoueur(0);
+    client.GetGameInfo().sequence = Game::PLAY_TRICK;
     statusBar()->showMessage(trUtf8("Please, play a card, it's your turn!"));
 }
 /*****************************************************************************/
@@ -644,7 +646,7 @@ void TarotClub::slotPlayCard()
     if (firstTurn == true)
     {
         firstTurn = false;
-        // TODO: test if a Poignée exists in the player's deck
+        // If a handle exists in the player's deck, we propose to declare it
         if (client.GetStatistics().trumps >= 10)
         {
             int ret = QMessageBox::question(this, trUtf8("Handle"),
@@ -653,7 +655,7 @@ void TarotClub::slotPlayCard()
                                             QMessageBox::Yes | QMessageBox::No);
             if (ret == QMessageBox::Yes)
             {
-                // FIXME set sequence to handle
+                client.GetGameInfo().sequence = Game::BUILD_HANDLE;
                 client.GetHandleDeck().clear();
                 statusBar()->showMessage(trUtf8("Build your handle."));
             }
@@ -673,6 +675,14 @@ void TarotClub::slotShowCard(int id, Place p)
 
     // We have seen the card, let's inform the server about that
     client.SendSyncCard();
+}
+/*****************************************************************************/
+void TarotClub::slotShowHandle()
+{
+    // FIXME: show the declared handle on the board
+
+    // We have seen the handle, let's inform the server about that
+    client.SendSyncHandle();
 }
 /*****************************************************************************/
 void TarotClub::slotEndOfDeal()

@@ -29,12 +29,6 @@
 #include "DealFile.h"
 #include "Identity.h"
 
-#ifndef QT_NO_DEBUG
-#include <iostream>
-#include <fstream>
-using namespace std;
-#endif // QT_NO_DEBUG
-
 /*****************************************************************************/
 TarotEngine::TarotEngine()
 {
@@ -106,6 +100,7 @@ void TarotEngine::SetHandle(Deck &handle, Place p)
     }
 
     deal.SetHandle(handle, handleOwner);
+    cntSyncHandle = 0;
 }
 /*****************************************************************************/
 void TarotEngine::SetCard(Card *c, Place p)
@@ -300,6 +295,18 @@ void TarotEngine::SyncReady()
     }
 }
 /*****************************************************************************/
+void TarotEngine::SyncHandle()
+{
+    if (gameState.sequence == Game::SYNC_HANDLE)
+    {
+        cntSyncHandle++;
+        if (cntSyncHandle >= gameState.numberOfPlayers)
+        {
+            gameState.sequence = Game::PLAY_TRICK;
+        }
+    }
+}
+/*****************************************************************************/
 void TarotEngine::GameSateMachine()
 {
     if (gameState.Next() == true)
@@ -429,24 +436,16 @@ void TarotEngine::CreateDeal()
         currentTrick.Shuffle(shuffle.seed);
     }
 
-    int n = 0;
+    int n = gameState.GetNumberOfCards();
     for (int i=0; i<gameState.numberOfPlayers; i++)
     {
         players[i].GetDeck().clear();
-
-        for (int j = 0; j<gameState.GetNumberOfCards(); j++)
-        {
-            int index = n * gameState.GetNumberOfCards() + j;
-            Card *c = currentTrick.at(index);
-            c->SetOwner((Place)i);
-            players[i].GetDeck().append(c);
-        }
-        n++;
+        players[i].GetDeck().append(currentTrick.mid(i*n, n));
     }
 
     // Remaining cards go to the dog
     Deck dog;
-    dog.append(currentTrick.mid(n * gameState.GetNumberOfCards()));
+    dog.append(currentTrick.mid(gameState.numberOfPlayers*n));
     deal.SetDog(dog, NO_TEAM);
     currentTrick.clear();
 }

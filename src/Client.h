@@ -83,6 +83,7 @@ public:
     void SendSyncStart();
     void SendSyncCard();
     void SendSyncBid();
+    void SendSyncHandle();
 
 public slots:
     void slotSocketReadData();
@@ -102,6 +103,7 @@ signals:
     void sigShowBid(Place, Contract);
     void sigStartDeal(Place, Contract);
     void sigShowDog();
+    void sigShowHandle();
     void sigBuildDiscard();
     void sigDealAgain();
     void sigPlayCard();
@@ -118,13 +120,12 @@ private:
     Game        info;       // Helper class to store various game information
     Score       score;
     Deck        dogDeck;
-    Deck        handleDeck;    // declared poignee by the player
+    Deck        handleDeck;    // declared poignee by a player
     Deck        currentTrick;
 
     // TarotClub Protocol methods
     void SendIdentity();
     void SendChatMessage(const QString &message);
-    void SendSyncHandle();
     bool DoAction(QDataStream &in);
 
 };
