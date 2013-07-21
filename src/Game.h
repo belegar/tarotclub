@@ -48,6 +48,7 @@ public:
         SYNC_TRICK,
         SYNC_DOG,
         SYNC_BID,
+        SYNC_HANDLE,
         SYNC_READY
     };
 
