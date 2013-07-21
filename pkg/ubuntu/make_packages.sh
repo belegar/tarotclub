@@ -5,10 +5,12 @@
 #   - A Debian package (i386 or amd64)
 
 # The script needs at least one argument, $# is the number of parameters
-if [ $# -ne 1 ]; then
-  echo "Please specify an architecture (i386 or amd64), eg: make_packages.sh amd64"
+if [ $# -ne 2 ]; then
+  echo "Please specify an architecture (i386 or amd64) and a Qt version. Eg: make_packages.sh amd64 5_1_0"
   exit 1
 fi
+
+QT_VERSION=$2
 
 # Argument is  or amd64
 if [ $1 == "i386" ] || [ $1 == "amd64" ]; then
@@ -24,9 +26,9 @@ fi
 TAROT_ROOT=$(pwd)/../..
 
 if [ ${ARCH} == "i386" ]; then
-  RELEASE_ROOT=build-TarotClub-Desktop_Qt_5_0_2_GCC_32bit-Release
+  RELEASE_ROOT=build-TarotClub-Desktop_Qt_${QT_VERSION}_GCC_32bit-Release
 else
-  RELEASE_ROOT=build-TarotClub-Desktop_Qt_5_0_2_GCC_64bit-Release
+  RELEASE_ROOT=build-TarotClub-Desktop_Qt_${QT_VERSION}_GCC_64bit-Release
 fi
 
 TEMP_DIR=tarotclub
