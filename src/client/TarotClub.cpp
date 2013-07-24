@@ -214,8 +214,6 @@ void TarotClub::ApplyOptions()
     ClientOptions &options = clientConfig.GetOptions();
     client.SetMyIdentity(options.identity);
 
-    scoresDock->setPlayers(players);
-
     table.LoadConfiguration();
 
     tapis->showAvatars(options.showAvatars);
@@ -447,6 +445,7 @@ void TarotClub::slotPlayersList(QMap<Place, Identity> &pl)
 {
     players = pl;
     tapis->setPlayerNames(players, SOUTH);
+    scoresDock->setPlayers(players);
 }
 /*****************************************************************************/
 void TarotClub::slotReceiveCards()
@@ -704,15 +703,21 @@ void TarotClub::slotEndOfDeal()
 
     if (client.GetGameInfo().gameMode == Game::TOURNAMENT)
     {
-        deal.SetScore(client.GetScore(), client.GetGameInfo());
+        bool continueGame;
+
+        deal.SetScore(client.GetScore());
+        continueGame = deal.AddScore(client.GetGameInfo());
         scoresDock->SetNewScore(deal);
 
-        // Continue next deal (FIXME: test if it is the last deal)
-        showVictoryWindow();
-    }
-    else
-    {
-        client.SendReady();
+        if (continueGame == true)
+        {
+            client.SendReady();
+        }
+        else
+        {
+            // Continue next deal (FIXME: test if it is the last deal)
+            showVictoryWindow();
+        }
     }
 }
 /*****************************************************************************/

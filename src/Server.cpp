@@ -314,6 +314,7 @@ void Server::SendRequestIdentity(Place p)
     QDataStream out(&packet, QIODevice::ReadWrite);
     out << (quint8)p; // assigned place
     out << (quint8)4; // number of players in the current game
+    out << (quint8)engine.GetGameInfo().gameMode;
     packet = BuildCommand(packet, Protocol::SERVER_REQUEST_IDENTITY);
     players[p].SendData(packet);
 }

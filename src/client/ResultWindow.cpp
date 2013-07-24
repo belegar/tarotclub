@@ -36,7 +36,6 @@ ResultWindow::ResultWindow(QWidget *parent)
 void ResultWindow::SetResult(Score &score, Game &info)
 {
     QString result_str;
-    int sign;
 
     // Deal caracteristics
     ui.lblTaker->setText(Util::ToString(info.taker));
@@ -45,15 +44,13 @@ void ResultWindow::SetResult(Score &score, Game &info)
     ui.lblPoints->setNum((int)score.pointsAttack);
     ui.lblPointsToDo->setNum((int)score.pointsToDo);
 
-    if ((int)(score.pointsAttack) >= score.pointsToDo)
+    if (score.Winner() == ATTACK)
     {
-        result_str = QString("<font color=\"#0D851B\">") + STR_WIN;
-        sign = 1;
+        result_str = QString("<font color=\"green\">") + STR_WIN;
     }
     else
     {
         result_str = QString("<font color=\"red\">") + STR_LOSE;
-        sign = -1;
     }
     ui.lblResultat->setText(result_str + QString().setNum(abs(score.difference)) +
                             STR_POINTS + QString("</font>"));
@@ -63,8 +60,8 @@ void ResultWindow::SetResult(Score &score, Game &info)
     ui.lblMultiple->setNum(score.multiplier);
     ui.lblPoignee->setNum(score.handlePoints);
     ui.lblChelem->setNum(score.slamPoints);
-    ui.lblTotalDefense->setText(QString().setNum(score.scoreAttack * ((-1) * sign)) + STR_POINTS);
-    ui.lblTotalAttaque->setText(QString().setNum(score.scoreAttack * (3) * sign) + STR_POINTS);
+    ui.lblTotalDefense->setText(QString().setNum(score.GetDefenseScore()) + STR_POINTS);
+    ui.lblTotalAttaque->setText(QString().setNum(score.GetAttackScore()) + STR_POINTS);
 }
 
 

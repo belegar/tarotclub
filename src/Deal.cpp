@@ -275,32 +275,51 @@ Score &Deal::GetScore()
     return score;
 }
 /*****************************************************************************/
-void Deal::SetScore(const Score &s, const Game &info)
+void Deal::SetScore(const Score &s)
 {
     score = s;
-
+}
+/*****************************************************************************/
+/**
+ * @brief Deal::AddScore
+ * @param info
+ * @return true if the tournament must continue, false if it is finished
+ */
+bool Deal::AddScore(const Game &info)
+{
     for (int i = 0; i<info.numberOfPlayers; i++)
     {
         if (i == info.taker)
         {
-            scores[dealCounter][i] = s.scoreAttack;
+            scores[dealCounter][i] = score.GetAttackScore();
         }
         else
         {
-            scores[dealCounter][i] = s.scoreAttack / (-3);
+            scores[dealCounter][i] = score.GetDefenseScore();
         }
     }
-
-    if (info.gameMode == Game::TOURNAMENT)
+    dealCounter++;
+    if (dealCounter < MAX_ROUNDS)
     {
-        dealCounter++;
+        return true;
     }
+    return false;
 }
 /*****************************************************************************/
-void Deal::Calculate(Game &info)
+/**
+ * @brief Deal::Calculate
+ * @param info
+ * @return false if the current game has ended
+ */
+bool Deal::Calculate(Game &info)
 {
     AnalyzeGame(info);
     CalculateScore(info);
+    if (info.gameMode == Game::TOURNAMENT)
+    {
+        return AddScore(info);
+    }
+    return false;
 }
 /*****************************************************************************/
 void Deal::AnalyzeGame(Game &info)

@@ -103,7 +103,6 @@ private:
     Deal        deal;
     Game        gameState;
     Shuffle     shuffle;
-    int         dealCounter;    // number of deals for the tournament game
 
     // synchonization counters
     int         cntSyncDog;     // players saw the dog

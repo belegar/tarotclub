@@ -44,8 +44,9 @@ public:
     // Helpers
     void Initialize();
     void NewDeal();
-    void Calculate(Game &info);
+    bool Calculate(Game &info);
     void GenerateEndDealLog(Game &info, QMap<Place, Identity> &players);
+    bool AddScore(const Game &info);
 
     // Getters
     Deck GetTrick(int turn);
@@ -57,7 +58,7 @@ public:
     // Setters
     void SetHandle(Deck &handle, Team team);
     void SetPoints(const Game &infos);
-    void SetScore(const Score &score, const Game &info);
+    void SetScore(const Score &score);
     void SetDog(Deck &dog, Team owner);
     Place SetTrick(Deck &trick, Game &info);
     void SetDogOwner(Team team);

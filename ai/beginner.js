@@ -384,6 +384,7 @@ function EnterGame(place)
  */
 function ReceiveCards(cards)
 {
+	CurrentGame.Initialize();
 	CurrentGame.myDeck.SetCards(cards);
 }
 

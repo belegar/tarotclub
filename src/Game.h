@@ -54,8 +54,8 @@ public:
 
     enum Mode
     {
-        ONE_DEAL,
-        TOURNAMENT
+        ONE_DEAL = 0xAA,    //!< The game will stop after one full deal played
+        TOURNAMENT = 0xBB   //!< The game will stop after a number of consecutive deals (server configuration)
     };
 
     struct HandleInfo

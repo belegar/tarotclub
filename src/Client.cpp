@@ -350,12 +350,15 @@ bool Client::DoAction(QDataStream &in)
     {
         quint8 place;
         quint8 nbPlayers;
+        quint8 mode;
 
         in >> place;
         in >> nbPlayers;
+        in >> mode;
 
         player.SetPlace((Place)place);
         info.Initialize(nbPlayers);
+        info.gameMode = (Game::Mode)mode;
         SendIdentity();
         emit sigAssignedPlace((Place)place);
         break;

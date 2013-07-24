@@ -47,6 +47,7 @@ TarotEngine::~TarotEngine()
 /*****************************************************************************/
 void TarotEngine::NewGame(Game::Mode mode)
 {
+    deal.Initialize();
     gameState.gameMode = mode;
 }
 /*****************************************************************************/
@@ -327,21 +328,7 @@ void TarotEngine::GameSateMachine()
 /*****************************************************************************/
 void TarotEngine::EndOfDeal()
 {
-    QMap<Place, Identity> list;
-
-    // Create a QMap list of players
-    for (int i = 0; i<gameState.numberOfPlayers; i++)
-    {
-        list.insert((Place)i, players[i].GetIdentity());
-    }
-
-    deal.Calculate(gameState);
-    deal.GenerateEndDealLog(gameState, list);
-
-    dealCounter++;
-
-    // Manage tournaments
-    if ((dealCounter<MAX_ROUNDS) && (gameState.gameMode == Game::TOURNAMENT))
+    if(deal.Calculate(gameState) == true)
     {
          gameState.sequence = Game::SYNC_READY;
     }
@@ -349,6 +336,15 @@ void TarotEngine::EndOfDeal()
     {
          gameState.sequence = Game::STOP;
     }
+
+    QMap<Place, Identity> list;
+
+    // Create a QMap list of players
+    for (int i = 0; i<gameState.numberOfPlayers; i++)
+    {
+        list.insert((Place)i, players[i].GetIdentity());
+    }
+    deal.GenerateEndDealLog(gameState, list);
 
     cntSyncReady = 0;
     emit sigEndOfDeal();

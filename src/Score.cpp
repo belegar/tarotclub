@@ -94,6 +94,28 @@ void Score::SetPointsToDo(int oudlers)
     }
 }
 /*****************************************************************************/
+int Score::GetAttackScore()
+{
+    int sign = -1;
+
+    if (Winner() == ATTACK)
+    {
+        sign = 1;
+    }
+    return (scoreAttack * sign * 3);
+}
+/*****************************************************************************/
+int Score::GetDefenseScore()
+{
+    int sign = 1;
+
+    if (Winner() == ATTACK)
+    {
+        sign = -1;
+    }
+    return (scoreAttack * sign);
+}
+/*****************************************************************************/
 QString Score::ToString()
 {
     QString temp;
