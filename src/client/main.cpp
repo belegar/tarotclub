@@ -36,6 +36,7 @@
 // Specific game includes
 #include "TarotClub.h"
 #include "DebugDock.h"
+#include "ClientConfig.h"
 
 using namespace std;
 
@@ -75,6 +76,14 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 #endif
 /*****************************************************************************/
+QString GetLocale()
+{
+    ClientConfig conf;
+
+    conf.Load();
+    return conf.GetLocale();
+}
+/*****************************************************************************/
 /**
  * Entry point of the game
  */
@@ -90,13 +99,10 @@ int main(int argc, char **argv)
     QSplashScreen splash(pixmap);
     splash.show();
 
-    QString locale = QLocale::system().name();
     QTranslator translator;
+    QString locale = GetLocale();
 
-#ifdef QT_DEBUG
-    locale = "fr";
-#endif
-
+    // Install language translation files
     if (translator.load(QString("tarotclub_") + locale) == false)
     {
         cout << "Cannot load translation file: tarotclub_xx." << endl;
