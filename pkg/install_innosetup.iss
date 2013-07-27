@@ -3,7 +3,7 @@
 
 ; Customize the Qt dir installation and version
 [Code]
-#define QT_DIR 	      "C:\Qt\Qt5.0.2\5.0.2\mingw47_32\bin"
+#define QT_DIR 	      "C:\Qt\Qt5.1.0\5.1.0\mingw48_32\bin"
 #define VERSION       "2.1.0-beta.1"
 #define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_1_0_MinGW_32bit-Release"
 
@@ -57,12 +57,10 @@ Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {app}; Flags: ignoreversion
 Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {fonts}; FontInstall: Kanzlei; Flags: onlyifdoesntexist uninsneveruninstall
 
 ; Qt DLL files
-Source: {#QT_DIR}\D3DCompiler_43.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\icudt49.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\icuin49.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\icuuc49.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\libgcc_s_sjlj-1.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\libGLESv2.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\icudt51.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\icuin51.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\icuuc51.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libgcc_s_dw2-1.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\libstdc++-6.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\libwinpthread-1.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5CLucene.dll; DestDir: {app}; Flags: ignoreversion
@@ -75,7 +73,6 @@ Source: {#QT_DIR}\Qt5Sql.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Svg.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Widgets.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Xml.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\libEGL.dll; DestDir: {app}; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
