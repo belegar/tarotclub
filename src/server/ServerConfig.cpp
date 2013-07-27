@@ -39,7 +39,7 @@ ServerOptions &ServerConfig::GetOptions()
     return options;
 }
 /*****************************************************************************/
-void ServerConfig::SetOptions(ServerOptions &newOptions)
+void ServerConfig::SetOptions(const ServerOptions &newOptions)
 {
     options = newOptions;
 }

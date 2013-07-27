@@ -72,7 +72,7 @@ public:
     ServerOptions &GetOptions();
 
     // Setters
-    void        SetOptions(ServerOptions &newOptions);
+    void        SetOptions(const ServerOptions &newOptions);
     static void SetDefault(ServerOptions &opt);
 
 private:
