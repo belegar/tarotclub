@@ -32,6 +32,8 @@ VPATH += $${PWD}/../src/client
 VPATH += $${PWD}/../src/server
 VPATH += $${PWD}/include
 VPATH += $${PWD}/../lib
+VPATH += $${PWD}/../ai
+VPATH += $${PWD}/../ai/tarotlib
 
 QT += xml network svg script scripttools help
 RESOURCES = $${PWD}/../src/data/data.qrc
@@ -41,16 +43,11 @@ INCLUDEPATH += $${PWD}/include
 INCLUDEPATH += $${PWD}/../src/client
 INCLUDEPATH += $${PWD}/../src/server
 
-# libraries and other annoying OS stuff
+# Libraries and other annoying OS stuff
 win32 {
-#   INCLUDEPATH += $${PWD}/../lib/lua/src
-#   LIBS += $${PWD}/../lib/win32/liblua.a
    RC_FILE = icon.rc
 } else {
-#   INCLUDEPATH += /usr/include/lua5.1/
-#   LIBS += -llua5.1
-
-   # install
+   # Install under Unix
    isEmpty(PREFIX): PREFIX=/opt/tarotclub
    target.path = $${PREFIX}
    cards.path = $${PREFIX}/default
@@ -59,6 +56,11 @@ win32 {
    copying.files = ../COPYING ../COPYING-FR ../HISTORY ../INSTALL ../README
    INSTALLS += target cards copying
 }
+
+OTHER_FILES = beginner.js \
+              system.js \
+              card.js \
+              util.js \
 
 TRANSLATIONS = tarotclub_fr.ts \
                tarotclub_en.ts
