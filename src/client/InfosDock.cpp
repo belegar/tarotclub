@@ -48,7 +48,14 @@ void InfosDock::Clear()
 /*****************************************************************************/
 void InfosDock::SetDealNumber(int n)
 {
-    ui.donneVar->setText(QString("<b>") + QString::number(n) + QString("</b>"));
+    if (n < 0)
+    {
+        ui.donneVar->setText("");
+    }
+    else
+    {
+        ui.donneVar->setText(QString("<b>") + QString::number(n) + QString("</b>"));
+    }
 }
 /*****************************************************************************/
 void InfosDock::SetTaker(QString &name, Place place)
