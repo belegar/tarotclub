@@ -4,8 +4,8 @@
 ; Customize the Qt dir installation and version
 [Code]
 #define QT_DIR 	      "C:\Qt\Qt5.0.2\5.0.2\mingw47_32\bin"
-#define VERSION       "2.1.0-alpha.2"
-#define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_0_2_MinGW_32bit-Release"
+#define VERSION       "2.1.0-beta.1"
+#define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_1_0_MinGW_32bit-Release"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -47,11 +47,9 @@ Source: ..\prj\tarotclub_fr.qm; DestDir: {app}; Flags: ignoreversion recursesubd
 Source: ..\lib\tarotclub.xsl; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Miscellaneous information text files
-Source: ..\BUILD; DestDir: {app}; Flags: ignoreversion
 Source: ..\COPYING; DestDir: {app}; Flags: ignoreversion
 Source: ..\COPYING-FR; DestDir: {app}; Flags: ignoreversion
 Source: ..\HISTORY; DestDir: {app}; Flags: ignoreversion
-Source: ..\INSTALL; DestDir: {app}; Flags: ignoreversion
 Source: ..\README; DestDir: {app}; Flags: ignoreversion
 
 ; Fonts used in SVG files

@@ -54,11 +54,9 @@ cd ${TEMP_DIR}
 cp -r ${TAROT_ROOT}/src/data/cards/default/ .
 cp ${TAROT_ROOT}/${RELEASE_ROOT}/bin/TarotClub .
 cp ${TAROT_ROOT}/src/data/fonts/kanzlei.ttf .
-cp ${TAROT_ROOT}/BUILD .
 cp ${TAROT_ROOT}/COPYING .
 cp ${TAROT_ROOT}/COPYING-FR .
 cp ${TAROT_ROOT}/HISTORY .
-cp ${TAROT_ROOT}/INSTALL .
 cp ${TAROT_ROOT}/README .
 cp ${TAROT_ROOT}/doc/tarotclub.qch .
 cp ${TAROT_ROOT}/doc/tarotclub.qhc .
