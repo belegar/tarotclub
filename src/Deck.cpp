@@ -133,6 +133,48 @@ bool Deck::HasFool()
     return false;
 }
 /*****************************************************************************/
+/**
+ * @brief Deck::HighestTrump
+ *
+ * This algorithm volontary eliminates the fool, which as a value of zero.
+ * It is not considered as the highest trump, even if it is alone in the deck.
+ *
+ * @return The highest trump in the deck
+ */
+Card *Deck::HighestTrump()
+{
+    Card *c = NULL;
+    int value = 0;
+
+    for (int i = 0; i < this->count(); i++)
+    {
+        if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
+            (this->at(i)->GetValue() > value))
+        {
+            value = this->at(i)->GetValue();
+            c = this->at(i);
+        }
+    }
+    return c;
+}
+/*****************************************************************************/
+Card *Deck::HighestSuit()
+{
+    Card *c = NULL;
+    int value = 0;
+
+    for (int i = 0; i < this->count(); i++)
+    {
+        if ((this->at(i)->GetSuit() != Card::TRUMPS) &&
+            (this->at(i)->GetValue() > value))
+        {
+            value = this->at(i)->GetValue();
+            c = this->at(i);
+        }
+    }
+    return c;
+}
+/*****************************************************************************/
 void Deck::Sort()
 {
     if (this->size() != 0)

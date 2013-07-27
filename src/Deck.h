@@ -85,6 +85,8 @@ public:
     bool HasCard(Card *c);
     bool HasOneOfTrump();
     bool HasFool();
+    Card *HighestTrump();
+    Card *HighestSuit();
 
     // Getters
     Card *GetCardById(int);
