@@ -32,12 +32,33 @@
 /*****************************************************************************/
 ClientConfig::ClientConfig()
 {
+    // Initialize supported languages
+    lang << "fr" << "en";
+    loaded = false;
     SetDefault(options);
 }
 /*****************************************************************************/
 ClientOptions &ClientConfig::GetOptions()
 {
+    if (!loaded)
+    {
+        Load();
+    }
     return options;
+}
+/*****************************************************************************/
+QString ClientConfig::GetLocale()
+{
+    if (!loaded)
+    {
+        Load();
+    }
+    if ((options.language >= lang.size()) ||
+        (options.language < 0))
+    {
+        options.language = 0;
+    }
+    return lang[options.language];
 }
 /*****************************************************************************/
 void ClientConfig::SetOptions(ClientOptions &newOptions)
@@ -52,24 +73,24 @@ bool ClientConfig::Load()
     QString txt;
     int val;
 
-    // Fichier non trouvé, on en crée un par défaut et on sort
+    // If config file is not found, create one and exit method
     if (f.open(QIODevice::ReadOnly) == false)
     {
+        SetDefault(options);
+        loaded = true;
         return Save();
     }
     doc.setContent(&f);
     f.close();
 
-    // On teste le tag racine "TarotClub"
     QDomElement root = doc.documentElement();
-    if (root.tagName() != "tarotclub")
+    if ((root.tagName() != "tarotclub") &&
+        (root.attribute("version", "0") != QString(CLIENT_XML_VERSION)))
     {
-        return (false);
-    }
-
-    if (root.attribute("version", "0") != QString(CLIENT_XML_VERSION))
-    {
-        return (false);
+        // Overwrite old file with default value
+        SetDefault(options);
+        loaded = true;
+        return Save();
     }
 
     // On parse les données
@@ -97,11 +118,11 @@ bool ClientConfig::Load()
         else if (child.tagName() == "language")
         {
             options.language = child.text().toInt();
-            if (options.language >= MAX_LANGUAGES)
+            if ((options.language >= lang.size()) ||
+                (options.language < 0))
             {
                 options.language = 0;
             }
-
         }
         else if (child.tagName() == "delay_before_cleaning")
         {
@@ -159,6 +180,7 @@ bool ClientConfig::Load()
         child = child.nextSibling().toElement();
 
     }
+    loaded = true;
     return true;
 }
 /*****************************************************************************/

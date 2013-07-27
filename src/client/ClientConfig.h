@@ -40,27 +40,22 @@
 // default values
 #define AVATARS_DEF         true
 #define CLIENT_TIMER_DEF    1500
-#define MAX_LANGUAGES       2
 
 typedef struct
 {
-    QString          deckFilePath;
-    bool             showAvatars;
-    unsigned int     language;
-    QString          backgroundColor;
-    Identity         identity;
-    unsigned int     delayBeforeCleaning;  // in milliseconds
-    bool             enableDelayBeforeCleaning;
+    QString         deckFilePath;
+    bool            showAvatars;
+    int             language;
+    QString         backgroundColor;
+    Identity        identity;
+    unsigned int    delayBeforeCleaning;  // in milliseconds
+    bool            enableDelayBeforeCleaning;
 } ClientOptions;
 
 
 /*****************************************************************************/
 class ClientConfig
 {
-
-private:
-    ClientOptions options;
-
 public:
     ClientConfig();
 
@@ -68,9 +63,15 @@ public:
     bool     Save();
 
     ClientOptions &GetOptions();
+    QString GetLocale();
 
     void        SetOptions(ClientOptions &newOptions);
     static void SetDefault(ClientOptions &opt);
+
+private:
+    ClientOptions options;
+    bool loaded;
+    QStringList lang;
 };
 
 #endif // _CLIENTCONFIG_H
