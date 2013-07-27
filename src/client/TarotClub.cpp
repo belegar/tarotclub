@@ -92,6 +92,10 @@ TarotClub::TarotClub() : MainWindow()
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotQuitTarotClub()));
 }
 /*****************************************************************************/
+/**
+ * @brief TarotClub::Initialize
+ * @return The locale, string format, eg: "fr", "en"
+ */
 void TarotClub::Initialize()
 {
     // Check user's directory and create it if not exists
@@ -628,7 +632,16 @@ void TarotClub::slotStartDeal(Place p, Contract c)
         name = players.value(p).name;
     }
     infosDock->SetTaker(name, p);
-    infosDock->SetDealNumber(table.GetServer().GetEngine().GetDealNumber());
+    TarotEngine::Shuffle sh = table.GetShuffle();
+    if (sh.type != TarotEngine::CUSTOM_DEAL)
+    {
+        infosDock->SetDealNumber(sh.seed);
+    }
+    else
+    {
+        // Numbered deal
+        infosDock->SetDealNumber(-1);
+    }
     tapis->setFilter(Tapis::AUCUN);
     tapis->razTapis(true);
     tapis->colorisePreneur(p);
