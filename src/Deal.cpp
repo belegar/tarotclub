@@ -78,9 +78,6 @@ void Deal::NewDeal()
  *
  * Store the current trick into memory and calculate the trick winner.
  *
- * Each trick is won by the highest trump in it, or the highest card
- * of the suit led if no trumps were played.
- *
  * This methods does not verify if the trick is consistent with the rules; this
  * is supposed to have been previously verified.
  *
@@ -97,37 +94,19 @@ Place Deal::SetTrick(Deck &trick, Game &info)
     if ((turn>=0) && (turn<24))
     {
         tricks[turn] = trick;
-
-        Card *cLeader = NULL;
         Card *cFool = NULL;
-        int maxValue = 0;
-        bool trumpDetected = false;
+        Card *cLeader = NULL;
 
-        cLeader = trick.at(0);   // First card played this trick
-
-        for (int i = 0; i<trick.size(); i++)
+        // Each trick is won by the highest trump in it, or the highest card
+        // of the suit led if no trumps were played.
+        cLeader = trick.HighestTrump();
+        if (cLeader == NULL)
         {
-            Card *c = trick.at(i);
-            int value = c->GetValue();
-
-            if (c->GetSuit() == Card::TRUMPS)
-            {
-                // trick here: if there is a fool played, we do not detect it ... (value = 0)
-                if (value > maxValue)
-                {
-                    trumpDetected = true;
-                    maxValue = value;
-                    cLeader = c;
-                }
-            }
-            else if (trumpDetected == false)
-            {
-                if (value > maxValue)
-                {
-                    maxValue = value;
-                    cLeader = c;
-                }
-            }
+            cLeader = trick.HighestSuit();
+        }
+        if (cLeader == NULL)
+        {
+            qFatal("cLeader cannot be null!");
         }
 
         // The trick winner is the card leader owner
@@ -347,12 +326,20 @@ void Deal::AnalyzeGame(Game &info)
 
     // 3. Fool owner. If the attacker has lost a fool, it changes some key elements such as:
     //    - The number of oudlers
-    //    - The points to do
+    //    - The points realized
 
-    if ((foolSwap == true) && (foolOwner == DEFENSE))
+    if (foolSwap == true)
     {
-        statsAttack.points -= 4; // defense keeps its points
-        statsAttack.oudlers--; // attack looses an oudler! what a pity!
+        if (foolOwner == DEFENSE)
+        {
+            statsAttack.points -= 4; // defense keeps its points
+            statsAttack.oudlers--; // attack looses an oudler! what a pity!
+        }
+        else
+        {
+            statsAttack.points += 4; // get back the points
+            statsAttack.oudlers++; // hey, it was MY oudler!
+        }
     }
 
     // 4. One of trumps in the last trick bonus detection

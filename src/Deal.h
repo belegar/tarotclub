@@ -64,9 +64,10 @@ public:
     void SetDogOwner(Team team);
 
 private:
+
+    // Helper private methods
     void AnalyzeGame(Game &info);
     void CalculateScore(Game &info);
-
     int GetHandlePoints(Handle h);
     QStringList GetSortedTrick(int trick);
 
