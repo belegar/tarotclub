@@ -51,9 +51,14 @@ void TarotEngine::NewGame(Game::Mode mode)
     gameState.gameMode = mode;
 }
 /*****************************************************************************/
-void TarotEngine::SetShuffle(TarotEngine::Shuffle &s)
+void TarotEngine::SetShuffle(const TarotEngine::Shuffle &s)
 {
     shuffle = s;
+}
+/*****************************************************************************/
+TarotEngine::Shuffle TarotEngine::GetShuffle()
+{
+    return shuffle;
 }
 /*****************************************************************************/
 void TarotEngine::SetDiscard(Deck &discard)
@@ -142,11 +147,6 @@ Player &TarotEngine::GetPlayer(Place p)
 Score &TarotEngine::GetScore()
 {
     return deal.GetScore();
-}
-/*****************************************************************************/
-int TarotEngine::GetDealNumber()
-{
-    return shuffle.seed;
 }
 /*****************************************************************************/
 Game &TarotEngine::GetGameInfo()

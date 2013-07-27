@@ -76,12 +76,12 @@ public:
     // Getters
     Player &GetPlayer(Place p);
     Score &GetScore();
-    int GetDealNumber();
     Game &GetGameInfo();
     Deal &GetDeal();
+    TarotEngine::Shuffle GetShuffle();
 
     // Setters
-    void SetShuffle(Shuffle &s);
+    void SetShuffle(const Shuffle &s);
     void SetDiscard(Deck &discard);
     void SetHandle(Deck &handle, Place p);
     void SetCard(Card *c, Place p);

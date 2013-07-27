@@ -33,7 +33,8 @@ class Table : public QObject
 {
 
 public:
-    enum Mode {
+    enum Mode
+    {
         USE_BOTS,
         MULTIPLAYERS
     };
@@ -49,10 +50,11 @@ public:
     // Getters
     Server &GetServer();
     ServerOptions &GetOptions();
+    TarotEngine::Shuffle GetShuffle();
 
     // Setters
-    void SetShuffle(TarotEngine::Shuffle &s);
-    void SaveConfiguration(ServerOptions &opt);
+    void SetShuffle(const TarotEngine::Shuffle &s);
+    void SaveConfiguration(const ServerOptions &opt);
 
 private:
     Server server;

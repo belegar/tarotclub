@@ -41,7 +41,7 @@ void Table::LoadConfiguration()
     }
 }
 /*****************************************************************************/
-void Table::SaveConfiguration(ServerOptions &opt)
+void Table::SaveConfiguration(const ServerOptions &opt)
 {
     serverConfig.SetOptions(opt);
     serverConfig.Save();
@@ -82,7 +82,12 @@ ServerOptions &Table::GetOptions()
     return serverConfig.GetOptions();
 }
 /*****************************************************************************/
-void Table::SetShuffle(TarotEngine::Shuffle &s)
+TarotEngine::Shuffle Table::GetShuffle()
+{
+    return server.GetEngine().GetShuffle();
+}
+/*****************************************************************************/
+void Table::SetShuffle(const TarotEngine::Shuffle &s)
 {
     server.GetEngine().SetShuffle(s);
 }
