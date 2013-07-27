@@ -45,7 +45,7 @@ private:
     Ui::OptionsUI  ui;
     ClientOptions    clientOptions;
     ServerOptions    serverOptions;
-    unsigned int     indexLangue; // permet de détecter si la langue a été modifiée (warning de reboot)
+    int     indexLangue; // Detect any language change to inform that a reboot is needed
     QString colorName;
 
     QString choixAvatar(QString defaultAvatar);
