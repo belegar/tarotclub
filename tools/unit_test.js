@@ -45,47 +45,47 @@ var UnitTestModule = (function () {
 /*****************************************************************************/
 module.RunUnitTest = function()
 {
-	SystemPrint("********** START UNIT TEST **********");
-	myCard = new Card("7-C");
-	deck = new Deck();
-	deck.SetCards("7-C;21-A");
-	deck.Print();
-	deck.Clear();
-	deck.Print();
+	systemPrint("********** START UNIT TEST **********");
+	myCard = new TarotLib.Card("7-C");
+	deck = new TarotLib.Deck();
+	deck.setCards("7-C;21-A");
+	deck.print();
+	deck.clear();
+	deck.print();
 	
-	SystemPrint(""); // empty string = skip line
+	systemPrint(""); // empty string = skip line
 }
 /*****************************************************************************/
 module.RunStatsTester = function()
 {
-	SystemPrint("\n********** STATISTICS TEST **********");
-	CurrentGame.Initialize();
+	systemPrint("\n********** STATISTICS TEST **********");
+	CurrentGame.initialize();
 	
 	// Set game parameters
-	EnterGame(Place.SOUTH);
-	StartGame(Place.EAST, Contract.PRISE);
+	EnterGame(TarotLib.Place.SOUTH);
+	StartGame(TarotLib.Place.EAST, TarotLib.Contract.PRISE);
 	
 	// This step is testing the statistics builder
 	for(var i=0; i<72; i++) {
 		PlayedCard(module.cards[i], module.owners[i]);
 		if (CurrentGame.currentPosition == 0) {
-			SystemPrint("-- Turn " + CurrentGame.trickCounter + " --");
-			CurrentGame.playedCards[CurrentGame.trickCounter-1].Print();
-			CurrentGame.PrintPlayers();
+			systemPrint("-- Turn " + CurrentGame.trickCounter + " --");
+			CurrentGame.playedCards[CurrentGame.trickCounter-1].print();
+			CurrentGame.printPlayers();
 		}
 	}
 }
 /*****************************************************************************/
 module.RunFakeGame = function()
 {
-	SystemPrint("");
-	SystemPrint("\n********** FAKE GAME SIMULATOR **********");
+	systemPrint("");
+	systemPrint("\n********** FAKE GAME SIMULATOR **********");
 
-	CurrentGame.Initialize();
+	CurrentGame.initialize();
 	
 	// Set game parameters
-	EnterGame(Place.SOUTH);
-	StartGame(Place.EAST, Contract.PRISE);
+	EnterGame(TarotLib.Place.SOUTH);
+	StartGame(TarotLib.Place.EAST, TarotLib.Contract.PRISE);
 	
 	// We send cards to the bot and the players
 	var botCards = "";
@@ -99,20 +99,6 @@ module.RunFakeGame = function()
 		}
 	}
 	ReceiveCards(botCards);
-	
-	// We play all the turns
-	for (var i=0; i<18; i++) {
-		
-	}
-	
-	this.ReadCSV = function(locfile)
-	{
-		// load a whole csv file, and then split it line by line
-		var req = new XMLHttpRequest();
-		req.open("POST", locfile, false);
-		req.send("");
-		return req.responseText.split(/\n/g);
-	}
 }
 
 /*****************************************************************************/

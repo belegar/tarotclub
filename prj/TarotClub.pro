@@ -61,6 +61,8 @@ OTHER_FILES = beginner.js \
               system.js \
               card.js \
               util.js \
+              deck.js \
+              player.js
 
 TRANSLATIONS = tarotclub_fr.ts \
                tarotclub_en.ts

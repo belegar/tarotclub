@@ -272,55 +272,69 @@ QScriptValue myPrint(QScriptContext *context, QScriptEngine *eng)
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()
 {
+    QStringList scriptFiles;
+    QString appRoot;
+
 #ifndef QT_NO_DEBUG
-#ifdef Q_OS_WIN32
-    QString fileName = "E:/tarotclub/ai/beginner.js";
-#else
-    QString fileName = "/home/anthony/Documents/tarotclub/ai/beginner.js";
-#endif
+    // Debug, the binary is inside the build directory
+    appRoot = qApp->applicationDirPath() + "/../../ai";
 #else
     // Release
-    QString fileName = qApp->applicationDirPath() + "/ai/beginner.js";
+    appRoot = qApp->applicationDirPath() + "/ai";
 #endif
 
-    // Give access to some objects from the JavaScript engine
+    // TarotClub Javascript library files
+    // Beware, the order is important, for global objects creation
+    scriptFiles << appRoot + "/tarotlib/system.js";
+    scriptFiles << appRoot + "/tarotlib/util.js";
+    scriptFiles << appRoot + "/tarotlib/card.js";
+    scriptFiles << appRoot + "/tarotlib/deck.js";
+    scriptFiles << appRoot + "/tarotlib/player.js";
+    scriptFiles << appRoot + "/beginner.js";
+
+    // Give access to some global objects from the JavaScript engine
     botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
-    botEngine.globalObject().setProperty("ScriptDebug", botEngine.newFunction(&myPrint));
+    botEngine.globalObject().setProperty("scriptDebug", botEngine.newFunction(&myPrint));
 
-    QFile scriptFile(fileName);
-
-    if (! scriptFile.exists())
+    // Load all Javascript files
+    QListIterator<QString> i(scriptFiles);
+    while (i.hasNext())
     {
-        qDebug() << "Script error: could not find program file!";
-        return false;
-    }
+        QFile scriptFile(i.next());
 
-    if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() <<  "Script error: could not open program file!";
-        return false;
-    }
+        if (! scriptFile.exists())
+        {
+            qDebug() << "Script error: could not find program file!";
+            return false;
+        }
 
-    QString strProgram = scriptFile.readAll();
+        if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qDebug() <<  "Script error: could not open program file!";
+            return false;
+        }
 
-    // do static check so far of code:
-    if (! botEngine.canEvaluate(strProgram))
-    {
-        qDebug() <<  "Script error: canEvaluate returned false!";
-        return false;
-    }
-#ifndef QT_NO_DEBUG
-    debugger.action(QScriptEngineDebugger::InterruptAction);
-#endif
-    // actually do the eval:
-    botEngine.evaluate(strProgram);
+        QString strProgram = scriptFile.readAll();
 
-    // uncaught exception?
-    if (botEngine.hasUncaughtException())
-    {
-        QScriptValue exception = botEngine.uncaughtException();
-        QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception: ") + exception.toString());
-        return false;
+        // do static check so far of code:
+        if (! botEngine.canEvaluate(strProgram))
+        {
+            qDebug() <<  "Script error: canEvaluate returned false!";
+            return false;
+        }
+    #ifndef QT_NO_DEBUG
+        debugger.action(QScriptEngineDebugger::InterruptAction);
+    #endif
+        // actually do the eval:
+        botEngine.evaluate(strProgram);
+
+        // uncaught exception?
+        if (botEngine.hasUncaughtException())
+        {
+            QScriptValue exception = botEngine.uncaughtException();
+            QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception: ") + exception.toString());
+            return false;
+        }
     }
 
     return true;
@@ -357,5 +371,3 @@ QScriptValue Bot::CallScript(const QString &function, QScriptValueList &args)
 //=============================================================================
 // End of file Bot.cpp
 //=============================================================================
-
-

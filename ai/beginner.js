@@ -23,349 +23,11 @@
  *=============================================================================
  */
 
-/*****************************************************************************/
-// GLOBAL DEFINITIONS
- 
-var Contract = {
-    PASSE:0,
-    PRISE:1,
-    GARDE:2,
-    GARDE_SANS:3,
-    GARDE_CONTRE:4
-}
+var CurrentGame = new TarotLib.Game();
 
-var Place = {
-	SOUTH:0,
-	EAST:1,
-	NORTH:2,
-	WEST:3
-}
-
-var Suits = {
-	SPADES:0,
-	HEARTS:1,
-	CLUBS:2,
-	DIAMONDS:3,
-	TRUMPS:4
-}
-
-/*****************************************************************************/
-// UTILITY FUNCTIONS AND CLASSES
-
-/**
- * This function transform a place integer into a string
- */
-function PlaceToString(place)
-{
-    var position = "";
-	
-	if (place == Place.SOUTH) {
-		position = "South";
-	} else if (place == Place.NORTH) {
-		position = "North";
-	} else if (place == Place.WEST) {
-		position = "West";
-	} else if (place == Place.EAST) {
-		position = "East";
-	} else {
-		position = "Nobody";
-	}
-	return position;
-}
-
-/**
- * This function transform a suits string into an integer
- */
-function SuitsToInteger(color)
-{
-    var suits;
-	
-	if (color == "A") {
-		suits = Suits.TRUMPS;
-	} else if (color == "S") {
-		suits = Suits.SPADES;
-	} else if (color == "D") {
-		suits = Suits.DIAMONDS;
-	} else if (color == "C") {
-		suits = Suits.CLUBS;
-	} else {
-		suits = Suits.HEARTS;
-	}
-	return suits;
-}
-
-/**
- * This function transform a suits integer into a string
- */
-function SuitsToString(color)
-{
-    var suits = "";
-	
-	if (color == Suits.TRUMPS) {
-		suits = "A";
-	} else if (color == Suits.SPADES) {
-		suits = "S";
-	} else if (color == Suits.DIAMONDS) {
-		suits = "D";
-	} else if (color == Suits.CLUBS) {
-		suits = "C";
-	} else {
-		suits = "H";
-	}
-	return suits;
-}
-
-/**
- * This class allow you to specify an owner along with the card value
- * If you don't provide the second argument, the owner will be set to HYPERSPACE
- */
-function Card(cardName, place)
-{
-	var elem = cardName.split("-");
-	this.value = elem[0];
-	this.color = elem[1];
-	this.owner = place;
-
-/********* Methods *********/
-	this.GetName = function()
-	{
-		return (this.value + "-" + this.color);
-	}
-	
-	// debug code only
-	this.Print = function()
-	{
-		var place = PlaceToString(this.owner);
-		SystemPrint("Card value: " + this.value + " Color: " + this.color + " Owner: " + place);
-	}
-}
-
-function Deck()
-{
-	this.cards = new Array();
-	
-/********* Methods *********/
-	// debug code only
-	this.Print = function()
-	{
-		for(var i=0; i<this.cards.length; i++) {
-			this.cards[i].Print();
-		}
-	}
-	
-	this.Clear = function()
-	{
-		for (var i=0; i<this.cards.length; i++) {
-			this.cards[i] = undefined;
-		}
-		this.cards.length = 0;
-	}
-	
-	this.AddOneCard = function(cardName, place)
-	{
-		this.cards[this.cards.length] = new Card(cardName, place);
-	}
-	
-	// Take out one card from the deck
-	// Return the card name (string format) of a card
-	this.TakeCard = function(index)
-	{
-		var card = this.cards[index].GetName();
-		this.cards[index] = undefined;
-		return card;
-	}
-	
-	this.SetCards = function(list)
-	{
-		var result = list.split(/;/g);		
-		
-		this.Clear();
-		
-		for (var i=0; i<result.length; i++) {
-			this.cards[i] = new Card(result[i]);
-		}
-	}
-}
-
-/*****************************************************************************/
-// GAME OBJECTS FOR STATISTICS STORAGE
-
-function Player(place)
-{
-	this.position = place;
-	this.hasSuits = new Array(5);
-	
-/********* Methods *********/
-	this.Initialize = function()
-	{
-		for (var i=0; i<this.hasSuits.length; i++) {
-			this.hasSuits[i] = true;
-		}
-	}
-	
-	this.Print = function()
-	{
-		var place = PlaceToString(this.position);
-		for (var i=0; i<this.hasSuits.length; i++) {
-			if (this.hasSuits[i] == false) {
-				SystemPrint("Player " + place + " has a missed suit: " + SuitsToString(i));
-			}
-		}
-	}
-	
-	this.SetMissedColor = function(color)
-	{
-		this.hasSuits[SuitsToInteger(color)] = false;
-	}
-	
-	// return true if there is at least one suit missing, including trumps
-	this.HasMissedSuit = function()
-	{
-		var missed = false;
-		
-		for (var i=0; i<this.hasSuits.length; i++) {
-			if (this.hasSuits[i] == false) {
-				missed = true;
-			}
-		}
-		return missed;
-	}
-}
-
-/*****************************************************************************/
-// MAIN BOT ENGINE
-
-function GameState()
-{
-	// Player statistics
-	this.players = new Array(4);
-	for(var i=0; i<this.players.length; i++) {
-		this.players[i] = new Player(i); // position of players is assigned here
-		this.players[i].Initialize();
-	}
-	
-	this.playedCards = new Array(18); // turns for 4 players
-	for(var i=0; i<18; i++) {
-		this.playedCards[i] = new Deck();
-	}
-	
-	// Game variables
-	this.contract;
-	this.taker;
-	this.trickCounter = 0;		// number of turns, 18 with 4 players
-	this.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
-
-	// Bot variables
-	this.myPlace;
-	this.myDeck = new Deck();
-	
-	// Variables of the current turn
-	this.trickColor;
-	this.firstCardValue;
-	this.startPosition;
-	this.startedWithExcuse = false;
-	
-/********* Methods *********/
-	this.DetectMissedColor = function(place)
-	{
-		if (this.currentPosition == 0) {
-			this.startedWithExcuse = false;
-			// First played card is the color to play, except in case of excuse (0-A)
-			this.trickColor = this.playedCards[this.trickCounter].cards[0].color;
-			this.firstCardValue = this.playedCards[this.trickCounter].cards[0].value;
-			
-			// special case of excuse
-			if ((this.trickColor == "A") && (this.firstCardValue == "0")) {
-				this.startedWithExcuse = true;			
-			}
-		} else if ((this.currentPosition == 1) && (this.startedWithExcuse == true)) {
-			this.trickColor = this.playedCards[this.trickCounter].cards[1].color;
-		} else {
-			if (this.playedCards[this.trickCounter].cards[this.currentPosition].color != this.trickColor) {
-				this.players[place].SetMissedColor(this.trickColor);
-			}
-		}
-	}
-
-	/**
-	 * @brief This method is call at the end of each trick to analyze played cards
-	 */
-	this.AnalyzeTrick = function(place)
-	{
-		this.DetectMissedColor(place);
-	}
-
-	this.Initialize = function()
-	{
-		for(var i=0; i<this.players.length; i++) {
-			this.players[i].Initialize();
-		}
-		this.trickCounter = 0;
-		this.currentPosition = 0;
-		
-		for(var i=0; i<this.playedCards.length; i++) {
-			this.playedCards[i].Clear();
-		}
-	}
-	
-	// Print players statistics and information
-	this.PrintPlayers = function()
-	{
-		for (var j=0; j<this.players.length; j++) {
-			this.players[j].Print();
-		}
-	}
-	
-	this.SetPlayedCard = function(cardName, place)
-	{
-		this.playedCards[this.trickCounter].AddOneCard(cardName, place);
-	
-		this.AnalyzeTrick(place);
-	
-		this.currentPosition++;
-		if (this.currentPosition >= 4) {
-			this.currentPosition = 0;
-			this.trickCounter++;
-			
-			// TODO: detect who won the trick
-		}
-	}
-	
-	this.PlayDefenseStrategy = function()
-	{
-		// Just play the first card available ... (let the game engine take a valid card if necessary)
-		return this.myDeck.cards[0].GetName();
-	}
-	
-	this.PlayAttackStrategy = function()
-	{
-		return this.PlayDefenseStrategy();
-	}
-	
-	this.GetRandomCard = function(place)
-	{
-		var index = 0;
-		for (var i=0; this.myDeck.cards.length; i++) {
-			if (this.myDeck.cards[i] != undefined) {
-				if (this.IsValid(this.myDeck.cards[i].GetName()) == true) {
-					index = i;
-				}
-			}
-		}
-		return this.myDeck.cards.TakeCard(index);
-	}
-
-	this.IsValid = function(card)
-	{
-		// FIXME
-		return true;
-	}
-}
-
-var CurrentGame = new GameState();
-
-/*****************************************************************************/
-// TAROTCLUB API CALLABLE FROM C++ WORLD
+// ****************************************************************************
+// TAROTCLUB API CALLED BY C++
+// ****************************************************************************
 
 /**
  * @brief This function is called when the player has been accepted around the table
@@ -384,8 +46,8 @@ function EnterGame(place)
  */
 function ReceiveCards(cards)
 {
-	CurrentGame.Initialize();
-	CurrentGame.myDeck.SetCards(cards);
+    CurrentGame.initialize();
+    CurrentGame.myDeck.setCards(cards);
 }
 
 /**
@@ -398,19 +60,19 @@ function AnnounceBid()
 {
    total = 0;
    
-   SystemPrint("The bot is announcing a bid.");
+   systemPrint("The bot is announcing a bid.");
    
    // We start looking at bouts, each of them increase the total value of points
-   if( TStats.hasVingtEtUn() == true ) {
+   if( TStats.hasVingtEtUn() === true ) {
       total += 9;
    }
-   if( TStats.hasExcuse == true ) {
+   if( TStats.hasExcuse === true ) {
       total += 7;
    }
-   if( TStats.hasPetit == true ) {
-      if( TStats.getNumberOfAtouts == 5 ) {
+   if( TStats.hasPetit === true ) {
+      if( TStats.getNumberOfAtouts === 5 ) {
          total += 5;
-      } else if( TStats.getNumberOfAtouts == 6 || TStats.getNumberOfAtouts == 7 ) {
+      } else if( TStats.getNumberOfAtouts === 6 || TStats.getNumberOfAtouts === 7 ) {
          total += 7;
       } else if( TStats.getNumberOfAtouts > 7 ) {
          total += 8;
@@ -433,15 +95,15 @@ function AnnounceBid()
 
    // We decide on a bid depending of thresholds
    if( total <= 35 ) {
-      cont = Contract.PASSE;
+      cont = TarotLib.Contract.PASS;
    } else if( total >= 36  && total <= 50 ) {
-      cont = Contract.PRISE;
+      cont = TarotLib.Contract.TAKE;
    } else if( total >= 51  && total <= 65 ) {
-      cont = Contract.GARDE;
+      cont = TarotLib.Contract.GUARD;
    } else if( total >= 66  && total <= 75 ) {
-      cont = Contract.GARDE_SANS;
+      cont = TarotLib.Contract.GUARD_WITHOUT;
    } else {
-      cont = Contract.GARDE_CONTRE;
+      cont = TarotLib.Contract.GUARD_AGAINST;
    }
    return cont;
 }
@@ -495,17 +157,15 @@ function StartGame(taker, contract)
  * @param[in] gameCounter Current game counter, incremented at each player's turn  [1..72]
  * @return The card played, string format
  */
-function PlayCard(gameCounter)
+function PlayCard()
 {
-	// FIXME: delete gameCounter, not necessary for AI
-//	debugger;
-
+//	debugger; // enable this line to generate a breakpoint
 	var cardName;
 	
-	if (CurrentGame.taker == CurrentGame.myPlace) {
-		cardName = CurrentGame.PlayAttackStrategy();
+    if (CurrentGame.taker === CurrentGame.myPlace) {
+        cardName = CurrentGame.playAttackStrategy();
 	} else {
-		cardName = CurrentGame.PlayDefenseStrategy();
+        cardName = CurrentGame.playDefenseStrategy();
 	}
 
 	return cardName;
@@ -519,19 +179,8 @@ function PlayCard(gameCounter)
  */
 function PlayedCard(cardName, place)
 {
-	CurrentGame.SetPlayedCard(cardName, parseInt(place));
+    CurrentGame.setPlayedCard(cardName, parseInt(place));
 }
-
-/*****************************************************************************/
-// JAVASCRIPT UNIT TEST OF BASE CLASSES
-
-function SystemPrint(message)
-{
-//	document.write(message + "<br />");
-	ScriptDebug(message + "<br />");
-}
-
-
 
 
 // End of file

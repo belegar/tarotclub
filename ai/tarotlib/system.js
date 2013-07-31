@@ -25,7 +25,7 @@
 
 function systemPrint(message)
 {
-	document.write(message + "<br />");
+    scriptDebug(message + "<br />");
 }
 
 // End of file
