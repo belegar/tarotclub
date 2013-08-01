@@ -23,7 +23,7 @@
  *=============================================================================
  */
 
-// namespace 
+// namespace
 this.TarotLib = this.TarotLib||{};
 
 (function() {
@@ -69,7 +69,7 @@ var p = Game.prototype;
     p.startPosition = 0;
 
     p.startedWithExcuse = false;;
-	
+
 // ****************************************************************************
 // PRIVATE PROPERTIES
 // ****************************************************************************
@@ -77,9 +77,9 @@ var p = Game.prototype;
 // ****************************************************************************
 // CONSTRUCTOR
 // ****************************************************************************
-	/**
-	 * Initialization method.
-	 */
+    /**
+     * Initialization method.
+     */
     p.initialize = function() {
         var i;
 
@@ -96,7 +96,7 @@ var p = Game.prototype;
         }
 
         this.myDeck = new TarotLib.Deck();
-	};
+    };
 
 // ****************************************************************************
 // PUBLIC STATIC METHODS
@@ -168,7 +168,7 @@ var p = Game.prototype;
         }
     };
 
-    p.PlayDefenseStrategy = function()
+    p.playDefenseStrategy = function()
     {
         // Just play the first card available ... (let the game engine take a valid card if necessary)
         return this.myDeck.cards[0].getName();
