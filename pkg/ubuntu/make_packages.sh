@@ -82,12 +82,26 @@ FONTS_DIR="${PACKAGE_ROOT}/usr/share/fonts"
 DESKTOP_ENTRY="${PACKAGE_ROOT}/usr/share/applications"
 MENU_ENTRY="${PACKAGE_ROOT}/usr/share/menu"
 DEBIAN_DIR="${PACKAGE_ROOT}/DEBIAN"
+CONTROL_FILE="Package: TarotClub\nVersion: ${VERSION}\nSection: games\nPriority: extra\nArchitecture: ${ARCH}\n"
+CONTROL_FILE+="Depends: libqt5webkit5 (>= 5.0.0), libqt5svg5 (>= 5.0.0), libqt5script5 (>= 5.0.0), libqt5gui5 (>= 5.0.0), libqt5core5 (>= 5.0.0), libqt5concurrent5 (>= 5.0.0), libqt5network5 (>= 5.0.0), libqt5widgets5 (>= 5.0.0), libqt5xml5 (>= 5.0.0), libqt5scripttools5 (>= 5.0.0), libqt5v8-5 (>= 5.0.0), libqt5clucene5 (>= 5.0.0), libqt5sql5-sqlite (>= 5.0.0), libqt5help5 (>= 5.0.0)\n"
+CONTROL_FILE+="Installed-Size: 8312\n"
+CONTROL_FILE+="Maintainer: Anthony Rabine (anthony@tarotclub.fr)\n"
+CONTROL_FILE+="Homepage: http://www.tarotclub.fr\n"
+CONTROL_FILE+="Description: French Tarot card game\n"
+CONTROL_FILE+=" TarotClub is a french Tarot card game. Network and local games \n"
+CONTROL_FILE+=" are available, full customisable SVG deck, deal editor.\n"
+CONTROL_FILE+=" .\n"
+CONTROL_FILE+=" Artificial intelligence is scriptable using JavaScript language.\n"
+
 
 echo "Starting DEBIAN package..."
 
 # clean previous install
 rm -rf ${PACKAGE_ROOT}
 rm *.deb
+
+# generate control file, -e option allow to interpret escape characters
+echo -e ${CONTROL_FILE} > control.txt
 
 # creation of directories
 mkdir -p ${INSTALL_DIR}
@@ -98,10 +112,10 @@ mkdir -p ${MENU_ENTRY}
 
 # move TarotClub where it must be installed
 mv ${TEMP_DIR}/kanzlei.ttf ${FONTS_DIR} 
-mv ${TEMP_DIR}/* ${INSTALL_DIR}  
+mv ${TEMP_DIR}/* ${INSTALL_DIR} 
 
 # Debian package files
-cp ./control_${ARCH}.txt ${DEBIAN_DIR}/control
+cp ./control.txt ${DEBIAN_DIR}/control
 cp ./postinst ${DEBIAN_DIR}
 cp ./tarotclub.desktop ${DESKTOP_ENTRY}
 cp ./tarotclub.menu ${MENU_ENTRY}
