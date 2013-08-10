@@ -37,12 +37,12 @@
 TarotClub::TarotClub() : MainWindow()
 {
     // Board click events
-    connect(tapis, &Tapis::sigViewportClicked, this, &TarotClub::slotClickTapis);
-    connect(tapis, &Tapis::sigClickCard, this, &TarotClub::slotClickCard);
-    connect(tapis, &Tapis::sigMoveCursor, this, &TarotClub::slotMoveCursor);
-    connect(tapis, &Tapis::sigContract, this, &TarotClub::slotSetEnchere);
-    connect(tapis, &Tapis::sigAccepteChien, this, &TarotClub::slotAccepteChien);
-    connect(tapis, &Tapis::sigPresenterPoignee, this, &TarotClub::slotPresenterPoignee);
+    connect(tapis, &Canvas::sigViewportClicked, this, &TarotClub::slotClickTapis);
+    connect(tapis, &Canvas::sigClickCard, this, &TarotClub::slotClickCard);
+    connect(tapis, &Canvas::sigMoveCursor, this, &TarotClub::slotMoveCursor);
+    connect(tapis, &Canvas::sigContract, this, &TarotClub::slotSetEnchere);
+    connect(tapis, &Canvas::sigAccepteChien, this, &TarotClub::slotAccepteChien);
+    connect(tapis, &Canvas::sigPresenterPoignee, this, &TarotClub::slotPresenterPoignee);
 
     /*
     // Network window (client)
@@ -196,8 +196,7 @@ void TarotClub::newLocalGame()
     infosDock->Clear();
     tapis->razTapis();
     tapis->resetCards();
-    roundDock->Clear();
-    tapis->setFilter(Tapis::AUCUN);
+    tapis->setFilter(Canvas::BLOCK_ALL);
 
     // Connect us to the server
     client.Initialize();
@@ -328,33 +327,33 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
         if ((c->GetSuit() == Card::TRUMPS) ||
            ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
-            tapis->setCursorType(Tapis::FORBIDDEN);
+            tapis->setCursorType(Canvas::FORBIDDEN);
         }
         else
         {
-            tapis->setCursorType(Tapis::ARROW);
+            tapis->setCursorType(Canvas::ARROW);
         }
     }
     else if (client.GetGameInfo().sequence == Game::BUILD_HANDLE)
     {
         if (c->GetSuit() == Card::TRUMPS)
         {
-            tapis->setCursorType(Tapis::ARROW);
+            tapis->setCursorType(Canvas::ARROW);
         }
         else
         {
-            tapis->setCursorType(Tapis::FORBIDDEN);
+            tapis->setCursorType(Canvas::FORBIDDEN);
         }
     }
     else if (client.GetGameInfo().sequence == Game::PLAY_TRICK)
     {
         if (client.IsValid(c) == true)
         {
-            tapis->setCursorType(Tapis::ARROW);
+            tapis->setCursorType(Canvas::ARROW);
         }
         else
         {
-            tapis->setCursorType(Tapis::FORBIDDEN);
+            tapis->setCursorType(Canvas::FORBIDDEN);
         }
     }
 }
@@ -374,7 +373,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
         {
             return;
         }
-        tapis->setFilter(Tapis::AUCUN);
+        tapis->setFilter(Canvas::BLOCK_ALL);
         statusBar()->clearMessage();
 
         client.GetMyDeck().removeAll(c);
@@ -489,7 +488,7 @@ void TarotClub::slotAccepteChien()
         gc->hide();
     }
     tapis->setAccepterChienVisible(false);
-    tapis->setFilter(Tapis::AUCUN);
+    tapis->setFilter(Canvas::BLOCK_ALL);
     afficheCartesJoueur(0);
     client.SendDog();
 }
@@ -593,7 +592,7 @@ void TarotClub::hideChien()
 void TarotClub::slotDealAgain()
 {
     infosDock->Clear();
-    tapis->setFilter(Tapis::AUCUN);
+    tapis->setFilter(Canvas::BLOCK_ALL);
     tapis->razTapis();
 
     QMessageBox::information(this, trUtf8("Information"),
@@ -613,7 +612,7 @@ void TarotClub::slotBuildDiscard()
         client.GetMyDeck().append(c);
     }
     client.GetDogDeck().clear();
-    tapis->setFilter(Tapis::JEU);
+    tapis->setFilter(Canvas::GAME_ONLY);
     // on affiche le deck du joueur + le contenu du chien
     afficheCartesJoueur(1);
     statusBar()->showMessage(trUtf8("Select cards to build your discard."));
@@ -622,7 +621,7 @@ void TarotClub::slotBuildDiscard()
 void TarotClub::slotStartDeal(Place p, Contract c)
 {
     firstTurn = true;
-    roundDock->Clear();
+    infosDock->Clear();
     infosDock->SetContract(c);
 
     QString name = "ERROR";
@@ -642,7 +641,7 @@ void TarotClub::slotStartDeal(Place p, Contract c)
         // Numbered deal
         infosDock->SetDealNumber(-1);
     }
-    tapis->setFilter(Tapis::AUCUN);
+    tapis->setFilter(Canvas::BLOCK_ALL);
     tapis->razTapis(true);
     tapis->colorisePreneur(p);
 
@@ -652,7 +651,7 @@ void TarotClub::slotStartDeal(Place p, Contract c)
 /*****************************************************************************/
 void TarotClub::slotPlayCard()
 {
-    tapis->setFilter(Tapis::JEU);
+    tapis->setFilter(Canvas::GAME_ONLY);
 
     // If we're about to play the first card, the Player is allowed to declare a handle
     if (firstTurn == true)
@@ -683,7 +682,7 @@ void TarotClub::slotShowCard(int id, Place p)
 {
     GfxCard *gc = tapis->getGfxCard(id);
     tapis->DrawCard(gc, p);
-    roundDock->AddRound(client.GetGameInfo(), p, TarotDeck::GetCard(id)->GetName());
+    infosDock->AddRound(client.GetGameInfo(), p, TarotDeck::GetCard(id)->GetName());
 
     // We have seen the card, let's inform the server about that
     client.SendSyncCard();
@@ -700,7 +699,7 @@ void TarotClub::slotShowHandle()
 void TarotClub::slotEndOfDeal()
 {
     statusBar()->showMessage(trUtf8("End of the deal."));
-    tapis->setFilter(Tapis::AUCUN);
+    tapis->setFilter(Canvas::BLOCK_ALL);
     tapis->razTapis();
     tapis->resetCards();
 
@@ -742,8 +741,8 @@ void TarotClub::slotEndOfDeal()
  */
 void TarotClub::slotWaitTrick(Place winner)
 {
-    roundDock->SelectWinner(client.GetGameInfo(), winner);
-    tapis->setFilter(Tapis::AUCUN);
+    infosDock->SelectWinner(client.GetGameInfo(), winner);
+    tapis->setFilter(Canvas::BLOCK_ALL);
     statusBar()->showMessage(trUtf8("Click on the board to continue."));
 
     // launch timer to clean cards, if needed

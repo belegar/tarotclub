@@ -33,7 +33,7 @@
 
 // Includes locales
 #include "../defines.h"
-#include "Tapis.h"
+#include "Canvas.h"
 #include "TextBox.h"
 #include "AboutWindow.h"
 #include "ResultWindow.h"
@@ -76,13 +76,8 @@ protected:
     // Menu Paramètres
     QAction *dealEditorAct;
     QAction *optionsAct;
-    QAction *scoresAct;
-    QAction *infosAct;
-    QAction *chatAct;
-    QAction *serverAct;
-    QAction *debugAct;
 
-    Tapis *tapis;      // QCanvasView
+    Canvas *tapis;      // QCanvasView
 
     // Modal windows
     AboutWindow *about;
@@ -96,8 +91,6 @@ protected:
     ScoresDock *scoresDock;
     InfosDock *infosDock;
     ChatDock *chatDock;
-    RoundDock *roundDock;
-    QDockWidget *serverDock;
     DebugDock *debugDock;
 
     // UI classes
@@ -107,14 +100,7 @@ public:
     MainWindow(QWidget *parent = 0);
 
 public slots:
-    void slotScoresDock();
-    void slotInfosDock();
-    void slotChatDock();
-    void slotServerDock();
-    void slotDebugDock();
     void slotDealEditor();
-    void slotCloseChat();
-    void slotCloseScores();
 
 private:
     void SetupDialogs();
@@ -125,5 +111,5 @@ private:
 #endif // _MAINWINDOW_H
 
 //=============================================================================
-// End of file TarotWindow.h
+// End of file MainWindow.h
 //=============================================================================

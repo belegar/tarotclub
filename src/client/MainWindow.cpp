@@ -35,11 +35,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     SetupDialogs();
-    SetupMenus();
     SetupDocks();
+    SetupMenus();
 
     setWindowTitle(QString(TAROT_TITRE) + " " + QString(TAROT_VERSION));
-    tapis = new Tapis(this);
+    tapis = new Canvas(this);
     setCentralWidget(tapis);
     tapis->show();
 }
@@ -81,26 +81,10 @@ void MainWindow::SetupDocks()
 {
     // ----------  Bottom Docks ------------------------
 
-    // Chat
-    chatDock = new ChatDock(this);
-    addDockWidget(Qt::BottomDockWidgetArea, chatDock);
-    connect(chatDock, SIGNAL(sgnlClose()), this, SLOT(slotCloseChat()));
-
-    // Server
-    serverDock = new QDockWidget(this);
-    serverUI.setupUi(serverDock);
-    addDockWidget(Qt::BottomDockWidgetArea, serverDock);
-
     // Debug, for scripts and Qt error redirection
     debugDock = new DebugDock(this);
     addDockWidget(Qt::BottomDockWidgetArea, debugDock);
-
-    tabifyDockWidget(chatDock, serverDock);
-    tabifyDockWidget(serverDock, debugDock);
-
     debugDock->hide();
-    serverDock->hide();
-    chatDock->hide();
 
     // ----------  Right Docks ------------------------
 
@@ -108,17 +92,16 @@ void MainWindow::SetupDocks()
     scoresDock = new ScoresDock(this);
     addDockWidget(Qt::RightDockWidgetArea, scoresDock);
     scoresDock->show();
-    connect(scoresDock, SIGNAL(sgnlClose()), this, SLOT(slotCloseScores()));
 
     // Information
     infosDock = new InfosDock(this);
     addDockWidget(Qt::RightDockWidgetArea, infosDock);
     infosDock->show();
 
-    // Deal
-    roundDock = new RoundDock(this);
-    addDockWidget(Qt::RightDockWidgetArea, roundDock);
-    roundDock->show();
+    // Chat
+    chatDock = new ChatDock(this);
+    addDockWidget(Qt::RightDockWidgetArea, chatDock);
+    chatDock->hide();
 
     // Right area belongs to right docks
     QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
@@ -160,6 +143,7 @@ void MainWindow::SetupMenus()
     netGameClientAct = new QAction(tr("&Join a network game"), this);
     netGameClientAct->setShortcut(tr("Ctrl+J"));
     netGameClientAct->setStatusTip(tr("Join a game server over Internet or over a local area network"));
+    netGameClientAct->setEnabled(false);
 
     //----- Misc
     pliPrecAct = new QAction(tr("&Previous trick"), this);
@@ -198,45 +182,17 @@ void MainWindow::SetupMenus()
     dealEditorAct->setStatusTip(tr("Create a pre-defined deal by choosing the cards of each player"));
     connect(dealEditorAct, SIGNAL(triggered()), this, SLOT(slotDealEditor()));
 
-    scoresAct = new QAction(tr("Score"), this);
-    scoresAct->setCheckable(true);
-    scoresAct->setStatusTip(tr("Show/hide the score window"));
-    connect(scoresAct, SIGNAL(triggered()), this, SLOT(slotScoresDock()));
-    scoresAct->setChecked(true);
-
-    infosAct = new QAction(tr("Information"), this);
-    infosAct->setCheckable(true);
-    infosAct->setStatusTip(tr("Show/hide the information window"));
-    connect(infosAct, SIGNAL(triggered()), this, SLOT(slotInfosDock()));
-    infosAct->setChecked(true);
-
-    chatAct = new QAction(tr("Chat"), this);
-    chatAct->setCheckable(true);
-    chatAct->setStatusTip(tr("Show/hide the chat window"));
-    connect(chatAct, SIGNAL(triggered()), this, SLOT(slotChatDock()));
-    chatAct->setChecked(false);
-
-    serverAct = new QAction(tr("Server"), this);
-    serverAct->setCheckable(true);
-    serverAct->setStatusTip(tr("Show/hide the server window"));
-    connect(serverAct, SIGNAL(triggered()), this, SLOT(slotServerDock()));
-    serverAct->setChecked(false);
-
-    debugAct = new QAction(tr("Debug"), this);
-    debugAct->setCheckable(true);
-    debugAct->setStatusTip(tr("Show/hide the debug window"));
-    connect(debugAct, SIGNAL(triggered()), this, SLOT(slotDebugDock()));
-    debugAct->setChecked(false);
-
     paramsMenu = menuBar()->addMenu(tr("Parameters"));
     paramsMenu->addAction(optionsAct);
     paramsMenu->addAction(dealEditorAct);
     paramsMenu->addSeparator();
-    paramsMenu->addAction(scoresAct);
-    paramsMenu->addAction(infosAct);
-    paramsMenu->addAction(chatAct);
-    paramsMenu->addAction(serverAct);
-    paramsMenu->addAction(debugAct);
+
+    // Dock windows
+    paramsMenu->addAction(scoresDock->toggleViewAction());
+    paramsMenu->addAction(infosDock->toggleViewAction());
+    paramsMenu->addAction(chatDock->toggleViewAction());
+    paramsMenu->addAction(debugDock->toggleViewAction());
+    paramsMenu->addAction(debugDock->toggleViewAction());
 
     //-----------
     // Menu Help
@@ -257,92 +213,11 @@ void MainWindow::SetupMenus()
     helpMenu->addAction(helpAct);
 
 }
-
 /*****************************************************************************/
 void MainWindow::slotDealEditor()
 {
     editorWindow->Initialize();
     editorWindow->exec();
-}
-/*****************************************************************************/
-void MainWindow::slotCloseChat()
-{
-    chatAct->setChecked(false);
-}
-/*****************************************************************************/
-void MainWindow::slotCloseScores()
-{
-    scoresAct->setChecked(false);
-}
-/*****************************************************************************/
-void MainWindow::slotScoresDock(void)
-{
-    if (scoresDock->isVisible() == true)
-    {
-        scoresAct->setChecked(false);
-        scoresDock->hide();
-    }
-    else
-    {
-        scoresAct->setChecked(true);
-        scoresDock->show();
-    }
-}
-/*****************************************************************************/
-void MainWindow::slotInfosDock(void)
-{
-    if (infosDock->isVisible() == true)
-    {
-        infosAct->setChecked(false);
-        infosDock->hide();
-    }
-    else
-    {
-        infosAct->setChecked(true);
-        infosDock->show();
-    }
-}
-/*****************************************************************************/
-void MainWindow::slotChatDock(void)
-{
-    if (chatDock->isVisible() == true)
-    {
-        chatAct->setChecked(false);
-        chatDock->hide();
-    }
-    else
-    {
-        chatAct->setChecked(true);
-        chatDock->show();
-    }
-}
-/*****************************************************************************/
-void MainWindow::slotServerDock(void)
-{
-    if (serverDock->isVisible() == true)
-    {
-        serverAct->setChecked(false);
-        serverDock->hide();
-    }
-    else
-    {
-        serverAct->setChecked(true);
-        serverDock->show();
-    }
-}
-/*****************************************************************************/
-void MainWindow::slotDebugDock(void)
-{
-    if (debugDock->isVisible() == true)
-    {
-        debugAct->setChecked(false);
-        debugDock->hide();
-    }
-    else
-    {
-        debugAct->setChecked(true);
-        debugDock->show();
-    }
 }
 
 //=============================================================================
