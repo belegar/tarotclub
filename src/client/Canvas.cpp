@@ -187,10 +187,10 @@ bool Canvas::loadCards(ClientOptions &opt)
 
 #ifndef QT_NO_DEBUG
     // Debug, the binary is inside the build directory
-    path = qApp->applicationDirPath() + "/../../src/data/cards/" + opt.deckFilePath + "/";
+    path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
 #else
     // Release
-    path = qApp->applicationDirPath();
+    path = qApp->applicationDirPath() +  "/" + opt.deckFilePath + "/";
 #endif
 
     cardsPics.clear();
