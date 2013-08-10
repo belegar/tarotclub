@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Tapis.h
+ * TarotClub - Canvas.h
  *=============================================================================
- * visual game contents
+ * Visual game contents
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef TAPIS_H
-#define TAPIS_H
+#ifndef CANVAS_H
+#define CANVAS_H
 
 // Qt includes
 #include <QtSvg>
@@ -38,31 +38,10 @@
 #include "../Card.h"
 #include "TextBox.h"
 #include "ClientConfig.h"
+#include "GfxCard.h"
 
 /*****************************************************************************/
-class GfxCard : public QGraphicsSvgItem
-{
-public:
-    enum Status
-    {
-        NORMAL,
-        SELECTED
-    };
-
-    GfxCard(const QString &fileName, QGraphicsItem *parent = 0);
-
-    enum { Type = UserType + 1 };
-    int type() const;
-    Status GetStatus();
-    void SetStatus(Status s);
-    void ToggleStatus();
-
-private:
-    Status status;
-};
-
-/*****************************************************************************/
-class Tapis : public QGraphicsView
+class Canvas : public QGraphicsView
 {
 
     Q_OBJECT
@@ -70,8 +49,8 @@ class Tapis : public QGraphicsView
 public:
     enum Filter
     {
-        AUCUN,
-        JEU
+        BLOCK_ALL,
+        GAME_ONLY
     };
 
     enum CursorType
@@ -80,7 +59,7 @@ public:
         ARROW
     };
 
-    Tapis(QWidget *parent);
+    Canvas(QWidget *parent);
 
     // Helpers
     bool loadCards(ClientOptions &opt);
@@ -157,8 +136,8 @@ private:
     void DrawCardShadows();
 };
 
-#endif // TAPIS_H
+#endif // CANVAS_H
 
 //=============================================================================
-// End of file Tapis.h
+// End of file Canvas.h
 //=============================================================================
