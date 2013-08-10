@@ -43,10 +43,8 @@
 #include "ScoresDock.h"
 #include "InfosDock.h"
 #include "ChatDock.h"
-#include "RoundDock.h"
 #include "DebugDock.h"
 #include "JoinWizard.h"
-#include "ui_ServerManagerUI.h"
 
 
 /*****************************************************************************/
@@ -92,9 +90,6 @@ protected:
     InfosDock *infosDock;
     ChatDock *chatDock;
     DebugDock *debugDock;
-
-    // UI classes
-    Ui::serverDock serverUI;
 
 public:
     MainWindow(QWidget *parent = 0);
