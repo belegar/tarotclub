@@ -33,6 +33,7 @@
 
 // Includes locales
 #include "../defines.h"
+#include "../Game.h"
 #include "../Deck.h"
 
 /*****************************************************************************/
@@ -51,6 +52,9 @@ public:
     void SetTaker(QString &name, Place place);
     void SetDealNumber(int n);
     void PrintStats(Deck::Statistics &stats);
+    void AddRound(Game &info, Place p, const QString &txt);
+    void SelectWinner(Game &info, Place p);
+    void SelectFirstPlayer(int turn, Place p);
 };
 
 #endif // INFOSDOCK_H

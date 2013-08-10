@@ -36,7 +36,18 @@
 InfosDock::InfosDock(QWidget *parent)
     : QDockWidget(trUtf8("Informations"), parent)
 {
+    int i, j;
     ui.setupUi(this);
+
+    ui.tableWidget->setRowCount(18);
+
+    for (i = 0; i < 4; i++)
+    {
+        for (j = 0; j < 18; j++)
+        {
+            ui.tableWidget->setItem(j, i, new QTableWidgetItem());
+        }
+    }
 }
 /*****************************************************************************/
 void InfosDock::Clear()
@@ -44,6 +55,18 @@ void InfosDock::Clear()
     ui.donneVar->setText("");
     ui.preneurVar->setText("");
     ui.contratVar->setText("");
+
+    int i, j;
+    QBrush brush(Qt::white);
+
+    for (i = 0; i < 4; i++)
+    {
+        for (j = 0; j < 18; j++)
+        {
+            ui.tableWidget->item(j, i)->setText("");
+            ui.tableWidget->item(j, i)->setBackground(brush);
+        }
+    }
 }
 /*****************************************************************************/
 void InfosDock::SetDealNumber(int n)
@@ -97,6 +120,23 @@ void InfosDock::PrintStats(Deck::Statistics &stats)
     buffer += "\n" + trUtf8("Jacks: ") + tmp.setNum(stats.valets);
 
     ui.statsEdit->setPlainText(buffer);
+}
+/*****************************************************************************/
+void InfosDock::AddRound(Game &info, Place p, const QString &txt)
+{
+    ui.tableWidget->item(info.trickCounter, p)->setText(txt);
+}
+/*****************************************************************************/
+void InfosDock::SelectWinner(Game &info, Place p)
+{
+    QBrush brush(Qt::darkGreen);
+    ui.tableWidget->item(info.trickCounter-1, p)->setBackground(brush);
+}
+/*****************************************************************************/
+void InfosDock::SelectFirstPlayer(int turn, Place p)
+{
+    QBrush brush(Qt::lightGray);
+    ui.tableWidget->item(turn, p)->setBackground(brush);
 }
 
 //=============================================================================
