@@ -4,7 +4,7 @@
 ; Customize the Qt dir installation and version
 [Code]
 #define QT_DIR 	      "C:\Qt\Qt5.1.0\5.1.0\mingw48_32\bin"
-#define VERSION       "2.1.0-beta.1"
+#define VERSION       "2.1.0"
 #define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_1_0_MinGW_32bit-Release"
 
 [Setup]
@@ -42,6 +42,7 @@ Source: ..\src\data\cards\default\*; DestDir: {app}\default; Flags: ignoreversio
 Source: ..\doc\tarotclub.qch; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\doc\tarotclub.qhc; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\ai\beginner.js; DestDir: {app}\ai; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\ai\tarotlib\*; DestDir: {app}\ai\tarotlib; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\prj\tarotclub_en.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\prj\tarotclub_fr.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\lib\tarotclub.xsl; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -85,3 +86,4 @@ Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClub; Filename
 
 [Run]
 Filename: {app}\TarotClub.exe; Description: {cm:LaunchProgram,TarotClub}; Flags: nowait postinstall skipifsilent
+
