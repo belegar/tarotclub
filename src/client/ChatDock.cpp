@@ -38,23 +38,14 @@ ChatDock::ChatDock(QWidget *parent)
 {
     chatWindow = new QTextBrowser();
     textLine = new QLineEdit();
-    options = new QPushButton(trUtf8("Commands"));
-    playersList = new QListWidget();
 
-    QHBoxLayout *lay1 = new QHBoxLayout();
-    lay1->addWidget(textLine);
-    lay1->addWidget(options);
 
-    QSplitter *lay2 = new QSplitter();
-    lay2->addWidget(chatWindow);
-    lay2->addWidget(playersList);
-
-    QVBoxLayout *principal = new QVBoxLayout();
-    principal->addLayout(lay1);
-    principal->addWidget(lay2);
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(chatWindow);
+    layout->addWidget(textLine);
 
     QFrame *fr = new QFrame(this);
-    fr->setLayout(principal);
+    fr->setLayout(layout);
     setWidget(fr);
 
     connect(textLine, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
@@ -67,12 +58,6 @@ void ChatDock::closeEvent(QCloseEvent *e)
 }
 /*****************************************************************************/
 void ChatDock::clear()
-{
-    playersList->clear();
-    chatWindow->clear();
-}
-/*****************************************************************************/
-void ChatDock::clearPlayersList()
 {
     chatWindow->clear();
 }
@@ -92,25 +77,7 @@ void ChatDock::slotReturnPressed()
     emit sgnlEmitMessage(message);
     textLine->clear();
 }
-/*****************************************************************************/
-void ChatDock::setPlayersList(QList<Identity> &idents)
-{
-    QString server;
-    QStringList nicks;
-
-    for (int i = 0; i < idents.size(); i++)
-    {
-        nicks += idents.at(i).name;
-    }
-    playersList->clear();
-    // On marque le premier joueur comme étant le serveur
-    playersList->addItems(nicks);
-    QListWidgetItem *it = playersList->item(0);
-    server = it->text();
-    server.prepend('@');
-    it->setText(server);
-}
 
 //=============================================================================
-// Fin du fichier ChatDock.cpp
+// End of file ChatDock.cpp
 //=============================================================================

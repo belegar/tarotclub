@@ -45,15 +45,11 @@ class ChatDock : public QDockWidget
 private:
     QTextBrowser    *chatWindow;
     QLineEdit       *textLine;
-    QPushButton     *options;
-    QListWidget     *playersList;
 
 public:
     ChatDock(QWidget *parent);
 
     void clear();
-    void setPlayersList(QList<Identity> &idents);
-    void clearPlayersList();
 
 protected:
     void closeEvent(QCloseEvent *e);
@@ -70,5 +66,5 @@ signals:
 #endif // CHATDOCK_H
 
 //=============================================================================
-// Fin du fichier ChatDock.h
+// End of file ChatDock.h
 //=============================================================================
