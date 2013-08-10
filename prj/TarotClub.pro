@@ -62,6 +62,7 @@ OTHER_FILES = beginner.js \
               card.js \
               util.js \
               deck.js \
+              game.js \
               player.js
 
 TRANSLATIONS = tarotclub_fr.ts \
@@ -76,9 +77,8 @@ HEADERS = AboutWindow.h \
     ScoresDock.h \
     InfosDock.h \
     ChatDock.h \
-    RoundDock.h \
     DebugDock.h \
-    Tapis.h \
+    Canvas.h \
     TextBox.h \
     ClientConfig.h \
     ServerConfig.h \
@@ -101,7 +101,8 @@ HEADERS = AboutWindow.h \
     Protocol.h \
     Server.h \
     Table.h \
-    NetPlayer.h
+    NetPlayer.h \
+    GfxCard.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -109,8 +110,6 @@ FORMS = AboutUI.ui \
     OptionsUI.ui \
     ResultUI.ui \
     HelpUI.ui \
-    ServerManagerUI.ui \
-    RoundUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
     WinUI.ui \
@@ -126,9 +125,8 @@ SOURCES = AboutWindow.cpp \
     ScoresDock.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
-    RoundDock.cpp \
     DebugDock.cpp \
-    Tapis.cpp \
+    Canvas.cpp \
     TextBox.cpp \
     ClientConfig.cpp \
     ServerConfig.cpp \
@@ -149,5 +147,6 @@ SOURCES = AboutWindow.cpp \
     Server.cpp \
     Table.cpp \
     Score.cpp \
-    NetPlayer.cpp
+    NetPlayer.cpp \
+    GfxCard.cpp
 
