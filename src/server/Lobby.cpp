@@ -23,8 +23,20 @@ using namespace std;
 /*****************************************************************************/
 Lobby::Lobby()
 {
-    saloonName = "Essai";
+    saloons[0].name = "Noobs";
+    saloons[1].name = "Normal";
 
+    for (int j=0; j<SERVER_MAX_SALOONS; j++)
+    {
+        for (int i = 0; i < SERVER_MAX_TABLES; i++)
+        {
+            saloons[j].tables[i].name = "Table " + QString().setNum(i+1);
+        }
+    }
+}
+/*****************************************************************************/
+void Lobby::Initialize()
+{
     socket.listen(QHostAddress::Any, 4242);
     if (!socket.isListening())
     {
@@ -34,25 +46,39 @@ Lobby::Lobby()
     connect(&socket, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 /*****************************************************************************/
-void Lobby::startGames()
+void Lobby::StartGames()
 {
-    for (int i = 0; i < SERVER_MAX_TABLES; i++)
+    for (int j=0; j<SERVER_MAX_SALOONS; j++)
     {
-        tables[i].newServerGame();
-        tables[i].start();
+        for (int i = 0; i < SERVER_MAX_TABLES; i++)
+        {
+            saloons[j].tables[i].table.Start();
+        }
     }
 }
 /*****************************************************************************/
-void Lobby::setupTables(ServerOptions &opt)
+void Lobby::SetupTables()
 {
-    for (int i = 0; i < SERVER_MAX_TABLES; i++)
-    {
-        tables[i].setOptions(opt);
-        tables[i].setGameType(LOC_ONEDEAL);
-        tables[i].setDealType(RANDOM_DEAL);
-        opt.port++;
-    }
+    TarotEngine::Shuffle sh;
+    sh.type = TarotEngine::RANDOM_DEAL;
+    int tcpPort = DEFAULT_PORT;
 
+    for (int j=0; j<SERVER_MAX_SALOONS; j++)
+    {
+        for (int i = 0; i < SERVER_MAX_TABLES; i++)
+        {
+            saloons[j].tables[i].table.LoadConfiguration(tcpPort);
+            saloons[j].tables[i].table.moveToThread(&saloons[j].tables[i].thread);
+            saloons[j].tables[i].table.SetShuffle(sh);
+            saloons[j].tables[i].table.CreateGame(Game::ONE_DEAL, Table::MULTIPLAYERS);
+
+            // Start all threads
+            saloons[j].tables[i].thread.start();
+
+            // Each table has a unique port
+            tcpPort++;
+        }
+    }
 }
 /*****************************************************************************/
 void Lobby::slotClientClosed()
@@ -64,20 +90,49 @@ void Lobby::slotClientClosed()
 void Lobby::slotReadData()
 {
     // This slot is called when the client sent data to the server. The
-    // server looks if it was a get request and sends a very simple HTML
-    // document back.
+    // server looks if it was a get request and sends a very simple ASCII
     QTcpSocket *s = qobject_cast<QTcpSocket *>(sender());
     if (s->canReadLine())
     {
-        QStringList tokens = QString(s->readLine()).split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
+        QString line = s->readLine();
+        // remove new line character
+        line.remove('\n');
+        QStringList tokens = line.split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
         QTextStream os(s);
         if (tokens[0] == "GET")
         {
-            if (tokens[1] == "SALOONS")
+            if (tokens[1] == "INFOS")
             {
-                os.setAutoDetectUnicode(true);
-                os << "SALOONS:" << saloonName;
-                os << ":\r\n";
+                QStringList list;
+
+                for (int i=0; i<SERVER_MAX_SALOONS; i++)
+                {
+                    list += saloons[i].name;
+                }
+
+                os << "SALOON:";
+                os << list.join(',');
+                os << "\n";
+                os.flush();
+            }
+            else if (tokens[1] == "TABLES")
+            {
+                QStringList list;
+
+                for (int i=0; i<SERVER_MAX_SALOONS; i++)
+                {
+                    if(saloons[i].name == tokens[2])
+                    {
+                        for (int j = 0; j < SERVER_MAX_TABLES; j++)
+                        {
+                            list += saloons[i].tables[j].name;
+                        }
+                    }
+                }
+
+                os << "TABLES:";
+                os << list.join(',');
+                os << "\n";
                 os.flush();
             }
         }

@@ -1,15 +1,21 @@
-#
 # TarotClubServer project file
 #
 # TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
 # Copyright (C) 2003-2999 - Anthony Rabine
 # anthony@tarotclub.fr
 #
-# This file must be used under the terms of the CeCILL.
-# This source file is licensed as described in the file COPYING, which
-# you should have received as part of this distribution.  The terms
-# are also available at
-# http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+# TarotClub is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# TarotClub is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # directories for temp files
@@ -24,9 +30,8 @@ DESTDIR = ./bin
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/server
 VPATH += $${PWD}/include
-VPATH += $${PWD}/../lib
 
-QT += xml network
+QT += xml network script scripttools
 CONFIG += qt console warn_on
 
 INCLUDEPATH += $${PWD}/include
@@ -36,51 +41,43 @@ INCLUDEPATH += $${PWD}/../src/server
 # libraries and other annoying OS stuff
 win32 {
    RC_FILE = server.rc
-   INCLUDEPATH += $${PWD}/../lib/lua/src
-   LIBS += $${PWD}/../lib/win32/liblua.a
-
-} else {
-   INCLUDEPATH += /usr/include/lua5.1/
-   LIBS += -llua5.1 -ldl -lpthread
-
-   # install
-   isEmpty(PREFIX): PREFIX=/opt/tarotclubd
-   target.path = $${PREFIX}
-   copying.path = $${PREFIX}
-   copying.files = ../COPYING ../COPYING-FR ../HISTORY ../INSTALL ../README
-   INSTALLS += target cards copying
 }
 
-HEADERS = ServerConsole.h \
-   TarotEngine.h \
-   defines.h \
-   Identity.h \
-   Card.h \
-   Deck.h \
-   Jeu.h \
-   Player.h \
-   Client.h \
-   Bot.h \
-   LuaBot.h \
-   Score.h \
-   Table.h \
-   DealEditorFile.h \
-   ServerConfig.h \
-   Lobby.h \
-   TarotServer.h
+HEADERS = TarotEngine.h \
+    defines.h \
+    Identity.h \
+    Card.h \
+    Deck.h \
+    Deal.h \
+    TarotDeck.h \
+    Player.h \
+    NetPlayer.h \
+    Client.h \
+    Bot.h \
+    Score.h \
+    Table.h \
+    DealFile.h \
+    ServerConfig.h \
+    Lobby.h \
+    Server.h \
+    Protocol.h \
+    Game.h
 
 SOURCES = main.cpp \
-   ServerConsole.cpp \
-   TarotEngine.cpp \
-   Card.cpp \
-   Deck.cpp \
-   Jeu.cpp \
-   Player.cpp \
-   Client.cpp \
-   Bot.cpp \
-   LuaBot.cpp \
-   Score.cpp \
-   DealEditorFile.cpp \
-   ServerConfig.cpp \
-   Lobby.cpp \
-   TarotServer.cpp
+    TarotEngine.cpp \
+    Card.cpp \
+    Deck.cpp \
+    Deal.cpp \
+    TarotDeck.cpp \
+    Player.cpp \
+    NetPlayer.cpp \
+    Client.cpp \
+    Bot.cpp \
+    Score.cpp \
+    DealFile.cpp \
+    ServerConfig.cpp \
+    Lobby.cpp \
+    Server.cpp \
+    Protocol.cpp \
+    Game.cpp \
+    Table.cpp

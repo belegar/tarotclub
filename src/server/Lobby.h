@@ -20,7 +20,7 @@
 #define LOBBY_H
 
 #include <QtCore>
-#include "../TarotEngine.h"
+#include "../Table.h"
 #include "ServerConfig.h"
 
 /*****************************************************************************/
@@ -29,18 +29,30 @@ class Lobby : public QObject
     Q_OBJECT
 
 private:
-    QString saloonName;
-    QTcpServer socket;
 
-    // available game tables
-    TarotEngine tables[SERVER_MAX_TABLES];
+    struct TableInstance
+    {
+        QString name;
+        Table table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
+        QThread thread;
+    };
+
+    struct Saloon
+    {
+        QString name; // name of
+        TableInstance tables[SERVER_MAX_TABLES]; // available game tables in this saloon
+    };
+
+    QTcpServer socket;
+    Saloon  saloons[SERVER_MAX_SALOONS];
 
 public:
     Lobby();
 
-    void setupTables(ServerOptions &opt);
-    void startGames();
+    void SetupTables();
+    void StartGames();
 
+    void Initialize();
 public slots:
     // Connections to the lobby
     void slotNewConnection();

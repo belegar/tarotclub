@@ -22,20 +22,30 @@
 #include "../TarotEngine.h"
 
 /*****************************************************************************/
-ServerConsole::ServerConsole(QObject *eventObject) : QThread()
+ServerConsole::ServerConsole()
 {
-    obj = eventObject;
+    notifier = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read);
 
-    addCommand("exit", "Terminate any pending game and exit program.", &ServerConsole::c_exit);
-    addCommand("quit", "Terminate any pending game and exit program.", &ServerConsole::c_exit);
-    addCommand("help", "Show this help.", &ServerConsole::c_help);
-    addCommand("start", "Start a new game with default values.", &ServerConsole::c_start);
-    addCommand("stop", "Kick clients and close server game.", &ServerConsole::c_stop);
 }
 /*****************************************************************************/
-void ServerConsole::addCommand(QString cmd, QString help, console_function func)
+void ServerConsole::Initialize()
 {
-    Command_t new_cmd;
+    AddCommand("exit", "Terminate any pending game and exit program.", &ServerConsole::CmdExit);
+    AddCommand("quit", "Terminate any pending game and exit program.", &ServerConsole::CmdExit);
+    AddCommand("help", "Show this help.", &ServerConsole::CmdHelp);
+    AddCommand("start", "Start a new game with default values.", &ServerConsole::CmdStart);
+    AddCommand("stop", "Kick clients and close server game.", &ServerConsole::CmdStop);
+
+    cout << "Type help to discover all the console commands." << endl;
+    cout << "> ";
+
+    connect(notifier, SIGNAL(activated(int)), this, SLOT(Text()));
+    notifier->setEnabled(true);
+}
+/*****************************************************************************/
+void ServerConsole::AddCommand(const QString &cmd, const QString &help, console_function func)
+{
+    Command new_cmd;
 
     new_cmd.cmd = cmd;
     new_cmd.help = help;
@@ -43,14 +53,13 @@ void ServerConsole::addCommand(QString cmd, QString help, console_function func)
     list.append(new_cmd);
 }
 /*****************************************************************************/
-void ServerConsole::parseCommand()
+void ServerConsole::ParseCommand(QString &line)
 {
-    QString cmdLine(line);
     QStringList args;
     QString cmd;
     bool command_ok = false;
 
-    args = cmdLine.split(" ", QString::SkipEmptyParts);
+    args = line.split(" ", QString::SkipEmptyParts);
     if (args.size() == 0)
     {
         return;
@@ -85,44 +94,62 @@ void ServerConsole::parseCommand()
 
 }
 /*****************************************************************************/
-void ServerConsole::run()
+void ServerConsole::Run()
 {
+    /*
     cout << "> ";
 
     for (;;)
     {
         cin.getline(line, sizeof(line));
-        parseCommand();
+        ParseCommand();
         cout << endl << "> ";
     }
+    */
 }
 /*****************************************************************************/
-void ServerConsole::c_exit(QStringList args)
+void ServerConsole::Text()
 {
+    QTextStream qin(stdin);
+    QString line = qin.readLine();
+    ParseCommand(line);
+}
+/*****************************************************************************/
+void ServerConsole::CmdExit(const QStringList &args)
+{
+    /*
     EvExitGame *ev = new EvExitGame();
     QCoreApplication::postEvent(obj, ev);
+    */
+
+    emit Exit();
 }
 /*****************************************************************************/
-void ServerConsole::c_help(QStringList args)
+void ServerConsole::CmdHelp(const QStringList &args)
 {
     cout << "TarotClub server " TAROT_VERSION << endl;
-    cout << "List of commands :" << endl;
+    cout << "List of commands:" << endl;
     for (int i = 0; i < list.size(); ++i)
     {
         cout << "\t" << list.at(i).cmd.toLocal8Bit().data() << "\t" << list.at(i).help.toLocal8Bit().data() << endl;
     }
 }
 /*****************************************************************************/
-void ServerConsole::c_start(QStringList args)
+void ServerConsole::CmdStart(const QStringList &args)
 {
+    /*
     EvStartGame *ev = new EvStartGame();
     QCoreApplication::postEvent(obj, ev);
+
+    */
 }
 /*****************************************************************************/
-void ServerConsole::c_stop(QStringList args)
+void ServerConsole::CmdStop(const QStringList &args)
 {
+    /*
     EvStopGame *ev = new EvStopGame();
     QCoreApplication::postEvent(obj, ev);
+    */
 }
 
 //=============================================================================

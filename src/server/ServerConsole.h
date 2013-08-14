@@ -26,36 +26,43 @@ using namespace std;
 
 /*****************************************************************************/
 class ServerConsole;
-typedef void (ServerConsole::*console_function)(QStringList args);
+typedef void (ServerConsole::*console_function)(const QStringList &args);
 
-typedef struct
+struct Command
 {
     QString cmd;
     QString help;
     console_function func;
-
-} Command_t;
+};
 
 /*****************************************************************************/
-class ServerConsole : public QThread
+class ServerConsole : public QObject
 {
-private:
-    char line[256];
-    QList<Command_t> list;
-    QObject *obj;
-
+    Q_OBJECT
 public:
-    ServerConsole(QObject *o);
+    ServerConsole();
 
-    void addCommand(QString cmd, QString help, console_function func);
-    void parseCommand();
-    void run();
+    void AddCommand(const QString &cmd, const QString &help, console_function func);
+    void ParseCommand(QString &line);
+    void Initialize();
 
-    // Ci-dessous la liste des commandes supportées, toutes doivent commencer par le préfixe c_
-    void c_exit(QStringList args);
-    void c_help(QStringList args);
-    void c_start(QStringList args);
-    void c_stop(QStringList args);
+    // All supported commands by the server
+    void CmdExit(const QStringList &args);
+    void CmdHelp(const QStringList &args);
+    void CmdStart(const QStringList &args);
+    void CmdStop(const QStringList &args);
+
+signals:
+    void Exit();
+    void TextReceived(QString &message);
+
+public slots:
+    void Run();
+    void Text();
+
+private:
+    QSocketNotifier* notifier;
+    QList<Command> list;
 };
 
 #endif // _SERVERCONSOLE_H

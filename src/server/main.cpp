@@ -20,11 +20,11 @@
 #include <QString>
 #include <QThread>
 #include "ServerConsole.h"
-#include "TarotServer.h"
+#include "Lobby.h"
 
 /*****************************************************************************/
 /**
- * Affiche sur la console les messages Qt (warnings, erreurs...)
+ * Redirect debug messages to the console (FIXME: or Log file?)
  */
 void myMessageOutput(QtMsgType type, const char *msg)
 {
@@ -49,7 +49,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
 }
 /*****************************************************************************/
 /**
- * Point d'entrée de l'application
+ * Entry point of the game
  */
 int main(int argc, char *argv[])
 {
@@ -58,10 +58,14 @@ int main(int argc, char *argv[])
 #endif
 
     QCoreApplication app(argc, argv);
-    cout << "TarotClub server " TAROT_VERSION << endl;
 
-    TarotServer server;
-    server.start();
+    Lobby lobby;
+
+    lobby.SetupTables();
+    lobby.StartGames();
+    lobby.Initialize();
+
+    cout << "TarotClub server " TAROT_VERSION << " is ready." << endl;
 
     return app.exec();
 }
