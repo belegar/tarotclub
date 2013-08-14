@@ -42,7 +42,7 @@ public:
     Table();
 
     // Helpers
-    void LoadConfiguration();
+    void LoadConfiguration(int tcpPort = DEFAULT_PORT);
     void CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers = 4);
     void Start();
     void Stop();
