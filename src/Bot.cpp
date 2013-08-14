@@ -24,7 +24,6 @@
  */
 
 #include "Bot.h"
-#include <QMessageBox>
 
 using namespace std;
 
@@ -333,7 +332,7 @@ bool Bot::InitializeScriptContext()
         if (botEngine.hasUncaughtException())
         {
             QScriptValue exception = botEngine.uncaughtException();
-            QMessageBox::critical(0, "Script error", QString("Script threw an uncaught exception: ") + exception.toString());
+            qDebug() <<  "Script error: Script threw an uncaught exception: " << exception.toString();
             return false;
         }
     }
