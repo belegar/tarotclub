@@ -59,6 +59,10 @@ class JoinWizardPage2 : public QWizardPage
 
 private:
     Ui::Page2 ui;
+
+signals:
+    void sigRoomSelected(const QString &room);
+
 public:
     JoinWizardPage2(QWidget *parent = 0);
 
@@ -67,10 +71,22 @@ public:
     {
         ui.infos->setText(txt);
     }
-    void setSaloons(const QStringList &list)
+    void SetSaloons(const QStringList &list)
     {
+        ui.saloonList->clear();
         ui.saloonList->addItems(list);
     }
+
+    void SetTables(const QStringList &list)
+    {
+        ui.tableList->clear();
+        ui.tableList->addItems(list);
+    }
+
+    bool isComplete() const;
+
+public slots:
+    void slotRoomSelected(QListWidgetItem *item);
 };
 /*****************************************************************************/
 class JoinWizard : public QWizard
@@ -89,7 +105,10 @@ public:
     JoinWizard(QWidget *parent);
 
 public slots:
-    void slotServerConnection(int id);
+    void slotPageChanged(int id);
+    void slotRoomClicked(const QString &room);
+
+    // socket
     void socketReadData();
     void socketConnected();
     void socketHostFound();

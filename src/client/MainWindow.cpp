@@ -143,7 +143,6 @@ void MainWindow::SetupMenus()
     netGameClientAct = new QAction(tr("&Join a network game"), this);
     netGameClientAct->setShortcut(tr("Ctrl+J"));
     netGameClientAct->setStatusTip(tr("Join a game server over Internet or over a local area network"));
-    netGameClientAct->setEnabled(false);
 
     //----- Misc
     pliPrecAct = new QAction(tr("&Previous trick"), this);
