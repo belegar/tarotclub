@@ -44,15 +44,6 @@ TarotClub::TarotClub() : MainWindow()
     connect(tapis, &Canvas::sigAccepteChien, this, &TarotClub::slotAccepteChien);
     connect(tapis, &Canvas::sigPresenterPoignee, this, &TarotClub::slotPresenterPoignee);
 
-    /*
-    // Network window (client)
-    connect( clientWindow, SIGNAL(sgnlExit()), this, SLOT(slotClientWndExit()));
-    connect( clientWindow, SIGNAL(sgnlSendMessage(const QString &)), this, SLOT(slotClientMessage(const QString &)));
-    connect( clientWindow, SIGNAL(sgnlConnection(const QString &)), this, SLOT(slotClientConnexion(const QString &)));
-    connect( clientWindow, SIGNAL(sgnlDeconnection()), this, SLOT(slotClientDeconnexion()));
-    */
-    // Network window (server)
-
     // FIXME show server log
 //    connect(&table.GetServer(), &Server::sigServerMessage, serverUI.textBrowser, &QTextBrowser::append);
 
@@ -209,7 +200,11 @@ void TarotClub::newLocalGame()
 /*****************************************************************************/
 void TarotClub::slotJoinNetworkGame()
 {
-    joinWizard->exec();
+    table.Stop();
+    if (joinWizard->exec() == QDialog::Accepted)
+    {
+        // connect to table
+    }
 }
 /*****************************************************************************/
 void TarotClub::ApplyOptions()

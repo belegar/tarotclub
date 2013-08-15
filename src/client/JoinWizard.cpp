@@ -53,11 +53,30 @@ JoinWizardPage2::JoinWizardPage2(QWidget *parent) : QWizardPage(parent)
     ui.setupUi(this);
     setTitle(trUtf8("Connection to a TarotClub server"));
     setSubTitle(trUtf8("Choose your room and game table."));
+
+    connect(ui.saloonList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(slotRoomSelected(QListWidgetItem *)));
+
+    connect(ui.tableList, SIGNAL(itemClicked(QListWidgetItem *)), this, SIGNAL(completeChanged()));
 }
 /*****************************************************************************/
 void JoinWizardPage2::initializePage()
 {
 
+}
+/*****************************************************************************/
+void JoinWizardPage2::slotRoomSelected(QListWidgetItem *item)
+{
+    emit sigRoomSelected(item->text());
+}
+/*****************************************************************************/
+bool JoinWizardPage2::isComplete() const
+{
+    if ((ui.saloonList->selectedItems().size() == 1) &&
+        (ui.tableList->selectedItems().size() == 1))
+    {
+        return true;
+    }
+    return false;
 }
 /*****************************************************************************/
 
@@ -72,12 +91,14 @@ JoinWizard::JoinWizard(QWidget *parent) : QWizard(parent)
     setPage(Page_Server, page1);
     setPage(Page_Lobby, page2);
 
+    setButtonText(QWizard::FinishButton, "Connect");
     setPixmap(QWizard::WatermarkPixmap, QPixmap(":images/wizard.png"));
     setWizardStyle(QWizard::ModernStyle);
 
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotServerConnection(int)));
+    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotPageChanged(int)));
+    connect(page2, SIGNAL(sigRoomSelected(const QString &)), this, SLOT(slotRoomClicked(const QString &)));
 
-    // événements sur le socket
+    // socket events
     connect(&socket, SIGNAL(readyRead()), this, SLOT(socketReadData()));
     connect(&socket, SIGNAL(disconnected()), this, SLOT(socketClosed()));
     connect(&socket, SIGNAL(connected()), this, SLOT(socketConnected()));
@@ -85,7 +106,7 @@ JoinWizard::JoinWizard(QWidget *parent) : QWizard(parent)
     connect(&socket, SIGNAL(hostFound()), this, SLOT(socketHostFound()));
 }
 /*****************************************************************************/
-void JoinWizard::slotServerConnection(int id)
+void JoinWizard::slotPageChanged(int id)
 {
     if (id == Page_Lobby)
     {
@@ -94,17 +115,33 @@ void JoinWizard::slotServerConnection(int id)
     }
 }
 /*****************************************************************************/
+void JoinWizard::slotRoomClicked(const QString &room)
+{
+    // get list of tables in this room
+    QTextStream os(&socket);
+    os << "GET:TABLES:" << room;
+    os << "\n";
+    os.flush();
+}
+/*****************************************************************************/
 void JoinWizard::socketReadData()
 {
     QTcpSocket *s = (QTcpSocket *)sender();
     if (s->canReadLine())
     {
-        QStringList tokens = QString(s->readLine()).split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
-        if (tokens[0] == "SALOONS")
+        QString line = s->readLine();
+        // remove new line character
+        line.remove('\n');
+        QStringList tokens = line.split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
+        if (tokens[0] == "SALOON")
         {
-            QStringList list;
-            list.append(tokens[1]);
-            page2->setSaloons(list);
+            QStringList list = tokens[1].split(',');
+            page2->SetSaloons(list);
+        }
+        else if (tokens[0] == "TABLES")
+        {
+            QStringList list = tokens[1].split(',');
+            page2->SetTables(list);
         }
     }
 }
@@ -116,7 +153,7 @@ void JoinWizard::socketConnected()
 
     // get list of playing rooms
     QTextStream os(&socket);
-    os << "GET:SALOONS:\r\n";
+    os << "GET:INFOS\n";
     os.flush();
 }
 /*****************************************************************************/

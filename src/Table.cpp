@@ -29,16 +29,18 @@ Table::Table()
 {
 }
 /*****************************************************************************/
-void Table::LoadConfiguration()
+void Table::LoadConfiguration(int tcpPort)
 {
     serverConfig.Load();
 
-    // 3. Apply configuration
+    // Apply configuration
     for (int i = 0; i < 3; i++)
     {
         bots[i].SetMyIdentity(serverConfig.GetOptions().bots[i]);
         bots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
     }
+
+    server.SetTcpPort(tcpPort);
 }
 /*****************************************************************************/
 void Table::SaveConfiguration(const ServerOptions &opt)
