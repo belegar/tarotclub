@@ -34,8 +34,8 @@ fi
 TEMP_DIR=tarotclub
 
 # version is in defines.h file in the following format:
-# #define TAROT_VERSION   "2.1.0-alpha.2"
-VERSION=$(grep -Po '([-0-9]*\.[0-9]*\.[0-9]*-[A-Za-z]*\.[0-9]*)' ${TAROT_ROOT}/src/defines.h)
+# #define TAROT_VERSION   "2.1.0-alpha.2" or "2.1.0"
+VERSION=$(grep -Po '([-0-9]*\.[0-9]*\.[0-9]*(-[A-Za-z]*\.[0-9]*)?)' ${TAROT_ROOT}/src/defines.h)
 
 ####################  TARBALL PACKAGE ###########################
 
