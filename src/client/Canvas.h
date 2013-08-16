@@ -63,12 +63,12 @@ public:
 
     // Helpers
     bool loadCards(ClientOptions &opt);
-    void colorisePreneur(Place  preneur);
-    void setPlayerNames(QMap<Place, Identity> &players, Place p);
-    void afficheSelection(Place);
-    void DrawCard(GfxCard *c, Place p);
+    void ShowTaker(Place taker, Place myPlace);
+    void SetPlayerNames(QMap<Place, Identity> &players, Place myPlace);
+    void ShowSelection(Place p, Place myPlace);
+    void DrawCard(GfxCard *c, Place p, Place myPlace);
     void ShowBidsChoice(Contract contrat);
-    void ShowBid(Place p, Contract cont);
+    void ShowBid(Place p, Contract cont, Place myPlace);
     void cacheEncheres();
     void HideBidsChoice();
     void showAvatars(bool b);

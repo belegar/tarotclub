@@ -185,7 +185,7 @@ bool Canvas::loadCards(ClientOptions &opt)
     QString image;
     QString path;
 
-#ifndef QT_NO_DEBUG
+#ifdef QT_DEBUG
     // Debug, the binary is inside the build directory
     path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
 #else
@@ -367,9 +367,10 @@ void Canvas::setCursorType(CursorType t)
     }
 }
 /*****************************************************************************/
-void Canvas::colorisePreneur(Place preneur)
+void Canvas::ShowTaker(Place taker, Place myPlace)
 {
-    playerBox.value(preneur)->highlightPlayer(true);
+    Place rel = SwapPlace(myPlace, taker);  // relative place
+    playerBox.value(rel)->highlightPlayer(true);
 }
 /*****************************************************************************/
 void Canvas::setText(Place p, const QString &txt)
@@ -403,13 +404,13 @@ Place Canvas::SwapPlace(Place my_place, Place absolute)
 /**
  * Show names on the board, bottom player is always south
  */
-void Canvas::setPlayerNames(QMap<Place, Identity> &players, Place p)
+void Canvas::SetPlayerNames(QMap<Place, Identity> &players, Place myPlace)
 {
     QMapIterator<Place, Identity> i(players);
     while (i.hasNext())
     {
         i.next();
-        Place rel = SwapPlace(p, i.key());  // relative place
+        Place rel = SwapPlace(myPlace, i.key());  // relative place
 
         playerBox.value(rel)->setText(i.value().name);
         playerBox.value(rel)->setAvatar(":/images/avatars/" + i.value().avatar);
@@ -422,9 +423,10 @@ void Canvas::setPlayerNames(QMap<Place, Identity> &players, Place p)
  * @arg[in] c The graphics card to show
  * @arg[in] p = NORTH, WEST, SOUTH, EAST
  */
-void Canvas::DrawCard(GfxCard *c, Place p)
+void Canvas::DrawCard(GfxCard *c, Place p, Place myPlace)
 {
-    QPointF pos = CalculateCardPosition(p);
+    Place rel = SwapPlace(myPlace, p);  // relative place
+    QPointF pos = CalculateCardPosition(rel);
 
     if (c)
     {
@@ -488,13 +490,15 @@ void Canvas::DrawCardShadows()
     }
 }
 /*****************************************************************************/
-void Canvas::afficheSelection(Place p)
+void Canvas::ShowSelection(Place p, Place myPlace)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
     while (i.hasNext())
     {
         i.next();
-        if (i.key() == p)
+        Place rel = SwapPlace(myPlace, p);  // relative place
+
+        if (i.key() == rel)
         {
             i.value()->selectPlayer(true);
         }
@@ -505,9 +509,11 @@ void Canvas::afficheSelection(Place p)
     }
 }
 /*****************************************************************************/
-void Canvas::ShowBid(Place p, Contract cont)
+void Canvas::ShowBid(Place p, Contract cont, Place myPlace)
 {
     QString txt;
+
+    Place rel = SwapPlace(myPlace, p);  // relative place
 
     if (cont == GUARD_AGAINST)
     {
@@ -530,8 +536,8 @@ void Canvas::ShowBid(Place p, Contract cont)
         txt = STR_PASSE;
     }
 
-    textBox.value(p)->setText(txt);
-    textBox.value(p)->show();
+    textBox.value(rel)->setText(txt);
+    textBox.value(rel)->show();
 }
 /*****************************************************************************/
 void Canvas::cacheEncheres()
