@@ -37,28 +37,8 @@ Lobby::Lobby()
 /*****************************************************************************/
 void Lobby::Initialize()
 {
-    socket.listen(QHostAddress::Any, 4242);
-    if (!socket.isListening())
-    {
-        cerr << "Failed to bind to port 4242";
-        qApp->quit();
-    }
-    connect(&socket, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
-}
-/*****************************************************************************/
-void Lobby::StartGames()
-{
-    for (int j=0; j<SERVER_MAX_SALOONS; j++)
-    {
-        for (int i = 0; i < SERVER_MAX_TABLES; i++)
-        {
-            saloons[j].tables[i].table.Start();
-        }
-    }
-}
-/*****************************************************************************/
-void Lobby::SetupTables()
-{
+    TarotDeck::Initialize();
+
     TarotEngine::Shuffle sh;
     sh.type = TarotEngine::RANDOM_DEAL;
     int tcpPort = DEFAULT_PORT;
@@ -79,6 +59,14 @@ void Lobby::SetupTables()
             tcpPort++;
         }
     }
+
+    socket.listen(QHostAddress::Any, 4242);
+    if (!socket.isListening())
+    {
+        cerr << "Failed to bind to port 4242";
+        qApp->quit();
+    }
+    connect(&socket, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 /*****************************************************************************/
 void Lobby::slotClientClosed()
@@ -134,6 +122,27 @@ void Lobby::slotReadData()
                 os << list.join(',');
                 os << "\n";
                 os.flush();
+            }
+            else if (tokens[1] == "PORT")
+            {
+                QStringList param = tokens[2].split(',', QString::SkipEmptyParts, Qt::CaseSensitive);
+
+                for (int i=0; i<SERVER_MAX_SALOONS; i++)
+                {
+                    if(saloons[i].name == param[0])
+                    {
+                        for (int j = 0; j < SERVER_MAX_TABLES; j++)
+                        {
+                            if(saloons[i].tables[j].name == param[1])
+                            {
+                                os << "PORT:";
+                                os << QString().setNum(saloons[i].tables[j].table.GetServer().GetTcpPort());
+                                os << "\n";
+                                os.flush();
+                            }
+                        }
+                    }
+                }
             }
         }
     }

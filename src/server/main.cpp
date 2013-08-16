@@ -60,9 +60,6 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     Lobby lobby;
-
-    lobby.SetupTables();
-    lobby.StartGames();
     lobby.Initialize();
 
     cout << "TarotClub server " TAROT_VERSION << " is ready." << endl;

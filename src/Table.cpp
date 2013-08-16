@@ -61,14 +61,6 @@ void Table::CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers
     server.NewServerGame(gameMode);
 }
 /*****************************************************************************/
-void Table::Start()
-{
-    if (mode == USE_BOTS)
-    {
-        ConnectBots();
-    }
-}
-/*****************************************************************************/
 void Table::Stop()
 {
     server.StopServer();

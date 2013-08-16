@@ -43,11 +43,11 @@ public:
 
     void initializePage();
 
-    QString getIp()
+    QString GetIp()
     {
         return ui.ipAddress->text();
     }
-    int getPort()
+    int GetPort()
     {
         return ui.portNumber->value();
     }
@@ -62,6 +62,7 @@ private:
 
 signals:
     void sigRoomSelected(const QString &room);
+    void sigTableSelected(const QString &room, const QString &table);
 
 public:
     JoinWizardPage2(QWidget *parent = 0);
@@ -84,29 +85,35 @@ public:
     }
 
     bool isComplete() const;
+    void Ready();
 
 public slots:
     void slotRoomSelected(QListWidgetItem *item);
+    void slotTableSelected(QListWidgetItem *item);
 };
 /*****************************************************************************/
 class JoinWizard : public QWizard
 {
     Q_OBJECT
 
-private:
-    JoinWizardPage1 *page1;
-    JoinWizardPage2 *page2;
-
-    QTcpSocket  socket;
-
 public:
     enum { Page_Server, Page_Lobby };
 
     JoinWizard(QWidget *parent);
 
+    struct Connection
+    {
+        QString ip;
+        quint16 port;
+        bool isValid;
+    };
+
+    Connection GetTableConnection();
+
 public slots:
     void slotPageChanged(int id);
     void slotRoomClicked(const QString &room);
+    void slotTableClicked(const QString &room, const QString &table);
 
     // socket
     void socketReadData();
@@ -114,6 +121,13 @@ public slots:
     void socketHostFound();
     void socketClosed();
     void socketError(QAbstractSocket::SocketError code);
+
+private:
+    JoinWizardPage1 *page1;
+    JoinWizardPage2 *page2;
+
+    QTcpSocket  socket;
+    Connection  selectedTable;
 };
 
 

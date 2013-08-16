@@ -91,22 +91,23 @@ void MainWindow::SetupDocks()
     // Scores
     scoresDock = new ScoresDock(this);
     addDockWidget(Qt::RightDockWidgetArea, scoresDock);
-    scoresDock->show();
 
     // Information
     infosDock = new InfosDock(this);
     addDockWidget(Qt::RightDockWidgetArea, infosDock);
-    infosDock->show();
 
     // Chat
     chatDock = new ChatDock(this);
     addDockWidget(Qt::RightDockWidgetArea, chatDock);
-    chatDock->hide();
 
     // Right area belongs to right docks
     QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+    tabifyDockWidget(infosDock, chatDock);
 
+    scoresDock->show();
+    infosDock->show();
+    chatDock->show();
 }
 /*****************************************************************************/
 /**

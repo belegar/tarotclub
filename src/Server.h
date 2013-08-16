@@ -49,6 +49,7 @@ public:
     QList<Identity> GetPlayers();
     int GetNumberOfConnectedPlayers();
     TarotEngine &GetEngine();
+    int GetTcpPort();
 
     // Setters
     void SetMaximumPlayers(int n);

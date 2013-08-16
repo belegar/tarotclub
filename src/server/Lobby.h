@@ -49,10 +49,8 @@ private:
 public:
     Lobby();
 
-    void SetupTables();
-    void StartGames();
-
     void Initialize();
+
 public slots:
     // Connections to the lobby
     void slotNewConnection();

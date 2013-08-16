@@ -48,19 +48,15 @@ private:
 
 public:
     ChatDock(QWidget *parent);
-
     void clear();
 
-protected:
-    void closeEvent(QCloseEvent *e);
+signals:
+    void sigEmitMessage(const QString &);
 
 public slots:
     void slotReturnPressed();
     void message(const QString &message);
 
-signals:
-    void sgnlEmitMessage(const QString &);
-    void sgnlClose();
 };
 
 #endif // CHATDOCK_H

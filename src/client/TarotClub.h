@@ -62,7 +62,7 @@ public:
     void afficheCartesJoueur(int pos);
     void hidePli();
     void hideChien();
-    void newLocalGame();
+    void NewGame(const QString &address, int port);
     void showVictoryWindow();
 
     // Setters
@@ -90,7 +90,7 @@ private slots:
     void slotShowOptions();
     void slotQuitTarotClub();
 
-    // client events  
+    // client events
     void slotMessage(const QString &message);
     void slotAssignedPlace(Place p);
     void slotPlayersList(QMap<Place, Identity> &pl);

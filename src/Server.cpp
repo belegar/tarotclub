@@ -91,6 +91,11 @@ void Server::SetTcpPort(int port)
     tcpPort = port;
 }
 /*****************************************************************************/
+int Server::GetTcpPort()
+{
+    return tcpPort;
+}
+/*****************************************************************************/
 int Server::GetNumberOfConnectedPlayers()
 {
     int p = 0;
@@ -145,7 +150,7 @@ void Server::slotClientClosed(Place p)
 }
 /*****************************************************************************/
 void Server::slotReadData(Place p)
-{    
+{
     do
     {
         QByteArray data = players[p].GetData();

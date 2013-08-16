@@ -55,8 +55,7 @@ JoinWizardPage2::JoinWizardPage2(QWidget *parent) : QWizardPage(parent)
     setSubTitle(trUtf8("Choose your room and game table."));
 
     connect(ui.saloonList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(slotRoomSelected(QListWidgetItem *)));
-
-    connect(ui.tableList, SIGNAL(itemClicked(QListWidgetItem *)), this, SIGNAL(completeChanged()));
+    connect(ui.tableList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(slotTableSelected(QListWidgetItem *)));
 }
 /*****************************************************************************/
 void JoinWizardPage2::initializePage()
@@ -67,6 +66,16 @@ void JoinWizardPage2::initializePage()
 void JoinWizardPage2::slotRoomSelected(QListWidgetItem *item)
 {
     emit sigRoomSelected(item->text());
+}
+/*****************************************************************************/
+void JoinWizardPage2::slotTableSelected(QListWidgetItem *item)
+{
+    emit sigTableSelected(ui.saloonList->selectedItems().at(0)->text(), item->text());
+}
+/*****************************************************************************/
+void JoinWizardPage2::Ready()
+{
+    emit completeChanged();
 }
 /*****************************************************************************/
 bool JoinWizardPage2::isComplete() const
@@ -88,6 +97,8 @@ JoinWizard::JoinWizard(QWidget *parent) : QWizard(parent)
     page1 = new JoinWizardPage1(this);
     page2 = new JoinWizardPage2(this);
 
+    selectedTable.isValid = false;
+
     setPage(Page_Server, page1);
     setPage(Page_Lobby, page2);
 
@@ -97,6 +108,7 @@ JoinWizard::JoinWizard(QWidget *parent) : QWizard(parent)
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotPageChanged(int)));
     connect(page2, SIGNAL(sigRoomSelected(const QString &)), this, SLOT(slotRoomClicked(const QString &)));
+    connect(page2, SIGNAL(sigTableSelected(const QString &, const QString &)), this, SLOT(slotTableClicked(const QString &, const QString &)));
 
     // socket events
     connect(&socket, SIGNAL(readyRead()), this, SLOT(socketReadData()));
@@ -106,20 +118,37 @@ JoinWizard::JoinWizard(QWidget *parent) : QWizard(parent)
     connect(&socket, SIGNAL(hostFound()), this, SLOT(socketHostFound()));
 }
 /*****************************************************************************/
+JoinWizard::Connection JoinWizard::GetTableConnection()
+{
+    return selectedTable;
+}
+/*****************************************************************************/
 void JoinWizard::slotPageChanged(int id)
 {
     if (id == Page_Lobby)
     {
         socket.close();
-        socket.connectToHost(page1->getIp(), page1->getPort());
+        socket.connectToHost(page1->GetIp(), page1->GetPort());
     }
+    selectedTable.isValid = false;
 }
 /*****************************************************************************/
 void JoinWizard::slotRoomClicked(const QString &room)
 {
+    selectedTable.isValid = false;
     // get list of tables in this room
     QTextStream os(&socket);
     os << "GET:TABLES:" << room;
+    os << "\n";
+    os.flush();
+}
+/*****************************************************************************/
+void JoinWizard::slotTableClicked(const QString &room, const QString &table)
+{
+    selectedTable.isValid = false;
+    // get the tcp/ip port of this table
+    QTextStream os(&socket);
+    os << "GET:PORT:" << room << "," << table;
     os << "\n";
     os.flush();
 }
@@ -142,6 +171,13 @@ void JoinWizard::socketReadData()
         {
             QStringList list = tokens[1].split(',');
             page2->SetTables(list);
+        }
+        else if (tokens[0] == "PORT")
+        {
+            selectedTable.port = tokens[1].toUInt();
+            selectedTable.ip = page1->GetIp();
+            selectedTable.isValid = true;
+            page2->Ready();
         }
     }
 }

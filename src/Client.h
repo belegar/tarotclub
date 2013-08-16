@@ -63,6 +63,7 @@ public:
     Identity &GetMyIdentity();
     Game &GetGameInfo();
     Score &GetScore();
+    Place GetPlace();
 
     // Setters
     void SetMyIdentity(const Identity &ident);
@@ -84,6 +85,7 @@ public:
     void SendSyncCard();
     void SendSyncBid();
     void SendSyncHandle();
+    void SendChatMessage(const QString &message);
 
 public slots:
     void slotSocketReadData();
@@ -125,7 +127,6 @@ private:
 
     // TarotClub Protocol methods
     void SendIdentity();
-    void SendChatMessage(const QString &message);
     bool DoAction(QDataStream &in);
 
 };

@@ -51,12 +51,6 @@ ChatDock::ChatDock(QWidget *parent)
     connect(textLine, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
 }
 /*****************************************************************************/
-void ChatDock::closeEvent(QCloseEvent *e)
-{
-    Q_UNUSED(e);
-    emit sgnlClose();
-}
-/*****************************************************************************/
 void ChatDock::clear()
 {
     chatWindow->clear();
@@ -74,7 +68,7 @@ void ChatDock::slotReturnPressed()
     {
         return;
     }
-    emit sgnlEmitMessage(message);
+    emit sigEmitMessage(message);
     textLine->clear();
 }
 

@@ -30,6 +30,7 @@
 #include "../TarotDeck.h"
 #include "ui_NumberedDealUI.h"
 #include "ui_WinUI.h"
+#include "../Tools.h"
 
 #define SOUTH_CARDS_POS     522
 
@@ -75,6 +76,9 @@ TarotClub::TarotClub() : MainWindow()
 
     //   connect(netGameServerAct, SIGNAL(triggered()), this, SLOT(slotServerWndShow()));
     //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
+
+    // Network chat
+    connect(chatDock, &ChatDock::sigEmitMessage, &client, &Client::SendChatMessage);
 
     // Parameters Menu
     connect(optionsAct, SIGNAL(triggered()), this, SLOT(slotShowOptions()));
@@ -130,7 +134,9 @@ void TarotClub::slotNewTournamentGame()
     table.SetShuffle(sh);
 
     table.CreateGame(Game::TOURNAMENT, Table::USE_BOTS);
-    newLocalGame();
+    NewGame("127.0.0.1", DEFAULT_PORT);
+    // start game
+    table.ConnectBots();
 }
 /*****************************************************************************/
 void TarotClub::slotNewNumberedDeal()
@@ -148,7 +154,9 @@ void TarotClub::slotNewNumberedDeal()
         table.SetShuffle(sh);
 
         table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
-        newLocalGame();
+        NewGame("127.0.0.1", DEFAULT_PORT);
+        // start game
+        table.ConnectBots();
     }
 }
 /*****************************************************************************/
@@ -165,7 +173,9 @@ void TarotClub::slotNewCustomDeal()
         table.SetShuffle(sh);
 
         table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
-        newLocalGame();
+        NewGame("127.0.0.1", DEFAULT_PORT);
+        // start game
+        table.ConnectBots();
     }
 }
 /*****************************************************************************/
@@ -177,10 +187,12 @@ void TarotClub::slotNewQuickGame()
     table.SetShuffle(sh);
 
     table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
-    newLocalGame();
+    NewGame("127.0.0.1", DEFAULT_PORT);
+    // start game
+    table.ConnectBots();
 }
 /*****************************************************************************/
-void TarotClub::newLocalGame()
+void TarotClub::NewGame(const QString &address, int port)
 {
     // GUI initialization
     scoresDock->clear();
@@ -192,10 +204,7 @@ void TarotClub::newLocalGame()
     // Connect us to the server
     client.Initialize();
     client.Close();
-    client.ConnectToHost("127.0.0.1", DEFAULT_PORT);
-
-    // start game
-    table.Start();
+    client.ConnectToHost(address, port);
 }
 /*****************************************************************************/
 void TarotClub::slotJoinNetworkGame()
@@ -204,6 +213,12 @@ void TarotClub::slotJoinNetworkGame()
     if (joinWizard->exec() == QDialog::Accepted)
     {
         // connect to table
+        JoinWizard::Connection cn = joinWizard->GetTableConnection();
+
+        if (cn.isValid)
+        {
+            NewGame(cn.ip, cn.port);
+        }
     }
 }
 /*****************************************************************************/
@@ -442,7 +457,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
 void TarotClub::slotPlayersList(QMap<Place, Identity> &pl)
 {
     players = pl;
-    tapis->setPlayerNames(players, SOUTH);
+    tapis->SetPlayerNames(players, client.GetPlace());
     scoresDock->setPlayers(players);
 }
 /*****************************************************************************/
@@ -455,7 +470,7 @@ void TarotClub::slotReceiveCards()
 /*****************************************************************************/
 void TarotClub::slotSelectPlayer(Place p)
 {
-    tapis->afficheSelection(p);
+    tapis->ShowSelection(p, client.GetPlace());
 }
 /*****************************************************************************/
 void TarotClub::slotRequestBid(Contract highestBid)
@@ -465,7 +480,7 @@ void TarotClub::slotRequestBid(Contract highestBid)
 /*****************************************************************************/
 void TarotClub::slotShowBid(Place p, Contract c)
 {
-    tapis->ShowBid(p, c);
+    tapis->ShowBid(p, c, client.GetPlace());
     client.SendSyncBid();
 }
 /*****************************************************************************/
@@ -638,7 +653,7 @@ void TarotClub::slotStartDeal(Place p, Contract c)
     }
     tapis->setFilter(Canvas::BLOCK_ALL);
     tapis->razTapis(true);
-    tapis->colorisePreneur(p);
+    tapis->ShowTaker(p, client.GetPlace());
 
     // We are ready, let's inform the server about that
     client.SendSyncStart();
@@ -676,7 +691,7 @@ void TarotClub::slotPlayCard()
 void TarotClub::slotShowCard(int id, Place p)
 {
     GfxCard *gc = tapis->getGfxCard(id);
-    tapis->DrawCard(gc, p);
+    tapis->DrawCard(gc, p, client.GetPlace());
     infosDock->AddRound(client.GetGameInfo(), p, TarotDeck::GetCard(id)->GetName());
 
     // We have seen the card, let's inform the server about that
@@ -749,12 +764,12 @@ void TarotClub::slotWaitTrick(Place winner)
 /*****************************************************************************/
 void TarotClub::slotMessage(const QString &message)
 {
-    Q_UNUSED(message);
+    chatDock->message(message);
 }
 /*****************************************************************************/
 void TarotClub::slotAssignedPlace(Place p)
 {
-    Q_UNUSED(p);
+    chatDock->message("The server grant you access to the table in place " + Util::ToString(p));
 }
 /*****************************************************************************/
 void TarotClub::slotEndOfGame()

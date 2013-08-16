@@ -102,6 +102,11 @@ Score &Client::GetScore()
     return score;
 }
 /*****************************************************************************/
+Place Client::GetPlace()
+{
+    return player.GetPlace();
+}
+/*****************************************************************************/
 void Client::SetMyIdentity(const Identity &ident)
 {
     player.SetIdentity(ident);

@@ -46,6 +46,7 @@ public:
     void CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers = 4);
     void Start();
     void Stop();
+    void ConnectBots();
 
     // Getters
     Server &GetServer();
@@ -61,9 +62,6 @@ private:
     ServerConfig serverConfig;
     Mode mode;
     Bot bots[3];
-
-    void ConnectBots();
-
 };
 
 #endif // TABLE_H
