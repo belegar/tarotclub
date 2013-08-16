@@ -4,15 +4,16 @@
 ; Customize the Qt dir installation and version
 [Code]
 #define QT_DIR 	      "C:\Qt\Qt5.1.0\5.1.0\mingw48_32\bin"
-#define VERSION       "2.1.0"
+#define VERSION       "2.2.0-alpha.1"
 #define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_1_0_MinGW_32bit-Release"
+#define SERVER_DIR    "build-TarotClubd-Desktop_Qt_5_1_0_MinGW_32bit-Release"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{66E297AA-D2C9-4060-851F-3B8B9383ACF2}
-AppName=TarotClub {#VERSION}
+AppName=TarotClub-{#VERSION}
 AppVerName=TarotClub-{#VERSION}
 AppPublisher=TarotClub Corp.
 AppPublisherURL=http://www.tarotclub.fr
@@ -38,6 +39,7 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 
 [Files]
 Source: ..\{#RELEASE_DIR}\bin\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\{#SERVER_DIR}\bin\TarotClubd.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\src\data\cards\default\*; DestDir: {app}\default; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\doc\tarotclub.qch; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\doc\tarotclub.qhc; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -79,11 +81,17 @@ Source: {#QT_DIR}\Qt5Xml.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 Name: {group}\TarotClub; Filename: {app}\TarotClub.exe; WorkingDir: {app}
+Name: {group}\TarotClubServer; Filename: {app}\TarotClubd.exe; WorkingDir: {app}
 Name: {group}\{cm:ProgramOnTheWeb,TarotClub}; Filename: http://www.tarotclub.fr
 Name: {group}\{cm:UninstallProgram,TarotClub}; Filename: {uninstallexe}
 Name: {commondesktop}\TarotClub; Filename: {app}\TarotClub.exe; Tasks: desktopicon; WorkingDir: {app}
+Name: {commondesktop}\TarotClubServer; Filename: {app}\TarotClubd.exe; Tasks: desktopicon; WorkingDir: {app}
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClub; Filename: {app}\TarotClub.exe; Tasks: quicklaunchicon; WorkingDir: {app}
+Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClubServer; Filename: {app}\TarotClubd.exe; Tasks: quicklaunchicon; WorkingDir: {app}
 
 [Run]
 Filename: {app}\TarotClub.exe; Description: {cm:LaunchProgram,TarotClub}; Flags: nowait postinstall skipifsilent
+Filename: {app}\TarotClubd.exe; Description: {cm:LaunchProgram,TarotClubServer}; Flags: nowait postinstall skipifsilent
+
+
 
