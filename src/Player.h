@@ -39,7 +39,7 @@ class Player
 private:
     Identity    identity;   // player's identification
     Deck        myDeck;     // players cards
-    Place       place;   // place assignée par le serveur autour de la table
+    Place       place;      // assigned place by the server around the table
 
 public:
     Player();
