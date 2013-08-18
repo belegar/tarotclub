@@ -281,11 +281,16 @@ bool Canvas::loadCards(ClientOptions &opt)
     return true;
 }
 /*****************************************************************************/
-void Canvas::resizeEvent(QResizeEvent *e)
+void Canvas::resizeEvent(QResizeEvent *event)
 {
+    QGraphicsView::resizeEvent(event);
+    fitInView(this->sceneRect(), Qt::KeepAspectRatio);
+
+    /*
     QSize s;
     s = e->size();
     setSceneRect(0, 0, s.width(), s.height());
+    */
 }
 /*****************************************************************************/
 void Canvas::setCardScale(float factor)

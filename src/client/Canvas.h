@@ -110,7 +110,7 @@ signals:
 protected:
     void  mousePressEvent(QMouseEvent *e);
     void  mouseMoveEvent(QMouseEvent *e);
-    void  resizeEvent(QResizeEvent *);
+    void  resizeEvent(QResizeEvent *event);
 
 private:
     Filter filter;
