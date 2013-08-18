@@ -60,7 +60,7 @@ public:
     {
         BOT_EAST = 0,
         BOT_NORTH = 1,
-        BOT_WEST
+        BOT_WEST = 2
     };
 
     ServerConfig();
