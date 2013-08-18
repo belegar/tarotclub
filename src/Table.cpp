@@ -49,14 +49,13 @@ void Table::SaveConfiguration(const ServerOptions &opt)
     serverConfig.Save();
 }
 /*****************************************************************************/
-void Table::CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers)
+void Table::CreateGame(Game::Mode gameMode, int nbPlayers)
 {
     // TODO: add support for 3 and 5 players game
     if (nbPlayers != 4)
     {
         return;
     }
-    mode = tableMode;
     server.SetMaximumPlayers(nbPlayers);
     server.NewServerGame(gameMode);
 }

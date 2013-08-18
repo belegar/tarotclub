@@ -33,17 +33,11 @@ class Table : public QObject
 {
 
 public:
-    enum Mode
-    {
-        USE_BOTS,
-        MULTIPLAYERS
-    };
-
     Table();
 
     // Helpers
     void LoadConfiguration(int tcpPort = DEFAULT_PORT);
-    void CreateGame(Game::Mode gameMode, Table::Mode tableMode, int nbPlayers = 4);
+    void CreateGame(Game::Mode gameMode, int nbPlayers = 4);
     void Start();
     void Stop();
     void ConnectBots();
@@ -60,7 +54,6 @@ public:
 private:
     Server server;
     ServerConfig serverConfig;
-    Mode mode;
     Bot bots[3];
 };
 
