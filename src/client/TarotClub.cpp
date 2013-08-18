@@ -73,8 +73,8 @@ TarotClub::TarotClub() : MainWindow()
     connect(newNumberedDealAct, SIGNAL(triggered()), this, SLOT(slotNewNumberedDeal()));
     connect(newCustomDealAct, SIGNAL(triggered()), this, SLOT(slotNewCustomDeal()));
     connect(netGameClientAct, SIGNAL(triggered()), this, SLOT(slotJoinNetworkGame()));
+    connect(netGameServerAct, SIGNAL(triggered()), this, SLOT(slotCreateNetworkGame()));
 
-    //   connect(netGameServerAct, SIGNAL(triggered()), this, SLOT(slotServerWndShow()));
     //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
 
     // Network chat
@@ -112,7 +112,6 @@ void TarotClub::Initialize()
     }
     ApplyOptions();
 
-    serverLoc = LOCAL;
     table.moveToThread(&thread);
     thread.start();
     deal.Initialize();
@@ -128,12 +127,11 @@ void TarotClub::slotQuitTarotClub()
 /*****************************************************************************/
 void TarotClub::slotNewTournamentGame()
 {
-    serverLoc = LOCAL;
     TarotEngine::Shuffle sh;
     sh.type = TarotEngine::RANDOM_DEAL;
     table.SetShuffle(sh);
 
-    table.CreateGame(Game::TOURNAMENT, Table::USE_BOTS);
+    table.CreateGame(Game::TOURNAMENT);
     NewGame("127.0.0.1", DEFAULT_PORT);
     // start game
     table.ConnectBots();
@@ -147,13 +145,12 @@ void TarotClub::slotNewNumberedDeal()
 
     if (widget->exec() == QDialog::Accepted)
     {
-        serverLoc = LOCAL;
         TarotEngine::Shuffle sh;
         sh.type = TarotEngine::NUMBERED_DEAL;
         sh.seed = ui.dealNumber->value();
         table.SetShuffle(sh);
 
-        table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
+        table.CreateGame(Game::ONE_DEAL);
         NewGame("127.0.0.1", DEFAULT_PORT);
         // start game
         table.ConnectBots();
@@ -166,13 +163,12 @@ void TarotClub::slotNewCustomDeal()
 
     if (fileName.size() != 0)
     {
-        serverLoc = LOCAL;
         TarotEngine::Shuffle sh;
         sh.type = TarotEngine::CUSTOM_DEAL;
         sh.file = fileName;
         table.SetShuffle(sh);
 
-        table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
+        table.CreateGame(Game::ONE_DEAL);
         NewGame("127.0.0.1", DEFAULT_PORT);
         // start game
         table.ConnectBots();
@@ -181,12 +177,11 @@ void TarotClub::slotNewCustomDeal()
 /*****************************************************************************/
 void TarotClub::slotNewQuickGame()
 {
-    serverLoc = LOCAL;
     TarotEngine::Shuffle sh;
     sh.type = TarotEngine::RANDOM_DEAL;
     table.SetShuffle(sh);
 
-    table.CreateGame(Game::ONE_DEAL, Table::USE_BOTS);
+    table.CreateGame(Game::ONE_DEAL);
     NewGame("127.0.0.1", DEFAULT_PORT);
     // start game
     table.ConnectBots();
@@ -220,6 +215,16 @@ void TarotClub::slotJoinNetworkGame()
             NewGame(cn.ip, cn.port);
         }
     }
+}
+/*****************************************************************************/
+void TarotClub::slotCreateNetworkGame()
+{
+    TarotEngine::Shuffle sh;
+    sh.type = TarotEngine::RANDOM_DEAL;
+    table.SetShuffle(sh);
+
+    table.CreateGame(Game::ONE_DEAL);
+    NewGame("127.0.0.1", DEFAULT_PORT);
 }
 /*****************************************************************************/
 void TarotClub::ApplyOptions()

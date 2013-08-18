@@ -49,11 +49,6 @@ class TarotClub : public MainWindow
     Q_OBJECT
 
 public:
-    enum ServerLoc {
-        REMOTE,
-        LOCAL
-    };
-
     TarotClub();
 
     // Helpers
@@ -76,7 +71,6 @@ private:
     bool        firstTurn;
     QMap<Place, Identity> players;
     Deal        deal;
-    ServerLoc   serverLoc;
 
     Card *getCardFromPix(GfxCard *gc);
 
@@ -87,6 +81,7 @@ private slots:
     void slotNewCustomDeal();
     void slotNewQuickGame();
     void slotJoinNetworkGame();
+    void slotCreateNetworkGame();
     void slotShowOptions();
     void slotQuitTarotClub();
 
