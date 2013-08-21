@@ -106,7 +106,7 @@ void TarotClub::Initialize()
     clientConfig.Load();
 
     TarotDeck::Initialize();
-    if (tapis->loadCards(clientConfig.GetOptions()) == false)
+    if (tapis->LoadCards(clientConfig.GetOptions()) == false)
     {
         qFatal("Cannot load SVG images, exiting...");
     }
@@ -337,33 +337,33 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
         if ((c->GetSuit() == Card::TRUMPS) ||
            ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
-            tapis->setCursorType(Canvas::FORBIDDEN);
+            tapis->SetCursorType(Canvas::FORBIDDEN);
         }
         else
         {
-            tapis->setCursorType(Canvas::ARROW);
+            tapis->SetCursorType(Canvas::ARROW);
         }
     }
     else if (client.GetGameInfo().sequence == Game::BUILD_HANDLE)
     {
         if (c->GetSuit() == Card::TRUMPS)
         {
-            tapis->setCursorType(Canvas::ARROW);
+            tapis->SetCursorType(Canvas::ARROW);
         }
         else
         {
-            tapis->setCursorType(Canvas::FORBIDDEN);
+            tapis->SetCursorType(Canvas::FORBIDDEN);
         }
     }
     else if (client.GetGameInfo().sequence == Game::PLAY_TRICK)
     {
         if (client.IsValid(c) == true)
         {
-            tapis->setCursorType(Canvas::ARROW);
+            tapis->SetCursorType(Canvas::ARROW);
         }
         else
         {
-            tapis->setCursorType(Canvas::FORBIDDEN);
+            tapis->SetCursorType(Canvas::FORBIDDEN);
         }
     }
 }
