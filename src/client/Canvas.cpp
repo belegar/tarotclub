@@ -178,7 +178,7 @@ void Canvas::setBoutonPoigneeVisible(bool v)
     }
 }
 /*****************************************************************************/
-bool Canvas::loadCards(ClientOptions &opt)
+bool Canvas::LoadCards(ClientOptions &opt)
 {
     int i, j;
     QString varImg;
@@ -188,6 +188,7 @@ bool Canvas::loadCards(ClientOptions &opt)
 #ifdef QT_DEBUG
     // Debug, the binary is inside the build directory
     path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
+    Q_UNUSED(opt);
 #else
     // Release
     path = qApp->applicationDirPath() +  "/" + opt.deckFilePath + "/";
@@ -281,11 +282,10 @@ bool Canvas::loadCards(ClientOptions &opt)
     return true;
 }
 /*****************************************************************************/
-void Canvas::resizeEvent(QResizeEvent *e)
+void Canvas::resizeEvent(QResizeEvent *event)
 {
-    QSize s;
-    s = e->size();
-    setSceneRect(0, 0, s.width(), s.height());
+    QGraphicsView::resizeEvent(event);
+    fitInView(this->sceneRect(), Qt::KeepAspectRatio);
 }
 /*****************************************************************************/
 void Canvas::setCardScale(float factor)
@@ -308,7 +308,7 @@ void Canvas::mousePressEvent(QMouseEvent *e)
     }
     if (filter == GAME_ONLY)
     {
-        list = scene.items(e->pos());
+        list = scene.items(mapToScene(e->pos()));
         if (!list.isEmpty())
         {
             if (list.first()->type() == GfxCard::Type)
@@ -332,11 +332,10 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    list = scene.items(e->pos());
-
+    list = scene.items( mapToScene(e->pos()) );
     if (!list.isEmpty())
     {
-        // Si c'EAST une carte, retourne l'obet, sinon 0
+        // If it is a card, return the object, otherwise NULL
         if (list.first()->type() == GfxCard::Type)
         {
             GfxCard *c = (GfxCard *)list.first();
@@ -345,7 +344,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
     }
     else
     {
-        setCursorType(ARROW);
+        SetCursorType(ARROW);
     }
 }
 /*****************************************************************************/
@@ -353,7 +352,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
  * n==0 : norma icon with an arrow
  * n==1 : forbidden icon
  */
-void Canvas::setCursorType(CursorType t)
+void Canvas::SetCursorType(CursorType t)
 {
     if (t == ARROW)
     {

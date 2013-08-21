@@ -62,7 +62,7 @@ public:
     Canvas(QWidget *parent);
 
     // Helpers
-    bool loadCards(ClientOptions &opt);
+    bool LoadCards(ClientOptions &opt);
     void ShowTaker(Place taker, Place myPlace);
     void SetPlayerNames(QMap<Place, Identity> &players, Place myPlace);
     void ShowSelection(Place p, Place myPlace);
@@ -81,7 +81,7 @@ public:
     Card *getObjectCard(GfxCard *gc);
 
     // Setters
-    void setCursorType(CursorType t);
+    void SetCursorType(CursorType t);
     void setText(Place p, const QString &txt);
     void setAvatar(Place p, const QString &file);
     void setFilter(Filter);
@@ -110,7 +110,7 @@ signals:
 protected:
     void  mousePressEvent(QMouseEvent *e);
     void  mouseMoveEvent(QMouseEvent *e);
-    void  resizeEvent(QResizeEvent *);
+    void  resizeEvent(QResizeEvent *event);
 
 private:
     Filter filter;
