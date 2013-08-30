@@ -35,5 +35,6 @@
         <file>images/avatars/nibbler.png</file>
         <file>images/avatars/scruffy.png</file>
         <file>images/avatars/zoidberg.png</file>
+        <file>images/compass.svg</file>
     </qresource>
 </RCC>

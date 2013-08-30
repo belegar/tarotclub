@@ -32,8 +32,6 @@
 #include "ui_WinUI.h"
 #include "../Tools.h"
 
-#define SOUTH_CARDS_POS     522
-
 /*****************************************************************************/
 TarotClub::TarotClub() : MainWindow()
 {
@@ -230,7 +228,7 @@ void TarotClub::ApplyOptions()
     table.LoadConfiguration();
 
     tapis->showAvatars(options.showAvatars);
-    tapis->setBackground(options.backgroundColor);
+    tapis->SetBackground(options.backgroundColor);
 }
 /*****************************************************************************/
 void TarotClub::slotShowOptions()
@@ -295,7 +293,7 @@ void TarotClub::hidePli()
     for (i = 0; i < trick.size(); i++)
     {
         c = trick.at(i);
-        gc = tapis->getGfxCard(c->GetId());
+        gc = tapis->GetGfxCard(c->GetId());
         gc->hide();
     }
 }
@@ -494,7 +492,7 @@ void TarotClub::slotAccepteChien()
     {
         c = client.GetDogDeck().at(i);
         client.GetMyDeck().removeAll(c);
-        gc = tapis->getGfxCard(c->GetId());
+        gc = tapis->GetGfxCard(c->GetId());
         gc->hide();
     }
     tapis->setAccepterChienVisible(false);
@@ -533,34 +531,9 @@ void TarotClub::slotSetEnchere(Contract cont)
  * @param pos = 0 for 18-cards in the hand, otherwise 1 (with cards from the chien)
  */
 void TarotClub::afficheCartesJoueur(int pos)
-{
-    qreal i, x, y, pas;
-    Card *c;
-    GfxCard *cgfx;
-
+{  
     client.GetMyDeck().Sort();
-
-    if (pos == 1)
-    {
-        x = 20.0;
-        pas = 35.0;
-    }
-    else
-    {
-        x = 50.0;
-        pas = 40.0;
-    }
-    y = SOUTH_CARDS_POS;
-
-    for (i = 0; i < client.GetMyDeck().size(); i++)
-    {
-        c = client.GetMyDeck().at(i);
-        cgfx = tapis->getGfxCard(c->GetId());
-        cgfx->setPos(x, y);
-        cgfx->setZValue(i);
-        cgfx->show();
-        x = x + pas;
-    }
+    tapis->DrawSouthCards(client.GetMyDeck());
 }
 /*****************************************************************************/
 void TarotClub::slotShowDog()
@@ -576,7 +549,7 @@ void TarotClub::slotShowDog()
     for (i = 0; i < n; i++)
     {
         c = client.GetDogDeck().at(i);
-        cgfx = tapis->getGfxCard(c->GetId());
+        cgfx = tapis->GetGfxCard(c->GetId());
         cgfx->setPos(x, y);
         cgfx->setZValue(i);
         cgfx->show();
@@ -594,7 +567,7 @@ void TarotClub::hideChien()
     for (i = 0; i < client.GetDogDeck().size(); i++)
     {
         c = client.GetDogDeck().at(i);
-        cgfx = tapis->getGfxCard(c->GetId());
+        cgfx = tapis->GetGfxCard(c->GetId());
         cgfx->hide();
     }
 }
@@ -690,7 +663,7 @@ void TarotClub::slotPlayCard()
 /*****************************************************************************/
 void TarotClub::slotShowCard(int id, Place p)
 {
-    GfxCard *gc = tapis->getGfxCard(id);
+    GfxCard *gc = tapis->GetGfxCard(id);
     tapis->DrawCard(gc, p, client.GetPlace());
     infosDock->AddRound(client.GetGameInfo(), p, TarotDeck::GetCard(id)->GetName());
 

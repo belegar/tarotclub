@@ -35,7 +35,7 @@
 
 // Game includes
 #include "../defines.h"
-#include "../Card.h"
+#include "../Deck.h"
 #include "TextBox.h"
 #include "ClientConfig.h"
 #include "GfxCard.h"
@@ -67,6 +67,7 @@ public:
     void SetPlayerNames(QMap<Place, Identity> &players, Place myPlace);
     void ShowSelection(Place p, Place myPlace);
     void DrawCard(GfxCard *c, Place p, Place myPlace);
+    void DrawSouthCards(const Deck &cards);
     void ShowBidsChoice(Contract contrat);
     void ShowBid(Place p, Contract cont, Place myPlace);
     void cacheEncheres();
@@ -77,7 +78,7 @@ public:
     Place SwapPlace(Place my_place, Place absolute);
 
     // Getters
-    GfxCard *getGfxCard(int i);
+    GfxCard *GetGfxCard(int i);
     Card *getObjectCard(GfxCard *gc);
 
     // Setters
@@ -85,7 +86,7 @@ public:
     void setText(Place p, const QString &txt);
     void setAvatar(Place p, const QString &file);
     void setFilter(Filter);
-    void setBackground(const QString &fichier);
+    void SetBackground(const QString &code);
     void setAccepterChienVisible(bool v);
     void setBoutonPoigneeVisible(bool v);
     void setCardScale(float factor);
