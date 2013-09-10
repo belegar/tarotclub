@@ -114,7 +114,8 @@ FORMS = AboutUI.ui \
     DealEditorUI.ui \
     WinUI.ui \
     JoinWizardPage1.ui \
-    JoinWizardPage2.ui
+    JoinWizardPage2.ui \
+    QuickJoin.ui
 
 SOURCES = AboutWindow.cpp \
     MainWindow.cpp \

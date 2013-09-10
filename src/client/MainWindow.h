@@ -45,7 +45,7 @@
 #include "ChatDock.h"
 #include "DebugDock.h"
 #include "JoinWizard.h"
-
+#include "ui_QuickJoin.h"
 
 /*****************************************************************************/
 class MainWindow : public QMainWindow
@@ -68,8 +68,9 @@ protected:
     //----network
     QAction *netGameServerAct;
     QAction *netGameClientAct;
+    QAction *netQuickJoinAct;
     //----misc
-    QAction *pliPrecAct;
+    QAction *previousTrickAct;
 
     // Menu Paramètres
     QAction *dealEditorAct;
@@ -84,6 +85,8 @@ protected:
     EditorWindow *editorWindow;
     JoinWizard *joinWizard;
     HelpWindow *helpWindow;
+    QDialog *quickJoinWindow;
+    Ui::quickJoin uiQuickJoin;
 
     // Dock windows
     ScoresDock *scoresDock;

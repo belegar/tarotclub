@@ -74,6 +74,7 @@ TarotClub::TarotClub() : MainWindow()
     connect(newCustomDealAct, SIGNAL(triggered()), this, SLOT(slotNewCustomDeal()));
     connect(netGameClientAct, SIGNAL(triggered()), this, SLOT(slotJoinNetworkGame()));
     connect(netGameServerAct, SIGNAL(triggered()), this, SLOT(slotCreateNetworkGame()));
+    connect(netQuickJoinAct, SIGNAL(triggered()), this, SLOT(slotQuickJoinNetworkGame()));
 
     //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
 
@@ -214,6 +215,18 @@ void TarotClub::slotJoinNetworkGame()
         {
             NewGame(cn.ip, cn.port);
         }
+    }
+}
+/*****************************************************************************/
+void TarotClub::slotQuickJoinNetworkGame()
+{
+    table.Stop();
+    if (quickJoinWindow->exec() == QDialog::Accepted)
+    {
+        QString ip = uiQuickJoin.ipAddress->text();
+        quint16 port = uiQuickJoin.tcpPort->value();
+
+        NewGame(ip, port);
     }
 }
 /*****************************************************************************/

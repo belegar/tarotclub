@@ -34,7 +34,7 @@
 #include <ui_AvatarsUI.h>
 #include "../defines.h"
 #include "ClientConfig.h"
-#include "ServerConfig.h"
+#include "../ServerConfig.h"
 
 /*****************************************************************************/
 class OptionsWindow : public QDialog

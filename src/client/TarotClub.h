@@ -34,7 +34,7 @@
 #include "../Table.h"
 #include "MainWindow.h"
 #include "ClientConfig.h"
-#include "ServerConfig.h"
+#include "../ServerConfig.h"
 #include <QThread>
 
 /*****************************************************************************/
@@ -72,8 +72,6 @@ private:
     QMap<Place, Identity> players;
     Deal        deal;
 
-    Card *getCardFromPix(GfxCard *gc);
-
 private slots:
     // Menus
     void slotNewTournamentGame();
@@ -81,6 +79,7 @@ private slots:
     void slotNewCustomDeal();
     void slotNewQuickGame();
     void slotJoinNetworkGame();
+    void slotQuickJoinNetworkGame();
     void slotCreateNetworkGame();
     void slotShowOptions();
     void slotQuitTarotClub();

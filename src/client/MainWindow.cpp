@@ -72,6 +72,11 @@ void MainWindow::SetupDialogs()
     editorWindow = new EditorWindow(this);
     editorWindow->setAttribute(Qt::WA_ShowModal, true);
     editorWindow->hide();
+
+    // Quick join a network game
+    quickJoinWindow = new QDialog(this);
+    uiQuickJoin.setupUi(quickJoinWindow);
+    quickJoinWindow->hide();
 }
 /*****************************************************************************/
 /**
@@ -139,17 +144,20 @@ void MainWindow::SetupMenus()
     netGameServerAct = new QAction(tr("Create a new network game (serve&r)"), this);
     netGameServerAct->setShortcut(tr("Ctrl+R"));
     netGameServerAct->setStatusTip(tr("Create a network game and invite friends to join the game"));
-    netGameServerAct->setEnabled(false);
 
-    netGameClientAct = new QAction(tr("&Join a network game"), this);
+    netQuickJoinAct = new QAction(tr("&Quick join a network game"), this);
+    netQuickJoinAct->setShortcut(tr("Ctrl+U"));
+    netQuickJoinAct->setStatusTip(tr("Join a game server created using TarotClub"));
+
+    netGameClientAct = new QAction(tr("&Join a dedicated game server"), this);
     netGameClientAct->setShortcut(tr("Ctrl+J"));
-    netGameClientAct->setStatusTip(tr("Join a game server over Internet or over a local area network"));
+    netGameClientAct->setStatusTip(tr("Join a game server created using TarotClubServer"));
 
     //----- Misc
-    pliPrecAct = new QAction(tr("&Previous trick"), this);
-    pliPrecAct->setShortcut(tr("Ctrl+P"));
-    pliPrecAct->setStatusTip(tr("Show the previous trick played"));
-    pliPrecAct->setEnabled(false);
+    previousTrickAct = new QAction(tr("&Previous trick"), this);
+    previousTrickAct->setShortcut(tr("Ctrl+P"));
+    previousTrickAct->setStatusTip(tr("Show the previous trick played"));
+    previousTrickAct->setEnabled(false);
 
     QAction *exitAct = new QAction(tr("&Quit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
@@ -164,9 +172,10 @@ void MainWindow::SetupMenus()
     gameMenu->addAction(newCustomDealAct);
     gameMenu->addSeparator();
     gameMenu->addAction(netGameServerAct);
+    gameMenu->addAction(netQuickJoinAct);
     gameMenu->addAction(netGameClientAct);
     gameMenu->addSeparator();
-    gameMenu->addAction(pliPrecAct);
+    gameMenu->addAction(previousTrickAct);
     gameMenu->addSeparator();
     gameMenu->addAction(exitAct);
 
