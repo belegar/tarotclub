@@ -30,9 +30,12 @@
 #include "../Tools.h"
 #include "../TarotDeck.h"
 
-#define NORTH_BOX_POS_X   350
-#define NORTH_BOX_POS_Y   10
+static const QRectF border(10, 10, 925, 700);
 
+#define BORDER_WIDTH        3
+#define NORTH_BOX_POS_X     350
+#define NORTH_BOX_POS_Y     20
+#define SOUTH_CARDS_POS     522
 
 static const QPointF coordPlayerBox[5] =
 {
@@ -52,12 +55,46 @@ static const QPointF coordTextBox[5] =
     QPointF(0, 0)                                       // NORTH-WEST
 };
 
+class BorderLine : public QGraphicsItem
+{
+public:
+    QRectF boundingRect() const;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+};
+
+QRectF BorderLine::boundingRect() const
+{
+    // Leave a transparent border between the white border and the window, it's nicer!
+    return QRectF(border.x()-10, border.y()-10, border.width()+20, border.height()+20);
+}
+
+void BorderLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setPen(QPen(Qt::white, BORDER_WIDTH, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+    painter->setBrush(Qt::NoBrush);
+
+    QPainterPath path;
+    path.addRect(border);
+
+    painter->drawPath(path);
+}
+
 /*****************************************************************************/
 Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
     , cardsPics(0)
 {
     setScene(&scene);
+
+    BorderLine *line = new BorderLine();
+    scene.addItem(line);
+
+    setRenderHint(QPainter::Antialiasing);
+    setCacheMode(QGraphicsView::CacheBackground);
 
     // ==============================================================
     // BIDS BUTTONS
@@ -81,7 +118,7 @@ Canvas::Canvas(QWidget *parent)
     vbox->addWidget(chelem);
     groupBoutons->setLayout(vbox);
 
-    groupBoutons->move(10, 300);
+    groupBoutons->move(20, 300);
 
     //==============================================================
 
@@ -97,9 +134,9 @@ Canvas::Canvas(QWidget *parent)
     boutonPresenterPoignee->setMinimumSize(boutonPresenterPoignee->sizeHint());
     boutonPresenterPoignee->hide();
 
-    //==============================================================
+    // ==============================================================
     //       CANVAS ELEMENTS
-    //==============================================================
+    // ==============================================================
 
     // 4 players by default
     for (int i = 0; i < 4; i++)
@@ -126,16 +163,16 @@ Canvas::Canvas(QWidget *parent)
     filter = BLOCK_ALL;
 }
 /*****************************************************************************/
-void Canvas::setBackground(const QString &fichier)
+void Canvas::SetBackground(const QString &code)
 {
-    QColor color(fichier);
+    QColor color(code);
     if (color.isValid())
     {
         scene.setBackgroundBrush(color);
     }
 }
 /*****************************************************************************/
-GfxCard *Canvas::getGfxCard(int i)
+GfxCard *Canvas::GetGfxCard(int i)
 {
     return cardsPics.at(i);
 }
@@ -178,7 +215,7 @@ void Canvas::setBoutonPoigneeVisible(bool v)
     }
 }
 /*****************************************************************************/
-bool Canvas::loadCards(ClientOptions &opt)
+bool Canvas::LoadCards(ClientOptions &opt)
 {
     int i, j;
     QString varImg;
@@ -188,6 +225,7 @@ bool Canvas::loadCards(ClientOptions &opt)
 #ifdef QT_DEBUG
     // Debug, the binary is inside the build directory
     path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
+    Q_UNUSED(opt);
 #else
     // Release
     path = qApp->applicationDirPath() +  "/" + opt.deckFilePath + "/";
@@ -283,12 +321,19 @@ bool Canvas::loadCards(ClientOptions &opt)
 /*****************************************************************************/
 void Canvas::resizeEvent(QResizeEvent *event)
 {
+    // ------------------------------------------------------------
+    // Use the following code to fit the view to the window size
+    // ------------------------------------------------------------
     QGraphicsView::resizeEvent(event);
     fitInView(this->sceneRect(), Qt::KeepAspectRatio);
 
-    /*
+    // ------------------------------------------------------------
+    // Use the following code for absolute graphic items creation
+    // ------------------------------------------------------------
+
+/*
     QSize s;
-    s = e->size();
+    s = event->size();
     setSceneRect(0, 0, s.width(), s.height());
     */
 }
@@ -313,7 +358,7 @@ void Canvas::mousePressEvent(QMouseEvent *e)
     }
     if (filter == GAME_ONLY)
     {
-        list = scene.items(e->pos());
+        list = scene.items(mapToScene(e->pos()));
         if (!list.isEmpty())
         {
             if (list.first()->type() == GfxCard::Type)
@@ -323,6 +368,13 @@ void Canvas::mousePressEvent(QMouseEvent *e)
             }
         }
     }
+
+#ifdef QT_DEBUG
+    if (e->button() == Qt::RightButton)
+    {
+        qDebug() << "x=" << e->pos().x() << ", y=" << e->pos().y();
+    }
+#endif
 }
 /*****************************************************************************/
 /*
@@ -337,11 +389,10 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    list = scene.items(e->pos());
-
+    list = scene.items( mapToScene(e->pos()) );
     if (!list.isEmpty())
     {
-        // Si c'EAST une carte, retourne l'obet, sinon 0
+        // If it is a card, return the object, otherwise NULL
         if (list.first()->type() == GfxCard::Type)
         {
             GfxCard *c = (GfxCard *)list.first();
@@ -350,7 +401,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
     }
     else
     {
-        setCursorType(ARROW);
+        SetCursorType(ARROW);
     }
 }
 /*****************************************************************************/
@@ -358,7 +409,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
  * n==0 : norma icon with an arrow
  * n==1 : forbidden icon
  */
-void Canvas::setCursorType(CursorType t)
+void Canvas::SetCursorType(CursorType t)
 {
     if (t == ARROW)
     {
@@ -442,6 +493,29 @@ void Canvas::DrawCard(GfxCard *c, Place p, Place myPlace)
     else
     {
         qFatal("Card is null, cannot display it!");
+    }
+}
+/*****************************************************************************/
+void Canvas::DrawSouthCards(const Deck &cards)
+{
+    qreal x = 20.0;
+    qreal y = SOUTH_CARDS_POS;
+    GfxCard *cgfx;
+
+    // Calculate the step needed between each card.
+    // It depends on the number of the cards to be displayed within the border line
+    qreal width = border.width() - 20; // leave a 10px space on left and right
+    qreal number = cards.size();
+    qreal card_width = cardsPics.at(0)->boundingRect().width();
+    qreal step = (width- card_width - 20 - 2*BORDER_WIDTH)/(number-1);
+
+    for (int i = 0; i < cards.size(); i++)
+    {
+        cgfx = GetGfxCard(cards.at(i)->GetId());
+        cgfx->setPos(x, y);
+        cgfx->setZValue(i);
+        cgfx->show();
+        x = x + step;
     }
 }
 /*****************************************************************************/
