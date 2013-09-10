@@ -50,7 +50,7 @@ void Lobby::Initialize()
             saloons[j].tables[i].table.LoadConfiguration(tcpPort);
             saloons[j].tables[i].table.moveToThread(&saloons[j].tables[i].thread);
             saloons[j].tables[i].table.SetShuffle(sh);
-            saloons[j].tables[i].table.CreateGame(Game::ONE_DEAL, Table::MULTIPLAYERS);
+            saloons[j].tables[i].table.CreateGame(Game::ONE_DEAL);
 
             // Start all threads
             saloons[j].tables[i].thread.start();
