@@ -1,30 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/anglais.png</file>
         <file>images/fileopen.png</file>
-        <file>images/francais.png</file>
-        <file>images/network.png</file>
         <file>images/next.png</file>
         <file>images/previous.png</file>
         <file>images/splash.png</file>
-        <file>images/avatars/alien.png</file>
-        <file>images/avatars/batterie.png</file>
-        <file>images/avatars/bonhomme.png</file>
-        <file>images/avatars/canard.png</file>
-        <file>images/avatars/demon.png</file>
-        <file>images/avatars/dragon.png</file>
-        <file>images/avatars/fourmi.png</file>
-        <file>images/avatars/inconnu.png</file>
-        <file>images/avatars/oiseau.png</file>
-        <file>images/avatars/papillon.png</file>
-        <file>images/avatars/pingouin.png</file>
-        <file>images/avatars/poisson.png</file>
-        <file>images/avatars/pomme.png</file>
-        <file>images/avatars/robot.png</file>
-        <file>images/avatars/tigre.png</file>
         <file>images/avatars/vide.png</file>
         <file>images/podium.svg</file>
-        <file>images/version.png</file>
         <file>images/wizard.png</file>
         <file>images/avatars/bender.png</file>
         <file>images/avatars/amy.png</file>
@@ -36,5 +17,6 @@
         <file>images/avatars/scruffy.png</file>
         <file>images/avatars/zoidberg.png</file>
         <file>images/compass.svg</file>
+        <file>images/tetine.jpg</file>
     </qresource>
 </RCC>
