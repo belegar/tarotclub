@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - TextBox.h
  *=============================================================================
- * Two text box classes to show names and bids on canvas
+ * Generic graphical item that includes a rounded rectangle with a text inside
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -33,116 +33,28 @@
 #include <QGraphicsScene>
 #include <QPainter>
 
-/*****************************************************************************/
-/**
- * @brief Card shadow item to show the positions of cards on the play board
- */
-class CardShadow : public QGraphicsRectItem
-{
-
-public:
-    CardShadow(QRectF &pos, QGraphicsScene *canvas);
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-
-};
+#define TEXT_BOX_WIDTH  115
+#define TEXT_BOX_HEIGHT 30
 
 
 /*****************************************************************************/
-/**
- * Rectangle box + text inside, for bids and player nicknames
- */
 class TextBox : public QGraphicsRectItem
 {
 
-private:
-    QString  text;
-    int penWidth;
-    QColor penColor;
-    QColor fillColor;
-
 public:
-    TextBox(const QPointF &pos, QGraphicsScene *canvas);
+    TextBox(const QPointF &pos);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-    void move(int x, int y)
-    {
-        setPos(x, y);
-    }
     void setText(const QString &s)
     {
         text = s;
         text.truncate(10);
     }
-    void setPenWidth(int w)
-    {
-        penWidth = w;
-    }
-    void setPenColor(Qt::GlobalColor c)
-    {
-        penColor = c;
-    }
-    void setFillColor(QColor &c)
-    {
-        fillColor = c;
-    }
-};
 
-/*****************************************************************************/
-/**
- * Advanced graphics box item with icon
- */
-class PlayerBox : public TextBox
-{
 private:
-
-    class AvatarItem: public QGraphicsPixmapItem
-    {
-    public:
-        AvatarItem(const QPixmap &pixmap, QGraphicsItem *parentItem=0, int size=0)
-            : QGraphicsPixmapItem(pixmap,parentItem)
-        {
-            setCacheMode(NoCache);
-            setSize(size);
-        }
-        ~AvatarItem() {}
-
-    public:
-        QRectF boundingRect() const
-        {
-            // Return defined 'size'
-            return QRectF(QPointF(0,0),QSizeF(mSize,mSize));
-        }
-        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0)
-        {
-            // Scale QGraphicsPixmapItem to wanted 'size' and keep the aspect ratio using boundingRect()
-            painter->drawPixmap(boundingRect().toRect(), pixmap());
-            Q_UNUSED(option);
-            Q_UNUSED(widget);
-
-            // NOTE: Does not use base class paint for painting now, that does not scale QPixmap
-            //QGraphicsPixmapItem::paint(painter, option, widget);
-        }
-        void setSize(int size)
-        {
-            mSize = size;
-        }
-
-    private:
-        int mSize;
-    };
-
-
-    AvatarItem      *avatar;
-
-public:
-    PlayerBox(const QPointF &pos, QGraphicsScene *canvas);
-
-    void selectPlayer(bool selected);
-    void highlightPlayer(bool highlighted);
-    void setAvatar(const QString &avatar);
-    void enableAvatar(bool enable);
-
+    QString text;
 };
+
 
 #endif // _TEXT_BOX_H
 

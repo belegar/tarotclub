@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - GfxCard.h
+ * TarotClub - BidsForm.h
  *=============================================================================
- * Graphical tarot card
+ * Graphical menu to choose the bids
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,48 +23,32 @@
  *=============================================================================
  */
 
-#ifndef GFXCARD_H
-#define GFXCARD_H
+#ifndef BIDSFORM_H
+#define BIDSFORM_H
 
-#include <QtSvg>
+#include <QGraphicsRectItem>
 
 /*****************************************************************************/
-/**
- * @brief Card shadow item to show the positions of cards on the play board
- */
-class CardShadow : public QGraphicsRectItem
+class BidsForm : public QGraphicsRectItem
 {
-
 public:
-    CardShadow(QRectF &pos, QGraphicsScene *canvas);
+    BidsForm();
+
+    enum { Type = UserType + 2 };
+    int type() const;
+
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-};
-
-/*****************************************************************************/
-class GfxCard : public QGraphicsSvgItem
-{
-public:
-    enum Status
-    {
-        NORMAL,
-        SELECTED
-    };
-
-    GfxCard(const QString &fileName, QGraphicsItem *parent = 0);
-
-    enum { Type = UserType + 1 };
-    int type() const;
-    Status GetStatus();
-    void SetStatus(Status s);
-    void ToggleStatus();
-
 private:
-    Status status;
+    QColor color;
+    QColor buttonColor;
+    QRectF rect;
+
+    QGraphicsRectItem *passButton;
 };
 
-#endif // GFXCARD_H
+#endif // BIDSFORM_H
 
 //=============================================================================
-// End of file GfxCard.h
+// End of file BidsForm.h
 //=============================================================================

@@ -43,9 +43,6 @@ TarotClub::TarotClub() : MainWindow()
     connect(tapis, &Canvas::sigAccepteChien, this, &TarotClub::slotAccepteChien);
     connect(tapis, &Canvas::sigPresenterPoignee, this, &TarotClub::slotPresenterPoignee);
 
-    // FIXME show server log
-//    connect(&table.GetServer(), &Server::sigServerMessage, serverUI.textBrowser, &QTextBrowser::append);
-
     // Client events connection
     connect(&client, &Client::sigPlayersList, this, &TarotClub::slotPlayersList);
     connect(&client, &Client::sigMessage, this, &TarotClub::slotMessage);
@@ -492,6 +489,7 @@ void TarotClub::slotSelectPlayer(Place p)
 void TarotClub::slotRequestBid(Contract highestBid)
 {
     tapis->ShowBidsChoice(highestBid);
+    tapis->setFilter(Canvas::MENU);
 }
 /*****************************************************************************/
 void TarotClub::slotShowBid(Place p, Contract c)
@@ -549,7 +547,7 @@ void TarotClub::slotSetEnchere(Contract cont)
  * @param pos = 0 for 18-cards in the hand, otherwise 1 (with cards from the chien)
  */
 void TarotClub::afficheCartesJoueur(int pos)
-{  
+{
     client.GetMyDeck().Sort();
     tapis->DrawSouthCards(client.GetMyDeck());
 }

@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - TextBox.cpp
  *=============================================================================
- * Two text box classes to show names and bids on canvas
+ * Generic graphical item that includes a rounded rectangle with a text inside
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -24,45 +24,14 @@
  */
 
 #include "TextBox.h"
-#include "../defines.h"
 #include <QFile>
 #include <QtGui>
 
 /*****************************************************************************/
-CardShadow::CardShadow(QRectF &pos, QGraphicsScene *canvas)
-    : QGraphicsRectItem(pos)
-{
-    canvas->addItem(this);
-}
-/*****************************************************************************/
-void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    // Paint with specified color and pen
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->setBrush(QBrush(QColor(149, 149, 149, 127)));
-    painter->setPen(Qt::NoPen);
-    painter->drawRoundRect(rect(), 25, 25);
-
-}
-
-/*****************************************************************************/
-/*            *            *           *            *           *            */
-/*****************************************************************************/
-
-
-/*****************************************************************************/
-TextBox::TextBox(const QPointF &pos, QGraphicsScene *canvas)
+TextBox::TextBox(const QPointF &pos)
     : QGraphicsRectItem(pos.x(), pos.y(), TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT)
 {
-    penWidth = 1;
-    penColor = Qt::black;
-    fillColor = Qt::red;
     hide();
-    canvas->addItem(this);
-
 }
 /*****************************************************************************/
 void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -72,11 +41,14 @@ void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 
     // Paint with specified color and pen
     painter->setRenderHint(QPainter::Antialiasing);
+  /*
     painter->setPen(QPen(penColor, penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     QLinearGradient gradient(rect().topLeft(), rect().bottomLeft());
     gradient.setColorAt(0.0, Qt::transparent);
     gradient.setColorAt(1.0, fillColor);
     painter->setBrush(gradient);
+    */
+
     painter->drawRoundRect(rect(), (int)(25 * rect().height()
                                          / rect().width()), 25);
 
@@ -88,92 +60,6 @@ void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     painter->setFont(font);
     painter->drawText(rect(), Qt::AlignCenter, text);
     painter->restore();
-}
-
-
-/*****************************************************************************/
-/*            *            *           *            *           *            */
-/*****************************************************************************/
-
-
-PlayerBox::PlayerBox(const QPointF &pos, QGraphicsScene *canvas)
-    : TextBox(pos, canvas)
-{
-    QColor color(255, 255, 255, 127);
-    setFillColor(color); // transparent
-
-    // Init with defaut image
-    avatar = new AvatarItem(QPixmap(":/images/vide.png"));
-    avatar->setSize(40);
-    avatar->hide();
-
-    // we set it to the right place
-    avatar->setPos(rect().x() + rect().width() + 10, rect().y() - 5);
-
-    // we add the item to the scene
-    canvas->addItem(avatar);
-}
-/*****************************************************************************/
-void PlayerBox::setAvatar(const QString &av)
-{
-    QFile f(av);
-
-    if (f.exists() == false)
-    {
-        return;
-    }
-    QPixmap img(av);
-  //  img.scaledToHeight(40);
-
-    avatar->setPixmap(img);
-
-}
-/*****************************************************************************/
-void PlayerBox::enableAvatar(bool enable)
-{
-    if (enable == true)
-    {
-        avatar->show();
-    }
-    else
-    {
-        avatar->hide();
-    }
-}
-/*****************************************************************************/
-void PlayerBox::selectPlayer(bool selected)
-{
-    Qt::GlobalColor color;
-
-    if (selected == true)
-    {
-        setPenWidth(2);
-        color = Qt::red;
-    }
-    else
-    {
-        setPenWidth(1);
-        color = Qt::black;
-    }
-    setPenColor(color);
-    update();
-}
-/*****************************************************************************/
-void PlayerBox::highlightPlayer(bool highlighted)
-{
-    QColor color;
-
-    if (highlighted == true)
-    {
-        color = Qt::yellow;
-    }
-    else
-    {
-        color.setRgb(255, 255, 255, 127); // transparent
-    }
-
-    setFillColor(color);
-    update();
 }
 
 //=============================================================================

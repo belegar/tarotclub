@@ -54,7 +54,7 @@ static const QPointF coordTextBox[5] =
     QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 143), // WEST
     QPointF(0, 0)                                       // NORTH-WEST
 };
-
+/*****************************************************************************/
 class BorderLine : public QGraphicsItem
 {
 public:
@@ -82,7 +82,6 @@ void BorderLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     painter->drawPath(path);
 }
-
 /*****************************************************************************/
 Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
@@ -99,26 +98,10 @@ Canvas::Canvas(QWidget *parent)
     // ==============================================================
     // BIDS BUTTONS
     // ==============================================================
-    groupBoutons = new QGroupBox(trUtf8("Bids"), this);
-    groupBoutons->hide();
 
-    boutonPasse = new QPushButton(STR_PASSE);
-    boutonPrise = new QPushButton(STR_PRISE);
-    boutonGarde = new QPushButton(STR_GARDE);
-    boutonGardeSans = new QPushButton(STR_GARDE_SANS);
-    boutonGardeContre = new QPushButton(STR_GARDE_CONTRE);
-    chelem = new QCheckBox("Slam");
-
-    QVBoxLayout *vbox = new QVBoxLayout;
-    vbox->addWidget(boutonPasse);
-    vbox->addWidget(boutonPrise);
-    vbox->addWidget(boutonGarde);
-    vbox->addWidget(boutonGardeSans);
-    vbox->addWidget(boutonGardeContre);
-    vbox->addWidget(chelem);
-    groupBoutons->setLayout(vbox);
-
-    groupBoutons->move(20, 300);
+    bidsForm.setPos(300, 100);
+    bidsForm.hide();
+    scene.addItem(&bidsForm);
 
     //==============================================================
 
@@ -149,17 +132,18 @@ Canvas::Canvas(QWidget *parent)
         playerBox.insert((Place)i, pb);
         textBox.insert((Place)i, tb);
     }
-
-    connect(boutonPasse, SIGNAL(clicked()), this, SLOT(slotBoutton1()));
-    connect(boutonPrise, SIGNAL(clicked()), this, SLOT(slotBoutton2()));
-    connect(boutonGarde, SIGNAL(clicked()), this, SLOT(slotBoutton3()));
-    connect(boutonGardeSans, SIGNAL(clicked()), this, SLOT(slotBoutton4()));
-    connect(boutonGardeContre, SIGNAL(clicked()), this, SLOT(slotBoutton5()));
+/*
+    connect(bidsForm.passButton, SIGNAL(clicked()), this, SLOT(slotBoutton1()));
+    connect(bidsForm.takeButton, SIGNAL(clicked()), this, SLOT(slotBoutton2()));
+    connect(bidsForm.guardButton, SIGNAL(clicked()), this, SLOT(slotBoutton3()));
+    connect(bidsForm.guardWithoutButton, SIGNAL(clicked()), this, SLOT(slotBoutton4()));
+    connect(bidsForm.guardAgainstButton, SIGNAL(clicked()), this, SLOT(slotBoutton5()));
+*/
     connect(boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()));
     connect(boutonPresenterPoignee, SIGNAL(clicked()), this, SLOT(slotPresenterPoignee()));
 
     // call mouseEvent as soon as the mouse is moving, without any click buttons
-    viewport()->setMouseTracking(true);
+   // viewport()->setMouseTracking(true);
     filter = BLOCK_ALL;
 }
 /*****************************************************************************/
@@ -388,20 +372,26 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
     {
         return;
     }
-
-    list = scene.items( mapToScene(e->pos()) );
-    if (!list.isEmpty())
+    else if (filter == MENU)
     {
-        // If it is a card, return the object, otherwise NULL
-        if (list.first()->type() == GfxCard::Type)
-        {
-            GfxCard *c = (GfxCard *)list.first();
-            emit sigMoveCursor(c);
-        }
+        QGraphicsView::mouseMoveEvent(e);
     }
     else
     {
-        SetCursorType(ARROW);
+        list = scene.items( mapToScene(e->pos()) );
+        if (!list.isEmpty())
+        {
+            // If it is a card, return the object, otherwise NULL
+            if (list.first()->type() == GfxCard::Type)
+            {
+                GfxCard *c = (GfxCard *)list.first();
+                emit sigMoveCursor(c);
+            }
+        }
+        else
+        {
+            SetCursorType(ARROW);
+        }
     }
 }
 /*****************************************************************************/
@@ -629,35 +619,37 @@ void Canvas::cacheEncheres()
     }
 }
 /*****************************************************************************/
-void Canvas::ShowBidsChoice(Contract contrat)
+void Canvas::ShowBidsChoice(Contract contract)
 {
-    boutonPrise->show();
-    boutonGarde->show();
-    boutonGardeSans->show();
-    boutonGardeContre->show();
+    /*
+    bidsForm.takeButton->show();
+    bidsForm.guardButton->show();
+    bidsForm.guardWithoutButton->show();
+    bidsForm.guardAgainstButton->show();
 
-    if (contrat >= TAKE)
+    if (contract >= TAKE)
     {
-        boutonPrise->hide();
+        bidsForm.takeButton->hide();
     }
-    if (contrat >= GUARD)
+    if (contract >= GUARD)
     {
-        boutonGarde->hide();
+        bidsForm.guardButton->hide();
     }
-    if (contrat >= GUARD_WITHOUT)
+    if (contract >= GUARD_WITHOUT)
     {
-        boutonGardeSans->hide();
+        bidsForm.guardWithoutButton->hide();
     }
-    if (contrat >= GUARD_AGAINST)
+    if (contract >= GUARD_AGAINST)
     {
-        boutonGardeContre->hide();
+        bidsForm.guardAgainstButton->hide();
     }
-    groupBoutons->show();
+    */
+    bidsForm.show();
 }
 /*****************************************************************************/
 void Canvas::HideBidsChoice()
 {
-    groupBoutons->hide();
+    bidsForm.hide();
 }
 /*****************************************************************************/
 void Canvas::showAvatars(bool b)
@@ -673,7 +665,7 @@ void Canvas::showAvatars(bool b)
 void Canvas::razTapis(bool shadow)
 {
     cacheEncheres();
-    groupBoutons->hide();
+//    bidsWidget->hide();
 
     QMapIterator<Place, PlayerBox *> i(playerBox);
     while (i.hasNext())

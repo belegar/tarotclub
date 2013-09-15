@@ -26,6 +26,27 @@
 #include "GfxCard.h"
 
 /*****************************************************************************/
+CardShadow::CardShadow(QRectF &pos, QGraphicsScene *canvas)
+    : QGraphicsRectItem(pos)
+{
+    canvas->addItem(this);
+}
+/*****************************************************************************/
+void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
+    // Paint with specified color and pen
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(QBrush(QColor(149, 149, 149, 127)));
+    painter->setPen(Qt::NoPen);
+    painter->drawRoundRect(rect(), 25, 25);
+
+}
+
+
+/*****************************************************************************/
 GfxCard::GfxCard(const QString &fileName, QGraphicsItem *parent) : QGraphicsSvgItem(fileName, parent)
 
 {

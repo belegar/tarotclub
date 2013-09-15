@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - GfxCard.h
+ * TarotClub - BidsForm.cpp
  *=============================================================================
- * Graphical tarot card
+ * Graphical menu to choose the bids
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,48 +23,41 @@
  *=============================================================================
  */
 
-#ifndef GFXCARD_H
-#define GFXCARD_H
-
-#include <QtSvg>
-
-/*****************************************************************************/
-/**
- * @brief Card shadow item to show the positions of cards on the play board
- */
-class CardShadow : public QGraphicsRectItem
-{
-
-public:
-    CardShadow(QRectF &pos, QGraphicsScene *canvas);
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-
-};
+#include "BidsForm.h"
+#include <QBrush>
+#include <QPainter>
 
 /*****************************************************************************/
-class GfxCard : public QGraphicsSvgItem
+BidsForm::BidsForm()
+    : color(149, 149, 149, 127)
+    , buttonColor(Qt::blue)
+    , rect(0, 0, 150, 150)
 {
-public:
-    enum Status
-    {
-        NORMAL,
-        SELECTED
-    };
+    QBrush brush = QBrush(buttonColor);
+    passButton = new QGraphicsRectItem(this);
+    passButton->setBrush(brush);
+    passButton->setRect(QRectF(0, 0, 60, 40));
+}
+/*****************************************************************************/
+int BidsForm::type() const
+{
+    // Enable the use of qgraphicsitem_cast with this item.
+    return Type;
+}
+/*****************************************************************************/
+void BidsForm::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+   Q_UNUSED(option);
+   Q_UNUSED(widget);
 
-    GfxCard(const QString &fileName, QGraphicsItem *parent = 0);
+   // Paint with specified color and pen
+   painter->setRenderHint(QPainter::Antialiasing);
+   painter->setBrush(QBrush(color));
+   painter->setPen(Qt::NoPen);
+   painter->drawRoundRect(rect, 25, 25);
+}
 
-    enum { Type = UserType + 1 };
-    int type() const;
-    Status GetStatus();
-    void SetStatus(Status s);
-    void ToggleStatus();
-
-private:
-    Status status;
-};
-
-#endif // GFXCARD_H
 
 //=============================================================================
-// End of file GfxCard.h
+// End of file BidsForm.cpp
 //=============================================================================

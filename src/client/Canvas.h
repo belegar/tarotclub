@@ -37,8 +37,10 @@
 #include "../defines.h"
 #include "../Deck.h"
 #include "TextBox.h"
+#include "PlayerBox.h"
 #include "ClientConfig.h"
 #include "GfxCard.h"
+#include "BidsForm.h"
 
 /*****************************************************************************/
 class Canvas : public QGraphicsView
@@ -50,6 +52,7 @@ public:
     enum Filter
     {
         BLOCK_ALL,
+        MENU,
         GAME_ONLY
     };
 
@@ -68,7 +71,7 @@ public:
     void ShowSelection(Place p, Place myPlace);
     void DrawCard(GfxCard *c, Place p, Place myPlace);
     void DrawSouthCards(const Deck &cards);
-    void ShowBidsChoice(Contract contrat);
+    void ShowBidsChoice(Contract contract);
     void ShowBid(Place p, Contract cont, Place myPlace);
     void cacheEncheres();
     void HideBidsChoice();
@@ -123,13 +126,8 @@ private:
     QMap<Place, PlayerBox *> playerBox;
     QMap<Place, TextBox *>  textBox;
 
-    QGroupBox      *groupBoutons;
-    QPushButton    *boutonPasse;
-    QPushButton    *boutonPrise;
-    QPushButton    *boutonGarde;
-    QPushButton    *boutonGardeSans;
-    QPushButton    *boutonGardeContre;
-    QCheckBox      *chelem;
+    BidsForm    bidsForm;
+
     QPushButton    *boutonAccepterChien;
     QPushButton    *boutonPresenterPoignee;
 

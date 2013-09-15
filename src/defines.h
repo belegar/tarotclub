@@ -44,9 +44,6 @@
 #define QT_STREAMVER    QDataStream::Qt_5_0
 #define MAX_ROUNDS      5
 
-#define TEXT_BOX_WIDTH  115
-#define TEXT_BOX_HEIGHT 30
-
 namespace Config
 {
 
