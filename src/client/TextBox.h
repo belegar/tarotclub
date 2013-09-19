@@ -45,10 +45,10 @@ public:
     TextBox(const QPointF &pos);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-    void setText(const QString &s)
+    void SetText(const QString &s)
     {
         text = s;
-        text.truncate(10);
+        text.truncate(15);
     }
 
 private:

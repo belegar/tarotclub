@@ -99,7 +99,7 @@ Canvas::Canvas(QWidget *parent)
     // BIDS BUTTONS
     // ==============================================================
 
-    bidsForm.setPos(300, 100);
+    bidsForm.setPos(270, 150);
     bidsForm.hide();
     scene.addItem(&bidsForm);
 
@@ -124,26 +124,27 @@ Canvas::Canvas(QWidget *parent)
     // 4 players by default
     for (int i = 0; i < 4; i++)
     {
-        PlayerBox *pb = new PlayerBox(coordPlayerBox[i], &scene);
+        PlayerBox *pb = new PlayerBox(coordPlayerBox[i]);
+        scene.addItem(pb);
         pb->show();
-        TextBox *tb = new TextBox(coordTextBox[i], &scene);
+
+        TextBox *tb = new TextBox(coordTextBox[i]);
+        QLinearGradient gradient(tb->rect().topLeft(), tb->rect().bottomLeft());
+        gradient.setColorAt(0.0, Qt::transparent);
+        gradient.setColorAt(1.0, Qt::darkRed);
+        tb->setBrush(gradient);
+        scene.addItem(tb);
         tb->hide();
 
         playerBox.insert((Place)i, pb);
         textBox.insert((Place)i, tb);
     }
-/*
-    connect(bidsForm.passButton, SIGNAL(clicked()), this, SLOT(slotBoutton1()));
-    connect(bidsForm.takeButton, SIGNAL(clicked()), this, SLOT(slotBoutton2()));
-    connect(bidsForm.guardButton, SIGNAL(clicked()), this, SLOT(slotBoutton3()));
-    connect(bidsForm.guardWithoutButton, SIGNAL(clicked()), this, SLOT(slotBoutton4()));
-    connect(bidsForm.guardAgainstButton, SIGNAL(clicked()), this, SLOT(slotBoutton5()));
-*/
+
     connect(boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()));
     connect(boutonPresenterPoignee, SIGNAL(clicked()), this, SLOT(slotPresenterPoignee()));
 
     // call mouseEvent as soon as the mouse is moving, without any click buttons
-   // viewport()->setMouseTracking(true);
+    viewport()->setMouseTracking(true);
     filter = BLOCK_ALL;
 }
 /*****************************************************************************/
@@ -303,6 +304,14 @@ bool Canvas::LoadCards(ClientOptions &opt)
     return true;
 }
 /*****************************************************************************/
+void Canvas::setCardScale(float factor)
+{
+    for (int i = 0; i < cardsPics.size(); i++)
+    {
+        cardsPics.at(i)->setScale(factor);
+    }
+}
+/*****************************************************************************/
 void Canvas::resizeEvent(QResizeEvent *event)
 {
     // ------------------------------------------------------------
@@ -322,14 +331,6 @@ void Canvas::resizeEvent(QResizeEvent *event)
     */
 }
 /*****************************************************************************/
-void Canvas::setCardScale(float factor)
-{
-    for (int i = 0; i < cardsPics.size(); i++)
-    {
-        cardsPics.at(i)->setScale(factor);
-    }
-}
-/*****************************************************************************/
 void Canvas::mousePressEvent(QMouseEvent *e)
 {
     QList<QGraphicsItem *> list;
@@ -340,7 +341,15 @@ void Canvas::mousePressEvent(QMouseEvent *e)
     {
         return;
     }
-    if (filter == GAME_ONLY)
+    else if (filter == MENU)
+    {
+        Contract contract;
+        if (bidsForm.Refresh(mapToScene(e->pos()), contract))
+        {
+            emit sigContract(contract);
+        }
+    }
+    else if (filter == GAME_ONLY)
     {
         list = scene.items(mapToScene(e->pos()));
         if (!list.isEmpty())
@@ -374,7 +383,8 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
     }
     else if (filter == MENU)
     {
-        QGraphicsView::mouseMoveEvent(e);
+        Contract contract;
+        bidsForm.Refresh(mapToScene(e->pos()), contract);
     }
     else
     {
@@ -416,17 +426,17 @@ void Canvas::SetCursorType(CursorType t)
 void Canvas::ShowTaker(Place taker, Place myPlace)
 {
     Place rel = SwapPlace(myPlace, taker);  // relative place
-    playerBox.value(rel)->highlightPlayer(true);
+    playerBox.value(rel)->HighlightPlayer(true);
 }
 /*****************************************************************************/
 void Canvas::setText(Place p, const QString &txt)
 {
-    playerBox.value(p)->setText(txt);
+    playerBox.value(p)->SetText(txt);
 }
 /*****************************************************************************/
 void Canvas::setAvatar(Place p, const QString &file)
 {
-    playerBox.value(p)->setAvatar(file);
+    playerBox.value(p)->SetAvatar(file);
 }
 /*****************************************************************************/
 /**
@@ -437,7 +447,7 @@ void Canvas::setAvatar(Place p, const QString &file)
  *
  * @param origin
  * @param absolute
- * @return
+ * @return The place to display elements on the board
  */
 Place Canvas::SwapPlace(Place my_place, Place absolute)
 {
@@ -458,8 +468,8 @@ void Canvas::SetPlayerNames(QMap<Place, Identity> &players, Place myPlace)
         i.next();
         Place rel = SwapPlace(myPlace, i.key());  // relative place
 
-        playerBox.value(rel)->setText(i.value().name);
-        playerBox.value(rel)->setAvatar(":/images/avatars/" + i.value().avatar);
+        playerBox.value(rel)->SetText(i.value().name);
+        playerBox.value(rel)->SetAvatar(":/images/avatars/" + i.value().avatar);
     }
 }
 /*****************************************************************************/
@@ -569,43 +579,19 @@ void Canvas::ShowSelection(Place p, Place myPlace)
 
         if (i.key() == rel)
         {
-            i.value()->selectPlayer(true);
+            i.value()->SelectPlayer(true);
         }
         else
         {
-            i.value()->selectPlayer(false);
+            i.value()->SelectPlayer(false);
         }
     }
 }
 /*****************************************************************************/
-void Canvas::ShowBid(Place p, Contract cont, Place myPlace)
+void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 {
-    QString txt;
-
     Place rel = SwapPlace(myPlace, p);  // relative place
-
-    if (cont == GUARD_AGAINST)
-    {
-        txt = STR_GARDE_CONTRE;
-    }
-    else if (cont == GUARD_WITHOUT)
-    {
-        txt = STR_GARDE_SANS;
-    }
-    else if (cont == GUARD)
-    {
-        txt = STR_GARDE;
-    }
-    else if (cont == TAKE)
-    {
-        txt = STR_PRISE;
-    }
-    else
-    {
-        txt = STR_PASSE;
-    }
-
-    textBox.value(rel)->setText(txt);
+    textBox.value(rel)->SetText(Util::ToString(contract));
     textBox.value(rel)->show();
 }
 /*****************************************************************************/
@@ -621,29 +607,7 @@ void Canvas::cacheEncheres()
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
 {
-    /*
-    bidsForm.takeButton->show();
-    bidsForm.guardButton->show();
-    bidsForm.guardWithoutButton->show();
-    bidsForm.guardAgainstButton->show();
-
-    if (contract >= TAKE)
-    {
-        bidsForm.takeButton->hide();
-    }
-    if (contract >= GUARD)
-    {
-        bidsForm.guardButton->hide();
-    }
-    if (contract >= GUARD_WITHOUT)
-    {
-        bidsForm.guardWithoutButton->hide();
-    }
-    if (contract >= GUARD_AGAINST)
-    {
-        bidsForm.guardAgainstButton->hide();
-    }
-    */
+    bidsForm.SetMinimalContract(contract);
     bidsForm.show();
 }
 /*****************************************************************************/
@@ -658,7 +622,7 @@ void Canvas::showAvatars(bool b)
     while (i.hasNext())
     {
         i.next();
-        i.value()->enableAvatar(b);
+        i.value()->EnableAvatar(b);
     }
 }
 /*****************************************************************************/
@@ -671,8 +635,8 @@ void Canvas::razTapis(bool shadow)
     while (i.hasNext())
     {
         i.next();
-        i.value()->highlightPlayer(false);
-        i.value()->selectPlayer(false);
+        i.value()->HighlightPlayer(false);
+        i.value()->SelectPlayer(false);
     }
 
     for (int c = 0; c < cardShadows.size(); c++)
@@ -696,31 +660,6 @@ void Canvas::resetCards()
         cardsPics.at(i)->hide();
         cardsPics.at(i)->SetStatus(GfxCard::NORMAL);
     }
-}
-/*****************************************************************************/
-void Canvas::slotBoutton1()
-{
-    emit sigContract(PASS);
-}
-/*****************************************************************************/
-void Canvas::slotBoutton2()
-{
-    emit sigContract(TAKE);
-}
-/*****************************************************************************/
-void Canvas::slotBoutton3()
-{
-    emit sigContract(GUARD);
-}
-/*****************************************************************************/
-void Canvas::slotBoutton4()
-{
-    emit sigContract(GUARD_WITHOUT);
-}
-/*****************************************************************************/
-void Canvas::slotBoutton5()
-{
-    emit sigContract(GUARD_AGAINST);
 }
 /*****************************************************************************/
 void Canvas::slotAccepteChien()

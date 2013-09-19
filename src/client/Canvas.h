@@ -72,7 +72,7 @@ public:
     void DrawCard(GfxCard *c, Place p, Place myPlace);
     void DrawSouthCards(const Deck &cards);
     void ShowBidsChoice(Contract contract);
-    void ShowBid(Place p, Contract cont, Place myPlace);
+    void ShowBid(Place p, Contract contract, Place myPlace);
     void cacheEncheres();
     void HideBidsChoice();
     void showAvatars(bool b);
@@ -95,11 +95,6 @@ public:
     void setCardScale(float factor);
 
 public slots:
-    void slotBoutton1();
-    void slotBoutton2();
-    void slotBoutton3();
-    void slotBoutton4();
-    void slotBoutton5();
     void slotAccepteChien();
     void slotPresenterPoignee();
 

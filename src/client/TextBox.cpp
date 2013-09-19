@@ -41,14 +41,9 @@ void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 
     // Paint with specified color and pen
     painter->setRenderHint(QPainter::Antialiasing);
-  /*
-    painter->setPen(QPen(penColor, penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    QLinearGradient gradient(rect().topLeft(), rect().bottomLeft());
-    gradient.setColorAt(0.0, Qt::transparent);
-    gradient.setColorAt(1.0, fillColor);
-    painter->setBrush(gradient);
-    */
 
+    painter->setPen(pen());
+    painter->setBrush(brush());
     painter->drawRoundRect(rect(), (int)(25 * rect().height()
                                          / rect().width()), 25);
 

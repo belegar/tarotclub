@@ -26,17 +26,35 @@
 #include "BidsForm.h"
 #include <QBrush>
 #include <QPainter>
+#include "../Tools.h"
+
+static const QPointF coordButtonBox[5] =
+{
+    QPointF(10, 10),                    // PASS
+    QPointF(TEXT_BOX_WIDTH+20, 10),     // TAKE
+    QPointF(10, TEXT_BOX_HEIGHT+20),    // GUARD
+    QPointF(TEXT_BOX_WIDTH+20, TEXT_BOX_HEIGHT+20), // GUARD WITHOUT
+    QPointF(10, 2*TEXT_BOX_HEIGHT+30)   // GUARD AGAINST
+};
 
 /*****************************************************************************/
 BidsForm::BidsForm()
     : color(149, 149, 149, 127)
-    , buttonColor(Qt::blue)
-    , rect(0, 0, 150, 150)
 {
-    QBrush brush = QBrush(buttonColor);
-    passButton = new QGraphicsRectItem(this);
-    passButton->setBrush(brush);
-    passButton->setRect(QRectF(0, 0, 60, 40));
+    setRect(0, 0, 260, 130);
+
+    QBrush brush = QBrush(Qt::blue);
+
+    for (int i=0; i<5; i++)
+    {
+        TextBox *tb = new TextBox(coordButtonBox[i]);
+        tb->setParentItem(this);
+        tb->show();
+        tb->SetText(Util::ToString((Contract)i));
+        tb->setBrush(brush);
+
+        buttons.insert((Contract)i, tb);
+    }
 }
 /*****************************************************************************/
 int BidsForm::type() const
@@ -54,9 +72,50 @@ void BidsForm::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
    painter->setRenderHint(QPainter::Antialiasing);
    painter->setBrush(QBrush(color));
    painter->setPen(Qt::NoPen);
-   painter->drawRoundRect(rect, 25, 25);
+   painter->drawRoundRect(rect(), 15, 15);
 }
+/*****************************************************************************/
+bool BidsForm::Refresh(const QPointF &pos, Contract &contract)
+{
+    contract = PASS;
+    bool ret = false;
+    QBrush brushSelected = QBrush(Qt::darkBlue);
+    QBrush brush = QBrush(Qt::blue);
 
+    QMapIterator<Contract, TextBox *> i(buttons);
+    while (i.hasNext())
+    {
+        i.next();
+        if (i.value()->contains(mapFromParent(pos)))
+        {
+            i.value()->setBrush(brushSelected);
+            contract = i.key();
+            ret = true;
+        }
+        else
+        {
+            i.value()->setBrush(brush);
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+void BidsForm::SetMinimalContract(Contract contract)
+{
+    QMapIterator<Contract, TextBox *> i(buttons);
+    while (i.hasNext())
+    {
+        i.next();
+        i.value()->show();
+        if (i.key() != PASS)
+        {
+            if (contract >= i.key())
+            {
+                i.value()->hide();
+            }
+        }
+    }
+}
 
 //=============================================================================
 // End of file BidsForm.cpp

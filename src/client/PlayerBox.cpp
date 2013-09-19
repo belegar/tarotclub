@@ -31,9 +31,8 @@
 PlayerBox::PlayerBox(const QPointF &pos)
     : TextBox(pos)
 {
- //   QColor color(255, 255, 255, 127); // transparent
-
     setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    SetBackgroundColor(Qt::gray);
 
     // Init with defaut image
     avatar = new AvatarItem(QPixmap(":/images/vide.png"));
@@ -98,7 +97,7 @@ void PlayerBox::SelectPlayer(bool selected)
     update();
 }
 /*****************************************************************************/
-void PlayerBox::highlightPlayer(bool highlighted)
+void PlayerBox::HighlightPlayer(bool highlighted)
 {
     Qt::GlobalColor color;
 
@@ -111,7 +110,7 @@ void PlayerBox::highlightPlayer(bool highlighted)
         color = Qt::transparent;
     }
 
-    setPen(QPen(QColor(color), width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    setPen(QPen(QColor(color), pen().width(), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     update();
 }
 

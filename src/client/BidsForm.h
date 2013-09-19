@@ -27,6 +27,9 @@
 #define BIDSFORM_H
 
 #include <QGraphicsRectItem>
+#include "TextBox.h"
+#include <QtGui>
+#include "../defines.h"
 
 /*****************************************************************************/
 class BidsForm : public QGraphicsRectItem
@@ -39,12 +42,13 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
+    bool Refresh(const QPointF &pos, Contract &contract);
+    void SetMinimalContract(Contract contract);
+
 private:
     QColor color;
-    QColor buttonColor;
-    QRectF rect;
 
-    QGraphicsRectItem *passButton;
+    QMap<Contract, TextBox *> buttons;
 };
 
 #endif // BIDSFORM_H
