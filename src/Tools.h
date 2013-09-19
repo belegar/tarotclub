@@ -29,11 +29,11 @@
 #include <QtCore>
 #include "defines.h"
 
-#define STR_PASSE           QObject::tr("Pass")
-#define STR_PRISE           QObject::tr("Take")
-#define STR_GARDE           QObject::tr("Guard")
-#define STR_GARDE_SANS      QObject::tr("Guard without")
-#define STR_GARDE_CONTRE    QObject::tr("Guard against")
+#define STR_PASS            QObject::tr("Pass")
+#define STR_TAKE            QObject::tr("Take")
+#define STR_GUARD           QObject::tr("Guard")
+#define STR_GUARD_WITHOUT   QObject::tr("Guard without")
+#define STR_GUARD_AGAINST   QObject::tr("Guard against")
 
 #define STR_SUD      QObject::tr("South")
 #define STR_EST      QObject::tr("East")
@@ -59,7 +59,7 @@ public:
     static QString ToString(Contract c)
     {
         QStringList contracts;
-        contracts << STR_PASSE << STR_PRISE << STR_GARDE << STR_GARDE_SANS << STR_GARDE_CONTRE;
+        contracts << STR_PASS << STR_TAKE << STR_GUARD << STR_GUARD_WITHOUT << STR_GUARD_AGAINST;
         return contracts[c];
     }
 };
