@@ -41,7 +41,8 @@ void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setBrush(QBrush(QColor(149, 149, 149, 127)));
     painter->setPen(Qt::NoPen);
-    painter->drawRoundRect(rect(), 25, 25);
+    painter->drawRoundRect(rect(), (int)(15 * rect().height()
+                                         / rect().width()), 15);
 
 }
 
