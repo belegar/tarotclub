@@ -40,10 +40,10 @@ static const QPointF coordButtonBox[5] =
 /*****************************************************************************/
 BidsForm::BidsForm()
     : color(149, 149, 149, 127)
+    , brushSelected(QColor("#404040"))
+    , brushNormal(QColor("#808080"))
 {
     setRect(0, 0, 260, 130);
-
-    QBrush brush = QBrush(Qt::blue);
 
     for (int i=0; i<5; i++)
     {
@@ -51,10 +51,18 @@ BidsForm::BidsForm()
         tb->setParentItem(this);
         tb->show();
         tb->SetText(Util::ToString((Contract)i));
-        tb->setBrush(brush);
+        tb->setBrush(brushNormal);
+        tb->setPen(QPen(Qt::white));
 
         buttons.insert((Contract)i, tb);
     }
+
+    checkBox.setParentItem(this);
+    checkBox.setText("Slam");
+    QFont font = checkBox.font();
+    font.setBold(true);
+    checkBox.setFont(font);
+    checkBox.setPos(TEXT_BOX_WIDTH+50, 2*TEXT_BOX_HEIGHT+45);
 }
 /*****************************************************************************/
 int BidsForm::type() const
@@ -72,15 +80,14 @@ void BidsForm::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
    painter->setRenderHint(QPainter::Antialiasing);
    painter->setBrush(QBrush(color));
    painter->setPen(Qt::NoPen);
-   painter->drawRoundRect(rect(), 15, 15);
+   painter->drawRoundRect(rect(), (int)(25 * rect().height()
+                                        / rect().width()), 25);
 }
 /*****************************************************************************/
 bool BidsForm::Refresh(const QPointF &pos, Contract &contract)
 {
     contract = PASS;
     bool ret = false;
-    QBrush brushSelected = QBrush(Qt::darkBlue);
-    QBrush brush = QBrush(Qt::blue);
 
     QMapIterator<Contract, TextBox *> i(buttons);
     while (i.hasNext())
@@ -94,7 +101,7 @@ bool BidsForm::Refresh(const QPointF &pos, Contract &contract)
         }
         else
         {
-            i.value()->setBrush(brush);
+            i.value()->setBrush(brushNormal);
         }
     }
     return ret;

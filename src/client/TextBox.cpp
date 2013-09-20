@@ -32,6 +32,8 @@ TextBox::TextBox(const QPointF &pos)
     : QGraphicsRectItem(pos.x(), pos.y(), TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT)
 {
     hide();
+    font.setBold(true);
+    color = Qt::black;
 }
 /*****************************************************************************/
 void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -49,9 +51,7 @@ void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 
     // Text inside the box
     painter->save();
-    QFont font = painter->font();
-    font.setBold(true);
-    painter->setPen(Qt::black);
+    painter->setPen(color);
     painter->setFont(font);
     painter->drawText(rect(), Qt::AlignCenter, text);
     painter->restore();

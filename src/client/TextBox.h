@@ -51,8 +51,20 @@ public:
         text.truncate(15);
     }
 
+    void SetFont(const QFont &f)
+    {
+        font = f;
+    }
+
+    void SetColor(Qt::GlobalColor c)
+    {
+        color = c;
+    }
+
 private:
     QString text;
+    QFont font;
+    Qt::GlobalColor color;
 };
 
 

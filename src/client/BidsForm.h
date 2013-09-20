@@ -47,8 +47,11 @@ public:
 
 private:
     QColor color;
+    QBrush brushSelected;
+    QBrush brushNormal;
 
     QMap<Contract, TextBox *> buttons;
+    QGraphicsSimpleTextItem checkBox;
 };
 
 #endif // BIDSFORM_H
