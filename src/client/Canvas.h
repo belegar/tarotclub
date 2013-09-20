@@ -121,6 +121,7 @@ private:
     QMap<Place, PlayerBox *> playerBox;
     QMap<Place, TextBox *>  textBox;
 
+    QGraphicsSvgItem *compass;
     BidsForm    bidsForm;
 
     QPushButton    *boutonAccepterChien;

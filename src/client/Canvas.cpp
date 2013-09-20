@@ -121,6 +121,11 @@ Canvas::Canvas(QWidget *parent)
     //       CANVAS ELEMENTS
     // ==============================================================
 
+    compass = new QGraphicsSvgItem(":images/compass.svg");
+    scene.addItem(compass);
+    compass->setScale(0.3);
+    compass->setPos(350, 200);
+
     // 4 players by default
     for (int i = 0; i < 4; i++)
     {
@@ -131,8 +136,9 @@ Canvas::Canvas(QWidget *parent)
         TextBox *tb = new TextBox(coordTextBox[i]);
         QLinearGradient gradient(tb->rect().topLeft(), tb->rect().bottomLeft());
         gradient.setColorAt(0.0, Qt::transparent);
-        gradient.setColorAt(1.0, Qt::darkRed);
+        gradient.setColorAt(1.0, Qt::red);
         tb->setBrush(gradient);
+        tb->SetColor(Qt::white);
         scene.addItem(tb);
         tb->hide();
 
