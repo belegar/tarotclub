@@ -84,8 +84,7 @@ TarotClub::TarotClub() : MainWindow()
 }
 /*****************************************************************************/
 /**
- * @brief TarotClub::Initialize
- * @return The locale, string format, eg: "fr", "en"
+ * @brief One time game initialization
  */
 void TarotClub::Initialize()
 {
@@ -111,6 +110,8 @@ void TarotClub::Initialize()
     table.moveToThread(&thread);
     thread.start();
     deal.Initialize();
+
+    statusBar()->showMessage(trUtf8("Welcome to TarotClub!"));;
 }
 /*****************************************************************************/
 /**
