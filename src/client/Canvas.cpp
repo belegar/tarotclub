@@ -121,11 +121,6 @@ Canvas::Canvas(QWidget *parent)
     //       CANVAS ELEMENTS
     // ==============================================================
 
-    compass = new QGraphicsSvgItem(":images/compass.svg");
-    scene.addItem(compass);
-    compass->setScale(0.3);
-    compass->setPos(350, 200);
-
     // 4 players by default
     for (int i = 0; i < 4; i++)
     {
@@ -343,37 +338,40 @@ void Canvas::mousePressEvent(QMouseEvent *e)
 
     emit sigViewportClicked();
 
-    if (filter == BLOCK_ALL)
-    {
-        return;
-    }
-    else if (filter == MENU)
-    {
-        Contract contract;
-        if (bidsForm.Refresh(mapToScene(e->pos()), contract))
-        {
-            emit sigContract(contract);
-        }
-    }
-    else if (filter == GAME_ONLY)
-    {
-        list = scene.items(mapToScene(e->pos()));
-        if (!list.isEmpty())
-        {
-            if (list.first()->type() == GfxCard::Type)
-            {
-                GfxCard *c = (GfxCard *)list.first();
-                emit sigClickCard(c);
-            }
-        }
-    }
-
 #ifdef QT_DEBUG
     if (e->button() == Qt::RightButton)
     {
         qDebug() << "x=" << e->pos().x() << ", y=" << e->pos().y();
     }
 #endif
+
+    if (filter == BLOCK_ALL)
+    {
+        return;
+    }
+    else if (e->button() == Qt::LeftButton)
+    {
+        if (filter == MENU)
+        {
+            Contract contract;
+            if (bidsForm.Refresh(mapToScene(e->pos()), true, contract))
+            {
+                emit sigContract(contract);
+            }
+        }
+        else if (filter == GAME_ONLY)
+        {
+            list = scene.items(mapToScene(e->pos()));
+            if (!list.isEmpty())
+            {
+                if (list.first()->type() == GfxCard::Type)
+                {
+                    GfxCard *c = (GfxCard *)list.first();
+                    emit sigClickCard(c);
+                }
+            }
+        }
+    }
 }
 /*****************************************************************************/
 /*
@@ -390,7 +388,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
     else if (filter == MENU)
     {
         Contract contract;
-        bidsForm.Refresh(mapToScene(e->pos()), contract);
+        bidsForm.Refresh(mapToScene(e->pos()), false, contract);
     }
     else
     {

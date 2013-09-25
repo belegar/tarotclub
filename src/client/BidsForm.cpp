@@ -26,6 +26,7 @@
 #include "BidsForm.h"
 #include <QBrush>
 #include <QPainter>
+#include <QtGlobal>
 #include "../Tools.h"
 
 static const QPointF coordButtonBox[5] =
@@ -37,6 +38,72 @@ static const QPointF coordButtonBox[5] =
     QPointF(10, 2*TEXT_BOX_HEIGHT+30)   // GUARD AGAINST
 };
 
+static const int SPACE = 10;
+
+/*****************************************************************************/
+CheckBoxItem::CheckBoxItem(QGraphicsItem *parent)
+    :  QGraphicsItem(parent)
+    , status(false)
+    , tick(":images/tick.svg", this)
+    , text(this)
+    , square(this)
+{
+
+    tick.setPos(0, 0);
+    tick.setScale(0.1);
+    tick.hide();
+
+    square.setRect(0, 10, 15, 15);
+    QPen pen = square.pen();
+    pen.setWidth(2);
+    square.setPen(pen);
+
+    text.setText("Slam");
+    QFont font = text.font();
+    font.setBold(true);
+    text.setFont(font);
+    text.setPos(SPACE + square.boundingRect().width(), 10);
+}
+/*****************************************************************************/
+int CheckBoxItem::type() const
+{
+    // Enable the use of qgraphicsitem_cast with this item.
+    return Type;
+}
+/*****************************************************************************/
+void CheckBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
+
+}
+/*****************************************************************************/
+QRectF CheckBoxItem::boundingRect() const
+{
+    qreal width = square.boundingRect().width() + text.boundingRect().width() + SPACE;
+    qreal height = qMax(square.boundingRect().height(), text.boundingRect().height()) + 10;
+
+    QRectF size(0, 0, width, height);
+    return size;
+}
+/*****************************************************************************/
+void CheckBoxItem::Click(const QPointF &pos)
+{
+    if (contains(mapFromParent(pos)))
+    {
+        if (status)
+        {
+            status = false;
+            tick.hide();
+        }
+        else
+        {
+            status = true;
+            tick.show();
+        }
+    }
+}
 /*****************************************************************************/
 BidsForm::BidsForm()
     : color(149, 149, 149, 127)
@@ -58,11 +125,7 @@ BidsForm::BidsForm()
     }
 
     checkBox.setParentItem(this);
-    checkBox.setText("Slam");
-    QFont font = checkBox.font();
-    font.setBold(true);
-    checkBox.setFont(font);
-    checkBox.setPos(TEXT_BOX_WIDTH+50, 2*TEXT_BOX_HEIGHT+45);
+    checkBox.setPos(TEXT_BOX_WIDTH+50, 2*TEXT_BOX_HEIGHT+30);
 }
 /*****************************************************************************/
 int BidsForm::type() const
@@ -84,7 +147,7 @@ void BidsForm::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
                                         / rect().width()), 25);
 }
 /*****************************************************************************/
-bool BidsForm::Refresh(const QPointF &pos, Contract &contract)
+bool BidsForm::Refresh(const QPointF &pos, bool clicked, Contract &contract)
 {
     contract = PASS;
     bool ret = false;
@@ -104,6 +167,13 @@ bool BidsForm::Refresh(const QPointF &pos, Contract &contract)
             i.value()->setBrush(brushNormal);
         }
     }
+
+    // Manage the checkbox
+    if (clicked)
+    {
+        checkBox.Click(mapFromParent(pos));
+    }
+
     return ret;
 }
 /*****************************************************************************/

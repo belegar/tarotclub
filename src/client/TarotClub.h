@@ -54,7 +54,7 @@ public:
     // Helpers
     void Initialize(); // First time initialization
     void ApplyOptions();
-    void afficheCartesJoueur(int pos);
+    void ShowSouthCards();
     void hidePli();
     void hideChien();
     void NewGame(const QString &address, int port);

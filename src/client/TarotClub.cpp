@@ -403,7 +403,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
         client.GetMyDeck().removeAll(c);
         client.SendCard(c);
 
-        afficheCartesJoueur(0);
+        ShowSouthCards();
 
     }
     else if (client.GetGameInfo().sequence == Game::BUILD_DOG)
@@ -479,7 +479,7 @@ void TarotClub::slotReceiveCards()
 {
     infosDock->PrintStats(client.GetStatistics());
     tapis->resetCards();
-    afficheCartesJoueur(0);
+    ShowSouthCards();
 }
 /*****************************************************************************/
 void TarotClub::slotSelectPlayer(Place p)
@@ -514,7 +514,7 @@ void TarotClub::slotAccepteChien()
     }
     tapis->setAccepterChienVisible(false);
     tapis->setFilter(Canvas::BLOCK_ALL);
-    afficheCartesJoueur(0);
+    ShowSouthCards();
     client.SendDog();
 }
 /*****************************************************************************/
@@ -529,7 +529,7 @@ void TarotClub::slotPresenterPoignee()
     }
     tapis->setBoutonPoigneeVisible(false);
     client.SendHandle();
-    afficheCartesJoueur(0);
+    ShowSouthCards();
     client.GetGameInfo().sequence = Game::PLAY_TRICK;
     statusBar()->showMessage(trUtf8("Please, play a card, it's your turn!"));
 }
@@ -541,13 +541,13 @@ void TarotClub::slotSetEnchere(Contract cont)
 }
 /*****************************************************************************/
 /**
- * @brief TarotClub::afficheCartesJoueur
+ * @brief TarotClub::ShowSouthCards
  *
  * Show current player's cards
  *
  * @param pos = 0 for 18-cards in the hand, otherwise 1 (with cards from the chien)
  */
-void TarotClub::afficheCartesJoueur(int pos)
+void TarotClub::ShowSouthCards()
 {
     client.GetMyDeck().Sort();
     tapis->DrawSouthCards(client.GetMyDeck());
@@ -613,8 +613,9 @@ void TarotClub::slotBuildDiscard()
     }
     client.GetDogDeck().clear();
     tapis->setFilter(Canvas::GAME_ONLY);
-    // on affiche le deck du joueur + le contenu du chien
-    afficheCartesJoueur(1);
+
+    // Player's cards are shown
+    ShowSouthCards();
     statusBar()->showMessage(trUtf8("Select cards to build your discard."));
 }
 /*****************************************************************************/

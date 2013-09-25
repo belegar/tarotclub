@@ -27,9 +27,33 @@
 #define BIDSFORM_H
 
 #include <QGraphicsRectItem>
+#include <QGraphicsSvgItem>
 #include "TextBox.h"
 #include <QtGui>
 #include "../defines.h"
+
+
+/*****************************************************************************/
+class CheckBoxItem : public QGraphicsItem
+{
+public:
+    CheckBoxItem(QGraphicsItem *parent = 0);
+
+    enum { Type = UserType + 3 };
+    int type() const;
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+    QRectF boundingRect() const;
+
+    void Click(const QPointF &pos);
+    bool GetStatus() { return status; }
+
+private:
+    bool status;
+    QGraphicsSvgItem tick;
+    QGraphicsSimpleTextItem text;
+    QGraphicsRectItem square;
+};
 
 /*****************************************************************************/
 class BidsForm : public QGraphicsRectItem
@@ -42,7 +66,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-    bool Refresh(const QPointF &pos, Contract &contract);
+    bool Refresh(const QPointF &pos, bool clicked, Contract &contract);
     void SetMinimalContract(Contract contract);
 
 private:
@@ -51,7 +75,7 @@ private:
     QBrush brushNormal;
 
     QMap<Contract, TextBox *> buttons;
-    QGraphicsSimpleTextItem checkBox;
+    CheckBoxItem checkBox;
 };
 
 #endif // BIDSFORM_H
