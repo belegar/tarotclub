@@ -415,10 +415,11 @@ bool Client::DoAction(QDataStream &in)
 
     case Protocol::SERVER_SHOW_PLAYER_BID:
     {
-        qint8 c, p;
+        qint8 c, p, slam;
         in >> p;
         in >> c;
-        emit sigShowBid((Place)p, (Contract)c);
+        in >> slam;
+        emit sigShowBid((Place)p, (slam == 1 ? true : false), (Contract)c);
         break;
     }
 
@@ -579,11 +580,19 @@ void Client::SendError()
     socket.flush();
 }
 /*****************************************************************************/
-void Client::SendBid(Contract c)
+void Client::SendBid(Contract c, bool slam)
 {
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)c;
+    if (slam)
+    {
+        out << (quint8)1;
+    }
+    else
+    {
+        out << (quint8)0;
+    }
     packet = BuildCommand(packet, Protocol::CLIENT_BID);
     socket.write(packet);
     socket.flush();

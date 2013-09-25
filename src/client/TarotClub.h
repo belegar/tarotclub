@@ -91,7 +91,7 @@ private slots:
     void slotReceiveCards();
     void slotSelectPlayer(Place p);
     void slotRequestBid(Contract highestBid);
-    void slotShowBid(Place p, Contract c);
+    void slotShowBid(Place p, bool slam, Contract c);
     void slotStartDeal(Place p, Contract c);
     void slotShowDog();
     void slotBuildDiscard();

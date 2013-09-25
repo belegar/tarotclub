@@ -85,7 +85,7 @@ public:
     void SetDiscard(Deck &discard);
     void SetHandle(Deck &handle, Place p);
     void SetCard(Card *c, Place p);
-    Contract SetBid(Contract c, Place p);
+    Contract SetBid(Contract c, bool slam, Place p);
 
 signals:
     void sigRequestBid(Contract c, Place p);

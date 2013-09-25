@@ -208,12 +208,15 @@ bool Server::DoAction(QDataStream &in, Place p)
     case Protocol::CLIENT_BID:
     {
         quint8 c;
+        quint8 slam;
         // FIXME: add protection like client origin, current sequence...
         in >> c;
-        Contract declared = engine.SetBid((Contract)c, p);
+        in >> slam;
+
+        Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
 
         // Broadcast player's bid, and wait for all acknowlegements
-        SendShowBid(declared, p);
+        SendShowBid(cont, (slam == 1 ? true : false), p);
         break;
     }
 
@@ -324,12 +327,20 @@ void Server::SendRequestIdentity(Place p)
     players[p].SendData(packet);
 }
 /*****************************************************************************/
-void Server::SendShowBid(Contract c, Place p)
+void Server::SendShowBid(Contract c, bool slam, Place p)
 {
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)p   // current player bid
         << (quint8)c;  // contract to show
+    if (slam)
+    {
+        out << (quint8)1;
+    }
+    else
+    {
+        out << (quint8)0;
+    }
     packet = BuildCommand(packet, Protocol::SERVER_SHOW_PLAYER_BID);
     Broadcast(packet);
 }

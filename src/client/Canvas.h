@@ -82,7 +82,8 @@ public:
 
     // Getters
     GfxCard *GetGfxCard(int i);
-    Card *getObjectCard(GfxCard *gc);
+    Card *GetObjectCard(GfxCard *gc);
+    bool GetSlamOption();
 
     // Setters
     void SetCursorType(CursorType t);

@@ -62,12 +62,19 @@ public:
     BidsForm();
 
     enum { Type = UserType + 2 };
-    int type() const;
 
+    // Virtual methods
+    int type() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
+    // Helpers
     bool Refresh(const QPointF &pos, bool clicked, Contract &contract);
+
+    // Setters
     void SetMinimalContract(Contract contract);
+
+    // Getters
+    bool GetSlamOption();
 
 private:
     QColor color;

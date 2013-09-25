@@ -70,8 +70,9 @@ void Game::StartDeal()
 {
     sequence = SYNC_START;
     trickCounter = 0;
+    position = 0;
 
-    // In case of Chelem, the first player to play is the taker.
+    // In case of slam, the first player to play is the taker.
     // Otherwise, it is the player on the right of the dealer
     if (slamAnnounced == true)
     {

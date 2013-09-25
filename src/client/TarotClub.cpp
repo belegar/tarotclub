@@ -339,7 +339,7 @@ void TarotClub::slotClickTapis()
  */
 void TarotClub::slotMoveCursor(GfxCard *gc)
 {
-    Card *c = tapis->getObjectCard(gc);
+    Card *c = tapis->GetObjectCard(gc);
 
     if (client.GetMyDeck().contains(c) == false)
     {
@@ -384,7 +384,7 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
 /*****************************************************************************/
 void TarotClub::slotClickCard(GfxCard *gc)
 {
-    Card *c = tapis->getObjectCard(gc);
+    Card *c = tapis->GetObjectCard(gc);
 
     if (client.GetMyDeck().contains(c) == false)
     {
@@ -493,8 +493,11 @@ void TarotClub::slotRequestBid(Contract highestBid)
     tapis->setFilter(Canvas::MENU);
 }
 /*****************************************************************************/
-void TarotClub::slotShowBid(Place p, Contract c)
+void TarotClub::slotShowBid(Place p, bool slam, Contract c)
 {
+    // FIXME: show the announced slam on the screen
+    Q_UNUSED(slam);
+
     tapis->ShowBid(p, c, client.GetPlace());
     client.SendSyncBid();
 }
@@ -536,7 +539,7 @@ void TarotClub::slotPresenterPoignee()
 /*****************************************************************************/
 void TarotClub::slotSetEnchere(Contract cont)
 {
-    client.SendBid(cont);
+    client.SendBid(cont, tapis->GetSlamOption());
     tapis->HideBidsChoice();
 }
 /*****************************************************************************/

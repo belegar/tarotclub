@@ -73,7 +73,7 @@ public:
     void Close();
 
     // Protocol methods
-    void SendBid(Contract c);
+    void SendBid(Contract c, bool slam);
     void SendSyncDog();
     void SendDog();
     void SendReady();
@@ -102,7 +102,7 @@ signals:
     void sigReceiveCards();
     void sigSelectPlayer(Place);
     void sigRequestBid(Contract);
-    void sigShowBid(Place, Contract);
+    void sigShowBid(Place p, bool slam, Contract c);
     void sigStartDeal(Place, Contract);
     void sigShowDog();
     void sigShowHandle();

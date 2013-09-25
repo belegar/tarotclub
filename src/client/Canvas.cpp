@@ -163,7 +163,7 @@ GfxCard *Canvas::GetGfxCard(int i)
     return cardsPics.at(i);
 }
 /*****************************************************************************/
-Card *Canvas::getObjectCard(GfxCard *gc)
+Card *Canvas::GetObjectCard(GfxCard *gc)
 {
     Card *c = NULL;
     for (int i = 0; i < cardsPics.size(); i++)
@@ -175,6 +175,11 @@ Card *Canvas::getObjectCard(GfxCard *gc)
         }
     }
     return(c);
+}
+/*****************************************************************************/
+bool Canvas::GetSlamOption()
+{
+    return bidsForm.GetSlamOption();
 }
 /*****************************************************************************/
 void Canvas::setAccepterChienVisible(bool v)

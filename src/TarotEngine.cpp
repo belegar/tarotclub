@@ -118,12 +118,13 @@ void TarotEngine::SetCard(Card *c, Place p)
     gameState.sequence = Game::SYNC_CARD;
 }
 /*****************************************************************************/
-Contract TarotEngine::SetBid(Contract c, Place p)
+Contract TarotEngine::SetBid(Contract c, bool slam, Place p)
 {
     if (c > gameState.contract)
     {
         gameState.contract = c;
         gameState.taker = p;
+        gameState.slamAnnounced = slam;
     }
     else
     {
@@ -352,7 +353,9 @@ void TarotEngine::EndOfDeal()
 /*****************************************************************************/
 void TarotEngine::BidSequence()
 {
-    if (gameState.Next() == true)
+    // If a slam has been announced, we start immediately the deal
+    if ((gameState.Next() == true) ||
+        (gameState.slamAnnounced == true))
     {
         if (gameState.contract == PASS)
         {

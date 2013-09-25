@@ -104,6 +104,8 @@ void Bot::slotRequestBid(Contract highestBid)
 
     QScriptValueList args;
     args << (int)highestBid;
+
+    // FIXME: Get from the script if a slam has been announced
     ret = CallScript("AnnounceBid", args).toInteger();
 
     // security test
@@ -121,13 +123,14 @@ void Bot::slotRequestBid(Contract highestBid)
     {
         botContract = PASS;
     }
-    SendBid(botContract);
+    SendBid(botContract, false);
 }
 /*****************************************************************************/
-void Bot::slotShowBid(Place place, Contract contract)
+void Bot::slotShowBid(Place place, bool slam, Contract contract)
 {
     Q_UNUSED(place);
     Q_UNUSED(contract);
+    Q_UNUSED(slam);
     SendSyncBid();
 }
 /*****************************************************************************/

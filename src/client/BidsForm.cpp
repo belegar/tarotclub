@@ -193,6 +193,11 @@ void BidsForm::SetMinimalContract(Contract contract)
         }
     }
 }
+/*****************************************************************************/
+bool BidsForm::GetSlamOption()
+{
+    return checkBox.GetStatus();
+}
 
 //=============================================================================
 // End of file BidsForm.cpp
