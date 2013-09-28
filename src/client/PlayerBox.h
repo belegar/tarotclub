@@ -28,64 +28,75 @@
 
 // Qt includes
 #include "TextBox.h"
+#include "GfxCard.h"
+
+/*****************************************************************************/
+class AvatarItem: public QGraphicsPixmapItem
+{
+public:
+    AvatarItem()
+        : mSize(TEXT_BOX_WIDTH)
+    {
+        setCacheMode(NoCache);
+    }
+    ~AvatarItem() {}
+
+public:
+
+    QRectF boundingRect() const
+    {
+        // Return defined 'size'
+        return QRectF(QPointF(0,0),QSizeF(mSize,mSize));
+    }
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0)
+    {
+        // Scale QGraphicsPixmapItem to wanted 'size' and keep the aspect ratio using boundingRect()
+        painter->drawPixmap(boundingRect().toRect(), pixmap());
+        Q_UNUSED(option);
+        Q_UNUSED(widget);
+    }
+
+private:
+    int mSize;
+};
 
 /*****************************************************************************/
 /**
- * Advanced graphics box item with icon
+ * @brief A PlayerBox is a parent item composed by:
+ *   - an avatar image
+ *   - a nickname text box
+ *   - a bid text box
  */
-class PlayerBox : public TextBox
+class PlayerBox : public QGraphicsRectItem
 {
-private:
-
-    class AvatarItem: public QGraphicsPixmapItem
-    {
-    public:
-        AvatarItem(const QPixmap &pixmap, QGraphicsItem *parentItem=0, int size=0)
-            : QGraphicsPixmapItem(pixmap,parentItem)
-        {
-            setCacheMode(NoCache);
-            setSize(size);
-        }
-        ~AvatarItem() {}
-
-    public:
-        QRectF boundingRect() const
-        {
-            // Return defined 'size'
-            return QRectF(QPointF(0,0),QSizeF(mSize,mSize));
-        }
-        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0)
-        {
-            // Scale QGraphicsPixmapItem to wanted 'size' and keep the aspect ratio using boundingRect()
-            painter->drawPixmap(boundingRect().toRect(), pixmap());
-            Q_UNUSED(option);
-            Q_UNUSED(widget);
-
-            // NOTE: Does not use base class paint for painting now, that does not scale QPixmap
-            //QGraphicsPixmapItem::paint(painter, option, widget);
-        }
-        void setSize(int size)
-        {
-            mSize = size;
-        }
-
-    private:
-        int mSize;
-    };
-
-
-    void SetBackgroundColor(Qt::GlobalColor color);
-    AvatarItem *avatar;
-
 
 public:
-    PlayerBox(const QPointF &pos);
+    PlayerBox(const QRectF &cardSize);
 
+    // Helpers
     void SelectPlayer(bool selected);
     void HighlightPlayer(bool highlighted);
-    void SetAvatar(const QString &avatar);
     void EnableAvatar(bool enable);
+    void DrawCard(GfxCard *c);
 
+    // Setters
+    void SetAvatar(const QString &avatar);
+    void SetBidText(const QString &text);
+    void SetPlayerName(const QString &text);
+
+private:
+    enum Box {
+        NAME_BOX,
+        BID_BOX
+    };
+
+    void SetBackgroundColor(Qt::GlobalColor color, Box box);
+    AvatarItem avatar;
+    TextBox name;
+    TextBox bid;
+    CardShadow mCardShadow;
+    QRectF mCardSize;
 };
 
 #endif // _PLAYER_BOX_H

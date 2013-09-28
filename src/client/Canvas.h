@@ -65,9 +65,8 @@ public:
     Canvas(QWidget *parent);
 
     // Helpers
-    bool LoadCards(ClientOptions &opt);
+    bool Initialize(ClientOptions &opt);
     void ShowTaker(Place taker, Place myPlace);
-    void SetPlayerNames(QMap<Place, Identity> &players, Place myPlace);
     void ShowSelection(Place p, Place myPlace);
     void DrawCard(GfxCard *c, Place p, Place myPlace);
     void DrawSouthCards(const Deck &cards);
@@ -75,10 +74,11 @@ public:
     void ShowBid(Place p, Contract contract, Place myPlace);
     void cacheEncheres();
     void HideBidsChoice();
-    void showAvatars(bool b);
-    void razTapis(bool shadow = false);
+    void ShowAvatars(bool b);
+    void InitBoard();
     void resetCards();
     Place SwapPlace(Place my_place, Place absolute);
+    void AddGfxCard(const QString &filename);
 
     // Getters
     GfxCard *GetGfxCard(int i);
@@ -87,13 +87,12 @@ public:
 
     // Setters
     void SetCursorType(CursorType t);
-    void setText(Place p, const QString &txt);
-    void setAvatar(Place p, const QString &file);
+    void SetAvatar(Place p, const QString &file);
     void setFilter(Filter);
     void SetBackground(const QString &code);
     void setAccepterChienVisible(bool v);
     void setBoutonPoigneeVisible(bool v);
-    void setCardScale(float factor);
+    void SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace);
 
 public slots:
     void slotAccepteChien();
@@ -115,18 +114,15 @@ protected:
 private:
     Filter filter;
     QVector<GfxCard *> cardsPics;
-    QVector<CardShadow *> cardShadows;
     QGraphicsScene scene;
 
     // Graphiques
     QMap<Place, PlayerBox *> playerBox;
-    QMap<Place, TextBox *>  textBox;
     BidsForm    bidsForm;
 
     QPushButton    *boutonAccepterChien;
     QPushButton    *boutonPresenterPoignee;
 
-    QPointF CalculateCardPosition(Place p);
     void DrawCardShadows();
 };
 

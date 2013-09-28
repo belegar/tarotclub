@@ -26,12 +26,6 @@
 #include "GfxCard.h"
 
 /*****************************************************************************/
-CardShadow::CardShadow(QRectF &pos, QGraphicsScene *canvas)
-    : QGraphicsRectItem(pos)
-{
-    canvas->addItem(this);
-}
-/*****************************************************************************/
 void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
@@ -43,10 +37,7 @@ void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setPen(Qt::NoPen);
     painter->drawRoundRect(rect(), (int)(15 * rect().height()
                                          / rect().width()), 15);
-
 }
-
-
 /*****************************************************************************/
 GfxCard::GfxCard(const QString &fileName, QGraphicsItem *parent) : QGraphicsSvgItem(fileName, parent)
 

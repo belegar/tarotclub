@@ -36,11 +36,8 @@ class CardShadow : public QGraphicsRectItem
 {
 
 public:
-    CardShadow(QRectF &pos, QGraphicsScene *canvas);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-
 };
-
 /*****************************************************************************/
 class GfxCard : public QGraphicsSvgItem
 {

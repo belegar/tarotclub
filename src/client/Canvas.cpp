@@ -33,27 +33,22 @@
 static const QRectF border(10, 10, 925, 700);
 
 #define BORDER_WIDTH        3
-#define NORTH_BOX_POS_X     350
-#define NORTH_BOX_POS_Y     20
 #define SOUTH_CARDS_POS     522
+
+#define MENU_POS_X  30
+#define MENU_POS_Y  350
+
+static const qreal SCALE_FACTOR = 1.5f;
 
 static const QPointF coordPlayerBox[5] =
 {
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 452),    // SOUTH
-    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 103), // EAST
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y),          // NORTH
-    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 103), // WEST
-    QPointF(0, 0)                                       // NORTH-WEST
+    QPointF(300, 280),  // SOUTH
+    QPointF(570, 100),   // EAST
+    QPointF(300, 20),   // NORTH
+    QPointF(30, 100),  // WEST
+    QPointF(0, 0)       // NORTH-WEST
 };
 
-static const QPointF coordTextBox[5] =
-{
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 412),    // SOUTH
-    QPointF(NORTH_BOX_POS_X + 230, NORTH_BOX_POS_Y + 143), // EAST
-    QPointF(NORTH_BOX_POS_X, NORTH_BOX_POS_Y + 40),     // NORTH
-    QPointF(NORTH_BOX_POS_X - 230, NORTH_BOX_POS_Y + 143), // WEST
-    QPointF(0, 0)                                       // NORTH-WEST
-};
 /*****************************************************************************/
 class BorderLine : public QGraphicsItem
 {
@@ -99,7 +94,7 @@ Canvas::Canvas(QWidget *parent)
     // BIDS BUTTONS
     // ==============================================================
 
-    bidsForm.setPos(270, 150);
+    bidsForm.setPos(MENU_POS_X, MENU_POS_Y);
     bidsForm.hide();
     scene.addItem(&bidsForm);
 
@@ -121,32 +116,126 @@ Canvas::Canvas(QWidget *parent)
     //       CANVAS ELEMENTS
     // ==============================================================
 
-    // 4 players by default
-    for (int i = 0; i < 4; i++)
-    {
-        PlayerBox *pb = new PlayerBox(coordPlayerBox[i]);
-        scene.addItem(pb);
-        pb->show();
-
-        TextBox *tb = new TextBox(coordTextBox[i]);
-        QLinearGradient gradient(tb->rect().topLeft(), tb->rect().bottomLeft());
-        gradient.setColorAt(0.0, Qt::transparent);
-        gradient.setColorAt(1.0, Qt::red);
-        tb->setBrush(gradient);
-        tb->SetColor(Qt::white);
-        scene.addItem(tb);
-        tb->hide();
-
-        playerBox.insert((Place)i, pb);
-        textBox.insert((Place)i, tb);
-    }
-
     connect(boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()));
     connect(boutonPresenterPoignee, SIGNAL(clicked()), this, SLOT(slotPresenterPoignee()));
 
     // call mouseEvent as soon as the mouse is moving, without any click buttons
     viewport()->setMouseTracking(true);
     filter = BLOCK_ALL;
+}
+/*****************************************************************************/
+bool Canvas::Initialize(ClientOptions &opt)
+{
+    int i, j;
+    QString varImg;
+    QString image;
+    QString path;
+
+#ifdef QT_DEBUG
+    // Debug, the binary is inside the build directory
+    path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
+    Q_UNUSED(opt);
+#else
+    // Release
+    path = qApp->applicationDirPath() +  "/" + opt.deckFilePath + "/";
+#endif
+
+    cardsPics.clear();
+
+    //----- 4 couleurs
+    for (i = 0; i < 4; i++)
+    {
+        if (i == 0)
+        {
+            varImg = "pique";
+        }
+        else if (i == 1)
+        {
+            varImg = "coeur";
+        }
+        else if (i == 2)
+        {
+            varImg = "trefle";
+        }
+        else
+        {
+            varImg = "carreau";
+        }
+
+        // de l'as au roi (14 cartes)
+        for (j = 0; j < 14; j++)
+        {
+          //  n = i * 14 + j;
+            image = path + varImg + QString("-") + QString().sprintf("%02d.svg", j + 1);
+
+            // Test if file exists
+            QFile fileTest(image);
+            if (fileTest.exists())
+            {
+                AddGfxCard(image);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    //----- L'excuse
+    image = path + "excuse.svg";
+
+    // Test if file exists
+    QFile fileTest(image);
+    if (fileTest.exists())
+    {
+        AddGfxCard(image);
+    }
+    else
+    {
+        return false;
+    }
+
+    //----- 21 atouts
+    for (i = 57; i < 78; i++)
+    {
+        image = path + "atout-" + QString().sprintf("%02d.svg", i - 56);
+
+        // Test if file exists
+        QFile fileTest(image);
+        if (fileTest.exists())
+        {
+            AddGfxCard(image);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    QRectF cardSize = cardsPics.at(0)->boundingRect();
+    cardSize.setWidth(cardSize.width() * SCALE_FACTOR);
+    cardSize.setHeight(cardSize.height() * SCALE_FACTOR);
+
+    // 4 players by default
+    for (int i = 0; i < 4; i++)
+    {
+        PlayerBox *pb = new PlayerBox(cardSize);
+        pb->setPos(coordPlayerBox[i]);
+        pb->show();
+        playerBox.insert((Place)i, pb);
+        scene.addItem(pb);
+    }
+
+    return true;
+}
+/*****************************************************************************/
+void Canvas::AddGfxCard(const QString &filename)
+{
+    GfxCard *item = new GfxCard(filename);
+    item->hide();
+    item->setScale(SCALE_FACTOR);
+    cardsPics.append(item);
+    scene.addItem(item);
 }
 /*****************************************************************************/
 void Canvas::SetBackground(const QString &code)
@@ -203,118 +292,6 @@ void Canvas::setBoutonPoigneeVisible(bool v)
     else
     {
         boutonPresenterPoignee->hide();
-    }
-}
-/*****************************************************************************/
-bool Canvas::LoadCards(ClientOptions &opt)
-{
-    int i, j;
-    QString varImg;
-    QString image;
-    QString path;
-
-#ifdef QT_DEBUG
-    // Debug, the binary is inside the build directory
-    path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
-    Q_UNUSED(opt);
-#else
-    // Release
-    path = qApp->applicationDirPath() +  "/" + opt.deckFilePath + "/";
-#endif
-
-    cardsPics.clear();
-
-    //----- 4 couleurs
-    for (i = 0; i < 4; i++)
-    {
-        if (i == 0)
-        {
-            varImg = "pique";
-        }
-        else if (i == 1)
-        {
-            varImg = "coeur";
-        }
-        else if (i == 2)
-        {
-            varImg = "trefle";
-        }
-        else
-        {
-            varImg = "carreau";
-        }
-
-        // de l'as au roi (14 cartes)
-        for (j = 0; j < 14; j++)
-        {
-          //  n = i * 14 + j;
-            image = path + varImg + QString("-") + QString().sprintf("%02d.svg", j + 1);
-
-            // Test if file exists
-            QFile fileTest(image);
-            if (fileTest.exists())
-            {
-                GfxCard *item = new GfxCard(image);
-                item->hide();
-                cardsPics.append(item);
-                scene.addItem(item);
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
-
-    //----- L'excuse
-    image = path + "excuse.svg";
-
-    // Test if file exists
-    QFile fileTest(image);
-    if (fileTest.exists())
-    {
-        GfxCard *item = new GfxCard(image);
-        item->hide();
-        cardsPics.append(item);
-        scene.addItem(item);
-    }
-    else
-    {
-        return false;
-    }
-
-    //----- 21 atouts
-    for (i = 57; i < 78; i++)
-    {
-        image = path + "atout-" + QString().sprintf("%02d.svg", i - 56);
-
-        // Test if file exists
-        QFile fileTest(image);
-        if (fileTest.exists())
-        {
-            GfxCard *item = new GfxCard(image);
-            item->hide();
-            cardsPics.append(item);
-            scene.addItem(item);
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    setCardScale(1.5);
-
-    // Draw shadows under cards after SVG graphics are initialized to get the size
-    DrawCardShadows();
-    return true;
-}
-/*****************************************************************************/
-void Canvas::setCardScale(float factor)
-{
-    for (int i = 0; i < cardsPics.size(); i++)
-    {
-        cardsPics.at(i)->setScale(factor);
     }
 }
 /*****************************************************************************/
@@ -438,12 +415,7 @@ void Canvas::ShowTaker(Place taker, Place myPlace)
     playerBox.value(rel)->HighlightPlayer(true);
 }
 /*****************************************************************************/
-void Canvas::setText(Place p, const QString &txt)
-{
-    playerBox.value(p)->SetText(txt);
-}
-/*****************************************************************************/
-void Canvas::setAvatar(Place p, const QString &file)
+void Canvas::SetAvatar(Place p, const QString &file)
 {
     playerBox.value(p)->SetAvatar(file);
 }
@@ -469,7 +441,7 @@ Place Canvas::SwapPlace(Place my_place, Place absolute)
 /**
  * Show names on the board, bottom player is always south
  */
-void Canvas::SetPlayerNames(QMap<Place, Identity> &players, Place myPlace)
+void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
 {
     QMapIterator<Place, Identity> i(players);
     while (i.hasNext())
@@ -477,7 +449,7 @@ void Canvas::SetPlayerNames(QMap<Place, Identity> &players, Place myPlace)
         i.next();
         Place rel = SwapPlace(myPlace, i.key());  // relative place
 
-        playerBox.value(rel)->SetText(i.value().name);
+        playerBox.value(rel)->SetPlayerName(i.value().name);
         playerBox.value(rel)->SetAvatar(":/images/avatars/" + i.value().avatar);
     }
 }
@@ -491,18 +463,7 @@ void Canvas::SetPlayerNames(QMap<Place, Identity> &players, Place myPlace)
 void Canvas::DrawCard(GfxCard *c, Place p, Place myPlace)
 {
     Place rel = SwapPlace(myPlace, p);  // relative place
-    QPointF pos = CalculateCardPosition(rel);
-
-    if (c)
-    {
-        c->setPos(pos);
-        c->setZValue(1);
-        c->show();
-    }
-    else
-    {
-        qFatal("Card is null, cannot display it!");
-    }
+    playerBox.value(rel)->DrawCard(c);
 }
 /*****************************************************************************/
 void Canvas::DrawSouthCards(const Deck &cards)
@@ -528,56 +489,6 @@ void Canvas::DrawSouthCards(const Deck &cards)
     }
 }
 /*****************************************************************************/
-/**
- * @brief Calculate the card position, used to draw it
- *
- * @arg[in] p = NORTH, WEST, SOUTH, EAST
- */
-QPointF Canvas::CalculateCardPosition(Place p)
-{
-    qreal x, y, height, width;
-    QRectF rect = cardsPics.at(0)->boundingRect();
-    height = rect.height();
-    width = rect.width();
-
-    x = playerBox.value(p)->rect().x();
-    y = playerBox.value(p)->rect().y();
-
-    x = x + (TEXT_BOX_WIDTH - width) / 4;
-    if (p == SOUTH)
-    {
-        y = y - height - TEXT_BOX_HEIGHT - 40;
-    }
-    else
-    {
-        y = y + TEXT_BOX_HEIGHT + 10;
-    }
-
-    return QPointF(x, y);
-}
-/*****************************************************************************/
-/**
- * @brief Draw a card at a player's position
- *
- * @arg[in] c The graphics card to show
- * @arg[in] p = NORTH, WEST, SOUTH, EAST
- */
-void Canvas::DrawCardShadows()
-{
-    for (int i = 0; i < 4; i++)
-    {
-        QRectF rect = cardsPics.at(0)->boundingRect();
-        QPointF pos = CalculateCardPosition((Place)i);
-        CardShadow *shadow = new CardShadow(rect, &scene);
-
-        shadow->hide();
-        shadow->setScale(1.5);
-        shadow->setPos(pos);
-        shadow->setZValue(0);
-        cardShadows.insert((Place)i, shadow);
-    }
-}
-/*****************************************************************************/
 void Canvas::ShowSelection(Place p, Place myPlace)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
@@ -600,18 +511,20 @@ void Canvas::ShowSelection(Place p, Place myPlace)
 void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 {
     Place rel = SwapPlace(myPlace, p);  // relative place
-    textBox.value(rel)->SetText(Util::ToString(contract));
-    textBox.value(rel)->show();
+    playerBox.value(rel)->SetBidText(Util::ToString(contract));
 }
 /*****************************************************************************/
 void Canvas::cacheEncheres()
 {
+    // FIXME: really cache the bids ?
+    /*
     QMapIterator<Place, TextBox *> i(textBox);
     while (i.hasNext())
     {
         i.next();
         i.value()->hide();
     }
+    */
 }
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
@@ -625,7 +538,7 @@ void Canvas::HideBidsChoice()
     bidsForm.hide();
 }
 /*****************************************************************************/
-void Canvas::showAvatars(bool b)
+void Canvas::ShowAvatars(bool b)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
     while (i.hasNext())
@@ -635,10 +548,9 @@ void Canvas::showAvatars(bool b)
     }
 }
 /*****************************************************************************/
-void Canvas::razTapis(bool shadow)
+void Canvas::InitBoard()
 {
     cacheEncheres();
-//    bidsWidget->hide();
 
     QMapIterator<Place, PlayerBox *> i(playerBox);
     while (i.hasNext())
@@ -646,19 +558,6 @@ void Canvas::razTapis(bool shadow)
         i.next();
         i.value()->HighlightPlayer(false);
         i.value()->SelectPlayer(false);
-    }
-
-    for (int c = 0; c < cardShadows.size(); c++)
-    {
-        if (shadow == true)
-        {
-            cardShadows.at(c)->show();
-        }
-        else
-        {
-            cardShadows.at(c)->hide();
-        }
-
     }
 }
 /*****************************************************************************/

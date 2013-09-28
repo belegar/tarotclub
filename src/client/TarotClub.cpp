@@ -101,7 +101,7 @@ void TarotClub::Initialize()
     clientConfig.Load();
 
     TarotDeck::Initialize();
-    if (tapis->LoadCards(clientConfig.GetOptions()) == false)
+    if (tapis->Initialize(clientConfig.GetOptions()) == false)
     {
         qFatal("Cannot load SVG images, exiting...");
     }
@@ -189,7 +189,7 @@ void TarotClub::NewGame(const QString &address, int port)
     // GUI initialization
     scoresDock->clear();
     infosDock->Clear();
-    tapis->razTapis();
+    tapis->InitBoard();
     tapis->resetCards();
     tapis->setFilter(Canvas::BLOCK_ALL);
 
@@ -243,7 +243,7 @@ void TarotClub::ApplyOptions()
 
     table.LoadConfiguration();
 
-    tapis->showAvatars(options.showAvatars);
+    tapis->ShowAvatars(options.showAvatars);
     tapis->SetBackground(options.backgroundColor);
 }
 /*****************************************************************************/
@@ -471,7 +471,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
 void TarotClub::slotPlayersList(QMap<Place, Identity> &pl)
 {
     players = pl;
-    tapis->SetPlayerNames(players, client.GetPlace());
+    tapis->SetPlayerIdentity(players, client.GetPlace());
     scoresDock->setPlayers(players);
 }
 /*****************************************************************************/
@@ -596,7 +596,7 @@ void TarotClub::slotDealAgain()
 {
     infosDock->Clear();
     tapis->setFilter(Canvas::BLOCK_ALL);
-    tapis->razTapis();
+    tapis->InitBoard();
 
     QMessageBox::information(this, trUtf8("Information"),
                              trUtf8("All the players have passed.\n"
@@ -646,7 +646,7 @@ void TarotClub::slotStartDeal(Place p, Contract c)
         infosDock->SetDealNumber(-1);
     }
     tapis->setFilter(Canvas::BLOCK_ALL);
-    tapis->razTapis(true);
+    tapis->InitBoard();
     tapis->ShowTaker(p, client.GetPlace());
 
     // We are ready, let's inform the server about that
@@ -704,7 +704,7 @@ void TarotClub::slotEndOfDeal()
 {
     statusBar()->showMessage(trUtf8("End of the deal."));
     tapis->setFilter(Canvas::BLOCK_ALL);
-    tapis->razTapis();
+    tapis->InitBoard();
     tapis->resetCards();
 
     resultWindow->SetResult(client.GetScore(), client.GetGameInfo());
