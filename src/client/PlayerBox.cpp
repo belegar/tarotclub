@@ -118,11 +118,13 @@ void PlayerBox::SetAvatar(const QString &av)
 void PlayerBox::SetBidText(const QString &text)
 {
     bid.SetText(text);
+    update();
 }
 /*****************************************************************************/
 void PlayerBox::SetPlayerName(const QString &text)
 {
     name.SetText(text);
+    update();
 }
 /*****************************************************************************/
 void PlayerBox::EnableAvatar(bool enable)

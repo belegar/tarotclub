@@ -27,6 +27,7 @@
 #define GFXCARD_H
 
 #include <QtSvg>
+#include "CustomTypes.h"
 
 /*****************************************************************************/
 /**
@@ -50,7 +51,7 @@ public:
 
     GfxCard(const QString &fileName, QGraphicsItem *parent = 0);
 
-    enum { Type = UserType + 1 };
+    enum { Type = UserType + CARD_TYPE_ITEM };
     int type() const;
     Status GetStatus();
     void SetStatus(Status s);

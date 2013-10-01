@@ -32,6 +32,7 @@
 #include <QVector>
 #include <QList>
 #include <QTemporaryFile>
+#include <QFlags>
 
 // Game includes
 #include "../defines.h"
@@ -40,7 +41,7 @@
 #include "PlayerBox.h"
 #include "ClientConfig.h"
 #include "GfxCard.h"
-#include "BidsForm.h"
+#include "MenuItem.h"
 
 /*****************************************************************************/
 class Canvas : public QGraphicsView
@@ -51,9 +52,9 @@ class Canvas : public QGraphicsView
 public:
     enum Filter
     {
-        BLOCK_ALL,
-        MENU,
-        GAME_ONLY
+        BLOCK_ALL = 0x00,
+        MENU = 0x01,
+        CARDS = 0x02
     };
 
     enum CursorType
@@ -72,7 +73,6 @@ public:
     void DrawSouthCards(const Deck &cards);
     void ShowBidsChoice(Contract contract);
     void ShowBid(Place p, Contract contract, Place myPlace);
-    void cacheEncheres();
     void HideBidsChoice();
     void ShowAvatars(bool b);
     void InitBoard();
@@ -88,15 +88,11 @@ public:
     // Setters
     void SetCursorType(CursorType t);
     void SetAvatar(Place p, const QString &file);
-    void setFilter(Filter);
+    void SetFilter(quint8 f);
     void SetBackground(const QString &code);
-    void setAccepterChienVisible(bool v);
-    void setBoutonPoigneeVisible(bool v);
+    void DisplayDiscardMenu(bool visible);
+    void DisplayHandleMenu(bool visible);
     void SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace);
-
-public slots:
-    void slotAccepteChien();
-    void slotPresenterPoignee();
 
 signals:
     void sigViewportClicked();
@@ -112,18 +108,17 @@ protected:
     void  resizeEvent(QResizeEvent *event);
 
 private:
-    Filter filter;
+    quint8 mFilter;
+
     QVector<GfxCard *> cardsPics;
     QGraphicsScene scene;
 
     // Graphiques
     QMap<Place, PlayerBox *> playerBox;
-    BidsForm    bidsForm;
-
-    QPushButton    *boutonAccepterChien;
-    QPushButton    *boutonPresenterPoignee;
+    MenuItem    menuItem;
 
     void DrawCardShadows();
+    bool TestFilter(quint8 mask);
 };
 
 #endif // CANVAS_H

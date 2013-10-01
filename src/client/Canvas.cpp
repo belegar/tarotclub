@@ -90,38 +90,13 @@ Canvas::Canvas(QWidget *parent)
     setRenderHint(QPainter::Antialiasing);
     setCacheMode(QGraphicsView::CacheBackground);
 
-    // ==============================================================
-    // BIDS BUTTONS
-    // ==============================================================
-
-    bidsForm.setPos(MENU_POS_X, MENU_POS_Y);
-    bidsForm.hide();
-    scene.addItem(&bidsForm);
-
-    //==============================================================
-
-    boutonAccepterChien = new QPushButton(trUtf8("Accept the discard"), this);
-    boutonAccepterChien->move(800, 462);
-    boutonAccepterChien->setMinimumSize(boutonAccepterChien->sizeHint());
-    boutonAccepterChien->hide();
-
-    //==============================================================
-
-    boutonPresenterPoignee = new QPushButton(trUtf8("Declare a handle"), this);
-    boutonPresenterPoignee->move(800, 462);
-    boutonPresenterPoignee->setMinimumSize(boutonPresenterPoignee->sizeHint());
-    boutonPresenterPoignee->hide();
-
-    // ==============================================================
-    //       CANVAS ELEMENTS
-    // ==============================================================
-
-    connect(boutonAccepterChien, SIGNAL(clicked()), this, SLOT(slotAccepteChien()));
-    connect(boutonPresenterPoignee, SIGNAL(clicked()), this, SLOT(slotPresenterPoignee()));
+    menuItem.setPos(MENU_POS_X, MENU_POS_Y);
+    menuItem.show();
+    scene.addItem(&menuItem);
 
     // call mouseEvent as soon as the mouse is moving, without any click buttons
     viewport()->setMouseTracking(true);
-    filter = BLOCK_ALL;
+    mFilter = BLOCK_ALL;
 }
 /*****************************************************************************/
 bool Canvas::Initialize(ClientOptions &opt)
@@ -268,30 +243,30 @@ Card *Canvas::GetObjectCard(GfxCard *gc)
 /*****************************************************************************/
 bool Canvas::GetSlamOption()
 {
-    return bidsForm.GetSlamOption();
+    return menuItem.GetSlamOption();
 }
 /*****************************************************************************/
-void Canvas::setAccepterChienVisible(bool v)
+void Canvas::DisplayDiscardMenu(bool visible)
 {
-    if (v == true)
+    if (visible)
     {
-        boutonAccepterChien->show();
+        menuItem.DisplayMenu(MenuItem::DISCARD_MENU);
     }
     else
     {
-        boutonAccepterChien->hide();
+        menuItem.DisplayMenu(MenuItem::NO_MENU);
     }
 }
 /*****************************************************************************/
-void Canvas::setBoutonPoigneeVisible(bool v)
+void Canvas::DisplayHandleMenu(bool visible)
 {
-    if (v == true)
+    if (visible)
     {
-        boutonPresenterPoignee->show();
+        menuItem.DisplayMenu(MenuItem::HANDLE_MENU);
     }
     else
     {
-        boutonPresenterPoignee->hide();
+        menuItem.DisplayMenu(MenuItem::NO_MENU);
     }
 }
 /*****************************************************************************/
@@ -327,21 +302,55 @@ void Canvas::mousePressEvent(QMouseEvent *e)
     }
 #endif
 
-    if (filter == BLOCK_ALL)
+    if (mFilter == BLOCK_ALL)
     {
         return;
     }
-    else if (e->button() == Qt::LeftButton)
+
+    if (e->button() == Qt::LeftButton)
     {
-        if (filter == MENU)
+        if (TestFilter(MENU))
         {
-            Contract contract;
-            if (bidsForm.Refresh(mapToScene(e->pos()), true, contract))
+            const MenuItem::MenuButton *ret = menuItem.Refresh(mapToScene(e->pos()), true);
+            if (ret != NULL)
             {
-                emit sigContract(contract);
+                if (ret->menu == MenuItem::BIDS_MENU)
+                {
+                    Contract contract;
+                    if (ret->widget == MenuItem::TAKE_BUTTON)
+                    {
+                        contract = TAKE;
+                    }
+                    else if (ret->widget == MenuItem::GUARD_BUTTON)
+                    {
+                        contract = GUARD;
+                    }
+                    else if (ret->widget == MenuItem::GUARD_WITHOUT_BUTTON)
+                    {
+                        contract = GUARD_WITHOUT;
+                    }
+                    else if (ret->widget == MenuItem::GUARD_AGAINST_BUTTON)
+                    {
+                        contract = GUARD_AGAINST;
+                    }
+                    else
+                    {
+                        contract = PASS;
+                    }
+                    emit sigContract(contract);
+                }
+                else if(ret->menu == MenuItem::HANDLE_MENU)
+                {
+                    emit sigPresenterPoignee();
+                }
+                else if(ret->menu == MenuItem::DISCARD_MENU)
+                {
+                    emit sigAccepteChien();
+                }
             }
         }
-        else if (filter == GAME_ONLY)
+
+        if (TestFilter(CARDS))
         {
             list = scene.items(mapToScene(e->pos()));
             if (!list.isEmpty())
@@ -363,16 +372,17 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
 {
     QList<QGraphicsItem *> list;
 
-    if (filter == BLOCK_ALL)
+    if (mFilter == BLOCK_ALL)
     {
         return;
     }
-    else if (filter == MENU)
+
+    if (TestFilter(MENU))
     {
-        Contract contract;
-        bidsForm.Refresh(mapToScene(e->pos()), false, contract);
+        (void)menuItem.Refresh(mapToScene(e->pos()), false);
     }
-    else
+
+    if (TestFilter(CARDS))
     {
         list = scene.items( mapToScene(e->pos()) );
         if (!list.isEmpty())
@@ -514,28 +524,14 @@ void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
     playerBox.value(rel)->SetBidText(Util::ToString(contract));
 }
 /*****************************************************************************/
-void Canvas::cacheEncheres()
-{
-    // FIXME: really cache the bids ?
-    /*
-    QMapIterator<Place, TextBox *> i(textBox);
-    while (i.hasNext())
-    {
-        i.next();
-        i.value()->hide();
-    }
-    */
-}
-/*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
 {
-    bidsForm.SetMinimalContract(contract);
-    bidsForm.show();
+    menuItem.DisplayMenu(contract);
 }
 /*****************************************************************************/
 void Canvas::HideBidsChoice()
 {
-    bidsForm.hide();
+    menuItem.DisplayMenu(MenuItem::NO_MENU);
 }
 /*****************************************************************************/
 void Canvas::ShowAvatars(bool b)
@@ -550,14 +546,13 @@ void Canvas::ShowAvatars(bool b)
 /*****************************************************************************/
 void Canvas::InitBoard()
 {
-    cacheEncheres();
-
     QMapIterator<Place, PlayerBox *> i(playerBox);
     while (i.hasNext())
     {
         i.next();
         i.value()->HighlightPlayer(false);
         i.value()->SelectPlayer(false);
+        i.value()->SetBidText("");
     }
 }
 /*****************************************************************************/
@@ -570,21 +565,22 @@ void Canvas::resetCards()
     }
 }
 /*****************************************************************************/
-void Canvas::slotAccepteChien()
+void Canvas::SetFilter(quint8 f)
 {
-    emit sigAccepteChien();
+    mFilter = f;
 }
 /*****************************************************************************/
-void Canvas::slotPresenterPoignee()
+bool Canvas::TestFilter(quint8 mask)
 {
-    emit sigPresenterPoignee();
-}
-/*****************************************************************************/
-void Canvas::setFilter(Filter f)
-{
-    filter = f;
+    bool ret = false;
+
+    if (mFilter & mask)
+    {
+        ret = true;
+    }
+    return ret;
 }
 
 //=============================================================================
-// End of file Tapis.cpp
+// End of file Canvas.cpp
 //=============================================================================

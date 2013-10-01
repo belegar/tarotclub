@@ -103,8 +103,9 @@ HEADERS = AboutWindow.h \
     Table.h \
     NetPlayer.h \
     GfxCard.h \
-    BidsForm.h \
-    PlayerBox.h
+    MenuItem.h \
+    PlayerBox.h \
+    CustomTypes.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -152,6 +153,6 @@ SOURCES = AboutWindow.cpp \
     Score.cpp \
     NetPlayer.cpp \
     GfxCard.cpp \
-    BidsForm.cpp \
+    MenuItem.cpp \
     PlayerBox.cpp
 

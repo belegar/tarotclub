@@ -191,7 +191,7 @@ void TarotClub::NewGame(const QString &address, int port)
     infosDock->Clear();
     tapis->InitBoard();
     tapis->resetCards();
-    tapis->setFilter(Canvas::BLOCK_ALL);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
 
     // Connect us to the server
     client.Initialize();
@@ -397,7 +397,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
         {
             return;
         }
-        tapis->setFilter(Canvas::BLOCK_ALL);
+        tapis->SetFilter(Canvas::BLOCK_ALL);
         statusBar()->clearMessage();
 
         client.GetMyDeck().removeAll(c);
@@ -425,7 +425,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
             client.GetDogDeck().append(c);
             if (client.GetDogDeck().size() == 6)
             {
-                tapis->setAccepterChienVisible(true);
+                tapis->DisplayDiscardMenu(true);
             }
         }
         // Un-select card
@@ -436,7 +436,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
                 return;
             }
             client.GetDogDeck().removeAll(c);
-            tapis->setAccepterChienVisible(false);
+            tapis->DisplayDiscardMenu(false);
         }
         gc->ToggleStatus();
     }
@@ -457,11 +457,13 @@ void TarotClub::slotClickCard(GfxCard *gc)
                 (client.GetHandleDeck().size() == 13) ||
                 (client.GetHandleDeck().size() == 15))
             {
-                tapis->setBoutonPoigneeVisible(true);
+                tapis->SetFilter(Canvas::MENU | Canvas::CARDS);
+                tapis->DisplayHandleMenu(true);
             }
             else
             {
-                tapis->setBoutonPoigneeVisible(false);
+                tapis->SetFilter(Canvas::CARDS);
+                tapis->DisplayHandleMenu(false);
             }
             gc->ToggleStatus();
         }
@@ -490,7 +492,7 @@ void TarotClub::slotSelectPlayer(Place p)
 void TarotClub::slotRequestBid(Contract highestBid)
 {
     tapis->ShowBidsChoice(highestBid);
-    tapis->setFilter(Canvas::MENU);
+    tapis->SetFilter(Canvas::MENU);
 }
 /*****************************************************************************/
 void TarotClub::slotShowBid(Place p, bool slam, Contract c)
@@ -515,8 +517,8 @@ void TarotClub::slotAccepteChien()
         gc = tapis->GetGfxCard(c->GetId());
         gc->hide();
     }
-    tapis->setAccepterChienVisible(false);
-    tapis->setFilter(Canvas::BLOCK_ALL);
+    tapis->DisplayDiscardMenu(false);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
     ShowSouthCards();
     client.SendDog();
 }
@@ -530,7 +532,9 @@ void TarotClub::slotPresenterPoignee()
                                         "Showing the fool means that you have no any more trumps in your deck."));
         return;
     }
-    tapis->setBoutonPoigneeVisible(false);
+
+    tapis->DisplayHandleMenu(false);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
     client.SendHandle();
     ShowSouthCards();
     client.GetGameInfo().sequence = Game::PLAY_TRICK;
@@ -595,7 +599,7 @@ void TarotClub::hideChien()
 void TarotClub::slotDealAgain()
 {
     infosDock->Clear();
-    tapis->setFilter(Canvas::BLOCK_ALL);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
     tapis->InitBoard();
 
     QMessageBox::information(this, trUtf8("Information"),
@@ -615,7 +619,7 @@ void TarotClub::slotBuildDiscard()
         client.GetMyDeck().append(c);
     }
     client.GetDogDeck().clear();
-    tapis->setFilter(Canvas::GAME_ONLY);
+    tapis->SetFilter(Canvas::CARDS | Canvas::MENU);
 
     // Player's cards are shown
     ShowSouthCards();
@@ -645,7 +649,7 @@ void TarotClub::slotStartDeal(Place p, Contract c)
         // Numbered deal
         infosDock->SetDealNumber(-1);
     }
-    tapis->setFilter(Canvas::BLOCK_ALL);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
     tapis->InitBoard();
     tapis->ShowTaker(p, client.GetPlace());
 
@@ -655,7 +659,7 @@ void TarotClub::slotStartDeal(Place p, Contract c)
 /*****************************************************************************/
 void TarotClub::slotPlayCard()
 {
-    tapis->setFilter(Canvas::GAME_ONLY);
+    tapis->SetFilter(Canvas::CARDS);
 
     // If we're about to play the first card, the Player is allowed to declare a handle
     if (firstTurn == true)
@@ -703,7 +707,7 @@ void TarotClub::slotShowHandle()
 void TarotClub::slotEndOfDeal()
 {
     statusBar()->showMessage(trUtf8("End of the deal."));
-    tapis->setFilter(Canvas::BLOCK_ALL);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
     tapis->InitBoard();
     tapis->resetCards();
 
@@ -746,7 +750,7 @@ void TarotClub::slotEndOfDeal()
 void TarotClub::slotWaitTrick(Place winner)
 {
     infosDock->SelectWinner(client.GetGameInfo(), winner);
-    tapis->setFilter(Canvas::BLOCK_ALL);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
     statusBar()->showMessage(trUtf8("Click on the board to continue."));
 
     // launch timer to clean cards, if needed

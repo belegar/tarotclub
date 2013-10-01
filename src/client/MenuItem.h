@@ -31,7 +31,7 @@
 #include "TextBox.h"
 #include <QtGui>
 #include "../defines.h"
-
+#include "CustomTypes.h"
 
 /*****************************************************************************/
 class CheckBoxItem : public QGraphicsItem
@@ -39,7 +39,7 @@ class CheckBoxItem : public QGraphicsItem
 public:
     CheckBoxItem(QGraphicsItem *parent = 0);
 
-    enum { Type = UserType + 3 };
+    enum { Type = UserType + CHECK_BOX_TYPE_ITEM };
     int type() const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
@@ -56,22 +56,56 @@ private:
 };
 
 /*****************************************************************************/
-class BidsForm : public QGraphicsRectItem
+class MenuItem : public QGraphicsRectItem
 {
 public:
-    BidsForm();
+    MenuItem();
 
-    enum { Type = UserType + 2 };
+    /**
+     * @brief The MenuWidget enum gather all the widgets managed by this menu
+     *
+     * Just add a new enum line to manage this widget
+     */
+    enum MenuWidget
+    {
+        NO_ENTRY = -1,   //!< Only required entry, do not delete
+
+        // Add the widgets below
+        PASS_BUTTON = 0,
+        TAKE_BUTTON = 1,
+        GUARD_BUTTON = 2,
+        GUARD_WITHOUT_BUTTON = 3,
+        GUARD_AGAINST_BUTTON = 4,
+        DECLARE_HANDLE_BUTTON = 5,
+        ACCEPT_DISCARD_BUTTON = 6
+    };
+
+    enum MenuName
+    {
+        NO_MENU,
+        BIDS_MENU,
+        HANDLE_MENU,
+        DISCARD_MENU
+    };
+
+    struct MenuButton
+    {
+        QString text;
+        QPointF coord;
+        int widget;
+        MenuName menu;
+    };
+
+    enum { Type = UserType + MENU_TYPE_ITEM };
 
     // Virtual methods
     int type() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     // Helpers
-    bool Refresh(const QPointF &pos, bool clicked, Contract &contract);
-
-    // Setters
-    void SetMinimalContract(Contract contract);
+    const MenuButton *Refresh(const QPointF &pos, bool clicked);
+    void DisplayMenu(MenuName menu);
+    void DisplayMenu(Contract minContract);
 
     // Getters
     bool GetSlamOption();
@@ -81,7 +115,7 @@ private:
     QBrush brushSelected;
     QBrush brushNormal;
 
-    QMap<Contract, TextBox *> buttons;
+    QMap<const MenuButton *, TextBox *> buttons;
     CheckBoxItem checkBox;
 };
 

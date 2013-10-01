@@ -1,5 +1,5 @@
 /*=============================================================================
- * TarotClub - BidsForm.cpp
+ * TarotClub - MenuItem.cpp
  *=============================================================================
  * Graphical menu to choose the bids
  *=============================================================================
@@ -23,22 +23,33 @@
  *=============================================================================
  */
 
-#include "BidsForm.h"
+#include "MenuItem.h"
 #include <QBrush>
 #include <QPainter>
 #include <QtGlobal>
 #include "../Tools.h"
 
-static const QPointF coordButtonBox[5] =
-{
-    QPointF(10, 10),                    // PASS
-    QPointF(TEXT_BOX_WIDTH+20, 10),     // TAKE
-    QPointF(10, TEXT_BOX_HEIGHT+20),    // GUARD
-    QPointF(TEXT_BOX_WIDTH+20, TEXT_BOX_HEIGHT+20), // GUARD WITHOUT
-    QPointF(10, 2*TEXT_BOX_HEIGHT+30)   // GUARD AGAINST
-};
-
 static const int SPACE = 10;
+
+// Declare here all the buttons managed by the menu
+/**
+ * @brief text
+ *  QString text;
+ *  QPointF coord;
+ *  MenuWidget widget;
+ *  MenuName menu;
+ */
+
+static const MenuItem::MenuButton buttonList[] =
+{
+    { STR_PASS,             QPointF(10, 10),                                    MenuItem::PASS_BUTTON, MenuItem::BIDS_MENU },
+    { STR_TAKE,             QPointF(TEXT_BOX_WIDTH+20, 10),                     MenuItem::TAKE_BUTTON, MenuItem::BIDS_MENU  },
+    { STR_GUARD,            QPointF(10, TEXT_BOX_HEIGHT+20),                    MenuItem::GUARD_BUTTON, MenuItem::BIDS_MENU  },
+    { STR_GUARD_WITHOUT,    QPointF(TEXT_BOX_WIDTH+20, TEXT_BOX_HEIGHT+20),     MenuItem::GUARD_WITHOUT_BUTTON, MenuItem::BIDS_MENU  },
+    { STR_GUARD_AGAINST,    QPointF(10, 2*TEXT_BOX_HEIGHT+30),                  MenuItem::GUARD_AGAINST_BUTTON, MenuItem::BIDS_MENU  },
+    { QObject::tr("Handle"),QPointF(10, 10),                                    MenuItem::DECLARE_HANDLE_BUTTON, MenuItem::HANDLE_MENU  },
+    { QObject::tr("Accept"),QPointF(10, 10),                                    MenuItem::ACCEPT_DISCARD_BUTTON, MenuItem::DISCARD_MENU  }
+};
 
 /*****************************************************************************/
 CheckBoxItem::CheckBoxItem(QGraphicsItem *parent)
@@ -48,7 +59,6 @@ CheckBoxItem::CheckBoxItem(QGraphicsItem *parent)
     , text(this)
     , square(this)
 {
-
     tick.setPos(0, 0);
     tick.setScale(0.1);
     tick.hide();
@@ -105,36 +115,38 @@ void CheckBoxItem::Click(const QPointF &pos)
     }
 }
 /*****************************************************************************/
-BidsForm::BidsForm()
+MenuItem::MenuItem()
     : color(149, 149, 149, 127)
     , brushSelected(QColor("#404040"))
     , brushNormal(QColor("#808080"))
 {
     setRect(0, 0, 260, 130);
 
-    for (int i=0; i<5; i++)
+    // This menu manages 7 buttons
+    for (int i=0; i<7; i++)
     {
-        TextBox *tb = new TextBox(coordButtonBox[i]);
+        TextBox *tb = new TextBox(buttonList[i].coord);
         tb->setParentItem(this);
-        tb->show();
-        tb->SetText(Util::ToString((Contract)i));
+        tb->hide();
+        tb->SetText(buttonList[i].text);
         tb->setBrush(brushNormal);
         tb->setPen(QPen(Qt::white));
 
-        buttons.insert((Contract)i, tb);
+        buttons.insert(&buttonList[i], tb);
     }
 
     checkBox.setParentItem(this);
     checkBox.setPos(TEXT_BOX_WIDTH+50, 2*TEXT_BOX_HEIGHT+30);
+    checkBox.hide();
 }
 /*****************************************************************************/
-int BidsForm::type() const
+int MenuItem::type() const
 {
     // Enable the use of qgraphicsitem_cast with this item.
     return Type;
 }
 /*****************************************************************************/
-void BidsForm::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
    Q_UNUSED(option);
    Q_UNUSED(widget);
@@ -147,20 +159,18 @@ void BidsForm::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
                                         / rect().width()), 25);
 }
 /*****************************************************************************/
-bool BidsForm::Refresh(const QPointF &pos, bool clicked, Contract &contract)
+const MenuItem::MenuButton *MenuItem::Refresh(const QPointF &pos, bool clicked)
 {
-    contract = PASS;
-    bool ret = false;
+    const MenuItem::MenuButton *button = NULL;
 
-    QMapIterator<Contract, TextBox *> i(buttons);
+    QMapIterator<const MenuButton *, TextBox *> i(buttons);
     while (i.hasNext())
     {
         i.next();
         if (i.value()->contains(mapFromParent(pos)))
         {
             i.value()->setBrush(brushSelected);
-            contract = i.key();
-            ret = true;
+            button = i.key();
         }
         else
         {
@@ -174,31 +184,59 @@ bool BidsForm::Refresh(const QPointF &pos, bool clicked, Contract &contract)
         checkBox.Click(mapFromParent(pos));
     }
 
-    return ret;
+    return button;
 }
 /*****************************************************************************/
-void BidsForm::SetMinimalContract(Contract contract)
+void MenuItem::DisplayMenu(MenuItem::MenuName menu)
 {
-    QMapIterator<Contract, TextBox *> i(buttons);
+    QMapIterator<const MenuButton *, TextBox *> i(buttons);
     while (i.hasNext())
     {
         i.next();
-        i.value()->show();
-        if (i.key() != PASS)
+        if (i.key()->menu == menu)
         {
-            if (contract >= i.key())
-            {
-                i.value()->hide();
-            }
+            i.value()->show();
+        }
+        else
+        {
+            i.value()->hide();
         }
     }
+    checkBox.hide();
+    show();
 }
 /*****************************************************************************/
-bool BidsForm::GetSlamOption()
+void MenuItem::DisplayMenu(Contract minContract)
+{
+    QMapIterator<const MenuButton *, TextBox *> i(buttons);
+    while (i.hasNext())
+    {
+        i.next();
+        if (i.key()->menu == BIDS_MENU)
+        {
+            i.value()->show();
+            if (i.key()->widget != PASS)
+            {
+                if (minContract >= i.key()->widget)
+                {
+                    i.value()->hide();
+                }
+            }
+        }
+        else
+        {
+            i.value()->hide();
+        }
+    }
+    checkBox.show();
+    show();
+}
+/*****************************************************************************/
+bool MenuItem::GetSlamOption()
 {
     return checkBox.GetStatus();
 }
 
 //=============================================================================
-// End of file BidsForm.cpp
+// End of file MenuItem.cpp
 //=============================================================================
