@@ -341,11 +341,11 @@ void Canvas::mousePressEvent(QMouseEvent *e)
                 }
                 else if(ret->menu == MenuItem::HANDLE_MENU)
                 {
-                    emit sigPresenterPoignee();
+                    emit sigAcceptHandle();
                 }
                 else if(ret->menu == MenuItem::DISCARD_MENU)
                 {
-                    emit sigAccepteChien();
+                    emit sigAcceptDiscard();
                 }
             }
         }
@@ -392,6 +392,10 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
             {
                 GfxCard *c = (GfxCard *)list.first();
                 emit sigMoveCursor(c);
+            }
+            else
+            {
+                SetCursorType(ARROW);
             }
         }
         else

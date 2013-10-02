@@ -167,14 +167,18 @@ const MenuItem::MenuButton *MenuItem::Refresh(const QPointF &pos, bool clicked)
     while (i.hasNext())
     {
         i.next();
-        if (i.value()->contains(mapFromParent(pos)))
+
+        if (i.value()->isVisible())
         {
-            i.value()->setBrush(brushSelected);
-            button = i.key();
-        }
-        else
-        {
-            i.value()->setBrush(brushNormal);
+            if (i.value()->contains(mapFromParent(pos)))
+            {
+                i.value()->setBrush(brushSelected);
+                button = i.key();
+            }
+            else
+            {
+                i.value()->setBrush(brushNormal);
+            }
         }
     }
 
@@ -203,7 +207,6 @@ void MenuItem::DisplayMenu(MenuItem::MenuName menu)
         }
     }
     checkBox.hide();
-    show();
 }
 /*****************************************************************************/
 void MenuItem::DisplayMenu(Contract minContract)
@@ -229,7 +232,6 @@ void MenuItem::DisplayMenu(Contract minContract)
         }
     }
     checkBox.show();
-    show();
 }
 /*****************************************************************************/
 bool MenuItem::GetSlamOption()

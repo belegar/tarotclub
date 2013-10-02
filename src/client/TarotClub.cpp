@@ -40,8 +40,8 @@ TarotClub::TarotClub() : MainWindow()
     connect(tapis, &Canvas::sigClickCard, this, &TarotClub::slotClickCard);
     connect(tapis, &Canvas::sigMoveCursor, this, &TarotClub::slotMoveCursor);
     connect(tapis, &Canvas::sigContract, this, &TarotClub::slotSetEnchere);
-    connect(tapis, &Canvas::sigAccepteChien, this, &TarotClub::slotAccepteChien);
-    connect(tapis, &Canvas::sigPresenterPoignee, this, &TarotClub::slotPresenterPoignee);
+    connect(tapis, &Canvas::sigAcceptDiscard, this, &TarotClub::slotAcceptDiscard);
+    connect(tapis, &Canvas::sigAcceptHandle, this, &TarotClub::slotAcceptHandle);
 
     // Client events connection
     connect(&client, &Client::sigPlayersList, this, &TarotClub::slotPlayersList);
@@ -504,7 +504,7 @@ void TarotClub::slotShowBid(Place p, bool slam, Contract c)
     client.SendSyncBid();
 }
 /*****************************************************************************/
-void TarotClub::slotAccepteChien()
+void TarotClub::slotAcceptDiscard()
 {
     Card *c;
     GfxCard *gc;
@@ -523,7 +523,7 @@ void TarotClub::slotAccepteChien()
     client.SendDog();
 }
 /*****************************************************************************/
-void TarotClub::slotPresenterPoignee()
+void TarotClub::slotAcceptHandle()
 {
     if (client.TestHandle() == false)
     {
@@ -534,7 +534,7 @@ void TarotClub::slotPresenterPoignee()
     }
 
     tapis->DisplayHandleMenu(false);
-    tapis->SetFilter(Canvas::BLOCK_ALL);
+    tapis->SetFilter(Canvas::CARDS);
     client.SendHandle();
     ShowSouthCards();
     client.GetGameInfo().sequence = Game::PLAY_TRICK;

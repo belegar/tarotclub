@@ -104,8 +104,8 @@ private slots:
     void slotEndOfGame();
 
     // Board events
-    void slotPresenterPoignee();
-    void slotAccepteChien();
+    void slotAcceptHandle();
+    void slotAcceptDiscard();
     void slotSetEnchere(Contract cont);
     void slotClickCard(GfxCard *c);
     void slotClickTapis();

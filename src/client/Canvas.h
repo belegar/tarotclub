@@ -99,8 +99,8 @@ signals:
     void sigClickCard(GfxCard *);
     void sigMoveCursor(GfxCard *);
     void sigContract(Contract c);
-    void sigAccepteChien();
-    void sigPresenterPoignee();
+    void sigAcceptDiscard();
+    void sigAcceptHandle();
 
 protected:
     void  mousePressEvent(QMouseEvent *e);
