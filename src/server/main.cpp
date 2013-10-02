@@ -20,7 +20,7 @@
 #include <QString>
 #include <QThread>
 #include "ServerConsole.h"
-#include "Lobby.h"
+#include "../Lobby.h"
 
 /*****************************************************************************/
 /**
