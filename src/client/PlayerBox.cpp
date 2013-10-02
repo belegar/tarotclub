@@ -63,9 +63,6 @@ PlayerBox::PlayerBox(const QRectF &cardSize)
     mCardShadow.setParentItem(this);
     mCardShadow.setRect(mCardSize);
 
-    qDebug() << "PLAYER_BOX_HEIGHT: " << PLAYER_BOX_HEIGHT << endl;
-    qDebug() << "mCardShadow.boundingRect().height(): " << mCardShadow.boundingRect().height() << endl;
-
     mCardShadow.setPos(name.boundingRect().width() + 2*SPACE_BETWEEN_ITEMS, (PLAYER_BOX_HEIGHT-mCardShadow.boundingRect().height())/2);
     mCardShadow.show();
     mCardShadow.setZValue(0);
