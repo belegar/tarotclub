@@ -56,7 +56,6 @@ public:
     void ApplyOptions();
     void ShowSouthCards();
     void hidePli();
-    void hideChien();
     void NewGame(const QString &address, int port);
     void showVictoryWindow();
 

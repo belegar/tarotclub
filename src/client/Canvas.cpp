@@ -94,6 +94,10 @@ Canvas::Canvas(QWidget *parent)
     menuItem.show();
     scene.addItem(&menuItem);
 
+    popupItem.setRect(260, 160, 325, 190);
+    popupItem.hide();
+    scene.addItem(&popupItem);
+
     // call mouseEvent as soon as the mouse is moving, without any click buttons
     viewport()->setMouseTracking(true);
     mFilter = BLOCK_ALL;
@@ -503,6 +507,25 @@ void Canvas::DrawSouthCards(const Deck &cards)
     }
 }
 /*****************************************************************************/
+void Canvas::DrawCardsInPopup(const QList<Card *> &cards)
+{
+    QList<QGraphicsItem *> items;
+
+    for (int i=0; i<cards.size(); i++)
+    {
+        items.append(GetGfxCard(cards.at(i)->GetId()));
+    }
+
+    popupItem.DrawItems(items);
+    popupItem.show();
+}
+/*****************************************************************************/
+void Canvas::HidePopup()
+{
+    popupItem.HideAll();
+    popupItem.hide();
+}
+/*****************************************************************************/
 void Canvas::ShowSelection(Place p, Place myPlace)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
@@ -560,11 +583,12 @@ void Canvas::InitBoard()
     }
 }
 /*****************************************************************************/
-void Canvas::resetCards()
+void Canvas::ResetCards()
 {
     for (int i = 0; i < cardsPics.size(); i++)
     {
         cardsPics.at(i)->hide();
+        cardsPics.at(i)->setParentItem(0); // top level item
         cardsPics.at(i)->SetStatus(GfxCard::NORMAL);
     }
 }

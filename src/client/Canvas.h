@@ -42,6 +42,7 @@
 #include "ClientConfig.h"
 #include "GfxCard.h"
 #include "MenuItem.h"
+#include "PopupItem.h"
 
 /*****************************************************************************/
 class Canvas : public QGraphicsView
@@ -71,14 +72,18 @@ public:
     void ShowSelection(Place p, Place myPlace);
     void DrawCard(GfxCard *c, Place p, Place myPlace);
     void DrawSouthCards(const Deck &cards);
+    void DrawCardsInPopup(const QList<Card *> &cards);
+    void HidePopup();
     void ShowBidsChoice(Contract contract);
     void ShowBid(Place p, Contract contract, Place myPlace);
     void HideBidsChoice();
     void ShowAvatars(bool b);
     void InitBoard();
-    void resetCards();
+    void ResetCards();
     Place SwapPlace(Place my_place, Place absolute);
     void AddGfxCard(const QString &filename);
+    void DisplayDiscardMenu(bool visible);
+    void DisplayHandleMenu(bool visible);
 
     // Getters
     GfxCard *GetGfxCard(int i);
@@ -90,8 +95,6 @@ public:
     void SetAvatar(Place p, const QString &file);
     void SetFilter(quint8 f);
     void SetBackground(const QString &code);
-    void DisplayDiscardMenu(bool visible);
-    void DisplayHandleMenu(bool visible);
     void SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace);
 
 signals:
@@ -116,6 +119,7 @@ private:
     // Graphiques
     QMap<Place, PlayerBox *> playerBox;
     MenuItem    menuItem;
+    PopupItem   popupItem;
 
     void DrawCardShadows();
     bool TestFilter(quint8 mask);

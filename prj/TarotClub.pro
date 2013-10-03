@@ -105,7 +105,8 @@ HEADERS = AboutWindow.h \
     GfxCard.h \
     MenuItem.h \
     PlayerBox.h \
-    CustomTypes.h
+    CustomTypes.h \
+    ../src/client/PopupItem.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -154,5 +155,6 @@ SOURCES = AboutWindow.cpp \
     NetPlayer.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
-    PlayerBox.cpp
+    PlayerBox.cpp \
+    ../src/client/PopupItem.cpp
 

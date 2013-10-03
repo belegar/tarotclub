@@ -190,7 +190,7 @@ void TarotClub::NewGame(const QString &address, int port)
     scoresDock->clear();
     infosDock->Clear();
     tapis->InitBoard();
-    tapis->resetCards();
+    tapis->ResetCards();
     tapis->SetFilter(Canvas::BLOCK_ALL);
 
     // Connect us to the server
@@ -226,6 +226,9 @@ void TarotClub::slotQuickJoinNetworkGame()
     }
 }
 /*****************************************************************************/
+
+#include <QNetworkInterface>
+
 void TarotClub::slotCreateNetworkGame()
 {
     TarotEngine::Shuffle sh;
@@ -319,7 +322,7 @@ void TarotClub::slotClickTapis()
     if (client.GetGameInfo().sequence == Game::SHOW_DOG)
     {
         statusBar()->clearMessage();
-        hideChien();
+        tapis->HidePopup();
         client.SendSyncDog();
     }
     else if (client.GetGameInfo().sequence == Game::SYNC_TRICK)
@@ -480,7 +483,7 @@ void TarotClub::slotPlayersList(QMap<Place, Identity> &pl)
 void TarotClub::slotReceiveCards()
 {
     infosDock->PrintStats(client.GetStatistics());
-    tapis->resetCards();
+    tapis->ResetCards();
     ShowSouthCards();
 }
 /*****************************************************************************/
@@ -562,38 +565,14 @@ void TarotClub::ShowSouthCards()
 /*****************************************************************************/
 void TarotClub::slotShowDog()
 {
-    int i, n, x, y;
-    Card *c;
-    GfxCard *cgfx;
+    QList<Card *> cards;
 
-    n = client.GetDogDeck().size();
-    x = 260;
-    y = 160;
-
-    for (i = 0; i < n; i++)
+    for (int i = 0; i < client.GetDogDeck().size(); i++)
     {
-        c = client.GetDogDeck().at(i);
-        cgfx = tapis->GetGfxCard(c->GetId());
-        cgfx->setPos(x, y);
-        cgfx->setZValue(i);
-        cgfx->show();
-        x = x + 40;
+        cards.append(client.GetDogDeck().at(i));
     }
+    tapis->DrawCardsInPopup(cards);
     statusBar()->showMessage(trUtf8("Click on the board once you have seen the dog."));
-}
-/*****************************************************************************/
-void TarotClub::hideChien()
-{
-    int i;
-    Card *c;
-    GfxCard *cgfx;
-
-    for (i = 0; i < client.GetDogDeck().size(); i++)
-    {
-        c = client.GetDogDeck().at(i);
-        cgfx = tapis->GetGfxCard(c->GetId());
-        cgfx->hide();
-    }
 }
 /*****************************************************************************/
 void TarotClub::slotDealAgain()
@@ -709,7 +688,7 @@ void TarotClub::slotEndOfDeal()
     statusBar()->showMessage(trUtf8("End of the deal."));
     tapis->SetFilter(Canvas::BLOCK_ALL);
     tapis->InitBoard();
-    tapis->resetCards();
+    tapis->ResetCards();
 
     resultWindow->SetResult(client.GetScore(), client.GetGameInfo());
     resultWindow->exec();
