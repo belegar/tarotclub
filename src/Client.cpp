@@ -468,6 +468,7 @@ bool Client::DoAction(QDataStream &in)
         {
             handleDeck.SetOwner(DEFENSE);
         }
+        info.sequence = Game::SHOW_HANDLE;
         emit sigShowHandle();
         break;
     }

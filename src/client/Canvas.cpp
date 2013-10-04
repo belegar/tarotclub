@@ -94,7 +94,6 @@ Canvas::Canvas(QWidget *parent)
     menuItem.show();
     scene.addItem(&menuItem);
 
-    popupItem.setRect(260, 160, 325, 190);
     popupItem.hide();
     scene.addItem(&popupItem);
 
@@ -204,6 +203,9 @@ bool Canvas::Initialize(ClientOptions &opt)
         playerBox.insert((Place)i, pb);
         scene.addItem(pb);
     }
+
+    // Give canvas element sizes to the popup to allow dynamic resizing
+    popupItem.SetSizes(border, cardSize);
 
     return true;
 }

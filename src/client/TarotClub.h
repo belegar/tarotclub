@@ -55,7 +55,7 @@ public:
     void Initialize(); // First time initialization
     void ApplyOptions();
     void ShowSouthCards();
-    void hidePli();
+    void HideTrick();
     void NewGame(const QString &address, int port);
     void showVictoryWindow();
 

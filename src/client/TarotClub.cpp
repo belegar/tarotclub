@@ -226,9 +226,6 @@ void TarotClub::slotQuickJoinNetworkGame()
     }
 }
 /*****************************************************************************/
-
-#include <QNetworkInterface>
-
 void TarotClub::slotCreateNetworkGame()
 {
     TarotEngine::Shuffle sh;
@@ -302,7 +299,7 @@ void TarotClub::showVictoryWindow()
     */
 }
 /*****************************************************************************/
-void TarotClub::hidePli()
+void TarotClub::HideTrick()
 {
     int i;
     Card *c;
@@ -323,11 +320,17 @@ void TarotClub::slotClickTapis()
     {
         statusBar()->clearMessage();
         tapis->HidePopup();
-        client.SendSyncDog();
+        client.SendSyncDog(); // We have seen the dog, let's inform the server about that
+    }
+    else if (client.GetGameInfo().sequence == Game::SHOW_DOG)
+    {
+        statusBar()->clearMessage();
+        tapis->HidePopup();
+        client.SendSyncHandle(); // We have seen the handle, let's inform the server about that
     }
     else if (client.GetGameInfo().sequence == Game::SYNC_TRICK)
     {
-        hidePli();
+        HideTrick();
         statusBar()->clearMessage();
         client.SendSyncTrick();
     }
@@ -575,6 +578,18 @@ void TarotClub::slotShowDog()
     statusBar()->showMessage(trUtf8("Click on the board once you have seen the dog."));
 }
 /*****************************************************************************/
+void TarotClub::slotShowHandle()
+{
+    QList<Card *> cards;
+
+    for (int i = 0; i < client.GetHandleDeck().size(); i++)
+    {
+        cards.append(client.GetHandleDeck().at(i));
+    }
+    tapis->DrawCardsInPopup(cards);
+    statusBar()->showMessage(trUtf8("Click on the board once you have seen the handle."));
+}
+/*****************************************************************************/
 void TarotClub::slotDealAgain()
 {
     infosDock->Clear();
@@ -673,14 +688,6 @@ void TarotClub::slotShowCard(int id, Place p)
 
     // We have seen the card, let's inform the server about that
     client.SendSyncCard();
-}
-/*****************************************************************************/
-void TarotClub::slotShowHandle()
-{
-    // FIXME: show the declared handle on the board
-
-    // We have seen the handle, let's inform the server about that
-    client.SendSyncHandle();
 }
 /*****************************************************************************/
 void TarotClub::slotEndOfDeal()
