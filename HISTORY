@@ -4,6 +4,16 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+* version 2.2.0 <Juliette>
+  -------------------------------
+    + Dedicated server with multi game rooms, independent executable
+    + Connection to a server, server hosting inside the graphical client
+    + Resize cards and canvas contents with the window size
+    + First version of the dedicated server
+    + Network engine: class serializations for all packets (same as Identity.h)
+    + New board organization, in game menu, larger Avatars
+    + Show declared handles on the screen
+	~ Updated code style and translation into English
 
 * version 2.1.0 <GLaDOS>
   -------------------------------
@@ -11,7 +21,7 @@ HISTORY OF TAROTCLUB VERSIONS
     + Rework options and config files (separation between server and client)
     + Qt 5.0 version
     + Various user interface improvements
-    + Integrated help system including Tarot game rules in english and french
+    + Integrated help system including Tarot game rules in English and French
     + New avatars from Futurama
     + New source code design, new code style, translated most of the code (class names, file names, methods, comments) into English
     + Enhanced network protocol
@@ -19,15 +29,15 @@ HISTORY OF TAROTCLUB VERSIONS
     + Allow to validate turn by clicking - or - timeout
     + Add a lexical and Tarot rules in the help menu (using QtHelp system)
     + Translation files (French and English)
-    + Debian/Ubuntu packets
-    + On each platform, store the config files in HOME_DIR/.tarotclub/
+    + Debian/Ubuntu installation packages
+    + On each platform, store the configuration files in HOME_DIR/.tarotclub/
 
 * version 2.0.0 <Kritzkrieg>
   -------------------------------
     + Configure time between players and at the end of a turn
     + Windows installer with Innosetup
     + Tournament mode (10 rounds) and one shot round
-    + Give the seed used to generate the current donne
+    + Give the seed used to generate the current deal
     + Deal editor
     + Ubuntu package
     + Show player's deck statistics

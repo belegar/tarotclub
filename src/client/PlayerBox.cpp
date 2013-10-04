@@ -171,19 +171,15 @@ void PlayerBox::SelectPlayer(bool selected)
 /*****************************************************************************/
 void PlayerBox::HighlightPlayer(bool highlighted)
 {
-    Qt::GlobalColor color;
-
     if (highlighted == true)
     {
-        color = Qt::yellow;
+        SetBackgroundColor(Qt::yellow, NAME_BOX);
     }
     else
     {
-        color = Qt::transparent;
+        SetBackgroundColor(Qt::gray, NAME_BOX);
     }
-
-    name.setPen(QPen(QColor(color), pen().width(), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    name.update();
+    update();
 }
 
 //=============================================================================

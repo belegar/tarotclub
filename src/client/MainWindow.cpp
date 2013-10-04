@@ -108,7 +108,7 @@ void MainWindow::SetupDocks()
     // Right area belongs to right docks
     QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
-    tabifyDockWidget(infosDock, chatDock);
+    tabifyDockWidget(chatDock, infosDock);
 
     scoresDock->show();
     infosDock->show();

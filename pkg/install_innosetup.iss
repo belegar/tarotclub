@@ -4,7 +4,7 @@
 ; Customize the Qt dir installation and version
 [Code]
 #define QT_DIR 	      "C:\Qt\Qt5.1.0\5.1.0\mingw48_32\bin"
-#define VERSION       "2.2.0-beta.1"
+#define VERSION       "2.2.0"
 #define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_1_0_MinGW_32bit-Release"
 #define SERVER_DIR    "build-TarotClubd-Desktop_Qt_5_1_0_MinGW_32bit-Release"
 
