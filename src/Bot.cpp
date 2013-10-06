@@ -303,17 +303,18 @@ bool Bot::InitializeScriptContext()
     QListIterator<QString> i(scriptFiles);
     while (i.hasNext())
     {
-        QFile scriptFile(i.next());
+        QString fname = i.next();
+        QFile scriptFile(fname);
 
         if (! scriptFile.exists())
         {
-            qDebug() << "Script error: could not find program file!";
+            qDebug() << "Script error: could not find program file: " << fname;
             return false;
         }
 
         if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            qDebug() <<  "Script error: could not open program file!";
+            qDebug() <<  "Script error: could not open program file: " << fname;
             return false;
         }
 

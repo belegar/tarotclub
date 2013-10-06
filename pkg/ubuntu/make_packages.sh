@@ -46,8 +46,7 @@ rm -rf ${TEMP_DIR}
 rm *.bz2
 
 # create directory tree
-mkdir ${TEMP_DIR}
-mkdir ${TEMP_DIR}/ai
+mkdir -p ${TEMP_DIR}/ai/tarotlib
 cd ${TEMP_DIR}
 
 # copy files
@@ -60,6 +59,12 @@ cp ${TAROT_ROOT}/HISTORY .
 cp ${TAROT_ROOT}/README .
 cp ${TAROT_ROOT}/doc/tarotclub.qch .
 cp ${TAROT_ROOT}/doc/tarotclub.qhc .
+cp ${TAROT_ROOT}/ai/tarotlib/system.js ./ai/tarotlib
+cp ${TAROT_ROOT}/ai/tarotlib/util.js ./ai/tarotlib
+cp ${TAROT_ROOT}/ai/tarotlib/card.js ./ai/tarotlib
+cp ${TAROT_ROOT}/ai/tarotlib/deck.js ./ai/tarotlib
+cp ${TAROT_ROOT}/ai/tarotlib/player.js ./ai/tarotlib
+cp ${TAROT_ROOT}/ai/tarotlib/game.js ./ai/tarotlib
 cp ${TAROT_ROOT}/ai/beginner.js ./ai
 cp ${TAROT_ROOT}/lib/icon256x256.png .
 cp ${TAROT_ROOT}/lib/tarotclub.xsl .
