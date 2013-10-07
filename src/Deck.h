@@ -48,27 +48,27 @@ public:
 
         int   trumps;  // nombres d'atouts , en comptant les bouts et l'excuse
         int   oudlers;   // 0, 1, 2 ou 3
-        int   atoutsMajeurs; // atouts >= 15
+        int   majorTrumps; // atouts >= 15
 
-        int   rois;
-        int   dames;
-        int   cavaliers;
-        int   valets;
+        int   kings;
+        int   queens;
+        int   knights;
+        int   jacks;
 
-        int   mariages;   // nombre de mariages dans la main
-        int   longues;
-        int   coupes;     // aucune carte dans une couleur
+        int   weddings;   // nombre de mariages dans la main
+        int   longSuits;
+        int   cuts;     // aucune carte dans une couleur
         int   singletons; // une seule carte dans une couleur
         int   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
 
-        int   trefles;
-        int   pics;
-        int   coeurs;
-        int   carreaux;
+        int   clubs;
+        int   spades;
+        int   hearts;
+        int   diamonds;
 
-        bool  petit;
-        bool  vingtEtUn;
-        bool  excuse;
+        bool  littleTrump;
+        bool  bigTrump;
+        bool  fool;
 
         float points;
 

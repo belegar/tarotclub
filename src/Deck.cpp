@@ -204,27 +204,27 @@ void Deck::Statistics::Reset()
 
     oudlers = 0;
     trumps = 0;
-    atoutsMajeurs = 0;
+    majorTrumps = 0;
 
-    rois = 0;
-    dames = 0;
-    cavaliers = 0;
-    valets = 0;
+    kings = 0;
+    queens = 0;
+    knights = 0;
+    jacks = 0;
 
-    mariages = 0;
-    longues = 0;
-    coupes = 0;
+    weddings = 0;
+    longSuits = 0;
+    cuts = 0;
     singletons = 0;
     sequences = 0;
 
-    trefles = 0;
-    pics = 0;
-    coeurs = 0;
-    carreaux = 0;
+    clubs = 0;
+    spades = 0;
+    hearts = 0;
+    diamonds = 0;
 
-    petit = false;
-    vingtEtUn = false;
-    excuse = false;
+    littleTrump = false;
+    bigTrump = false;
+    fool = false;
 
     points = 0.0;
 }
@@ -246,21 +246,21 @@ void Deck::AnalyzeTrumps(Statistics &stats)
             val = c->GetValue();
             if (val >= 15)
             {
-                stats.atoutsMajeurs++;
+                stats.majorTrumps++;
             }
             if (val == 21)
             {
-                stats.vingtEtUn = true;
+                stats.bigTrump = true;
                 stats.oudlers++;
             }
             if (val == 1)
             {
-                stats.petit = true;
+                stats.littleTrump = true;
                 stats.oudlers++;
             }
             if (val == 0)
             {
-                stats.excuse = true;
+                stats.fool = true;
                 stats.oudlers++;
             }
         }
@@ -315,11 +315,11 @@ void Deck::AnalyzeSuits(Statistics &stats)
                 distr[val - 1] = 1;
                 if (val == 11)
                 {
-                    stats.valets++;
+                    stats.jacks++;
                 }
                 if (val == 12)
                 {
-                    stats.cavaliers++;
+                    stats.knights++;
                 }
             }
         }
@@ -330,38 +330,38 @@ void Deck::AnalyzeSuits(Statistics &stats)
         }
         if (count == 0)
         {
-            stats.coupes++;
+            stats.cuts++;
         }
 
         // Number of cards in each normal suit
         if (i == 0)
         {
-            stats.pics = count;
+            stats.spades = count;
         }
         else if (i == 1)
         {
-            stats.coeurs = count;
+            stats.hearts = count;
         }
         else if (i == 2)
         {
-            stats.trefles = count;
+            stats.clubs = count;
         }
         else
         {
-            stats.carreaux = count;
+            stats.diamonds = count;
         }
 
         if (distr[13] == 1 && distr[12] == 1)
         {
-            stats.mariages++; // mariage (king + queen)
+            stats.weddings++; // mariage (king + queen)
         }
         if (distr[13] == 1)
         {
-            stats.rois++;     // king without queen
+            stats.kings++;     // king without queen
         }
         if (distr[12] == 1)
         {
-            stats.dames++;    // queen without kings
+            stats.queens++;    // queen without kings
         }
 
         // test des séquences :
@@ -397,7 +397,7 @@ void Deck::AnalyzeSuits(Statistics &stats)
         }
         if (longue >= 5)
         {
-            stats.longues++;
+            stats.longSuits++;
         }
     }
 }

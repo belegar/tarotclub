@@ -96,28 +96,28 @@ void InfosDock::PrintStats(Deck::Statistics &stats)
     QString buffer, tmp;
 
     buffer += trUtf8("Trumps: ") + tmp.setNum(stats.trumps);
-    buffer += "\n" + trUtf8("Major trumps: ") + tmp.setNum(stats.atoutsMajeurs);
+    buffer += "\n" + trUtf8("Major trumps: ") + tmp.setNum(stats.majorTrumps);
 
     buffer += "\n" + trUtf8("Oudlers: ") + tmp.setNum(stats.oudlers);
-    buffer += "\n" + trUtf8("Fool: ") + tmp.setNum(stats.excuse);
-    buffer += "\n" + trUtf8("21 of trump: ") + tmp.setNum(stats.vingtEtUn);
-    buffer += "\n" + trUtf8("1 of trump: ") + tmp.setNum(stats.petit);
+    buffer += "\n" + trUtf8("Fool: ") + tmp.setNum(stats.fool);
+    buffer += "\n" + trUtf8("21 of trump: ") + tmp.setNum(stats.bigTrump);
+    buffer += "\n" + trUtf8("1 of trump: ") + tmp.setNum(stats.littleTrump);
 
-    buffer += "\n" + trUtf8("Long suits: ") + tmp.setNum(stats.longues);
-    buffer += "\n" + trUtf8("Weddings: ") + tmp.setNum(stats.mariages);
+    buffer += "\n" + trUtf8("Long suits: ") + tmp.setNum(stats.longSuits);
+    buffer += "\n" + trUtf8("Weddings: ") + tmp.setNum(stats.weddings);
     buffer += "\n" + trUtf8("Sequences: ") + tmp.setNum(stats.sequences);
     buffer += "\n" + trUtf8("Singletons: ") + tmp.setNum(stats.singletons);
 
-    buffer += "\n" + trUtf8("Clubs: ") + tmp.setNum(stats.trefles);
-    buffer += "\n" + trUtf8("Diamonds: ") + tmp.setNum(stats.carreaux);
-    buffer += "\n" + trUtf8("Spades: ") + tmp.setNum(stats.pics);
-    buffer += "\n" + trUtf8("Hearts: ") + tmp.setNum(stats.coeurs);
+    buffer += "\n" + trUtf8("Clubs: ") + tmp.setNum(stats.clubs);
+    buffer += "\n" + trUtf8("Diamonds: ") + tmp.setNum(stats.diamonds);
+    buffer += "\n" + trUtf8("Spades: ") + tmp.setNum(stats.spades);
+    buffer += "\n" + trUtf8("Hearts: ") + tmp.setNum(stats.hearts);
 
-    buffer += "\n" + trUtf8("Kings: ") + tmp.setNum(stats.rois);
-    buffer += "\n" + trUtf8("Voids: ") + tmp.setNum(stats.coupes);
-    buffer += "\n" + trUtf8("Queens: ") + tmp.setNum(stats.dames);
-    buffer += "\n" + trUtf8("Knights: ") + tmp.setNum(stats.cavaliers);
-    buffer += "\n" + trUtf8("Jacks: ") + tmp.setNum(stats.valets);
+    buffer += "\n" + trUtf8("Kings: ") + tmp.setNum(stats.kings);
+    buffer += "\n" + trUtf8("Voids: ") + tmp.setNum(stats.cuts);
+    buffer += "\n" + trUtf8("Queens: ") + tmp.setNum(stats.queens);
+    buffer += "\n" + trUtf8("Knights: ") + tmp.setNum(stats.knights);
+    buffer += "\n" + trUtf8("Jacks: ") + tmp.setNum(stats.jacks);
 
     ui.statsEdit->setPlainText(buffer);
 }
