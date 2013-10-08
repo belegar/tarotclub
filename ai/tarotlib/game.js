@@ -34,7 +34,7 @@ this.TarotLib = this.TarotLib||{};
  * This class gather a list of cards
  */
 var Game = function() {
-    this.initialize();
+    this.ctor();
 };
 
 var p = Game.prototype;
@@ -77,17 +77,14 @@ var p = Game.prototype;
 // ****************************************************************************
 // CONSTRUCTOR
 // ****************************************************************************
-    /**
-     * Initialization method.
-     */
-    p.initialize = function() {
+    p.ctor = function()
+	{
         var i;
 
         // Player statistics
         this.players = new Array(this.NUMBER_OF_PLAYERS);
         for(i=0; i<this.players.length; i++) {
             this.players[i] = new TarotLib.Player(i); // position of players is assigned here
-            this.players[i].initialize();
         }
 
         this.playedCards = new Array(18); // turns for 4 players
@@ -101,6 +98,22 @@ var p = Game.prototype;
 // ****************************************************************************
 // PUBLIC STATIC METHODS
 // ****************************************************************************
+	/**
+	 * @brief Reinitialize internal state variables before starting a new deal
+	 */
+	p.initialize = function()
+    {
+        var i;
+        for(i=0; i<this.players.length; i++) {
+            this.players[i].initialize();
+        }
+        this.trickCounter = 0;
+        this.currentPosition = 0;
+
+        for(i=0; i<this.playedCards.length; i++) {
+            this.playedCards[i].clear();
+        }
+    };
 
     p.detectMissedColor = function(place)
     {
@@ -129,20 +142,6 @@ var p = Game.prototype;
     p.analyzeTrick = function(place)
     {
         this.detectMissedColor(place);
-    };
-
-    p.newGame = function()
-    {
-        var i;
-        for(i=0; i<this.players.length; i++) {
-            this.players[i].initialize();
-        }
-        this.trickCounter = 0;
-        this.currentPosition = 0;
-
-        for(i=0; i<this.playedCards.length; i++) {
-            this.playedCards[i].clear();
-        }
     };
 
     // Print players statistics and information

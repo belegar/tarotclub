@@ -34,7 +34,7 @@ this.TarotLib = this.TarotLib||{};
  * This class gather a list of cards
  */
 var Deck = function() {
-	this.initialize();
+	this.ctor();
 };
 
 var p = Deck.prototype;
@@ -54,10 +54,8 @@ var p = Deck.prototype;
 // ****************************************************************************
 // CONSTRUCTOR
 // ****************************************************************************
-	/**
-	 * Initialization method.
-	 */
-    p.initialize = function() {
+    p.ctor = function()
+	{
 		this.cards = new Array();
 	};
 

@@ -34,7 +34,7 @@ this.TarotLib = this.TarotLib||{};
  * This class gather a list of cards
  */
 var Player = function(place) {
-    this.initialize(place);
+    this.ctor(place);
 };
 
 var p = Player.prototype;
@@ -43,25 +43,22 @@ var p = Player.prototype;
 // PUBLIC PROPERTIES
 // ****************************************************************************
 
+// ****************************************************************************
+// PRIVATE PROPERTIES
+// ****************************************************************************
     p.position = TarotLib.Place.SOUTH;
 
     /**
      * Table of suits, for each one, true if suit is available for that player
      */
     p.hasSuits = null;
-	
-// ****************************************************************************
-// PRIVATE PROPERTIES
-// ****************************************************************************
 
 // ****************************************************************************
 // CONSTRUCTOR
 // ****************************************************************************
-	/**
-	 * Initialization method.
-	 */
-    p.initialize = function(place) {
-        this.position = place;
+    p.ctor = function(place)
+	{
+		this.position = place;
         this.hasSuits = new Array(5);
 
         for (var i=0; i<this.hasSuits.length; i++) {
@@ -73,12 +70,18 @@ var p = Player.prototype;
 // PUBLIC STATIC METHODS
 // ****************************************************************************
 
+	p.initialize = function()
+	{
+		for (var i=0; i<this.hasSuits.length; i++) {
+            this.hasSuits[i] = true;
+        }
+	}
+
     p.print = function()
     {
-        var place = TarotLib.Place.toString(this.position);
         for (var i=0; i<this.hasSuits.length; i++) {
             if (this.hasSuits[i] === false) {
-                systemPrint("Player " + place + " has a missed suit: " + TarotLib.Suits.toString(i));
+                systemPrint("Player " + TarotLib.Place.toString(this.position) + " has a missed suit: " + TarotLib.Suits.toString(i));
             }
         }
     };

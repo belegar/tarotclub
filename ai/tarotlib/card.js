@@ -35,7 +35,7 @@ this.TarotLib = this.TarotLib||{};
  * If you don't provide the second argument, the owner will be set to HYPERSPACE
  */
 var Card = function(cardName, place) {
-    this.initialize(cardName, place);
+    this.ctor(cardName, place);
 };
 
 var p = Card.prototype;
@@ -63,10 +63,8 @@ var p = Card.prototype;
 // ****************************************************************************
 // CONSTRUCTOR
 // ****************************************************************************
-	/**
-	 * Initialization method.
-	 */
-    p.initialize = function(cardName, place) {
+    p.ctor = function(cardName, place)
+	{
 		var elem = cardName.split("-");
 		this.value = elem[0];
 		this.color = elem[1];

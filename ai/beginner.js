@@ -27,6 +27,7 @@ var CurrentGame = new TarotLib.Game();
 
 // ****************************************************************************
 // TAROTCLUB API CALLED BY C++
+// The functions are called in the order, more or less
 // ****************************************************************************
 
 /**
@@ -34,13 +35,13 @@ var CurrentGame = new TarotLib.Game();
  *
  * @param[in] place The place assigned by the server around the table
  */
-function EnterGame(place)
+function EnterGame(place, mode)
 {
 	CurrentGame.myPlace = place;
 }
 
 /**
- * @brief This function is called when the cards are delt to players
+ * @brief This function is called when the cards are dealt to players
  *
  * @param[in] cards Cards of the bots (18 for 4 players), string format 
  */
@@ -53,7 +54,7 @@ function ReceiveCards(cards)
 /**
  * @brief This function is called when the bot must declare a bid
  * 
- * @return The bid announced, use the definition forrmat
+ * @return The bid announced, use the definition format
  * @see Variable 'Contract'
  */
 function AnnounceBid()
@@ -109,6 +110,16 @@ function AnnounceBid()
 }
 
 /**
+ * @brief This function is called to ask if the bot wants to declare a slam
+ * 
+ * @return true if the bot declares a slam, otherwise false
+ */
+function AnnounceSlam()
+{
+	return false;
+}
+
+/**
  * @brief This function is called for the bot to build the discard
  * 
  * @param[in] dog Dog deck, string format
@@ -116,6 +127,20 @@ function AnnounceBid()
 function BuildDiscard(dog)
 {
 
+}
+
+/**
+ * @brief This function is called to indicate a new game
+ * 
+ * Informational purpose, the script should memorize the arguments for later use
+ *
+ * @param[in] taker Indicates the place of the taker
+ * @param[in] contract Indicates the contract announced by the taker
+ */
+function StartDeal(taker, contract)
+{
+	CurrentGame.taker = taker;
+	CurrentGame.contract = contract;
 }
 
 /**
@@ -128,19 +153,6 @@ function ShowHandle(handle, team)
 {
 }
 
-/**
- * @brief This function is called to indicate a new game
- * 
- * Informational purpose, the script should memorize the arguments for later use
- *
- * @param[in] taker Indicates the place of the taker
- * @param[in] contract Indicates the contract announed by the taker
- */
-function StartGame(taker, contract)
-{
-	CurrentGame.taker = taker;
-	CurrentGame.contract = contract;
-}
 
 /**
  * @brief This function is called when the bot must play a card

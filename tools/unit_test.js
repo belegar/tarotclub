@@ -7,11 +7,18 @@
  * Copyright (C) 2003-2999 - Anthony Rabine
  * anthony@tarotclub.fr
  *
- * This file must be used under the terms of the CeCILL.
- * This source file is licensed as described in the file COPYING, which
- * you should have received as part of this distribution.  The terms
- * are also available at
- * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
  *
  *=============================================================================
  */
@@ -59,7 +66,6 @@ module.RunUnitTest = function()
 module.RunStatsTester = function()
 {
 	systemPrint("\n********** STATISTICS TEST **********");
-	CurrentGame.initialize();
 	
 	// Set game parameters
 	EnterGame(TarotLib.Place.SOUTH);
