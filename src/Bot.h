@@ -27,15 +27,15 @@
 #define _BOT_H
 
 #include "Client.h"
-#include <QScriptEngine>
-#include <QtScriptTools>
+#include <QJSEngine>
 
-class StatsWrapper: public QObject
+class TarotUtil : public QObject
 {
     Q_OBJECT
+
 public:
 
-    StatsWrapper(Deck::Statistics &stats)
+    TarotUtil(Deck::Statistics &stats)
         : mDeck(stats)
     {
 
@@ -49,99 +49,105 @@ public slots:
         return mDeck.nbCards;
     }
 
-    int getNumberOfAtouts()
+    int getNumberOfTrumps()
     {
         return mDeck.trumps;
     }
 
-    int getNumberOfBouts()
+    int getNumberOfOudlers()
     {
-        return mDeck.oudlers;   // 0, 1, 2 ou 3
+        return mDeck.oudlers;
     }
 
-    int getNumberOfAtoutsMajeurs()
+    int getNumberOfMajorTrumps()
     {
-        return mDeck.atoutsMajeurs; // atouts >= 15
+        return mDeck.majorTrumps;
     }
 
-    int getNumberOfRois()
+    int getNumberOfKings()
     {
-        return mDeck.rois;
+        return mDeck.kings;
     }
 
-    int getNumberOfDames()
+    int getNumberOfQueens()
     {
-        return mDeck.dames;
+        return mDeck.queens;
     }
 
-    int getNumberOfCavaliers()
+    int getNumberOfKnights()
     {
-        return mDeck.cavaliers;
+        return mDeck.knights;
     }
 
-    int getNumberOfValets()
+    int getNumberOfJacks()
     {
-        return mDeck.valets;
+        return mDeck.jacks;
     }
 
-    int getNumberOfMariages()
+    int getNumberOfWeddings()
     {
-        return mDeck.mariages;   // nombre de mariages dans la main
+        return mDeck.weddings;
     }
 
-    int getNumberOfLongues()
+    int getNumberOfLongSuits()
     {
-        return mDeck.longues;
+        return mDeck.longSuits;
     }
 
-    int getNumberOfCoupes()
+    int getNumberOfCuts()
     {
-        return mDeck.coupes;     // aucune carte dans une couleur
+        return mDeck.cuts;
     }
 
     int getNumberOfSingletons()
     {
-        return mDeck.singletons; // une seule carte dans une couleur
+        return mDeck.singletons;
     }
 
     int getNumberOfSequences()
     {
-        return mDeck.sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+        return mDeck.sequences;
     }
 
-    int getNumberOfTrefles()
+    int getNumberOfClubs()
     {
-        return mDeck.trefles;
+        return mDeck.clubs;
     }
 
-    int getNumberOfPics()
+    int getNumberOfSpades()
     {
-        return mDeck.pics;
+        return mDeck.spades;
     }
 
-    int getNumberOfCoeurs()
+    int getNumberOfHearts()
     {
-        return mDeck.coeurs;
+        return mDeck.hearts;
     }
 
-    int getNumberOfCarreaux()
+    int getNumberOfDiamonds()
     {
-        return mDeck.carreaux;
+        return mDeck.diamonds;
     }
 
-    bool hasPetits()
+    bool hasLittleTrump()
     {
-        return mDeck.petit;
+        return mDeck.littleTrump;
     }
 
-    bool hasVingtEtUn()
+    bool hasBigTrump()
     {
-        return mDeck.vingtEtUn;
+        return mDeck.bigTrump;
     }
 
-    bool hasExcuse()
+    bool hasFool()
     {
-        return mDeck.excuse;
+        return mDeck.fool;
+    }
+
+    void Print(const QString &message)
+    {
+        QString toPrint = QString("Bot script: ") + message;
+        qDebug() << toPrint.toLatin1().constData();
     }
 
 };
@@ -158,15 +164,11 @@ public:
 
 private:
     QTimer  timeBeforeSend;
-    QScriptEngine botEngine;
+    QJSEngine botEngine;
     // Exposed object to the Javascript
-    StatsWrapper statsObj;
+    TarotUtil utilObj;
 
-#ifndef QT_NO_DEBUG
-    QScriptEngineDebugger debugger;
-#endif
-
-    QScriptValue CallScript(const QString &function, QScriptValueList &args);
+    QJSValue CallScript(const QString &function, QJSValueList &args);
     bool InitializeScriptContext();
 
 private slots:

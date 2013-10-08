@@ -267,57 +267,57 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
     <message>
         <location filename="../src/client/InfosDock.cpp" line="100"/>
         <source>Sequences: </source>
-        <translation type="unfinished"></translation>
+        <translation>Sequences :</translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="101"/>
         <source>Singletons: </source>
-        <translation type="unfinished"></translation>
+        <translation>Singletons :</translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="103"/>
         <source>Clubs: </source>
-        <translation type="unfinished"></translation>
+        <translation>Trèfles :</translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="104"/>
         <source>Diamonds: </source>
-        <translation type="unfinished"></translation>
+        <translation>Carreaux : </translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="105"/>
         <source>Spades: </source>
-        <translation type="unfinished"></translation>
+        <translation>Piques : </translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="106"/>
         <source>Hearts: </source>
-        <translation type="unfinished"></translation>
+        <translation>Coeurs :</translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="108"/>
         <source>Kings: </source>
-        <translation type="unfinished"></translation>
+        <translation>Rois : </translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="109"/>
         <source>Voids: </source>
-        <translation type="unfinished"></translation>
+        <translation>Coupes : </translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="110"/>
         <source>Queens: </source>
-        <translation type="unfinished"></translation>
+        <translation>Dames : </translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="111"/>
         <source>Knights: </source>
-        <translation type="unfinished"></translation>
+        <translation>Cavaliers : </translation>
     </message>
     <message>
         <location filename="../src/client/InfosDock.cpp" line="112"/>
         <source>Jacks: </source>
-        <translation type="unfinished"></translation>
+        <translation>Valets : </translation>
     </message>
 </context>
 <context>
@@ -693,7 +693,7 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
         <source>Language</source>
         <translation>Langue</translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../src/client/OptionsUI.ui" line="411"/>
         <source>Français</source>
         <translation></translation>

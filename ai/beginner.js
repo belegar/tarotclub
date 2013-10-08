@@ -37,13 +37,13 @@ var CurrentGame = new TarotLib.Game();
  */
 function EnterGame(place, mode)
 {
-	CurrentGame.myPlace = place;
+    CurrentGame.myPlace = place;
 }
 
 /**
  * @brief This function is called when the cards are dealt to players
  *
- * @param[in] cards Cards of the bots (18 for 4 players), string format 
+ * @param[in] cards Cards of the bots (18 for 4 players), string format
  */
 function ReceiveCards(cards)
 {
@@ -53,46 +53,46 @@ function ReceiveCards(cards)
 
 /**
  * @brief This function is called when the bot must declare a bid
- * 
+ *
  * @return The bid announced, use the definition format
  * @see Variable 'Contract'
  */
 function AnnounceBid()
 {
    total = 0;
-   
+
    systemPrint("The bot is announcing a bid.");
-   
+
    // We start looking at bouts, each of them increase the total value of points
-   if( TStats.hasVingtEtUn() === true ) {
+   if( TarotUtil.hasBigTrump() === true ) {
       total += 9;
    }
-   if( TStats.hasExcuse === true ) {
+   if( TarotUtil.hasFool() === true ) {
       total += 7;
    }
-   if( TStats.hasPetit === true ) {
-      if( TStats.getNumberOfAtouts === 5 ) {
+   if( TarotUtil.hasLittleTrump() === true ) {
+       if( TarotUtil.getNumberOfTrumps() === 5 ) {
          total += 5;
-      } else if( TStats.getNumberOfAtouts === 6 || TStats.getNumberOfAtouts === 7 ) {
+      } else if( TarotUtil.getNumberOfTrumps() === 6 || TarotUtil.getNumberOfTrumps() === 7 ) {
          total += 7;
-      } else if( TStats.getNumberOfAtouts > 7 ) {
+      } else if( TarotUtil.getNumberOfTrumps() > 7 ) {
          total += 8;
       }
    }
 
    // Each atout counts two points
    // Each major atout counts one more point
-   total += TStats.getNumberOfAtouts() * 2;
-   total += TStats.getNumberOfAtoutsMajeurs() * 2;
-   total += TStats.getNumberOfRois() * 6;
-   total += TStats.getNumberOfDames() * 3;
-   total += TStats.getNumberOfCavaliers() * 2;
-   total += TStats.getNumberOfValets();
-   total += TStats.getNumberOfMariages();
-   total += TStats.getNumberOfLongues() * 5;
-   total += TStats.getNumberOfCoupes() * 5;
-   total += TStats.getNumberOfSingletons() * 3;
-   total += TStats.getNumberOfSequences() * 4;
+   total += TarotUtil.getNumberOfTrumps() * 2;
+   total += TarotUtil.getNumberOfMajorTrumps() * 2;
+   total += TarotUtil.getNumberOfKings() * 6;
+   total += TarotUtil.getNumberOfQueens() * 3;
+   total += TarotUtil.getNumberOfKnights() * 2;
+   total += TarotUtil.getNumberOfJacks();
+   total += TarotUtil.getNumberOfWeddings();
+   total += TarotUtil.getNumberOfLongSuits() * 5;
+   total += TarotUtil.getNumberOfCuts() * 5;
+   total += TarotUtil.getNumberOfSingletons() * 3;
+   total += TarotUtil.getNumberOfSequences() * 4;
 
    // We decide on a bid depending of thresholds
    if( total <= 35 ) {
@@ -111,7 +111,7 @@ function AnnounceBid()
 
 /**
  * @brief This function is called to ask if the bot wants to declare a slam
- * 
+ *
  * @return true if the bot declares a slam, otherwise false
  */
 function AnnounceSlam()
@@ -121,7 +121,7 @@ function AnnounceSlam()
 
 /**
  * @brief This function is called for the bot to build the discard
- * 
+ *
  * @param[in] dog Dog deck, string format
  */
 function BuildDiscard(dog)
@@ -131,7 +131,7 @@ function BuildDiscard(dog)
 
 /**
  * @brief This function is called to indicate a new game
- * 
+ *
  * Informational purpose, the script should memorize the arguments for later use
  *
  * @param[in] taker Indicates the place of the taker
@@ -139,8 +139,8 @@ function BuildDiscard(dog)
  */
 function StartDeal(taker, contract)
 {
-	CurrentGame.taker = taker;
-	CurrentGame.contract = contract;
+    CurrentGame.taker = taker;
+    CurrentGame.contract = contract;
 }
 
 /**
@@ -156,10 +156,10 @@ function ShowHandle(handle, team)
 
 /**
  * @brief This function is called when the bot must play a card
- * 
+ *
  * The counter in parameter is useful to calculate the current position
- * in the current turn and to know what are the cards played by the 
- * previous players. 
+ * in the current turn and to know what are the cards played by the
+ * previous players.
  *
  * Use this counter along with the main deck of cards to analyse the game.
  *
@@ -172,15 +172,15 @@ function ShowHandle(handle, team)
 function PlayCard()
 {
 //	debugger; // enable this line to generate a breakpoint
-	var cardName;
-	
+    var cardName;
+
     if (CurrentGame.taker === CurrentGame.myPlace) {
         cardName = CurrentGame.playAttackStrategy();
-	} else {
+    } else {
         cardName = CurrentGame.playDefenseStrategy();
-	}
+    }
 
-	return cardName;
+    return cardName;
 }
 
 /**

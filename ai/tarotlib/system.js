@@ -25,7 +25,7 @@
 
 function systemPrint(message)
 {
-    scriptDebug(message + "<br />");
+    TarotUtil.Print(message + "<br />");
 }
 
 // End of file

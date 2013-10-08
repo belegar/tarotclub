@@ -120,15 +120,15 @@ Contract Client::CalculateBid()
     UpdateStatistics();
 
     // Set points according to the card values
-    if (stats.vingtEtUn == true)
+    if (stats.bigTrump == true)
     {
         total += 9;
     }
-    if (stats.excuse == true)
+    if (stats.fool == true)
     {
         total += 7;
     }
-    if (stats.petit == true)
+    if (stats.littleTrump == true)
     {
         if (stats.trumps == 5)
         {
@@ -147,14 +147,14 @@ Contract Client::CalculateBid()
     // Each trump is 1 point
     // Each major trump is 1 more point
     total += stats.trumps * 2;
-    total += stats.atoutsMajeurs * 2;
-    total += stats.rois * 6;
-    total += stats.dames * 3;
-    total += stats.cavaliers * 2;
-    total += stats.valets;
-    total += stats.mariages;
-    total += stats.longues * 5;
-    total += stats.coupes * 5;
+    total += stats.majorTrumps * 2;
+    total += stats.kings * 6;
+    total += stats.queens * 3;
+    total += stats.knights * 2;
+    total += stats.jacks;
+    total += stats.weddings;
+    total += stats.longSuits * 5;
+    total += stats.cuts * 5;
     total += stats.singletons * 3;
     total += stats.sequences * 4;
 

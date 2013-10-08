@@ -29,7 +29,7 @@ using namespace std;
 
 /*****************************************************************************/
 Bot::Bot() :
-     statsObj(GetStatistics())
+     utilObj(GetStatistics())
 {
     connect(this, &Client::sigPlayersList, this, &Bot::slotPlayersList);
     connect(this, &Client::sigMessage, this, &Bot::slotMessage);
@@ -53,10 +53,6 @@ Bot::Bot() :
     timeBeforeSend.setInterval(0);
     connect (&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
     //connect(&timeBeforeSend, &QTimer::timeout, this, &Bot::slotTimeBeforeSend);
-
-#ifndef QT_NO_DEBUG
-    debugger.attachTo(&botEngine);
-#endif
 }
 /*****************************************************************************/
 Bot::~Bot()
@@ -74,7 +70,7 @@ void Bot::slotAssignedPlace(Place p)
 {
     InitializeScriptContext();
 
-    QScriptValueList args;
+    QJSValueList args;
     args << p;
     CallScript("EnterGame", args);
 }
@@ -86,7 +82,7 @@ void Bot::slotPlayersList(QMap<Place, Identity> &players)
 /*****************************************************************************/
 void Bot::slotReceiveCards()
 {
-    QScriptValueList args;
+    QJSValueList args;
     args << GetMyDeck().GetCardList();
     CallScript("ReceiveCards", args);
 }
@@ -99,14 +95,14 @@ void Bot::slotSelectPlayer(Place p)
 /*****************************************************************************/
 void Bot::slotRequestBid(Contract highestBid)
 {
-    int ret;
+    qint32 ret;
     Contract botContract;
 
-    QScriptValueList args;
+    QJSValueList args;
     args << (int)highestBid;
 
     // FIXME: Get from the script if a slam has been announced
-    ret = CallScript("AnnounceBid", args).toInteger();
+    ret = CallScript("AnnounceBid", args).toInt();
 
     // security test
     if ((ret >= PASS) && (ret <= GUARD_AGAINST))
@@ -136,7 +132,7 @@ void Bot::slotShowBid(Place place, bool slam, Contract contract)
 /*****************************************************************************/
 void Bot::slotStartDeal(Place taker, Contract contract)
 {
-    QScriptValueList args;
+    QJSValueList args;
     args << taker << contract;
     CallScript("StartGame", args);
 
@@ -151,7 +147,7 @@ void Bot::slotShowDog()
 /*****************************************************************************/
 void Bot::slotBuildDiscard()
 {
-    QScriptValueList args;
+    QJSValueList args;
     args << GetDogDeck().GetCardList();
     QString ret = CallScript("BuildDiscard", args).toString();
 
@@ -183,7 +179,7 @@ void Bot::slotPlayCard()
 /*****************************************************************************/
 void Bot::slotShowCard(int id, Place p)
 {
-    QScriptValueList args;
+    QJSValueList args;
     args << TarotDeck::GetCard(id)->GetName() << (int)p;
     CallScript("PlayedCard", args);
 
@@ -193,7 +189,7 @@ void Bot::slotShowCard(int id, Place p)
 /*****************************************************************************/
 void Bot::slotShowHandle()
 {
-    QScriptValueList args;
+    QJSValueList args;
     args << GetHandleDeck().GetCardList() << (int)GetHandleDeck().GetOwner();
     CallScript("ShowHandle", args);
 
@@ -229,7 +225,7 @@ void Bot::slotTimeBeforeSend()
 {
     Card *c = NULL;
 
-    QScriptValueList args;
+    QJSValueList args;
     QString ret = CallScript("PlayCard", args).toString();
 
     // Test validity of card
@@ -256,22 +252,6 @@ void Bot::slotTimeBeforeSend()
     SendCard(c);
 }
 /*****************************************************************************/
-QScriptValue myPrint(QScriptContext *context, QScriptEngine *eng)
-{
-    Q_UNUSED(eng);
-
-    QScriptValue arg = context->argument(0);
-    if (!arg.isString())
-    {
-        return context->throwError(
-                   QScriptContext::TypeError,
-                   QString::fromLatin1("ScriptDebug(): expected string argument"));
-    }
-    QString toPrint = QString("Bot script: ") + arg.toString();
-    qDebug() << toPrint.toLatin1().constData();
-    return QScriptValue();
-}
-/*****************************************************************************/
 bool Bot::InitializeScriptContext()
 {
     QStringList scriptFiles;
@@ -296,46 +276,30 @@ bool Bot::InitializeScriptContext()
     scriptFiles << appRoot + "/beginner.js";
 
     // Give access to some global objects from the JavaScript engine
-    botEngine.globalObject().setProperty("TStats", botEngine.newQObject(&statsObj));
-    botEngine.globalObject().setProperty("scriptDebug", botEngine.newFunction(&myPrint));
+    botEngine.globalObject().setProperty("TarotUtil", botEngine.newQObject(&utilObj));
 
     // Load all Javascript files
     QListIterator<QString> i(scriptFiles);
     while (i.hasNext())
     {
-        QFile scriptFile(i.next());
-
-        if (! scriptFile.exists())
-        {
-            qDebug() << "Script error: could not find program file!";
-            return false;
-        }
+        QString fileName = i.next();
+        QFile scriptFile(fileName);
 
         if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            qDebug() <<  "Script error: could not open program file!";
+            qDebug() <<  "Script error: could not open program file: " << fileName;
             return false;
         }
 
         QString strProgram = scriptFile.readAll();
+        scriptFile.close();
 
-        // do static check so far of code:
-        if (! botEngine.canEvaluate(strProgram))
-        {
-            qDebug() <<  "Script error: canEvaluate returned false!";
-            return false;
-        }
-    #ifndef QT_NO_DEBUG
-        debugger.action(QScriptEngineDebugger::InterruptAction);
-    #endif
-        // actually do the eval:
-        botEngine.evaluate(strProgram);
+        QJSValue ret = botEngine.evaluate(strProgram, fileName);
 
         // uncaught exception?
-        if (botEngine.hasUncaughtException())
+        if (ret.isError())
         {
-            QScriptValue exception = botEngine.uncaughtException();
-            qDebug() <<  "Script error: Script threw an uncaught exception: " << exception.toString();
+            qDebug() <<  "Evaluate uncaught exception: " << ret.toString();
             return false;
         }
     }
@@ -343,28 +307,21 @@ bool Bot::InitializeScriptContext()
     return true;
 }
 /*****************************************************************************/
-QScriptValue Bot::CallScript(const QString &function, QScriptValueList &args)
+QJSValue Bot::CallScript(const QString &function, QJSValueList &args)
 {
-    QScriptValue ret;
-    QScriptValue createFunc = botEngine.globalObject().property(function);
-    if (botEngine.hasUncaughtException())
+    QJSValue ret;
+    QJSValue createFunc = botEngine.globalObject().property(function);
+    if (createFunc.isError())
     {
-        QScriptValue exception = botEngine.uncaughtException();
-        qDebug() <<  "Script error: script threw an uncaught exception while looking for create func: " << exception.toString();
+        qDebug() <<  "Script error: script threw an uncaught exception while looking for create func: " << createFunc.toString();
         return ret;
     }
 
-    if (!createFunc.isFunction())
-    {
-        qDebug() <<  "Script error: " << function << " is not a function!";
-    }
+    ret = createFunc.call(args);
 
-    ret = createFunc.call(QScriptValue(), args);
-
-    if (botEngine.hasUncaughtException())
+    if (ret.isError())
     {
-        QScriptValue exception = botEngine.uncaughtException();
-        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + exception.toString();
+        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + ret.toString();
     }
 
     return ret;
