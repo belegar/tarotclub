@@ -42,32 +42,26 @@ var p = Game.prototype;
 // ****************************************************************************
 // PUBLIC PROPERTIES
 // ****************************************************************************
-    p.players = null;
-
+    
+	// Player variables
+	p.players = null;
     p.NUMBER_OF_PLAYERS = 4;
 
-
-    // Game variables
+    // Game state variables
     p.contract = TarotLib.Contract.PASS;
-
     p.taker = TarotLib.Place.SOUTH;
-
     p.trickCounter = 0;		// number of turns, 18 with 4 players
-
     p.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
+	p.playedCards = null;
 
     // Bot variables
     p.myPlace = TarotLib.Place.SOUTH;
-
     p.myDeck = null;
 
     // Variables of the current turn
     p.trickSuit = TarotLib.Suits.SPADES;
-
     p.firstCardValue = 0;
-
     p.startPosition = 0;
-
     p.startedWithExcuse = false;;
 
 // ****************************************************************************
@@ -115,12 +109,20 @@ var p = Game.prototype;
         }
     };
 
+	// Print players statistics and information
+    p.printPlayers = function()
+    {
+        for (var j=0; j<this.players.length; j++) {
+            this.players[j].print();
+        }
+    };
+	
     p.detectMissedColor = function(place)
     {
         if (this.currentPosition === 0) {
             this.startedWithExcuse = false;
             // First played card is the color to play, except in case of excuse (0-A)
-            this.trickSuit = this.playedCards[this.trickCounter].cards[0].color;
+            this.trickSuit = this.playedCards[this.trickCounter].cards[0].suit;
             this.firstCardValue = this.playedCards[this.trickCounter].cards[0].value;
 
             // special case of excuse
@@ -128,27 +130,11 @@ var p = Game.prototype;
                 this.startedWithExcuse = true;
             }
         } else if ((this.currentPosition === 1) && (this.startedWithExcuse === true)) {
-            this.trickSuit = this.playedCards[this.trickCounter].cards[1].color;
+            this.trickSuit = this.playedCards[this.trickCounter].cards[1].suit;
         } else {
-            if (this.playedCards[this.trickCounter].cards[this.currentPosition].color !== this.trickSuit) {
+            if (this.playedCards[this.trickCounter].cards[this.currentPosition].suit !== this.trickSuit) {
                 this.players[place].setMissedColor(this.trickSuit);
             }
-        }
-    };
-
-    /**
-     * @brief This method is call at the end of each trick to analyze played cards
-     */
-    p.analyzeTrick = function(place)
-    {
-        this.detectMissedColor(place);
-    };
-
-    // Print players statistics and information
-    p.printPlayers = function()
-    {
-        for (var j=0; j<this.players.length; j++) {
-            this.players[j].print();
         }
     };
 
@@ -156,7 +142,7 @@ var p = Game.prototype;
     {
         this.playedCards[this.trickCounter].addOneCard(cardName, place);
 
-        this.analyzeTrick(place);
+        this.detectMissedColor(place);
 
         this.currentPosition++;
         if (this.currentPosition >= 4) {
@@ -197,7 +183,8 @@ var p = Game.prototype;
         return true;
     };
 
-
+	
+	
 TarotLib.Game = Game;
 }());
 // End of file

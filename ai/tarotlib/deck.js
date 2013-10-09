@@ -45,7 +45,7 @@ var p = Deck.prototype;
 	/**
 	 * Array of cards
 	 */
-	p.cards = null;
+	this.cards = null;
 	
 // ****************************************************************************
 // PRIVATE PROPERTIES
@@ -66,9 +66,19 @@ var p = Deck.prototype;
 	// debug code only
     p.print = function()
 	{
-		for(var i=0; i<this.cards.length; i++) {
+		for(var i=0; i < this.cards.length; i++) {
             this.cards[i].print();
 		}
+	};
+	
+	p.size = function()
+	{
+		return this.cards.length;
+	};
+	
+	p.get = function(index)
+	{
+		return this.cards[index];
 	};
 	
     p.clear = function()

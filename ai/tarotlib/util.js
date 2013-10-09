@@ -54,18 +54,201 @@ this.TarotLib = this.TarotLib||{};
 		GUARD_WITHOUT:3,
 		GUARD_AGAINST:4
 	};
+	
+// ****************************************************************************
+// PUBLIC METHODS
+// ****************************************************************************
+	function Stats()
+	{
+        this.trumps = 0;  // nombres d'atouts , en comptant les bouts et l'excuse
+        this.oudlers = 0;   // 0, 1, 2 ou 3
+        this.majorTrumps = 0; // atouts >= 15
 
-// ****************************************************************************
-// PUBLIC PROPERTIES
-// ****************************************************************************
+        this.kings = 0;
+        this.queens = 0;
+        this.knights = 0;
+        this.jacks = 0;
 
-// ****************************************************************************
-// PRIVATE PROPERTIES
-// ****************************************************************************
+        this.weddings = 0;   // nombre de mariages dans la main
+        this.longSuits = 0;
+        this.cuts = 0;     // aucune carte dans une couleur
+        this.singletons = 0; // une seule carte dans une couleur
+        this.sequences = 0;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
 
-// ****************************************************************************
-// CONSTRUCTOR
-// ****************************************************************************
+        this.clubs = 0;
+        this.spades = 0;
+        this.hearts = 0;
+        this.diamonds = 0;
+
+        this.littleTrump = false;
+        this.bigTrump = false;
+        this.fool = false;
+		
+		/**
+		 * @brief Update the statistics of a deck
+		 */
+		this.update = function(deck)
+		{
+			var i, k;
+			var c;
+			
+			// looking for trumps
+			for (i = 0; i < deck.size(); i++)
+			{
+				c = deck.get(i);
+				if (c.suit == Suits.TRUMPS)
+				{
+					this.trumps++;
+					if (c.value >= 15)
+					{
+						this.majorTrumps++;
+					}
+					if (c.value == 21)
+					{
+						this.bigTrump = true;
+						this.oudlers++;
+					}
+					if (c.value == 1)
+					{
+						this.littleTrump = true;
+						this.oudlers++;
+					}
+					if (c.value == 0)
+					{
+						this.fool = true;
+						this.oudlers++;
+					}
+				}
+			}
+		
+			var suit;
+			var longue;
+			var count = 0;
+			var flag = 0;
+			var distr = new Array(14); // test of a distribution
+
+			// Normal suits
+			for (i = 0; i<4; i++)
+			{
+				if (i == 0)
+				{
+					suit = Suits.SPADES;
+				}
+				else if (i == 1)
+				{
+					suit = Suits.HEARTS;
+				}
+				else if (i == 2)
+				{
+					suit = Suits.CLUBS;
+				}
+				else
+				{
+					suit = Suits.DIAMONDS;
+				}
+
+				for (k = 0; k<14; k++)
+				{
+					distr[k] = 0;
+				}
+				count = 0;
+
+				for (k = 0; k < deck.size(); k++)
+				{
+					c = deck.get(k);
+					if (c.suit == suit)
+					{
+						count++;
+						distr[c.value - 1] = 1;
+						if (c.value == 11)
+						{
+							this.jacks++;
+						}
+						if (c.value == 12)
+						{
+							this.knights++;
+						}
+					}
+				}
+
+				if (count == 1)
+				{
+					this.singletons++;
+				}
+				if (count == 0)
+				{
+					this.cuts++;
+				}
+
+				// Number of cards in each normal suit
+				if (i == 0)
+				{
+					this.spades = count;
+				}
+				else if (i == 1)
+				{
+					this.hearts = count;
+				}
+				else if (i == 2)
+				{
+					this.clubs = count;
+				}
+				else
+				{
+					this.diamonds = count;
+				}
+
+				if ((distr[13] == 1) && (distr[12] == 1))
+				{
+					this.weddings++; // mariage (king + queen)
+				}
+				if (distr[13] == 1)
+				{
+					this.kings++;     // king without queen
+				}
+				if (distr[12] == 1)
+				{
+					this.queens++;    // queen without kings
+				}
+
+				// sequences
+				count = 0;  // length of the sequence
+				flag = 0;   // suit found for this sequence
+				longue = 0;
+
+				for (k = 0; k < 14; k++)
+				{
+					if (distr[k] == 1)
+					{
+						longue++;
+						// start of a sequence
+						if (flag == 0)
+						{
+							flag = 1;
+							count++;
+						}
+						else
+						{
+							count++;
+						}
+					}
+					else if (flag == 1)
+					{
+						if (count >= 5)
+						{
+							this.sequences++;
+						}
+						count = 0;
+						flag = 0;
+					}
+				}
+				if (longue >= 5)
+				{
+					this.longSuits++;
+				}
+			}
+		}; // end update()
+	}; // end Stats
 
 // ****************************************************************************
 // PUBLIC STATIC METHODS
@@ -136,6 +319,7 @@ this.TarotLib = this.TarotLib||{};
 TarotLib.Place = Place;
 TarotLib.Suits = Suits;
 TarotLib.Contract = Contract;
+TarotLib.Stats = Stats;
 
 }());
 

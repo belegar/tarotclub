@@ -53,8 +53,8 @@ var UnitTestModule = (function () {
 module.RunUnitTest = function()
 {
 	systemPrint("********** START UNIT TEST **********");
-	myCard = new TarotLib.Card("7-C");
-	deck = new TarotLib.Deck();
+	var deck = new TarotLib.Deck();
+	
 	deck.setCards("7-C;21-A");
 	deck.print();
 	deck.clear();
@@ -63,9 +63,23 @@ module.RunUnitTest = function()
 	systemPrint(""); // empty string = skip line
 }
 /*****************************************************************************/
-module.RunStatsTester = function()
+module.RunStatsTest = function()
 {
-	systemPrint("\n********** STATISTICS TEST **********");
+	systemPrint("********** STATS TEST **********");
+	var stats = new TarotLib.Stats;
+	var deck = new TarotLib.Deck();
+	
+	deck.setCards(cardList);
+	stats.update(deck);
+	
+//	stats.print();
+	
+	systemPrint(""); // empty string = skip line
+}
+/*****************************************************************************/
+module.RunMissingSuitDetectionTester = function()
+{
+	systemPrint("\n********** MISSING SUIT DETECTION TEST **********");
 	
 	// Set game parameters
 	EnterGame(TarotLib.Place.SOUTH);

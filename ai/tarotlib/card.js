@@ -50,11 +50,9 @@ var p = Card.prototype;
 	 * @default null
 	 * @readonly
 	 */
-	p.value = null;
-	
-	p.color = null;
-	
-	p.owner = TarotLib.Place.NOWHERE;
+	this.value = new Number(0);
+	this.suit = TarotLib.Suits.SPADES;
+	this.owner = TarotLib.Place.NOWHERE;
 	
 // ****************************************************************************
 // PRIVATE PROPERTIES
@@ -66,8 +64,8 @@ var p = Card.prototype;
     p.ctor = function(cardName, place)
 	{
 		var elem = cardName.split("-");
-		this.value = elem[0];
-		this.color = elem[1];
+		this.value = parseInt(elem[0]);
+		this.suit = TarotLib.Suits.toInteger(elem[1]);
 		this.owner = place;
 	};
 
@@ -77,14 +75,14 @@ var p = Card.prototype;
 
     p.getName = function()
 	{
-		return (this.value + "-" + this.color);
+		return (this.value + "-" + TarotLib.Suits.toString(this.suit));
 	};
 	
 	// debug code only
     p.print = function()
 	{
 		var place = TarotLib.Place.toString(this.owner);
-        systemPrint("Card value: " + this.value + " Color: " + this.color + " Owner: " + place);
+        systemPrint("Card value: " + this.value + " Suit: " + TarotLib.Suits.toString(this.suit) + " Owner: " + place);
 	};
 
 TarotLib.Card = Card;
