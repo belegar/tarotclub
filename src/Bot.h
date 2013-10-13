@@ -35,121 +35,13 @@ class TarotUtil : public QObject
 
 public:
 
-    TarotUtil(Deck::Statistics &stats)
-        : mDeck(stats)
-    {
-
-    }
-
-    Deck::Statistics &mDeck;
-
 public slots:
-    int getNumberOfCards()
-    {
-        return mDeck.nbCards;
-    }
-
-    int getNumberOfTrumps()
-    {
-        return mDeck.trumps;
-    }
-
-    int getNumberOfOudlers()
-    {
-        return mDeck.oudlers;
-    }
-
-    int getNumberOfMajorTrumps()
-    {
-        return mDeck.majorTrumps;
-    }
-
-    int getNumberOfKings()
-    {
-        return mDeck.kings;
-    }
-
-    int getNumberOfQueens()
-    {
-        return mDeck.queens;
-    }
-
-    int getNumberOfKnights()
-    {
-        return mDeck.knights;
-    }
-
-    int getNumberOfJacks()
-    {
-        return mDeck.jacks;
-    }
-
-    int getNumberOfWeddings()
-    {
-        return mDeck.weddings;
-    }
-
-    int getNumberOfLongSuits()
-    {
-        return mDeck.longSuits;
-    }
-
-    int getNumberOfCuts()
-    {
-        return mDeck.cuts;
-    }
-
-    int getNumberOfSingletons()
-    {
-        return mDeck.singletons;
-    }
-
-    int getNumberOfSequences()
-    {
-        return mDeck.sequences;
-    }
-
-    int getNumberOfClubs()
-    {
-        return mDeck.clubs;
-    }
-
-    int getNumberOfSpades()
-    {
-        return mDeck.spades;
-    }
-
-    int getNumberOfHearts()
-    {
-        return mDeck.hearts;
-    }
-
-    int getNumberOfDiamonds()
-    {
-        return mDeck.diamonds;
-    }
-
-    bool hasLittleTrump()
-    {
-        return mDeck.littleTrump;
-    }
-
-    bool hasBigTrump()
-    {
-        return mDeck.bigTrump;
-    }
-
-    bool hasFool()
-    {
-        return mDeck.fool;
-    }
 
     void Print(const QString &message)
     {
         QString toPrint = QString("Bot script: ") + message;
         qDebug() << toPrint.toLatin1().constData();
     }
-
 };
 /*****************************************************************************/
 class Bot : public Client

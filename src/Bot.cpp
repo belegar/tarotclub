@@ -28,8 +28,7 @@
 using namespace std;
 
 /*****************************************************************************/
-Bot::Bot() :
-     utilObj(GetStatistics())
+Bot::Bot()
 {
     connect(this, &Client::sigPlayersList, this, &Bot::slotPlayersList);
     connect(this, &Client::sigMessage, this, &Bot::slotMessage);
@@ -96,18 +95,26 @@ void Bot::slotSelectPlayer(Place p)
 void Bot::slotRequestBid(Contract highestBid)
 {
     qint32 ret;
+    bool slam = false;
     Contract botContract;
 
     QJSValueList args;
     args << (int)highestBid;
 
-    // FIXME: Get from the script if a slam has been announced
     ret = CallScript("AnnounceBid", args).toInt();
+
+#ifdef QT_DEBUG
+    qDebug() << GetMyDeck().GetCardList() << endl;
+#endif
+
 
     // security test
     if ((ret >= PASS) && (ret <= GUARD_AGAINST))
     {
         botContract = (Contract)ret;
+        // Ask to the bot if a slam has been announced
+        args.clear();
+        slam = CallScript("AnnounceSlam", args).toBool();
     }
     else
     {
@@ -119,7 +126,7 @@ void Bot::slotRequestBid(Contract highestBid)
     {
         botContract = PASS;
     }
-    SendBid(botContract, false);
+    SendBid(botContract, slam);
 }
 /*****************************************************************************/
 void Bot::slotShowBid(Place place, bool slam, Contract contract)
