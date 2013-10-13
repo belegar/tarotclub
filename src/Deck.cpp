@@ -351,7 +351,7 @@ void Deck::AnalyzeSuits(Statistics &stats)
             stats.diamonds = count;
         }
 
-        if (distr[13] == 1 && distr[12] == 1)
+        if ((distr[13] == 1) && (distr[12] == 1))
         {
             stats.weddings++; // mariage (king + queen)
         }
