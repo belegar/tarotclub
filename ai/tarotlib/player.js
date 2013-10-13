@@ -46,12 +46,12 @@ var p = Player.prototype;
 // ****************************************************************************
 // PRIVATE PROPERTIES
 // ****************************************************************************
-    p.position = TarotLib.Place.SOUTH;
+    this.position = 0;
 
     /**
      * Table of suits, for each one, true if suit is available for that player
      */
-    p.hasSuits = null;
+    this.hasSuits = null;
 
 // ****************************************************************************
 // CONSTRUCTOR
@@ -59,11 +59,10 @@ var p = Player.prototype;
     p.ctor = function(place)
 	{
 		this.position = place;
-        this.hasSuits = new Array(5);
 
-        for (var i=0; i<this.hasSuits.length; i++) {
-            this.hasSuits[i] = true;
-        }
+		this.hasSuits = new Array(5);
+		this.initialize();
+        
 	};
 
 // ****************************************************************************
@@ -72,23 +71,25 @@ var p = Player.prototype;
 
 	p.initialize = function()
 	{
-		for (var i=0; i<this.hasSuits.length; i++) {
-            this.hasSuits[i] = true;
-        }
+		this.hasSuits[TarotLib.Suit.SPADES] = true;
+		this.hasSuits[TarotLib.Suit.HEARTS] = true;
+		this.hasSuits[TarotLib.Suit.CLUBS] = true;
+		this.hasSuits[TarotLib.Suit.DIAMONDS] = true;
+		this.hasSuits[TarotLib.Suit.TRUMPS] = true;
 	}
 
     p.print = function()
     {
-        for (var i=0; i<this.hasSuits.length; i++) {
-            if (this.hasSuits[i] === false) {
-                systemPrint("Player " + TarotLib.Place.toString(this.position) + " has a missed suit: " + TarotLib.Suits.toString(i));
+        for (var suit in this.hasSuits) {
+            if (this.hasSuits[suit] === false) {
+                systemPrint("Player " + TarotLib.Place.toString(this.position) + " has a missed suit: " + suit);
             }
         }
     };
 
     p.setMissedColor = function(color)
     {
-        this.hasSuits[TarotLib.Suits.toInteger(color)] = false;
+        this.hasSuits[color] = false;
     };
 
     // return true if there is at least one suit missing, including trumps

@@ -59,40 +59,40 @@ function ReceiveCards(cards)
  */
 function AnnounceBid()
 {
-   total = 0;
-
-   systemPrint("The bot is announcing a bid.");
+   var total = 0;
+   var stats = new TarotLib.Stats();
+   stats.update(CurrentGame.myDeck);
 
    // We start looking at bouts, each of them increase the total value of points
-   if( TarotUtil.hasBigTrump() === true ) {
+   if( stats.bigTrump === true ) {
       total += 9;
    }
-   if( TarotUtil.hasFool() === true ) {
+   if( stats.fool === true ) {
       total += 7;
    }
-   if( TarotUtil.hasLittleTrump() === true ) {
-       if( TarotUtil.getNumberOfTrumps() === 5 ) {
+   if( stats.littleTrump === true ) {
+       if( stats.trumps === 5 ) {
          total += 5;
-      } else if( TarotUtil.getNumberOfTrumps() === 6 || TarotUtil.getNumberOfTrumps() === 7 ) {
+      } else if( stats.trumps === 6 || stats.trumps === 7 ) {
          total += 7;
-      } else if( TarotUtil.getNumberOfTrumps() > 7 ) {
+      } else if( stats.trumps > 7 ) {
          total += 8;
       }
    }
 
    // Each atout counts two points
    // Each major atout counts one more point
-   total += TarotUtil.getNumberOfTrumps() * 2;
-   total += TarotUtil.getNumberOfMajorTrumps() * 2;
-   total += TarotUtil.getNumberOfKings() * 6;
-   total += TarotUtil.getNumberOfQueens() * 3;
-   total += TarotUtil.getNumberOfKnights() * 2;
-   total += TarotUtil.getNumberOfJacks();
-   total += TarotUtil.getNumberOfWeddings();
-   total += TarotUtil.getNumberOfLongSuits() * 5;
-   total += TarotUtil.getNumberOfCuts() * 5;
-   total += TarotUtil.getNumberOfSingletons() * 3;
-   total += TarotUtil.getNumberOfSequences() * 4;
+   total += stats.trumps * 2;
+   total += stats.majorTrumps * 2;
+   total += stats.kings * 6;
+   total += stats.queens * 3;
+   total += stats.knights * 2;
+   total += stats.jacks;
+   total += stats.weddings;
+   total += stats.longSuits * 5;
+   total += stats.cuts * 5;
+   total += stats.singletons * 3;
+   total += stats.sequences * 4;
 
    // We decide on a bid depending of thresholds
    if( total <= 35 ) {
@@ -106,6 +106,9 @@ function AnnounceBid()
    } else {
       cont = TarotLib.Contract.GUARD_AGAINST;
    }
+   
+   systemPrint("The bot " + TarotLib.Place.toString(CurrentGame.myPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
+   
    return cont;
 }
 

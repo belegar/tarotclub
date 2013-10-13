@@ -40,29 +40,31 @@ var Game = function() {
 var p = Game.prototype;
 
 // ****************************************************************************
-// PUBLIC PROPERTIES
+// PUBLIC STATIC PROPERTIES
 // ****************************************************************************
-    
-	// Player variables
-	p.players = null;
     p.NUMBER_OF_PLAYERS = 4;
 
+// ****************************************************************************
+// PUBLIC PROPERTIES
+// ****************************************************************************
+	
     // Game state variables
-    p.contract = TarotLib.Contract.PASS;
-    p.taker = TarotLib.Place.SOUTH;
-    p.trickCounter = 0;		// number of turns, 18 with 4 players
-    p.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
-	p.playedCards = null;
+    this.contract = "";
+    this.taker = 0;
+    this.trickCounter = 0;		// number of turns, 18 with 4 players
+    this.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
+	this.playedCards = null;
+	this.players = null;
 
     // Bot variables
-    p.myPlace = TarotLib.Place.SOUTH;
-    p.myDeck = null;
+    this.myPlace = 0;
+    this.myDeck = null;
 
     // Variables of the current turn
-    p.trickSuit = TarotLib.Suits.SPADES;
-    p.firstCardValue = 0;
-    p.startPosition = 0;
-    p.startedWithExcuse = false;;
+    this.trickSuit = 0;
+    this.firstCardValue = 0;
+    this.startPosition = 0;
+    this.startedWithExcuse = false;;
 
 // ****************************************************************************
 // PRIVATE PROPERTIES
@@ -75,18 +77,18 @@ var p = Game.prototype;
 	{
         var i;
 
+		this.players = new Array(p.NUMBER_OF_PLAYERS);		// opponents array
         // Player statistics
-        this.players = new Array(this.NUMBER_OF_PLAYERS);
         for(i=0; i<this.players.length; i++) {
             this.players[i] = new TarotLib.Player(i); // position of players is assigned here
         }
-
-        this.playedCards = new Array(18); // turns for 4 players
+		
+		this.playedCards = new Array(18); // turns for 4 players;
         for(i=0; i<18; i++) {
             this.playedCards[i] = new TarotLib.Deck();
         }
-
-        this.myDeck = new TarotLib.Deck();
+		
+		this.myDeck = new TarotLib.Deck();
     };
 
 // ****************************************************************************
@@ -121,12 +123,12 @@ var p = Game.prototype;
     {
         if (this.currentPosition === 0) {
             this.startedWithExcuse = false;
-            // First played card is the color to play, except in case of excuse (0-A)
+            // First played card is the color to play, except in case of excuse (0-T)
             this.trickSuit = this.playedCards[this.trickCounter].cards[0].suit;
             this.firstCardValue = this.playedCards[this.trickCounter].cards[0].value;
 
             // special case of excuse
-            if ((this.trickSuit === "A") && (this.firstCardValue === "0")) {
+            if ((this.trickSuit === "T") && (this.firstCardValue === "0")) {
                 this.startedWithExcuse = true;
             }
         } else if ((this.currentPosition === 1) && (this.startedWithExcuse === true)) {

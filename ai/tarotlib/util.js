@@ -31,7 +31,7 @@ this.TarotLib = this.TarotLib||{};
 // ****************************************************************************
 // DEFINITIONS
 // ****************************************************************************
-	var Place = {
+	this.Place = {
 		SOUTH:0,
 		EAST:1,
 		NORTH:2,
@@ -39,12 +39,12 @@ this.TarotLib = this.TarotLib||{};
 		NOWHERE:0xFF
 	};
 
-	var Suits = {
-		SPADES:0,
-		HEARTS:1,
-		CLUBS:2,
-		DIAMONDS:3,
-		TRUMPS:4
+	var Suit = {
+		SPADES: "S",
+		HEARTS: "H",
+		CLUBS: "C",
+		DIAMONDS: "D",
+		TRUMPS: "T"
 	};
 
 	var Contract = {
@@ -96,7 +96,7 @@ this.TarotLib = this.TarotLib||{};
 			for (i = 0; i < deck.size(); i++)
 			{
 				c = deck.get(i);
-				if (c.suit == Suits.TRUMPS)
+				if (c.suit == Suit.TRUMPS)
 				{
 					this.trumps++;
 					if (c.value >= 15)
@@ -132,19 +132,19 @@ this.TarotLib = this.TarotLib||{};
 			{
 				if (i == 0)
 				{
-					suit = Suits.SPADES;
+					suit = Suit.SPADES;
 				}
 				else if (i == 1)
 				{
-					suit = Suits.HEARTS;
+					suit = Suit.HEARTS;
 				}
 				else if (i == 2)
 				{
-					suit = Suits.CLUBS;
+					suit = Suit.CLUBS;
 				}
 				else
 				{
-					suit = Suits.DIAMONDS;
+					suit = Suit.DIAMONDS;
 				}
 
 				for (k = 0; k<14; k++)
@@ -273,51 +273,28 @@ this.TarotLib = this.TarotLib||{};
 		}
 		return position;
 	};
-
-	/**
-	 * This function transform a suits string into an integer
-	 */
-	Suits.toInteger = function(color)
+	
+	Contract.toString = function(contract)
 	{
-		var suits;
+		var text;
 		
-		if (color === "A") {
-			suits = Suits.TRUMPS;
-		} else if (color === "S") {
-			suits = Suits.SPADES;
-		} else if (color === "D") {
-			suits = Suits.DIAMONDS;
-		} else if (color === "C") {
-			suits = Suits.CLUBS;
-		} else {
-			suits = Suits.HEARTS;
+		if (contract == Contract.PASS) {
+			text = "Pass";
+		} else if (contract == Contract.TAKE) {
+			text = "Take";
+		} else if (contract == Contract.GUARD) {
+			text = "Guard";
+		} else if (contract == Contract.GUARD_WITHOUT) {
+			text = "Guard without";
+		} else if (contract == Contract.GUARD_AGAINST) {
+			text = "Guard against";
 		}
-		return suits;
+		return text;
 	}
-
-	/**
-	 * This function transform a suits integer into a string
-	 */
-	Suits.toString = function(color)
-	{
-		var suits = "";
-		
-		if (color === Suits.TRUMPS) {
-			suits = "A";
-		} else if (color === Suits.SPADES) {
-			suits = "S";
-		} else if (color === Suits.DIAMONDS) {
-			suits = "D";
-		} else if (color === Suits.CLUBS) {
-			suits = "C";
-		} else {
-			suits = "H";
-		}
-		return suits;
-	}
+	
 
 TarotLib.Place = Place;
-TarotLib.Suits = Suits;
+TarotLib.Suit = Suit;
 TarotLib.Contract = Contract;
 TarotLib.Stats = Stats;
 
