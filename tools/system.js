@@ -26,6 +26,6 @@
 function systemPrint(message)
 {
 	document.write(message + "<br />");
-}
+};
 
 // End of file

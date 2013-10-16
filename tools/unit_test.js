@@ -42,14 +42,13 @@ var UnitTestModule = (function () {
 	module.owners = ownerList.split(/;/g);
 	module.dog = dogList.split(/;/g);
 	
-	module.players = function()
+	// opponents
+	module.players = new Array(4); 
+	for (var i=0; i<4; i++)
 	{
-		this.deck = new Array(3);
-		
-		for (var i=0; i<3; i++) {
-			this.deck[i] = new Deck();
-		}
+		module.players[i] = new TarotLib.Game();
 	}
+	
 /*****************************************************************************/
 module.RunUnitTest = function()
 {
@@ -75,8 +74,10 @@ module.RunStatsTest = function()
 {
 	systemPrint("********** STATS TEST **********");
 	
-	CurrentGame.myDeck.setCards("12-C;4-T;11-C;4-H;6-T;15-T;2-T;1-T;18-T;12-D;8-C;9-D;2-H;10-H;7-S;3-D;13-S;5-S");
-	var contract = AnnounceBid();
+	module.players[0].botPlace = TarotLib.Place.SOUTH;
+
+	module.players[0].setBotCards("12-C;4-T;11-C;4-H;6-T;15-T;2-T;1-T;18-T;12-D;8-C;9-D;2-H;10-H;7-S;3-D;13-S;5-S");
+	var contract = module.players[0].calculateBid();
 	
 	if (contract == TarotLib.Contract.PASS) {
 		systemPrint("Statistics calculation success");
@@ -91,19 +92,23 @@ module.RunMissingSuitDetectionTester = function()
 {
 	systemPrint("\n********** MISSING SUIT DETECTION TEST **********");
 	
-	CurrentGame.initialize();
+	module.players[0].initialize();
 	
 	// Set game parameters
-	EnterGame(TarotLib.Place.SOUTH);
-	StartDeal(TarotLib.Place.EAST, TarotLib.Contract.PRISE);
+	module.players[0].botPlace = TarotLib.Place.SOUTH;
+	module.players[0].taker = TarotLib.Place.EAST;
+    module.players[0].contract = TarotLib.Contract.PRISE;
 	
 	// This step is testing the statistics builder
-	for(var i=0; i<72; i++) {
-		PlayedCard(module.cards[i], module.owners[i]);
-		if (CurrentGame.currentPosition == 0) {
-			systemPrint("-- Turn " + CurrentGame.trickCounter + " --");
-			CurrentGame.playedCards[CurrentGame.trickCounter-1].print();
-			CurrentGame.printPlayers();
+	for(var i=0; i<72; i++)
+	{
+		module.players[0].setPlayedCard(module.cards[i], parseInt(module.owners[i]));
+
+		if (module.players[0].currentPosition == 0)
+		{
+			systemPrint("-- Turn " + module.players[0].trickCounter + " --");
+			module.players[0].playedCards[module.players[0].trickCounter-1].print();
+			module.players[0].printPlayers();
 		}
 	}
 }
@@ -113,25 +118,61 @@ module.RunFakeGame = function()
 	systemPrint("");
 	systemPrint("\n********** FAKE GAME SIMULATOR **********");
 
-	CurrentGame.initialize();
-	
-	// Set game parameters
-	EnterGame(TarotLib.Place.SOUTH);
-	StartDeal(TarotLib.Place.EAST, TarotLib.Contract.PRISE);
+	// Opponents
+	module.players[0].myPlace = TarotLib.Place.SOUTH;
+	module.players[1].myPlace = TarotLib.Place.EAST;
+	module.players[2].myPlace = TarotLib.Place.NORTH;
+	module.players[3].myPlace = TarotLib.Place.WEST;
 	
 	// We send cards to the bot and the players
-	var botCards = "";
-	for(var i=0; i<72; i++) {
+	var botCards = new Array(4);
+	for (var i=0; i<4; i++)
+	{
+		botCards[i] = "";
+	}
+	
+	for(i=0; i<72; i++)
+	{	
 		var owner = parseInt(module.owners[i]);
-		if (owner == Place.SOUTH) {
-			if (botCards.length != 0) {
-				botCards += ";"
+		if (botCards[owner].length != 0)
+		{
+			botCards[owner] += ";"
+		}
+		botCards[owner] += module.cards[i];
+	}
+
+	// Give cards to all the players
+	for (i=0; i<4; i++)
+	{
+		module.players[i].initialize();
+		module.players[i].botPlace = i;
+		module.players[i].taker = TarotLib.Place.EAST;
+    	module.players[i].contract = TarotLib.Contract.PRISE;
+		module.players[i].setBotCards(botCards[i]);
+	}
+	
+	// Let's play 18 tricks
+	for (i = 0; i<18; i++)
+	{
+		systemPrint("---- Trick ----" + (i+1))
+		for (var j=0; j<4; j++)
+		{
+			systemPrint("Player cards: " + TarotLib.Place.toString(j));
+			module.players[j].printBot();
+			
+			systemPrint("");
+			var card = module.players[j].playDefenseStrategy();
+			
+			for (var k=0; k<4; k++)
+			{
+				if (k != j)
+				{
+					module.players[k].setPlayedCard(card, j);
+				}
 			}
-			botCards += module.cards[i];
 		}
 	}
-	ReceiveCards(botCards);
-}
+};
 
 /*****************************************************************************/
 /**

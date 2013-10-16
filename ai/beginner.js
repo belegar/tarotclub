@@ -37,7 +37,7 @@ var CurrentGame = new TarotLib.Game();
  */
 function EnterGame(place, mode)
 {
-    CurrentGame.myPlace = place;
+    CurrentGame.botPlace = place;
 }
 
 /**
@@ -48,7 +48,7 @@ function EnterGame(place, mode)
 function ReceiveCards(cards)
 {
     CurrentGame.initialize();
-    CurrentGame.myDeck.setCards(cards);
+    CurrentGame.setCards(cards);
 }
 
 /**
@@ -59,57 +59,10 @@ function ReceiveCards(cards)
  */
 function AnnounceBid()
 {
-   var total = 0;
-   var stats = new TarotLib.Stats();
-   stats.update(CurrentGame.myDeck);
-
-   // We start looking at bouts, each of them increase the total value of points
-   if( stats.bigTrump === true ) {
-      total += 9;
-   }
-   if( stats.fool === true ) {
-      total += 7;
-   }
-   if( stats.littleTrump === true ) {
-       if( stats.trumps === 5 ) {
-         total += 5;
-      } else if( stats.trumps === 6 || stats.trumps === 7 ) {
-         total += 7;
-      } else if( stats.trumps > 7 ) {
-         total += 8;
-      }
-   }
-
-   // Each atout counts two points
-   // Each major atout counts one more point
-   total += stats.trumps * 2;
-   total += stats.majorTrumps * 2;
-   total += stats.kings * 6;
-   total += stats.queens * 3;
-   total += stats.knights * 2;
-   total += stats.jacks;
-   total += stats.weddings;
-   total += stats.longSuits * 5;
-   total += stats.cuts * 5;
-   total += stats.singletons * 3;
-   total += stats.sequences * 4;
-
-   // We decide on a bid depending of thresholds
-   if( total <= 35 ) {
-      cont = TarotLib.Contract.PASS;
-   } else if( total >= 36  && total <= 50 ) {
-      cont = TarotLib.Contract.TAKE;
-   } else if( total >= 51  && total <= 65 ) {
-      cont = TarotLib.Contract.GUARD;
-   } else if( total >= 66  && total <= 75 ) {
-      cont = TarotLib.Contract.GUARD_WITHOUT;
-   } else {
-      cont = TarotLib.Contract.GUARD_AGAINST;
-   }
-   
-   systemPrint("The bot " + TarotLib.Place.toString(CurrentGame.myPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
-   
-   return cont;
+	var cont = CurrentGame.calculateBid();
+	systemPrint("The bot " + TarotLib.Place.toString(CurrentGame.botPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
+	
+	return cont;
 }
 
 /**

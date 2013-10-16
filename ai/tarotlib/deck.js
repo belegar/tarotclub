@@ -65,9 +65,11 @@ var p = Deck.prototype;
 	// debug code only
     p.print = function()
 	{
+		var buffer = "";
 		for(var i=0; i < this.cards.length; i++) {
-            this.cards[i].print();
+            buffer += this.cards[i].value + "-" + this.cards[i].suit + " ";
 		}
+		systemPrint(buffer);
 	};
 	
 	p.size = function()
@@ -75,6 +77,9 @@ var p = Deck.prototype;
 		return this.cards.length;
 	};
 	
+	/**
+	 * @brief Return a copy of one card of the deck
+	 */
 	p.get = function(index)
 	{
 		return this.cards[index];
@@ -94,7 +99,7 @@ var p = Deck.prototype;
 	};
 	
     /**
-     * Take out one card from the deck
+     * @brief Take out one card from the deck
      * Return the card name (string format) of a card
      */
     p.takeCard = function(index)
