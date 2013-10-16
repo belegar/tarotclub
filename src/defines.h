@@ -41,7 +41,7 @@
 #define TAROT_VNAME     "Juliette"
 
 #define NB_LANGUAGE     2
-#define QT_STREAMVER    QDataStream::Qt_5_0
+#define QT_STREAMVER    QDataStream::Qt_5_1
 #define MAX_ROUNDS      5
 
 namespace Config
