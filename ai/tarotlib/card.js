@@ -75,7 +75,7 @@ var p = Card.prototype;
 
     p.getName = function()
 	{
-		return (value + "-" + this.suit);
+		return (this.value + "-" + this.suit);
 	};
 	
 	// debug code only

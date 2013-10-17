@@ -87,9 +87,6 @@ var p = Deck.prototype;
 	
     p.clear = function()
 	{
-		for (var i=0; i<this.cards.length; i++) {
-			this.cards[i] = undefined;
-		}
 		this.cards.length = 0;
 	};
 	
@@ -105,7 +102,7 @@ var p = Deck.prototype;
     p.takeCard = function(index)
 	{
         var card = this.cards[index].getName();
-		this.cards[index] = undefined;
+		this.cards.splice(index, 1); // properly delete the element in the array
 		return card;
 	};
 	
