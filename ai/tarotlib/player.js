@@ -166,29 +166,50 @@ var p = Player.prototype;
         return playedCard;
     };
 
-    p.playLowestCard = function()
+    p.playLowestCard = function(forceSuit)
     {
         var playedCard = undefined;
 
         if (this.stats.clubs > 0)
         {
-            playedCard = this.takeLowestCard(TarotLib.Suit.CLUBS, 1);
+            if ((forceSuit == TarotLib.Suit.CLUBS) ||
+                (forceSuit == undefined))
+            {
+                playedCard = this.takeLowestCard(TarotLib.Suit.CLUBS, 1);
+            }
         }
         else if (this.stats.diamonds > 0)
         {
-            playedCard = this.takeLowestCard(TarotLib.Suit.DIAMONDS, 1);
+            if ((forceSuit == TarotLib.Suit.DIAMONDS) ||
+                (forceSuit == undefined))
+            {
+                playedCard = this.takeLowestCard(TarotLib.Suit.DIAMONDS, 1);
+            }
         }
         else if (this.stats.spades > 0)
         {
-            playedCard = this.takeLowestCard(TarotLib.Suit.SPADES, 1);
+            if ((forceSuit == TarotLib.Suit.SPADES) ||
+                (forceSuit == undefined))
+            {
+                playedCard = this.takeLowestCard(TarotLib.Suit.SPADES, 1);
+            }
         }
         else if (this.stats.hearts > 0)
         {
-            playedCard = this.takeLowestCard(TarotLib.Suit.HEARTS, 1);
+            if ((forceSuit == TarotLib.Suit.HEARTS) ||
+                (forceSuit == undefined))
+            {
+                playedCard = this.takeLowestCard(TarotLib.Suit.HEARTS, 1);
+            }
         }
         else
         {
-            playedCard = this.takeLowestCard(TarotLib.Suit.TRUMPS, 2);
+            if ((forceSuit == TarotLib.Suit.TRUMPS) ||
+                (forceSuit == undefined))
+            {
+                // avoid to play the one of trumps!
+                playedCard = this.takeLowestCard(TarotLib.Suit.TRUMPS, 2);
+            }
         }
 
         if (playedCard == undefined)

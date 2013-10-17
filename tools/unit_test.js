@@ -154,15 +154,16 @@ module.RunFakeGame = function()
 	// Let's play 18 tricks
 	for (i = 0; i<18; i++)
 	{
-		systemPrint("---- Trick ----" + (i+1))
+		systemPrint("---- Trick " + (i+1) + " ----")
 		for (var j=0; j<4; j++)
 		{
 			systemPrint("Player cards: " + TarotLib.Place.toString(j));
 			module.players[j].printBot();
 			
-			systemPrint("");
 			var card = module.players[j].playDefenseStrategy();
 			
+			systemPrint("Played card: " + card);
+			systemPrint("");
 			for (var k=0; k<4; k++)
 			{
 				if (k != j)

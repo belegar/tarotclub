@@ -62,7 +62,8 @@ var p = Game.prototype;
     // Variables of the current turn
     this.trickSuit = 0;
     this.firstCardValue = 0;
-    this.startedWithExcuse = false;;
+    this.firstPlayer = 0;
+    this.startedWithExcuse = false;
 
 // ****************************************************************************
 // CONSTRUCTOR
@@ -127,6 +128,20 @@ var p = Game.prototype;
     {
     	this.players[this.botPlace].deck.print();
     };
+
+    p.beforeAttack = function()
+    {
+    	var botRelativePlate = ((this.botPlace + 4) - this.firstPlayer) % 4;
+        var takerRelativePlate = ((this.taker + 4) - this.firstPlayer) % 4;
+    	if (botRelativePlate < takerRelativePlate)
+    	{
+            return true;
+    	}
+    	else
+    	{
+            return false;
+    	}
+    };
 	
     p.detectMissedColor = function(place)
     {
@@ -155,6 +170,11 @@ var p = Game.prototype;
 
         this.detectMissedColor(place);
 
+        if (this.currentPosition == 0)
+        {
+            this.firstPlayer = place;   
+        }
+
         this.currentPosition++;
         if (this.currentPosition >= 4) {
             this.currentPosition = 0;
@@ -176,9 +196,16 @@ var p = Game.prototype;
 		var playedCard = undefined;
 		this.players[this.botPlace].updateStats();
 		
-		if (this.currentPosition == 0)
+		// We are the first player
+		if ((this.currentPosition == 0) ||
+            ((this.startedWithExcuse == true) && (this.currentPosition == 1)))
 		{
-			// if we have a long suit, we start with it
+			/**
+			 * TODO: si le preneur a une coupe, jouer dans la coupe
+             * Si main faible, jouer dans la courte, commencer par la carte la plus petite
+		  	 * Si main forte, jouer dans la longue, par la carte la plus faible
+		  	 * Ne pas jouer Atout, sauf si le bot ne peut pas faire autrement. Alors, jouer tout sauf le petit.
+			 */
 			playedCard = this.players[this.botPlace].playLongSuit();
 			if (playedCard == undefined)
 			{
@@ -189,6 +216,34 @@ var p = Game.prototype;
 			{
 				systemPrint("Problem here!");
 			}
+		}
+		else
+		{
+            if (this.beforeAttack())
+            {
+                // Make the taker cut
+                if (this.players[this.taker].hasMissedSuit())
+                {
+                    for (var i=0; i<5; i++)
+                    {
+                        if (this.players[this.taker].hasSuits[i] == true)
+                        {
+                            playedCard = this.players[this.botPlace].playLowestCard(i);               
+                        }
+                    }
+                }
+
+                if (playedCard == undefined)
+                {
+                    // TODO
+                    playedCard = this.players[this.botPlace].playLowestCard();
+                }
+            }
+            else
+            {
+                // TODO
+                playedCard = this.players[this.botPlace].playLowestCard();
+            }
 		}
 		/*
 		
@@ -207,12 +262,7 @@ var p = Game.prototype;
 						PlayHigherCard
 			    else
 				     GivePointsToDefense !!!
-		   
-		PlayFirst() (Entame)
-		  Si main faible, jouer dans la courte, commencer par la carte la plus petite
-		  Si main forte, jouer dans la longue, par la carte la plus faible
-		  Ne pas jouer Atout, sauf si le bot ne peut pas faire autrement. Alors, jouer tout sauf le petit.
-		  
+		   	  
 		  PlayAttackerCut()
 		
 		Utility functions:
@@ -232,27 +282,6 @@ var p = Game.prototype;
     {
         return this.playDefenseStrategy();
     };
-	
-	/*
-    p.getRandomCard = function(place)
-    {
-        var index = 0;
-        for (var i=0; this.myDeck.cards.length; i++) {
-            if (this.myDeck.cards[i] !== undefined) {
-                if (this.isValid(this.myDeck.cards[i].getName()) === true) {
-                    index = i;
-                }
-            }
-        }
-        return this.myDeck.cards.takeCard(index);
-    };
-
-    p.isValid = function(card)
-    {
-        // FIXME
-        return true;
-    };
-	*/
 	
 TarotLib.Game = Game;
 }());
