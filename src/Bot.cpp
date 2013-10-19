@@ -279,6 +279,7 @@ bool Bot::InitializeScriptContext()
     scriptFiles << appRoot + "/tarotlib/card.js";
     scriptFiles << appRoot + "/tarotlib/deck.js";
     scriptFiles << appRoot + "/tarotlib/player.js";
+    scriptFiles << appRoot + "/tarotlib/bot.js";
     scriptFiles << appRoot + "/tarotlib/game.js";
     scriptFiles << appRoot + "/beginner.js";
 

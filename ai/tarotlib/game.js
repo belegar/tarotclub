@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - game.js
  *=============================================================================
- * Tarot game Javascript class
+ * Tarot game Javascript class, contains the strategy functions
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -58,6 +58,7 @@ var p = Game.prototype;
 	this.players = null;		// all the players, including the bot
 
 	this.botPlace = 0;
+    this.bot = null;
 
     // Variables of the current turn
     this.trickSuit = 0;
@@ -82,6 +83,8 @@ var p = Game.prototype;
         for(i=0; i<18; i++) {
             this.playedCards[i] = new TarotLib.Deck();
         }
+
+        this.bot = new TarotLib.Bot;
     };
 
 // ****************************************************************************
@@ -107,12 +110,12 @@ var p = Game.prototype;
 
     p.calculateBid = function()
     {
-    	return this.players[this.botPlace].calculateBid();
+    	return this.bot.calculateBid();
     };
 
     p.setBotCards = function(cards)
     {
-    	this.players[this.botPlace].deck.setCards(cards);
+    	this.bot.deck.setCards(cards);
     };
 
 	// Print players statistics and information
@@ -126,7 +129,7 @@ var p = Game.prototype;
 
     p.printBot = function()
     {
-    	this.players[this.botPlace].deck.print();
+    	this.bot.deck.print();
     };
 
     p.beforeAttack = function()
@@ -141,6 +144,64 @@ var p = Game.prototype;
     	{
             return false;
     	}
+    };
+
+    p.highestTrump = function()
+    {
+        var value = 0;
+        var highestCard = undefined;
+
+        for (var i = 0; i < this.playedCards[this.trickCounter].size(); i++)
+        {
+            var card = this.playedCards[this.trickCounter].get(i);
+
+            if ((card.suit == TarotLib.Suit.TRUMPS) &&
+                (card.value > value))
+            {
+                value = card.value;
+                highestCard = card;
+            }
+        }
+        return highestCard;
+    };
+
+    p.highestSuit = function()
+    {
+        var value = 0;
+        var highestCard = undefined;
+
+        for (var i = 0; i < this.playedCards[this.trickCounter].size(); i++)
+        {
+            var card = this.playedCards[this.trickCounter].get(i);
+
+            if ((card.suit != TarotLib.Suit.TRUMPS) &&
+                (card.value > value))
+            {
+                value = card.value;
+                highestCard = card;
+            }
+        }
+        return highestCard;
+    };
+
+    /**
+     * @brief Detect the leader of the current trick
+     * @return The leader is found, Card class format, otherwise return undefined
+     */
+    p.detectLeader = function()
+    {
+        // Each trick is won by the highest trump in it, or the highest card
+        // of the suit led if no trumps were played.
+        var leader = this.highestTrump();
+        if (leader == undefined)
+        {
+            leader = this.highestSuit();
+        }
+        if (leader == undefined)
+        {
+            systemPrint("leader cannot be undefined!");
+        }
+        return leader;
     };
 	
     p.detectMissedColor = function(place)
@@ -159,7 +220,7 @@ var p = Game.prototype;
             this.trickSuit = this.playedCards[this.trickCounter].cards[1].suit;
         } else {
             if (this.playedCards[this.trickCounter].cards[this.currentPosition].suit !== this.trickSuit) {
-                this.players[place].setMissedColor(this.trickSuit);
+                this.players[place].setMissedSuit(this.trickSuit);
             }
         }
     };
@@ -179,8 +240,6 @@ var p = Game.prototype;
         if (this.currentPosition >= 4) {
             this.currentPosition = 0;
             this.trickCounter++;
-
-            // TODO: detect who won the trick
         }
     };
 
@@ -194,55 +253,114 @@ var p = Game.prototype;
     p.playDefenseStrategy = function()
     {
 		var playedCard = undefined;
-		this.players[this.botPlace].updateStats();
+		this.bot.updateStats();
 		
 		// We are the first player
 		if ((this.currentPosition == 0) ||
             ((this.startedWithExcuse == true) && (this.currentPosition == 1)))
 		{
 			/**
-			 * TODO: si le preneur a une coupe, jouer dans la coupe
+			 * Si le preneur a une coupe, jouer dans la coupe, sinon:
              * Si main faible, jouer dans la courte, commencer par la carte la plus petite
 		  	 * Si main forte, jouer dans la longue, par la carte la plus faible
 		  	 * Ne pas jouer Atout, sauf si le bot ne peut pas faire autrement. Alors, jouer tout sauf le petit.
 			 */
-			playedCard = this.players[this.botPlace].playLongSuit();
-			if (playedCard == undefined)
-			{
-				playedCard = this.players[this.botPlace].playLowestCard();
-			}
 
-			if (playedCard == undefined)
-			{
-				systemPrint("Problem here!");
-			}
+            // Make the taker cut
+            if (this.players[this.taker].hasMissedSuit())
+            {
+                for (var i=0; i<5; i++)
+                {
+                    if (this.players[this.taker].hasSuits[i] == true)
+                    {
+                        playedCard = this.bot.playLowestCard(i);               
+                    }
+                }
+            }
+            else
+            {
+    			playedCard = this.bot.playLongSuit();
+    			if (playedCard == undefined)
+    			{
+    				playedCard = this.bot.playLowestCard();
+    			}
+
+    			if (playedCard == undefined)
+    			{
+    				systemPrint("Problem here!");
+    			}
+            }
 		}
 		else
 		{
             if (this.beforeAttack())
             {
-                // Make the taker cut
-                if (this.players[this.taker].hasMissedSuit())
+                // look if we have the suit
+                if (this.bot.hasSuit(this.trickSuit))
                 {
-                    for (var i=0; i<5; i++)
-                    {
-                        if (this.players[this.taker].hasSuits[i] == true)
-                        {
-                            playedCard = this.players[this.botPlace].playLowestCard(i);               
-                        }
-                    }
+                    // play a low card in the required suit
+                    playedCard = this.bot.playLowestCard(this.trickSuit);
                 }
-
-                if (playedCard == undefined)
+                else
                 {
-                    // TODO
-                    playedCard = this.players[this.botPlace].playLowestCard();
+                    // Whatever, play any low card
+                    playedCard = this.bot.playLowestCard();
                 }
             }
             else
             {
-                // TODO
-                playedCard = this.players[this.botPlace].playLowestCard();
+                var leaderCard = this.detectLeader();
+                if (leaderCard.owner == this.taker)
+                {
+                    // FIXME: we have to play higher than any trumps played, if we can!!
+                    // look if we have the suit
+                    if (this.bot.hasSuit(this.trickSuit))
+                    {
+                        playedCard = this.bot.playLowestCard(this.trickSuit);
+                    }
+                    else
+                    {
+                        playedCard = this.bot.playLowestCard();
+                    }
+                }
+                else
+                {
+                    // Look if we need to cut ...
+                    if (this.bot.hasSuit(this.trickSuit))
+                    {
+                        // We have the suit requested, give points to the defense!!
+
+                        // Try to play the little trunk if possible
+                        if (this.trickSuit == "T")
+                        {
+                            // FIXME: we have to play higher than any trumps played, if we can!!
+                            playedCard = this.bot.takeLowestCard("T", 1);
+                        }
+                        else
+                        {
+                            playedCard = this.bot.playHighestCard(this.trickSuit);    
+                        }
+                    }
+                    else
+                    {
+                        // We don't have the suit requested!
+                        if (this.bot.hasSuit(TarotLib.Suit.TRUMPS))
+                        {
+                            // We need to cut, with a low trump since we are playing after the taker
+                            playedCard = this.bot.takeLowestCard("T", 1);       
+                        }
+                        else
+                        {
+                            // We have no any trumps, let's give some points to the defense!
+                            playedCard = this.bot.playHighestCard();
+                        }
+                    }
+
+                    if (playedCard == undefined)
+                    {
+                        systemPrint("Problem here!");
+                    }
+                }
             }
 		}
 		/*
