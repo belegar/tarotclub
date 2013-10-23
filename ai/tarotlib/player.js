@@ -24,7 +24,7 @@
  */
 
 // namespace 
-this.TarotLib = this.TarotLib||{};
+this.TarotLib = this.TarotLib || {};
 
 (function() {
 

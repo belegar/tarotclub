@@ -48,7 +48,7 @@ function EnterGame(place, mode)
 function ReceiveCards(cards)
 {
     CurrentGame.initialize();
-    CurrentGame.setCards(cards);
+    CurrentGame.setBotCards(cards);
 }
 
 /**
@@ -59,7 +59,7 @@ function ReceiveCards(cards)
  */
 function AnnounceBid()
 {
-	var cont = CurrentGame.calculateBid();
+	var cont = CurrentGame.bot.calculateBid();
 	systemPrint("The bot " + TarotLib.Place.toString(CurrentGame.botPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
 	
 	return cont;
@@ -130,9 +130,12 @@ function PlayCard()
 //	debugger; // enable this line to generate a breakpoint
     var cardName;
 
-    if (CurrentGame.taker === CurrentGame.myPlace) {
+    if (CurrentGame.taker === CurrentGame.myPlace)
+    {
         cardName = CurrentGame.playAttackStrategy();
-    } else {
+    }
+    else
+    {
         cardName = CurrentGame.playDefenseStrategy();
     }
 

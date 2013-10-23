@@ -24,7 +24,7 @@
  */
 
 // namespace
-this.TarotLib = this.TarotLib||{};
+this.TarotLib = this.TarotLib || {};
 
 (function() {
 
@@ -75,7 +75,7 @@ var p = Game.prototype;
 
 		this.players = new Array(p.NUMBER_OF_PLAYERS);
         // Player statistics
-        for(i=0; i<this.players.length; i++) {
+        for(i=0; i<p.NUMBER_OF_PLAYERS; i++) {
             this.players[i] = new TarotLib.Player(i);	// assigned place is passed in argument
         }
 		
@@ -106,11 +106,6 @@ var p = Game.prototype;
         for(i=0; i<this.playedCards.length; i++) {
             this.playedCards[i].clear();
         }
-    };
-
-    p.calculateBid = function()
-    {
-    	return this.bot.calculateBid();
     };
 
     p.setBotCards = function(cards)
@@ -228,13 +223,19 @@ var p = Game.prototype;
     p.setPlayedCard = function(cardName, place)
     {
         this.playedCards[this.trickCounter].addOneCard(cardName, place);
-
         this.detectMissedColor(place);
 
         if (this.currentPosition == 0)
         {
             this.firstPlayer = place;   
         }
+
+        if (place == this.botPlace)
+        {
+            // Remove card from the bot's deck
+            this.bot.deck.removeCard(cardName);
+        }
+
 
         this.currentPosition++;
         if (this.currentPosition >= 4) {
@@ -312,11 +313,37 @@ var p = Game.prototype;
                 var leaderCard = this.detectLeader();
                 if (leaderCard.owner == this.taker)
                 {
-                    // FIXME: we have to play higher than any trumps played, if we can!!
-                    // look if we have the suit
+                    // look if we have the suit requested
                     if (this.bot.hasSuit(this.trickSuit))
                     {
-                        playedCard = this.bot.playLowestCard(this.trickSuit);
+                        if (this.trickSuit == "T")
+                        {
+                            // We have to play higher than any trumps played, if we can!!
+                            var card = this.highestTrump();
+                            if (this.bot.hasHigherCard("T", card.value))
+                            {
+                                playedCard = this.bot.playLowestCard("T", card.value);    
+                            }
+                            else
+                            {
+                                // Try to play whatever trump, except the little
+                                playedCard = this.bot.playLowestCard("T", 2);       
+                            }
+                        }
+                        else
+                        {
+                            // Can we play an higher card than the taker?
+                            var card = this.highestSuit();
+                            if (this.bot.hasHigherCard(this.trickSuit, card.value))
+                            {
+                                // We can play higher than the taker! Give points to the defense :)
+                                playedCard = this.bot.playHighestCard(this.trickSuit);
+                            }
+                            else
+                            {
+                                playedCard = this.bot.playLowestCard(this.trickSuit);   
+                            }
+                        }
                     }
                     else
                     {
@@ -325,7 +352,7 @@ var p = Game.prototype;
                 }
                 else
                 {
-                    // Look if we need to cut ...
+                    // look if we have the suit requested
                     if (this.bot.hasSuit(this.trickSuit))
                     {
                         // We have the suit requested, give points to the defense!!
@@ -333,8 +360,17 @@ var p = Game.prototype;
                         // Try to play the little trunk if possible
                         if (this.trickSuit == "T")
                         {
-                            // FIXME: we have to play higher than any trumps played, if we can!!
-                            playedCard = this.bot.takeLowestCard("T", 1);
+                            // We have to play higher than any trumps played, if we can!!
+                            var card = this.highestTrump();
+                            if (this.bot.hasHigherCard("T", card.value))
+                            {
+                                playedCard = this.bot.playLowestCard("T", card.value);    
+                            }
+                            else
+                            {
+                                // Try to play the little trump to save it, otherwise the fool will be taken
+                                playedCard = this.bot.playLowestCard("T", 1);       
+                            }
                         }
                         else
                         {
@@ -347,7 +383,8 @@ var p = Game.prototype;
                         if (this.bot.hasSuit(TarotLib.Suit.TRUMPS))
                         {
                             // We need to cut, with a low trump since we are playing after the taker
-                            playedCard = this.bot.takeLowestCard("T", 1);       
+                            // If no cuts, the fool is played
+                            playedCard = this.bot.playLowestCard("T", 1);       
                         }
                         else
                         {
@@ -363,31 +400,6 @@ var p = Game.prototype;
                 }
             }
 		}
-		/*
-		
-		Algorithm:
-			1. If first player
-		          PlayFirst()
-			2. If DefensePosition = before
-				If (defense may be leader)
-				   play high card
-				else
-				   play low card				  
-				
-			3. If DefensePosition = after
-				if AttackLeader() == true
-				    CanPlayHigher()  (return true if the bot can play a higher card than the attacker)
-						PlayHigherCard
-			    else
-				     GivePointsToDefense !!!
-		   	  
-		  PlayAttackerCut()
-		
-		Utility functions:
-		  - GetPosition() ==> before or after the taker (fond, milieu, devant, fond = preneur joue en dernier)
-		  - Ajouter aux statistiques les points par couleur
-		
-		*/
 	
         if (playedCard == undefined)
 		{

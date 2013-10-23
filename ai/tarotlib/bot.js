@@ -76,6 +76,22 @@ var p = Bot.prototype;
         this.stats.update(this.deck);
     };
 
+    p.hasHigherCard = function(suit, value)
+    {
+        var ret = false;
+
+        for (var i=0; i<this.deck.size(); i++)
+        {
+            var card = this.deck.get(i);
+            if ((card.suit == suit) &&
+                (card.value > value))
+            {
+                ret = true;
+            }
+        }
+        return ret;
+    };
+
     p.hasSuit = function(suit)
     {
         var ret = false;
@@ -92,11 +108,11 @@ var p = Bot.prototype;
     };
 
     /**
-     * @brief Take the lowest card in the bot's deck, delete it from the deck!!
+     * @brief Get the lowest card in the bot's deck
      * @param[in] The suit where to get the card 
      * @return The card, string format
      */
-    p.takeLowestCard = function(suit, minValue)
+    p.getLowestCard = function(suit, minValue)
     {
         var index = 100; // init with impossible index
         var startValue = 25; // init with impossible value
@@ -114,17 +130,17 @@ var p = Bot.prototype;
         }
         if (index != 100)
         {
-            return this.deck.takeCard(index);
+            return this.deck.get(index).getName();
         }   
         return undefined;
     };
 
     /**
-     * @brief Take the highest card in the bot's deck, delete it from the deck!!
+     * @brief Get the highest card in the bot's deck
      * @param[in] The suit where to get the card, string format
      * @return The card, string format
      */
-    p.takeHighestCard = function(suit)
+    p.getHighestCard = function(suit)
     {
         var index = 100; // init with impossible index
         var startValue = 0; // init with impossible value
@@ -141,7 +157,7 @@ var p = Bot.prototype;
         }
         if (index != 100)
         {
-            return this.deck.takeCard(index);
+            return this.deck.get(index).getName();
         }
         return undefined;
     };
@@ -158,7 +174,7 @@ var p = Bot.prototype;
                 var suit = TarotLib.Suit.toString(i);
                 if (this.stats.suits[suit] >= 5)
                 {
-                    playedCard = this.takeLowestCard(suit, 1);
+                    playedCard = this.getLowestCard(suit, 1);
                     break;
                 }
             }
@@ -183,20 +199,16 @@ var p = Bot.prototype;
 
         if (forceSuit != undefined)
         {
-            if (this.stats.suits[forceSuit] != 0)
-            {
-                playedCard = this.takeLowestCard(forceSuit, minValue);
-            }
+            playedCard = this.getLowestCard(forceSuit, minValue);
         }
-
-        if (playedCard == undefined)
+        else
         {
             for (var i=0; i<5; i++)
             {
                 var suit = TarotLib.Suit.toString(i);
                 if (this.stats.suits[suit] != 0)
                 {
-                    playedCard = this.takeLowestCard(suit, minValue);
+                    playedCard = this.getLowestCard(suit, minValue);
                     break;
                 }
             }
@@ -206,7 +218,7 @@ var p = Bot.prototype;
         if (playedCard == undefined)
         {
             // whatever, play the little trumps or the fool ...
-            playedCard = this.takeLowestCard(TarotLib.Suit.TRUMPS, 0);
+            playedCard = this.getLowestCard(TarotLib.Suit.TRUMPS, 0);
         }
 
         return playedCard;
@@ -220,7 +232,7 @@ var p = Bot.prototype;
         {
             if (this.stats.suits[forceSuit] != 0)
             {
-                playedCard = this.takeHighestCard(forceSuit);
+                playedCard = this.getHighestCard(forceSuit);
             }
         }
 
@@ -231,7 +243,7 @@ var p = Bot.prototype;
                 var suit = TarotLib.Suit.toString(i);
                 if (this.stats.suits[suit] != 0)
                 {
-                    playedCard = this.takeHighestCard(suit);
+                    playedCard = this.getHighestCard(suit);
                     break;
                 }
             }
@@ -275,6 +287,8 @@ var p = Bot.prototype;
         total += this.stats.cuts * 5;
         total += this.stats.singletons * 3;
         total += this.stats.sequences * 4;
+
+        systemPrint("Bid calculated: " + total);
 
         // We decide on a bid depending of thresholds
         if( total <= 35 ) {
