@@ -77,7 +77,7 @@ module.RunStatsTest = function()
 	module.players[0].botPlace = TarotLib.Place.SOUTH;
 
 	module.players[0].setBotCards("12-C;4-T;11-C;4-H;6-T;15-T;2-T;1-T;18-T;12-D;8-C;9-D;2-H;10-H;7-S;3-D;13-S;5-S");
-	var contract = module.players[0].calculateBid();
+	var contract = module.players[0].bot.calculateBid();
 	
 	if (contract == TarotLib.Contract.PASS) {
 		systemPrint("Statistics calculation success");
@@ -166,10 +166,7 @@ module.RunFakeGame = function()
 			systemPrint("");
 			for (var k=0; k<4; k++)
 			{
-				if (k != j)
-				{
-					module.players[k].setPlayedCard(card, j);
-				}
+				module.players[k].setPlayedCard(card, j);
 			}
 		}
 	}

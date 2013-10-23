@@ -95,15 +95,20 @@ var p = Deck.prototype;
         this.cards[this.cards.length] = new TarotLib.Card(cardName, place);
 	};
 	
-    /**
+	/**
      * @brief Take out one card from the deck
-     * Return the card name (string format) of a card
+     * @param[in] Card name, string format
      */
-    p.takeCard = function(index)
+    p.removeCard = function(cardName)
 	{
-        var card = this.cards[index].getName();
-		this.cards.splice(index, 1); // properly delete the element in the array
-		return card;
+		for (var i=0; i<this.cards.length; i++)
+		{
+			var card = this.cards[i].getName();
+			if (cardName == card)
+			{
+				this.cards.splice(i, 1); // properly delete the element in the array	
+			}
+		}
 	};
 	
     p.setCards = function(list)

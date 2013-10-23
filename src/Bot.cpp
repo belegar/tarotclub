@@ -141,7 +141,7 @@ void Bot::slotStartDeal(Place taker, Contract contract)
 {
     QJSValueList args;
     args << taker << contract;
-    CallScript("StartGame", args);
+    CallScript("StartDeal", args);
 
     // We are ready, let's inform the server about that
     SendSyncStart();

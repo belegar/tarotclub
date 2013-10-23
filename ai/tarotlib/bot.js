@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - player.js
+ * TarotClub - bot.js
  *=============================================================================
- * Tarot deck Javascript class
+ * Specific methods and data for the bot player
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -33,11 +33,11 @@ this.TarotLib = this.TarotLib || {};
  *
  * This class is used to manage a Tarot player
  */
-var Player = function(place) {
-    this.ctor(place);
+var Bot = function() {
+    this.ctor();
 };
 
-var p = Player.prototype;
+var p = Bot.prototype;
 
 // ****************************************************************************
 // PUBLIC PROPERTIES
@@ -50,18 +50,12 @@ var p = Player.prototype;
     this.deck = null;
     this.stats = null;
 
-    /**
-     * Table of suits, for each one, true if suit is available for that player
-     */
-    this.hasSuits = null;
-
 // ****************************************************************************
 // CONSTRUCTOR
 // ****************************************************************************
-    p.ctor = function(place)
+    p.ctor = function()
 	{
-		this.hasSuits = new Array(5);
-		this.place = place;
+		this.place = 0;
         this.deck = new TarotLib.Deck();
         this.stats = new TarotLib.Stats();
 
@@ -74,50 +68,51 @@ var p = Player.prototype;
 
 	p.initialize = function()
 	{
-		this.hasSuits[TarotLib.Suit.SPADES] = true;
-		this.hasSuits[TarotLib.Suit.HEARTS] = true;
-		this.hasSuits[TarotLib.Suit.CLUBS] = true;
-		this.hasSuits[TarotLib.Suit.DIAMONDS] = true;
-		this.hasSuits[TarotLib.Suit.TRUMPS] = true;
+		this.deck.length = 0;
 	}
-
-    p.print = function()
-    {
-        for (var suit in this.hasSuits) {
-            if (this.hasSuits[suit] === false) {
-                systemPrint("Player " + TarotLib.Place.toString(this.place) + " has a missed suit: " + suit);
-            }
-        }
-    };
-
-    p.setMissedColor = function(color)
-    {
-        this.hasSuits[color] = false;
-    };
-
-    // return true if there is at least one suit missing, including trumps
-    p.hasMissedSuit = function()
-    {
-        var missed = false;
-
-        for (var i=0; i<this.hasSuits.length; i++) {
-            if (this.hasSuits[i] === false) {
-                missed = true;
-            }
-        }
-        return missed;
-    };
 
     p.updateStats = function()
     {
         this.stats.update(this.deck);
     };
 
+    p.hasHigherCard = function(suit, value)
+    {
+        var ret = false;
+
+        for (var i=0; i<this.deck.size(); i++)
+        {
+            var card = this.deck.get(i);
+            if ((card.suit == suit) &&
+                (card.value > value))
+            {
+                ret = true;
+            }
+        }
+        return ret;
+    };
+
+    p.hasSuit = function(suit)
+    {
+        var ret = false;
+
+        for (var i=0; i<this.deck.size(); i++)
+        {
+            var card = this.deck.get(i);
+            if (card.suit == suit)
+            {
+                ret = true;
+            }
+        }
+        return ret;
+    };
+
     /**
-     * @brief Take the lowest card in the bot's deck
+     * @brief Get the lowest card in the bot's deck
      * @param[in] The suit where to get the card 
+     * @return The card, string format
      */
-    p.takeLowestCard = function(suit, minValue)
+    p.getLowestCard = function(suit, minValue)
     {
         var index = 100; // init with impossible index
         var startValue = 25; // init with impossible value
@@ -135,8 +130,35 @@ var p = Player.prototype;
         }
         if (index != 100)
         {
-            return this.deck.takeCard(index);
+            return this.deck.get(index).getName();
         }   
+        return undefined;
+    };
+
+    /**
+     * @brief Get the highest card in the bot's deck
+     * @param[in] The suit where to get the card, string format
+     * @return The card, string format
+     */
+    p.getHighestCard = function(suit)
+    {
+        var index = 100; // init with impossible index
+        var startValue = 0; // init with impossible value
+        for (var i=0; i<this.deck.size(); i++)
+        {
+            var card = this.deck.get(i);
+            if (card.suit == suit)
+            {
+                if (card.value > startValue)
+                {
+                    index = i;
+                }
+            }
+        }
+        if (index != 100)
+        {
+            return this.deck.get(index).getName();
+        }
         return undefined;
     };
 
@@ -146,78 +168,86 @@ var p = Player.prototype;
 
         if (this.stats.longSuits != 0)
         {
-            if (this.stats.clubs >= 5)
+            // Walk through all suits, except trumps
+            for (var i=0; i<4; i++)
             {
-                playedCard = this.takeLowestCard(TarotLib.Suit.CLUBS, 1);
-            }
-            else if (this.stats.diamonds >= 5)
-            {
-                playedCard = this.takeLowestCard(TarotLib.Suit.DIAMONDS, 1);
-            }
-            else if (this.stats.spades >= 5)
-            {
-                playedCard = this.takeLowestCard(TarotLib.Suit.SPADES, 1);
-            }
-            else
-            {
-                playedCard = this.takeLowestCard(TarotLib.Suit.HEARTS, 1);
+                var suit = TarotLib.Suit.toString(i);
+                if (this.stats.suits[suit] >= 5)
+                {
+                    playedCard = this.getLowestCard(suit, 1);
+                    break;
+                }
             }
         }
         return playedCard;
     };
 
-    p.playLowestCard = function(forceSuit)
+    p.playLowestCard = function(forceSuit, minValue)
     {
         var playedCard = undefined;
+        if (minValue == undefined)
+        {
+            if (forceSuit == "T")
+            {
+                minValue = 2;
+            }
+            else
+            {
+                minValue = 1;
+            }
+        }
 
-        if (this.stats.clubs > 0)
+        if (forceSuit != undefined)
         {
-            if ((forceSuit == TarotLib.Suit.CLUBS) ||
-                (forceSuit == undefined))
-            {
-                playedCard = this.takeLowestCard(TarotLib.Suit.CLUBS, 1);
-            }
-        }
-        else if (this.stats.diamonds > 0)
-        {
-            if ((forceSuit == TarotLib.Suit.DIAMONDS) ||
-                (forceSuit == undefined))
-            {
-                playedCard = this.takeLowestCard(TarotLib.Suit.DIAMONDS, 1);
-            }
-        }
-        else if (this.stats.spades > 0)
-        {
-            if ((forceSuit == TarotLib.Suit.SPADES) ||
-                (forceSuit == undefined))
-            {
-                playedCard = this.takeLowestCard(TarotLib.Suit.SPADES, 1);
-            }
-        }
-        else if (this.stats.hearts > 0)
-        {
-            if ((forceSuit == TarotLib.Suit.HEARTS) ||
-                (forceSuit == undefined))
-            {
-                playedCard = this.takeLowestCard(TarotLib.Suit.HEARTS, 1);
-            }
+            playedCard = this.getLowestCard(forceSuit, minValue);
         }
         else
         {
-            if ((forceSuit == TarotLib.Suit.TRUMPS) ||
-                (forceSuit == undefined))
+            for (var i=0; i<5; i++)
             {
-                // avoid to play the one of trumps!
-                playedCard = this.takeLowestCard(TarotLib.Suit.TRUMPS, 2);
+                var suit = TarotLib.Suit.toString(i);
+                if (this.stats.suits[suit] != 0)
+                {
+                    playedCard = this.getLowestCard(suit, minValue);
+                    break;
+                }
+            }
+        }
+
+        // We still haven't found any cards, it means that we only have the fool and/or the little trump
+        if (playedCard == undefined)
+        {
+            // whatever, play the little trumps or the fool ...
+            playedCard = this.getLowestCard(TarotLib.Suit.TRUMPS, 0);
+        }
+
+        return playedCard;
+    };
+
+    p.playHighestCard = function(forceSuit)
+    {
+        var playedCard = undefined;
+
+        if (forceSuit != undefined)
+        {
+            if (this.stats.suits[forceSuit] != 0)
+            {
+                playedCard = this.getHighestCard(forceSuit);
             }
         }
 
         if (playedCard == undefined)
         {
-            // whatever, play the little trumps or the fool ...
-            playedCard = this.takeLowestCard(TarotLib.Suit.TRUMPS, 0);
+            for (var i=0; i<5; i++)
+            {
+                var suit = TarotLib.Suit.toString(i);
+                if (this.stats.suits[suit] != 0)
+                {
+                    playedCard = this.getHighestCard(suit);
+                    break;
+                }
+            }
         }
-
         return playedCard;
     };
 
@@ -246,7 +276,7 @@ var p = Player.prototype;
 
         // Each atout counts two points
         // Each major atout counts one more point
-        total += this.stats.trumps * 2;
+        total += this.stats.suits[TarotLib.Suit.TRUMPS] * 2;
         total += this.stats.majorTrumps * 2;
         total += this.stats.kings * 6;
         total += this.stats.queens * 3;
@@ -257,6 +287,8 @@ var p = Player.prototype;
         total += this.stats.cuts * 5;
         total += this.stats.singletons * 3;
         total += this.stats.sequences * 4;
+
+        systemPrint("Bid calculated: " + total);
 
         // We decide on a bid depending of thresholds
         if( total <= 35 ) {
@@ -273,6 +305,6 @@ var p = Player.prototype;
         return cont;
     };
 
-TarotLib.Player = Player;
+TarotLib.Bot = Bot;
 }());
 // End of file
