@@ -94,7 +94,7 @@ CONTROL_FILE+="Priority: extra\n"
 CONTROL_FILE+="Architecture: ${ARCH}\n"
 CONTROL_FILE+="Depends: libqt5webkit5 (>= 5.0.0), libqt5svg5 (>= 5.0.0), libqt5script5 (>= 5.0.0), libqt5gui5 (>= 5.0.0), libqt5core5 (>= 5.0.0), libqt5concurrent5 (>= 5.0.0), libqt5network5 (>= 5.0.0), libqt5widgets5 (>= 5.0.0), libqt5xml5 (>= 5.0.0), libqt5scripttools5 (>= 5.0.0), libqt5v8-5 (>= 5.0.0), libqt5clucene5 (>= 5.0.0), libqt5sql5-sqlite (>= 5.0.0), libqt5help5 (>= 5.0.0)\n"
 CONTROL_FILE+="Installed-Size: 8312\n"
-CONTROL_FILE+="Maintainer: Anthony Rabine (anthony@tarotclub.fr)\n"
+CONTROL_FILE+="Maintainer: Anthony Rabine <anthony.rabine@tarotclub.fr>\n"
 CONTROL_FILE+="Homepage: http://www.tarotclub.fr\n"
 CONTROL_FILE+="Description: French Tarot card game\n"
 CONTROL_FILE+=" TarotClub is a french Tarot card game. Network and local games \n"
@@ -130,6 +130,8 @@ cp ./tarotclub.desktop ${DESKTOP_ENTRY}
 cp ./tarotclub.menu ${MENU_ENTRY}
 
 echo "Package tree created."
+echo "Making all files root owner..."
+sudo chown -R root:root ${TEMP_DIR}
 
 dpkg-deb --build ${PACKAGE_ROOT}
 echo "Ubuntu package created."
