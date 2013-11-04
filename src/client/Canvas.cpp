@@ -494,10 +494,23 @@ void Canvas::DrawSouthCards(const Deck &cards)
 
     // Calculate the step needed between each card.
     // It depends on the number of the cards to be displayed within the border line
-    qreal width = border.width() - 20; // leave a 10px space on left and right
-    qreal number = cards.size();
+    qreal max_width = border.width() - 20; // leave a 10px space on left and right
     qreal card_width = cardsPics.at(0)->boundingRect().width();
-    qreal step = (width- card_width - 20 - 2*BORDER_WIDTH)/(number-1);
+
+    // Try the fixed step, cards are centered
+    qreal step = 40.0;
+    qreal width = (step * (cards.size()-1)) + card_width + 20 + 2*BORDER_WIDTH;
+
+    if (width > border.width())
+    {
+        // dynamic step
+        step = (max_width - card_width - 20 - 2*BORDER_WIDTH)/(cards.size()-1);
+    }
+    else
+    {
+        // Fixed step, move X coordinate to center cards
+        x = (border.width() - width) / 2;
+    }
 
     for (int i = 0; i < cards.size(); i++)
     {
