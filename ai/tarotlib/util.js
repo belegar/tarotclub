@@ -24,7 +24,7 @@
  */
 
 // namespace
-this.TarotLib = this.TarotLib||{};
+this.TarotLib = this.TarotLib || {};
  
 (function() {
  
@@ -60,29 +60,51 @@ this.TarotLib = this.TarotLib||{};
 // ****************************************************************************
 	function Stats()
 	{
-        this.trumps = 0;  // nombres d'atouts , en comptant les bouts et l'excuse
-        this.oudlers = 0;   // 0, 1, 2 ou 3
-        this.majorTrumps = 0; // atouts >= 15
+        this.oudlers;   // 0, 1, 2 ou 3
+        this.majorTrumps; // atouts >= 15
 
-        this.kings = 0;
-        this.queens = 0;
-        this.knights = 0;
-        this.jacks = 0;
+        this.kings;
+        this.queens;
+        this.knights;
+        this.jacks;
 
-        this.weddings = 0;   // nombre de mariages dans la main
-        this.longSuits = 0;
-        this.cuts = 0;     // aucune carte dans une couleur
-        this.singletons = 0; // une seule carte dans une couleur
-        this.sequences = 0;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+        this.weddings;   // nombre de mariages dans la main
+        this.longSuits;
+        this.cuts;     // aucune carte dans une couleur
+        this.singletons; // une seule carte dans une couleur
+        this.sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
 
-        this.clubs = 0;
-        this.spades = 0;
-        this.hearts = 0;
-        this.diamonds = 0;
+        this.suits = new Array(5);
+ 
+        this.littleTrump;
+        this.bigTrump;
+        this.fool;
 
-        this.littleTrump = false;
-        this.bigTrump = false;
-        this.fool = false;
+        this.reset = function()
+        {
+        	this.oudlers = 0;
+	        this.majorTrumps = 0;
+
+	        this.kings = 0;
+	        this.queens = 0;
+	        this.knights = 0;
+	        this.jacks = 0;
+
+	        this.weddings = 0;
+	        this.longSuits = 0;
+	        this.cuts = 0;
+	        this.singletons = 0;
+	        this.sequences = 0;
+
+	        for (var i=0; i<5; i++)
+	        {
+	        	this.suits[Suit.toString(i)] = 0;
+	        }
+
+	        this.littleTrump = false;
+	        this.bigTrump = false;
+	        this.fool = false;	
+        };
 		
 		/**
 		 * @brief Update the statistics of a deck
@@ -91,6 +113,8 @@ this.TarotLib = this.TarotLib||{};
 		{
 			var i, k;
 			var c;
+
+			this.reset();
 			
 			// looking for trumps
 			for (i = 0; i < deck.size(); i++)
@@ -98,7 +122,7 @@ this.TarotLib = this.TarotLib||{};
 				c = deck.get(i);
 				if (c.suit == Suit.TRUMPS)
 				{
-					this.trumps++;
+					this.suits[TarotLib.Suit.TRUMPS]++;
 					if (c.value >= 15)
 					{
 						this.majorTrumps++;
@@ -130,23 +154,6 @@ this.TarotLib = this.TarotLib||{};
 			// Normal suits
 			for (i = 0; i<4; i++)
 			{
-				if (i == 0)
-				{
-					suit = Suit.SPADES;
-				}
-				else if (i == 1)
-				{
-					suit = Suit.HEARTS;
-				}
-				else if (i == 2)
-				{
-					suit = Suit.CLUBS;
-				}
-				else
-				{
-					suit = Suit.DIAMONDS;
-				}
-
 				for (k = 0; k<14; k++)
 				{
 					distr[k] = 0;
@@ -156,7 +163,7 @@ this.TarotLib = this.TarotLib||{};
 				for (k = 0; k < deck.size(); k++)
 				{
 					c = deck.get(k);
-					if (c.suit == suit)
+					if (c.suit == Suit.toString(i))
 					{
 						count++;
 						distr[c.value - 1] = 1;
@@ -181,22 +188,7 @@ this.TarotLib = this.TarotLib||{};
 				}
 
 				// Number of cards in each normal suit
-				if (i == 0)
-				{
-					this.spades = count;
-				}
-				else if (i == 1)
-				{
-					this.hearts = count;
-				}
-				else if (i == 2)
-				{
-					this.clubs = count;
-				}
-				else
-				{
-					this.diamonds = count;
-				}
+				this.suits[Suit.toString(i)] = count;
 
 				if ((distr[13] == 1) && (distr[12] == 1))
 				{
@@ -291,6 +283,24 @@ this.TarotLib = this.TarotLib||{};
 		}
 		return text;
 	}
+
+	Suit.toString = function(intValue)
+	{
+		var suit;
+
+		if (intValue == 0) {
+			suit = Suit.SPADES;
+		} else if (intValue == 1) {
+			suit = Suit.HEARTS;
+		} else if (intValue == 2) {
+			suit = Suit.CLUBS;
+		} else if (intValue == 3) {
+			suit = Suit.DIAMONDS;
+		} else {
+			suit = Suit.TRUMPS;
+		}
+		return suit;
+	};
 	
 
 TarotLib.Place = Place;
