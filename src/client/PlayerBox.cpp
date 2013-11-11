@@ -48,13 +48,13 @@ PlayerBox::PlayerBox(const QRectF &cardSize)
     // player's name is under the avatar
     name.setParentItem(this);
     name.setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    name.setPos(SPACE_BETWEEN_ITEMS, avatar.boundingRect().height() + 2*SPACE_BETWEEN_ITEMS);
+    name.setPos(SPACE_BETWEEN_ITEMS, avatar.boundingRect().height() + 2 * SPACE_BETWEEN_ITEMS);
     name.show();
     SetBackgroundColor(Qt::gray, NAME_BOX);
 
     // bid box is under the player's name
     bid.setParentItem(this);
-    bid.setPos(SPACE_BETWEEN_ITEMS, avatar.boundingRect().height() + name.boundingRect().height() + 3*SPACE_BETWEEN_ITEMS);
+    bid.setPos(SPACE_BETWEEN_ITEMS, avatar.boundingRect().height() + name.boundingRect().height() + 3 * SPACE_BETWEEN_ITEMS);
     bid.SetColor(Qt::white);
     bid.show();
     SetBackgroundColor(Qt::red, BID_BOX);
@@ -63,7 +63,7 @@ PlayerBox::PlayerBox(const QRectF &cardSize)
     mCardShadow.setParentItem(this);
     mCardShadow.setRect(mCardSize);
 
-    mCardShadow.setPos(name.boundingRect().width() + 2*SPACE_BETWEEN_ITEMS, (PLAYER_BOX_HEIGHT-mCardShadow.boundingRect().height())/2);
+    mCardShadow.setPos(name.boundingRect().width() + 2 * SPACE_BETWEEN_ITEMS, (PLAYER_BOX_HEIGHT - mCardShadow.boundingRect().height()) / 2);
     mCardShadow.show();
     mCardShadow.setZValue(0);
 }
@@ -107,7 +107,7 @@ void PlayerBox::SetAvatar(const QString &av)
         return;
     }
     QPixmap img(av);
-  //  img.scaledToHeight(40);
+    //  img.scaledToHeight(40);
 
     avatar.setPixmap(img);
 }

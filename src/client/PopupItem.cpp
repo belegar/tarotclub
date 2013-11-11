@@ -55,7 +55,7 @@ void PopupItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 /*****************************************************************************/
 void PopupItem::DrawItems(const QList<QGraphicsItem *> &items)
 {
-    qreal width = STEP_X*(items.size() - 1) + mCardSize.width() + 20; // add 10 px on each sides
+    qreal width = STEP_X * (items.size() - 1) + mCardSize.width() + 20; // add 10 px on each sides
     qreal height = mCardSize.height() + 20; // add 10 px on top/bottom
     qreal x = mBorder.x() + ((mBorder.width() - width) / 2);
     qreal y = mBorder.y() + ((mBorder.height() - height) / 2);
@@ -68,7 +68,7 @@ void PopupItem::DrawItems(const QList<QGraphicsItem *> &items)
 
     for (int i = 0; i < items.size(); i++)
     {
-        items.at(i)->setPos(cardPosX + i*STEP_X, cardPosY);
+        items.at(i)->setPos(cardPosX + i * STEP_X, cardPosY);
         items.at(i)->setZValue(4 + i);
         items.at(i)->show();
     }

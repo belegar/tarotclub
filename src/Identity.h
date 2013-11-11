@@ -35,7 +35,8 @@ class Identity
 {
 public:
     enum Gender
-    {   MALE,
+    {
+        MALE,
         FEMALE
     };
 

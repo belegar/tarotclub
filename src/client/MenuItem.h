@@ -46,7 +46,10 @@ public:
     QRectF boundingRect() const;
 
     void Click(const QPointF &pos);
-    bool GetStatus() { return status; }
+    bool GetStatus()
+    {
+        return status;
+    }
 
 private:
     bool status;

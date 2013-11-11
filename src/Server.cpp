@@ -50,7 +50,7 @@ void Server::SetMaximumPlayers(int n)
 /*****************************************************************************/
 void Server::slotNewConnection()
 {
-    while(tcpServer.hasPendingConnections())
+    while (tcpServer.hasPendingConnections())
     {
         QTcpSocket *cnx = tcpServer.nextPendingConnection();
         if (GetNumberOfConnectedPlayers() == maximumPlayers)
@@ -62,7 +62,7 @@ void Server::slotNewConnection()
             Place p = NOWHERE;
 
             // Look for free space
-            for (int i=0; i<maximumPlayers; i++)
+            for (int i = 0; i < maximumPlayers; i++)
             {
                 if (players[i].IsFree() == true)
                 {
@@ -99,7 +99,7 @@ int Server::GetTcpPort()
 int Server::GetNumberOfConnectedPlayers()
 {
     int p = 0;
-    for (int i=0; i<maximumPlayers; i++)
+    for (int i = 0; i < maximumPlayers; i++)
     {
         if (players[i].IsFree() == false)
         {
@@ -134,7 +134,7 @@ void Server::StopServer()
 /*****************************************************************************/
 void Server::CloseClients()
 {
-    for (int i=0; i<maximumPlayers; i++)
+    for (int i = 0; i < maximumPlayers; i++)
     {
         players[i].Close();
     }
@@ -143,7 +143,7 @@ void Server::CloseClients()
 void Server::slotClientClosed(Place p)
 {
     players[p].Close();
-    SendChatMessage( "The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
+    SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
     SendPlayersList();
 
     // FIXME: if a player has quit during a game, replace it by a bot
@@ -177,132 +177,132 @@ bool Server::DoAction(QDataStream &in, Place p)
 
     switch (cmd)
     {
-    case Protocol::CLIENT_MESSAGE:
-    {
-        QString message;
-        in >> message;
-        SendChatMessage(message);
-        emit sigServerMessage(QString("Client message: ") + message);
-        break;
-    }
-
-    case Protocol::CLIENT_INFOS:
-    {
-        Identity ident;
-        in >> ident;
-
-        ident.avatar = ":/images/avatars/" + ident.avatar;
-        engine.GetPlayer(p).SetIdentity(ident);
-        const QString m = "The player " + ident.name + " has joined the game.";
-        SendChatMessage(m);
-        emit sigServerMessage(m);
-
-        if (GetNumberOfConnectedPlayers() == maximumPlayers)
+        case Protocol::CLIENT_MESSAGE:
         {
-            SendPlayersList();
-            engine.NewDeal();
+            QString message;
+            in >> message;
+            SendChatMessage(message);
+            emit sigServerMessage(QString("Client message: ") + message);
+            break;
         }
-        break;
-    }
 
-    case Protocol::CLIENT_BID:
-    {
-        quint8 c;
-        quint8 slam;
-        // FIXME: add protection like client origin, current sequence...
-        in >> c;
-        in >> slam;
-
-        Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
-
-        // Broadcast player's bid, and wait for all acknowlegements
-        SendShowBid(cont, (slam == 1 ? true : false), p);
-        break;
-    }
-
-    case Protocol::CLIENT_SYNC_DOG:
-    {
-        if (engine.SyncDog() == true)
+        case Protocol::CLIENT_INFOS:
         {
-            SendBuildDiscard();
+            Identity ident;
+            in >> ident;
+
+            ident.avatar = ":/images/avatars/" + ident.avatar;
+            engine.GetPlayer(p).SetIdentity(ident);
+            const QString m = "The player " + ident.name + " has joined the game.";
+            SendChatMessage(m);
+            emit sigServerMessage(m);
+
+            if (GetNumberOfConnectedPlayers() == maximumPlayers)
+            {
+                SendPlayersList();
+                engine.NewDeal();
+            }
+            break;
         }
-        break;
-    }
 
-    case Protocol::CLIENT_DISCARD:
-    {
-        Deck discard;
-        in >> discard;
-        engine.SetDiscard(discard);
-        break;
-    }
+        case Protocol::CLIENT_BID:
+        {
+            quint8 c;
+            quint8 slam;
+            // FIXME: add protection like client origin, current sequence...
+            in >> c;
+            in >> slam;
 
-    case Protocol::CLIENT_HANDLE:
-    {
-        // FIXME: add protections: handle validity, game sequence ...
-        Deck handle;
-        in >> handle;
-        engine.SetHandle(handle, p);
-        SendShowHandle(handle, p);
-        break;
-    }
+            Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
 
-    case Protocol::CLIENT_SYNC_START:
-    {
-        engine.SyncStart();
-        break;
-    }
+            // Broadcast player's bid, and wait for all acknowlegements
+            SendShowBid(cont, (slam == 1 ? true : false), p);
+            break;
+        }
 
-    case Protocol::CLIENT_SYNC_BID:
-    {
-        engine.SyncBid();
-        break;
-    }
+        case Protocol::CLIENT_SYNC_DOG:
+        {
+            if (engine.SyncDog() == true)
+            {
+                SendBuildDiscard();
+            }
+            break;
+        }
 
-    case Protocol::CLIENT_SYNC_TRICK:
-    {
-        engine.SyncTrick();
-        break;
-    }
+        case Protocol::CLIENT_DISCARD:
+        {
+            Deck discard;
+            in >> discard;
+            engine.SetDiscard(discard);
+            break;
+        }
 
-    case Protocol::CLIENT_SYNC_HANDLE:
-    {
-        engine.SyncHandle();
-        break;
-    }
+        case Protocol::CLIENT_HANDLE:
+        {
+            // FIXME: add protections: handle validity, game sequence ...
+            Deck handle;
+            in >> handle;
+            engine.SetHandle(handle, p);
+            SendShowHandle(handle, p);
+            break;
+        }
 
-    case Protocol::CLIENT_CARD:
-    {
-        quint8 id;
-        Card *c;
-        // TODO: tester la validité de la carte (ID + présence dans le jeu du joueur)
-        // si erreur : logguer et prévenir quelqu'un ??
-        // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-        in >> id;
-        c = TarotDeck::GetCard(id);
-        engine.SetCard(c, p);
+        case Protocol::CLIENT_SYNC_START:
+        {
+            engine.SyncStart();
+            break;
+        }
 
-        // Broadcast played card, and wait for all acknowlegements
-        SendShowCard(c);
-        break;
-    }
+        case Protocol::CLIENT_SYNC_BID:
+        {
+            engine.SyncBid();
+            break;
+        }
 
-    case Protocol::CLIENT_SYNC_CARD:
-    {
-        engine.SyncCard();
-        break;
-    }
+        case Protocol::CLIENT_SYNC_TRICK:
+        {
+            engine.SyncTrick();
+            break;
+        }
 
-    case Protocol::CLIENT_READY:
-    {
-        engine.SyncReady();
-        break;
-    }
+        case Protocol::CLIENT_SYNC_HANDLE:
+        {
+            engine.SyncHandle();
+            break;
+        }
 
-    default:
-        qDebug() <<  trUtf8(": Unkown packet received.") << endl;
-        ret = false;
-        break;
+        case Protocol::CLIENT_CARD:
+        {
+            quint8 id;
+            Card *c;
+            // TODO: tester la validité de la carte (ID + présence dans le jeu du joueur)
+            // si erreur : logguer et prévenir quelqu'un ??
+            // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
+            in >> id;
+            c = TarotDeck::GetCard(id);
+            engine.SetCard(c, p);
+
+            // Broadcast played card, and wait for all acknowlegements
+            SendShowCard(c);
+            break;
+        }
+
+        case Protocol::CLIENT_SYNC_CARD:
+        {
+            engine.SyncCard();
+            break;
+        }
+
+        case Protocol::CLIENT_READY:
+        {
+            engine.SyncReady();
+            break;
+        }
+
+        default:
+            qDebug() <<  trUtf8(": Unkown packet received.") << endl;
+            ret = false;
+            break;
     }
 
     return ret;
@@ -359,7 +359,7 @@ void Server::SendPlayersList()
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << (quint8)GetNumberOfConnectedPlayers();
-    for (int i=0; i<maximumPlayers; i++)
+    for (int i = 0; i < maximumPlayers; i++)
     {
         if (players[i].IsFree() == false)
         {
@@ -401,7 +401,7 @@ void Server::SendShowHandle(Deck &handle, Place p)
 /*****************************************************************************/
 void Server::slotSendCards()
 {
-    for (int i=0; i<engine.GetGameInfo().numberOfPlayers; i++)
+    for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
     {
         QByteArray packet;
         QDataStream out(&packet, QIODevice::WriteOnly);
@@ -476,7 +476,7 @@ void Server::slotSendDealAgain()
 /*****************************************************************************/
 void Server::Broadcast(QByteArray &block)
 {
-    for (int i=0; i<maximumPlayers; i++)
+    for (int i = 0; i < maximumPlayers; i++)
     {
         players[i].SendData(block);
         // Calm down packets sending

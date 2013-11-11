@@ -81,7 +81,7 @@ void JoinWizardPage2::Ready()
 bool JoinWizardPage2::isComplete() const
 {
     if ((ui.saloonList->selectedItems().size() == 1) &&
-        (ui.tableList->selectedItems().size() == 1))
+            (ui.tableList->selectedItems().size() == 1))
     {
         return true;
     }

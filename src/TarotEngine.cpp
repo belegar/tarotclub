@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - TarotEngine.cpp
  *=============================================================================
- * Main Tarot engine 
+ * Main Tarot engine
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -34,7 +34,7 @@ TarotEngine::TarotEngine()
 {
     shuffle.type = RANDOM_DEAL;
     shuffle.seed = 0;
-    for (int i=0; i<5; i++)
+    for (int i = 0; i < 5; i++)
     {
         players[i].SetPlace((Place)i);
     }
@@ -167,7 +167,7 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
     if (gameState.sequence == Game::BUILD_DOG)
     {
         if ((c->GetSuit() == Card::TRUMPS) ||
-            ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
             ret = false;
         }
@@ -329,19 +329,19 @@ void TarotEngine::GameSateMachine()
 /*****************************************************************************/
 void TarotEngine::EndOfDeal()
 {
-    if(deal.Calculate(gameState) == true)
+    if (deal.Calculate(gameState) == true)
     {
-         gameState.sequence = Game::SYNC_READY;
+        gameState.sequence = Game::SYNC_READY;
     }
     else
     {
-         gameState.sequence = Game::STOP;
+        gameState.sequence = Game::STOP;
     }
 
     QMap<Place, Identity> list;
 
     // Create a QMap list of players
-    for (int i = 0; i<gameState.numberOfPlayers; i++)
+    for (int i = 0; i < gameState.numberOfPlayers; i++)
     {
         list.insert((Place)i, players[i].GetIdentity());
     }
@@ -355,7 +355,7 @@ void TarotEngine::BidSequence()
 {
     // If a slam has been announced, we start immediately the deal
     if ((gameState.Next() == true) ||
-        (gameState.slamAnnounced == true))
+            (gameState.slamAnnounced == true))
     {
         if (gameState.contract == PASS)
         {
@@ -436,15 +436,15 @@ void TarotEngine::CreateDeal()
     }
 
     int n = gameState.GetNumberOfCards();
-    for (int i=0; i<gameState.numberOfPlayers; i++)
+    for (int i = 0; i < gameState.numberOfPlayers; i++)
     {
         players[i].GetDeck().clear();
-        players[i].GetDeck().append(currentTrick.mid(i*n, n));
+        players[i].GetDeck().append(currentTrick.mid(i * n, n));
     }
 
     // Remaining cards go to the dog
     Deck dog;
-    dog.append(currentTrick.mid(gameState.numberOfPlayers*n));
+    dog.append(currentTrick.mid(gameState.numberOfPlayers * n));
     deal.SetDog(dog, NO_TEAM);
     currentTrick.clear();
 }

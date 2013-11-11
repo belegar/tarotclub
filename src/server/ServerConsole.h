@@ -61,7 +61,7 @@ public slots:
     void Text();
 
 private:
-    QSocketNotifier* notifier;
+    QSocketNotifier *notifier;
     QList<Command> list;
 };
 

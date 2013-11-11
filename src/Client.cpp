@@ -305,15 +305,15 @@ void Client::slotSocketError(QAbstractSocket::SocketError code)
 
     switch (code)
     {
-    case QAbstractSocket::ConnectionRefusedError:
-        message = trUtf8(": network error: connection refused.");
-        break;
-    case QAbstractSocket::HostNotFoundError:
-        message = trUtf8(": network error: server not found.");
-        break;
-    default:
-        message = trUtf8(": network error: data transmission failed.");
-        break;
+        case QAbstractSocket::ConnectionRefusedError:
+            message = trUtf8(": network error: connection refused.");
+            break;
+        case QAbstractSocket::HostNotFoundError:
+            message = trUtf8(": network error: server not found.");
+            break;
+        default:
+            message = trUtf8(": network error: data transmission failed.");
+            break;
     }
     qDebug() << message.toLatin1().constData();
 }
@@ -343,200 +343,200 @@ bool Client::DoAction(QDataStream &in)
     in >> command;
     switch (command)
     {
-    case Protocol::SERVER_MESSAGE:
-    {
-        QString message;
-        in >> message;
-        emit sigMessage(message);
-        break;
-    }
-
-    case Protocol::SERVER_REQUEST_IDENTITY:
-    {
-        quint8 place;
-        quint8 nbPlayers;
-        quint8 mode;
-
-        in >> place;
-        in >> nbPlayers;
-        in >> mode;
-
-        player.SetPlace((Place)place);
-        info.Initialize(nbPlayers);
-        info.gameMode = (Game::Mode)mode;
-        SendIdentity();
-        emit sigAssignedPlace((Place)place);
-        break;
-    }
-
-    case Protocol::SERVER_PLAYERS_LIST:
-    {
-        quint8 nombre;
-        QMap<Place, Identity> players;
-
-        in >> nombre;
-        for (int i = 0; i < nombre; i++)
+        case Protocol::SERVER_MESSAGE:
         {
-            Identity ident;
+            QString message;
+            in >> message;
+            emit sigMessage(message);
+            break;
+        }
+
+        case Protocol::SERVER_REQUEST_IDENTITY:
+        {
             quint8 place;
+            quint8 nbPlayers;
+            quint8 mode;
 
             in >> place;
-            in >> ident;
-            players[(Place)place] = ident;
+            in >> nbPlayers;
+            in >> mode;
+
+            player.SetPlace((Place)place);
+            info.Initialize(nbPlayers);
+            info.gameMode = (Game::Mode)mode;
+            SendIdentity();
+            emit sigAssignedPlace((Place)place);
+            break;
         }
-        emit sigPlayersList(players);
-        break;
-    }
 
-    case Protocol::SERVER_SEND_CARDS:
-    {
-        in >> player.GetDeck();
-        score.Reset();
-        UpdateStatistics();
-        emit sigReceiveCards();
-        break;
-    }
-
-    case Protocol::SERVER_REQUEST_BID:
-    {
-        quint8 c;
-        quint8 p;
-
-        in >> c; // Most important contract announced before
-        in >> p;
-        emit sigSelectPlayer((Place)p);
-        if (p == player.GetPlace())
+        case Protocol::SERVER_PLAYERS_LIST:
         {
-            // The request bid is for us! We must declare something
-            emit sigRequestBid((Contract)c);
+            quint8 nombre;
+            QMap<Place, Identity> players;
+
+            in >> nombre;
+            for (int i = 0; i < nombre; i++)
+            {
+                Identity ident;
+                quint8 place;
+
+                in >> place;
+                in >> ident;
+                players[(Place)place] = ident;
+            }
+            emit sigPlayersList(players);
+            break;
         }
-        break;
-    }
 
-    case Protocol::SERVER_SHOW_PLAYER_BID:
-    {
-        qint8 c, p, slam;
-        in >> p;
-        in >> c;
-        in >> slam;
-        emit sigShowBid((Place)p, (slam == 1 ? true : false), (Contract)c);
-        break;
-    }
-
-    case Protocol::SERVER_SHOW_DOG:
-    {
-        in >> dogDeck;
-        dogDeck.Sort();
-        info.sequence = Game::SHOW_DOG;
-        emit sigShowDog();
-        break;
-    }
-
-    case Protocol::SERVER_BUILD_DISCARD:
-    {
-        info.sequence = Game::BUILD_DOG;
-        emit sigBuildDiscard();
-        break;
-    }
-
-    case Protocol::SERVER_START_DEAL:
-    {
-        qint8 preneur;
-        qint8 contrat;
-
-        in >> preneur;
-        in >> contrat;
-        info.NewDeal();
-        info.taker = (Place)preneur;
-        info.contract = (Contract)contrat;
-        currentTrick.clear();
-        info.sequence = Game::SYNC_START;
-        emit sigStartDeal((Place)preneur, (Contract)contrat);
-        break;
-    }
-
-    case Protocol::SERVER_SHOW_HANDLE:
-    {
-        quint8 p;
-        in >> p;
-        in >> handleDeck;
-        if (GetGameInfo().taker == (Place)p)
+        case Protocol::SERVER_SEND_CARDS:
         {
-            handleDeck.SetOwner(ATTACK);
+            in >> player.GetDeck();
+            score.Reset();
+            UpdateStatistics();
+            emit sigReceiveCards();
+            break;
         }
-        else
+
+        case Protocol::SERVER_REQUEST_BID:
         {
-            handleDeck.SetOwner(DEFENSE);
+            quint8 c;
+            quint8 p;
+
+            in >> c; // Most important contract announced before
+            in >> p;
+            emit sigSelectPlayer((Place)p);
+            if (p == player.GetPlace())
+            {
+                // The request bid is for us! We must declare something
+                emit sigRequestBid((Contract)c);
+            }
+            break;
         }
-        info.sequence = Game::SHOW_HANDLE;
-        emit sigShowHandle();
-        break;
-    }
 
-    case Protocol::SERVER_SHOW_CARD:
-    {
-        quint8 id;
-        quint8 tour;
-
-        in >> id;
-        in >> tour;
-        info.Next();
-        currentTrick.append(TarotDeck::GetCard(id));
-        info.sequence = Game::SYNC_CARD;
-        emit sigShowCard((int)id, (Place)tour);
-        break;
-    }
-
-    case Protocol::SERVER_PLAY_CARD:
-    {
-        qint8 p;
-        in >> p;
-
-        emit sigSelectPlayer((Place)p);
-        if (p == player.GetPlace())
+        case Protocol::SERVER_SHOW_PLAYER_BID:
         {
-            // Our turn to play a card
-            info.sequence = Game::PLAY_TRICK;
-            emit sigPlayCard();
+            qint8 c, p, slam;
+            in >> p;
+            in >> c;
+            in >> slam;
+            emit sigShowBid((Place)p, (slam == 1 ? true : false), (Contract)c);
+            break;
         }
-        break;
-    }
 
-    case Protocol::SERVER_DEAL_AGAIN:
-    {
-        emit sigDealAgain();
-        break;
-    }
+        case Protocol::SERVER_SHOW_DOG:
+        {
+            in >> dogDeck;
+            dogDeck.Sort();
+            info.sequence = Game::SHOW_DOG;
+            emit sigShowDog();
+            break;
+        }
 
-    case Protocol::SERVER_END_OF_TRICK:
-    {
-        quint8 winner;
-        in >> winner;
-        info.Next();
-        info.sequence = Game::SYNC_TRICK;
-        emit sigWaitTrick((Place)winner);
-        break;
-    }
+        case Protocol::SERVER_BUILD_DISCARD:
+        {
+            info.sequence = Game::BUILD_DOG;
+            emit sigBuildDiscard();
+            break;
+        }
 
-    case Protocol::SERVER_END_OF_DEAL:
-    {
-        in >> score;
-        info.sequence = Game::SYNC_READY;
-        emit sigEndOfDeal();
-        break;
-    }
+        case Protocol::SERVER_START_DEAL:
+        {
+            qint8 preneur;
+            qint8 contrat;
 
-    case Protocol::SERVER_END_OF_GAME:
-    {
-        emit sigEndOfGame();
-        break;
-    }
+            in >> preneur;
+            in >> contrat;
+            info.NewDeal();
+            info.taker = (Place)preneur;
+            info.contract = (Contract)contrat;
+            currentTrick.clear();
+            info.sequence = Game::SYNC_START;
+            emit sigStartDeal((Place)preneur, (Contract)contrat);
+            break;
+        }
 
-    default:
-        QString msg = player.GetIdentity().name + trUtf8(": Unkown packet received.");
-        qDebug() << msg.toLatin1().constData();
-        ret = false;
-        break;
+        case Protocol::SERVER_SHOW_HANDLE:
+        {
+            quint8 p;
+            in >> p;
+            in >> handleDeck;
+            if (GetGameInfo().taker == (Place)p)
+            {
+                handleDeck.SetOwner(ATTACK);
+            }
+            else
+            {
+                handleDeck.SetOwner(DEFENSE);
+            }
+            info.sequence = Game::SHOW_HANDLE;
+            emit sigShowHandle();
+            break;
+        }
+
+        case Protocol::SERVER_SHOW_CARD:
+        {
+            quint8 id;
+            quint8 tour;
+
+            in >> id;
+            in >> tour;
+            info.Next();
+            currentTrick.append(TarotDeck::GetCard(id));
+            info.sequence = Game::SYNC_CARD;
+            emit sigShowCard((int)id, (Place)tour);
+            break;
+        }
+
+        case Protocol::SERVER_PLAY_CARD:
+        {
+            qint8 p;
+            in >> p;
+
+            emit sigSelectPlayer((Place)p);
+            if (p == player.GetPlace())
+            {
+                // Our turn to play a card
+                info.sequence = Game::PLAY_TRICK;
+                emit sigPlayCard();
+            }
+            break;
+        }
+
+        case Protocol::SERVER_DEAL_AGAIN:
+        {
+            emit sigDealAgain();
+            break;
+        }
+
+        case Protocol::SERVER_END_OF_TRICK:
+        {
+            quint8 winner;
+            in >> winner;
+            info.Next();
+            info.sequence = Game::SYNC_TRICK;
+            emit sigWaitTrick((Place)winner);
+            break;
+        }
+
+        case Protocol::SERVER_END_OF_DEAL:
+        {
+            in >> score;
+            info.sequence = Game::SYNC_READY;
+            emit sigEndOfDeal();
+            break;
+        }
+
+        case Protocol::SERVER_END_OF_GAME:
+        {
+            emit sigEndOfGame();
+            break;
+        }
+
+        default:
+            QString msg = player.GetIdentity().name + trUtf8(": Unkown packet received.");
+            qDebug() << msg.toLatin1().constData();
+            ret = false;
+            break;
     }
     return ret;
 }

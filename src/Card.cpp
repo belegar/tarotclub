@@ -116,7 +116,7 @@ int Card::GetValue()
 bool Card::IsFool()
 {
     if ((suit == Card::TRUMPS) &&
-        (value == 0))
+            (value == 0))
     {
         return true;
     }

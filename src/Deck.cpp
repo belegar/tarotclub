@@ -112,7 +112,7 @@ bool Deck::HasOneOfTrump()
     for (int i = 0; i < this->count(); i++)
     {
         if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
-            (this->at(i)->GetValue() == 1))
+                (this->at(i)->GetValue() == 1))
         {
             return true;
         }
@@ -125,7 +125,7 @@ bool Deck::HasFool()
     for (int i = 0; i < this->count(); i++)
     {
         if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
-            (this->at(i)->GetValue() == 0))
+                (this->at(i)->GetValue() == 0))
         {
             return true;
         }
@@ -149,7 +149,7 @@ Card *Deck::HighestTrump()
     for (int i = 0; i < this->count(); i++)
     {
         if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
-            (this->at(i)->GetValue() > value))
+                (this->at(i)->GetValue() > value))
         {
             value = this->at(i)->GetValue();
             c = this->at(i);
@@ -166,7 +166,7 @@ Card *Deck::HighestSuit()
     for (int i = 0; i < this->count(); i++)
     {
         if ((this->at(i)->GetSuit() != Card::TRUMPS) &&
-            (this->at(i)->GetValue() > value))
+                (this->at(i)->GetValue() > value))
         {
             value = this->at(i)->GetValue();
             c = this->at(i);
@@ -280,7 +280,7 @@ void Deck::AnalyzeSuits(Statistics &stats)
     int distr[14] = {0}; // test of a distribution
 
     // Normal suits
-    for (i = 0; i<4; i++)
+    for (i = 0; i < 4; i++)
     {
         if (i == 0)
         {
@@ -299,13 +299,13 @@ void Deck::AnalyzeSuits(Statistics &stats)
             suit = Card::DIAMONDS;
         }
 
-        for (k = 0; k<14; k++)
+        for (k = 0; k < 14; k++)
         {
             distr[k] = 0;
         }
         count = 0;
 
-        for (k = 0; k<this->count(); k++)
+        for (k = 0; k < this->count(); k++)
         {
             c = this->at(k);
             if (c->GetSuit() == suit)

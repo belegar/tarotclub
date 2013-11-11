@@ -48,7 +48,7 @@ using namespace std;
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     DebugDock *output = NULL;
-  //  DebugDock *output = DebugDock::getInstance();
+    //  DebugDock *output = DebugDock::getInstance();
     QString infos = QString(": ") + QString(context.file) + QString(":") + QString().setNum(context.line) + QString(", ") + QString(context.function);
 
     if (output != NULL)

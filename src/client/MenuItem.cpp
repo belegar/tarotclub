@@ -43,12 +43,12 @@ static const int SPACE = 10;
 static const MenuItem::MenuButton buttonList[] =
 {
     { STR_PASS,             QPointF(10, 10),                                    MenuItem::PASS_BUTTON, MenuItem::BIDS_MENU },
-    { STR_TAKE,             QPointF(TEXT_BOX_WIDTH+20, 10),                     MenuItem::TAKE_BUTTON, MenuItem::BIDS_MENU  },
-    { STR_GUARD,            QPointF(10, TEXT_BOX_HEIGHT+20),                    MenuItem::GUARD_BUTTON, MenuItem::BIDS_MENU  },
-    { STR_GUARD_WITHOUT,    QPointF(TEXT_BOX_WIDTH+20, TEXT_BOX_HEIGHT+20),     MenuItem::GUARD_WITHOUT_BUTTON, MenuItem::BIDS_MENU  },
-    { STR_GUARD_AGAINST,    QPointF(10, 2*TEXT_BOX_HEIGHT+30),                  MenuItem::GUARD_AGAINST_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr("Handle"),QPointF(10, 10),                                    MenuItem::DECLARE_HANDLE_BUTTON, MenuItem::HANDLE_MENU  },
-    { QObject::tr("Accept"),QPointF(10, 10),                                    MenuItem::ACCEPT_DISCARD_BUTTON, MenuItem::DISCARD_MENU  }
+    { STR_TAKE,             QPointF(TEXT_BOX_WIDTH + 20, 10),                     MenuItem::TAKE_BUTTON, MenuItem::BIDS_MENU  },
+    { STR_GUARD,            QPointF(10, TEXT_BOX_HEIGHT + 20),                    MenuItem::GUARD_BUTTON, MenuItem::BIDS_MENU  },
+    { STR_GUARD_WITHOUT,    QPointF(TEXT_BOX_WIDTH + 20, TEXT_BOX_HEIGHT + 20),     MenuItem::GUARD_WITHOUT_BUTTON, MenuItem::BIDS_MENU  },
+    { STR_GUARD_AGAINST,    QPointF(10, 2 * TEXT_BOX_HEIGHT + 30),                  MenuItem::GUARD_AGAINST_BUTTON, MenuItem::BIDS_MENU  },
+    { QObject::tr("Handle"), QPointF(10, 10),                                    MenuItem::DECLARE_HANDLE_BUTTON, MenuItem::HANDLE_MENU  },
+    { QObject::tr("Accept"), QPointF(10, 10),                                    MenuItem::ACCEPT_DISCARD_BUTTON, MenuItem::DISCARD_MENU  }
 };
 
 /*****************************************************************************/
@@ -123,7 +123,7 @@ MenuItem::MenuItem()
     setRect(0, 0, 260, 130);
 
     // This menu manages 7 buttons
-    for (int i=0; i<7; i++)
+    for (int i = 0; i < 7; i++)
     {
         TextBox *tb = new TextBox(buttonList[i].coord);
         tb->setParentItem(this);
@@ -136,7 +136,7 @@ MenuItem::MenuItem()
     }
 
     checkBox.setParentItem(this);
-    checkBox.setPos(TEXT_BOX_WIDTH+50, 2*TEXT_BOX_HEIGHT+30);
+    checkBox.setPos(TEXT_BOX_WIDTH + 50, 2 * TEXT_BOX_HEIGHT + 30);
     checkBox.hide();
 }
 /*****************************************************************************/
@@ -148,15 +148,15 @@ int MenuItem::type() const
 /*****************************************************************************/
 void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-   Q_UNUSED(option);
-   Q_UNUSED(widget);
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
 
-   // Paint with specified color and pen
-   painter->setRenderHint(QPainter::Antialiasing);
-   painter->setBrush(QBrush(color));
-   painter->setPen(Qt::NoPen);
-   painter->drawRoundRect(rect(), (int)(25 * rect().height()
-                                        / rect().width()), 25);
+    // Paint with specified color and pen
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(QBrush(color));
+    painter->setPen(Qt::NoPen);
+    painter->drawRoundRect(rect(), (int)(25 * rect().height()
+                                         / rect().width()), 25);
 }
 /*****************************************************************************/
 const MenuItem::MenuButton *MenuItem::Refresh(const QPointF &pos, bool clicked)

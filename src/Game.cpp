@@ -141,7 +141,7 @@ int Game::GetNumberOfCards()
 /*****************************************************************************/
 int Game::GetNumberOfDogCards()
 {
-    return (78-(GetNumberOfCards()*numberOfPlayers));
+    return (78 - (GetNumberOfCards() * numberOfPlayers));
 }
 /*****************************************************************************/
 Place Game::NextPlayer(Place j)
@@ -164,7 +164,7 @@ Place Game::NextPlayer(Place j)
     {
         p = SOUTH;
     }
-    return(p);
+    return (p);
 }
 
 //=============================================================================

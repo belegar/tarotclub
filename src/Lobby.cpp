@@ -26,11 +26,11 @@ Lobby::Lobby()
     saloons[0].name = "Noobs";
     saloons[1].name = "Normal";
 
-    for (int j=0; j<SERVER_MAX_SALOONS; j++)
+    for (int j = 0; j < SERVER_MAX_SALOONS; j++)
     {
         for (int i = 0; i < SERVER_MAX_TABLES; i++)
         {
-            saloons[j].tables[i].name = "Table " + QString().setNum(i+1);
+            saloons[j].tables[i].name = "Table " + QString().setNum(i + 1);
         }
     }
 }
@@ -43,7 +43,7 @@ void Lobby::Initialize()
     sh.type = TarotEngine::RANDOM_DEAL;
     int tcpPort = DEFAULT_PORT;
 
-    for (int j=0; j<SERVER_MAX_SALOONS; j++)
+    for (int j = 0; j < SERVER_MAX_SALOONS; j++)
     {
         for (int i = 0; i < SERVER_MAX_TABLES; i++)
         {
@@ -93,7 +93,7 @@ void Lobby::slotReadData()
             {
                 QStringList list;
 
-                for (int i=0; i<SERVER_MAX_SALOONS; i++)
+                for (int i = 0; i < SERVER_MAX_SALOONS; i++)
                 {
                     list += saloons[i].name;
                 }
@@ -107,9 +107,9 @@ void Lobby::slotReadData()
             {
                 QStringList list;
 
-                for (int i=0; i<SERVER_MAX_SALOONS; i++)
+                for (int i = 0; i < SERVER_MAX_SALOONS; i++)
                 {
-                    if(saloons[i].name == tokens[2])
+                    if (saloons[i].name == tokens[2])
                     {
                         for (int j = 0; j < SERVER_MAX_TABLES; j++)
                         {
@@ -127,13 +127,13 @@ void Lobby::slotReadData()
             {
                 QStringList param = tokens[2].split(',', QString::SkipEmptyParts, Qt::CaseSensitive);
 
-                for (int i=0; i<SERVER_MAX_SALOONS; i++)
+                for (int i = 0; i < SERVER_MAX_SALOONS; i++)
                 {
-                    if(saloons[i].name == param[0])
+                    if (saloons[i].name == param[0])
                     {
                         for (int j = 0; j < SERVER_MAX_TABLES; j++)
                         {
-                            if(saloons[i].tables[j].name == param[1])
+                            if (saloons[i].tables[j].name == param[1])
                             {
                                 os << "PORT:";
                                 os << QString().setNum(saloons[i].tables[j].table.GetServer().GetTcpPort());

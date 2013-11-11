@@ -103,8 +103,8 @@ void TarotDeck::Initialize()
 
         // More points for the oudlers
         if ((i == 56) ||    // Fool
-            (i == 57) ||    // 1
-            (i == 77))      // 21
+                (i == 57) ||    // 1
+                (i == 77))      // 21
         {
             cards[i].SetPoints(4.5);
         }
@@ -123,7 +123,7 @@ Card *TarotDeck::GetCard(int id)
     }
     else
     {
-        return(&cards[id]);
+        return (&cards[id]);
     }
 }
 

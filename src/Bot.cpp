@@ -50,7 +50,7 @@ Bot::Bot()
 
     timeBeforeSend.setSingleShot(true);
     timeBeforeSend.setInterval(0);
-    connect (&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
+    connect(&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
     //connect(&timeBeforeSend, &QTimer::timeout, this, &Bot::slotTimeBeforeSend);
 }
 /*****************************************************************************/

@@ -205,16 +205,16 @@ QString OptionsWindow::choixAvatar(QString defaultAvatar)
 
     if (diag->exec() == QDialog::Rejected)
     {
-        return(defaultAvatar);
+        return (defaultAvatar);
     }
     else if (ui.avatarsList->currentItem() != NULL)
     {
         // On retourne le nom de l'image
-        return(ui.avatarsList->currentItem()->data(Qt::UserRole).toString());
+        return (ui.avatarsList->currentItem()->data(Qt::UserRole).toString());
     }
     else
     {
-        return(defaultAvatar);
+        return (defaultAvatar);
     }
 }
 /*****************************************************************************/

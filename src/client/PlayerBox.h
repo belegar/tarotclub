@@ -46,10 +46,10 @@ public:
     QRectF boundingRect() const
     {
         // Return defined 'size'
-        return QRectF(QPointF(0,0),QSizeF(mSize,mSize));
+        return QRectF(QPointF(0, 0), QSizeF(mSize, mSize));
     }
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0)
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0)
     {
         // Scale QGraphicsPixmapItem to wanted 'size' and keep the aspect ratio using boundingRect()
         painter->drawPixmap(boundingRect().toRect(), pixmap());
@@ -86,7 +86,8 @@ public:
     void SetPlayerName(const QString &text);
 
 private:
-    enum Box {
+    enum Box
+    {
         NAME_BOX,
         BID_BOX
     };

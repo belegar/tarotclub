@@ -113,7 +113,7 @@ public:
         quint8 c;
         s >> c;
         l.reserve(c);
-        for(quint8 i = 0; i < c; ++i)
+        for (quint8 i = 0; i < c; ++i)
         {
             quint8 t;
             s >> t;

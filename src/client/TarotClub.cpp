@@ -355,7 +355,7 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
     if (client.GetGameInfo().sequence == Game::BUILD_DOG)
     {
         if ((c->GetSuit() == Card::TRUMPS) ||
-           ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
             tapis->SetCursorType(Canvas::FORBIDDEN);
         }
@@ -416,7 +416,7 @@ void TarotClub::slotClickCard(GfxCard *gc)
     {
 
         if ((c->GetSuit() == Card::TRUMPS) ||
-           ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
             return;
         }
@@ -460,8 +460,8 @@ void TarotClub::slotClickCard(GfxCard *gc)
                 client.GetHandleDeck().removeAll(c);
             }
             if ((client.GetHandleDeck().size() == 10) ||
-                (client.GetHandleDeck().size() == 13) ||
-                (client.GetHandleDeck().size() == 15))
+                    (client.GetHandleDeck().size() == 13) ||
+                    (client.GetHandleDeck().size() == 15))
             {
                 tapis->SetFilter(Canvas::MENU | Canvas::CARDS);
                 tapis->DisplayHandleMenu(true);

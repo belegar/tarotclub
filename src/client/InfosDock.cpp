@@ -130,7 +130,7 @@ void InfosDock::AddRound(Game &info, Place p, const QString &txt)
 void InfosDock::SelectWinner(Game &info, Place p)
 {
     QBrush brush(Qt::darkGreen);
-    ui.tableWidget->item(info.trickCounter-1, p)->setBackground(brush);
+    ui.tableWidget->item(info.trickCounter - 1, p)->setBackground(brush);
 }
 /*****************************************************************************/
 void InfosDock::SelectFirstPlayer(int turn, Place p)

@@ -60,7 +60,7 @@ public:
 QRectF BorderLine::boundingRect() const
 {
     // Leave a transparent border between the white border and the window, it's nicer!
-    return QRectF(border.x()-10, border.y()-10, border.width()+20, border.height()+20);
+    return QRectF(border.x() - 10, border.y() - 10, border.width() + 20, border.height() + 20);
 }
 
 void BorderLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -143,7 +143,7 @@ bool Canvas::Initialize(ClientOptions &opt)
         // de l'as au roi (14 cartes)
         for (j = 0; j < 14; j++)
         {
-          //  n = i * 14 + j;
+            //  n = i * 14 + j;
             image = path + varImg + QString("-") + QString().sprintf("%02d.svg", j + 1);
 
             // Test if file exists
@@ -244,7 +244,7 @@ Card *Canvas::GetObjectCard(GfxCard *gc)
             break;
         }
     }
-    return(c);
+    return (c);
 }
 /*****************************************************************************/
 bool Canvas::GetSlamOption()
@@ -288,11 +288,11 @@ void Canvas::resizeEvent(QResizeEvent *event)
     // Use the following code for absolute graphic items creation
     // ------------------------------------------------------------
 
-/*
-    QSize s;
-    s = event->size();
-    setSceneRect(0, 0, s.width(), s.height());
-    */
+    /*
+        QSize s;
+        s = event->size();
+        setSceneRect(0, 0, s.width(), s.height());
+        */
 }
 /*****************************************************************************/
 void Canvas::mousePressEvent(QMouseEvent *e)
@@ -345,11 +345,11 @@ void Canvas::mousePressEvent(QMouseEvent *e)
                     }
                     emit sigContract(contract);
                 }
-                else if(ret->menu == MenuItem::HANDLE_MENU)
+                else if (ret->menu == MenuItem::HANDLE_MENU)
                 {
                     emit sigAcceptHandle();
                 }
-                else if(ret->menu == MenuItem::DISCARD_MENU)
+                else if (ret->menu == MenuItem::DISCARD_MENU)
                 {
                     emit sigAcceptDiscard();
                 }
@@ -390,7 +390,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *e)
 
     if (TestFilter(CARDS))
     {
-        list = scene.items( mapToScene(e->pos()) );
+        list = scene.items(mapToScene(e->pos()));
         if (!list.isEmpty())
         {
             // If it is a card, return the object, otherwise NULL
@@ -453,7 +453,7 @@ void Canvas::SetAvatar(Place p, const QString &file)
 Place Canvas::SwapPlace(Place my_place, Place absolute)
 {
     // FIXME: generalize this algorithm with the number of players from GameInfo
-    Place pl = (Place)((absolute+4-my_place)%4);
+    Place pl = (Place)((absolute + 4 - my_place) % 4);
 
     return pl;
 }
@@ -499,12 +499,12 @@ void Canvas::DrawSouthCards(const Deck &cards)
 
     // Try the fixed step, cards are centered
     qreal step = 40.0;
-    qreal width = (step * (cards.size()-1)) + card_width + 20 + 2*BORDER_WIDTH;
+    qreal width = (step * (cards.size() - 1)) + card_width + 20 + 2 * BORDER_WIDTH;
 
     if (width > border.width())
     {
         // dynamic step
-        step = (max_width - card_width - 20 - 2*BORDER_WIDTH)/(cards.size()-1);
+        step = (max_width - card_width - 20 - 2 * BORDER_WIDTH) / (cards.size() - 1);
     }
     else
     {
@@ -526,7 +526,7 @@ void Canvas::DrawCardsInPopup(const QList<Card *> &cards)
 {
     QList<QGraphicsItem *> items;
 
-    for (int i=0; i<cards.size(); i++)
+    for (int i = 0; i < cards.size(); i++)
     {
         items.append(GetGfxCard(cards.at(i)->GetId()));
     }
