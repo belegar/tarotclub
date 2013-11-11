@@ -24,7 +24,6 @@
  */
 
 #include "ClientConfig.h"
-#include <QtXml>
 #include <QString>
 #include <QDesktopServices>
 
@@ -54,7 +53,7 @@ QString ClientConfig::GetLocale()
         Load();
     }
     if ((options.language >= lang.size()) ||
-        (options.language < 0))
+            (options.language < 0))
     {
         options.language = 0;
     }
@@ -68,207 +67,198 @@ void ClientConfig::SetOptions(ClientOptions &newOptions)
 /*****************************************************************************/
 bool ClientConfig::Load()
 {
-    QDomDocument doc;
     QFile f(Config::HomePath + CLIENT_CONFIG_FILE);
     QString txt;
     int val;
+    bool ret = true;
 
-    // If config file is not found, create one and exit method
-    if (f.open(QIODevice::ReadOnly) == false)
+    if (f.open(QIODevice::ReadOnly))
     {
-        SetDefault(options);
-        loaded = true;
-        return Save();
-    }
-    doc.setContent(&f);
-    f.close();
+        QXmlStreamReader xml(&f);
 
-    QDomElement root = doc.documentElement();
-    if ((root.tagName() != "tarotclub") &&
-        (root.attribute("version", "0") != QString(CLIENT_XML_VERSION)))
+        while (!xml.atEnd() && ret)
+        {
+            QXmlStreamReader::TokenType token = xml.readNext();
+
+            // If token is just StartDocument, we'll go to next
+            if (token == QXmlStreamReader::StartDocument)
+            {
+                continue;
+            }
+            // If token is StartElement, we'll see if we can read it
+            if (token == QXmlStreamReader::StartElement)
+            {
+                if (xml.name() == "tarotclubd")
+                {
+                    // Let's get the attributes
+                    QXmlStreamAttributes attributes = xml.attributes();
+                    // Let's check the version number
+                    if (attributes.hasAttribute("version"))
+                    {
+                        if (attributes.value("version").toString() != QString(CLIENT_XML_VERSION))
+                        {
+                            ret = false;
+                        }
+                    }
+                    else
+                    {
+                        ret = false;
+                    }
+                }
+
+                if (xml.name() == "show_avatars")
+                {
+                    val = xml.readElementText().toInt();
+                    if (val == 1)
+                    {
+                        options.showAvatars = true;
+                    }
+                    else
+                    {
+                        options.showAvatars = false;
+                    }
+
+                }
+                else if (xml.name() == "background_color")
+                {
+                    options.backgroundColor = xml.readElementText();
+                }
+                else if (xml.name() == "language")
+                {
+                    options.language = xml.readElementText().toInt();
+                    if ((options.language >= lang.size()) ||
+                        (options.language < 0))
+                    {
+                        options.language = 0;
+                    }
+                }
+                else if (xml.name() == "delay_before_cleaning")
+                {
+                    options.delayBeforeCleaning = xml.readElementText().toInt();
+                    if (options.delayBeforeCleaning > 5000)
+                    {
+                        options.delayBeforeCleaning = 5000;
+                    }
+
+                }
+                else if (xml.name() == "click_to_clean")
+                {
+                    val = xml.readElementText().toInt();
+                    if (val == 1)
+                    {
+                        options.enableDelayBeforeCleaning = true;
+                    }
+                    else
+                    {
+                        options.enableDelayBeforeCleaning = false;
+                    }
+                }
+                else if (xml.name() == "identity")
+                {
+                    while (!(xml.tokenType() == QXmlStreamReader::EndElement &&
+                             xml.name() == "identity"))
+                    {
+                        QXmlStreamReader::TokenType ident_token = xml.readNext();
+                        if (ident_token == QXmlStreamReader::StartElement)
+                        {
+                            if (xml.name() == "name")
+                            {
+                                txt = xml.readElementText();
+                                if (txt.isEmpty())
+                                {
+                                    txt = "Unknown";
+                                }
+                                options.identity.name = txt;
+
+                            }
+                            else if (xml.name() == "quote")
+                            {
+                                options.identity.quote = xml.readElementText();
+
+                            }
+                            else if (xml.name() == "sex")
+                            {
+                                options.identity.sex = (Identity::Gender)xml.readElementText().toInt();
+
+                            }
+                            else if (xml.name() == "avatar")
+                            {
+                                options.identity.avatar = xml.readElementText();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        ret = false;
+    }
+
+    if (!ret)
     {
         // Overwrite old file with default value
         SetDefault(options);
-        loaded = true;
-        return Save();
+        ret = Save();
     }
 
-    // On parse les données
-    QDomElement child = root.firstChild().toElement();
-    while (!child.isNull())
-    {
-
-        if (child.tagName() == "show_avatars")
-        {
-            val = child.text().toInt();
-            if (val == 1)
-            {
-                options.showAvatars = true;
-            }
-            else
-            {
-                options.showAvatars = false;
-            }
-
-        }
-        else if (child.tagName() == "background_color")
-        {
-            options.backgroundColor = child.text();
-        }
-        else if (child.tagName() == "language")
-        {
-            options.language = child.text().toInt();
-            if ((options.language >= lang.size()) ||
-                (options.language < 0))
-            {
-                options.language = 0;
-            }
-        }
-        else if (child.tagName() == "delay_before_cleaning")
-        {
-            options.delayBeforeCleaning = child.text().toInt();
-            if (options.delayBeforeCleaning > 5000)
-            {
-                options.delayBeforeCleaning = 5000;
-            }
-
-        }
-        else if (child.tagName() == "click_to_clean")
-        {
-            val = child.text().toInt();
-            if (val == 1)
-            {
-                options.enableDelayBeforeCleaning = true;
-            }
-            else
-            {
-                options.enableDelayBeforeCleaning = false;
-            }
-        }
-        else if (child.tagName() == "identity")
-        {
-            QDomElement lastchild = child.firstChild().toElement();
-            while (!lastchild.isNull())
-            {
-                if (lastchild.tagName() == "name")
-                {
-                    txt = lastchild.text();
-                    if (txt.isEmpty())
-                    {
-                        txt = "Unknown";
-                    }
-                    options.identity.name = txt;
-
-                }
-                else if (lastchild.tagName() == "quote")
-                {
-                    options.identity.quote = lastchild.text();
-
-                }
-                else if (lastchild.tagName() == "sex")
-                {
-                    options.identity.sex = (Identity::Gender)lastchild.text().toInt();
-
-                }
-                else if (lastchild.tagName() == "avatar")
-                {
-                    options.identity.avatar = lastchild.text();
-                }
-                lastchild = lastchild.nextSibling().toElement();
-            }
-        }
-        child = child.nextSibling().toElement();
-
-    }
     loaded = true;
-    return true;
+    return ret;
 }
 /*****************************************************************************/
 bool ClientConfig::Save()
 {
-    // On crée le document
-    QDomDocument doc("tarotclub");
-    QDomElement identityNode;
-    QDomElement nameNode;
-    QDomElement avatarNode;
-    QDomElement sexNode;
-    QDomElement quoteNode;
+    bool ret = false;
 
-    doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
-    doc.appendChild(doc.createTextNode("\n"));
-
-    doc.appendChild(doc.createComment(QString("Generated by ") + QString("TarotClub ") + QString(TAROT_VERSION)));
-    doc.appendChild(doc.createTextNode("\n"));
-
-    // root node
-    QDomElement rootNode = doc.createElement("tarotclub");
-    rootNode.setAttribute("version", QString(CLIENT_XML_VERSION));
-    doc.appendChild(rootNode);
-
-    // Show avatar on the board or not?
-    QDomElement affAvatarNode = doc.createElement("show_avatars");
-    affAvatarNode.appendChild(doc.createTextNode(QString().setNum(options.showAvatars == true ? 1 : 0)));
-    rootNode.appendChild(affAvatarNode);
-
-    // Background board color
-    QDomElement tapisNode = doc.createElement("background_color");
-    tapisNode.appendChild(doc.createTextNode(options.backgroundColor));
-    rootNode.appendChild(tapisNode);
-
-    // Language
-    QDomElement langueNode = doc.createElement("language");
-    langueNode.appendChild(doc.createTextNode(QString().setNum(options.language)));
-    rootNode.appendChild(langueNode);
-
-    // Delay before cleaning
-    QDomElement delayeNode = doc.createElement("delay_before_cleaning");
-    delayeNode.appendChild(doc.createTextNode(QString().setNum(options.delayBeforeCleaning)));
-    rootNode.appendChild(delayeNode);
-
-    // click to clean cards after one turn
-    QDomElement clickNode = doc.createElement("click_to_clean");
-    clickNode.appendChild(doc.createTextNode(QString().setNum(options.enableDelayBeforeCleaning == true ? 1 : 0)));
-    rootNode.appendChild(clickNode);
-
-    // Player's indentity
-    identityNode = doc.createElement("identity");
-    rootNode.appendChild(identityNode);
-
-    // name
-    nameNode = doc.createElement("name");
-    nameNode.appendChild(doc.createTextNode(options.identity.name));
-    identityNode.appendChild(nameNode);
-
-    // avatar
-    avatarNode = doc.createElement("avatar");
-    avatarNode.appendChild(doc.createTextNode(options.identity.avatar));
-    identityNode.appendChild(avatarNode);
-
-    // sex
-    sexNode = doc.createElement("sex");
-    sexNode.appendChild(doc.createTextNode(QString().setNum(options.identity.sex)));
-    identityNode.appendChild(sexNode);
-
-    // quote
-    quoteNode = doc.createElement("quote");
-    quoteNode.appendChild(doc.createTextNode(options.identity.quote));
-    identityNode.appendChild(quoteNode);
-
-    // Save DOM XML into file
+    // Open configuration file for writing configuration
     QFile f(Config::HomePath + CLIENT_CONFIG_FILE);
-    if (!f.open(QIODevice::WriteOnly))
+    if (f.open(QIODevice::WriteOnly))
+    {
+        QXmlStreamWriter stream(&f);
+        stream.setAutoFormatting(true);
+        stream.writeStartDocument();
+
+        stream.writeComment(QString("Generated by ") + QString("TarotClub ") + QString(TAROT_VERSION));
+
+        stream.writeStartElement("tarotclub");
+        stream.writeAttribute("version", QString(CLIENT_XML_VERSION));
+
+        // Show avatar on the board or not?
+        stream.writeTextElement("show_avatars", QString().setNum(options.showAvatars == true ? 1 : 0));
+        // Background board color
+        stream.writeTextElement("background_color", options.backgroundColor);
+        // Language
+        stream.writeTextElement("language", QString().setNum(options.language));
+        // Delay before cleaning
+        stream.writeTextElement("delay_before_cleaning", QString().setNum(options.delayBeforeCleaning));
+        // click to clean cards after one turn
+        stream.writeTextElement("click_to_clean", QString().setNum(options.enableDelayBeforeCleaning == true ? 1 : 0));
+
+        // Player's indentity
+        stream.writeStartElement("identity");
+
+        // name
+        stream.writeTextElement("name", options.identity.name);
+        // avatar
+        stream.writeTextElement("avatar", options.identity.avatar);
+        // sex
+        stream.writeTextElement("sex", QString().setNum(options.identity.sex));
+        // quote
+        stream.writeTextElement("quote", options.identity.quote);
+
+        stream.writeEndElement(); // identity
+        stream.writeEndElement(); // tarotclub
+        stream.writeEndDocument();
+        f.close();
+        ret = true;
+    }
+    else
     {
         qDebug("Saving client's configuration failed.");
-        return false;
     }
 
-    QString out = doc.toString();
-
-    QTextStream fout(&f);
-    fout << out;
-    f.close();
-
-    return true;
+    return ret;
 }
 /*****************************************************************************/
 void ClientConfig::SetDefault(ClientOptions &opt)

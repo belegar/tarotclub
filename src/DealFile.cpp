@@ -52,71 +52,71 @@ bool DealFile::LoadFile(QString &fileName)
 
         while (!xml.atEnd() && ret)
         {
-             QXmlStreamReader::TokenType token = xml.readNext();
+            QXmlStreamReader::TokenType token = xml.readNext();
 
-             // If token is just StartDocument, we'll go to next
-             if(token == QXmlStreamReader::StartDocument)
-             {
+            // If token is just StartDocument, we'll go to next
+            if (token == QXmlStreamReader::StartDocument)
+            {
                 continue;
-             }
-             // If token is StartElement, we'll see if we can read it
-             if(token == QXmlStreamReader::StartElement)
-             {
-                 if (xml.name() == "custom_deal")
-                 {
-                     // Let's get the attributes
-                     QXmlStreamAttributes attributes = xml.attributes();
-                     // Let's check the version number
-                     if (attributes.hasAttribute("version"))
-                     {
-                         if (attributes.value("version").toString() != QString(DEAL_XML_VERSION))
-                         {
-                             ret = false;
-                         }
-                     }
-                     else
-                     {
-                         ret = false;
-                     }
-                 }
+            }
+            // If token is StartElement, we'll see if we can read it
+            if (token == QXmlStreamReader::StartElement)
+            {
+                if (xml.name() == "custom_deal")
+                {
+                    // Let's get the attributes
+                    QXmlStreamAttributes attributes = xml.attributes();
+                    // Let's check the version number
+                    if (attributes.hasAttribute("version"))
+                    {
+                        if (attributes.value("version").toString() != QString(DEAL_XML_VERSION))
+                        {
+                            ret = false;
+                        }
+                    }
+                    else
+                    {
+                        ret = false;
+                    }
+                }
 
-                 // Section "Dog"
-                 if (xml.name() == "dog")
-                 {
-                     if (FillDeck(dogDeck, xml) == false)
-                     {
-                         ret = false;
-                     }
-                 }
-                 else if (xml.name() == "south")
-                 {
-                     if (FillDeck(southDeck, xml) == false)
-                     {
-                         ret = false;
-                     }
-                 }
-                 else if (xml.name() == "north")
-                 {
-                     if (FillDeck(northDeck, xml) == false)
-                     {
-                         ret = false;
-                     }
-                 }
-                 else if (xml.name() == "west")
-                 {
-                     if (FillDeck(westDeck, xml) == false)
-                     {
-                         ret = false;
-                     }
-                 }
-                 else if (xml.name() == "east")
-                 {
-                     if (FillDeck(eastDeck, xml) == false)
-                     {
-                         ret = false;
-                     }
-                 }
-             }
+                // Section "Dog"
+                if (xml.name() == "dog")
+                {
+                    if (FillDeck(dogDeck, xml) == false)
+                    {
+                        ret = false;
+                    }
+                }
+                else if (xml.name() == "south")
+                {
+                    if (FillDeck(southDeck, xml) == false)
+                    {
+                        ret = false;
+                    }
+                }
+                else if (xml.name() == "north")
+                {
+                    if (FillDeck(northDeck, xml) == false)
+                    {
+                        ret = false;
+                    }
+                }
+                else if (xml.name() == "west")
+                {
+                    if (FillDeck(westDeck, xml) == false)
+                    {
+                        ret = false;
+                    }
+                }
+                else if (xml.name() == "east")
+                {
+                    if (FillDeck(eastDeck, xml) == false)
+                    {
+                        ret = false;
+                    }
+                }
+            }
         }
         if (xml.hasError())
         {
@@ -137,11 +137,11 @@ bool DealFile::FillDeck(Deck &deck, QXmlStreamReader &xml)
 {
     int val;
 
-    while(!(xml.tokenType() == QXmlStreamReader::EndElement &&
-                xml.name() != "card"))
+    while (!(xml.tokenType() == QXmlStreamReader::EndElement &&
+             xml.name() != "card"))
     {
         QXmlStreamReader::TokenType token = xml.readNext();
-        if(token == QXmlStreamReader::StartElement)
+        if (token == QXmlStreamReader::StartElement)
         {
             if (xml.name() == "card")
             {

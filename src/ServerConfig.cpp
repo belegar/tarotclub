@@ -24,7 +24,6 @@
  */
 
 #include "ServerConfig.h"
-#include <QtXml>
 #include <QString>
 #include <QDesktopServices>
 
@@ -46,169 +45,175 @@ void ServerConfig::SetOptions(const ServerOptions &newOptions)
 /*****************************************************************************/
 bool ServerConfig::Load()
 {
-    QDomDocument doc;
     QFile f(Config::HomePath + SERVER_CONFIG_FILE);
     QString txt;
     int val;
+    bool ret = true;
 
-    // File not found, we create default one and quit loading
-    if (f.open(QIODevice::ReadOnly) == false)
+    if (f.open(QIODevice::ReadOnly))
     {
-        return Save();
-    }
-    doc.setContent(&f);
-    f.close();
+        QXmlStreamReader xml(&f);
 
-    // test of root element "tarotclubd"
-    QDomElement root = doc.documentElement();
-    if (root.tagName() != "tarotclubd")
-    {
-        return (false);
-    }
-
-    if (root.attribute("version", "0") != QString(SERVER_XML_VERSION))
-    {
-        return (false);
-    }
-
-    // Parsing data
-    QDomElement child = root.firstChild().toElement();
-    while (!child.isNull())
-    {
-
-        if (child.tagName() == "pause")
+        while (!xml.atEnd() && ret)
         {
-            val = child.text().toInt();
-            if (val < 0 || val > 9000)
+            QXmlStreamReader::TokenType token = xml.readNext();
+
+            // If token is just StartDocument, we'll go to next
+            if (token == QXmlStreamReader::StartDocument)
             {
-                val = TIMER1_DEF;
+                continue;
             }
-            options.timer = val;
-
-        }
-        else if (child.tagName() == "port")
-        {
-            options.port = child.text().toInt();
-
-        }
-        else if (child.tagName() == "identity")
-        {
-            int pos;
-            pos = child.attribute("pos", "-1").toInt();
-            if (pos < 0 || pos > 2)
+            // If token is StartElement, we'll see if we can read it
+            if (token == QXmlStreamReader::StartElement)
             {
-                return false;
-            }
-
-            QDomElement lastchild = child.firstChild().toElement();
-            while (!lastchild.isNull())
-            {
-                if (lastchild.tagName() == "name")
+                if (xml.name() == "tarotclubd")
                 {
-                    txt = lastchild.text();
-                    if (txt.isEmpty())
+                    // Let's get the attributes
+                    QXmlStreamAttributes attributes = xml.attributes();
+                    // Let's check the version number
+                    if (attributes.hasAttribute("version"))
                     {
-                        txt = "Unknown";
+                        if (attributes.value("version").toString() != QString(SERVER_XML_VERSION))
+                        {
+                            ret = false;
+                        }
                     }
-                    options.bots[pos].name = txt;
+                    else
+                    {
+                        ret = false;
+                    }
+                }
+                if (xml.name() == "pause")
+                {
+                    val = xml.readElementText().toInt();
+                    if ((val < 0) || (val > 9000))
+                    {
+                        val = TIMER1_DEF;
+                    }
+                    options.timer = val;
 
                 }
-                else if (lastchild.tagName() == "quote")
+                else if (xml.name() == "port")
                 {
-                    options.bots[pos].quote = lastchild.text();
+                    options.port = xml.readElementText().toInt();
 
                 }
-                else if (lastchild.tagName() == "sex")
+                else if (xml.name() == "identity")
                 {
-                    options.bots[pos].sex = (Identity::Gender)lastchild.text().toInt();
+                    QXmlStreamAttributes attributes = xml.attributes();
+                    if (attributes.hasAttribute("pos"))
+                    {
+                        int pos;
+                        pos = attributes.value("pos").toInt();
+                        if ((pos < 0) || (pos > 2))
+                        {
+                            ret = false;
+                        }
+                        else
+                        {
+                            while (!(xml.tokenType() == QXmlStreamReader::EndElement &&
+                                     xml.name() == "identity"))
+                            {
+                                QXmlStreamReader::TokenType ident_token = xml.readNext();
+                                if (ident_token == QXmlStreamReader::StartElement)
+                                {
+                                    if (xml.name() == "name")
+                                    {
+                                        txt = xml.readElementText();
+                                        if (txt.isEmpty())
+                                        {
+                                            txt = "Unknown";
+                                        }
+                                        options.bots[pos].name = txt;
 
+                                    }
+                                    else if (xml.name() == "quote")
+                                    {
+                                        options.bots[pos].quote = xml.readElementText();
+
+                                    }
+                                    else if (xml.name() == "sex")
+                                    {
+                                        options.bots[pos].sex = (Identity::Gender)xml.readElementText().toInt();
+
+                                    }
+                                    else if (xml.name() == "avatar")
+                                    {
+                                        options.bots[pos].avatar = xml.readElementText();
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ret = false;
+                    }
                 }
-                else if (lastchild.tagName() == "avatar")
-                {
-                    options.bots[pos].avatar = lastchild.text();
-                }
-                lastchild = lastchild.nextSibling().toElement();
             }
         }
-        child = child.nextSibling().toElement();
     }
-    return true;
+    else
+    {
+        ret = false;
+    }
+
+    return ret;
 }
 /*****************************************************************************/
 bool ServerConfig::Save()
 {
-    // Document creation
-    QDomDocument doc("tarotclubd");
-    QDomElement identityNode;
-    QDomElement nameNode;
-    QDomElement avatarNode;
-    QDomElement sexNode;
-    QDomElement quoteNode;
+    bool ret = false;
 
-    doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
-    doc.appendChild(doc.createTextNode("\n"));
-
-    doc.appendChild(doc.createComment(QString("Généré par ") + QString("TarotClub ") + QString(TAROT_VERSION)));
-    doc.appendChild(doc.createTextNode("\n"));
-
-    // root node
-    QDomElement rootNode = doc.createElement("tarotclubd");
-    rootNode.setAttribute("version", QString(SERVER_XML_VERSION));
-    doc.appendChild(rootNode);
-
-    // Réglage du timing entre chaque joueur
-    QDomElement temps1Node = doc.createElement("pause");
-    temps1Node.appendChild(doc.createTextNode(QString().setNum(options.timer)));
-    rootNode.appendChild(temps1Node);
-
-    // Port réseau
-    QDomElement portNode = doc.createElement("port");
-    portNode.appendChild(doc.createTextNode(QString().setNum(options.port)));
-    rootNode.appendChild(portNode);
-
-    // Parameter of each bot
-    for (int i = 0; i < 3; i++)
-    {
-        identityNode = doc.createElement("identity");
-        rootNode.appendChild(identityNode);
-        identityNode.setAttribute("pos", QString().setNum(i));
-
-        // name
-        nameNode = doc.createElement("name");
-        nameNode.appendChild(doc.createTextNode(options.bots[i].name));
-        identityNode.appendChild(nameNode);
-
-        // avatar
-        avatarNode = doc.createElement("avatar");
-        avatarNode.appendChild(doc.createTextNode(options.bots[i].avatar));
-        identityNode.appendChild(avatarNode);
-
-        // sex
-        sexNode = doc.createElement("sex");
-        sexNode.appendChild(doc.createTextNode(QString().setNum(options.bots[i].sex)));
-        identityNode.appendChild(sexNode);
-
-        // quote
-        quoteNode = doc.createElement("quote");
-        quoteNode.appendChild(doc.createTextNode(options.bots[i].quote));
-        identityNode.appendChild(quoteNode);
-    }
-
-    // Save DOM XML tree into file
+    // Open configuration file for writing configuration
     QFile f(Config::HomePath + SERVER_CONFIG_FILE);
-    if (!f.open(QIODevice::WriteOnly))
+    if (f.open(QIODevice::WriteOnly))
+    {
+        QXmlStreamWriter stream(&f);
+        stream.setAutoFormatting(true);
+        stream.writeStartDocument();
+
+        stream.writeComment(QString("Generated by ") + QString("TarotClub ") + QString(TAROT_VERSION));
+
+        stream.writeStartElement("tarotclubd");
+        stream.writeAttribute("version", QString(SERVER_XML_VERSION));
+
+        // Timing between two players
+        stream.writeTextElement("pause", QString().setNum(options.timer));
+
+        // TCP/IP port
+        stream.writeTextElement("port", QString().setNum(options.port));
+
+        // Parameter of each bot
+        for (int i = 0; i < 3; i++)
+        {
+            stream.writeStartElement("identity");
+            stream.writeAttribute("pos", QString().setNum(i));
+
+            // name
+            stream.writeTextElement("name", options.bots[i].name);
+            // avatar
+            stream.writeTextElement("avatar", options.bots[i].avatar);
+            // sex
+            stream.writeTextElement("sex", QString().setNum(options.bots[i].sex));
+            // quote
+            stream.writeTextElement("quote", options.bots[i].quote);
+
+            stream.writeEndElement(); // identity
+        }
+
+        stream.writeEndElement(); // tarotclubd
+        stream.writeEndDocument();
+        f.close();
+        ret = true;
+    }
+    else
     {
         qDebug("Saving server's configuration failed.");
-        return false;
     }
 
-    QString out = doc.toString();
-
-    QTextStream fout(&f);
-    fout << out;
-    f.close();
-
-    return true;
+    return ret;
 }
 /*****************************************************************************/
 void ServerConfig::SetDefault(ServerOptions &opt)
