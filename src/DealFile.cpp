@@ -23,6 +23,7 @@
  *=============================================================================
  */
 
+#include <QtCore>
 #include "DealFile.h"
 #include "defines.h"
 #include "TarotDeck.h"
@@ -37,179 +38,186 @@ DealFile::DealFile()
 /*****************************************************************************/
 bool DealFile::LoadFile(QString &fileName)
 {
-    QDomDocument doc;
+    bool ret = true;
     QFile f(fileName);
 
-    // Fichier non trouvé, on sort
-    if (f.open(QIODevice::ReadOnly) == false)
+    if (f.open(QIODevice::ReadOnly) == true)
     {
-        return false;
+        QXmlStreamReader xml(&f);
+        dogDeck.clear();
+        southDeck.clear();
+        northDeck.clear();
+        westDeck.clear();
+        eastDeck.clear();
+
+        while (!xml.atEnd() && ret)
+        {
+             QXmlStreamReader::TokenType token = xml.readNext();
+
+             // If token is just StartDocument, we'll go to next
+             if(token == QXmlStreamReader::StartDocument)
+             {
+                continue;
+             }
+             // If token is StartElement, we'll see if we can read it
+             if(token == QXmlStreamReader::StartElement)
+             {
+                 if (xml.name() == "custom_deal")
+                 {
+                     // Let's get the attributes
+                     QXmlStreamAttributes attributes = xml.attributes();
+                     // Let's check the version number
+                     if (attributes.hasAttribute("version"))
+                     {
+                         if (attributes.value("version").toString() != QString(DEAL_XML_VERSION))
+                         {
+                             ret = false;
+                         }
+                     }
+                     else
+                     {
+                         ret = false;
+                     }
+                 }
+
+                 // Section "Dog"
+                 if (xml.name() == "dog")
+                 {
+                     if (FillDeck(dogDeck, xml) == false)
+                     {
+                         ret = false;
+                     }
+                 }
+                 else if (xml.name() == "south")
+                 {
+                     if (FillDeck(southDeck, xml) == false)
+                     {
+                         ret = false;
+                     }
+                 }
+                 else if (xml.name() == "north")
+                 {
+                     if (FillDeck(northDeck, xml) == false)
+                     {
+                         ret = false;
+                     }
+                 }
+                 else if (xml.name() == "west")
+                 {
+                     if (FillDeck(westDeck, xml) == false)
+                     {
+                         ret = false;
+                     }
+                 }
+                 else if (xml.name() == "east")
+                 {
+                     if (FillDeck(eastDeck, xml) == false)
+                     {
+                         ret = false;
+                     }
+                 }
+             }
+        }
+        if (xml.hasError())
+        {
+            ret = false;
+        }
+
+        f.close();
     }
-    doc.setContent(&f);
-    f.close();
-
-    dogDeck.clear();
-    southDeck.clear();
-    northDeck.clear();
-    westDeck.clear();
-    eastDeck.clear();
-
-    // Root element "custom_deal"
-    QDomElement root = doc.documentElement();
-    if (root.tagName() != "custom_deal")
+    else
     {
-        return false;
+        ret = false;
     }
 
-    if (root.attribute("version", "0") != QString(DEAL_XML_VERSION))
-    {
-        return false;
-    }
-
-    // Parsing data
-    QDomElement child = root.firstChild().toElement();
-    while (!child.isNull())
-    {
-        // Section "Dog"
-        if (child.tagName() == "dog")
-        {
-            if (FillDeck(dogDeck, child) == false)
-            {
-                return false;
-            }
-        }
-        else if (child.tagName() == "south")
-        {
-            if (FillDeck(southDeck, child) == false)
-            {
-                return false;
-            }
-        }
-        else if (child.tagName() == "north")
-        {
-            if (FillDeck(northDeck, child) == false)
-            {
-                return false;
-            }
-        }
-        else if (child.tagName() == "west")
-        {
-            if (FillDeck(westDeck, child) == false)
-            {
-                return false;
-            }
-        }
-        else if (child.tagName() == "east")
-        {
-            if (FillDeck(eastDeck, child) == false)
-            {
-                return false;
-            }
-        }
-        child = child.nextSibling().toElement();
-    }
-
-    return true;
+    return ret;
 }
 /*****************************************************************************/
-bool DealFile::FillDeck(Deck &deck, QDomElement &child)
+bool DealFile::FillDeck(Deck &deck, QXmlStreamReader &xml)
 {
-    QDomElement subchild = child.firstChild().toElement();
-    while (!subchild.isNull())
-    {
-        int val;
-        if (subchild.tagName() == "card")
-        {
-            val = subchild.text().toInt();
-            if (val < 0 || val > 77)
-            {
-                return false;
-            }
-            deck.append(TarotDeck::GetCard(val));
-        }
-        subchild = subchild.nextSibling().toElement();
-    }
+    int val;
 
+    while(!(xml.tokenType() == QXmlStreamReader::EndElement &&
+                xml.name() != "card"))
+    {
+        QXmlStreamReader::TokenType token = xml.readNext();
+        if(token == QXmlStreamReader::StartElement)
+        {
+            if (xml.name() == "card")
+            {
+                val = xml.readElementText().toInt();
+                if ((val < 0) || (val > 77))
+                {
+                    return false;
+                }
+                deck.append(TarotDeck::GetCard(val));
+            }
+        }
+    }
     return true;
 }
 /*****************************************************************************/
 void DealFile::SaveFile(QString &fileName)
 {
-    // XML document creation
-    QDomDocument doc("CustomDeal");
 
-    doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
-    doc.appendChild(doc.createTextNode("\n"));
-
-    doc.appendChild(doc.createComment(QString("Generated by ") + QString("TarotClub ") + QString(TAROT_VERSION)));
-    doc.appendChild(doc.createTextNode("\n"));
-
-    // root node
-    QDomElement rootNode = doc.createElement("custom_deal");
-    rootNode.setAttribute("version", QString(DEAL_XML_VERSION));
-    doc.appendChild(rootNode);
-
-    // Dog cards
-    QDomElement chienNode = doc.createElement("dog");
-    rootNode.appendChild(chienNode);
-    for (int i = 0; i < dogDeck.count(); i++)
-    {
-        QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(dogDeck.at(i)->GetId())));
-        chienNode.appendChild(node);
-    }
-
-    // South cards
-    QDomElement southNode = doc.createElement("south");
-    rootNode.appendChild(southNode);
-    for (int i = 0; i < southDeck.count(); i++)
-    {
-        QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(southDeck.at(i)->GetId())));
-        southNode.appendChild(node);
-    }
-
-    // West cards
-    QDomElement westNode = doc.createElement("west");
-    rootNode.appendChild(westNode);
-    for (int i = 0; i < westDeck.count(); i++)
-    {
-        QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(westDeck.at(i)->GetId())));
-        westNode.appendChild(node);
-    }
-
-    // North cards
-    QDomElement northNode = doc.createElement("north");
-    rootNode.appendChild(northNode);
-    for (int i = 0; i < northDeck.count(); i++)
-    {
-        QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(northDeck.at(i)->GetId())));
-        northNode.appendChild(node);
-    }
-
-    // East cards
-    QDomElement eastNode = doc.createElement("east");
-    rootNode.appendChild(eastNode);
-    for (int i = 0; i < eastDeck.count(); i++)
-    {
-        QDomElement node = doc.createElement("card");
-        node.appendChild(doc.createTextNode(QString().setNum(eastDeck.at(i)->GetId())));
-        eastNode.appendChild(node);
-    }
-
-    // Dump XML document into a file
+    // Open a file where to stream out the XML
     QFile f(fileName);
     if (!f.open(QIODevice::WriteOnly))
     {
         return;
     }
 
-    QString out = doc.toString();
+    QXmlStreamWriter stream(&f);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
 
-    QTextStream fout(&f);
-    fout << out;
+    stream.writeComment(QString("Generated by ") + QString("TarotClub ") + QString(TAROT_VERSION));
+
+    stream.writeStartElement("custom_deal");
+    stream.writeAttribute("version", QString(DEAL_XML_VERSION));
+
+    // Dog cards
+    stream.writeStartElement("dog");
+    for (int i = 0; i < dogDeck.count(); i++)
+    {
+        stream.writeTextElement("card", QString().setNum(dogDeck.at(i)->GetId()));
+    }
+    stream.writeEndElement(); // dog
+
+    // South cards
+    stream.writeStartElement("south");
+    for (int i = 0; i < southDeck.count(); i++)
+    {
+        stream.writeTextElement("card", QString().setNum(southDeck.at(i)->GetId()));
+    }
+    stream.writeEndElement(); // south
+
+    // West cards
+    stream.writeStartElement("west");
+    for (int i = 0; i < westDeck.count(); i++)
+    {
+        stream.writeTextElement("card", QString().setNum(westDeck.at(i)->GetId()));
+    }
+    stream.writeEndElement(); // west
+
+    // North cards
+    stream.writeStartElement("north");
+    for (int i = 0; i < northDeck.count(); i++)
+    {
+        stream.writeTextElement("card", QString().setNum(northDeck.at(i)->GetId()));
+    }
+    stream.writeEndElement(); // north
+
+    // East cards
+    stream.writeStartElement("east");
+    for (int i = 0; i < eastDeck.count(); i++)
+    {
+        stream.writeTextElement("card", QString().setNum(eastDeck.at(i)->GetId()));
+    }
+    stream.writeEndElement(); // east
+
+    stream.writeEndElement(); // custom_deal
+    stream.writeEndDocument();
     f.close();
 }
 

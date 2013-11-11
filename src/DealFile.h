@@ -26,7 +26,6 @@
 #define DEALFILE_H
 
 #include <QString>
-#include <QtXml>
 #include "Deck.h"
 
 /*****************************************************************************/
@@ -45,7 +44,7 @@ public:
     Deck  dogDeck;
 
 private:
-    bool FillDeck(Deck &deck, QDomElement &child);
+    bool FillDeck(Deck &deck, QXmlStreamReader &xml);
 
 };
 
