@@ -93,6 +93,10 @@ void TarotClub::Initialize()
     {
         QDir().mkdir(Config::HomePath);
     }
+    if (!QDir(Config::GamePath).exists())
+    {
+        QDir().mkdir(Config::GamePath);
+    }
     if (!QDir(Config::LogPath).exists())
     {
         QDir().mkdir(Config::LogPath);

@@ -567,7 +567,7 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
     }
 
     // Dump XML document into a file
-    QString fileName = Config::LogPath + "/deal_result_" + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ".xml" ;
+    QString fileName = Config::GamePath + "/deal_result_" + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ".xml" ;
     QFile f(fileName);
     if (f.open(QIODevice::WriteOnly) == false)
     {
