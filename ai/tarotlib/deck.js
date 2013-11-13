@@ -24,7 +24,7 @@
  */
 
 // namespace 
-this.TarotLib = this.TarotLib||{};
+this.TarotLib = this.TarotLib || {};
 
 (function() {
 
@@ -62,14 +62,28 @@ var p = Deck.prototype;
 // PUBLIC STATIC METHODS
 // ****************************************************************************
 	
+	/**
+	 * @brief Get a string of cards, separated by semi-colon
+	 * @return The deck in string format
+	 */
+	p.toString = function()
+	{
+		var buffer = "";
+		for(var i=0; i < this.cards.length; i++)
+		{
+			if (i != 0)
+			{
+				buffer += ";";
+			}
+            buffer += this.cards[i].value + "-" + this.cards[i].suit;
+		}
+		return buffer;
+	};
+
 	// debug code only
     p.print = function()
 	{
-		var buffer = "";
-		for(var i=0; i < this.cards.length; i++) {
-            buffer += this.cards[i].value + "-" + this.cards[i].suit + " ";
-		}
-		systemPrint(buffer);
+		systemPrint(this.toString());
 	};
 	
 	p.size = function()
@@ -116,8 +130,8 @@ var p = Deck.prototype;
 		var result = list.split(/;/g);		
 		
         this.clear();
-		
-		for (var i=0; i<result.length; i++) {
+		for (var i=0; i<result.length; i++)
+		{
             this.cards[i] = new TarotLib.Card(result[i]);
 		}
 	};

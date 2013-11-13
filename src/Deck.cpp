@@ -193,6 +193,25 @@ void Deck::SetOwner(Team team)
     owner = team;
 }
 /*****************************************************************************/
+int Deck::SetCards(const QString &cards)
+{
+    QStringList list = cards.split(';', QString::SkipEmptyParts);
+    int count = 0;
+
+    // Clear this deck before setting new cards
+    this->clear();
+    for (int i=0; i<list.size(); i++)
+    {
+        Card *c = TarotDeck::GetCard(list[0]);
+        if (c != NULL)
+        {
+            count++;
+            this->append(c);
+        }
+    }
+    return count;
+}
+/*****************************************************************************/
 Team Deck::GetOwner()
 {
     return owner;

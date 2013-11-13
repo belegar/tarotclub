@@ -117,7 +117,7 @@ void TarotDeck::Initialize()
 /*****************************************************************************/
 Card *TarotDeck::GetCard(int id)
 {
-    if (id < 0 || id > 77)
+    if ((id < 0) || (id > 77))
     {
         return NULL;
     }
@@ -125,6 +125,19 @@ Card *TarotDeck::GetCard(int id)
     {
         return (&cards[id]);
     }
+}
+/*****************************************************************************/
+Card *TarotDeck::GetCard(const QString &name)
+{
+    Card *c = NULL;
+    for (int i=0; i<78; i++)
+    {
+        if (name == cards[i].GetName())
+        {
+            c = &cards[i];
+        }
+    }
+    return c;
 }
 
 //=============================================================================

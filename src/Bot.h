@@ -28,6 +28,7 @@
 
 #include "Client.h"
 #include <QJSEngine>
+#include "Log.h"
 
 class TarotUtil : public QObject
 {
@@ -41,6 +42,11 @@ public slots:
     {
         QString toPrint = QString("Bot script: ") + message;
         qDebug() << toPrint.toLatin1().constData();
+    }
+
+    void Log(const QString &key, const QString &value)
+    {
+        Log::AddEntry(Log::Bot, key, value);
     }
 };
 /*****************************************************************************/

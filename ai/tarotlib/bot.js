@@ -305,6 +305,53 @@ var p = Bot.prototype;
         return cont;
     };
 
+    p.buildDiscard = function(dogDeck)
+    {
+        var ok = false;
+        var i = 0;
+        var discard = new TarotLib.Deck();
+        discard.setCards(dogDeck);
+
+        // We're looking for trumps or kings in the deck and we replace
+        // them by other valid cards
+        while (ok == false)
+        {
+            var c = discard.get(i);
+            if ((c.suit == TarotLib.Suit.TRUMPS) ||
+                    ((c.suit != TarotLib.Suit.TRUMPS) && (c.value == 14)))
+            {
+                // looking for valid card in the player's deck
+                for (var j = 0; j < this.deck.size(); j++)
+                {
+                    var playerCard = this.deck.get(j);
+                    if ((playerCard.suit != TarotLib.Suit.TRUMPS) && (playerCard.value < 14))
+                    {
+                        // Exchange card in the player's deck
+                        this.deck.removeCard(playerCard.getName());
+                        this.deck.addOneCard(c.getName());
+
+                        // build the discard
+                        discard.addOneCard(playerCard.getName());
+                        discard.removeCard(c.getName());
+                        break;
+                    }
+                }
+                i = 0;
+            }
+            else
+            {
+                i++;
+            }
+
+            if (i == 6)
+            {
+                ok = true;
+            }
+        }
+
+        return discard.toString();
+    };
+
 TarotLib.Bot = Bot;
 }());
 // End of file

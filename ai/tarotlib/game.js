@@ -412,6 +412,7 @@ var p = Game.prototype;
     {
         return this.playDefenseStrategy();
     };
+
 	
 TarotLib.Game = Game;
 }());

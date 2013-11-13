@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - defines.h
+ * TarotClub - Log.cpp
  *=============================================================================
- * Global types
+ * Log utility class: store events and data in a chronological way
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,48 +23,39 @@
  *=============================================================================
  */
 
-#ifndef _DEFINES_H
-#define _DEFINES_H
+#include "Log.h"
 
-#include <QtCore>
-
-
-/*****************************************************************************/
-// Game definitions
-
-/**
- * @brief The version string uses Semantic Versioning format
- * @see http://semver.org
- */
-#define TAROT_VERSION   "2.2.0"
-#define TAROT_TITRE     "TarotClub"
-#define TAROT_VNAME     "Juliette"
-
-#define NB_LANGUAGE     2
-#define QT_STREAMVER    QDataStream::Qt_5_1
-#define MAX_ROUNDS      5
-
-namespace Config
+Log::Log()
 {
-
-#ifdef QT_DEBUG
-const QString HomePath  = "./";
-#else
-const QString HomePath  = QDir::homePath() + "/.tarotclub/";
-#endif
-const QString GamePath   = HomePath + "/games/";
-const QString LogPath   = HomePath + "/logs/";
 }
 
-/*****************************************************************************/
-enum Place      { SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3, FIFTH = 4, NOWHERE = 0xFF };
-enum Contract   { PASS = 0, TAKE = 1, GUARD = 2, GUARD_WITHOUT = 3, GUARD_AGAINST = 4 };
-enum Team       { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };
-enum Handle     { SIMPLE_HANDLE = 0, DOUBLE_HANDLE = 1, TRIPLE_HANDLE = 2 };
-/*****************************************************************************/
+QMutex Log::mMutex;
 
-#endif // _DEFINES_H
+void Log::AddEntry(Event event, const QString &key, const QString &value)
+{
+    QStringList eventString;
+    eventString << "Error" << "Info" << "Engine" << "Bot" << "Protocol" << "Message";
+
+    QString line = eventString[event] + ", " + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ", " + key + ", " + value;
+    Save(line);
+}
+
+void Log::Save(const QString &line)
+{
+    mMutex.lock();
+    // One log file per day should be enough!
+    QString fileName = Config::LogPath + "/log_" + QDateTime::currentDateTime().toString("ddMMyyyy") + ".csv" ;
+    QFile f(fileName);
+    if (f.open(QIODevice::Append) == false)
+    {
+        return;
+    }
+    QTextStream fout(&f);
+    fout << line;
+    f.close();
+    mMutex.unlock();
+}
 
 //=============================================================================
-// End of file defines.h
+// End of file Log.cpp
 //=============================================================================

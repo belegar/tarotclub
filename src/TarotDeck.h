@@ -36,6 +36,7 @@ public:
     TarotDeck();
     static void Initialize();
     static Card *GetCard(int id);
+    static Card *GetCard(const QString &name);
 };
 
 #endif // _TAROT_DECK_H

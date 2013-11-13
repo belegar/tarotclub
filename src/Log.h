@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - defines.h
+ * TarotClub - Log.h
  *=============================================================================
- * Global types
+ * Log utility class: store events and data in a chronological way
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,48 +23,56 @@
  *=============================================================================
  */
 
-#ifndef _DEFINES_H
-#define _DEFINES_H
+#ifndef LOG_H
+#define LOG_H
 
-#include <QtCore>
-
-
-/*****************************************************************************/
-// Game definitions
+#include <QFile>
+#include <QMutex>
+#include "defines.h"
 
 /**
- * @brief The version string uses Semantic Versioning format
- * @see http://semver.org
+ * @brief The Log class
+ *
+ * File format is CSV, each new action will append a new entry at the end of the file.
+ *
+ * "Action", "Date", "Key", "Value"
+ *
+ * Example:
+ * Error, 19-04-2013 09:17:30, "Protocol", "",
+ *
+ * Supported Actions:
+ *  - Error
+ *  - Info
+ *  - Game
+ *  - Message
+ *
  */
-#define TAROT_VERSION   "2.2.0"
-#define TAROT_TITRE     "TarotClub"
-#define TAROT_VNAME     "Juliette"
-
-#define NB_LANGUAGE     2
-#define QT_STREAMVER    QDataStream::Qt_5_1
-#define MAX_ROUNDS      5
-
-namespace Config
+class Log
 {
+public:
+    enum Event
+    {
+        Error = 0,
+        Info = 1,
+        Engine = 2,
+        Bot = 3,
+        Protocol = 4,
+        Message = 5
+    };
 
-#ifdef QT_DEBUG
-const QString HomePath  = "./";
-#else
-const QString HomePath  = QDir::homePath() + "/.tarotclub/";
-#endif
-const QString GamePath   = HomePath + "/games/";
-const QString LogPath   = HomePath + "/logs/";
-}
+    Log();
 
-/*****************************************************************************/
-enum Place      { SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3, FIFTH = 4, NOWHERE = 0xFF };
-enum Contract   { PASS = 0, TAKE = 1, GUARD = 2, GUARD_WITHOUT = 3, GUARD_AGAINST = 4 };
-enum Team       { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };
-enum Handle     { SIMPLE_HANDLE = 0, DOUBLE_HANDLE = 1, TRIPLE_HANDLE = 2 };
-/*****************************************************************************/
+    static void AddEntry(Event event, const QString &key, const QString &value);
 
-#endif // _DEFINES_H
+private:
+    static QMutex mMutex;
+
+    static void Save(const QString &line);
+
+};
+
+#endif // LOG_H
 
 //=============================================================================
-// End of file defines.h
+// End of file Log.h
 //=============================================================================

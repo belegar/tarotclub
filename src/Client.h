@@ -67,6 +67,7 @@ public:
 
     // Setters
     void SetMyIdentity(const Identity &ident);
+    void SetDiscard(const Deck &discard);
 
     // Network
     void ConnectToHost(const QString &hostName, quint16 port);
@@ -95,7 +96,6 @@ public slots:
     void slotSocketError(QAbstractSocket::SocketError code);
 
 signals:
-
     void sigMessage(const QString &message);
     void sigAssignedPlace(Place p);
     void sigPlayersList(QMap<Place, Identity> &players);

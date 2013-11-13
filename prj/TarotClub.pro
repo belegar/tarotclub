@@ -35,7 +35,7 @@ VPATH += $${PWD}/../lib
 VPATH += $${PWD}/../ai
 VPATH += $${PWD}/../ai/tarotlib
 
-QT += network svg help qml
+QT += xml network svg help qml
 RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt warn_on
 
@@ -106,7 +106,8 @@ HEADERS = AboutWindow.h \
     MenuItem.h \
     PlayerBox.h \
     CustomTypes.h \
-    PopupItem.h
+    PopupItem.h \
+    Log.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -156,5 +157,6 @@ SOURCES = AboutWindow.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
     PlayerBox.cpp \
-    PopupItem.cpp
+    PopupItem.cpp \
+    Log.cpp
 

@@ -117,7 +117,9 @@ TarotEngine &Server::GetEngine()
 void Server::NewServerGame(Game::Mode mode)
 {
     StopServer();
-    tcpServer.setMaxPendingConnections(maximumPlayers + 3); // Add few players to the maximum for clients trying to access
+
+    // Add few players to the maximum allowed to manage pending connections
+    tcpServer.setMaxPendingConnections(maximumPlayers + 3);
 
     tcpServer.listen(QHostAddress::LocalHost, tcpPort);
 
