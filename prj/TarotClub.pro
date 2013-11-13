@@ -106,7 +106,8 @@ HEADERS = AboutWindow.h \
     MenuItem.h \
     PlayerBox.h \
     CustomTypes.h \
-    ../src/client/PopupItem.h
+    PopupItem.h \
+    Log.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -156,5 +157,6 @@ SOURCES = AboutWindow.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
     PlayerBox.cpp \
-    ../src/client/PopupItem.cpp
+    PopupItem.cpp \
+    Log.cpp
 
