@@ -28,4 +28,9 @@ function systemPrint(message)
     TarotUtil.Print(message + "<br />");
 }
 
+function systemLog(key, message)
+{
+    TarotUtil.Log(key, message);    
+}
+
 // End of file

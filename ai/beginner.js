@@ -59,9 +59,9 @@ function ReceiveCards(cards)
  */
 function AnnounceBid()
 {
-	var cont = CurrentGame.bot.calculateBid();
+    var cont = CurrentGame.bot.calculateBid();
 	systemPrint("The bot " + TarotLib.Place.toString(CurrentGame.botPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
-	
+
 	return cont;
 }
 
@@ -79,10 +79,18 @@ function AnnounceSlam()
  * @brief This function is called for the bot to build the discard
  *
  * @param[in] dog Dog deck, string format
+ * @return the discard, string format
  */
 function BuildDiscard(dog)
 {
+    var discard = CurrentGame.bot.buildDiscard(dog);
+    var place = TarotLib.Place.toString(CurrentGame.botPlace);
 
+    // _______ LOGGING _________
+    systemLog("discard " + place, discard);
+    systemLog("deck " + place, discard);
+
+    return discard;
 }
 
 /**
@@ -138,6 +146,10 @@ function PlayCard()
     {
         cardName = CurrentGame.playDefenseStrategy();
     }
+
+    // _______ LOGGING _________
+    var place = TarotLib.Place.toString(CurrentGame.botPlace);
+    systemLog("deck " + place, discard);
 
     return cardName;
 }
