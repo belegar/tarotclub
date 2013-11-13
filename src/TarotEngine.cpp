@@ -28,6 +28,7 @@
 #include "TarotEngine.h"
 #include "DealFile.h"
 #include "Identity.h"
+#include "Tools.h"
 
 /*****************************************************************************/
 TarotEngine::TarotEngine()
@@ -440,11 +441,17 @@ void TarotEngine::CreateDeal()
     {
         players[i].GetDeck().clear();
         players[i].GetDeck().append(currentTrick.mid(i*n, n));
+#ifdef QT_DEBUG
+        qDebug() << "Player " << Util::ToString((Place)i) << " deck: " << players[i].GetDeck().GetCardList() << endl;
+#endif
     }
 
     // Remaining cards go to the dog
     Deck dog;
     dog.append(currentTrick.mid(gameState.numberOfPlayers*n));
+#ifdef QT_DEBUG
+    qDebug() << "Dog deck: " << dog.GetCardList() << endl;
+#endif
     deal.SetDog(dog, NO_TEAM);
     currentTrick.clear();
 }
