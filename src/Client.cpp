@@ -112,6 +112,11 @@ void Client::SetMyIdentity(const Identity &ident)
     player.SetIdentity(ident);
 }
 /*****************************************************************************/
+void Client::SetDiscard(const Deck &discard)
+{
+    dogDeck = discard;
+}
+/*****************************************************************************/
 Contract Client::CalculateBid()
 {
     int total = 0;
@@ -203,9 +208,6 @@ void Client::BuildDogDeck()
 
     bool ok = false;
     i = 0;
-
-    // on cherche si il y a un atout, une excuse, ou un roi dans le chien
-    // et on les remplace par des cartes valides
 
     // We're looking for trumps or kings in the deck and we replace
     // them by other valid cards

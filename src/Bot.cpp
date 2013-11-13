@@ -50,8 +50,8 @@ Bot::Bot()
 
     timeBeforeSend.setSingleShot(true);
     timeBeforeSend.setInterval(0);
-    connect (&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
-    //connect(&timeBeforeSend, &QTimer::timeout, this, &Bot::slotTimeBeforeSend);
+    //connect (&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
+    connect(&timeBeforeSend, &QTimer::timeout, this, &Bot::slotTimeBeforeSend);
 }
 /*****************************************************************************/
 Bot::~Bot()
@@ -103,11 +103,6 @@ void Bot::slotRequestBid(Contract highestBid)
 
     ret = CallScript("AnnounceBid", args).toInt();
 
-#ifdef QT_DEBUG
-    qDebug() << GetMyDeck().GetCardList() << endl;
-#endif
-
-
     // security test
     if ((ret >= PASS) && (ret <= GUARD_AGAINST))
     {
@@ -154,15 +149,43 @@ void Bot::slotShowDog()
 /*****************************************************************************/
 void Bot::slotBuildDiscard()
 {
+    bool valid = true;
     QJSValueList args;
+    Deck discard;
+
     args << GetDogDeck().GetCardList();
     QString ret = CallScript("BuildDiscard", args).toString();
 
-    // We receive the discard made by the bot script
-    // FIXME: verify the validity of the deck. If not valid, build the
-    // discard automatically
+    int count = discard.SetCards(ret);
 
-    BuildDogDeck();
+    if (count == 6)
+    {
+        for (int i=0; i<6; i++)
+        {
+            Card *c = discard.at(i);
+            if ((c->GetSuit() == Card::TRUMPS) ||
+                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+            {
+                valid = false;
+            }
+        }
+    }
+    else
+    {
+        valid = false;
+    }
+
+    if (!valid)
+    {
+        qDebug() << "Invalid discard played" << endl;
+        BuildDogDeck();
+        // Resend cards to the bot!
+        slotReceiveCards();
+    }
+    else
+    {
+        SetDiscard(discard);
+    }
     SendDog();
 }
 /*****************************************************************************/
