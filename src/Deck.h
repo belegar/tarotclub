@@ -92,10 +92,11 @@ public:
     Card *GetCardById(int);
     Card *GetCardByName(const QString &i_name);
     QString GetCardList();
+    Team GetOwner();
 
     // Setters
     void SetOwner(Team o);
-    Team GetOwner();
+    int SetCards(const QString &cards);
 
     friend QDataStream &operator<<(QDataStream &out, const Deck &deck)
     {
