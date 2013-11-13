@@ -52,6 +52,7 @@ const QString HomePath  = "./";
 #else
 const QString HomePath  = QDir::homePath() + "/.tarotclub/";
 #endif
+const QString GamePath   = HomePath + "/games/";
 const QString LogPath   = HomePath + "/logs/";
 }
 
