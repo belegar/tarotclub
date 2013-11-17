@@ -29,6 +29,7 @@
 #include <QMouseEvent>
 #include "../Tools.h"
 #include "../TarotDeck.h"
+#include "Log.h"
 
 static const QRectF border(10, 10, 925, 700);
 
@@ -304,7 +305,7 @@ void Canvas::mousePressEvent(QMouseEvent *e)
 #ifdef QT_DEBUG
     if (e->button() == Qt::RightButton)
     {
-        qDebug() << "x=" << e->pos().x() << ", y=" << e->pos().y();
+        TLogInfo("x=" + QString().setNum(e->pos().x()) + ", y=" + QString().setNum(e->pos().y()));
     }
 #endif
 

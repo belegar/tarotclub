@@ -31,6 +31,7 @@
 #include "ui_NumberedDealUI.h"
 #include "ui_WinUI.h"
 #include "../Tools.h"
+#include "../Log.h"
 
 /*****************************************************************************/
 TarotClub::TarotClub() : MainWindow()
@@ -109,7 +110,7 @@ void TarotClub::Initialize()
     TarotDeck::Initialize();
     if (tapis->Initialize(clientConfig.GetOptions()) == false)
     {
-        qFatal("Cannot load SVG images, exiting...");
+        TLogError("Cannot load SVG images, exiting...");
     }
     ApplyOptions();
 
@@ -430,12 +431,12 @@ void TarotClub::slotClickCard(GfxCard *gc)
         // select one card
         if (gc->GetStatus() == GfxCard::NORMAL)
         {
-            if (client.GetDogDeck().size() == 6)
+            if (discard.size() == 6)
             {
                 return;
             }
-            client.GetDogDeck().append(c);
-            if (client.GetDogDeck().size() == 6)
+            discard.append(c);
+            if (discard.size() == 6)
             {
                 tapis->DisplayDiscardMenu(true);
             }
@@ -443,11 +444,11 @@ void TarotClub::slotClickCard(GfxCard *gc)
         // Un-select card
         else if (gc->GetStatus() == GfxCard::SELECTED)
         {
-            if (client.GetDogDeck().size() == 0)
+            if (discard.size() == 0)
             {
                 return;
             }
-            client.GetDogDeck().removeAll(c);
+            discard.removeAll(c);
             tapis->DisplayDiscardMenu(false);
         }
         gc->ToggleStatus();
@@ -518,21 +519,18 @@ void TarotClub::slotShowBid(Place p, bool slam, Contract c)
 /*****************************************************************************/
 void TarotClub::slotAcceptDiscard()
 {
-    Card *c;
-    GfxCard *gc;
-    int i;
-
-    for (i = 0; i < client.GetDogDeck().size(); i++)
-    {
-        c = client.GetDogDeck().at(i);
-        client.GetMyDeck().removeAll(c);
-        gc = tapis->GetGfxCard(c->GetId());
-        gc->hide();
-    }
+    // Clear canvas and forbid new actions
     tapis->DisplayDiscardMenu(false);
     tapis->SetFilter(Canvas::BLOCK_ALL);
+    for (int i = 0; i < discard.size(); i++)
+    {
+        Card *c = discard.at(i);
+        GfxCard *gc = tapis->GetGfxCard(c->GetId());
+        gc->hide();
+    }
+
+    client.SetDiscard(discard);
     ShowSouthCards();
-    client.SendDog();
 }
 /*****************************************************************************/
 void TarotClub::slotAcceptHandle()
@@ -618,7 +616,7 @@ void TarotClub::slotBuildDiscard()
         c = client.GetDogDeck().at(i);
         client.GetMyDeck().append(c);
     }
-    client.GetDogDeck().clear();
+    discard.clear();
     tapis->SetFilter(Canvas::CARDS | Canvas::MENU);
 
     // Player's cards are shown

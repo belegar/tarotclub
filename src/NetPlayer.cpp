@@ -24,6 +24,7 @@
  */
 
 #include "NetPlayer.h"
+#include "Log.h"
 
 /*****************************************************************************/
 NetPlayer::NetPlayer()
@@ -81,7 +82,7 @@ void NetPlayer::SendData(QByteArray &data)
         }
         else
         {
-            qDebug() << "Send data to a non-connected socket" << endl;
+            TLogError("Send data to a non-connected socket");
         }
     }
 }

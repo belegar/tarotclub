@@ -26,6 +26,7 @@
 #include "PlayerBox.h"
 #include <QFile>
 #include <QtGui>
+#include "../Log.h"
 
 #define SPACE_BETWEEN_ITEMS 10
 #define PLAYER_BOX_WIDTH    240
@@ -146,7 +147,7 @@ void PlayerBox::DrawCard(GfxCard *c)
     }
     else
     {
-        qFatal("Card is null, cannot display it!");
+        TLogError("Card is null, cannot display it!");
     }
 }
 /*****************************************************************************/

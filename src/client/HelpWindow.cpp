@@ -26,6 +26,7 @@
 #include <QString>
 #include "HelpWindow.h"
 #include "../defines.h"
+#include "../Log.h"
 
 /*****************************************************************************/
 HelpBrowser::HelpBrowser(QHelpEngine *help, QWidget *parent)
@@ -54,7 +55,7 @@ HelpWindow::HelpWindow(QWidget *parent)
     helpEngine = new QHelpEngine("tarotclub.qhc", this);
     if (helpEngine->setupData() == false)
     {
-        qFatal("Cannot initialize help system.");
+        TLogError("Cannot initialize help system.");
     }
     browser = new HelpBrowser(helpEngine, this);
 
@@ -73,10 +74,7 @@ HelpWindow::HelpWindow(QWidget *parent)
 /*****************************************************************************/
 void HelpWindow::DisplayUrl(const QUrl &url)
 {
-    //    qDebug(url.toDisplayString().toLatin1().constData());
-
     browser->setSource(url);
-
 }
 
 //=============================================================================

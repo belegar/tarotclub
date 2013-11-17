@@ -29,6 +29,7 @@
 #include "DealFile.h"
 #include "Identity.h"
 #include "Tools.h"
+#include "Log.h"
 
 /*****************************************************************************/
 TarotEngine::TarotEngine()
@@ -314,6 +315,8 @@ void TarotEngine::GameSateMachine()
 {
     if (gameState.Next() == true)
     {
+        TLogInfo("----------------------------------------------------");
+
         // The current trick winner will begin the next trick
         gameState.currentPlayer = deal.SetTrick(currentTrick, gameState);
         currentTrick.clear();
@@ -324,6 +327,8 @@ void TarotEngine::GameSateMachine()
     }
     else
     {
+        QString message = "Turn: " + QString().setNum(gameState.trickCounter) + " player: " + Util::ToString(gameState.currentPlayer);
+        TLogInfo(message);
         emit sigPlayCard(gameState.currentPlayer);
     }
 }
@@ -441,17 +446,15 @@ void TarotEngine::CreateDeal()
     {
         players[i].GetDeck().clear();
         players[i].GetDeck().append(currentTrick.mid(i * n, n));
-#ifdef QT_DEBUG
-        qDebug() << "Player " << Util::ToString((Place)i) << " deck: " << players[i].GetDeck().GetCardList() << endl;
-#endif
+        TLogInfo("Player " + Util::ToString((Place)i) + " deck: " + players[i].GetDeck().GetCardList());
     }
 
     // Remaining cards go to the dog
     Deck dog;
     dog.append(currentTrick.mid(gameState.numberOfPlayers * n));
-#ifdef QT_DEBUG
-    qDebug() << "Dog deck: " << dog.GetCardList() << endl;
-#endif
+
+    TLogInfo("Dog deck: " + dog.GetCardList());
+
     deal.SetDog(dog, NO_TEAM);
     currentTrick.clear();
 }

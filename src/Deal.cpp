@@ -29,6 +29,7 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
+#include "Log.h"
 
 #define DEAL_RESULT_XML_VERSION     "1.0"
 
@@ -105,7 +106,7 @@ Place Deal::SetTrick(Deck &trick, Game &info)
         }
         if (cLeader == NULL)
         {
-            qFatal("cLeader cannot be null!");
+            TLogError("cLeader cannot be null!");
         }
 
         // The trick winner is the card leader owner
@@ -170,7 +171,7 @@ Place Deal::SetTrick(Deck &trick, Game &info)
     }
     else
     {
-        qDebug() << "Index out of scope!" << endl;
+        TLogError("Index out of scope!");
     }
 
     return winner;

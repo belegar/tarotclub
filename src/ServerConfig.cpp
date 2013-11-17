@@ -26,6 +26,7 @@
 #include "ServerConfig.h"
 #include <QString>
 #include <QDesktopServices>
+#include "Log.h"
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
@@ -210,7 +211,7 @@ bool ServerConfig::Save()
     }
     else
     {
-        qDebug("Saving server's configuration failed.");
+        TLogError("Saving server's configuration failed.");
     }
 
     return ret;

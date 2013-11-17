@@ -80,7 +80,7 @@ void Server::slotNewConnection()
             }
             else
             {
-                qDebug() << "Error, cannot find any free place." << endl;
+                TLogError("Error, cannot find any free place.");
             }
         }
     }
@@ -302,7 +302,7 @@ bool Server::DoAction(QDataStream &in, Place p)
         }
 
         default:
-            qDebug() <<  trUtf8(": Unkown packet received.") << endl;
+            TLogError("Unkown packet received");
             ret = false;
             break;
     }

@@ -41,12 +41,7 @@ public slots:
     void Print(const QString &message)
     {
         QString toPrint = QString("Bot script: ") + message;
-        qDebug() << toPrint.toLatin1().constData();
-    }
-
-    void Log(const QString &key, const QString &value)
-    {
-        Log::AddEntry(Log::Bot, key, value);
+        TLogInfo(toPrint);
     }
 };
 /*****************************************************************************/
