@@ -24,22 +24,35 @@
  */
 
 #include "Log.h"
+// Std C++
+#include <iostream>
 
+using namespace std;
+QMutex Log::mMutex;
+Subject<QString> Log::mSubject;
+
+/*****************************************************************************/
 Log::Log()
 {
 }
-
-QMutex Log::mMutex;
-
-void Log::AddEntry(Event event, const QString &key, const QString &value)
+/*****************************************************************************/
+void Log::RegisterListener(Observer<QString> &listener)
+{
+    mSubject.Attach(listener);
+}
+/*****************************************************************************/
+void Log::AddEntry(Event event, const QString &file, const QString &message)
 {
     QStringList eventString;
     eventString << "Error" << "Info" << "Engine" << "Bot" << "Protocol" << "Message";
 
-    QString line = eventString[event] + ", " + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ", " + key + ", " + value;
-    Save(line);
-}
+    QString line = eventString[event] + ", " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + ", " + file + ", " + message + "\r\n";
 
+    cout << line.toLocal8Bit().constData();   // print to local std output
+    mSubject.Notify(line);  // send message to all the listeners
+    Save(line);             // save message to a file
+}
+/*****************************************************************************/
 void Log::Save(const QString &line)
 {
     mMutex.lock();

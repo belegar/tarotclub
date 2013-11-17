@@ -88,6 +88,8 @@ TarotClub::TarotClub() : MainWindow()
  */
 void TarotClub::Initialize()
 {
+    debugDock->Initialize();
+
     // Check user's directory and create it if not exists
     if (!QDir(Config::HomePath).exists())
     {
