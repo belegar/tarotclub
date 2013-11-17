@@ -493,7 +493,7 @@ void Deal::SetDog(Deck &dog, Team owner)
 void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
 {
     // Open a file where to stream out the XML
-    QString fileName = Config::LogPath + "/deal_result_" + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ".xml" ;
+    QString fileName = Config::GamePath + "/deal_result_" + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ".xml" ;
     QFile f(fileName);
     if (f.open(QIODevice::WriteOnly) == true)
     {
