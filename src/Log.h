@@ -69,8 +69,8 @@ private:
 };
 
 // Macros definitions
-#define TLogInfo(message)       Log::AddEntry(Log::Info, __FILE__, message)
-#define TLogError(message)       Log::AddEntry(Log::Error, __FILE__, message)
+#define TLogInfo(message)   Log::AddEntry(Log::Info, __FILE__, message)
+#define TLogError(message)  Log::AddEntry(Log::Error, __FILE__, message)
 
 
 #endif // LOG_H
