@@ -70,7 +70,8 @@ public:
         SERVER_END_OF_TRICK     = 0x84,
         SERVER_END_OF_DEAL      = 0x85,
         SERVER_END_OF_GAME      = 0x86, //!< end of the game mode (tournament ...)
-        SERVER_ERROR_FULL       = 0x87  //!< Server is full, cannot join game
+        SERVER_ERROR_FULL       = 0x87, //!< Server is full, cannot join game
+        SERVER_DISCONNECT       = 0x88  //!< Ask clients to quit properly
     };
 
 
