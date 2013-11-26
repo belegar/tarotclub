@@ -35,9 +35,10 @@
 // Includes locales
 #include "../defines.h"
 #include "../Identity.h"
+#include "../Log.h"
 
 /*****************************************************************************/
-class DebugDock : public QDockWidget
+class DebugDock : public QDockWidget, public Observer<QString>
 {
     Q_OBJECT
 
@@ -55,6 +56,10 @@ public:
     {
         return instance;
     }
+
+    void Update(const QString &info) { message(info); }
+
+    void Initialize() { Log::RegisterListener(*this); }
 
 protected:
     void closeEvent(QCloseEvent *e);

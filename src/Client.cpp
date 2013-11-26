@@ -32,6 +32,7 @@ using namespace std;
 #include "Client.h"
 #include "Identity.h"
 #include "defines.h"
+#include "Log.h"
 
 /*****************************************************************************/
 Client::Client()
@@ -112,9 +113,27 @@ void Client::SetMyIdentity(const Identity &ident)
     player.SetIdentity(ident);
 }
 /*****************************************************************************/
-void Client::SetDiscard(const Deck &discard)
+void Client::SetDiscard(Deck &discard)
 {
-    dogDeck = discard;
+    // Add the dog to the payer's deck
+    player.GetDeck() += dogDeck;
+
+    // remove cards from the client's deck
+    for (int i = 0; i < discard.size(); i++)
+    {
+        Card *c = discard.at(i);
+        if (player.GetDeck().removeAll(c) != 1)
+        {
+            TLogError("Wrong number of cards");
+        }
+    }
+
+    TLogInfo("Dog: " + dogDeck.GetCardList());
+    TLogInfo("Player: " + player.GetDeck().GetCardList());
+    TLogInfo("Discard: " + discard.GetCardList());
+
+    // Send discard to the server
+    SendDiscard(discard);
 }
 /*****************************************************************************/
 Contract Client::CalculateBid()
@@ -194,17 +213,13 @@ void Client::UpdateStatistics()
     player.GetDeck().AnalyzeSuits(stats);
 }
 /*****************************************************************************/
-void Client::BuildDogDeck()
+Deck Client::BuildDogDeck()
 {
     int i;
     Card *c, *cdeck;
+    Deck discard = dogDeck;
 
-#ifndef QT_NO_DEBUG
-    // Dog before
-    ofstream f("dog_before.txt");
-    f << dogDeck.GetCardList().toStdString() << endl;
-    f.close();
-#endif
+    TLogInfo("Auto discard before: " + discard.GetCardList());
 
     bool ok = false;
     i = 0;
@@ -213,7 +228,7 @@ void Client::BuildDogDeck()
     // them by other valid cards
     while (ok == false)
     {
-        c = dogDeck.at(i);
+        c = discard.at(i);
         if ((c->GetSuit() == Card::TRUMPS) ||
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
@@ -227,8 +242,8 @@ void Client::BuildDogDeck()
                     // Swap cards
                     player.GetDeck().removeAll(cdeck);
                     player.GetDeck().append(c);
-                    dogDeck.removeAll(c);
-                    dogDeck.append(cdeck);
+                    discard.removeAll(c);
+                    discard.append(cdeck);
                     break;
                 }
             }
@@ -245,12 +260,9 @@ void Client::BuildDogDeck()
         }
     }
 
-#ifndef QT_NO_DEBUG
-    // Dog after
-    f.open("dog_after.txt");
-    f << dogDeck.GetCardList().toStdString() << endl;
-    f.close();
-#endif
+    TLogInfo("Auto discard after: " + discard.GetCardList());
+
+    return discard;
 }
 /*****************************************************************************/
 Card *Client::Play()
@@ -286,19 +298,19 @@ void Client::Close()
 void Client::slotSocketConnected()
 {
     QString msg = player.GetIdentity().name + trUtf8(" is connected.");
-    qDebug() << msg.toLatin1().constData();
+    TLogInfo(msg);
 }
 /*****************************************************************************/
 void Client::slotSocketHostFound()
 {
     QString msg = player.GetIdentity().name + trUtf8(" is trying to connect...");
-    qDebug() << msg.toLatin1().constData();
+    TLogInfo(msg);
 }
 /*****************************************************************************/
 void Client::slotSocketClosed()
 {
     QString msg = player.GetIdentity().name + trUtf8(" connection has been closed.");
-    qDebug() << msg.toLatin1().constData();
+    TLogInfo(msg);
 }
 /*****************************************************************************/
 void Client::slotSocketError(QAbstractSocket::SocketError code)
@@ -317,7 +329,7 @@ void Client::slotSocketError(QAbstractSocket::SocketError code)
             message = trUtf8(": network error: data transmission failed.");
             break;
     }
-    qDebug() << message.toLatin1().constData();
+    TLogInfo(message);
 }
 /*****************************************************************************/
 void Client::slotSocketReadData()
@@ -542,7 +554,7 @@ bool Client::DoAction(QDataStream &in)
 
         default:
             QString msg = player.GetIdentity().name + trUtf8(": Unkown packet received.");
-            qDebug() << msg.toLatin1().constData();
+            TLogInfo(msg);
             ret = false;
             break;
     }
@@ -607,11 +619,11 @@ void Client::SendBid(Contract c, bool slam)
     socket.flush();
 }
 /*****************************************************************************/
-void Client::SendDog()
+void Client::SendDiscard(const Deck &discard)
 {
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << dogDeck;
+    out << discard;
     packet = BuildCommand(packet, Protocol::CLIENT_DISCARD);
     socket.write(packet);
     socket.flush();

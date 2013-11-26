@@ -30,51 +30,12 @@
 #include <QtGlobal>
 #include <QTranslator>
 
-// Std C++
-#include <iostream>
-
 // Specific game includes
 #include "TarotClub.h"
 #include "DebugDock.h"
 #include "ClientConfig.h"
+#include "../Log.h"
 
-using namespace std;
-
-/*****************************************************************************/
-/**
- * Redirect debug messages to the console (FIXME: or Log file?)
- */
-#ifndef QT_NO_DEBUG
-void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    DebugDock *output = NULL;
-    //  DebugDock *output = DebugDock::getInstance();
-    QString infos = QString(": ") + QString(context.file) + QString(":") + QString().setNum(context.line) + QString(", ") + QString(context.function);
-
-    if (output != NULL)
-    {
-        switch (type)
-        {
-            case QtDebugMsg:
-                output->message(msg);
-                break;
-            case QtWarningMsg:
-                output->message(msg + infos);
-                break;
-            case QtCriticalMsg:
-                output->message(msg + infos);
-                break;
-            case QtFatalMsg:
-                output->message(msg + infos);
-                abort();
-        }
-    }
-    else
-    {
-        cout << msg.toLatin1().constData() << infos.toLatin1().constData() << endl;
-    }
-}
-#endif
 /*****************************************************************************/
 QString GetLocale()
 {
@@ -89,10 +50,6 @@ QString GetLocale()
  */
 int main(int argc, char **argv)
 {
-#ifndef QT_NO_DEBUG
-    qInstallMessageHandler(myMessageOutput);
-#endif
-
     QApplication app(argc, argv);
 
     QPixmap pixmap(":/images/splash.png");
@@ -105,7 +62,7 @@ int main(int argc, char **argv)
     // Install language translation files
     if (translator.load(QString("tarotclub_") + locale) == false)
     {
-        cout << "Cannot load translation file: tarotclub_xx." << endl;
+        TLogError("Cannot load translation file: tarotclub_xx.");
     }
     app.installTranslator(&translator);
 

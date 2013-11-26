@@ -66,10 +66,10 @@ var p = Bot.prototype;
 // PUBLIC STATIC METHODS
 // ****************************************************************************
 
-	p.initialize = function()
-	{
-		this.deck.length = 0;
-	}
+    p.initialize = function()
+    {
+	    this.deck.length = 0;
+    }
 
     p.updateStats = function()
     {

@@ -52,7 +52,7 @@ public:
     void UpdateStatistics();
     Card *Play();
     bool IsValid(Card *c);
-    void BuildDogDeck();
+    Deck BuildDogDeck();
 
     // Getters
     Deck::Statistics &GetStatistics();
@@ -67,7 +67,7 @@ public:
 
     // Setters
     void SetMyIdentity(const Identity &ident);
-    void SetDiscard(const Deck &discard);
+    void SetDiscard(Deck &discard);
 
     // Network
     void ConnectToHost(const QString &hostName, quint16 port);
@@ -76,7 +76,6 @@ public:
     // Protocol methods
     void SendBid(Contract c, bool slam);
     void SendSyncDog();
-    void SendDog();
     void SendReady();
     void SendError();
     void SendCard(Card *c);
@@ -127,6 +126,7 @@ private:
 
     // TarotClub Protocol methods
     void SendIdentity();
+    void SendDiscard(const Deck &discard);
     bool DoAction(QDataStream &in);
 
 };

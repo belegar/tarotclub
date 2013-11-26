@@ -30,7 +30,6 @@ DESTDIR = ./bin
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/client
 VPATH += $${PWD}/../src/server
-VPATH += $${PWD}/include
 VPATH += $${PWD}/../lib
 VPATH += $${PWD}/../ai
 VPATH += $${PWD}/../ai/tarotlib
@@ -39,22 +38,13 @@ QT += xml network svg help qml
 RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt warn_on
 
-INCLUDEPATH += $${PWD}/include
+INCLUDEPATH += $${PWD}/../src
 INCLUDEPATH += $${PWD}/../src/client
 INCLUDEPATH += $${PWD}/../src/server
 
 # Libraries and other annoying OS stuff
 win32 {
    RC_FILE = icon.rc
-} else {
-   # Install under Unix
-   isEmpty(PREFIX): PREFIX=/opt/tarotclub
-   target.path = $${PREFIX}
-   cards.path = $${PREFIX}/default
-   cards.files = ../src/data/cards/default/*
-   copying.path = $${PREFIX}
-   copying.files = ../COPYING ../COPYING-FR ../HISTORY ../INSTALL ../README
-   INSTALLS += target cards copying
 }
 
 OTHER_FILES = beginner.js \
@@ -107,7 +97,8 @@ HEADERS = AboutWindow.h \
     PlayerBox.h \
     CustomTypes.h \
     PopupItem.h \
-    Log.h
+    Log.h \
+    Observer.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \

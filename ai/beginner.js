@@ -86,10 +86,7 @@ function BuildDiscard(dog)
     var discard = CurrentGame.bot.buildDiscard(dog);
     var place = TarotLib.Place.toString(CurrentGame.botPlace);
 
-    // _______ LOGGING _________
-    systemLog("discard " + place, discard);
-    systemLog("deck " + place, discard);
-
+    systemPrint(place + " discard is: " + discard);
     return discard;
 }
 
@@ -135,7 +132,6 @@ function ShowHandle(handle, team)
  */
 function PlayCard()
 {
-//	debugger; // enable this line to generate a breakpoint
     var cardName;
 
     if (CurrentGame.taker === CurrentGame.myPlace)
@@ -147,9 +143,9 @@ function PlayCard()
         cardName = CurrentGame.playDefenseStrategy();
     }
 
-    // _______ LOGGING _________
     var place = TarotLib.Place.toString(CurrentGame.botPlace);
-    systemLog("deck " + place, discard);
+    systemPrint(place + " is playing " + cardName);
+    systemPrint(place + " script deck is: " + CurrentGame.bot.deck.toString());
 
     return cardName;
 }

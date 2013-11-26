@@ -29,22 +29,18 @@
 #include <QFile>
 #include <QMutex>
 #include "defines.h"
+#include "Observer.h"
+
 
 /**
  * @brief The Log class
  *
  * File format is CSV, each new action will append a new entry at the end of the file.
  *
- * "Action", "Date", "Key", "Value"
+ * "Category", "Date", "File", "Message"
  *
  * Example:
- * Error, 19-04-2013 09:17:30, "Protocol", "",
- *
- * Supported Actions:
- *  - Error
- *  - Info
- *  - Game
- *  - Message
+ * Error, 19-04-2013 09:17:30, "Protocol.cpp", "Buffer length too small!",
  *
  */
 class Log
@@ -62,14 +58,20 @@ public:
 
     Log();
 
-    static void AddEntry(Event event, const QString &key, const QString &value);
+    static void AddEntry(Event event, const QString &file, const QString &message);
+    static void RegisterListener(Observer<QString> &listener);
 
 private:
-    static QMutex mMutex;
-
     static void Save(const QString &line);
 
+    static QMutex mMutex;
+    static Subject<QString> mSubject;
 };
+
+// Macros definitions
+#define TLogInfo(message)   Log::AddEntry(Log::Info, __FILE__, message)
+#define TLogError(message)  Log::AddEntry(Log::Error, __FILE__, message)
+
 
 #endif // LOG_H
 

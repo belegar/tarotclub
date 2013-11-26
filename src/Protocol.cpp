@@ -25,6 +25,7 @@
 
 #include "Protocol.h"
 #include <QCoreApplication>
+#include "Log.h"
 
 /*****************************************************************************/
 QByteArray Protocol::BuildCommand(QByteArray &packet, Command cmd)
@@ -53,7 +54,7 @@ bool Protocol::DecodePacket(QDataStream &in)
         // Gets remaining data to avoid infinite loop
         quint8 dummy;
         in >> dummy;
-        qDebug() << "Error: buffer too small!" << endl;
+        TLogError("Error: buffer too small!");
         return false;
     }
     in >> blockSize;

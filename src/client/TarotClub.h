@@ -63,13 +63,14 @@ public:
     int setTheme();
 
 private:
-    Table table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
-    QThread thread;
+    Table       table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
+    QThread     thread;
     ClientConfig clientConfig;
     Client      client; // The human player
     bool        firstTurn;
     QMap<Place, Identity> players;
     Deal        deal;
+    Deck        discard;
 
 private slots:
     // Menus

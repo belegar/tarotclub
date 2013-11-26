@@ -26,6 +26,7 @@
 #include "ClientConfig.h"
 #include <QString>
 #include <QDesktopServices>
+#include "Log.h"
 
 
 /*****************************************************************************/
@@ -255,7 +256,7 @@ bool ClientConfig::Save()
     }
     else
     {
-        qDebug("Saving client's configuration failed.");
+        TLogError("Saving client's configuration failed.");
     }
 
     return ret;

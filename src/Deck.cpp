@@ -202,7 +202,7 @@ int Deck::SetCards(const QString &cards)
     this->clear();
     for (int i=0; i<list.size(); i++)
     {
-        Card *c = TarotDeck::GetCard(list[0]);
+        Card *c = TarotDeck::GetCard(list[i]);
         if (c != NULL)
         {
             count++;

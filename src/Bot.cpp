@@ -24,6 +24,8 @@
  */
 
 #include "Bot.h"
+#include "Log.h"
+#include "Tools.h"
 
 using namespace std;
 
@@ -163,8 +165,24 @@ void Bot::slotBuildDiscard()
         for (int i=0; i<6; i++)
         {
             Card *c = discard.at(i);
-            if ((c->GetSuit() == Card::TRUMPS) ||
-                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+
+            // Look if the card belongs to the dog or the player's deck
+            if (GetDogDeck().HasCard(c) || GetMyDeck().HasCard(c))
+            {
+                // Look the card value against the Tarot rules
+                if ((c->GetSuit() == Card::TRUMPS) ||
+                    ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+                {
+                    valid = false;
+                }
+
+                // Look if this card is unique
+                if (discard.count(c) != 1)
+                {
+                    valid = false;
+                }
+            }
+            else
             {
                 valid = false;
             }
@@ -177,16 +195,12 @@ void Bot::slotBuildDiscard()
 
     if (!valid)
     {
-        qDebug() << "Invalid discard played" << endl;
-        BuildDogDeck();
-        // Resend cards to the bot!
-        slotReceiveCards();
+        TLogInfo("Invalid discard: " + discard.GetCardList());
+
+        discard = BuildDogDeck(); // build a random valid deck
+        slotReceiveCards(); // Resend cards to the bot!
     }
-    else
-    {
-        SetDiscard(discard);
-    }
-    SendDog();
+    SetDiscard(discard);
 }
 /*****************************************************************************/
 void Bot::slotDealAgain()
@@ -264,16 +278,20 @@ void Bot::slotTimeBeforeSend()
     {
         if (IsValid(c) == false)
         {
-            QString message = GetMyIdentity().name + QString(" played a non-valid card: ") + ret;
-            qDebug() << message.toLatin1().constData();
+            QString message = Util::ToString(GetPlace()) + QString(" played a non-valid card: ") + ret;
+            TLogInfo(message);
             // The show must go on, play a random card
             c = Play();
         }
     }
     else
     {
-        QString message = GetMyIdentity().name + QString(" played an unkown card: ") + ret;
-        qDebug() << message.toLatin1().constData();
+        QString message = Util::ToString(GetPlace()) + QString(" played an unkown card: ") + ret;
+        TLogInfo(message);
+
+        message = Util::ToString(GetPlace()) + " engine deck is: " + GetMyDeck().GetCardList();
+        TLogInfo(message);
+
         // The show must go on, play a random card
         c = Play();
     }
@@ -318,7 +336,7 @@ bool Bot::InitializeScriptContext()
 
         if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            qDebug() <<  "Script error: could not open program file: " << fileName;
+            TLogInfo("Script error: could not open program file: " + fileName);
             return false;
         }
 
@@ -330,7 +348,7 @@ bool Bot::InitializeScriptContext()
         // uncaught exception?
         if (ret.isError())
         {
-            qDebug() <<  "Evaluate uncaught exception: " << ret.toString();
+            TLogInfo("Evaluate uncaught exception: " + ret.toString());
             return false;
         }
     }
@@ -344,7 +362,7 @@ QJSValue Bot::CallScript(const QString &function, QJSValueList &args)
     QJSValue createFunc = botEngine.globalObject().property(function);
     if (createFunc.isError())
     {
-        qDebug() <<  "Script error: script threw an uncaught exception while looking for create func: " << createFunc.toString();
+        TLogInfo("Script error: script threw an uncaught exception while looking for create func: " + createFunc.toString());
         return ret;
     }
 
@@ -352,7 +370,7 @@ QJSValue Bot::CallScript(const QString &function, QJSValueList &args)
 
     if (ret.isError())
     {
-        qDebug() << QString("Script threw an uncaught exception while looking for create func: ") + ret.toString();
+        TLogInfo("Script threw an uncaught exception while looking for create func: " + ret.toString());
     }
 
     return ret;

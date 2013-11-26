@@ -36,9 +36,9 @@
  * @brief The version string uses Semantic Versioning format
  * @see http://semver.org
  */
-#define TAROT_VERSION   "2.2.0"
+#define TAROT_VERSION   "2.3.0-alpha.1"
 #define TAROT_TITRE     "TarotClub"
-#define TAROT_VNAME     "Juliette"
+#define TAROT_VNAME     "Christmas"
 
 #define NB_LANGUAGE     2
 #define QT_STREAMVER    QDataStream::Qt_5_1
@@ -52,7 +52,7 @@ const QString HomePath  = "./";
 #else
 const QString HomePath  = QDir::homePath() + "/.tarotclub/";
 #endif
-const QString GamePath   = HomePath + "/games/";
+const QString GamePath  = HomePath + "/games/";
 const QString LogPath   = HomePath + "/logs/";
 }
 
