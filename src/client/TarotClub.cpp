@@ -124,6 +124,8 @@ void TarotClub::Initialize()
 void TarotClub::slotQuitTarotClub()
 {
     table.Stop();
+    // stop the thread
+    thread.quit();
 }
 /*****************************************************************************/
 void TarotClub::slotNewTournamentGame()

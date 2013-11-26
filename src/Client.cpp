@@ -353,6 +353,12 @@ bool Client::DoAction(QDataStream &in)
             break;
         }
 
+        case Protocol::SERVER_DISCONNECT:
+        {
+            socket.disconnectFromHost();
+            break;
+        }
+
         case Protocol::SERVER_REQUEST_IDENTITY:
         {
             quint8 place;

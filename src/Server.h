@@ -65,6 +65,8 @@ private:
     QTcpServer tcpServer;
     TarotEngine engine;
     int tcpPort;
+    bool enable;
+    int disconnectedPlayers;
 
     void CloseClients();
     bool DoAction(QDataStream &in, Place p);
@@ -77,7 +79,7 @@ private:
 
     // Protocol methods
     void SendRequestIdentity(Place p);
-
+    void SendDisconnect();
     void SendShowBid(Contract c, bool slam, Place p);
     void SendErrorServerFull(QTcpSocket *cnx);
     void SendChatMessage(const QString &message);

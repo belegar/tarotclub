@@ -31,6 +31,7 @@
 Server::Server()
     : maximumPlayers(4)
     , tcpPort(DEFAULT_PORT)
+    , enable(false)
 {
     connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
     connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
@@ -118,20 +119,55 @@ void Server::NewServerGame(Game::Mode mode)
 {
     StopServer();
 
-    // Add few players to the maximum allowed to manage pending connections
-    tcpServer.setMaxPendingConnections(maximumPlayers + 3);
-
-    tcpServer.listen(QHostAddress::LocalHost, tcpPort);
+    if (tcpServer.isListening())
+    {
+        tcpServer.resumeAccepting();
+    }
+    else
+    {
+        // Add few players to the maximum allowed to manage pending connections
+        tcpServer.setMaxPendingConnections(maximumPlayers + 3);
+        tcpServer.listen(QHostAddress::LocalHost, tcpPort);
+    }
+    enable = true;
 
     // Init everything
     engine.NewGame(mode);
     emit sigServerMessage("Server started.\r\n");
 }
 /*****************************************************************************/
+
+/**
+ * @brief Properly eject clients and close the server
+ */
 void Server::StopServer()
-{
-    CloseClients();
-    tcpServer.close();
+{ 
+    // 1. Disable network protocol
+    enable = false;
+
+    if (tcpServer.isListening())
+    {
+        // 2. Don't accept any new connections
+        tcpServer.pauseAccepting();
+
+        // 3. Send a disconnection message to all the connected players
+        disconnectedPlayers = 0;
+        SendDisconnect();
+
+        int timeout = 20;
+        while (timeout)
+        {
+            qApp->processEvents(QEventLoop::AllEvents, 100);
+            if (disconnectedPlayers >= maximumPlayers)
+            {
+                break;
+            }
+            timeout--;
+        }
+
+        // 5. Close sokets
+        //CloseClients();
+    }
 }
 /*****************************************************************************/
 void Server::CloseClients()
@@ -145,9 +181,13 @@ void Server::CloseClients()
 void Server::slotClientClosed(Place p)
 {
     players[p].Close();
-    SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
-    SendPlayersList();
+ //   SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
+ //   SendPlayersList();
 
+    if (!enable)
+    {
+        disconnectedPlayers++;
+    }
     // FIXME: if a player has quit during a game, replace it by a bot
 }
 /*****************************************************************************/
@@ -156,13 +196,16 @@ void Server::slotReadData(Place p)
     do
     {
         QByteArray data = players[p].GetData();
-        QDataStream in(data);
-        if (DecodePacket(in) == true)
+        if (enable)
         {
-            if (DoAction(in, p) == false)
+            QDataStream in(data);
+            if (DecodePacket(in) == true)
             {
-                // bad packet received, exit decoding
-                return;
+                if (DoAction(in, p) == false)
+                {
+                    // bad packet received, exit decoding
+                    return;
+                }
             }
         }
     }
@@ -353,6 +396,13 @@ void Server::SendChatMessage(const QString &message)
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << message;
     packet = BuildCommand(packet, Protocol::SERVER_MESSAGE);
+    Broadcast(packet);
+}
+/*****************************************************************************/
+void Server::SendDisconnect()
+{
+    QByteArray packet;
+    packet = BuildCommand(packet, Protocol::SERVER_DISCONNECT);
     Broadcast(packet);
 }
 /*****************************************************************************/

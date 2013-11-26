@@ -106,6 +106,10 @@ void NetPlayer::slotClientClosed()
 /*****************************************************************************/
 void NetPlayer::slotReadData()
 {
+    if (socket->bytesAvailable() == 0)
+    {
+       return;
+    }
     emit sigReadyRead(place);
 }
 
