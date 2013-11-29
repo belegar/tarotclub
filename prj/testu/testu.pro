@@ -19,6 +19,19 @@ TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++11
 
+HEADERS +=  Card.h \
+            Deck.h \
+            TarotDeck.h
 
-SOURCES += tst_utilities.cpp
+SOURCES +=  tst_utilities.cpp \
+            main.cpp \
+            tst_tarot_base.cpp \
+            Card.cpp \
+            Deck.cpp \
+            TarotDeck.cpp
+
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
+HEADERS += \
+    tst_tarot_base.h \
+    tst_utilities.h

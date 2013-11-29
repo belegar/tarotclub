@@ -2,55 +2,13 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include "Observer.h"
+#include "ByteStream.h"
 #include <cstdint>
 
-static std::uint32_t gCounter = 0U;
-static const std::uint32_t cNbObservers = 10U;
-static const std::uint32_t cNbObserversRemoved = 3U;
+#include "tst_utilities.h"
 
-class Obs : public Observer<std::uint32_t>
-{
+std::uint32_t Obs::gCounter = 0U;
 
-public:
-    Obs()
-        : mValue(0U)
-    {
-
-    }
-
-    virtual void Update(const std::uint32_t &info)
-    {
-        mValue = info;
-        gCounter++;
-    }
-
-    std::uint32_t GetValue()
-    {
-        return mValue;
-    }
-
-private:
-    std::uint32_t mValue;
-};
-
-typedef Subject<std::uint32_t> Subj;
-
-class Utilities : public QObject
-{
-    Q_OBJECT
-
-public:
-    Utilities();
-
-private Q_SLOTS:
-    void AttachAndNotify();
-    void DettachAndNotify();
-
-private:
-    Subj mySubject;
-    Obs obsTable[cNbObservers];
-
-};
 
 Utilities::Utilities()
 {
@@ -61,7 +19,7 @@ void Utilities::AttachAndNotify()
 {
     std::uint32_t i;
 
-    gCounter = 0U;
+    Obs::gCounter = 0U;
 
     // Add all observers
     for (i = 0; i < cNbObservers; i++)
@@ -78,13 +36,13 @@ void Utilities::AttachAndNotify()
         QCOMPARE(obsTable[i].GetValue(), 42U);
     }
 
-    QCOMPARE(gCounter, cNbObservers);
+    QCOMPARE(Obs::gCounter, cNbObservers);
 }
 
-void Utilities::DettachAndNotify()
+void Utilities::DetachAndNotify()
 {
     std::uint32_t i;
-    gCounter = 0U;
+    Obs::gCounter = 0U;
 
     // Remove some observers
     for (i = 0; i < cNbObserversRemoved; i++)
@@ -102,7 +60,7 @@ void Utilities::DettachAndNotify()
     }
 
     // Number of notifiers must be correct
-    QCOMPARE(gCounter, cNbObservers - cNbObserversRemoved);
+    QCOMPARE(Obs::gCounter, cNbObservers - cNbObserversRemoved);
 
     // First observers have kept the old value
     for (i = 0; i < cNbObserversRemoved; i++)
@@ -112,6 +70,46 @@ void Utilities::DettachAndNotify()
 }
 
 
-QTEST_MAIN(Utilities)
+void Utilities::TestByteStream()
+{
+    std::uint8_t val8_in, val8_out;
+    std::uint32_t val32_in, val32_out;
 
-#include "tst_utilities.moc"
+    ByteArray block;
+    ByteStream stream(block);
+
+    // Basic test: serialize a byte and deserialize it
+    val8_in = 0x42U;
+    stream << val8_in;
+    QCOMPARE(block.size(), 1U);
+    stream >> val8_out;
+    QCOMPARE(block.size(), 0U);
+
+    QCOMPARE(val8_in, val8_out);
+
+    val32_in = 0xAABBCCDD;
+    stream << val32_in;
+    stream.Print();
+
+    val8_in = 0x23;
+    stream.Seek(1U);
+    stream << val8_in;
+    stream.Print();
+
+    stream >> val32_out;
+
+    val32_in = 0xAABB23DD;
+    QCOMPARE(val32_in, val32_out);
+
+    std::string hello = "Hello, world!";
+    stream << hello;
+    std::string reply;
+    stream >> reply;
+
+    if (hello != reply)
+    {
+        std::cout << "Stream output: " << reply << std::endl;
+        QFAIL("Strings are not the same!");
+    }
+}
+
