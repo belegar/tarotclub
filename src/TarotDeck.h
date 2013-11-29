@@ -31,12 +31,15 @@
 /*****************************************************************************/
 class TarotDeck
 {
-    static Card cards[78];
 public:
     TarotDeck();
+
     static void Initialize();
     static Card *GetCard(int id);
-    static Card *GetCard(const QString &name);
+    static Card *GetCard(const std::string &name);
+
+private:
+    static Card mCards[78];
 };
 
 #endif // _TAROT_DECK_H

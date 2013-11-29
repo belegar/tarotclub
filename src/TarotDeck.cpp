@@ -25,7 +25,7 @@
 
 #include "TarotDeck.h"
 
-Card TarotDeck::cards[78];
+Card TarotDeck::mCards[78];
 
 /*****************************************************************************/
 TarotDeck::TarotDeck()
@@ -67,29 +67,29 @@ void TarotDeck::Initialize()
         for (j = 0; j < 14; j++)
         {
             n = i * 14 + j;
-            cards[n].SetSuit(suit);
-            cards[n].SetValue(j + 1);  // [1..14]
-            cards[n].SetId(id + j);
+            mCards[n].SetSuit(suit);
+            mCards[n].SetValue(j + 1);  // [1..14]
+            mCards[n].SetId(id + j);
 
             if (j == 10) // Valet
             {
-                cards[n].SetPoints(1.5);
+                mCards[n].SetPoints(1.5);
             }
             else if (j == 11)   // Cavalier
             {
-                cards[n].SetPoints(2.5);
+                mCards[n].SetPoints(2.5);
             }
             else if (j == 12)   // Dame
             {
-                cards[n].SetPoints(3.5);
+                mCards[n].SetPoints(3.5);
             }
             else if (j == 13)   // Roi
             {
-                cards[n].SetPoints(4.5);
+                mCards[n].SetPoints(4.5);
             }
             else
             {
-                cards[n].SetPoints(0.5);
+                mCards[n].SetPoints(0.5);
             }
         }
     }
@@ -97,20 +97,20 @@ void TarotDeck::Initialize()
     // The 22 trumps, including the fool
     for (i = 56; i < 78; i++)
     {
-        cards[i].SetValue(i - 56); // [0..21]
-        cards[i].SetSuit(Card::TRUMPS);
-        cards[i].SetId(i);
+        mCards[i].SetValue(i - 56); // [0..21]
+        mCards[i].SetSuit(Card::TRUMPS);
+        mCards[i].SetId(i);
 
         // More points for the oudlers
         if ((i == 56) ||    // Fool
                 (i == 57) ||    // 1
                 (i == 77))      // 21
         {
-            cards[i].SetPoints(4.5);
+            mCards[i].SetPoints(4.5);
         }
         else
         {
-            cards[i].SetPoints(0.5);
+            mCards[i].SetPoints(0.5);
         }
     }
 }
@@ -123,18 +123,18 @@ Card *TarotDeck::GetCard(int id)
     }
     else
     {
-        return (&cards[id]);
+        return (&mCards[id]);
     }
 }
 /*****************************************************************************/
-Card *TarotDeck::GetCard(const QString &name)
+Card *TarotDeck::GetCard(const std::string &name)
 {
     Card *c = NULL;
     for (int i=0; i<78; i++)
     {
-        if (name == cards[i].GetName())
+        if (name == mCards[i].GetName())
         {
-            c = &cards[i];
+            c = &mCards[i];
         }
     }
     return c;
