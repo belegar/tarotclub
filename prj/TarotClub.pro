@@ -98,7 +98,8 @@ HEADERS = AboutWindow.h \
     CustomTypes.h \
     PopupItem.h \
     Log.h \
-    Observer.h
+    Observer.h \
+    ThreadQueue.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
