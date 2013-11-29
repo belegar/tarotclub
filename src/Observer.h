@@ -21,7 +21,7 @@ public:
         mList.push_back(&observer);
     }
 
-    void Dettach(Observer<T> &observer)
+    void Detach(Observer<T> &observer)
     {
         mList.remove(&observer);
     }

@@ -89,7 +89,7 @@ void Utilities::DettachAndNotify()
     // Remove some observers
     for (i = 0; i < cNbObserversRemoved; i++)
     {
-        mySubject.Dettach(obsTable[i]);
+        mySubject.Detach(obsTable[i]);
     }
 
     // notify all
