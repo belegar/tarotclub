@@ -81,7 +81,7 @@ public:
     void AnalyzeTrumps(Statistics &stats);
     void AnalyzeSuits(Statistics &stats);
     void Shuffle(int seed);
-    void Sort();
+    void Sort(const std::string &order = "");
     bool HasCard(Card *c);
     bool HasOneOfTrump();
     bool HasFool();

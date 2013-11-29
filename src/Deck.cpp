@@ -175,8 +175,36 @@ Card *Deck::HighestSuit()
     return c;
 }
 /*****************************************************************************/
-void Deck::Sort()
+/**
+ * @brief Sort the deck of card, optional order can be given
+ * The sorting order is given in parameter as a string format, one letter
+ * per suit.
+ * Example:
+ * "THSDC" will sort cards in the following format:
+ * Trumps, Hearts, Spades, Diamonds, Clubs
+ *
+ * @param order String containing the order of suits
+ */
+void Deck::Sort(const std::string &order)
 {
+    /*
+    // Depending of the sorting contents, give an ID
+    if (order.size() == 5)
+    {
+        std::string::iterator strIter;
+        for(strIter = strIter.begin(); strIter != my_string.end(); my_iter++)
+        {
+            cout<<*my_iter;
+        }
+
+        for (int i = 0; i < this->count(); i++)
+        {
+
+        }
+    }
+    */
+
+
     if (this->size() != 0)
     {
         qSort(this->begin(), this->end(), LessThanCards);
