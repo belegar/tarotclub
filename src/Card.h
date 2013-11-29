@@ -28,7 +28,7 @@
 
 // Game includes
 #include "defines.h"
-#include <QString>
+#include <string>
 
 /*****************************************************************************/
 class Card
@@ -63,7 +63,7 @@ public:
     int     GetId();
     Place   GetOwner();
     int     GetValue();
-    QString GetName();
+    std::string GetName();
 
     // helpers
     bool IsFool();

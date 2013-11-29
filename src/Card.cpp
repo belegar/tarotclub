@@ -24,35 +24,35 @@
  */
 
 #include "Card.h"
+#include <sstream>
 
 /*****************************************************************************/
-QString Card::GetName()
+std::string Card::GetName()
 {
-    QString name;
-    QTextStream stream(&name);
+    std::stringstream name;
 
-    stream << value;
+    name << value;
     if (suit == SPADES)
     {
-        stream << "-S"; // spades
+        name << "-S"; // spades
     }
     else if (suit == HEARTS)
     {
-        stream << "-H"; // heart
+        name << "-H"; // heart
     }
     else if (suit == CLUBS)
     {
-        stream << "-C"; // club
+        name << "-C"; // club
     }
     else if (suit == DIAMONDS)
     {
-        stream << "-D"; // diamond
+        name << "-D"; // diamond
     }
     else
     {
-        stream << "-T"; // Trumps
+        name << "-T"; // Trumps
     }
-    return name;
+    return name.str();
 }
 /*****************************************************************************/
 Card::Card()
