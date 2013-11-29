@@ -35,17 +35,12 @@
 /*****************************************************************************/
 class Player
 {
-
-private:
-    Identity    identity;   // player's identification
-    Deck        myDeck;     // players cards
-    Place       place;      // assigned place by the server around the table
-
 public:
     Player();
 
     // Helpers
     bool CanPlayCard(Card *, Deck &trick);
+    bool IsFree();
 
     // Getters
     Identity &GetIdentity();
@@ -56,6 +51,10 @@ public:
     void SetIdentity(const Identity &ident);
     void SetPlace(Place p);
 
+private:
+    Identity    identity;   //!< player's identification
+    Deck        myDeck;     //!< players cards
+    Place       place;      //!< assigned place by the server around the table
 };
 
 #endif // _PLAYER_H

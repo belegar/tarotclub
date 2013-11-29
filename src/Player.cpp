@@ -34,6 +34,7 @@ using namespace std;
 
 /*****************************************************************************/
 Player::Player()
+    : place(NOWHERE)
 {
 
 }
@@ -221,6 +222,18 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
         }
     }
     return true;
+}
+/*****************************************************************************/
+bool Player::IsFree()
+{
+    if (place == NOWHERE)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 /*****************************************************************************/
 void Player::SetIdentity(const Identity &ident)
