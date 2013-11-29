@@ -31,6 +31,7 @@
 #include "TarotEngine.h"
 #include "Bot.h"
 #include "ServerConfig.h"
+#include "Observer.h"
 
 /*****************************************************************************/
 class Server : public Protocol
@@ -38,42 +39,31 @@ class Server : public Protocol
     Q_OBJECT
 
 public:
+    struct Signal
+    {
+        Place p;
+        QByteArray data;
+    };
+
     Server();
 
     // Helpers
     void NewServerGame(Game::Mode mode);
-    void StopServer();
-    void ConnectBots();
+    void RegisterListener(Observer<Signal> &sig);
 
     // Getters
-    QList<Identity> GetPlayers();
-    int GetNumberOfConnectedPlayers();
     TarotEngine &GetEngine();
-    int GetTcpPort();
-
-    // Setters
-    void SetMaximumPlayers(int n);
-    void SetTcpPort(int port);
 
 signals:
     void sigServerMessage(QString const &);
 
 private:
-    int maximumPlayers;
-    int size;
-    NetPlayer players[5]; // [3..5] players
-    QTcpServer tcpServer;
     TarotEngine engine;
-    int tcpPort;
+    Subject<Signal> mSubject;
 
-    void CloseClients();
     bool DoAction(QDataStream &in, Place p);
-
-    /**
-     * @brief Broadcast a packet to connected players
-     * @param block
-     */
     void Broadcast(QByteArray &block);
+    void SendToPlayer(Place p, QByteArray &block);
 
     // Protocol methods
     void SendRequestIdentity(Place p);
@@ -89,7 +79,6 @@ private:
 private slots:
     // TarotClub protocol
     void slotSendCards();
-    void slotNewConnection();
     void slotSendWaitTrick(Place winner);
     void slotSendStartDeal();
     void slotSendPlayCard(Place p);
@@ -97,10 +86,6 @@ private slots:
     void slotSendShowDog();
     void slotSendDealAgain();
     void slotSendEndOfDeal();
-
-    // client sockets
-    void slotClientClosed(Place p);
-    void slotReadData(Place p);
 };
 
 #endif // SERVER_H

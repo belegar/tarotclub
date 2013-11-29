@@ -29,10 +29,7 @@
 
 /*****************************************************************************/
 Server::Server()
-    : maximumPlayers(4)
-    , tcpPort(DEFAULT_PORT)
 {
-    connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
     connect(&engine, &TarotEngine::sigEndOfTrick, this, &Server::slotSendWaitTrick);
     connect(&engine, &TarotEngine::sigStartDeal, this, &Server::slotSendStartDeal);
     connect(&engine, &TarotEngine::sigSendCards, this, &Server::slotSendCards);
@@ -43,72 +40,6 @@ Server::Server()
     connect(&engine, &TarotEngine::sigEndOfDeal, this, &Server::slotSendEndOfDeal);
 }
 /*****************************************************************************/
-void Server::SetMaximumPlayers(int n)
-{
-    maximumPlayers = n;
-}
-/*****************************************************************************/
-void Server::slotNewConnection()
-{
-    while (tcpServer.hasPendingConnections())
-    {
-        QTcpSocket *cnx = tcpServer.nextPendingConnection();
-        if (GetNumberOfConnectedPlayers() == maximumPlayers)
-        {
-            SendErrorServerFull(cnx);
-        }
-        else
-        {
-            Place p = NOWHERE;
-
-            // Look for free space
-            for (int i = 0; i < maximumPlayers; i++)
-            {
-                if (players[i].IsFree() == true)
-                {
-                    p = (Place) i;
-                    break;
-                }
-            }
-
-            if (p != NOWHERE)
-            {
-                players[p].SetConnection(cnx, p);
-                connect(&players[p], SIGNAL(sigDisconnected(Place)), this, SLOT(slotClientClosed(Place)));
-                connect(&players[p], SIGNAL(sigReadyRead(Place)), this, SLOT(slotReadData(Place)));
-                SendRequestIdentity(p);
-            }
-            else
-            {
-                TLogError("Error, cannot find any free place.");
-            }
-        }
-    }
-}
-/*****************************************************************************/
-void Server::SetTcpPort(int port)
-{
-    tcpPort = port;
-}
-/*****************************************************************************/
-int Server::GetTcpPort()
-{
-    return tcpPort;
-}
-/*****************************************************************************/
-int Server::GetNumberOfConnectedPlayers()
-{
-    int p = 0;
-    for (int i = 0; i < maximumPlayers; i++)
-    {
-        if (players[i].IsFree() == false)
-        {
-            p++;
-        }
-    }
-    return p;
-}
-/*****************************************************************************/
 TarotEngine &Server::GetEngine()
 {
     return engine;
@@ -116,57 +47,9 @@ TarotEngine &Server::GetEngine()
 /*****************************************************************************/
 void Server::NewServerGame(Game::Mode mode)
 {
-    StopServer();
-
-    // Add few players to the maximum allowed to manage pending connections
-    tcpServer.setMaxPendingConnections(maximumPlayers + 3);
-
-    tcpServer.listen(QHostAddress::LocalHost, tcpPort);
-
     // Init everything
     engine.NewGame(mode);
     emit sigServerMessage("Server started.\r\n");
-}
-/*****************************************************************************/
-void Server::StopServer()
-{
-    CloseClients();
-    tcpServer.close();
-}
-/*****************************************************************************/
-void Server::CloseClients()
-{
-    for (int i = 0; i < maximumPlayers; i++)
-    {
-        players[i].Close();
-    }
-}
-/*****************************************************************************/
-void Server::slotClientClosed(Place p)
-{
-    players[p].Close();
-    SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
-    SendPlayersList();
-
-    // FIXME: if a player has quit during a game, replace it by a bot
-}
-/*****************************************************************************/
-void Server::slotReadData(Place p)
-{
-    do
-    {
-        QByteArray data = players[p].GetData();
-        QDataStream in(data);
-        if (DecodePacket(in) == true)
-        {
-            if (DoAction(in, p) == false)
-            {
-                // bad packet received, exit decoding
-                return;
-            }
-        }
-    }
-    while (players[p].HasData());
 }
 /*****************************************************************************/
 bool Server::DoAction(QDataStream &in, Place p)
@@ -326,7 +209,7 @@ void Server::SendRequestIdentity(Place p)
     out << (quint8)4; // number of players in the current game
     out << (quint8)engine.GetGameInfo().gameMode;
     packet = BuildCommand(packet, Protocol::SERVER_REQUEST_IDENTITY);
-    players[p].SendData(packet);
+    SendToPlayer(p, packet);
 }
 /*****************************************************************************/
 void Server::SendShowBid(Contract c, bool slam, Place p)
@@ -378,7 +261,7 @@ void Server::SendBuildDiscard()
 {
     QByteArray packet;
     packet = BuildCommand(packet, Protocol::SERVER_BUILD_DISCARD);
-    players[engine.GetGameInfo().taker].SendData(packet);
+    SendToPlayer(engine.GetGameInfo().taker, packet);
 }
 /*****************************************************************************/
 void Server::SendShowCard(Card *c)
@@ -409,7 +292,7 @@ void Server::slotSendCards()
         QDataStream out(&packet, QIODevice::WriteOnly);
         out << engine.GetPlayer((Place)i).GetDeck();
         packet = BuildCommand(packet, Protocol::SERVER_SEND_CARDS);
-        players[i].SendData(packet);
+        SendToPlayer((Place)i, packet);
     }
 }
 /*****************************************************************************/
@@ -478,12 +361,16 @@ void Server::slotSendDealAgain()
 /*****************************************************************************/
 void Server::Broadcast(QByteArray &block)
 {
-    for (int i = 0; i < maximumPlayers; i++)
-    {
-        players[i].SendData(block);
-        // Calm down packets sending
-        qApp->processEvents(QEventLoop::AllEvents, 100);
-    }
+    SendToPlayer(ALL, block);
+}
+/*****************************************************************************/
+void Server::SendToPlayer(Place p, QByteArray &block)
+{
+    Signal sig;
+
+    sig.p = p;
+    sig.data = block;
+    mSubject.Notify(sig);
 }
 
 //=============================================================================

@@ -36,7 +36,7 @@ public:
     Table();
 
     // Helpers
-    void LoadConfiguration(int tcpPort = DEFAULT_PORT);
+    void LoadConfiguration(int port = DEFAULT_PORT);
     void CreateGame(Game::Mode gameMode, int nbPlayers = 4);
     void Start();
     void Stop();
@@ -46,15 +46,31 @@ public:
     Server &GetServer();
     ServerOptions &GetOptions();
     TarotEngine::Shuffle GetShuffle();
+    int GetNumberOfConnectedPlayers();
 
     // Setters
     void SetShuffle(const TarotEngine::Shuffle &s);
     void SaveConfiguration(const ServerOptions &opt);
 
+private slots:
+    void slotNewConnection();
+
+    // client sockets
+    void slotClientClosed(Place p);
+    void slotReadData(Place p);
+
 private:
+    void StopServer();
+    void CloseClients();
+
+    int maximumPlayers;
+    int tcpPort;
     Server server;
     ServerConfig serverConfig;
     Bot bots[3];
+
+    NetPlayer players[5]; // [3..5] players
+    QTcpServer tcpServer;
 };
 
 #endif // TABLE_H
