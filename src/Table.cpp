@@ -26,10 +26,120 @@
 
 /*****************************************************************************/
 Table::Table()
+    : maximumPlayers(4)
+    , tcpPort(DEFAULT_PORT)
 {
+    connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 /*****************************************************************************/
-void Table::LoadConfiguration(int tcpPort)
+void Table::slotNewConnection()
+{
+    while (tcpServer.hasPendingConnections())
+    {
+        QTcpSocket *cnx = tcpServer.nextPendingConnection();
+        if (GetNumberOfConnectedPlayers() == maximumPlayers)
+        {
+            SendErrorServerFull(cnx);
+        }
+        else
+        {
+            Place p = NOWHERE;
+
+            // Look for free space
+            for (int i = 0; i < maximumPlayers; i++)
+            {
+                if (players[i].IsFree() == true)
+                {
+                    p = (Place) i;
+                    break;
+                }
+            }
+
+            if (p != NOWHERE)
+            {
+                players[p].SetConnection(cnx, p);
+                connect(&players[p], SIGNAL(sigDisconnected(Place)), this, SLOT(slotClientClosed(Place)));
+                connect(&players[p], SIGNAL(sigReadyRead(Place)), this, SLOT(slotReadData(Place)));
+                SendRequestIdentity(p);
+            }
+            else
+            {
+                TLogError("Error, cannot find any free place.");
+            }
+        }
+    }
+}
+/*****************************************************************************/
+void Table::StopServer()
+{
+    CloseClients();
+    tcpServer.close();
+}
+/*****************************************************************************/
+void Table::CloseClients()
+{
+    for (int i = 0; i < maximumPlayers; i++)
+    {
+        players[i].Close();
+    }
+}
+/*****************************************************************************/
+void Table::slotClientClosed(Place p)
+{
+    players[p].Close();
+    SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
+    SendPlayersList();
+
+    if (!enable)
+    {
+        disconnectedPlayers++;
+    }
+
+    // FIXME: if a player has quit during a game, replace it by a bot
+}
+/*****************************************************************************/
+void Table::slotReadData(Place p)
+{
+    do
+    {
+        QByteArray data = players[p].GetData();
+        QDataStream in(data);
+        if (DecodePacket(in) == true)
+        {
+            if (DoAction(in, p) == false)
+            {
+                // bad packet received, exit decoding
+                return;
+            }
+        }
+    }
+    while (players[p].HasData());
+}
+/*****************************************************************************/
+void Table::Broadcast(QByteArray &block)
+{
+    for (int i = 0; i < maximumPlayers; i++)
+    {
+        players[i].SendData(block);
+        // Calm down packets sending
+        qApp->processEvents(QEventLoop::AllEvents, 100);
+    }
+}
+/*****************************************************************************/
+int Table::GetNumberOfConnectedPlayers()
+{
+    int p = 0;
+    for (int i = 0; i < maximumPlayers; i++)
+    {
+        if (players[i].IsFree() == false)
+        {
+            p++;
+        }
+    }
+    return p;
+}
+/*****************************************************************************/
+void Table::LoadConfiguration(int port)
 {
     serverConfig.Load();
 
@@ -40,7 +150,7 @@ void Table::LoadConfiguration(int tcpPort)
         bots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
     }
 
-    server.SetTcpPort(tcpPort);
+    tcpPort = tcpPort;
 }
 /*****************************************************************************/
 void Table::SaveConfiguration(const ServerOptions &opt)
@@ -56,12 +166,58 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers)
     {
         return;
     }
-    server.SetMaximumPlayers(nbPlayers);
+    maximumPlayers = nbPlayers;
+
+    StopServer();
+
+    if (tcpServer.isListening())
+    {
+        tcpServer.resumeAccepting();
+    }
+    else
+    {
+        // Add few players to the maximum allowed to manage pending connections
+        tcpServer.setMaxPendingConnections(maximumPlayers + 3);
+        tcpServer.listen(QHostAddress::LocalHost, tcpPort);
+    }
+    enable = true;
+
+    // Add few players to the maximum allowed to manage pending connections
+    tcpServer.setMaxPendingConnections(maximumPlayers + 3);
+    tcpServer.listen(QHostAddress::LocalHost, tcpPort);
+
     server.NewServerGame(gameMode);
 }
 /*****************************************************************************/
 void Table::Stop()
 {
+    // 1. Disable network protocol
+        enable = false;
+
+        if (tcpServer.isListening())
+        {
+            // 2. Don't accept any new connections
+            tcpServer.pauseAccepting();
+
+            // 3. Send a disconnection message to all the connected players
+            disconnectedPlayers = 0;
+            SendDisconnect();
+
+            int timeout = 20;
+            while (timeout)
+            {
+                qApp->processEvents(QEventLoop::AllEvents, 100);
+                if (disconnectedPlayers >= maximumPlayers)
+                {
+                    break;
+                }
+                timeout--;
+            }
+
+            // 5. Close sokets
+            //CloseClients();
+        }
+
     server.StopServer();
 }
 /*****************************************************************************/

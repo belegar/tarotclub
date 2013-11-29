@@ -1,4 +1,4 @@
-# TarotClub Qt project file
+# TarotClub project file
 #
 # TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
 # Copyright (C) 2003-2999 - Anthony Rabine
@@ -25,6 +25,7 @@ UI_SOURCES_DIR = ./src
 OBJECTS_DIR = ./obj
 DESTDIR = ./bin
 
+# Qt build configuration
 # The search path to find supplied files
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/client
@@ -101,7 +102,8 @@ HEADERS = AboutWindow.h \
     PopupItem.h \
     Log.h \
     Observer.h \
-    ByteStream.h
+    ThreadQueue.h \
+	ByteStream.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
@@ -154,6 +156,3 @@ SOURCES = AboutWindow.cpp \
     PopupItem.cpp \
     Log.cpp
 
-# =============================================================================
-# End of file TarotClub.pro
-# =============================================================================
