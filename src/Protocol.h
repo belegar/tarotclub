@@ -30,9 +30,9 @@
 #include <QDataStream>
 #include "Player.h"
 
-class Protocol : public QObject
+
+class Protocol
 {
-    Q_OBJECT
 
 public:
     enum Command
@@ -74,10 +74,8 @@ public:
         SERVER_DISCONNECT       = 0x88  //!< Ask clients to quit properly
     };
 
-
-    bool DecodePacket(QDataStream &in);
-
-    QByteArray BuildCommand(QByteArray &packet, Command cmd);
+    static QByteArray BuildCommand(QByteArray &packet, Command cmd);
+    static bool DecodePacket(QDataStream &in);
 };
 
 #endif // PROTOCOL_H

@@ -199,7 +199,7 @@ void TarotEngine::NewDeal()
 
     // 2. Give cards to all players
     CreateDeal();
-    emit sigSendCards();
+    SendSignal(SIG_SEND_CARDS);
 
     // 3. Start the bid sequence
     BidSequence();
@@ -209,7 +209,7 @@ void TarotEngine::StartDeal()
 {
     cntSyncStart = 0;
     gameState.StartDeal();
-    emit sigStartDeal();
+    SendSignal(SIG_START_DEAL);
 }
 /*****************************************************************************/
 bool TarotEngine::SyncDog()
@@ -322,14 +322,13 @@ void TarotEngine::GameSateMachine()
         currentTrick.clear();
         cntSyncTrick = 0;
         gameState.sequence = Game::SYNC_TRICK;
-        emit sigEndOfTrick(gameState.currentPlayer);
-
+        SendSignal(SIG_END_OF_TRICK, (Place)gameState.currentPlayer);
     }
     else
     {
         QString message = "Turn: " + QString().setNum(gameState.trickCounter) + " player: " + Util::ToString(gameState.currentPlayer);
         TLogInfo(message);
-        emit sigPlayCard(gameState.currentPlayer);
+        SendSignal(SIG_PLAY_CARD, (Place)gameState.currentPlayer);
     }
 }
 /*****************************************************************************/
@@ -354,7 +353,16 @@ void TarotEngine::EndOfDeal()
     deal.GenerateEndDealLog(gameState, list);
 
     cntSyncReady = 0;
-    emit sigEndOfDeal();
+    SendSignal(SIG_END_OF_DEAL);
+}
+/*****************************************************************************/
+void TarotEngine::SendSignal(TarotEngine::Signal s, Place p, Contract c)
+{
+    SignalInfo signal;
+    signal.sig = s;
+    signal.p = p;
+    signal.c = c;
+    mSubject.Notify(signal);
 }
 /*****************************************************************************/
 void TarotEngine::BidSequence()
@@ -368,7 +376,7 @@ void TarotEngine::BidSequence()
             // All the players have passed, deal again new cards
             cntSyncReady = 0;
             gameState.sequence = Game::SYNC_READY;
-            emit sigDealAgain();
+            SendSignal(SIG_DEAL_AGAIN);
         }
         else
         {
@@ -393,14 +401,19 @@ void TarotEngine::BidSequence()
             {
                 cntSyncDog = 0;
                 gameState.sequence = Game::SYNC_DOG; // Waiting for the taker's discard
-                emit sigShowDog();
+                SendSignal(SIG_SHOW_DOG);
             }
         }
     }
     else
     {
-        emit sigRequestBid(gameState.contract, gameState.currentPlayer);
+        SendSignal(SIG_REQUEST_BID, (Place)gameState.currentPlayer, (Contract)gameState.contract);
     }
+}
+/*****************************************************************************/
+void TarotEngine::RegisterListener(Observer<TarotEngine::SignalInfo> &listener)
+{
+    mSubject.Attach(listener);
 }
 /*****************************************************************************/
 void TarotEngine::CreateDeal()

@@ -25,8 +25,6 @@
 #ifndef _TAROTENGINE_H
 #define _TAROTENGINE_H
 
-#include <QObject>
-#include <QMap>
 #include "Card.h"
 #include "Deck.h"
 #include "Deal.h"
@@ -35,12 +33,11 @@
 #include "defines.h"
 #include "Game.h"
 #include "ServerConfig.h"
+#include "Observer.h"
 
 /*****************************************************************************/
-class TarotEngine : public QObject
+class TarotEngine
 {
-    Q_OBJECT
-
 public:
     enum ShuffleType
     {
@@ -54,6 +51,25 @@ public:
         ShuffleType type;
         QString     file;
         int         seed;
+    };
+
+    enum Signal
+    {
+        SIG_REQUEST_BID,    // void sigRequestBid(Contract c, Place p);
+        SIG_DEAL_AGAIN,     // void sigDealAgain();
+        SIG_PLAY_CARD,      // void sigPlayCard(Place p);
+        SIG_END_OF_TRICK,   // void sigEndOfTrick(Place p);
+        SIG_END_OF_DEAL,    // void sigEndOfDeal();
+        SIG_SEND_CARDS,     // void sigSendCards();
+        SIG_SHOW_DOG,       // void sigShowDog();
+        SIG_START_DEAL      // void sigStartDeal();
+    };
+
+    struct SignalInfo
+    {
+        Signal sig;
+        Place p;
+        Contract c;
     };
 
     TarotEngine();
@@ -72,6 +88,7 @@ public:
     void SyncBid();
     void SyncHandle();
     void BidSequence();
+    void RegisterListener(Observer<SignalInfo> &listener);
 
     // Getters
     Player &GetPlayer(Place p);
@@ -87,22 +104,13 @@ public:
     void SetCard(Card *c, Place p);
     Contract SetBid(Contract c, bool slam, Place p);
 
-signals:
-    void sigRequestBid(Contract c, Place p);
-    void sigDealAgain();
-    void sigPlayCard(Place p);
-    void sigEndOfTrick(Place p);
-    void sigEndOfDeal();
-    void sigSendCards();
-    void sigShowDog();
-    void sigStartDeal();
-
 private:
     Player      players[5];     // [3..5] players
     Deck        currentTrick;   // the main deck of cards
     Deal        deal;
     Game        gameState;
     Shuffle     shuffle;
+    Subject<SignalInfo> mSubject;
 
     // synchonization counters
     int         cntSyncDog;     // players saw the dog
@@ -116,10 +124,10 @@ private:
     bool IsCardValid(Card *c, Place p);
     bool HasCard(Card *c, Place p);
     void CreateDeal();
-
     void ShowDog();
     void GameSateMachine();
     void EndOfDeal();
+    void SendSignal(Signal s, Place p = NOWHERE, Contract c = PASS);
 
 };
 

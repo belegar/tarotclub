@@ -33,9 +33,8 @@
 #include "ServerConfig.h"
 
 /*****************************************************************************/
-class Server : public Protocol
+class Server : public Observer<TarotEngine::SignalInfo>
 {
-    Q_OBJECT
 
 public:
     Server();
@@ -68,6 +67,8 @@ private:
     bool enable;
     int disconnectedPlayers;
 
+
+    void Update(const TarotEngine::SignalInfo &info);
     void CloseClients();
     bool DoAction(QDataStream &in, Place p);
 
@@ -88,7 +89,7 @@ private:
     void SendShowCard(Card *c);
     void SendShowHandle(Deck &handle, Place p);
 
-private slots:
+
     // TarotClub protocol
     void slotSendCards();
     void slotNewConnection();

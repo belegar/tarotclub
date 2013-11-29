@@ -337,7 +337,7 @@ void Client::slotSocketReadData()
     do
     {
         QDataStream in(&socket);
-        if (DecodePacket(in) == true)
+        if (Protocol::DecodePacket(in) == true)
         {
             if (DoAction(in) == false)
             {
@@ -566,7 +566,7 @@ void Client::SendIdentity()
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << player.GetIdentity();
-    packet = BuildCommand(packet, Protocol::CLIENT_INFOS);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_INFOS);
     socket.write(packet);
     socket.flush();
 }
@@ -580,7 +580,7 @@ void Client::SendChatMessage(const QString &message)
     // We add the nickname before the message
     msg = player.GetIdentity().name + "> " + message;
     out << msg;
-    packet = BuildCommand(packet, Protocol::CLIENT_MESSAGE);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_MESSAGE);
     socket.write(packet);
     socket.flush();
 }
@@ -588,7 +588,7 @@ void Client::SendChatMessage(const QString &message)
 void Client::SendReady()
 {
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_READY);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_READY);
     socket.write(packet);
     socket.flush();
 }
@@ -596,7 +596,7 @@ void Client::SendReady()
 void Client::SendError()
 {
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_ERROR);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_ERROR);
     socket.write(packet);
     socket.flush();
 }
@@ -614,7 +614,7 @@ void Client::SendBid(Contract c, bool slam)
     {
         out << (quint8)0;
     }
-    packet = BuildCommand(packet, Protocol::CLIENT_BID);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_BID);
     socket.write(packet);
     socket.flush();
 }
@@ -624,7 +624,7 @@ void Client::SendDiscard(const Deck &discard)
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << discard;
-    packet = BuildCommand(packet, Protocol::CLIENT_DISCARD);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_DISCARD);
     socket.write(packet);
     socket.flush();
 }
@@ -634,7 +634,7 @@ void Client::SendHandle()
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << handleDeck;
-    packet = BuildCommand(packet, Protocol::CLIENT_HANDLE);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_HANDLE);
     socket.write(packet);
     socket.flush();
 }
@@ -646,7 +646,7 @@ void Client::SendCard(Card *c)
         QByteArray packet;
         QDataStream out(&packet, QIODevice::WriteOnly);
         out << (quint8)c->GetId();
-        packet = BuildCommand(packet, Protocol::CLIENT_CARD);
+        packet = Protocol::BuildCommand(packet, Protocol::CLIENT_CARD);
         socket.write(packet);
         socket.flush();
     }
@@ -661,7 +661,7 @@ void Client::SendSyncDog()
     info.sequence = Game::IDLE;
 
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_DOG);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_SYNC_DOG);
     socket.write(packet);
     socket.flush();
 }
@@ -671,7 +671,7 @@ void Client::SendSyncStart()
     info.sequence = Game::IDLE;
 
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_START);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_SYNC_START);
     socket.write(packet);
     socket.flush();
 }
@@ -681,7 +681,7 @@ void Client::SendSyncCard()
     info.sequence = Game::IDLE;
 
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_CARD);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_SYNC_CARD);
     socket.write(packet);
     socket.flush();
 }
@@ -691,7 +691,7 @@ void Client::SendSyncBid()
     info.sequence = Game::IDLE;
 
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_BID);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_SYNC_BID);
     socket.write(packet);
     socket.flush();
 }
@@ -702,7 +702,7 @@ void Client::SendSyncTrick()
     currentTrick.clear();
 
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_TRICK);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_SYNC_TRICK);
     socket.write(packet);
     socket.flush();
 }
@@ -710,7 +710,7 @@ void Client::SendSyncTrick()
 void Client::SendSyncHandle()
 {
     QByteArray packet;
-    packet = BuildCommand(packet, Protocol::CLIENT_SYNC_HANDLE);
+    packet = Protocol::BuildCommand(packet, Protocol::CLIENT_SYNC_HANDLE);
     socket.write(packet);
     socket.flush();
 }

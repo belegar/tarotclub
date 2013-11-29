@@ -38,7 +38,7 @@
 #include "Deal.h"
 
 /*****************************************************************************/
-class Client : public Protocol
+class Client : public QObject
 {
     Q_OBJECT
 
