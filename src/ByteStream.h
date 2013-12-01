@@ -4,8 +4,7 @@
 #include <deque>
 #include <cstdint>
 #include <iostream>
-
-typedef std::deque<std::uint8_t> ByteArray;
+#include "ByteArray.h"
 
 class ByteStream
 {
@@ -19,25 +18,25 @@ public:
     }
 
     /**
-     * @brief Sets the write index to a specified position in the array
+     * @brief Sets the write/read index to a specified position in the array
      * @param pos
      */
     void Seek(std::uint32_t pos)
     {
-        if (pos < mArray.size())
+        if (pos < mArray.Size())
         {
             mIndex = pos;
         }
         else
         {
-            mIndex = mArray.size();
+            mIndex = mArray.Size();
         }
     }
 
     void Print()
     {
         std::cout << "Array: ";
-        for (std::uint32_t i = 0; i < mArray.size(); i++)
+        for (std::uint32_t i = 0; i < mArray.Size(); i++)
         {
             std::cout << std::hex << (std::uint32_t)mArray[i] << ", ";
         }
@@ -46,18 +45,17 @@ public:
 
     ByteStream& operator >> (std::uint8_t &d)
     {
-        if (mArray.size() >= 1U)
+        if (mArray.Size() >= 1U)
         {
-            d = mArray.front();
-            mArray.pop_front();
+            d = mArray.PopFront();
         }
 
         // Adjust index if out of limits
-        if (mIndex >= mArray.size())
+        if (mIndex >= mArray.Size())
         {
-            if (mArray.size())
+            if (mArray.Size())
             {
-                mIndex = mArray.size() - 1U;
+                mIndex = mArray.Size() - 1U;
             }
             else
             {
@@ -73,7 +71,7 @@ public:
         std::uint16_t hword;
 
         d = 0U;
-        if (mArray.size() >= 2U)
+        if (mArray.Size() >= 2U)
         {
             for (std::uint8_t i = 0U; i < 2U; i++)
             {
@@ -91,7 +89,7 @@ public:
         std::uint32_t word;
 
         d = 0U;
-        if (mArray.size() >= 4U)
+        if (mArray.Size() >= 4U)
         {
             for (std::uint8_t i = 0U; i < 4U; i++)
             {
@@ -103,12 +101,28 @@ public:
         return *this;
     }
 
+    ByteStream& operator >> (std::string &s)
+    {
+        std::uint32_t size;
+        std::uint8_t byte;
+
+        *this >> size;
+        for (std::uint32_t i = 0U; i < size; i++)
+        {
+            *this >> byte;
+            s.push_back(static_cast<char>(byte));
+        }
+        return *this;
+    }
+
+    //-----------------------------------------------------------------------
+
     ByteStream& operator << (const std::uint8_t &d)
     {
-        if (mIndex >= mArray.size())
+        if (mIndex >= mArray.Size())
         {
             // Append data at the end
-            mArray.push_back(d);
+            mArray.PushBack(d);
         }
         else
         {
@@ -164,20 +178,6 @@ public:
         {
             byte = static_cast<std::uint8_t>(s.at(i));
             *this << byte;
-        }
-        return *this;
-    }
-
-    ByteStream& operator >> (std::string &s)
-    {
-        std::uint32_t size;
-        std::uint8_t byte;
-
-        *this >> size;
-        for (std::uint32_t i = 0U; i < size; i++)
-        {
-            *this >> byte;
-            s.push_back(static_cast<char>(byte));
         }
         return *this;
     }
