@@ -25,7 +25,6 @@ UI_SOURCES_DIR = ./src
 OBJECTS_DIR = ./obj
 DESTDIR = ./bin
 
-# Qt build configuration
 # The search path to find supplied files
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/client
@@ -103,7 +102,8 @@ HEADERS = AboutWindow.h \
     Log.h \
     Observer.h \
     ThreadQueue.h \
-	ByteStream.h
+    ByteStream.h \
+    ../src/ByteArray.h
 
 FORMS = AboutUI.ui \
     AvatarsUI.ui \
