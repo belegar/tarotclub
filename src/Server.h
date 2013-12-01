@@ -25,18 +25,19 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QtNetwork>
+#include <QByteArray>
+#include <thread>
 #include "NetPlayer.h"
 #include "Protocol.h"
 #include "TarotEngine.h"
 #include "Bot.h"
 #include "ServerConfig.h"
 #include "Observer.h"
+#include "ThreadQueue.h"
 
 /*****************************************************************************/
 class Server : public Observer<TarotEngine::SignalInfo>
 {
-    Q_OBJECT
 
 public:
     struct Signal
@@ -50,17 +51,23 @@ public:
     // Helpers
     void NewServerGame(Game::Mode mode);
     void RegisterListener(Observer<Signal> &sig);
+    void Start();
+    void ExecutePacket(const QByteArray &packet);
 
     // Getters
     TarotEngine &GetEngine();
 
-signals:
-    void sigServerMessage(QString const &);
-
 private:
     TarotEngine engine;
     Subject<Signal> mSubject;
+    std::thread mThread;
+    ThreadQueue<QByteArray> mQueue; //!< Queue of network packets received
 
+    /**
+     * @brief Main thread loop
+     */
+    void Run();
+    static void EntryPoint(void * pthis);
 
     void Update(const TarotEngine::SignalInfo &info);
     bool DoAction(QDataStream &in, Place p);
@@ -77,7 +84,6 @@ private:
     void SendBuildDiscard();
     void SendShowCard(Card *c);
     void SendShowHandle(Deck &handle, Place p);
-
 
     // TarotClub protocol
     void slotSendCards();
