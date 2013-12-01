@@ -34,7 +34,7 @@ using namespace std;
 
 /*****************************************************************************/
 Player::Player()
-    : place(NOWHERE)
+    : mPlace(NOWHERE)
 {
 
 }
@@ -109,9 +109,9 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     }
 
     // Some indications on the player cards in hand
-    for (i = 0; i < myDeck.count(); i++)
+    for (i = 0; i < mDeck.count(); i++)
     {
-        c = myDeck.at(i);
+        c = mDeck.at(i);
         if (c->GetSuit() == Card::TRUMPS)
         {
             hasTrump = true;
@@ -226,7 +226,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
 /*****************************************************************************/
 bool Player::IsFree()
 {
-    if (place == NOWHERE)
+    if (mPlace == NOWHERE)
     {
         return false;
     }
@@ -238,27 +238,27 @@ bool Player::IsFree()
 /*****************************************************************************/
 void Player::SetIdentity(const Identity &ident)
 {
-    identity = ident;
+    mIdentity = ident;
 }
 /*****************************************************************************/
 void Player::SetPlace(Place p)
 {
-    place = p;
+    mPlace = p;
 }
 /*****************************************************************************/
 Identity &Player::GetIdentity()
 {
-    return identity;
+    return mIdentity;
 }
 /*****************************************************************************/
 Place Player::GetPlace()
 {
-    return place;
+    return mPlace;
 }
 /*****************************************************************************/
 Deck &Player::GetDeck()
 {
-    return myDeck;
+    return mDeck;
 }
 
 //=============================================================================

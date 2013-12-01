@@ -52,9 +52,9 @@ public:
     void SetPlace(Place p);
 
 private:
-    Identity    identity;   //!< player's identification
-    Deck        myDeck;     //!< players cards
-    Place       place;      //!< assigned place by the server around the table
+    Identity    mIdentity;   //!< player's identification
+    Deck        mDeck;     //!< players cards
+    Place       mPlace;      //!< assigned place by the server around the table
 };
 
 #endif // _PLAYER_H
