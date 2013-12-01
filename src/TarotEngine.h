@@ -96,6 +96,7 @@ public:
     Game &GetGameInfo();
     Deal &GetDeal();
     TarotEngine::Shuffle GetShuffle();
+    int GetNumberOfCurrentPlayers();
 
     // Setters
     void SetShuffle(const Shuffle &s);

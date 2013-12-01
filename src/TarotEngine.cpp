@@ -142,6 +142,19 @@ void TarotEngine::StopGame()
     gameState.Stop();
 }
 /*****************************************************************************/
+int TarotEngine::GetNumberOfCurrentPlayers()
+{
+    int count = 0;
+    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    {
+        if (players[i].IsFree() == false)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+/*****************************************************************************/
 Player &TarotEngine::GetPlayer(Place p)
 {
     return players[p];
@@ -418,6 +431,8 @@ void TarotEngine::RegisterListener(Observer<TarotEngine::SignalInfo> &listener)
 /*****************************************************************************/
 void TarotEngine::CreateDeal()
 {
+    QString cards;
+
     currentTrick.clear();
 
     if (shuffle.type == CUSTOM_DEAL)
@@ -459,14 +474,16 @@ void TarotEngine::CreateDeal()
     {
         players[i].GetDeck().clear();
         players[i].GetDeck().append(currentTrick.mid(i * n, n));
-        TLogInfo("Player " + Util::ToString((Place)i) + " deck: " + players[i].GetDeck().GetCardList());
+        cards = players[i].GetDeck().GetCardList().data();
+        TLogInfo("Player " + Util::ToString((Place)i) + " deck: " + cards);
     }
 
     // Remaining cards go to the dog
     Deck dog;
     dog.append(currentTrick.mid(gameState.numberOfPlayers * n));
+    cards = dog.GetCardList().data();
 
-    TLogInfo("Dog deck: " + dog.GetCardList());
+    TLogInfo("Dog deck: " + cards);
 
     deal.SetDog(dog, NO_TEAM);
     currentTrick.clear();
