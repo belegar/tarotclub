@@ -35,7 +35,7 @@ public:
     TarotDeck();
 
     static void Initialize();
-    static Card *GetCard(int id);
+    static Card *GetCard(int index);
     static Card *GetCard(const std::string &name);
 
 private:

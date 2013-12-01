@@ -36,40 +36,16 @@ TarotDeck::TarotDeck()
 void TarotDeck::Initialize()
 {
     int i, j, n;
-    Card::Suit suit;
-    int id;
 
     // The 4 suits
     for (i = 0; i < 4; i++)
     {
-        if (i == 0)
-        {
-            suit = Card::SPADES;
-            id = 0;
-        }
-        else if (i == 1)
-        {
-            suit = Card::HEARTS;
-            id = 14;
-        }
-        else if (i == 2)
-        {
-            suit = Card::CLUBS;
-            id = 28;
-        }
-        else
-        {
-            suit = Card::DIAMONDS;
-            id = 42;
-        }
-
         // From ace to the king, 14 cards
         for (j = 0; j < 14; j++)
         {
             n = i * 14 + j;
-            mCards[n].SetSuit(suit);
+            mCards[n].SetSuit(i);
             mCards[n].SetValue(j + 1);  // [1..14]
-            mCards[n].SetId(id + j);
 
             if (j == 10) // Valet
             {
@@ -99,7 +75,6 @@ void TarotDeck::Initialize()
     {
         mCards[i].SetValue(i - 56); // [0..21]
         mCards[i].SetSuit(Card::TRUMPS);
-        mCards[i].SetId(i);
 
         // More points for the oudlers
         if ((i == 56) ||    // Fool
@@ -115,15 +90,15 @@ void TarotDeck::Initialize()
     }
 }
 /*****************************************************************************/
-Card *TarotDeck::GetCard(int id)
+Card *TarotDeck::GetCard(int index)
 {
-    if ((id < 0) || (id > 77))
+    if ((index < 0) || (index > 77))
     {
         return NULL;
     }
     else
     {
-        return (&mCards[id]);
+        return (&mCards[index]);
     }
 }
 /*****************************************************************************/
