@@ -25,16 +25,18 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include <QObject>
-#include <QByteArray>
-#include <QDataStream>
+#include <cstdint>
 #include "Player.h"
-
+#include "ByteArray.h"
+#include "ByteStream.h"
 
 class Protocol
 {
 
 public:
+
+    static const std::uint8_t VERSION;
+
     enum Command
     {
         // client -> server
@@ -74,8 +76,21 @@ public:
         SERVER_DISCONNECT       = 0x88  //!< Ask clients to quit properly
     };
 
-    static QByteArray BuildCommand(QByteArray &packet, Command cmd);
-    static bool DecodePacket(QDataStream &in);
+    /**
+     * @brief BuildCommand
+     * @param packet
+     * @param cmd
+     * @param uuid User Uniquer Identifier
+     * @return
+     */
+    static ByteArray BuildCommand(const ByteArray &packet, Command cmd, std::uint32_t uuid);
+
+    /**
+     * @brief DecodePacket
+     * @param packet
+     * @return The number of valid packets found inside the byte array
+     */
+    static std::uint8_t DecodePacket(const ByteArray &data);
 };
 
 #endif // PROTOCOL_H

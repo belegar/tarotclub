@@ -24,56 +24,73 @@
  */
 
 #include "Protocol.h"
-#include <QCoreApplication>
 #include "Log.h"
 
-/*****************************************************************************/
-QByteArray Protocol::BuildCommand(QByteArray &packet, Command cmd)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QT_STREAMVER);
-    out << (quint16)0 << (quint8)cmd;
-    block += packet;
-    out.device()->seek(block.size());
-    out << (quint16)0xFFFF;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
+const std::uint8_t Protocol::VERSION = 1U;
 
+static const std::uint16_t HEADER_SIZE = 5U;
+
+/*****************************************************************************/
+ByteArray Protocol::BuildCommand(const ByteArray &packet, Command cmd, std::uint32_t uuid)
+{
+    ByteArray block;
+    ByteStream out(block);
+
+    // Build the header
+    out << (quint16)(packet.Size() + HEADER_SIZE) << (quint8)Protocol::VERSION << uuid << (quint8)cmd;
+    // Append the data
+    block += packet;
     return block;
 }
 /*****************************************************************************/
-bool Protocol::DecodePacket(QDataStream &in)
+std::uint8_t Protocol::DecodePacket(const ByteArray &data)
 {
-    qint64 bytes = in.device()->bytesAvailable();
-    quint16 blockSize = 0;
-    unsigned int total = 0;
+    bool found = true;
+    std::uint8_t count = 0U;
+    std::uint16_t offset = 0U;
 
-    if (bytes < (qint64)sizeof(quint16))
+    if (data.Size() < HEADER_SIZE)
     {
-        // Gets remaining data to avoid infinite loop
-        quint8 dummy;
-        in >> dummy;
-        TLogError("Error: buffer too small!");
-        return false;
-    }
-    in >> blockSize;
-
-    // end of packet?
-    if (blockSize == 0xFFFF)
-    {
-        return false;
+        return 0U;
     }
 
-    total = blockSize + 2;
-    if (bytes < total)
+    // Search for valid packets in the data stream
+    while (found)
     {
-        return false;
+        // First half word is the data size
+        std::uint16_t blockSize = data.GetUint16(offset);
+
+        if ((blockSize <= data.Size()) &&
+             blockSize >= HEADER_SIZE)
+        {
+            // Get the protocol version
+            std::uint8_t version = data[offset + 2U];
+            if (version == Protocol::VERSION)
+            {
+                count++;
+                // Is there another packet available ?
+                if (blockSize == data.Size())
+                {
+                    found = false;
+                }
+                else
+                {
+                    // Jump to next packet
+                    offset += blockSize;
+                }
+            }
+            else
+            {
+                found = false;
+            }
+        }
+        else
+        {
+            found = false;
+            TLogError("Packet too small.");
+        }
     }
-    else
-    {
-        return true;
-    }
+    return count;
 }
 
 
