@@ -81,9 +81,13 @@ void Utilities::TestByteStream()
     // Basic test: serialize a byte and deserialize it
     val8_in = 0x42U;
     stream << val8_in;
-    QCOMPARE(block.size(), 1U);
+    std::uint32_t size = 1U;
+
+    QCOMPARE(block.Size(), size);
     stream >> val8_out;
-    QCOMPARE(block.size(), 0U);
+
+    size = 0U;
+    QCOMPARE(block.Size(), size);
 
     QCOMPARE(val8_in, val8_out);
 

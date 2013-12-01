@@ -7,6 +7,7 @@
 
 #include "tst_tarot_base.h"
 #include "Card.h"
+#include "Deck.h"
 #include "TarotDeck.h"
 
 TarotBase::TarotBase()
@@ -35,6 +36,47 @@ void TarotBase::TestCardClass()
     QCOMPARE(total, 91.0f);
 
     std::cout << "\n";
+}
+
+void TarotBase::TestDeckClass()
+{
+    Deck myDeck;
+
+    // Add all tarot cards into the deck
+    for (std::uint32_t i = 0U; i < 78U; i++)
+    {
+        Card *c = TarotDeck::GetCard(i);
+        myDeck.append(c);
+    }
+
+    QCOMPARE(myDeck.size(), 78);
+
+    myDeck.clear();
+
+    QCOMPARE(myDeck.size(), 0);
+
+    // Build a string list of cards
+    std::string listOfCards;
+    for (std::uint32_t i = 0U; i < 78U; i++)
+    {
+        Card *c = TarotDeck::GetCard(i);
+        listOfCards += c->GetName();
+        if (i != 77)
+        {
+            listOfCards += ";";
+        }
+    }
+
+    myDeck.SetCards(listOfCards);
+
+    QCOMPARE(myDeck.size(), 78);
+
+    // Spades, Diamonds, Trumps, Clubs, Hearts
+    myDeck.Sort("SDTCH");
+
+    std::cout << "Deck ordered: \n";
+    std::cout << myDeck.GetCardList() << std::endl;
+
 }
 
 

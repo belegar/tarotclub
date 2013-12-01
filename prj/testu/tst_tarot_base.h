@@ -15,7 +15,7 @@ public:
 
 private Q_SLOTS:
     void TestCardClass();
-
+    void TestDeckClass();
 
 private:
 
