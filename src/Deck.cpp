@@ -43,9 +43,9 @@ Deck::Deck()
     owner = NO_TEAM;
 }
 /*****************************************************************************/
-QString Deck::GetCardList()
+std::string Deck::GetCardList()
 {
-    QString list;
+    std::string list;
 
     for (int i = 0; i < size(); i++)
     {
@@ -71,19 +71,7 @@ void Deck::Shuffle(int seed)
     }
 }
 /*****************************************************************************/
-Card *Deck::GetCardById(int id)
-{
-    for (int i = 0; i < this->size(); i++)
-    {
-        if (this->at(i)->GetId() == id)
-        {
-            return this->at(i);
-        }
-    }
-    return NULL;
-}
-/*****************************************************************************/
-Card *Deck::GetCardByName(const QString &i_name)
+Card *Deck::GetCardByName(const std::string &i_name)
 {
     for (int i = 0; i < this->size(); i++)
     {
@@ -187,23 +175,26 @@ Card *Deck::HighestSuit()
  */
 void Deck::Sort(const std::string &order)
 {
-    /*
-    // Depending of the sorting contents, give an ID
+    std::uint16_t weight[5];
+
     if (order.size() == 5)
     {
-        std::string::iterator strIter;
-        for(strIter = strIter.begin(); strIter != my_string.end(); my_iter++)
+        // Generate a weight for each suit
+        for (int i = 0; i < 5; i++)
         {
-            cout<<*my_iter;
+            std::string letter; letter.push_back(order[4-i]);
+            weight[Card::ToSuit(letter)] = 100 * i;
         }
 
+        // Depending of the sorting contents, give a weight to each card
         for (int i = 0; i < this->count(); i++)
         {
+            Card *c = this->at(i);
 
+            std::uint16_t id = weight[c->GetSuit()] + c->GetValue();
+            c->SetId(id);
         }
     }
-    */
-
 
     if (this->size() != 0)
     {
@@ -221,22 +212,40 @@ void Deck::SetOwner(Team team)
     owner = team;
 }
 /*****************************************************************************/
-int Deck::SetCards(const QString &cards)
+int Deck::SetCards(const std::string &cards)
 {
-    QStringList list = cards.split(';', QString::SkipEmptyParts);
     int count = 0;
+    std::size_t found = std::string::npos;
+    int pos = 0;
 
     // Clear this deck before setting new cards
     this->clear();
-    for (int i=0; i<list.size(); i++)
+
+    do
     {
-        Card *c = TarotDeck::GetCard(list[i]);
+        int size;
+        found = cards.find(';', pos);
+        if (found != std::string::npos)
+        {
+            // calculate size of the string between the delimiters
+            size = found - pos;
+        }
+        else
+        {
+            // last card: get remaining characters
+            size = cards.size() - pos;
+        }
+
+        std::string cardName = cards.substr(pos, size);
+        pos = found + 1;
+        Card *c = TarotDeck::GetCard(cardName);
         if (c != NULL)
         {
             count++;
             this->append(c);
         }
     }
+    while (found != std::string::npos);
     return count;
 }
 /*****************************************************************************/

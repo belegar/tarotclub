@@ -25,98 +25,87 @@
 
 #include "Card.h"
 #include <sstream>
+#include <map>
+
+
+const std::uint8_t Card::SPADES    = 0U;
+const std::uint8_t Card::HEARTS    = 1U;
+const std::uint8_t Card::DIAMONDS  = 2U;
+const std::uint8_t Card::CLUBS     = 3U;
+const std::uint8_t Card::TRUMPS    = 4U;
 
 /*****************************************************************************/
 std::string Card::GetName()
 {
     std::stringstream name;
 
-    name << value;
-    if (suit == SPADES)
-    {
-        name << "-S"; // spades
-    }
-    else if (suit == HEARTS)
-    {
-        name << "-H"; // heart
-    }
-    else if (suit == CLUBS)
-    {
-        name << "-C"; // club
-    }
-    else if (suit == DIAMONDS)
-    {
-        name << "-D"; // diamond
-    }
-    else
-    {
-        name << "-T"; // Trumps
-    }
+    name << mValue << "-" << Card::ToString(mSuit);
     return name.str();
 }
 /*****************************************************************************/
 Card::Card()
-    : suit(Card::CLUBS)
-    , points(0.0)
-    , id(0)
-    , owner(NOWHERE)
+    : mSuit(Card::CLUBS)
+    , mPoints(0.0)
+    , mId(0)
+    , mOwner(NOWHERE)
+    , mValue(0)
 {
 }
 /*****************************************************************************/
 void Card::SetSuit(Card::Suit s)
 {
-    suit = s;
+    mSuit = s;
 }
 /*****************************************************************************/
 void Card::SetPoints(float p)
 {
-    points = p;
+    mPoints = p;
 }
 /*****************************************************************************/
 void Card::SetId(int i)
 {
-    id = i;
+    mId = i;
 }
 /*****************************************************************************/
 void Card::SetOwner(Place p)
 {
-    owner = p;
+    mOwner = p;
 }
 /*****************************************************************************/
 void Card::SetValue(int v)
 {
-    value = v;
+    mValue = v;
 }
 /*****************************************************************************/
 Card::Suit Card::GetSuit()
 {
-    return suit;
+    return mSuit;
 }
 /*****************************************************************************/
 float Card::GetPoints()
 {
-    return points;
+    return mPoints;
 }
 /*****************************************************************************/
 int Card::GetId()
 {
-    return id;
+    return mId;
 }
 /*****************************************************************************/
 Place Card::GetOwner()
 {
-    return owner;
+    return mOwner;
 }
 /*****************************************************************************/
 int Card::GetValue()
 {
-    return value;
+    return mValue;
 }
 /*****************************************************************************/
 bool Card::IsFool()
 {
-    if ((suit == Card::TRUMPS) &&
-            (value == 0))
+    if ((mSuit == Card::TRUMPS) &&
+            (mValue == 0))
     {
         return true;
     }
@@ -124,6 +113,30 @@ bool Card::IsFool()
     {
         return false;
     }
+}
+/*****************************************************************************/
+Card::Suit Card::ToSuit(const std::string &name)
+{
+    std::map<std::string, Suit> m;
+    m["T"] = TRUMPS;
+    m["H"] = HEARTS;
+    m["D"] = DIAMONDS;
+    m["C"] = CLUBS;
+    m["S"] = SPADES;
+
+    return m[name];
+}
+/*****************************************************************************/
+std::string Card::ToString(Card::Suit suit)
+{
+    std::map<Suit, std::string> m;
+    m[TRUMPS]   = "T";
+    m[HEARTS]   = "H";
+    m[DIAMONDS] = "D";
+    m[CLUBS]    = "C";
+    m[SPADES]   = "S";
+
+    return m[suit];
 }
 
 //=============================================================================

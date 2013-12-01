@@ -29,26 +29,29 @@
 // Game includes
 #include "defines.h"
 #include <string>
+#include <cstdint>
 
 /*****************************************************************************/
 class Card
 {
 
 public:
-    /**
-     * @brief The Color enum, lowest value to highest
-     */
-    enum Suit
-    {
-        SPADES = 0,
-        HEARTS = 1,
-        DIAMONDS = 2,
-        CLUBS = 3,
-        TRUMPS = 4
-    };
+
+    typedef std::uint8_t Suit; //!< The Suit enum, lowest value to highest
+
+    static const std::uint8_t SPADES;
+    static const std::uint8_t HEARTS;
+    static const std::uint8_t DIAMONDS;
+    static const std::uint8_t CLUBS;
+    static const std::uint8_t TRUMPS;
 
     // Constructor/destructor
     Card();
+
+    // helpers
+    bool IsFool();
+    static Suit ToSuit(const std::string &name);
+    static std::string ToString(Suit suit);
 
     //  Setters
     void  SetSuit(Suit s);
@@ -65,14 +68,11 @@ public:
     int     GetValue();
     std::string GetName();
 
-    // helpers
-    bool IsFool();
-
 private:
-    Suit    suit;
-    float   points;
-    int     id;         // unique identifier
-    Place   owner;      // original owner of the card of this deal
+    Suit    mSuit;      //!< Trumps, Hearts, Spades, Diamonds or Clubs
+    float   mPoints;    //!< Points for scoring
+    int     mId;        //!< Unique identifier, used for deck sorting
+    Place   mOwner;     //!< Original owner of the card
 
     /**
      * @brief The value is the number written on the card
@@ -85,7 +85,7 @@ private:
      *      Knight  = 12
      *      Jack    = 11
      */
-    int     value;
+    int     mValue;
 
 };
 

@@ -81,7 +81,7 @@ public:
     void AnalyzeTrumps(Statistics &stats);
     void AnalyzeSuits(Statistics &stats);
     void Shuffle(int seed);
-    void Sort(const std::string &order = "");
+    void Sort(const std::string &order = "TCHDS");
     bool HasCard(Card *c);
     bool HasOneOfTrump();
     bool HasFool();
@@ -89,14 +89,13 @@ public:
     Card *HighestSuit();
 
     // Getters
-    Card *GetCardById(int);
-    Card *GetCardByName(const QString &i_name);
-    QString GetCardList();
+    Card *GetCardByName(const std::string &i_name);
+    std::string GetCardList();
     Team GetOwner();
 
     // Setters
     void SetOwner(Team o);
-    int SetCards(const QString &cards);
+    int SetCards(const std::string &cards);
 
     friend QDataStream &operator<<(QDataStream &out, const Deck &deck)
     {
