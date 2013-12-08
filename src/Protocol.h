@@ -28,18 +28,26 @@
 #include <cstdint>
 #include "Player.h"
 #include "ByteArray.h"
-#include "ByteStream.h"
 
 class Protocol
 {
 
 public:
 
-    static const std::uint8_t VERSION;
+    static const std::uint8_t VERSION;      //!< Protocol version
+    static const std::uint32_t SERVER_UID;  //!< Server unique identifier, 1, reserved
+    static const std::uint32_t ALL_PLAYERS; //!< 0, send to all players
+    static const std::uint32_t ADMIN_UID;   //!< Admin user(s)
+
+    struct PacketInfo
+    {
+        std::uint16_t offset;
+        std::uint16_t size;
+    };
 
     enum Command
     {
-        // client -> server
+        // client (player) -> server
         CLIENT_MESSAGE      = 0x10, //!< Chat message
         CLIENT_INFOS        = 0x11, //!< Client sends its identity to the server
         CLIENT_BID          = 0x12,
@@ -55,7 +63,7 @@ public:
         CLIENT_SYNC_START   = 0x22, //!< Used to synchronize all clients to start the deal
         CLIENT_SYNC_BID     = 0x23, //!< Used to synchronize all clients that are looking the bid declared
 
-        // server -> client
+        // server -> client (player)
         SERVER_MESSAGE          = 0x70, //!< chat message broadcasted to all clients
         SERVER_REQUEST_IDENTITY = 0x71, //!< Server assigns a place to a client and he must reply back the identity
         SERVER_PLAYERS_LIST     = 0x72,
@@ -73,7 +81,11 @@ public:
         SERVER_END_OF_DEAL      = 0x85,
         SERVER_END_OF_GAME      = 0x86, //!< end of the game mode (tournament ...)
         SERVER_ERROR_FULL       = 0x87, //!< Server is full, cannot join game
-        SERVER_DISCONNECT       = 0x88  //!< Ask clients to quit properly
+        SERVER_DISCONNECT       = 0x88, //!< Ask clients to quit properly
+
+        // admin -> server
+        ADMIN_NEW_SERVER_GAME   = 0xA0, //!< Ask the server to start a new game
+        ADMIN_NEW_PLAYER        = 0xA1  //!< A new player is entering the game
     };
 
     /**
@@ -83,14 +95,25 @@ public:
      * @param uuid User Uniquer Identifier
      * @return
      */
-    static ByteArray BuildCommand(const ByteArray &packet, Command cmd, std::uint32_t uuid);
+    static void BuildHeader(ByteArray &packet, Command cmd, std::uint32_t uuid);
+    static void UpdateHeader(ByteArray &packet);
+    static ByteArray BuildCommand(Command cmd, std::uint32_t uuid);
 
     /**
      * @brief DecodePacket
+     *
+     * The number of valid packets is the vector size.
+     *
      * @param packet
-     * @return The number of valid packets found inside the byte array
+     * @return A vector of offset of valid packets found inside the byte array
      */
-    static std::uint8_t DecodePacket(const ByteArray &data);
+    static std::vector<PacketInfo> DecodePacket(const ByteArray &data);
+
+    // Server to client packets
+    static ByteArray BuildErrorServerFull(std::uint32_t uuid);
+    static ByteArray BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::Mode mode, std::uint32_t uuid);
+    static ByteArray BuildServerChatMessage(const std::string &message);
+    static ByteArray BuildDiscardOrder(std::uint32_t uuid);
 };
 
 #endif // PROTOCOL_H

@@ -33,6 +33,8 @@
 #include "Card.h"
 #include "defines.h"
 #include "TarotDeck.h"
+#include "ByteStreamReader.h"
+#include "ByteStreamWriter.h"
 
 /*****************************************************************************/
 class Deck : public QList<Card *>
@@ -97,30 +99,18 @@ public:
     void SetOwner(Team o);
     int SetCards(const std::string &cards);
 
-    friend QDataStream &operator<<(QDataStream &out, const Deck &deck)
+    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Deck &deck)
     {
-        out << quint8(deck.size());
-        for (int i = 0; i < deck.size(); i++)
-        {
-            out << (quint8)deck.at(i)->GetId();
-        }
+        std::string cards = deck.GetCardList();
+        out << cards;
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &s, Deck &l)
+    friend ByteStreamReader &operator>>(ByteStreamReader &s, Deck &l)
     {
-        l.clear();
-        quint8 c;
-        s >> c;
-        l.reserve(c);
-        for (quint8 i = 0; i < c; ++i)
-        {
-            quint8 t;
-            s >> t;
-            l.append(TarotDeck::GetCard(t));
-            if (s.atEnd())
-                break;
-        }
+        std::string cards;
+        s >> cards;
+        l.SetCards(cards);
         return s;
     }
 

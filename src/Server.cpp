@@ -24,7 +24,10 @@
  */
 
 #include <chrono>
+#include <string>
+#include "Log.h"
 #include "Server.h"
+#include "ByteStreamReader.h"
 
 /*****************************************************************************/
 Server::Server()
@@ -66,11 +69,6 @@ void Server::Update(const TarotEngine::SignalInfo &info)
     }
 }
 /*****************************************************************************/
-TarotEngine &Server::GetEngine()
-{
-    return engine;
-}
-/*****************************************************************************/
 void Server::NewServerGame(Game::Mode mode)
 {
     // Init everything
@@ -82,19 +80,29 @@ void Server::Start()
     mThread = std::thread(Server::EntryPoint, this);
 }
 /*****************************************************************************/
-void Server::ExecutePacket(const QByteArray &packet)
+void Server::ExecuteRequest(const ByteArray &packet)
 {
     mQueue.Push(packet);
 }
 /*****************************************************************************/
 void Server::Run()
 {
-    QByteArray data;
+    ByteArray data;
     while(true)
     {
         std::this_thread::sleep_for(std::chrono::seconds(1U));
         mQueue.WaitAndPop(data);
 
+        std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
+
+        // Execute all packets
+        for (std::uint16_t i = 0U; i< packets.size(); i++)
+        {
+            Protocol::PacketInfo inf = packets[i];
+
+            ByteArray subArray = data.SubArray(inf.offset, inf.size);
+            DoAction(subArray);
+        }
     }
 }
 /*****************************************************************************/
@@ -104,26 +112,61 @@ void Server::EntryPoint(void *pthis)
     pt->Run();
 }
 /*****************************************************************************/
-bool Server::DoAction(const QByteArray &data)
+bool Server::DoAction(const ByteArray &data)
 {
     bool ret = true;
-    QDataStream in(&data);
+    ByteStreamReader in(data);
 
-    // First byte is the command
-    quint8 cmd;
+    // Jump over some header bytes
+    in.Seek(3U);
+
+    // Get the user id
+    std::uint32_t uuid;
+    in >> uuid;
+
+    // Get the command
+    std::uint8_t cmd;
     in >> cmd;
-
-    // Second bye is the player place
-    quint8 place;
-    in >> place;
 
     switch (cmd)
     {
+        case Protocol::ADMIN_NEW_SERVER_GAME:
+        {
+            std::uint8_t gameMode;
+            std::uint8_t nbPlayers;
+
+            in >> gameMode;
+            in >> nbPlayers;
+            NewServerGame((Game::Mode)gameMode);
+            break;
+        }
+
+        case Protocol::ADMIN_NEW_PLAYER:
+        {
+            // Look for free Place
+            Place assigned = engine.GetFreePlayer();
+            if (assigned != NOWHERE)
+            {
+                // Assign the uuid to this player
+                engine.GetPlayer(assigned).SetUuid(uuid);
+                SendPacket(Protocol::BuildRequestIdentity(
+                               assigned,
+                               engine.GetGameInfo().numberOfPlayers,
+                               engine.GetGameInfo().gameMode,
+                               uuid));
+            }
+            else
+            {
+                SendPacket(Protocol::BuildErrorServerFull(uuid));
+            }
+            break;
+        }
+
         case Protocol::CLIENT_MESSAGE:
         {
-            QString message;
+            std::string message;
             in >> message;
-            SendChatMessage(message);
+            SendPacket(Protocol::BuildServerChatMessage(message));
             break;
         }
 
@@ -133,9 +176,17 @@ bool Server::DoAction(const QByteArray &data)
             in >> ident;
 
             ident.avatar = ":/images/avatars/" + ident.avatar;
-            engine.GetPlayer(p).SetIdentity(ident);
-            const QString m = "The player " + ident.name + " has joined the game.";
-            SendChatMessage(m);
+            Player *player = engine.GetPlayer(uuid);
+            if (player)
+            {
+                player->SetIdentity(ident);
+            }
+            else
+            {
+                TLogError("Fatal error, Uuid not found!");
+            }
+            std::string message = "The player " + ident.name + " has joined the game.";
+            SendPacket(Protocol::BuildServerChatMessage(message));
 
             if (engine.GetNumberOfCurrentPlayers() == engine.GetGameInfo().numberOfPlayers)
             {
@@ -147,16 +198,22 @@ bool Server::DoAction(const QByteArray &data)
 
         case Protocol::CLIENT_BID:
         {
-            quint8 c;
-            quint8 slam;
-            // FIXME: add protection like client origin, current sequence...
+            std::uint8_t c;
+            std::uint8_t slam;
+
             in >> c;
             in >> slam;
 
-            Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
+            Place p = engine.GetPlayerPlace(uuid);
 
-            // Broadcast player's bid, and wait for all acknowlegements
-            SendShowBid(cont, (slam == 1 ? true : false), p);
+            if (p != NOWHERE)
+            {
+                // FIXME: add protection like client origin, current sequence...
+
+                Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
+                // Broadcast player's bid, and wait for all acknowlegements
+                SendShowBid(cont, (slam == 1 ? true : false), p);
+            }
             break;
         }
 
@@ -164,7 +221,8 @@ bool Server::DoAction(const QByteArray &data)
         {
             if (engine.SyncDog() == true)
             {
-                SendBuildDiscard();
+                std::uint32_t id = engine.GetPlayer(engine.GetGameInfo().taker)->GetUuid();
+                SendPacket(Protocol::BuildDiscardOrder(id));
             }
             break;
         }
@@ -173,6 +231,8 @@ bool Server::DoAction(const QByteArray &data)
         {
             Deck discard;
             in >> discard;
+
+            // FIXME: add protectiontest if the sender is the right player
             engine.SetDiscard(discard);
             break;
         }
@@ -213,17 +273,26 @@ bool Server::DoAction(const QByteArray &data)
 
         case Protocol::CLIENT_CARD:
         {
-            quint8 id;
+            std::string card;
             Card *c;
-            // TODO: tester la validité de la carte (ID + présence dans le jeu du joueur)
-            // si erreur : logguer et prévenir quelqu'un ??
-            // TODO: REFUSER SI MAUVAISE SEQUENCE EN COURS
-            in >> id;
-            c = TarotDeck::GetCard(id);
-            engine.SetCard(c, p);
 
-            // Broadcast played card, and wait for all acknowlegements
-            SendShowCard(c);
+            // FIXME: tester la validité de la carte (ID + présence dans le jeu du joueur)
+            // REFUSER SI MAUVAISE SEQUENCE EN COURS
+            // si erreur : logguer et prévenir quelqu'un ??
+
+            in >> card;
+            c = TarotDeck::GetCard(card);
+            if (c != NULL)
+            {
+                engine.SetCard(c, p);
+
+                // Broadcast played card, and wait for all acknowlegements
+                SendShowCard(c);
+            }
+            else
+            {
+                TLogError("Bad card name!");
+            }
             break;
         }
 
@@ -248,101 +317,66 @@ bool Server::DoAction(const QByteArray &data)
     return ret;
 }
 /*****************************************************************************/
-void Server::SendErrorServerFull(QTcpSocket *cnx)
-{
-    QByteArray packet;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_ERROR_FULL);
-    cnx->write(packet);
-    cnx->flush();
-}
-/*****************************************************************************/
-void Server::SendRequestIdentity(Place p)
-{
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::ReadWrite);
-    out << (quint8)p; // assigned place
-    out << (quint8)4; // number of players in the current game
-    out << (quint8)engine.GetGameInfo().gameMode;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_REQUEST_IDENTITY);
-    SendToPlayer(p, packet);
-}
-/*****************************************************************************/
 void Server::SendShowBid(Contract c, bool slam, Place p)
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)p   // current player bid
-        << (quint8)c;  // contract to show
+    out << (std::uint8_t)p   // current player bid
+        << (std::uint8_t)c;  // contract to show
     if (slam)
     {
-        out << (quint8)1;
+        out << (std::uint8_t)1;
     }
     else
     {
-        out << (quint8)0;
+        out << (std::uint8_t)0;
     }
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_SHOW_PLAYER_BID);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::SendChatMessage(const QString &message)
-{
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << message;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_MESSAGE);
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_PLAYER_BID);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendDisconnect()
 {
-    QByteArray packet;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_DISCONNECT);
+    ByteArray packet;
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_DISCONNECT);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendPlayersList()
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)engine.GetNumberOfCurrentPlayers();
+    out << (std::uint8_t)engine.GetNumberOfCurrentPlayers();
     for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
     {
         if (engine.GetPlayer((Place)i).IsFree() == false)
         {
             Identity ident = engine.GetPlayer((Place)i).GetIdentity();
-            out << (quint8)i;
+            out << (std::uint8_t)i;
             out << ident;
         }
     }
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_PLAYERS_LIST);
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_PLAYERS_LIST);
     Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::SendBuildDiscard()
-{
-    QByteArray packet;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_BUILD_DISCARD);
-    SendToPlayer(engine.GetGameInfo().taker, packet);
 }
 /*****************************************************************************/
 void Server::SendShowCard(Card *c)
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)c->GetId()
-        << (quint8)engine.GetGameInfo().currentPlayer;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_SHOW_CARD);
+    out << (std::uint8_t)c->GetId()
+        << (std::uint8_t)engine.GetGameInfo().currentPlayer;
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_CARD);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::SendShowHandle(Deck &handle, Place p)
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)p;
+    out << (std::uint8_t)p;
     out << handle;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_SHOW_HANDLE);
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_HANDLE);
     Broadcast(packet);
 }
 /*****************************************************************************/
@@ -350,87 +384,86 @@ void Server::slotSendCards()
 {
     for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
     {
-        QByteArray packet;
+        ByteArray packet;
         QDataStream out(&packet, QIODevice::WriteOnly);
         out << engine.GetPlayer((Place)i).GetDeck();
-        packet = Protocol::BuildCommand(packet, Protocol::SERVER_SEND_CARDS);
-        SendToPlayer((Place)i, packet);
+        packet = Protocol::BuildHeader(packet, Protocol::SERVER_SEND_CARDS);
+        SendPacket((Place)i, packet);
     }
 }
 /*****************************************************************************/
 void Server::slotSendEndOfDeal()
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << engine.GetScore();
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_END_OF_DEAL);
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_END_OF_DEAL);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendWaitTrick(Place winner)
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)winner;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_END_OF_TRICK);
+    out << (std::uint8_t)winner;
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_END_OF_TRICK);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendStartDeal()
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)engine.GetGameInfo().taker
-        << (quint8)engine.GetGameInfo().contract;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_START_DEAL);
+    out << (std::uint8_t)engine.GetGameInfo().taker
+        << (std::uint8_t)engine.GetGameInfo().contract;
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_START_DEAL);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendPlayCard(Place p)
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)p; // this player has to play a card
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_PLAY_CARD);
+    out << (std::uint8_t)p; // this player has to play a card
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_PLAY_CARD);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendRequestBid(Contract c, Place p)
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)c; // previous bid
-    out << (quint8)p; // player to declare something
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_REQUEST_BID);
+    out << (std::uint8_t)c; // previous bid
+    out << (std::uint8_t)p; // player to declare something
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_REQUEST_BID);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendShowDog()
 {
-    QByteArray packet;
+    ByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out << engine.GetDeal().GetDog();
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_SHOW_DOG);
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_DOG);
     Broadcast(packet);
 }
 /*****************************************************************************/
 void Server::slotSendDealAgain()
 {
-    QByteArray packet;
-    packet = Protocol::BuildCommand(packet, Protocol::SERVER_DEAL_AGAIN);
+    ByteArray packet;
+    packet = Protocol::BuildHeader(packet, Protocol::SERVER_DEAL_AGAIN);
     Broadcast(packet);
 }
 /*****************************************************************************/
-void Server::Broadcast(QByteArray &block)
+void Server::Broadcast(ByteArray &block)
 {
-    SendToPlayer(ALL, block);
+    SendPacket(Protocol::ALL_PLAYERS, block);
 }
 /*****************************************************************************/
-void Server::SendToPlayer(Place p, QByteArray &block)
+void Server::SendPacket(const ByteArray &block)
 {
     Signal sig;
 
-    sig.p = p;
     sig.data = block;
     mSubject.Notify(sig);
 }
@@ -438,5 +471,3 @@ void Server::SendToPlayer(Place p, QByteArray &block)
 //=============================================================================
 // End of file Server.cpp
 //=============================================================================
-
-

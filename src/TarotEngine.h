@@ -92,11 +92,14 @@ public:
 
     // Getters
     Player &GetPlayer(Place p);
+    Player *GetPlayer(std::uint32_t uuid);
+    Place GetPlayerPlace(std::uint32_t uuid);
     Score &GetScore();
     Game &GetGameInfo();
     Deal &GetDeal();
     TarotEngine::Shuffle GetShuffle();
     int GetNumberOfCurrentPlayers();
+    Place GetFreePlayer();
 
     // Setters
     void SetShuffle(const Shuffle &s);

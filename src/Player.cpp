@@ -35,8 +35,19 @@ using namespace std;
 /*****************************************************************************/
 Player::Player()
     : mPlace(NOWHERE)
+    , mUuid(0U)
 {
 
+}
+/*****************************************************************************/
+std::uint32_t Player::GetUuid() const
+{
+    return mUuid;
+}
+/*****************************************************************************/
+void Player::SetUuid(std::uint32_t value)
+{
+    mUuid = value;
 }
 /*****************************************************************************/
 /**
@@ -52,7 +63,7 @@ Player::Player()
  * @return true if the card can be played
  */
 bool Player::CanPlayCard(Card *cVerif, Deck &trick)
-{
+{   
     Card::Suit   suit; // required suit
 
     // player's cards in hand

@@ -25,67 +25,73 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QByteArray>
 #include <thread>
-#include "NetPlayer.h"
+#include <map>
 #include "Protocol.h"
 #include "TarotEngine.h"
-#include "Bot.h"
-#include "ServerConfig.h"
 #include "Observer.h"
+#include "ByteArray.h"
 #include "ThreadQueue.h"
 
 /*****************************************************************************/
+/**
+ * @brief The Server class
+ *
+ * A server instance creates a thread. All requests to the server must be
+ * performed using a request packet sent to the send for executions.
+ *
+ * All the requests are queued in the order of arrival and executed in a FIFO mode.
+ *
+ * The TarotEngine is not accessible to protect accesses and enforce all the
+ * calls within the thread context.
+ *
+ */
 class Server : public Observer<TarotEngine::SignalInfo>
 {
 
 public:
     struct Signal
     {
-        Place p;
-        QByteArray data;
+        ByteArray data;
     };
 
     Server();
 
-    // Helpers
-    void NewServerGame(Game::Mode mode);
     void RegisterListener(Observer<Signal> &sig);
     void Start();
-    void ExecutePacket(const QByteArray &packet);
-
-    // Getters
-    TarotEngine &GetEngine();
+    void ExecuteRequest(const ByteArray &packet);
 
 private:
     TarotEngine engine;
     Subject<Signal> mSubject;
     std::thread mThread;
-    ThreadQueue<QByteArray> mQueue; //!< Queue of network packets received
+    ThreadQueue<ByteArray> mQueue; //!< Queue of network packets received
 
     /**
-     * @brief Main thread loop
+     * @brief Main server thread loop
      */
     void Run();
     static void EntryPoint(void * pthis);
 
-    void Update(const TarotEngine::SignalInfo &info);
-    bool DoAction(QDataStream &in, Place p);
-    void Broadcast(QByteArray &block);
-    void SendToPlayer(Place p, QByteArray &block);
+    void NewServerGame(Game::Mode mode);
 
-    // Protocol methods
-    void SendRequestIdentity(Place p);
+    void Update(const TarotEngine::SignalInfo &info);
+    bool DoAction(const ByteArray &data);
+    void Broadcast(ByteArray &block);
+    void SendPacket(const ByteArray &block);
+
+    // Packets sent to clients (players)
+
     void SendDisconnect();
     void SendShowBid(Contract c, bool slam, Place p);
     void SendErrorServerFull(QTcpSocket *cnx);
-    void SendChatMessage(const QString &message);
+
     void SendPlayersList();
     void SendBuildDiscard();
     void SendShowCard(Card *c);
     void SendShowHandle(Deck &handle, Place p);
 
-    // TarotClub protocol
+    // TarotClub engine callbacks
     void slotSendCards();
     void slotSendWaitTrick(Place winner);
     void slotSendStartDeal();

@@ -28,6 +28,7 @@
 Table::Table()
     : maximumPlayers(4)
     , tcpPort(DEFAULT_PORT)
+    , mIdManager(2U, 20U)
 {
     connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
@@ -37,36 +38,11 @@ void Table::slotNewConnection()
     while (tcpServer.hasPendingConnections())
     {
         QTcpSocket *cnx = tcpServer.nextPendingConnection();
-        if (GetNumberOfConnectedPlayers() == maximumPlayers)
-        {
-            SendErrorServerFull(cnx);
-        }
-        else
-        {
-            Place p = NOWHERE;
 
-            // Look for free space
-            for (int i = 0; i < maximumPlayers; i++)
-            {
-                if (players[i].IsFree() == true)
-                {
-                    p = (Place) i;
-                    break;
-                }
-            }
-
-            if (p != NOWHERE)
-            {
-                players[p].SetConnection(cnx, p);
-                connect(&players[p], SIGNAL(sigDisconnected(Place)), this, SLOT(slotClientClosed(Place)));
-                connect(&players[p], SIGNAL(sigReadyRead(Place)), this, SLOT(slotReadData(Place)));
-                SendRequestIdentity(p);
-            }
-            else
-            {
-                TLogError("Error, cannot find any free place.");
-            }
-        }
+        std::uint32_t uuid = mIdManager.TakeId();
+        mUsers[uuid] = cnx;
+        connect(cnx, SIGNAL(disconnected()), this, SLOT(slotClientClosed(Place)));
+        connect(&players[p], SIGNAL(sigReadyRead(Place)), this, SLOT(slotReadData(Place)));
     }
 }
 /*****************************************************************************/
@@ -186,7 +162,14 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers)
     tcpServer.setMaxPendingConnections(maximumPlayers + 3);
     tcpServer.listen(QHostAddress::LocalHost, tcpPort);
 
-    server.NewServerGame(gameMode);
+
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::ReadWrite);
+    out << (quint8)gameMode;
+    out << (quint8)nbPlayers; // number of players in the current game
+    packet = Protocol::BuildHeader(packet, Protocol::ADMIN_NEW_SERVER_GAME, Protocol::ADMIN_UID);
+
+    server.ExecuteRequest(packet);
 }
 /*****************************************************************************/
 void Table::Stop()

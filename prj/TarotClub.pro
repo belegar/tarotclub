@@ -27,6 +27,7 @@ DESTDIR = ./bin
 
 # The search path to find supplied files
 VPATH += $${PWD}/../src
+VPATH += $${PWD}/../src/library
 VPATH += $${PWD}/../src/client
 VPATH += $${PWD}/../src/server
 VPATH += $${PWD}/../lib
@@ -35,6 +36,7 @@ VPATH += $${PWD}/../ai/tarotlib
 
 # Where to find header files
 INCLUDEPATH += $${PWD}/../src
+INCLUDEPATH += $${PWD}/../src/library
 INCLUDEPATH += $${PWD}/../src/client
 INCLUDEPATH += $${PWD}/../src/server
 
@@ -46,7 +48,12 @@ QMAKE_CXXFLAGS += -std=c++11
 
 # Specific OS stuff
 win32 {
-   RC_FILE = icon.rc
+    RC_FILE = icon.rc
+    LIBS +=  libws2_32
+    DEFINES += USE_WINDOWS_OS
+}
+unix {
+    DEFINES += USE_UNIX_OS
 }
 
 OTHER_FILES = beginner.js \
@@ -60,20 +67,23 @@ OTHER_FILES = beginner.js \
 TRANSLATIONS = tarotclub_fr.ts \
                tarotclub_en.ts
 
-HEADERS = AboutWindow.h \
-    MainWindow.h \
-    OptionsWindow.h \
-    EditorWindow.h \
-    ResultWindow.h \
-    HelpWindow.h \
-    ScoresDock.h \
-    InfosDock.h \
-    ChatDock.h \
-    DebugDock.h \
-    Canvas.h \
-    TextBox.h \
-    ClientConfig.h \
-    ServerConfig.h \
+
+# -------------------------------------------------------------
+# Library files
+# -------------------------------------------------------------
+HEADERS += Log.h \
+    Observer.h \
+    ThreadQueue.h \
+    ByteStreamReader.h \
+    ByteStreamWriter.h \
+    ByteArray.h
+
+SOURCES += Log.cpp
+
+# -------------------------------------------------------------
+# TarotClub core files
+# -------------------------------------------------------------
+HEADERS += ServerConfig.h \
     DealFile.h \
     TarotClub.h \
     TarotDeck.h \
@@ -87,25 +97,55 @@ HEADERS = AboutWindow.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \
-    JoinWizard.h \
     Game.h \
     Score.h \
     Protocol.h \
     Server.h \
     Table.h \
-    NetPlayer.h \
+    NetPlayer.h
+
+SOURCES += ServerConfig.cpp \
+    DealFile.cpp \
+    TarotClub.cpp \
+    TarotDeck.cpp \
+    Deck.cpp \
+    Card.cpp \
+    Player.cpp \
+    Client.cpp \
+    Bot.cpp \
+    TarotEngine.cpp \
+    Deal.cpp \
+    Game.cpp \
+    Protocol.cpp \
+    Server.cpp \
+    Table.cpp \
+    Score.cpp \
+    NetPlayer.cpp
+
+# -------------------------------------------------------------
+# Client files
+# -------------------------------------------------------------
+HEADERS += AboutWindow.h \
+    MainWindow.h \
+    OptionsWindow.h \
+    EditorWindow.h \
+    ResultWindow.h \
+    HelpWindow.h \
+    ScoresDock.h \
+    InfosDock.h \
+    ChatDock.h \
+    DebugDock.h \
+    Canvas.h \
+    TextBox.h \
+    ClientConfig.h \
+    JoinWizard.h \
     GfxCard.h \
     MenuItem.h \
     PlayerBox.h \
     CustomTypes.h \
-    PopupItem.h \
-    Log.h \
-    Observer.h \
-    ThreadQueue.h \
-    ByteStream.h \
-    ../src/ByteArray.h
+    PopupItem.h
 
-FORMS = AboutUI.ui \
+FORMS += AboutUI.ui \
     AvatarsUI.ui \
     InfosDockUI.ui \
     OptionsUI.ui \
@@ -118,7 +158,7 @@ FORMS = AboutUI.ui \
     JoinWizardPage2.ui \
     QuickJoin.ui
 
-SOURCES = AboutWindow.cpp \
+SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
     EditorWindow.cpp \
@@ -131,28 +171,11 @@ SOURCES = AboutWindow.cpp \
     Canvas.cpp \
     TextBox.cpp \
     ClientConfig.cpp \
-    ServerConfig.cpp \
-    DealFile.cpp \
-    TarotClub.cpp \
-    main.cpp \
-    TarotDeck.cpp \
-    Deck.cpp \
-    Card.cpp \
-    Player.cpp \
-    Client.cpp \
-    Bot.cpp \
-    TarotEngine.cpp \
-    Deal.cpp \
+    main.cpp \    
     JoinWizard.cpp \
-    Game.cpp \
-    Protocol.cpp \
-    Server.cpp \
-    Table.cpp \
-    Score.cpp \
-    NetPlayer.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
     PlayerBox.cpp \
-    PopupItem.cpp \
-    Log.cpp
+    PopupItem.cpp
+
 

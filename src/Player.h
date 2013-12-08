@@ -46,15 +46,18 @@ public:
     Identity &GetIdentity();
     Place GetPlace();
     Deck &GetDeck();
+    std::uint32_t GetUuid() const;
 
     // Setters
     void SetIdentity(const Identity &ident);
     void SetPlace(Place p);
+    void SetUuid(std::uint32_t value);
 
 private:
-    Identity    mIdentity;   //!< player's identification
-    Deck        mDeck;     //!< players cards
-    Place       mPlace;      //!< assigned place by the server around the table
+    Identity    mIdentity;  //!< player's identification
+    Deck        mDeck;      //!< players cards
+    Place       mPlace;     //!< assigned place by the server around the table
+    std::uint32_t mUuid;    //!< User's unique identifier
 };
 
 #endif // _PLAYER_H

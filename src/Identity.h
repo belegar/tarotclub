@@ -27,8 +27,10 @@
 #ifndef IDENTITY_H
 #define IDENTITY_H
 
-#include <QtCore>
-#include "defines.h"
+#include <string>
+#include <cstdint>
+#include "ByteStreamReader.h"
+#include "ByteStreamWriter.h"
 
 /*****************************************************************************/
 class Identity
@@ -45,34 +47,34 @@ public:
         sex = MALE;
     }
 
-    QString  name;
-    QString  quote;
-    QString  avatar;  // can be only an embedded resource for the moment
-    Gender   sex;
+    std::string name;
+    std::string quote;
+    std::string avatar;  // path to the avatar image (local or network path)
+    Gender      sex;
 
     // operator overload to easily serialize parameters
-    friend QDataStream &operator<<(QDataStream &out, Identity &ident)
+    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Identity &ident)
     {
-        QFileInfo fi(ident.avatar);
-
         out << ident.name
-            << fi.fileName()
+            << ident.avatar
             << ident.quote
-            << (quint8)ident.sex;
+            << (std::uint8_t)ident.sex;
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, Identity &ident)
+    friend ByteStreamReader &operator>>(ByteStreamReader &in, Identity &ident)
     {
-        quint8 var8;
+        std::uint8_t var8;
 
         in >> ident.name;
         in >> ident.avatar;
         in >> ident.quote;
         in >> var8;
         ident.sex = (Gender)var8;
+
         return in;
     }
+
 };
 
 #endif // IDENTITY_H

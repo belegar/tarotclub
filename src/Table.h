@@ -26,8 +26,47 @@
 #define TABLE_H
 
 #include <QObject>
+#include <map>
 #include "Server.h"
 
+
+/*****************************************************************************/
+class UserId
+{
+public:
+    UserId(std::uint32_t min, std::uint32_t max)
+        : mMin(min)
+        , mMax(max)
+    {
+
+    }
+
+    std::uint32_t TakeId()
+    {
+        std::uint32_t id;
+
+        for (id = mMin; id <= mMax; id++)
+        {
+            if (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end())
+            {
+                // Id not used
+                mUsedIds.push_back(id);
+                break;
+            }
+        }
+        return id;
+    }
+
+    void ReleaseId(std::uint32_t id)
+    {
+        // TODO
+    }
+
+private:
+    std::uint32_t mMin;
+    std::uint32_t mMax;
+    std::list<std::uint32_t> mUsedIds;
+};
 /*****************************************************************************/
 class Table : public QObject
 {
@@ -46,7 +85,6 @@ public:
     Server &GetServer();
     ServerOptions &GetOptions();
     TarotEngine::Shuffle GetShuffle();
-    int GetNumberOfConnectedPlayers();
 
     // Setters
     void SetShuffle(const TarotEngine::Shuffle &s);
@@ -68,6 +106,9 @@ private:
     Server server;
     ServerConfig serverConfig;
     Bot bots[3];
+    UserId mIdManager;
+
+    std::map<std::uint32_t, QTcpSocket *> mUsers;
 
     NetPlayer players[5]; // [3..5] players
     QTcpServer tcpServer;

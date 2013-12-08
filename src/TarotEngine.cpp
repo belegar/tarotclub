@@ -155,9 +155,51 @@ int TarotEngine::GetNumberOfCurrentPlayers()
     return count;
 }
 /*****************************************************************************/
+Place TarotEngine::GetFreePlayer()
+{
+    Place p = NOWHERE;
+
+    // Look for free space
+    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    {
+        if (players[i].IsFree() == true)
+        {
+            p = (Place) i;
+            break;
+        }
+    }
+    return p;
+}
+/*****************************************************************************/
 Player &TarotEngine::GetPlayer(Place p)
 {
     return players[p];
+}
+/*****************************************************************************/
+Player *TarotEngine::GetPlayer(std::uint32_t uuid)
+{
+    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    {
+        if (players[i].GetUuid() == uuid)
+        {
+            return &players[i];
+        }
+    }
+    return NULL;
+}
+/*****************************************************************************/
+Place TarotEngine::GetPlayerPlace(std::uint32_t uuid)
+{
+    Place p = NOWHERE;
+
+    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    {
+        if (players[i].GetUuid() == uuid)
+        {
+            p = (Place)i;
+        }
+    }
+    return p;
 }
 /*****************************************************************************/
 Score &TarotEngine::GetScore()
