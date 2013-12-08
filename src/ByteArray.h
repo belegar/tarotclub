@@ -14,6 +14,19 @@ class ByteArray
 {
 
 public:
+    ByteArray(const char *data, std::uint32_t size)
+    {
+        for (std::uint32_t i = 0U; i < size; i++)
+        {
+            mData.push_back(static_cast<std::uint8_t>(data[i]));
+        }
+    }
+
+    ByteArray()
+    {
+
+    }
+
     std::uint8_t PopFront()
     {
         std::uint8_t byte = mData.front();
@@ -31,12 +44,40 @@ public:
         return mData.size();
     }
 
+    void Clear()
+    {
+        mData.clear();
+    }
+
+    ByteArray SubArray(std::uint32_t index, std::uint32_t len)
+    {
+        ByteArray array;
+
+        if ((index + len) <= mData.size())
+        {
+            array.mData.insert(array.mData.begin(), mData.begin() + index, mData.end() + index + len);
+        }
+        return array;
+    }
+
     void Erase(std::uint32_t index, std::uint32_t len)
     {
         mData.erase(mData.begin() + index, mData.begin() + index + len);
     }
 
     std::uint8_t& operator[] (std::uint32_t i)
+    {
+        if (i >= mData.size())
+        {
+            return mData[0];
+        }
+        else
+        {
+            return mData[i];
+        }
+    }
+
+    std::uint8_t operator[] (std::uint32_t i) const
     {
         if (i >= mData.size())
         {

@@ -45,22 +45,10 @@ public:
 
     ByteStream& operator >> (std::uint8_t &d)
     {
-        if (mArray.Size() >= 1U)
+        if (mIndex < mArray.Size())
         {
-            d = mArray.PopFront();
-        }
-
-        // Adjust index if out of limits
-        if (mIndex >= mArray.Size())
-        {
-            if (mArray.Size())
-            {
-                mIndex = mArray.Size() - 1U;
-            }
-            else
-            {
-                mIndex = 0U;
-            }
+            d = mArray[mIndex];
+            mIndex++;
         }
         return *this;
     }
