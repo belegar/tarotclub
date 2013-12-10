@@ -33,39 +33,42 @@
 #include "Player.h"
 
 /*****************************************************************************/
-class NetPlayer : public QObject
+/*****************************************************************************/
+class UserId
 {
-    Q_OBJECT
-
 public:
-    NetPlayer();
+    UserId(std::uint32_t min, std::uint32_t max)
+        : mMin(min)
+        , mMax(max)
+    {
 
-    // Helpers
-    bool IsFree();
-    void SendData(QByteArray &data);
-    void Close();
-    bool HasData();
+    }
 
-    // Getters
-    QTcpSocket *GetSocket();
-    QByteArray GetData();
+    std::uint32_t TakeId()
+    {
+        std::uint32_t id;
 
-    // Setters
-    void SetConnection(QTcpSocket *s, Place p);
+        for (id = mMin; id <= mMax; id++)
+        {
+            if (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end())
+            {
+                // Id not used
+                mUsedIds.push_back(id);
+                break;
+            }
+        }
+        return id;
+    }
 
-signals:
-    void sigDisconnected(Place);
-    void sigReadyRead(Place);
+    void ReleaseId(std::uint32_t id)
+    {
+        // TODO
+    }
 
 private:
-    QTcpSocket *socket;
-    bool freePlace;
-    Place       place;      // place assignée par le serveur autour de la table
-
-private slots:
-    void slotClientClosed();
-    void slotReadData();
-
+    std::uint32_t mMin;
+    std::uint32_t mMax;
+    std::list<std::uint32_t> mUsedIds;
 };
 
 #endif // _NET_PLAYER_H
