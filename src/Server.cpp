@@ -41,28 +41,34 @@ void Server::Update(const TarotEngine::SignalInfo &info)
     switch (info.sig)
     {
     case TarotEngine::SIG_REQUEST_BID:
-        slotSendRequestBid(info.c, info.p);
+        SendPacket(Protocol::BuildBidRequest(info.c, info.p));
         break;
     case TarotEngine::SIG_DEAL_AGAIN:
-        slotSendDealAgain();
+        SendPacket(Protocol::BuildDealAgain());
         break;
     case TarotEngine::SIG_PLAY_CARD:
-        slotSendPlayCard(info.p);
+        SendPacket(Protocol::BuildPlayCard(info.p));
         break;
     case TarotEngine::SIG_END_OF_TRICK:
-        slotSendWaitTrick(info.p);
+        SendPacket(Protocol::BuildEndOfTrick(info.p));
         break;
     case TarotEngine::SIG_END_OF_DEAL:
-        slotSendEndOfDeal();
+        SendPacket(Protocol::BuildEndOfDeal(engine.GetScore()));
         break;
     case TarotEngine::SIG_SEND_CARDS:
-        slotSendCards();
+    {
+        for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
+        {
+            Player &player = engine.GetPlayer((Place)i);
+            SendPacket(Protocol::BuildSendCards(player.GetUuid(), player.GetDeck()));
+        }
+    }
         break;
     case TarotEngine::SIG_SHOW_DOG:
-        slotSendShowDog();
+        SendPacket(Protocol::BuildShowDog(engine.GetDeal().GetDog()));
         break;
     case TarotEngine::SIG_START_DEAL:
-        slotSendStartDeal();
+        SendPacket(Protocol::BuildStartDeal(engine.GetGameInfo().taker, engine.GetGameInfo().contract));
         break;
         default:
         break;
@@ -190,7 +196,13 @@ bool Server::DoAction(const ByteArray &data)
 
             if (engine.GetNumberOfCurrentPlayers() == engine.GetGameInfo().numberOfPlayers)
             {
-                SendPlayersList();
+                std::map<Place, Identity> players;
+
+                for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
+                {
+                    players[(Place)i] = engine.GetPlayer((Place)i).GetIdentity();
+                }
+                SendPacket(Protocol::BuildPlayersList(players));
                 engine.NewDeal();
             }
             break;
@@ -212,7 +224,11 @@ bool Server::DoAction(const ByteArray &data)
 
                 Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
                 // Broadcast player's bid, and wait for all acknowlegements
-                SendShowBid(cont, (slam == 1 ? true : false), p);
+                SendPacket(Protocol::BuildShowBid(cont, (slam == 1 ? true : false), p));
+            }
+            else
+            {
+                TLogError("Cannot get player place from UUID");
             }
             break;
         }
@@ -221,8 +237,9 @@ bool Server::DoAction(const ByteArray &data)
         {
             if (engine.SyncDog() == true)
             {
-                std::uint32_t id = engine.GetPlayer(engine.GetGameInfo().taker)->GetUuid();
-                SendPacket(Protocol::BuildDiscardOrder(id));
+                Player &player = engine.GetPlayer(engine.GetGameInfo().taker);
+                std::uint32_t id = player.GetUuid();
+                SendPacket(Protocol::BuildDiscardRequest(id));
             }
             break;
         }
@@ -242,8 +259,19 @@ bool Server::DoAction(const ByteArray &data)
             // FIXME: add protections: handle validity, game sequence ...
             Deck handle;
             in >> handle;
-            engine.SetHandle(handle, p);
-            SendShowHandle(handle, p);
+
+            Place p = engine.GetPlayerPlace(uuid);
+
+            if (p != NOWHERE)
+            {
+                engine.SetHandle(handle, p);
+                SendPacket(Protocol::BuildShowHandle(handle, p));
+
+            }
+            else
+            {
+                TLogError("Cannot get player place from UUID");
+            }
             break;
         }
 
@@ -284,10 +312,18 @@ bool Server::DoAction(const ByteArray &data)
             c = TarotDeck::GetCard(card);
             if (c != NULL)
             {
-                engine.SetCard(c, p);
+                Place p = engine.GetPlayerPlace(uuid);
 
-                // Broadcast played card, and wait for all acknowlegements
-                SendShowCard(c);
+                if (p != NOWHERE)
+                {
+                    engine.SetCard(c, p);
+                    // Broadcast played card, and wait for all acknowlegements
+                    SendPacket(Protocol::BuildShowCard(c, p));
+                }
+                else
+                {
+                    TLogError("Cannot get player place from UUID");
+                }
             }
             else
             {
@@ -309,155 +345,12 @@ bool Server::DoAction(const ByteArray &data)
         }
 
         default:
-            TLogError("Unkown packet received");
+            TLogError("Unknown packet received");
             ret = false;
             break;
     }
 
     return ret;
-}
-/*****************************************************************************/
-void Server::SendShowBid(Contract c, bool slam, Place p)
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)p   // current player bid
-        << (std::uint8_t)c;  // contract to show
-    if (slam)
-    {
-        out << (std::uint8_t)1;
-    }
-    else
-    {
-        out << (std::uint8_t)0;
-    }
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_PLAYER_BID);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::SendDisconnect()
-{
-    ByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_DISCONNECT);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::SendPlayersList()
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)engine.GetNumberOfCurrentPlayers();
-    for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
-    {
-        if (engine.GetPlayer((Place)i).IsFree() == false)
-        {
-            Identity ident = engine.GetPlayer((Place)i).GetIdentity();
-            out << (std::uint8_t)i;
-            out << ident;
-        }
-    }
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_PLAYERS_LIST);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::SendShowCard(Card *c)
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)c->GetId()
-        << (std::uint8_t)engine.GetGameInfo().currentPlayer;
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_CARD);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::SendShowHandle(Deck &handle, Place p)
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)p;
-    out << handle;
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_HANDLE);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::slotSendCards()
-{
-    for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
-    {
-        ByteArray packet;
-        QDataStream out(&packet, QIODevice::WriteOnly);
-        out << engine.GetPlayer((Place)i).GetDeck();
-        packet = Protocol::BuildHeader(packet, Protocol::SERVER_SEND_CARDS);
-        SendPacket((Place)i, packet);
-    }
-}
-/*****************************************************************************/
-void Server::slotSendEndOfDeal()
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << engine.GetScore();
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_END_OF_DEAL);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::slotSendWaitTrick(Place winner)
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)winner;
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_END_OF_TRICK);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::slotSendStartDeal()
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)engine.GetGameInfo().taker
-        << (std::uint8_t)engine.GetGameInfo().contract;
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_START_DEAL);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::slotSendPlayCard(Place p)
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)p; // this player has to play a card
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_PLAY_CARD);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::slotSendRequestBid(Contract c, Place p)
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (std::uint8_t)c; // previous bid
-    out << (std::uint8_t)p; // player to declare something
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_REQUEST_BID);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::slotSendShowDog()
-{
-    ByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << engine.GetDeal().GetDog();
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_SHOW_DOG);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::slotSendDealAgain()
-{
-    ByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::SERVER_DEAL_AGAIN);
-    Broadcast(packet);
-}
-/*****************************************************************************/
-void Server::Broadcast(ByteArray &block)
-{
-    SendPacket(Protocol::ALL_PLAYERS, block);
 }
 /*****************************************************************************/
 void Server::SendPacket(const ByteArray &block)

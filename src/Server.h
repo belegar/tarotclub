@@ -77,29 +77,8 @@ private:
 
     void Update(const TarotEngine::SignalInfo &info);
     bool DoAction(const ByteArray &data);
-    void Broadcast(ByteArray &block);
     void SendPacket(const ByteArray &block);
 
-    // Packets sent to clients (players)
-
-    void SendDisconnect();
-    void SendShowBid(Contract c, bool slam, Place p);
-    void SendErrorServerFull(QTcpSocket *cnx);
-
-    void SendPlayersList();
-    void SendBuildDiscard();
-    void SendShowCard(Card *c);
-    void SendShowHandle(Deck &handle, Place p);
-
-    // TarotClub engine callbacks
-    void slotSendCards();
-    void slotSendWaitTrick(Place winner);
-    void slotSendStartDeal();
-    void slotSendPlayCard(Place p);
-    void slotSendRequestBid(Contract c, Place p);
-    void slotSendShowDog();
-    void slotSendDealAgain();
-    void slotSendEndOfDeal();
 };
 
 #endif // SERVER_H

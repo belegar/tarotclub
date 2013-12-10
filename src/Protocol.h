@@ -26,18 +26,23 @@
 #define PROTOCOL_H
 
 #include <cstdint>
+#include <string>
+#include <list>
+#include <map>
 #include "Player.h"
+#include "Identity.h"
 #include "ByteArray.h"
+#include "Score.h"
 
 class Protocol
 {
 
 public:
 
-    static const std::uint8_t VERSION;      //!< Protocol version
-    static const std::uint32_t SERVER_UID;  //!< Server unique identifier, 1, reserved
-    static const std::uint32_t ALL_PLAYERS; //!< 0, send to all players
-    static const std::uint32_t ADMIN_UID;   //!< Admin user(s)
+    static const std::uint8_t   VERSION;        //!< Protocol version
+    static const std::uint32_t  SERVER_UID;     //!< Server unique identifier, 1, reserved
+    static const std::uint32_t  ALL_PLAYERS;    //!< 0, send to all players
+    static const std::uint32_t  ADMIN_UID;      //!< Admin user(s)
 
     struct PacketInfo
     {
@@ -81,11 +86,12 @@ public:
         SERVER_END_OF_DEAL      = 0x85,
         SERVER_END_OF_GAME      = 0x86, //!< end of the game mode (tournament ...)
         SERVER_ERROR_FULL       = 0x87, //!< Server is full, cannot join game
-        SERVER_DISCONNECT       = 0x88, //!< Ask clients to quit properly
+
 
         // admin -> server
         ADMIN_NEW_SERVER_GAME   = 0xA0, //!< Ask the server to start a new game
-        ADMIN_NEW_PLAYER        = 0xA1  //!< A new player is entering the game
+        ADMIN_NEW_PLAYER        = 0xA1, //!< A new player is entering the game
+        ADMIN_DISCONNECT        = 0xA2  //!< Ask client(s) to quit properly
     };
 
     /**
@@ -111,9 +117,23 @@ public:
 
     // Server to client packets
     static ByteArray BuildErrorServerFull(std::uint32_t uuid);
+    static ByteArray BuildDiscardRequest(std::uint32_t uuid);
+    static ByteArray BuildDisconnect(std::uint32_t uuid);
+    static ByteArray BuildDealAgain();
+
     static ByteArray BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::Mode mode, std::uint32_t uuid);
     static ByteArray BuildServerChatMessage(const std::string &message);
-    static ByteArray BuildDiscardOrder(std::uint32_t uuid);
+    static ByteArray BuildShowBid(Contract c, bool slam, Place p);
+    static ByteArray BuildPlayersList(std::map<Place, Identity> players);
+    static ByteArray BuildShowCard(Card *c, Place p);
+    static ByteArray BuildShowHandle(Deck &handle, Place p);
+    static ByteArray BuildSendCards(std::uint32_t uuid, Deck &cards);
+    static ByteArray BuildEndOfDeal(Score &score);
+    static ByteArray BuildEndOfTrick(Place winner);
+    static ByteArray BuildStartDeal(Place taker, Contract contract);
+    static ByteArray BuildPlayCard(Place p);
+    static ByteArray BuildBidRequest(Contract c, Place p);
+    static ByteArray BuildShowDog(Deck &dog);
 };
 
 #endif // PROTOCOL_H
