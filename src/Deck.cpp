@@ -43,7 +43,7 @@ Deck::Deck()
     owner = NO_TEAM;
 }
 /*****************************************************************************/
-std::string Deck::GetCardList()
+std::string Deck::GetCardList() const
 {
     std::string list;
 

@@ -92,7 +92,7 @@ public:
 
     // Getters
     Card *GetCardByName(const std::string &i_name);
-    std::string GetCardList();
+    std::string GetCardList() const;
     Team GetOwner();
 
     // Setters
