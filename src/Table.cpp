@@ -27,92 +27,73 @@
 /*****************************************************************************/
 Table::Table()
     : maximumPlayers(4)
-    , tcpPort(DEFAULT_PORT)
+    , mTcpPort(DEFAULT_PORT)
     , mIdManager(2U, 20U)
 {
-    connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    mTcpServer.RegisterListener(*this);
 }
 /*****************************************************************************/
-void Table::slotNewConnection()
+void Table::Update(const TcpServer::Signal &info)
 {
-    while (tcpServer.hasPendingConnections())
+    if (info.type == TcpServer::DATA_RECEIVED)
     {
-        QTcpSocket *cnx = tcpServer.nextPendingConnection();
-
-        std::uint32_t uuid = mIdManager.TakeId();
-        mUsers[uuid] = cnx;
-        connect(cnx, SIGNAL(disconnected()), this, SLOT(slotClientClosed(Place)));
-        connect(&players[p], SIGNAL(sigReadyRead(Place)), this, SLOT(slotReadData(Place)));
+        mController.ExecuteRequest(info.data);
     }
+    else if (info.type == TcpServer::NEW_CONNECTION)
+    {
+        std::uint32_t uuid = mIdManager.TakeId();
+        // Add the player to the list
+        mUsers[uuid] = info.socket;
+        // send the information to the Tarot engine
+        mController.ExecuteRequest(Protocol::BuildAddPlayer());
+    }
+
+    // FIXME: manage client disconnection
+    // FIXME: if a player has quit during a game, replace it by a bot
+    //SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
+    //SendPlayersList();
 }
 /*****************************************************************************/
 void Table::StopServer()
 {
     CloseClients();
-    tcpServer.close();
+    mTcpServer.Close();
 }
 /*****************************************************************************/
 void Table::CloseClients()
 {
-    for (int i = 0; i < maximumPlayers; i++)
-    {
-        players[i].Close();
-    }
-}
-/*****************************************************************************/
-void Table::slotClientClosed(Place p)
-{
-    players[p].Close();
-    SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
-    SendPlayersList();
+    std::map<std::uint32_t, std::int32_t>::iterator iter;
+    TcpSocket peer;
 
-    if (!enable)
+    // Send the data to a(all) peer(s)
+    for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
-        disconnectedPlayers++;
+        peer.SetSocket(iter->second);
+        peer.Close();
     }
 
-    // FIXME: if a player has quit during a game, replace it by a bot
+    mUsers.clear();
 }
 /*****************************************************************************/
-void Table::slotReadData(Place p)
+void Table::SendToSocket(const ByteArray &packet)
 {
-    do
+    // Extract the UUID from the data packet received
+    std::uint32_t uuid = packet.GetUint32(3U);
+
+    std::map<std::uint32_t, std::int32_t>::iterator iter;
+    TcpSocket peer;
+
+    // Send the data to a(all) peer(s)
+    for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
-        QByteArray data = players[p].GetData();
-        QDataStream in(data);
-        if (DecodePacket(in) == true)
+        if (uuid == Protocol::ALL_PLAYERS ||
+            iter->first == uuid)
         {
-            if (DoAction(in, p) == false)
-            {
-                // bad packet received, exit decoding
-                return;
-            }
+            peer.SetSocket(iter->second);
+            peer.Send(packet.ToSring());
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(20U));
     }
-    while (players[p].HasData());
-}
-/*****************************************************************************/
-void Table::Broadcast(QByteArray &block)
-{
-    for (int i = 0; i < maximumPlayers; i++)
-    {
-        players[i].SendData(block);
-        // Calm down packets sending
-        qApp->processEvents(QEventLoop::AllEvents, 100);
-    }
-}
-/*****************************************************************************/
-int Table::GetNumberOfConnectedPlayers()
-{
-    int p = 0;
-    for (int i = 0; i < maximumPlayers; i++)
-    {
-        if (players[i].IsFree() == false)
-        {
-            p++;
-        }
-    }
-    return p;
 }
 /*****************************************************************************/
 void Table::LoadConfiguration(int port)
@@ -122,11 +103,11 @@ void Table::LoadConfiguration(int port)
     // Apply configuration
     for (int i = 0; i < 3; i++)
     {
-        bots[i].SetMyIdentity(serverConfig.GetOptions().bots[i]);
-        bots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
+        mBots[i].SetMyIdentity(serverConfig.GetOptions().bots[i]);
+        mBots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
     }
 
-    tcpPort = tcpPort;
+    mTcpPort = port;
 }
 /*****************************************************************************/
 void Table::SaveConfiguration(const ServerOptions &opt)
@@ -135,7 +116,7 @@ void Table::SaveConfiguration(const ServerOptions &opt)
     serverConfig.Save();
 }
 /*****************************************************************************/
-void Table::CreateGame(Game::Mode gameMode, int nbPlayers)
+void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle)
 {
     // TODO: add support for 3 and 5 players game
     if (nbPlayers != 4)
@@ -146,67 +127,21 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers)
 
     StopServer();
 
-    if (tcpServer.isListening())
+    if (!TcpSocket::Initialize())
     {
-        tcpServer.resumeAccepting();
+        TLogError("Cannot initialize TCP context");
     }
-    else
-    {
-        // Add few players to the maximum allowed to manage pending connections
-        tcpServer.setMaxPendingConnections(maximumPlayers + 3);
-        tcpServer.listen(QHostAddress::LocalHost, tcpPort);
-    }
-    enable = true;
 
-    // Add few players to the maximum allowed to manage pending connections
-    tcpServer.setMaxPendingConnections(maximumPlayers + 3);
-    tcpServer.listen(QHostAddress::LocalHost, tcpPort);
+    mTcpServer.RegisterListener(*this);
+    mTcpServer.Start(mTcpPort, 10U);
 
-
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::ReadWrite);
-    out << (quint8)gameMode;
-    out << (quint8)nbPlayers; // number of players in the current game
-    packet = Protocol::BuildHeader(packet, Protocol::ADMIN_NEW_SERVER_GAME, Protocol::ADMIN_UID);
-
-    server.ExecuteRequest(packet);
+    mController.ExecuteRequest(Protocol::BuildNewGame(gameMode, nbPlayers, shuffle));
 }
 /*****************************************************************************/
 void Table::Stop()
 {
-    // 1. Disable network protocol
-        enable = false;
-
-        if (tcpServer.isListening())
-        {
-            // 2. Don't accept any new connections
-            tcpServer.pauseAccepting();
-
-            // 3. Send a disconnection message to all the connected players
-            disconnectedPlayers = 0;
-            SendDisconnect();
-
-            int timeout = 20;
-            while (timeout)
-            {
-                qApp->processEvents(QEventLoop::AllEvents, 100);
-                if (disconnectedPlayers >= maximumPlayers)
-                {
-                    break;
-                }
-                timeout--;
-            }
-
-            // 5. Close sokets
-            //CloseClients();
-        }
-
-    server.StopServer();
-}
-/*****************************************************************************/
-Server &Table::GetServer()
-{
-    return server;
+    // FIXME: send a command to all clients to disconnect gracefully
+    StopServer();
 }
 /*****************************************************************************/
 ServerOptions &Table::GetOptions()
@@ -214,30 +149,19 @@ ServerOptions &Table::GetOptions()
     return serverConfig.GetOptions();
 }
 /*****************************************************************************/
-TarotEngine::Shuffle Table::GetShuffle()
-{
-    return server.GetEngine().GetShuffle();
-}
-/*****************************************************************************/
-void Table::SetShuffle(const TarotEngine::Shuffle &s)
-{
-    server.GetEngine().SetShuffle(s);
-}
-/*****************************************************************************/
 void Table::ConnectBots()
 {
     int i;
 
-    qApp->processEvents(QEventLoop::AllEvents, 100);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     for (i = 0; i < 3; i++)
     {
-        bots[i].Initialize();
-        bots[i].ConnectToHost("127.0.0.1", GetOptions().port);
-        qApp->processEvents(QEventLoop::AllEvents, 100);
+        mBots[i].Initialize();
+        mBots[i].ConnectToHost("127.0.0.1", GetOptions().port);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     }
 }
 
 //=============================================================================
 // End of file Table.cpp
 //=============================================================================
-
