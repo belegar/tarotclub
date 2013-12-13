@@ -1,7 +1,7 @@
 #ifndef BYTEARRAY_H
 #define BYTEARRAY_H
 
-#include <deque>
+#include <vector>
 #include <cstdint>
 #include <iostream>
 
@@ -22,16 +22,17 @@ public:
         }
     }
 
+    ByteArray(const std::string &data)
+    {
+        for (std::uint32_t i = 0U; i < data.size(); i++)
+        {
+            mData.push_back(static_cast<std::uint8_t>(data[i]));
+        }
+    }
+
     ByteArray()
     {
 
-    }
-
-    std::uint8_t PopFront()
-    {
-        std::uint8_t byte = mData.front();
-        mData.pop_front();
-        return byte;
     }
 
     void PushBack(std::uint8_t byte)
@@ -105,8 +106,7 @@ public:
     ByteArray operator+(const ByteArray &rhs) const
     {
         ByteArray result;
-
-        result.Append(mData);
+        result.Append(this->mData);
         result.Append(rhs.mData);
         return result;
     }
@@ -141,12 +141,24 @@ public:
         return data;
     }
 
-private:
-    std::deque<std::uint8_t> mData;
-
-    void Append (const std::deque<std::uint8_t> &data)
+    std::string ToSring() const
     {
-        std::deque<std::uint8_t>::iterator it = mData.end();
+        std::string buf;
+
+        for (std::uint32_t i = 0U; i < mData.size(); i++)
+        {
+            buf.push_back(static_cast<char>(mData[i]));
+        }
+
+        return buf;
+    }
+
+private:
+    std::vector<std::uint8_t> mData;
+
+    void Append (const std::vector<std::uint8_t> &data)
+    {
+        std::vector<std::uint8_t>::iterator it = mData.end();
         mData.insert(it, data.begin(), data.end());
     }
 };
