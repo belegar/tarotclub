@@ -26,6 +26,9 @@
 #define _GAME_H
 
 #include "defines.h"
+#include <cstdint>
+#include "ByteStreamReader.h"
+#include "ByteStreamWriter.h"
 
 /*****************************************************************************/
 class Game
@@ -54,14 +57,48 @@ public:
 
     enum Mode
     {
-        ONE_DEAL = 0xAA,    //!< The game will stop after one full deal played
-        TOURNAMENT = 0xBB   //!< The game will stop after a number of consecutive deals (server configuration)
+        ONE_DEAL    = 0xAA, //!< The game will stop after one full deal played
+        TOURNAMENT  = 0xBB  //!< The game will stop after a number of consecutive deals (server configuration)
+    };
+
+    enum ShuffleType
+    {
+        RANDOM_DEAL,
+        CUSTOM_DEAL,
+        NUMBERED_DEAL
+    };
+
+    struct Shuffle
+    {
+        ShuffleType     type;
+        std::string     file;
+        std::uint32_t   seed;
+
+        friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Shuffle &sh)
+        {
+            out << (std::uint8_t)sh.type
+                << sh.file
+                << sh.seed;
+            return out;
+        }
+
+        friend ByteStreamReader &operator>>(ByteStreamReader &in, Shuffle &sh)
+        {
+            std::uint8_t var8;
+
+            in >> var8;
+            sh.type = (ShuffleType)var8;
+            in >> sh.file;
+            in >> sh.seed;
+            return in;
+        }
+
     };
 
     struct HandleInfo
     {
-        Handle type;
-        bool declared;
+        Handle  type;
+        bool    declared;
     };
 
     Game();

@@ -39,20 +39,6 @@
 class TarotEngine
 {
 public:
-    enum ShuffleType
-    {
-        RANDOM_DEAL,
-        CUSTOM_DEAL,
-        NUMBERED_DEAL
-    };
-
-    struct Shuffle
-    {
-        ShuffleType type;
-        QString     file;
-        int         seed;
-    };
-
     enum Signal
     {
         SIG_REQUEST_BID,    // void sigRequestBid(Contract c, Place p);
@@ -97,12 +83,12 @@ public:
     Score &GetScore();
     Game &GetGameInfo();
     Deal &GetDeal();
-    TarotEngine::Shuffle GetShuffle();
+    Game::Shuffle GetShuffle();
     int GetNumberOfCurrentPlayers();
     Place GetFreePlayer();
 
     // Setters
-    void SetShuffle(const Shuffle &s);
+    void SetShuffle(const Game::Shuffle &s);
     void SetDiscard(Deck &discard);
     void SetHandle(Deck &handle, Place p);
     void SetCard(Card *c, Place p);
@@ -113,7 +99,7 @@ private:
     Deck        currentTrick;   // the main deck of cards
     Deal        deal;
     Game        gameState;
-    Shuffle     shuffle;
+    Game::Shuffle     shuffle;
     Subject<SignalInfo> mSubject;
 
     // synchonization counters
@@ -132,7 +118,6 @@ private:
     void GameSateMachine();
     void EndOfDeal();
     void SendSignal(Signal s, Place p = NOWHERE, Contract c = PASS);
-
 };
 
 #endif // _TAROTENGINE_H
