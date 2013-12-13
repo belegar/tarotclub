@@ -469,7 +469,8 @@ QStringList Deal::GetSortedTrick(int trick)
     for (int i = 0; i < tricks[trick].size(); i++)
     {
         Card *c = tricks[trick].at(i);
-        list.insert((int)(c->GetOwner()), c->GetName());
+        std::string name = c->GetName();
+        list.insert((int)(c->GetOwner()), QString(name.data()));
     }
 
     return list;
@@ -519,7 +520,7 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
 
             stream.writeStartElement("player");
             stream.writeAttribute("place", Util::ToString(i.key()));
-            stream.writeCharacters(i.value().name);
+            stream.writeCharacters(QString(i.value().name.data()));
             stream.writeEndElement(); // player
         }
         stream.writeEndElement(); // players
@@ -532,7 +533,7 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
         stream.writeEndElement(); // deal_info
 
         //========================== Discard cards ==========================
-        stream.writeTextElement("discard", dogDeck.GetCardList());
+        stream.writeTextElement("discard", QString(dogDeck.GetCardList().data()));
 
         //========================== Played cards ==========================
 

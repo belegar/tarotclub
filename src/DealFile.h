@@ -25,7 +25,8 @@
 #ifndef DEALFILE_H
 #define DEALFILE_H
 
-#include <QString>
+#include <QtCore>
+#include <string>
 #include "Deck.h"
 
 /*****************************************************************************/
@@ -34,8 +35,8 @@ class DealFile
 public:
     DealFile();
 
-    bool LoadFile(QString &fileName);
-    void SaveFile(QString &fileName);
+    bool LoadFile(std::string &fileName);
+    void SaveFile(std::string &fileName);
 
     Deck  southDeck;
     Deck  northDeck;
