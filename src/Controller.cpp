@@ -26,17 +26,17 @@
 #include <chrono>
 #include <string>
 #include "Log.h"
-#include "Server.h"
+#include "Controller.h"
 #include "ByteStreamReader.h"
 
 /*****************************************************************************/
-Server::Server()
+Controller::Controller()
 {
     // Register ourself as an observer of Tarot Engine events
     engine.RegisterListener(*this);
 }
 /*****************************************************************************/
-void Server::Update(const TarotEngine::SignalInfo &info)
+void Controller::Update(const TarotEngine::SignalInfo &info)
 {
     switch (info.sig)
     {
@@ -75,23 +75,23 @@ void Server::Update(const TarotEngine::SignalInfo &info)
     }
 }
 /*****************************************************************************/
-void Server::NewServerGame(Game::Mode mode)
+void Controller::NewServerGame(Game::Mode mode)
 {
     // Init everything
     engine.NewGame(mode);
 }
 /*****************************************************************************/
-void Server::Start()
+void Controller::Start()
 {
-    mThread = std::thread(Server::EntryPoint, this);
+    mThread = std::thread(Controller::EntryPoint, this);
 }
 /*****************************************************************************/
-void Server::ExecuteRequest(const ByteArray &packet)
+void Controller::ExecuteRequest(const ByteArray &packet)
 {
     mQueue.Push(packet);
 }
 /*****************************************************************************/
-void Server::Run()
+void Controller::Run()
 {
     ByteArray data;
     while(true)
@@ -112,13 +112,13 @@ void Server::Run()
     }
 }
 /*****************************************************************************/
-void Server::EntryPoint(void *pthis)
+void Controller::EntryPoint(void *pthis)
 {
-    Server * pt = (Server*)pthis;
+    Controller * pt = (Controller*)pthis;
     pt->Run();
 }
 /*****************************************************************************/
-bool Server::DoAction(const ByteArray &data)
+bool Controller::DoAction(const ByteArray &data)
 {
     bool ret = true;
     ByteStreamReader in(data);
@@ -147,7 +147,7 @@ bool Server::DoAction(const ByteArray &data)
             break;
         }
 
-        case Protocol::ADMIN_NEW_PLAYER:
+        case Protocol::ADMIN_ADD_PLAYER:
         {
             // Look for free Place
             Place assigned = engine.GetFreePlayer();
@@ -353,7 +353,7 @@ bool Server::DoAction(const ByteArray &data)
     return ret;
 }
 /*****************************************************************************/
-void Server::SendPacket(const ByteArray &block)
+void Controller::SendPacket(const ByteArray &block)
 {
     Signal sig;
 
