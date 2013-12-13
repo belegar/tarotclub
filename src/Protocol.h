@@ -33,6 +33,7 @@
 #include "Identity.h"
 #include "ByteArray.h"
 #include "Score.h"
+#include "Game.h"
 
 class Protocol
 {
@@ -90,7 +91,7 @@ public:
 
         // admin -> server
         ADMIN_NEW_SERVER_GAME   = 0xA0, //!< Ask the server to start a new game
-        ADMIN_NEW_PLAYER        = 0xA1, //!< A new player is entering the game
+        ADMIN_ADD_PLAYER        = 0xA1, //!< A new player is entering the game
         ADMIN_DISCONNECT        = 0xA2  //!< Ask client(s) to quit properly
     };
 
@@ -120,7 +121,6 @@ public:
     static ByteArray BuildDiscardRequest(std::uint32_t uuid);
     static ByteArray BuildDisconnect(std::uint32_t uuid);
     static ByteArray BuildDealAgain();
-
     static ByteArray BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::Mode mode, std::uint32_t uuid);
     static ByteArray BuildServerChatMessage(const std::string &message);
     static ByteArray BuildShowBid(Contract c, bool slam, Place p);
@@ -134,6 +134,10 @@ public:
     static ByteArray BuildPlayCard(Place p);
     static ByteArray BuildBidRequest(Contract c, Place p);
     static ByteArray BuildShowDog(Deck &dog);
+
+    // Admin to controller packets
+    static ByteArray BuildAddPlayer();
+    static ByteArray BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle);
 };
 
 #endif // PROTOCOL_H

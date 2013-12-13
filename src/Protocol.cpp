@@ -324,6 +324,26 @@ ByteArray Protocol::BuildShowDog(Deck &dog)
 
     return packet;
 }
+/*****************************************************************************/
+ByteArray Protocol::BuildAddPlayer()
+{
+    return BuildCommand(Protocol::ADMIN_ADD_PLAYER, Protocol::ADMIN_UID);
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::ADMIN_NEW_SERVER_GAME, Protocol::ADMIN_UID);
+    out << (std::uint8_t)gameMode;
+    out << (std::uint8_t)nbPlayers; // number of players in the current game
+    out << shuffle;
+    UpdateHeader(packet);
+
+    return packet;
+}
+
 
 //=============================================================================
 // End of file Protocol.cpp
