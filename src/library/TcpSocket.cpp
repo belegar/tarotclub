@@ -156,7 +156,6 @@ bool TcpSocket::Connect (const std::string &host, const int port)
     {
         ret = true;
     }
-   // if (status) m_lastError = errno;
 
     return ret;
 }
@@ -176,7 +175,7 @@ bool TcpSocket::Send (const std::string & input) const
         return false;
     }
 }
-
+/*****************************************************************************/
 /**
  * @brief TcpSocket::Initialize
  * One time initialization for the sub-system
@@ -193,8 +192,8 @@ bool TcpSocket::Initialize()
         {
             return false;
         }
-    }
 #endif
+    }
 
     return true;
 }
