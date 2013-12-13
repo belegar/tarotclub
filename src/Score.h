@@ -26,6 +26,8 @@
 #define _SCORE_H
 
 #include "defines.h"
+#include "ByteStreamReader.h"
+#include "ByteStreamWriter.h"
 
 class Score
 {
@@ -48,22 +50,22 @@ public:
     int GetDefenseScore();
     QString ToString();
 
-    friend QDataStream &operator<<(QDataStream &out, Score &info)
+    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
     {
-        out << (qint32)info.pointsAttack
-            << (qint32)info.scoreAttack
-            << (qint32)info.pointsToDo
-            << (qint32)info.difference
-            << (qint32)info.multiplier
-            << (qint32)info.littleEndianPoints
-            << (qint32)info.handlePoints
-            << (qint32)info.slamPoints;
+        out << (std::uint32_t)info.pointsAttack
+            << (std::uint32_t)info.scoreAttack
+            << (std::uint32_t)info.pointsToDo
+            << (std::uint32_t)info.difference
+            << (std::uint32_t)info.multiplier
+            << (std::uint32_t)info.littleEndianPoints
+            << (std::uint32_t)info.handlePoints
+            << (std::uint32_t)info.slamPoints;
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, Score &info)
+    friend ByteStreamReader &operator>>(ByteStreamReader &in, Score &info)
     {
-        qint32 val;
+        std::uint32_t val;
 
         in >> val;
         info.pointsAttack = val;

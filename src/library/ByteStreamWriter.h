@@ -63,7 +63,7 @@ public:
         return *this;
     }
 
-    ByteStreamWriter& operator << (std::uint32_t &d)
+    ByteStreamWriter& operator << (const std::uint32_t &d)
     {
         std::uint8_t byte;
         std::uint32_t data = d;

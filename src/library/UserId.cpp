@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - DealFile.h
+ * TarotClub - UserId.cpp
  *=============================================================================
- * Manage saving and loading XML files of custom deals
+ * Unique User identifier utility class
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,35 +22,39 @@
  *
  *=============================================================================
  */
-#ifndef DEALFILE_H
-#define DEALFILE_H
 
-#include <QtCore>
-#include <string>
-#include "Deck.h"
+#include "UserId.h"
+
 
 /*****************************************************************************/
-class DealFile
+UserId::UserId(std::uint32_t min, std::uint32_t max)
+    : mMin(min)
+    , mMax(max)
 {
-public:
-    DealFile();
 
-    bool LoadFile(std::string &fileName);
-    void SaveFile(std::string &fileName);
+}
+/*****************************************************************************/
+std::uint32_t UserId::TakeId()
+{
+    std::uint32_t id;
 
-    Deck  southDeck;
-    Deck  northDeck;
-    Deck  westDeck;
-    Deck  eastDeck;
-    Deck  dogDeck;
-
-private:
-    bool FillDeck(Deck &deck, QXmlStreamReader &xml);
-
-};
-
-#endif // DEALFILE_H
+    for (id = mMin; id <= mMax; id++)
+    {
+        if (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end())
+        {
+            // Id not used
+            mUsedIds.push_back(id);
+            break;
+        }
+    }
+    return id;
+}
+/*****************************************************************************/
+void UserId::ReleaseId(std::uint32_t id)
+{
+    // TODO
+}
 
 //=============================================================================
-// End of file DealFile.h
+// End of file UserId.cpp
 //=============================================================================

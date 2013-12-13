@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - NetPlayer.h
+ * TarotClub - UserId.h
  *=============================================================================
- * Networked remote player, used in the server side
+ * Unique User identifier utility class
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,53 +23,29 @@
  *=============================================================================
  */
 
-#ifndef _NET_PLAYER_H
-#define _NET_PLAYER_H
+#ifndef _USER_ID_H
+#define _USER_ID_H
 
-#include <QtNetwork>
-#include "defines.h"
-#include "Deck.h"
-#include "Identity.h"
-#include "Player.h"
+#include <cstdint>
+#include <list>
 
 /*****************************************************************************/
-class NetPlayer : public QObject
+class UserId
 {
-    Q_OBJECT
-
 public:
-    NetPlayer();
+    UserId(std::uint32_t min, std::uint32_t max);
 
-    // Helpers
-    bool IsFree();
-    void SendData(QByteArray &data);
-    void Close();
-    bool HasData();
-
-    // Getters
-    QTcpSocket *GetSocket();
-    QByteArray GetData();
-
-    // Setters
-    void SetConnection(QTcpSocket *s, Place p);
-
-signals:
-    void sigDisconnected(Place);
-    void sigReadyRead(Place);
+    std::uint32_t TakeId();
+    void ReleaseId(std::uint32_t id);
 
 private:
-    QTcpSocket *socket;
-    bool freePlace;
-    Place       place;      // place assignée par le serveur autour de la table
-
-private slots:
-    void slotClientClosed();
-    void slotReadData();
-
+    std::uint32_t mMin;
+    std::uint32_t mMax;
+    std::list<std::uint32_t> mUsedIds;
 };
 
-#endif // _NET_PLAYER_H
+#endif // _USER_ID_H
 
 //=============================================================================
-// End of file NetPlayer.h
+// End of file UserId.h
 //=============================================================================

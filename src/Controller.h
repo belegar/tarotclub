@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Server.h
+ * TarotClub - Controller.h
  *=============================================================================
- * Host a Tarot game and manage network clients
+ * Manage TarotClub protocol requests within a Tarot context
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,8 +22,8 @@
  *
  *=============================================================================
  */
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
 
 #include <thread>
 #include <map>
@@ -46,7 +46,7 @@
  * calls within the thread context.
  *
  */
-class Server : public Observer<TarotEngine::SignalInfo>
+class Controller : public Observer<TarotEngine::SignalInfo>
 {
 
 public:
@@ -55,7 +55,7 @@ public:
         ByteArray data;
     };
 
-    Server();
+    Controller();
 
     void RegisterListener(Observer<Signal> &sig);
     void Start();
@@ -77,33 +77,12 @@ private:
 
     void Update(const TarotEngine::SignalInfo &info);
     bool DoAction(const ByteArray &data);
-    void Broadcast(ByteArray &block);
     void SendPacket(const ByteArray &block);
 
-    // Packets sent to clients (players)
-
-    void SendDisconnect();
-    void SendShowBid(Contract c, bool slam, Place p);
-    void SendErrorServerFull(QTcpSocket *cnx);
-
-    void SendPlayersList();
-    void SendBuildDiscard();
-    void SendShowCard(Card *c);
-    void SendShowHandle(Deck &handle, Place p);
-
-    // TarotClub engine callbacks
-    void slotSendCards();
-    void slotSendWaitTrick(Place winner);
-    void slotSendStartDeal();
-    void slotSendPlayCard(Place p);
-    void slotSendRequestBid(Contract c, Place p);
-    void slotSendShowDog();
-    void slotSendDealAgain();
-    void slotSendEndOfDeal();
 };
 
-#endif // SERVER_H
+#endif // CONTROLLER_H
 
 //=============================================================================
-// End of file Server.h
+// End of file Controller.h
 //=============================================================================

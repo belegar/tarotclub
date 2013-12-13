@@ -25,50 +25,14 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <QObject>
 #include <map>
-#include "Server.h"
-
+#include "TcpServer.h"
+#include "Controller.h"
+#include "Bot.h"
+#include "UserId.h"
 
 /*****************************************************************************/
-class UserId
-{
-public:
-    UserId(std::uint32_t min, std::uint32_t max)
-        : mMin(min)
-        , mMax(max)
-    {
-
-    }
-
-    std::uint32_t TakeId()
-    {
-        std::uint32_t id;
-
-        for (id = mMin; id <= mMax; id++)
-        {
-            if (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end())
-            {
-                // Id not used
-                mUsedIds.push_back(id);
-                break;
-            }
-        }
-        return id;
-    }
-
-    void ReleaseId(std::uint32_t id)
-    {
-        // TODO
-    }
-
-private:
-    std::uint32_t mMin;
-    std::uint32_t mMax;
-    std::list<std::uint32_t> mUsedIds;
-};
-/*****************************************************************************/
-class Table : public QObject
+class Table : public Observer<TcpServer::Signal>
 {
 
 public:
@@ -76,42 +40,55 @@ public:
 
     // Helpers
     void LoadConfiguration(int port = DEFAULT_PORT);
-    void CreateGame(Game::Mode gameMode, int nbPlayers = 4);
+    void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
     void Start();
     void Stop();
     void ConnectBots();
 
     // Getters
-    Server &GetServer();
     ServerOptions &GetOptions();
-    TarotEngine::Shuffle GetShuffle();
 
     // Setters
-    void SetShuffle(const TarotEngine::Shuffle &s);
     void SaveConfiguration(const ServerOptions &opt);
 
-private slots:
-    void slotNewConnection();
-
-    // client sockets
-    void slotClientClosed(Place p);
-    void slotReadData(Place p);
+    // Handle incomming connections and data
+    void Update(const TcpServer::Signal &info);
 
 private:
+    class ControllerListener : public Observer<Controller::Signal>
+    {
+    public:
+        ControllerListener(Table &i_table)
+            : mTable(i_table)
+        {
+
+        }
+
+        void Update(const Controller::Signal &info)
+        {
+            mTable.SendToSocket(info.data);
+        }
+
+    private:
+        Table &mTable;
+    };
+
+    friend class ControllerListener;
+
+    void SendToSocket(const ByteArray &packet);
     void StopServer();
     void CloseClients();
 
     int maximumPlayers;
-    int tcpPort;
-    Server server;
+    int mTcpPort;
+    Controller mController;
     ServerConfig serverConfig;
-    Bot bots[3];
+    Bot mBots[3];
     UserId mIdManager;
+    TcpServer mTcpServer;
 
-    std::map<std::uint32_t, QTcpSocket *> mUsers;
-
-    NetPlayer players[5]; // [3..5] players
-    QTcpServer tcpServer;
+    // Pair of UUID and socket
+    std::map<std::uint32_t, std::int32_t> mUsers;
 };
 
 #endif // TABLE_H

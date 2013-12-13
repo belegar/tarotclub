@@ -36,10 +36,10 @@ DealFile::DealFile()
 
 }
 /*****************************************************************************/
-bool DealFile::LoadFile(QString &fileName)
+bool DealFile::LoadFile(std::string &fileName)
 {
     bool ret = true;
-    QFile f(fileName);
+    QFile f(fileName.data());
 
     if (f.open(QIODevice::ReadOnly) == true)
     {
@@ -135,7 +135,7 @@ bool DealFile::LoadFile(QString &fileName)
 /*****************************************************************************/
 bool DealFile::FillDeck(Deck &deck, QXmlStreamReader &xml)
 {
-    int val;
+    QString val;
 
     while (!(xml.tokenType() == QXmlStreamReader::EndElement &&
              xml.name() != "card"))
@@ -145,23 +145,18 @@ bool DealFile::FillDeck(Deck &deck, QXmlStreamReader &xml)
         {
             if (xml.name() == "card")
             {
-                val = xml.readElementText().toInt();
-                if ((val < 0) || (val > 77))
-                {
-                    return false;
-                }
-                deck.append(TarotDeck::GetCard(val));
+                val = xml.readElementText();
+                deck.append(TarotDeck::GetCard(val.toStdString()));
             }
         }
     }
     return true;
 }
 /*****************************************************************************/
-void DealFile::SaveFile(QString &fileName)
+void DealFile::SaveFile(std::string &fileName)
 {
-
     // Open a file where to stream out the XML
-    QFile f(fileName);
+    QFile f(fileName.data());
     if (!f.open(QIODevice::WriteOnly))
     {
         return;
@@ -180,7 +175,7 @@ void DealFile::SaveFile(QString &fileName)
     stream.writeStartElement("dog");
     for (int i = 0; i < dogDeck.count(); i++)
     {
-        stream.writeTextElement("card", QString().setNum(dogDeck.at(i)->GetId()));
+        stream.writeTextElement("card", dogDeck.at(i)->GetName().data());
     }
     stream.writeEndElement(); // dog
 
@@ -188,7 +183,7 @@ void DealFile::SaveFile(QString &fileName)
     stream.writeStartElement("south");
     for (int i = 0; i < southDeck.count(); i++)
     {
-        stream.writeTextElement("card", QString().setNum(southDeck.at(i)->GetId()));
+        stream.writeTextElement("card", southDeck.at(i)->GetName().data());
     }
     stream.writeEndElement(); // south
 
@@ -196,7 +191,7 @@ void DealFile::SaveFile(QString &fileName)
     stream.writeStartElement("west");
     for (int i = 0; i < westDeck.count(); i++)
     {
-        stream.writeTextElement("card", QString().setNum(westDeck.at(i)->GetId()));
+        stream.writeTextElement("card", westDeck.at(i)->GetName().data());
     }
     stream.writeEndElement(); // west
 
@@ -204,7 +199,7 @@ void DealFile::SaveFile(QString &fileName)
     stream.writeStartElement("north");
     for (int i = 0; i < northDeck.count(); i++)
     {
-        stream.writeTextElement("card", QString().setNum(northDeck.at(i)->GetId()));
+        stream.writeTextElement("card", northDeck.at(i)->GetName().data());
     }
     stream.writeEndElement(); // north
 
@@ -212,7 +207,7 @@ void DealFile::SaveFile(QString &fileName)
     stream.writeStartElement("east");
     for (int i = 0; i < eastDeck.count(); i++)
     {
-        stream.writeTextElement("card", QString().setNum(eastDeck.at(i)->GetId()));
+        stream.writeTextElement("card", eastDeck.at(i)->GetName().data());
     }
     stream.writeEndElement(); // east
 

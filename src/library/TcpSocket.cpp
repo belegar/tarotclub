@@ -1,30 +1,7 @@
 
 #include "TcpSocket.h"
 
-/*****************************************************************************/
-SocketError::SocketError(const std::string & Message,
-            const char * TranslationUnitName,
-            int LineNumber,
-            bool Fatal)
-{
-    fileName = TranslationUnitName != 0 ? TranslationUnitName : std::string();
-    m_Message = Message;
-    m_Fatal = Fatal;
-    m_LineNumber = LineNumber;
-}
-/*****************************************************************************/
-void SocketError::tombstone(std::ostream & Out)
-{
-    Out << std::endl <<
-     (m_Fatal ? "SocketError reports an unrecoverable error has occurred." :
-                "System message from SocketError ") << std::endl;
-    Out << m_Message << std::endl;
-
-    if (fileName != std::string())
-    Out << "Problem detected near line " << m_LineNumber << " of file "
-        << fileName << std::endl;
-}
-
+bool TcpSocket::mInitialized = false;
 
 /*****************************************************************************/
 TcpSocket::TcpSocket()
@@ -37,8 +14,7 @@ TcpSocket::TcpSocket()
 /*****************************************************************************/
 TcpSocket::~TcpSocket()
 {
-//
-    if (IsValid()) ::close (mSock);
+//    if (IsValid()) ::close (mSock);
 }
 
 /*****************************************************************************/
@@ -208,12 +184,15 @@ bool TcpSocket::Send (const std::string & input) const
  */
 bool TcpSocket::Initialize()
 {
-#ifdef USE_WINDOWS_OS
-    WSADATA wsaData;
-
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR)
+    if (!mInitialized)
     {
-        return false;
+#ifdef USE_WINDOWS_OS
+        WSADATA wsaData;
+
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR)
+        {
+            return false;
+        }
     }
 #endif
 
@@ -227,7 +206,7 @@ std::int32_t TcpSocket::Recv (std::string & output) const
 
 
     output = std::string();
-    ssize_t status = 0; // changed from int to ssize_t
+    int status = 0; // changed from int to ssize_t
 
     // Most likely, we will read a packet, or if the message
     // is very short, we will receive the entire message in

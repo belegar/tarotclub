@@ -23,8 +23,6 @@
  *=============================================================================
  */
 
-#include <QtNetwork>
-#include <QCoreApplication>
 #include "TarotEngine.h"
 #include "DealFile.h"
 #include "Identity.h"
@@ -34,7 +32,7 @@
 /*****************************************************************************/
 TarotEngine::TarotEngine()
 {
-    shuffle.type = RANDOM_DEAL;
+    shuffle.type = Game::RANDOM_DEAL;
     shuffle.seed = 0;
     for (int i = 0; i < 5; i++)
     {
@@ -53,12 +51,12 @@ void TarotEngine::NewGame(Game::Mode mode)
     gameState.gameMode = mode;
 }
 /*****************************************************************************/
-void TarotEngine::SetShuffle(const TarotEngine::Shuffle &s)
+void TarotEngine::SetShuffle(const Game::Shuffle &s)
 {
     shuffle = s;
 }
 /*****************************************************************************/
-TarotEngine::Shuffle TarotEngine::GetShuffle()
+Game::Shuffle TarotEngine::GetShuffle()
 {
     return shuffle;
 }
@@ -477,7 +475,7 @@ void TarotEngine::CreateDeal()
 
     currentTrick.clear();
 
-    if (shuffle.type == CUSTOM_DEAL)
+    if (shuffle.type == Game::CUSTOM_DEAL)
     {
         DealFile editor;
         if (editor.LoadFile(shuffle.file) == true)
@@ -493,18 +491,18 @@ void TarotEngine::CreateDeal()
         {
             // Fall back to default mode
             // FIXME: load a problem into the logging mechanism
-            shuffle.type = RANDOM_DEAL;
+            shuffle.type = Game::RANDOM_DEAL;
         }
     }
 
-    if (shuffle.type != CUSTOM_DEAL)
+    if (shuffle.type != Game::CUSTOM_DEAL)
     {
         for (int i = 0; i < 78; i++)
         {
             currentTrick.append(TarotDeck::GetCard(i));
         }
 
-        if (shuffle.type == RANDOM_DEAL)
+        if (shuffle.type == Game::RANDOM_DEAL)
         {
             shuffle.seed = qrand() % RAND_MAX;
         }

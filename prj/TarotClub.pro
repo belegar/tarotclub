@@ -76,9 +76,17 @@ HEADERS += Log.h \
     ThreadQueue.h \
     ByteStreamReader.h \
     ByteStreamWriter.h \
-    ByteArray.h
+    ByteArray.h \
+    TcpSocket.h \
+    TcpServer.h \
+    TcpClient.h \
+    UserId.h
 
-SOURCES += Log.cpp
+SOURCES += Log.cpp \
+    TcpSocket.cpp \
+    TcpServer.cpp \
+    TcpClient.cpp \
+    UserId.cpp
 
 # -------------------------------------------------------------
 # TarotClub core files
@@ -100,9 +108,8 @@ HEADERS += ServerConfig.h \
     Game.h \
     Score.h \
     Protocol.h \
-    Server.h \
-    Table.h \
-    NetPlayer.h
+    Controller.h \
+    Table.h
 
 SOURCES += ServerConfig.cpp \
     DealFile.cpp \
@@ -117,10 +124,9 @@ SOURCES += ServerConfig.cpp \
     Deal.cpp \
     Game.cpp \
     Protocol.cpp \
-    Server.cpp \
+    Controller.cpp \
     Table.cpp \
-    Score.cpp \
-    NetPlayer.cpp
+    Score.cpp
 
 # -------------------------------------------------------------
 # Client files

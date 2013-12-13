@@ -4,17 +4,30 @@
 // C level network includes
 
 #ifdef USE_UNIX_OS
+
+// FIXME: use __GNUC__ macro for GCC under Linux
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <netdb.h>
-#else
-#include <ws2tcpip.h>
+#include <unistd.h>
 #endif
 
-#include <unistd.h> // posix
+#ifdef USE_WINDOWS_OS
+#include <ws2tcpip.h>
+
+#ifdef __MINGW32__
+#include <unistd.h>
+#endif
+
+#ifdef _MSC_VER
+#include <io.h>
+#endif
+
+#endif // USE_WINDOWS_OS
+
 #include <string.h> // memset.
 #include <errno.h>  // errno, just like it says.
 #include <fcntl.h>  // symbolic names for socket flags.
@@ -31,22 +44,6 @@
 #define MAXRECV (1024)
 
 /*****************************************************************************/
-class SocketError
-{
-public:
-    SocketError(const std::string & Message, const char * TranslationUnitName = 0, int LineNumber = 0, bool Fatal = true);
-
-    virtual ~SocketError(void) { }
-    virtual void tombstone(std::ostream & Out = std::cerr);
-
-private:
-    std::string m_Message;
-    bool m_Fatal;
-    std::string fileName;
-    int m_LineNumber;
-};
-
-/*****************************************************************************/
 class TcpSocket
 {
 public:
@@ -56,7 +53,6 @@ public:
     // Getters
     int  GetSocket() const      { return mSock; }
     int  GetIPAddr() const      { return mAddr.sin_addr.s_addr; }
-    int  GetLastError() const   { return m_lastError; }
     int  GetRealPort() const    { return mPort; }
 
     // Setters
@@ -65,7 +61,6 @@ public:
 
     // Helpers
     bool IsValid() const { return mSock != -1; }
-
     bool Create();
     bool Bind(std::uint16_t port);
     void Close();
@@ -75,6 +70,7 @@ public:
     bool Connect(const std::string &host, const int port);
     bool Send(const std::string & input) const;
 
+    // Static
     static bool Initialize();
 
 private:
@@ -82,7 +78,7 @@ private:
     std::uint16_t mPort;
     int mSock;
     sockaddr_in mAddr;
-    int m_lastError;
+    static bool mInitialized;
 };
 
 #endif // TCPSOCKET_H

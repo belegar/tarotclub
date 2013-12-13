@@ -129,9 +129,19 @@ ByteArray Protocol::BuildErrorServerFull(std::uint32_t uuid)
     return BuildCommand(Protocol::SERVER_ERROR_FULL, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildDiscardOrder(std::uint32_t uuid)
+ByteArray Protocol::BuildDiscardRequest(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::SERVER_BUILD_DISCARD, uuid);
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildDisconnect(std::uint32_t uuid)
+{
+    return BuildCommand(Protocol::ADMIN_DISCONNECT, uuid);
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildDealAgain()
+{
+    return BuildCommand(Protocol::SERVER_DEAL_AGAIN, Protocol::ALL_PLAYERS);
 }
 /*****************************************************************************/
 ByteArray Protocol::BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::Mode mode, std::uint32_t uuid)
@@ -159,6 +169,181 @@ ByteArray Protocol::BuildServerChatMessage(const std::string &message)
 
     return packet;
 }
+/*****************************************************************************/
+ByteArray Protocol::BuildShowBid(Contract c, bool slam, Place p)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_SHOW_PLAYER_BID, Protocol::ALL_PLAYERS);
+    out << (std::uint8_t)p   // current player bid
+        << (std::uint8_t)c;  // contract to show
+    if (slam)
+    {
+        out << (std::uint8_t)1;
+    }
+    else
+    {
+        out << (std::uint8_t)0;
+    }
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildPlayersList(std::map<Place, Identity> players)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_PLAYERS_LIST, Protocol::ALL_PLAYERS);
+
+    out << (std::uint8_t)players.size();
+    std::map<Place, Identity>::iterator iter;
+
+    for(iter = players.begin(); iter != players.end(); iter++)
+    {
+        out << (std::uint8_t)iter->first;
+        out << iter->second;
+    }
+
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildShowCard(Card *c, Place p)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_SHOW_CARD, Protocol::ALL_PLAYERS);
+    out << (std::uint8_t)c->GetId()
+        << (std::uint8_t)p;
+    UpdateHeader(packet);
+
+    return packet;
+}
+
+/*****************************************************************************/
+ByteArray Protocol::BuildShowHandle(Deck &handle, Place p)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_SHOW_HANDLE, Protocol::ALL_PLAYERS);
+    out << (std::uint8_t)p;
+    out << handle;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildSendCards(std::uint32_t uuid, Deck &cards)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_SEND_CARDS, uuid);
+    out << cards;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildEndOfDeal(Score &score)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_END_OF_DEAL, Protocol::ALL_PLAYERS);
+    out << score;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildEndOfTrick(Place winner)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_END_OF_TRICK, Protocol::ALL_PLAYERS);
+    out << (std::uint8_t)winner;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildStartDeal(Place taker, Contract contract)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_START_DEAL, Protocol::ALL_PLAYERS);
+    out << (std::uint8_t)taker;
+    out << (std::uint8_t)contract;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildPlayCard(Place p)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_PLAY_CARD, Protocol::ALL_PLAYERS);
+    out << (std::uint8_t)p; // this player has to play a card
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildBidRequest(Contract c, Place p)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_REQUEST_BID, Protocol::ALL_PLAYERS);
+    out << (std::uint8_t)c; // previous bid
+    out << (std::uint8_t)p; // player to declare something
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildShowDog(Deck &dog)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_SHOW_DOG, Protocol::ALL_PLAYERS);
+    out << dog;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildAddPlayer()
+{
+    return BuildCommand(Protocol::ADMIN_ADD_PLAYER, Protocol::ADMIN_UID);
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::ADMIN_NEW_SERVER_GAME, Protocol::ADMIN_UID);
+    out << (std::uint8_t)gameMode;
+    out << (std::uint8_t)nbPlayers; // number of players in the current game
+    out << shuffle;
+    UpdateHeader(packet);
+
+    return packet;
+}
+
 
 //=============================================================================
 // End of file Protocol.cpp

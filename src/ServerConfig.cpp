@@ -125,12 +125,12 @@ bool ServerConfig::Load()
                                         {
                                             txt = "Unknown";
                                         }
-                                        options.bots[pos].name = txt;
+                                        options.bots[pos].name = txt.toStdString();
 
                                     }
                                     else if (xml.name() == "quote")
                                     {
-                                        options.bots[pos].quote = xml.readElementText();
+                                        options.bots[pos].quote = xml.readElementText().toStdString();
 
                                     }
                                     else if (xml.name() == "sex")
@@ -140,7 +140,7 @@ bool ServerConfig::Load()
                                     }
                                     else if (xml.name() == "avatar")
                                     {
-                                        options.bots[pos].avatar = xml.readElementText();
+                                        options.bots[pos].avatar = xml.readElementText().toStdString();
                                     }
 
                                 }
@@ -193,13 +193,13 @@ bool ServerConfig::Save()
             stream.writeAttribute("pos", QString().setNum(i));
 
             // name
-            stream.writeTextElement("name", options.bots[i].name);
+            stream.writeTextElement("name", options.bots[i].name.data());
             // avatar
-            stream.writeTextElement("avatar", options.bots[i].avatar);
+            stream.writeTextElement("avatar", options.bots[i].avatar.data());
             // sex
             stream.writeTextElement("sex", QString().setNum(options.bots[i].sex));
             // quote
-            stream.writeTextElement("quote", options.bots[i].quote);
+            stream.writeTextElement("quote", options.bots[i].quote.data());
 
             stream.writeEndElement(); // identity
         }
@@ -224,12 +224,12 @@ void ServerConfig::SetDefault(ServerOptions &opt)
 
     opt.bots[BOT_WEST].name = "Ouest";
     opt.bots[BOT_WEST].avatar = ":/images/avatars/robot.png";
-    opt.bots[BOT_WEST].quote = QString::fromUtf8("Quand on mettra les cons sur orbite, t'as pas fini de tourner.");
+    opt.bots[BOT_WEST].quote = "Quand on mettra les cons sur orbite, t'as pas fini de tourner.";
     opt.bots[BOT_WEST].sex = Identity::MALE;
 
     opt.bots[BOT_NORTH].name = "Nord";
     opt.bots[BOT_NORTH].avatar = ":/images/avatars/robot.png";
-    opt.bots[BOT_NORTH].quote = QString::fromUtf8("J'ai fait un test de QI, les resultats étaient negatifs.");
+    opt.bots[BOT_NORTH].quote = "J'ai fait un test de QI, les resultats étaient negatifs.";
     opt.bots[BOT_NORTH].sex = Identity::MALE;
 
     opt.bots[BOT_EAST].name = "Est";
