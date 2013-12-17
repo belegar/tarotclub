@@ -379,8 +379,10 @@ void TarotEngine::GameSateMachine()
     }
     else
     {
-        QString message = "Turn: " + QString().setNum(gameState.trickCounter) + " player: " + Util::ToString(gameState.currentPlayer);
-        TLogInfo(message);
+        std::stringstream message;
+
+        message << "Turn: " << gameState.trickCounter << " player: " << Util::ToString(gameState.currentPlayer);
+        TLogInfo(message.str());
         SendSignal(SIG_PLAY_CARD, (Place)gameState.currentPlayer);
     }
 }
@@ -471,8 +473,6 @@ void TarotEngine::RegisterListener(Observer<TarotEngine::SignalInfo> &listener)
 /*****************************************************************************/
 void TarotEngine::CreateDeal()
 {
-    QString cards;
-
     currentTrick.clear();
 
     if (shuffle.type == Game::CUSTOM_DEAL)
@@ -514,16 +514,19 @@ void TarotEngine::CreateDeal()
     {
         players[i].GetDeck().clear();
         players[i].GetDeck().append(currentTrick.mid(i * n, n));
-        cards = players[i].GetDeck().GetCardList().data();
-        TLogInfo("Player " + Util::ToString((Place)i) + " deck: " + cards);
+
+        std::stringstream message;
+        message << "Player " << Util::ToString((Place)i) << " deck: " << players[i].GetDeck().GetCardList();
+        TLogInfo(message.str());
     }
 
     // Remaining cards go to the dog
     Deck dog;
     dog.append(currentTrick.mid(gameState.numberOfPlayers * n));
-    cards = dog.GetCardList().data();
 
-    TLogInfo("Dog deck: " + cards);
+    std::stringstream message;
+    message << "Dog deck: " << dog.GetCardList();
+    TLogInfo(message.str());
 
     deal.SetDog(dog, NO_TEAM);
     currentTrick.clear();

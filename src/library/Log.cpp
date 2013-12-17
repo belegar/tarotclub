@@ -23,49 +23,59 @@
  *=============================================================================
  */
 
-#include "Log.h"
-// Std C++
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include "Log.h"
+#include "Tools.h"
 
-using namespace std;
-QMutex Log::mMutex;
-Subject<QString> Log::mSubject;
+std::mutex Log::mMutex;
+Subject<std::string> Log::mSubject;
 
 /*****************************************************************************/
 Log::Log()
 {
 }
 /*****************************************************************************/
-void Log::RegisterListener(Observer<QString> &listener)
+void Log::RegisterListener(Observer<std::string> &listener)
 {
     mSubject.Attach(listener);
 }
 /*****************************************************************************/
-void Log::AddEntry(Event event, const QString &file, const QString &message)
+void Log::AddEntry(Event event, const std::string &file, const std::string &message)
 {
-    QStringList eventString;
-    eventString << "Error" << "Info" << "Engine" << "Bot" << "Protocol" << "Message";
+    std::vector<std::string> eventString;
+    eventString.push_back("Error");
+    eventString.push_back("Info");
+    eventString.push_back("Engine");
+    eventString.push_back("Bot");
+    eventString.push_back("Protocol");
+    eventString.push_back("Error");
 
-    QString line = eventString[event] + ", " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + ", " + file + ", " + message + "\r\n";
+    std::string line = eventString[event] + ", " + Util::CurrentDateTime("%Y-%m-%d.%X") + ", " + file + ", " + message + "\r\n";
 
-    cout << line.toLocal8Bit().constData();   // print to local std output
+    std::cout << line;      // print to local std output
     mSubject.Notify(line);  // send message to all the listeners
     Save(line);             // save message to a file
 }
 /*****************************************************************************/
-void Log::Save(const QString &line)
+void Log::Save(const std::string &line)
 {
+    std::fstream f;
+    std::string fileName;
+
     mMutex.lock();
     // One log file per day should be enough!
-    QString fileName = Config::LogPath + "/log_" + QDateTime::currentDateTime().toString("ddMMyyyy") + ".csv" ;
-    QFile f(fileName);
-    if (f.open(QIODevice::Append) == false)
+
+    fileName = Config::LogPath + "/log_" + Util::CurrentDateTime("%Y-%m-%d") + ".csv";
+
+    f.open(fileName, std::ios_base::out | std::ios_base::app);
+
+    if (f.is_open())
     {
-        return;
+        f << line;
+        f.close();
     }
-    QTextStream fout(&f);
-    fout << line;
-    f.close();
     mMutex.unlock();
 }
 

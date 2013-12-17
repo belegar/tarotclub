@@ -23,9 +23,10 @@
  *=============================================================================
  */
 
-#include "ServerConfig.h"
 #include <QString>
 #include <QDesktopServices>
+#include <QtCore>
+#include "ServerConfig.h"
 #include "Log.h"
 
 /*****************************************************************************/
@@ -46,7 +47,7 @@ void ServerConfig::SetOptions(const ServerOptions &newOptions)
 /*****************************************************************************/
 bool ServerConfig::Load()
 {
-    QFile f(Config::HomePath + SERVER_CONFIG_FILE);
+    QFile f(QString(Config::HomePath.data()) + SERVER_CONFIG_FILE);
     QString txt;
     int val;
     bool ret = true;
@@ -168,7 +169,7 @@ bool ServerConfig::Save()
     bool ret = false;
 
     // Open configuration file for writing configuration
-    QFile f(Config::HomePath + SERVER_CONFIG_FILE);
+    QFile f(QString(Config::HomePath.data()) + SERVER_CONFIG_FILE);
     if (f.open(QIODevice::WriteOnly))
     {
         QXmlStreamWriter stream(&f);

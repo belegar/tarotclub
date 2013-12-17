@@ -77,6 +77,19 @@ public:
         return *this;
     }
 
+    ByteStreamWriter& operator << (const bool &d)
+    {
+        std::uint8_t byte = 0U;
+
+        if (d)
+        {
+            byte = 1U;
+        }
+        *this << byte;
+        return *this;
+    }
+
+
     /**
      * @brief Overloaded operator to add a string to a byte stream
      * The first uint32_t will contain the size of the string

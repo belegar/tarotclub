@@ -41,7 +41,6 @@ public:
     // Helpers
     void LoadConfiguration(int port = DEFAULT_PORT);
     void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
-    void Start();
     void Stop();
     void ConnectBots();
 

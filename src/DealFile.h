@@ -35,8 +35,8 @@ class DealFile
 public:
     DealFile();
 
-    bool LoadFile(std::string &fileName);
-    void SaveFile(std::string &fileName);
+    bool LoadFile(const std::string &fileName);
+    void SaveFile(const std::string &fileName);
 
     Deck  southDeck;
     Deck  northDeck;

@@ -68,7 +68,9 @@ void Controller::Update(const TarotEngine::SignalInfo &info)
         SendPacket(Protocol::BuildShowDog(engine.GetDeal().GetDog()));
         break;
     case TarotEngine::SIG_START_DEAL:
-        SendPacket(Protocol::BuildStartDeal(engine.GetGameInfo().taker, engine.GetGameInfo().contract));
+        SendPacket(Protocol::BuildStartDeal(engine.GetGameInfo().taker,
+                                            engine.GetGameInfo().contract,
+                                            engine.GetShuffle()));
         break;
         default:
         break;
@@ -91,6 +93,12 @@ void Controller::ExecuteRequest(const ByteArray &packet)
     mQueue.Push(packet);
 }
 /*****************************************************************************/
+void Controller::EntryPoint(void *pthis)
+{
+    Controller * pt = (Controller*)pthis;
+    pt->Run();
+}
+/*****************************************************************************/
 void Controller::Run()
 {
     ByteArray data;
@@ -110,12 +118,6 @@ void Controller::Run()
             DoAction(subArray);
         }
     }
-}
-/*****************************************************************************/
-void Controller::EntryPoint(void *pthis)
-{
-    Controller * pt = (Controller*)pthis;
-    pt->Run();
 }
 /*****************************************************************************/
 bool Controller::DoAction(const ByteArray &data)

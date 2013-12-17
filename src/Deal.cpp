@@ -495,7 +495,7 @@ void Deal::SetDog(Deck &dog, Team owner)
 void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
 {
     // Open a file where to stream out the XML
-    QString fileName = Config::GamePath + "/deal_result_" + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ".xml" ;
+    QString fileName = QString(Config::GamePath.c_str()) + "/deal_result_" + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ".xml" ;
     QFile f(fileName);
     if (f.open(QIODevice::WriteOnly) == true)
     {
@@ -519,16 +519,16 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
             i.next();
 
             stream.writeStartElement("player");
-            stream.writeAttribute("place", Util::ToString(i.key()));
+            stream.writeAttribute("place", QString(Util::ToString(i.key()).c_str()));
             stream.writeCharacters(QString(i.value().name.data()));
             stream.writeEndElement(); // player
         }
         stream.writeEndElement(); // players
 
-        stream.writeTextElement("taker", Util::ToString(info.taker));
-        stream.writeTextElement("contract", Util::ToString(info.contract));
-        stream.writeTextElement("first_trick_lead", Util::ToString(tricks[0].at(0)->GetOwner()));
-        stream.writeTextElement("score", score.ToString());
+        stream.writeTextElement("taker", QString(Util::ToString(info.taker).c_str()));
+        stream.writeTextElement("contract", QString(Util::ToString(info.contract).c_str()));
+        stream.writeTextElement("first_trick_lead", QString(Util::ToString(tricks[0].at(0)->GetOwner()).c_str()));
+        stream.writeTextElement("score", QString(score.ToString().data()));
 
         stream.writeEndElement(); // deal_info
 
@@ -548,7 +548,7 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
             for (int j = 0; j < info.numberOfPlayers; j++)
             {
                 stream.writeStartElement("card");
-                stream.writeAttribute("place", Util::ToString((Place)j));
+                stream.writeAttribute("place", QString(Util::ToString((Place)j).c_str()));
                 stream.writeCharacters(list[j]);
                 stream.writeEndElement(); // card
             }

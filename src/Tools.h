@@ -27,42 +27,11 @@
 #define _TOOLS_H
 
 #include <QtCore>
+
+
 #include "defines.h"
 
-#define STR_PASS            QObject::tr("Pass")
-#define STR_TAKE            QObject::tr("Take")
-#define STR_GUARD           QObject::tr("Guard")
-#define STR_GUARD_WITHOUT   QObject::tr("Guard without")
-#define STR_GUARD_AGAINST   QObject::tr("Guard against")
 
-#define STR_SUD      QObject::tr("South")
-#define STR_EST      QObject::tr("East")
-#define STR_NORD     QObject::tr("North")
-#define STR_OUEST    QObject::tr("West")
-
-#define STR_WIN      QObject::tr("Contract succeded by ")
-#define STR_LOSE     QObject::tr("Contract failed by ")
-#define STR_POINTS   QObject::tr(" points")
-
-
-class Util
-{
-public:
-
-    static QString ToString(Place p)
-    {
-        QStringList places;
-        places << STR_SUD << STR_EST << STR_NORD << STR_OUEST;
-        return places[p];
-    }
-
-    static QString ToString(Contract c)
-    {
-        QStringList contracts;
-        contracts << STR_PASS << STR_TAKE << STR_GUARD << STR_GUARD_WITHOUT << STR_GUARD_AGAINST;
-        return contracts[c];
-    }
-};
 
 #endif // _TAROT_STRINGS_H
 

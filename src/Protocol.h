@@ -88,7 +88,6 @@ public:
         SERVER_END_OF_GAME      = 0x86, //!< end of the game mode (tournament ...)
         SERVER_ERROR_FULL       = 0x87, //!< Server is full, cannot join game
 
-
         // admin -> server
         ADMIN_NEW_SERVER_GAME   = 0xA0, //!< Ask the server to start a new game
         ADMIN_ADD_PLAYER        = 0xA1, //!< A new player is entering the game
@@ -116,6 +115,22 @@ public:
      */
     static std::vector<PacketInfo> DecodePacket(const ByteArray &data);
 
+    // Client to server packets
+    static ByteArray BuildReplyIdentity(const Identity &ident, std::uint32_t uuid);
+    static ByteArray BuildClientChatMessage(const std::string &message, std::uint32_t uuid);
+    static ByteArray BuildClientReady(std::uint32_t uuid);
+    static ByteArray BuildClientError(std::uint32_t uuid);
+    static ByteArray BuildClientBid(Contract c, bool slam, std::uint32_t uuid);
+    static ByteArray BuildClientSyncDog(std::uint32_t uuid);
+    static ByteArray BuildClientSyncHandle(std::uint32_t uuid);
+    static ByteArray BuildClientSyncTrick(std::uint32_t uuid);
+    static ByteArray BuildClientSyncCard(std::uint32_t uuid);
+    static ByteArray BuildClientSyncStart(std::uint32_t uuid);
+    static ByteArray BuildClientSyncBid(std::uint32_t uuid);
+    static ByteArray BuildClientDiscard(const Deck &discard, std::uint32_t uuid);
+    static ByteArray BuildClientHandle(const Deck &handle, std::uint32_t uuid);
+    static ByteArray BuildClientCard(const std::string &card, std::uint32_t uuid);
+
     // Server to client packets
     static ByteArray BuildErrorServerFull(std::uint32_t uuid);
     static ByteArray BuildDiscardRequest(std::uint32_t uuid);
@@ -130,7 +145,7 @@ public:
     static ByteArray BuildSendCards(std::uint32_t uuid, Deck &cards);
     static ByteArray BuildEndOfDeal(Score &score);
     static ByteArray BuildEndOfTrick(Place winner);
-    static ByteArray BuildStartDeal(Place taker, Contract contract);
+    static ByteArray BuildStartDeal(Place taker, Contract contract, const Game::Shuffle &sh);
     static ByteArray BuildPlayCard(Place p);
     static ByteArray BuildBidRequest(Contract c, Place p);
     static ByteArray BuildShowDog(Deck &dog);
@@ -138,6 +153,7 @@ public:
     // Admin to controller packets
     static ByteArray BuildAddPlayer();
     static ByteArray BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle);
+
 };
 
 #endif // PROTOCOL_H

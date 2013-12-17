@@ -37,6 +37,7 @@ public:
     static void Initialize();
     static Card *GetCard(int index);
     static Card *GetCard(const std::string &name);
+    static int GetIndex(const std::string &name);
 
 private:
     static Card mCards[78];

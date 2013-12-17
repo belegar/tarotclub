@@ -54,12 +54,6 @@ void Table::Update(const TcpServer::Signal &info)
     //SendPlayersList();
 }
 /*****************************************************************************/
-void Table::StopServer()
-{
-    CloseClients();
-    mTcpServer.Close();
-}
-/*****************************************************************************/
 void Table::CloseClients()
 {
     std::map<std::uint32_t, std::int32_t>::iterator iter;
@@ -103,7 +97,7 @@ void Table::LoadConfiguration(int port)
     // Apply configuration
     for (int i = 0; i < 3; i++)
     {
-        mBots[i].SetMyIdentity(serverConfig.GetOptions().bots[i]);
+        mBots[i].SetIdentity(serverConfig.GetOptions().bots[i]);
         mBots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
     }
 
@@ -125,7 +119,7 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
     }
     maximumPlayers = nbPlayers;
 
-    StopServer();
+    Stop();
 
     if (!TcpSocket::Initialize())
     {
@@ -141,7 +135,8 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
 void Table::Stop()
 {
     // FIXME: send a command to all clients to disconnect gracefully
-    StopServer();
+    CloseClients();
+    mTcpServer.Close();
 }
 /*****************************************************************************/
 ServerOptions &Table::GetOptions()

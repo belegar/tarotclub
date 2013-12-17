@@ -53,7 +53,7 @@ public:
     Gender      sex;
 
     // operator overload to easily serialize parameters
-    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Identity &ident)
+    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Identity &ident)
     {
         out << ident.name
             << ident.avatar

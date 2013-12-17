@@ -26,8 +26,8 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include <QFile>
-#include <QMutex>
+#include <fstream>
+#include <mutex>
 #include "defines.h"
 #include "Observer.h"
 
@@ -58,14 +58,14 @@ public:
 
     Log();
 
-    static void AddEntry(Event event, const QString &file, const QString &message);
-    static void RegisterListener(Observer<QString> &listener);
+    static void AddEntry(Event event, const std::string &file, const std::string &message);
+    static void RegisterListener(Observer<std::string> &listener);
 
 private:
-    static void Save(const QString &line);
+    static void Save(const std::string &line);
 
-    static QMutex mMutex;
-    static Subject<QString> mSubject;
+    static std::mutex mMutex;
+    static Subject<std::string> mSubject;
 };
 
 // Macros definitions

@@ -36,7 +36,7 @@ DealFile::DealFile()
 
 }
 /*****************************************************************************/
-bool DealFile::LoadFile(std::string &fileName)
+bool DealFile::LoadFile(const std::string &fileName)
 {
     bool ret = true;
     QFile f(fileName.data());
@@ -153,7 +153,7 @@ bool DealFile::FillDeck(Deck &deck, QXmlStreamReader &xml)
     return true;
 }
 /*****************************************************************************/
-void DealFile::SaveFile(std::string &fileName)
+void DealFile::SaveFile(const std::string &fileName)
 {
     // Open a file where to stream out the XML
     QFile f(fileName.data());

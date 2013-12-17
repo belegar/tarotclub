@@ -23,14 +23,14 @@
  *=============================================================================
  */
 
+#include <cstdlib>
 #include "Game.h"
 #include "defines.h"
-#include <QMap>
 
 /*****************************************************************************/
 Game::Game()
 {
-    qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime())); // seed init
+    std::srand(time(0));
 
     Initialize(4);
 }
@@ -41,7 +41,7 @@ void Game::Initialize(int players)
     position = 0;
     trickCounter = 0;
     numberOfPlayers = players;
-    dealer = static_cast<Place>(qrand() % 4);
+    dealer = static_cast<Place>(std::rand() % 4);
     contract = PASS;
     slamAnnounced = false;
     attackHandle.declared = false;

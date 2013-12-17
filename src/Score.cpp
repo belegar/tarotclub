@@ -116,20 +116,20 @@ int Score::GetDefenseScore()
     return (scoreAttack * sign);
 }
 /*****************************************************************************/
-QString Score::ToString()
+std::string Score::ToString()
 {
-    QString temp;
+    std::stringstream temp;
 
-    temp = QObject::tr("Attacker points: ") + QString::number(pointsAttack);
-    temp += "\n" + QObject::tr("Attacker score: ") + QString::number(scoreAttack);
-    temp += "\n" + QObject::tr("Attacker objective: ") + QString::number(pointsToDo);
-    temp += "\n" + QObject::tr("Difference: ") + QString::number(difference);
-    temp += "\n" + QObject::tr("Multiplier: ") + QString::number(multiplier);
-    temp += "\n" + QObject::tr("Little endian: ") + QString::number(littleEndianPoints);
-    temp += "\n" + QObject::tr("Handle bonus: ") + QString::number(handlePoints);
-    temp += "\n" + QObject::tr("Slam bonus: ") + QString::number(slamPoints);
+    temp << "Attacker points: " << pointsAttack;
+    temp << "\n" << "Attacker score: " << scoreAttack;
+    temp << "\n" << "Attacker objective: " << pointsToDo;
+    temp << "\n" << "Difference: " << difference;
+    temp << "\n" << "Multiplier: " << multiplier;
+    temp << "\n" << "Little endian: " << littleEndianPoints;
+    temp << "\n" << "Handle bonus: " << handlePoints;
+    temp << "\n" << "Slam bonus: " << slamPoints;
 
-    return temp;
+    return temp.str();
 }
 
 //=============================================================================

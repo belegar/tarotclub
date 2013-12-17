@@ -3,7 +3,7 @@
 
 #include <deque>
 #include <cstdint>
-#include <iostream>
+#include <sstream>
 #include "ByteArray.h"
 
 class ByteStreamReader
@@ -33,14 +33,17 @@ public:
         }
     }
 
-    void Print()
+    std::string ToString()
     {
-        std::cout << "Array: ";
+        std::stringstream array;
+        array << "Array: ";
         for (std::uint32_t i = 0; i < mArray.Size(); i++)
         {
-            std::cout << std::hex << (std::uint32_t)mArray[i] << ", ";
+            array << std::hex << (std::uint32_t)mArray[i] << ", ";
         }
-        std::cout << std::endl;
+        array << std::endl;
+
+        return array.str();
     }
 
     ByteStreamReader& operator >> (std::uint8_t &d)
@@ -85,6 +88,22 @@ public:
                 word = byte;
                 d = d + (word << (i*8U));
             }
+        }
+        return *this;
+    }
+
+    ByteStreamReader& operator >> (bool &d)
+    {
+        std::uint8_t byte;
+
+        *this >> byte;
+        if (byte)
+        {
+            d = true;
+        }
+        else
+        {
+            d = false;
         }
         return *this;
     }

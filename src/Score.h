@@ -25,6 +25,7 @@
 #ifndef _SCORE_H
 #define _SCORE_H
 
+#include <string>
 #include "defines.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
@@ -48,7 +49,7 @@ public:
     void SetPointsToDo(int oudlers);
     int GetAttackScore();
     int GetDefenseScore();
-    QString ToString();
+    std::string ToString();
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
     {
