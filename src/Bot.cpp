@@ -31,25 +31,8 @@ using namespace std;
 
 /*****************************************************************************/
 Bot::Bot()
+    : mClient(*this)
 {
-    connect(this, &Client::sigPlayersList, this, &Bot::slotPlayersList);
-    connect(this, &Client::sigMessage, this, &Bot::slotMessage);
-    connect(this, &Client::sigAssignedPlace, this, &Bot::slotAssignedPlace);
-    connect(this, &Client::sigReceiveCards, this, &Bot::slotReceiveCards);
-    connect(this, &Client::sigSelectPlayer, this, &Bot::slotSelectPlayer);
-    connect(this, &Client::sigRequestBid, this, &Bot::slotRequestBid);
-    connect(this, &Client::sigShowBid, this, &Bot::slotShowBid);
-    connect(this, &Client::sigStartDeal, this, &Bot::slotStartDeal);
-    connect(this, &Client::sigShowDog, this, &Bot::slotShowDog);
-    connect(this, &Client::sigBuildDiscard, this, &Bot::slotBuildDiscard);
-    connect(this, &Client::sigDealAgain, this, &Bot::slotDealAgain);
-    connect(this, &Client::sigPlayCard, this, &Bot::slotPlayCard);
-    connect(this, &Client::sigShowCard, this, &Bot::slotShowCard);
-    connect(this, &Client::sigShowHandle, this, &Bot::slotShowHandle);
-    connect(this, &Client::sigWaitTrick, this, &Bot::slotWaitTrick);
-    connect(this, &Client::sigEndOfDeal, this, &Bot::slotEndOfDeal);
-    connect(this, &Client::sigEndOfGame, this, &Bot::slotEndOfGame);
-
     timeBeforeSend.setSingleShot(true);
     timeBeforeSend.setInterval(0);
     //connect (&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
@@ -61,13 +44,13 @@ Bot::~Bot()
 
 }
 /*****************************************************************************/
-void Bot::slotMessage(const QString &message)
+void Bot::Message(const string &message)
 {
     Q_UNUSED(message);
     // A bot cannot reply (yet :)
 }
 /*****************************************************************************/
-void Bot::slotAssignedPlace(Place p)
+void Bot::AssignedPlace(Place p)
 {
     InitializeScriptContext();
 
@@ -76,25 +59,24 @@ void Bot::slotAssignedPlace(Place p)
     CallScript("EnterGame", args);
 }
 /*****************************************************************************/
-void Bot::slotPlayersList(QMap<Place, Identity> &players)
+void Bot::PlayersList(std::map<Place, Identity> &players)
 {
     Q_UNUSED(players);
 }
 /*****************************************************************************/
-void Bot::slotReceiveCards()
+void Bot::ReceiveCards()
 {
     QJSValueList args;
-    args << GetMyDeck().GetCardList();
+    args << QString(mClient.GetMyDeck().GetCardList().data());
     CallScript("ReceiveCards", args);
 }
 /*****************************************************************************/
-void Bot::slotSelectPlayer(Place p)
+void Bot::SelectPlayer(Place p)
 {
     Q_UNUSED(p);
-    // nada aussi
 }
 /*****************************************************************************/
-void Bot::slotRequestBid(Contract highestBid)
+void Bot::RequestBid(Contract highestBid)
 {
     qint32 ret;
     bool slam = false;
@@ -115,7 +97,7 @@ void Bot::slotRequestBid(Contract highestBid)
     }
     else
     {
-        botContract = CalculateBid(); // propose our algorithm if the user's one failed
+        botContract = mClient.CalculateBid(); // propose our algorithm if the user's one failed
     }
 
     // only bid over previous one is allowed
@@ -123,42 +105,55 @@ void Bot::slotRequestBid(Contract highestBid)
     {
         botContract = PASS;
     }
-    SendBid(botContract, slam);
+    mClient.SendBid(botContract, slam);
 }
 /*****************************************************************************/
-void Bot::slotShowBid(Place place, bool slam, Contract contract)
+void Bot::ShowBid(Place place, bool slam, Contract contract)
 {
     Q_UNUSED(place);
     Q_UNUSED(contract);
     Q_UNUSED(slam);
-    SendSyncBid();
+    mClient.SendSyncBid();
 }
 /*****************************************************************************/
-void Bot::slotStartDeal(Place taker, Contract contract)
+void Bot::StartDeal(Place taker, Contract contract, const Game::Shuffle &sh)
 {
+    Q_UNUSED(sh);
+
+    // FIXME: pass the game type to the script
     QJSValueList args;
     args << taker << contract;
     CallScript("StartDeal", args);
 
     // We are ready, let's inform the server about that
-    SendSyncStart();
+    mClient.SendSyncStart();
 }
 /*****************************************************************************/
-void Bot::slotShowDog()
+void Bot::ShowDog()
 {
-    SendSyncDog();
+    mClient.SendSyncDog();
 }
 /*****************************************************************************/
-void Bot::slotBuildDiscard()
+void Bot::ShowHandle()
+{
+    QJSValueList args;
+    args << QString(mClient.GetHandleDeck().GetCardList().data()) << (int)mClient.GetHandleDeck().GetOwner();
+    CallScript("ShowHandle", args);
+
+    // We have seen the handle, let's inform the server about that
+    mClient.SendSyncHandle();
+}
+/*****************************************************************************/
+void Bot::BuildDiscard()
 {
     bool valid = true;
     QJSValueList args;
     Deck discard;
 
-    args << GetDogDeck().GetCardList();
+    args << QString(mClient.GetDogDeck().GetCardList().data());
     QString ret = CallScript("BuildDiscard", args).toString();
 
-    int count = discard.SetCards(ret);
+    int count = discard.SetCards(ret.toStdString());
 
     if (count == 6)
     {
@@ -167,7 +162,7 @@ void Bot::slotBuildDiscard()
             Card *c = discard.at(i);
 
             // Look if the card belongs to the dog or the player's deck
-            if (GetDogDeck().HasCard(c) || GetMyDeck().HasCard(c))
+            if (mClient.GetDogDeck().HasCard(c) || mClient.GetMyDeck().HasCard(c))
             {
                 // Look the card value against the Tarot rules
                 if ((c->GetSuit() == Card::TRUMPS) ||
@@ -197,65 +192,55 @@ void Bot::slotBuildDiscard()
     {
         TLogInfo("Invalid discard: " + discard.GetCardList());
 
-        discard = BuildDogDeck(); // build a random valid deck
-        slotReceiveCards(); // Resend cards to the bot!
+        discard = mClient.BuildDogDeck(); // build a random valid deck
+        ReceiveCards(); // Resend cards to the bot!
     }
-    SetDiscard(discard);
+    mClient.SetDiscard(discard);
 }
 /*****************************************************************************/
-void Bot::slotDealAgain()
+void Bot::DealAgain()
 {
     // Re-inititialize script context
     if (InitializeScriptContext() == true)
     {
-        SendReady();
+        mClient.SendReady();
     }
     else
     {
-        SendError();
+        mClient.SendError();
     }
 }
 /*****************************************************************************/
-void Bot::slotPlayCard()
+void Bot::PlayCard()
 {
     timeBeforeSend.start();
 }
 /*****************************************************************************/
-void Bot::slotShowCard(int id, Place p)
+void Bot::ShowCard(Place p, const std::string &name)
 {
     QJSValueList args;
-    args << TarotDeck::GetCard(id)->GetName() << (int)p;
+    args << QString(name.data()) << (int)p;
     CallScript("PlayedCard", args);
 
     // We have seen the card, let's inform the server about that
-    SendSyncCard();
+    mClient.SendSyncCard();
 }
 /*****************************************************************************/
-void Bot::slotShowHandle()
-{
-    QJSValueList args;
-    args << GetHandleDeck().GetCardList() << (int)GetHandleDeck().GetOwner();
-    CallScript("ShowHandle", args);
-
-    // We have seen the handle, let's inform the server about that
-    SendSyncHandle();
-}
-/*****************************************************************************/
-void Bot::slotWaitTrick(Place winner)
+void Bot::WaitTrick(Place winner)
 {
     Q_UNUSED(winner);
     // FIXME Call script and pass the winner
 
-    SendSyncTrick();
+    mClient.SendSyncTrick();
 }
 /*****************************************************************************/
-void Bot::slotEndOfDeal()
+void Bot::EndOfDeal()
 {
     // FIXME Call the script and pass the score?
-    SendReady();
+    mClient.SendReady();
 }
 /*****************************************************************************/
-void Bot::slotEndOfGame()
+void Bot::EndOfGame()
 {
     // FIXME What must we do?
 }
@@ -263,6 +248,21 @@ void Bot::slotEndOfGame()
 void Bot::SetTimeBeforeSend(int t)
 {
     timeBeforeSend.setInterval(t);
+}
+/*****************************************************************************/
+void Bot::SetIdentity(const Identity &ident)
+{
+    mClient.SetMyIdentity(ident);
+}
+/*****************************************************************************/
+void Bot::Initialize()
+{
+    mClient.Initialize();
+}
+/*****************************************************************************/
+void Bot::ConnectToHost(const string &hostName, std::uint16_t port)
+{
+    mClient.ConnectToHost(hostName, port);
 }
 /*****************************************************************************/
 void Bot::slotTimeBeforeSend()
@@ -273,31 +273,34 @@ void Bot::slotTimeBeforeSend()
     QString ret = CallScript("PlayCard", args).toString();
 
     // Test validity of card
-    c = GetMyDeck().GetCardByName(ret);
+    c = mClient.GetMyDeck().GetCardByName(ret.toStdString());
     if (c != NULL)
     {
-        if (IsValid(c) == false)
+        if (mClient.IsValid(c) == false)
         {
-            QString message = Util::ToString(GetPlace()) + QString(" played a non-valid card: ") + ret;
-            TLogInfo(message);
+            std::stringstream message;
+            message << Util::ToString(mClient.GetPlace()) << " played a non-valid card: " << ret.toStdString();
+            TLogInfo(message.str());
             // The show must go on, play a random card
-            c = Play();
+            c = mClient.Play();
         }
     }
     else
     {
-        QString message = Util::ToString(GetPlace()) + QString(" played an unkown card: ") + ret;
-        TLogInfo(message);
+        std::stringstream message;
+        message << Util::ToString(mClient.GetPlace()) << " played an unkown card: " << ret.toStdString();
+        TLogInfo(message.str());
 
-        message = Util::ToString(GetPlace()) + " engine deck is: " + GetMyDeck().GetCardList();
-        TLogInfo(message);
+        message.flush();
+        message << Util::ToString(mClient.GetPlace()) << " engine deck is: " << mClient.GetMyDeck().GetCardList();
+        TLogInfo(message.str());
 
         // The show must go on, play a random card
-        c = Play();
+        c = mClient.Play();
     }
 
-    GetMyDeck().removeAll(c);
-    SendCard(c);
+    mClient.GetMyDeck().removeAll(c);
+    mClient.SendCard(c);
 }
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()
@@ -333,10 +336,12 @@ bool Bot::InitializeScriptContext()
     {
         QString fileName = i.next();
         QFile scriptFile(fileName);
+        std::stringstream message;
 
         if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            TLogInfo("Script error: could not open program file: " + fileName);
+            message << "Script error: could not open program file: " << fileName.toStdString();
+            TLogInfo(message.str());
             return false;
         }
 
@@ -348,7 +353,8 @@ bool Bot::InitializeScriptContext()
         // uncaught exception?
         if (ret.isError())
         {
-            TLogInfo("Evaluate uncaught exception: " + ret.toString());
+            message << "Evaluate uncaught exception: " << ret.toString().toStdString();
+            TLogInfo(message.str());
             return false;
         }
     }
@@ -359,10 +365,13 @@ bool Bot::InitializeScriptContext()
 QJSValue Bot::CallScript(const QString &function, QJSValueList &args)
 {
     QJSValue ret;
+    std::stringstream message;
     QJSValue createFunc = botEngine.globalObject().property(function);
+
     if (createFunc.isError())
     {
-        TLogInfo("Script error: script threw an uncaught exception while looking for create func: " + createFunc.toString());
+        message << "Script error: script threw an uncaught exception while looking for create func: " << createFunc.toString().toStdString();
+        TLogInfo(message.str());
         return ret;
     }
 
@@ -370,7 +379,8 @@ QJSValue Bot::CallScript(const QString &function, QJSValueList &args)
 
     if (ret.isError())
     {
-        TLogInfo("Script threw an uncaught exception while looking for create func: " + ret.toString());
+        message << "Script threw an uncaught exception while looking for create func: " << ret.toString().toStdString();
+        TLogInfo(message.str());
     }
 
     return ret;

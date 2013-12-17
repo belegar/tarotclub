@@ -40,12 +40,12 @@ public slots:
 
     void Print(const QString &message)
     {
-        QString toPrint = QString("Bot script: ") + message;
+        std::string toPrint = "Bot script: " + message.toStdString();
         TLogInfo(toPrint);
     }
 };
 /*****************************************************************************/
-class Bot : public Client
+class Bot : public QObject, public Client::IEvent
 {
     Q_OBJECT
 
@@ -54,39 +54,42 @@ public:
     ~Bot();
 
     void SetTimeBeforeSend(int t);
+    void SetIdentity(const Identity &ident);
+    void Initialize();
+    void ConnectToHost(const std::string &hostName, std::uint16_t port);
 
 private:
+    Client  mClient;
     QTimer  timeBeforeSend;
     QJSEngine botEngine;
     // Exposed object to the Javascript
     TarotUtil utilObj;
 
+    // Javascript stuff
     QJSValue CallScript(const QString &function, QJSValueList &args);
     bool InitializeScriptContext();
 
+    // Client events
+    virtual void Message(const std::string &message);
+    virtual void AssignedPlace(Place p);
+    virtual void PlayersList(std::map<Place, Identity> &players);
+    virtual void ReceiveCards();
+    virtual void SelectPlayer(Place p);
+    virtual void RequestBid(Contract highestBid);
+    virtual void ShowBid(Place p, bool slam, Contract c);
+    virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh);
+    virtual void ShowDog();
+    virtual void ShowHandle();
+    virtual void BuildDiscard();
+    virtual void DealAgain();
+    virtual void PlayCard();
+    virtual void ShowCard(Place p, const std::string &name);
+    virtual void WaitTrick(Place winner);
+    virtual void EndOfDeal();
+    virtual void EndOfGame();
+
 private slots:
     void slotTimeBeforeSend();
-
-    // client events
-    void slotMessage(const QString &message);
-    void slotAssignedPlace(Place p);
-    void slotPlayersList(QMap<Place, Identity> &players);
-    void slotReceiveCards();
-    void slotSelectPlayer(Place p);
-    void slotRequestBid(Contract highestBid);
-    void slotShowBid(Place, bool slam, Contract contract);
-    void slotStartDeal(Place, Contract contract);
-    void slotShowDog();
-    void slotBuildDiscard();
-    void slotDealAgain();
-    void slotPlayCard();
-    void slotShowCard(int id, Place p);
-    void slotShowHandle();
-    void slotWaitTrick(Place winner);
-    void slotEndOfDeal();
-    void slotEndOfGame();
-
-
 };
 
 #endif // _BOT_H

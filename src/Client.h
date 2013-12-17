@@ -26,7 +26,10 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
-#include <QTcpSocket>
+#include <thread>
+#include <string>
+#include <map>
+#include "TcpClient.h"
 #include "Card.h"
 #include "Deck.h"
 #include "Player.h"
@@ -38,12 +41,33 @@
 #include "Deal.h"
 
 /*****************************************************************************/
-class Client : public QObject
+class Client
 {
-    Q_OBJECT
 
 public:
-    Client();
+    class IEvent
+    {
+    public:
+        virtual void Message(const std::string &message) = 0;
+        virtual void AssignedPlace(Place p) = 0;
+        virtual void PlayersList(std::map<Place, Identity> &players) = 0;
+        virtual void ReceiveCards() = 0;
+        virtual void SelectPlayer(Place p) = 0;
+        virtual void RequestBid(Contract highestBid) = 0;
+        virtual void ShowBid(Place p, bool slam, Contract c) = 0;
+        virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh) = 0;
+        virtual void ShowDog() = 0;
+        virtual void ShowHandle() = 0;
+        virtual void BuildDiscard() = 0;
+        virtual void DealAgain() = 0;
+        virtual void PlayCard() = 0;
+        virtual void ShowCard(Place p, const std::string &name) = 0;
+        virtual void WaitTrick(Place winner) = 0;
+        virtual void EndOfDeal() = 0;
+        virtual void EndOfGame() = 0;
+    };
+
+    Client(IEvent &handler);
 
     // Helpers
     void Initialize();
@@ -70,7 +94,7 @@ public:
     void SetDiscard(Deck &discard);
 
     // Network
-    void ConnectToHost(const QString &hostName, quint16 port);
+    void ConnectToHost(const std::string &hostName, std::uint16_t port);
     void Close();
 
     // Protocol methods
@@ -85,50 +109,27 @@ public:
     void SendSyncCard();
     void SendSyncBid();
     void SendSyncHandle();
-    void SendChatMessage(const QString &message);
-
-public slots:
-    void slotSocketReadData();
-    void slotSocketConnected();
-    void slotSocketHostFound();
-    void slotSocketClosed();
-    void slotSocketError(QAbstractSocket::SocketError code);
-
-signals:
-    void sigMessage(const QString &message);
-    void sigAssignedPlace(Place p);
-    void sigPlayersList(QMap<Place, Identity> &players);
-    void sigReceiveCards();
-    void sigSelectPlayer(Place);
-    void sigRequestBid(Contract);
-    void sigShowBid(Place p, bool slam, Contract c);
-    void sigStartDeal(Place, Contract);
-    void sigShowDog();
-    void sigShowHandle();
-    void sigBuildDiscard();
-    void sigDealAgain();
-    void sigPlayCard();
-    void sigShowCard(int, Place);
-    void sigWaitTrick(Place);
-    void sigEndOfDeal();
-    void sigEndOfGame();
+    void SendChatMessage(const std::string &message);
 
 private:
-
-    Player      player;
-    QTcpSocket  socket;
-    Deck::Statistics   stats;      // statistics on player's cards
-    Game        info;       // Helper class to store various game information
+    Player      mPlayer;
+    Deck::Statistics   stats;   // statistics on player's cards
+    Game        info;           // Helper class to store various game information
     Score       score;
     Deck        dogDeck;
-    Deck        handleDeck;    // declared poignee by a player
+    Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;
+    IEvent&     mEventHandler;
+    TcpClient   mTcpClient;
+    std::thread mThread;
+
+    static void EntryPoint(void *pthis);
+    void Run();
 
     // TarotClub Protocol methods
     void SendIdentity();
     void SendDiscard(const Deck &discard);
-    bool DoAction(QDataStream &in);
-
+    bool DoAction(const ByteArray &data);
 };
 
 #endif // _CLIENT_H

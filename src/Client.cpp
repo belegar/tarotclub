@@ -23,31 +23,23 @@
  *=============================================================================
  */
 
-#ifndef QT_NO_DEBUG
-#include <iostream>
-#include <fstream>
-using namespace std;
-#endif // QT_NO_DEBUG
-
 #include "Client.h"
 #include "Identity.h"
 #include "defines.h"
 #include "Log.h"
 
 /*****************************************************************************/
-Client::Client()
+Client::Client(IEvent &handler)
+    : mEventHandler(handler)
 {
-    // Events on the socket
-    connect(&socket, SIGNAL(readyRead()), this, SLOT(slotSocketReadData()));
-    connect(&socket, SIGNAL(disconnected()), this, SLOT(slotSocketClosed()));
-    connect(&socket, SIGNAL(connected()), this, SLOT(slotSocketConnected()));
-    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotSocketError(QAbstractSocket::SocketError)));
-    connect(&socket, SIGNAL(hostFound()), this, SLOT(slotSocketHostFound()));
+
 }
 /*****************************************************************************/
 void Client::Initialize()
 {
     score.Reset();
+
+    mThread = std::thread(Client::EntryPoint, this);
 }
 /*****************************************************************************/
 Deck::Statistics &Client::GetStatistics()
@@ -72,17 +64,17 @@ Deck &Client::GetHandleDeck()
 /*****************************************************************************/
 Deck &Client::GetMyDeck()
 {
-    return player.GetDeck();
+    return mPlayer.GetDeck();
 }
 /*****************************************************************************/
 Identity &Client::GetMyIdentity()
 {
-    return player.GetIdentity();
+    return mPlayer.GetIdentity();
 }
 /*****************************************************************************/
 bool Client::TestHandle()
 {
-    player.GetDeck().AnalyzeTrumps(stats);
+    mPlayer.GetDeck().AnalyzeTrumps(stats);
     if ((handleDeck.HasFool() == true) && (stats.trumps > handleDeck.size()))
     {
         return false;
@@ -105,31 +97,32 @@ Score &Client::GetScore()
 /*****************************************************************************/
 Place Client::GetPlace()
 {
-    return player.GetPlace();
+    return mPlayer.GetPlace();
 }
 /*****************************************************************************/
 void Client::SetMyIdentity(const Identity &ident)
 {
-    player.SetIdentity(ident);
+    mPlayer.SetIdentity(ident);
 }
 /*****************************************************************************/
 void Client::SetDiscard(Deck &discard)
 {
     // Add the dog to the payer's deck
-    player.GetDeck() += dogDeck;
+    mPlayer.GetDeck() += dogDeck;
 
     // remove cards from the client's deck
     for (int i = 0; i < discard.size(); i++)
     {
         Card *c = discard.at(i);
-        if (player.GetDeck().removeAll(c) != 1)
+        if (mPlayer.GetDeck().removeAll(c) != 1)
         {
             TLogError("Wrong number of cards");
         }
     }
 
-    TLogInfo("Dog: " + dogDeck.GetCardList());
-    TLogInfo("Player: " + player.GetDeck().GetCardList());
+    std::string message = "Dog: " + dogDeck.GetCardList();
+    TLogInfo(message);
+    TLogInfo("Player: " + mPlayer.GetDeck().GetCardList());
     TLogInfo("Discard: " + discard.GetCardList());
 
     // Send discard to the server
@@ -209,8 +202,8 @@ Contract Client::CalculateBid()
 void Client::UpdateStatistics()
 {
     stats.Reset();
-    player.GetDeck().AnalyzeTrumps(stats);
-    player.GetDeck().AnalyzeSuits(stats);
+    mPlayer.GetDeck().AnalyzeTrumps(stats);
+    mPlayer.GetDeck().AnalyzeSuits(stats);
 }
 /*****************************************************************************/
 Deck Client::BuildDogDeck()
@@ -233,15 +226,15 @@ Deck Client::BuildDogDeck()
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
             // looking for valid card
-            int k = player.GetDeck().size();
+            int k = mPlayer.GetDeck().size();
             for (int j = 0; j < k; j++)
             {
-                cdeck = player.GetDeck().at(j);
+                cdeck = mPlayer.GetDeck().at(j);
                 if ((cdeck->GetSuit() != Card::TRUMPS) && (cdeck->GetValue() < 14))
                 {
                     // Swap cards
-                    player.GetDeck().removeAll(cdeck);
-                    player.GetDeck().append(c);
+                    mPlayer.GetDeck().removeAll(cdeck);
+                    mPlayer.GetDeck().append(c);
                     discard.removeAll(c);
                     discard.append(cdeck);
                     break;
@@ -269,9 +262,9 @@ Card *Client::Play()
 {
     Card *c = NULL;
 
-    for (int i = 0; i < player.GetDeck().size(); i++)
+    for (int i = 0; i < mPlayer.GetDeck().size(); i++)
     {
-        c = player.GetDeck().at(i);
+        c = mPlayer.GetDeck().at(i);
         if (IsValid(c) == true)
         {
             break;
@@ -282,164 +275,163 @@ Card *Client::Play()
 /*****************************************************************************/
 bool Client::IsValid(Card *c)
 {
-    return player.CanPlayCard(c, currentTrick);
+    return mPlayer.CanPlayCard(c, currentTrick);
 }
 /*****************************************************************************/
-void Client::ConnectToHost(const QString &hostName, quint16 port)
+void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
-    socket.connectToHost(hostName, port);
+    mTcpClient.Connect(hostName, port);
 }
 /*****************************************************************************/
 void Client::Close()
 {
-    socket.close();
+    mTcpClient.Close();
 }
 /*****************************************************************************/
-void Client::slotSocketConnected()
+void Client::EntryPoint(void *pthis)
 {
-    QString msg = player.GetIdentity().name + trUtf8(" is connected.");
-    TLogInfo(msg);
+    Client * pt = (Client*)pthis;
+    pt->Run();
 }
 /*****************************************************************************/
-void Client::slotSocketHostFound()
+void Client::Run()
 {
-    QString msg = player.GetIdentity().name + trUtf8(" is trying to connect...");
-    TLogInfo(msg);
-}
-/*****************************************************************************/
-void Client::slotSocketClosed()
-{
-    QString msg = player.GetIdentity().name + trUtf8(" connection has been closed.");
-    TLogInfo(msg);
-}
-/*****************************************************************************/
-void Client::slotSocketError(QAbstractSocket::SocketError code)
-{
-    QString message = player.GetIdentity().name;
-
-    switch (code)
+    std::string buffer;
+    while(true)
     {
-        case QAbstractSocket::ConnectionRefusedError:
-            message = trUtf8(": network error: connection refused.");
-            break;
-        case QAbstractSocket::HostNotFoundError:
-            message = trUtf8(": network error: server not found.");
-            break;
-        default:
-            message = trUtf8(": network error: data transmission failed.");
-            break;
-    }
-    TLogInfo(message);
-}
-/*****************************************************************************/
-void Client::slotSocketReadData()
-{
-    do
-    {
-        QDataStream in(&socket);
-        if (Protocol::DecodePacket(in) == true)
+        if (mTcpClient.IsValid())
         {
-            if (DoAction(in) == false)
+            if (mTcpClient.Recv(buffer) > 0)
             {
-                // bad packet received, exit decoding
-                return;
+                ByteArray data(buffer);
+
+                std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
+
+                // Execute all packets
+                for (std::uint16_t i = 0U; i< packets.size(); i++)
+                {
+                    Protocol::PacketInfo inf = packets[i];
+
+                    ByteArray subArray = data.SubArray(inf.offset, inf.size);
+                    DoAction(subArray);
+                }
+            }
+            else
+            {
+                std::this_thread::sleep_for(std::chrono::seconds(1U));
             }
         }
+        else
+        {
+             std::this_thread::sleep_for(std::chrono::seconds(1U));
+             // FIXME: replace by an event, wait for connection!
+        }
     }
-    while (socket.bytesAvailable() > 0);
 }
 /*****************************************************************************/
-bool Client::DoAction(QDataStream &in)
+bool Client::DoAction(const ByteArray &data)
 {
-    quint8 command;
     bool ret = true;
+    ByteStreamReader in(data);
 
-    in >> command;
-    switch (command)
+    // Jump over some header bytes
+    in.Seek(3U);
+
+    // Get the user id
+    std::uint32_t uuid;
+    in >> uuid;
+
+    mPlayer.SetUuid(uuid);
+
+    // Get the command
+    std::uint8_t cmd;
+    in >> cmd;
+
+    switch (cmd)
     {
         case Protocol::SERVER_MESSAGE:
         {
-            QString message;
+            std::string message;
             in >> message;
-            emit sigMessage(message);
+            mEventHandler.Message(message);
             break;
         }
 
-        case Protocol::SERVER_DISCONNECT:
+        case Protocol::ADMIN_DISCONNECT:
         {
-            socket.disconnectFromHost();
+            mTcpClient.Close();
             break;
         }
 
         case Protocol::SERVER_REQUEST_IDENTITY:
         {
-            quint8 place;
-            quint8 nbPlayers;
-            quint8 mode;
+            std::uint8_t place;
+            std::uint8_t nbPlayers;
+            std::uint8_t mode;
 
             in >> place;
             in >> nbPlayers;
             in >> mode;
 
-            player.SetPlace((Place)place);
+            mPlayer.SetPlace((Place)place);
             info.Initialize(nbPlayers);
             info.gameMode = (Game::Mode)mode;
             SendIdentity();
-            emit sigAssignedPlace((Place)place);
+            mEventHandler.AssignedPlace((Place)place);
             break;
         }
 
         case Protocol::SERVER_PLAYERS_LIST:
         {
-            quint8 nombre;
-            QMap<Place, Identity> players;
+            std::uint8_t nombre;
+            std::map<Place, Identity> players;
 
             in >> nombre;
             for (int i = 0; i < nombre; i++)
             {
                 Identity ident;
-                quint8 place;
+                std::uint8_t place;
 
                 in >> place;
                 in >> ident;
                 players[(Place)place] = ident;
             }
-            emit sigPlayersList(players);
+            mEventHandler.PlayersList(players);
             break;
         }
 
         case Protocol::SERVER_SEND_CARDS:
         {
-            in >> player.GetDeck();
+            in >> mPlayer.GetDeck();
             score.Reset();
             UpdateStatistics();
-            emit sigReceiveCards();
+            mEventHandler.ReceiveCards();
             break;
         }
 
         case Protocol::SERVER_REQUEST_BID:
         {
-            quint8 c;
-            quint8 p;
+            std::uint8_t c;
+            std::uint8_t p;
 
             in >> c; // Most important contract announced before
             in >> p;
-            emit sigSelectPlayer((Place)p);
-            if (p == player.GetPlace())
+            mEventHandler.SelectPlayer((Place)p);
+            if (p == mPlayer.GetPlace())
             {
                 // The request bid is for us! We must declare something
-                emit sigRequestBid((Contract)c);
+                mEventHandler.RequestBid((Contract)c);
             }
             break;
         }
 
         case Protocol::SERVER_SHOW_PLAYER_BID:
         {
-            qint8 c, p, slam;
+            std::uint8_t c, p, slam;
             in >> p;
             in >> c;
             in >> slam;
-            emit sigShowBid((Place)p, (slam == 1 ? true : false), (Contract)c);
+            mEventHandler.ShowBid((Place)p, (slam == 1 ? true : false), (Contract)c);
             break;
         }
 
@@ -448,36 +440,38 @@ bool Client::DoAction(QDataStream &in)
             in >> dogDeck;
             dogDeck.Sort();
             info.sequence = Game::SHOW_DOG;
-            emit sigShowDog();
+            mEventHandler.ShowDog();
             break;
         }
 
         case Protocol::SERVER_BUILD_DISCARD:
         {
             info.sequence = Game::BUILD_DOG;
-            emit sigBuildDiscard();
+            mEventHandler.BuildDiscard();
             break;
         }
 
         case Protocol::SERVER_START_DEAL:
         {
-            qint8 preneur;
-            qint8 contrat;
+            std::uint8_t preneur;
+            std::uint8_t contrat;
+            Game::Shuffle sh;
 
             in >> preneur;
             in >> contrat;
+            in >> sh;
             info.NewDeal();
             info.taker = (Place)preneur;
             info.contract = (Contract)contrat;
             currentTrick.clear();
             info.sequence = Game::SYNC_START;
-            emit sigStartDeal((Place)preneur, (Contract)contrat);
+            mEventHandler.StartDeal((Place)preneur, (Contract)contrat, sh);
             break;
         }
 
         case Protocol::SERVER_SHOW_HANDLE:
         {
-            quint8 p;
+            std::uint8_t p;
             in >> p;
             in >> handleDeck;
             if (GetGameInfo().taker == (Place)p)
@@ -489,52 +483,53 @@ bool Client::DoAction(QDataStream &in)
                 handleDeck.SetOwner(DEFENSE);
             }
             info.sequence = Game::SHOW_HANDLE;
-            emit sigShowHandle();
+            mEventHandler.ShowHandle();
             break;
         }
 
         case Protocol::SERVER_SHOW_CARD:
         {
-            quint8 id;
-            quint8 tour;
+            std::string name;
+            std::uint8_t player;
 
-            in >> id;
-            in >> tour;
+            in >> player;
+            in >> name;
+
             info.Next();
-            currentTrick.append(TarotDeck::GetCard(id));
+            currentTrick.append(TarotDeck::GetCard(name));
             info.sequence = Game::SYNC_CARD;
-            emit sigShowCard((int)id, (Place)tour);
+            mEventHandler.ShowCard((Place)player, name);
             break;
         }
 
         case Protocol::SERVER_PLAY_CARD:
         {
-            qint8 p;
+            std::uint8_t p;
             in >> p;
 
-            emit sigSelectPlayer((Place)p);
-            if (p == player.GetPlace())
+            mEventHandler.SelectPlayer((Place)p);
+            if (p == mPlayer.GetPlace())
             {
                 // Our turn to play a card
                 info.sequence = Game::PLAY_TRICK;
-                emit sigPlayCard();
+                mEventHandler.PlayCard();
             }
             break;
         }
 
         case Protocol::SERVER_DEAL_AGAIN:
         {
-            emit sigDealAgain();
+            mEventHandler.DealAgain();
             break;
         }
 
         case Protocol::SERVER_END_OF_TRICK:
         {
-            quint8 winner;
+            std::uint8_t winner;
             in >> winner;
             info.Next();
             info.sequence = Game::SYNC_TRICK;
-            emit sigWaitTrick((Place)winner);
+            mEventHandler.WaitTrick((Place)winner);
             break;
         }
 
@@ -542,18 +537,18 @@ bool Client::DoAction(QDataStream &in)
         {
             in >> score;
             info.sequence = Game::SYNC_READY;
-            emit sigEndOfDeal();
+            mEventHandler.EndOfDeal();
             break;
         }
 
         case Protocol::SERVER_END_OF_GAME:
         {
-            emit sigEndOfGame();
+            mEventHandler.EndOfGame();
             break;
         }
 
         default:
-            QString msg = player.GetIdentity().name + trUtf8(": Unkown packet received.");
+            std::string msg = mPlayer.GetIdentity().name + ": Unkown packet received.";
             TLogInfo(msg);
             ret = false;
             break;
@@ -563,92 +558,52 @@ bool Client::DoAction(QDataStream &in)
 /*****************************************************************************/
 void Client::SendIdentity()
 {
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << player.GetIdentity();
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_INFOS);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildReplyIdentity(mPlayer.GetIdentity(), mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
-void Client::SendChatMessage(const QString &message)
+void Client::SendChatMessage(const std::string &message)
 {
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    QString msg;
-
-    // We add the nickname before the message
-    msg = player.GetIdentity().name + "> " + message;
-    out << msg;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_MESSAGE);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientChatMessage(message, mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendReady()
 {
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_READY);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientReady(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendError()
 {
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_ERROR);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientError(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendBid(Contract c, bool slam)
 {
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << (quint8)c;
-    if (slam)
-    {
-        out << (quint8)1;
-    }
-    else
-    {
-        out << (quint8)0;
-    }
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_BID);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientBid(c, slam, mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendDiscard(const Deck &discard)
 {
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << discard;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_DISCARD);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientDiscard(discard, mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendHandle()
 {
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out << handleDeck;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_HANDLE);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientHandle(handleDeck, mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendCard(Card *c)
 {
     if (c != NULL)
     {
-        QByteArray packet;
-        QDataStream out(&packet, QIODevice::WriteOnly);
-        out << (quint8)c->GetId();
-        packet = Protocol::BuildHeader(packet, Protocol::CLIENT_CARD);
-        socket.write(packet);
-        socket.flush();
+        ByteArray packet = Protocol::BuildClientCard(c->GetName(), mPlayer.GetUuid());
+        mTcpClient.Send(packet.ToSring());
     }
     else
     {
@@ -660,40 +615,32 @@ void Client::SendSyncDog()
 {
     info.sequence = Game::IDLE;
 
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_SYNC_DOG);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientSyncDog(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendSyncStart()
 {
     info.sequence = Game::IDLE;
 
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_SYNC_START);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientSyncStart(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendSyncCard()
 {
     info.sequence = Game::IDLE;
 
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_SYNC_CARD);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientSyncCard(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendSyncBid()
 {
     info.sequence = Game::IDLE;
 
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_SYNC_BID);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientSyncBid(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendSyncTrick()
@@ -701,18 +648,14 @@ void Client::SendSyncTrick()
     info.sequence = Game::IDLE;
     currentTrick.clear();
 
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_SYNC_TRICK);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientSyncTrick(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 /*****************************************************************************/
 void Client::SendSyncHandle()
 {
-    QByteArray packet;
-    packet = Protocol::BuildHeader(packet, Protocol::CLIENT_SYNC_HANDLE);
-    socket.write(packet);
-    socket.flush();
+    ByteArray packet = Protocol::BuildClientSyncHandle(mPlayer.GetUuid());
+    mTcpClient.Send(packet.ToSring());
 }
 
 //=============================================================================
