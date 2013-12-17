@@ -28,9 +28,9 @@
 
 #include <QGraphicsRectItem>
 #include <QGraphicsSvgItem>
-#include "TextBox.h"
 #include <QtGui>
-#include "../defines.h"
+#include "TextBox.h"
+#include "defines.h"
 #include "CustomTypes.h"
 
 /*****************************************************************************/

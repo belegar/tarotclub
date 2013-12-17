@@ -25,9 +25,9 @@
 
 #include <QDockWidget>
 #include <QTableWidget>
-#include "../defines.h"
-#include "../Deal.h"
-#include "../Identity.h"
+#include "defines.h"
+#include "Deal.h"
+#include "Identity.h"
 
 /*****************************************************************************/
 class ScoresDock : public QDockWidget

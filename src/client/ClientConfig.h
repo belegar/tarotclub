@@ -31,8 +31,8 @@
 #include <QStringList>
 
 // Game includes
-#include "../defines.h"
-#include "../Identity.h"
+#include "defines.h"
+#include "Identity.h"
 
 #define CLIENT_XML_VERSION    "1.5"
 #define CLIENT_CONFIG_FILE    "tarotclub.xml"

@@ -24,7 +24,7 @@
  */
 
 #include "ResultWindow.h"
-#include "../Tools.h"
+#include "Tools.h"
 
 /*****************************************************************************/
 ResultWindow::ResultWindow(QWidget *parent)
@@ -38,8 +38,8 @@ void ResultWindow::SetResult(Score &score, Game &info)
     QString result_str;
 
     // Deal caracteristics
-    ui.lblTaker->setText(Util::ToString(info.taker));
-    ui.lblContrat->setText(Util::ToString(info.contract));
+    ui.lblTaker->setText(Util::ToString(info.taker).data());
+    ui.lblContrat->setText(Util::ToString(info.contract).data());
     ui.lblNbBouts->setNum(score.GetNumberOfOudlers());
     ui.lblPoints->setNum((int)score.pointsAttack);
     ui.lblPointsToDo->setNum((int)score.pointsToDo);

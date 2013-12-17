@@ -27,8 +27,8 @@
 #include <QtCore>
 #include <QResizeEvent>
 #include <QMouseEvent>
-#include "../Tools.h"
-#include "../TarotDeck.h"
+#include "Tools.h"
+#include "TarotDeck.h"
 #include "Log.h"
 
 static const QRectF border(10, 10, 925, 700);

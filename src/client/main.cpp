@@ -34,7 +34,7 @@
 #include "TarotClub.h"
 #include "DebugDock.h"
 #include "ClientConfig.h"
-#include "../Log.h"
+#include "Log.h"
 
 /*****************************************************************************/
 QString GetLocale()

@@ -26,7 +26,7 @@
 #include "PlayerBox.h"
 #include <QFile>
 #include <QtGui>
-#include "../Log.h"
+#include "Log.h"
 
 #define SPACE_BETWEEN_ITEMS 10
 #define PLAYER_BOX_WIDTH    240

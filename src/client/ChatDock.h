@@ -34,8 +34,8 @@
 #include <QListWidget>
 
 // Includes locales
-#include "../defines.h"
-#include "../Identity.h"
+#include "defines.h"
+#include "Identity.h"
 
 /*****************************************************************************/
 class ChatDock : public QDockWidget

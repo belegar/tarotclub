@@ -25,7 +25,7 @@
 
 #include <QTextStream>
 #include "JoinWizard.h"
-#include "../ServerConfig.h"
+#include "ServerConfig.h"
 
 /*****************************************************************************/
 JoinWizardPage1::JoinWizardPage1(QWidget *parent) : QWizardPage(parent)

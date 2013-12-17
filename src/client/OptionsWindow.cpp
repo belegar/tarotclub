@@ -98,8 +98,8 @@ void OptionsWindow::slotColorPicker()
 /*****************************************************************************/
 void OptionsWindow::slotBtnOk()
 {
-    clientOptions.identity.name = ui.nomJoueurSud->text();
-    clientOptions.identity.quote = ui.citationSud->text();
+    clientOptions.identity.name = ui.nomJoueurSud->text().toStdString();
+    clientOptions.identity.quote = ui.citationSud->text().toStdString();
     if (ui.sexeM->isChecked())
     {
         clientOptions.identity.sex = Identity::MALE;
@@ -140,9 +140,9 @@ void OptionsWindow::slotBtnOk()
     serverOptions.timer = ui.slider1->value();
     serverOptions.port = QString(ui.portReseau->text()).toInt();
 
-    serverOptions.bots[ServerConfig::BOT_EAST].name = ui.nomJoueurEst->text();
-    serverOptions.bots[ServerConfig::BOT_NORTH].name = ui.nomJoueurNord->text();
-    serverOptions.bots[ServerConfig::BOT_WEST].name = ui.nomJoueurOuest->text();
+    serverOptions.bots[ServerConfig::BOT_EAST].name = ui.nomJoueurEst->text().toStdString();
+    serverOptions.bots[ServerConfig::BOT_NORTH].name = ui.nomJoueurNord->text().toStdString();
+    serverOptions.bots[ServerConfig::BOT_WEST].name = ui.nomJoueurOuest->text().toStdString();
 
     accept();
 }
@@ -223,12 +223,12 @@ void OptionsWindow::slotBtnPixSud()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(clientOptions.identity.avatar);
+    s = choixAvatar(QString(clientOptions.identity.avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    clientOptions.identity.avatar = s;
+    clientOptions.identity.avatar = s.toStdString();
     ui.pixSud->setPixmap(im);
 }
 /*****************************************************************************/
@@ -237,12 +237,12 @@ void OptionsWindow::slotBtnPixEst()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(serverOptions.bots[ServerConfig::BOT_EAST].avatar);
+    s = choixAvatar(QString(serverOptions.bots[ServerConfig::BOT_EAST].avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[ServerConfig::BOT_EAST].avatar = s;
+    serverOptions.bots[ServerConfig::BOT_EAST].avatar = s.toStdString();
     ui.pixEst->setPixmap(im);
 }
 /*****************************************************************************/
@@ -251,12 +251,12 @@ void OptionsWindow::slotBtnPixNord()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(serverOptions.bots[ServerConfig::BOT_NORTH].avatar);
+    s = choixAvatar(QString(serverOptions.bots[ServerConfig::BOT_NORTH].avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[ServerConfig::BOT_NORTH].avatar = s;
+    serverOptions.bots[ServerConfig::BOT_NORTH].avatar = s.toStdString();
     ui.pixNord->setPixmap(im);
 }
 /*****************************************************************************/
@@ -265,12 +265,12 @@ void OptionsWindow::slotBtnPixOuest()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(serverOptions.bots[ServerConfig::BOT_WEST].avatar);
+    s = choixAvatar(QString(serverOptions.bots[ServerConfig::BOT_WEST].avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[ServerConfig::BOT_WEST].avatar = s;
+    serverOptions.bots[ServerConfig::BOT_WEST].avatar = s.toStdString();
     ui.pixOuest->setPixmap(im);
 }
 /*****************************************************************************/
@@ -281,8 +281,8 @@ void OptionsWindow::refresh()
 {
     QPixmap im;
 
-    ui.nomJoueurSud->setText(clientOptions.identity.name);
-    ui.citationSud->setText(clientOptions.identity.quote);
+    ui.nomJoueurSud->setText(QString(clientOptions.identity.name.data()));
+    ui.citationSud->setText(QString(clientOptions.identity.quote.data()));
     if (clientOptions.identity.sex == Identity::MALE)
     {
         ui.sexeM->setChecked(true);
@@ -294,7 +294,7 @@ void OptionsWindow::refresh()
     ui.afficheAvatars->setChecked(clientOptions.showAvatars);
     ui.langList->setCurrentIndex(clientOptions.language);
     indexLangue = clientOptions.language;
-    if (im.load(clientOptions.identity.avatar) == true)
+    if (im.load(QString(clientOptions.identity.avatar.data())) == true)
     {
         ui.pixSud->setPixmap(im);
     }
@@ -323,19 +323,19 @@ void OptionsWindow::refresh()
     // server stuff
     ui.slider1->setValue(serverOptions.timer);
     ui.portReseau->setValue(serverOptions.port);
-    ui.nomJoueurEst->setText(serverOptions.bots[ServerConfig::BOT_EAST].name);
-    ui.nomJoueurNord->setText(serverOptions.bots[ServerConfig::BOT_NORTH].name);
-    ui.nomJoueurOuest->setText(serverOptions.bots[ServerConfig::BOT_WEST].name);
+    ui.nomJoueurEst->setText(QString(serverOptions.bots[ServerConfig::BOT_EAST].name.data()));
+    ui.nomJoueurNord->setText(QString(serverOptions.bots[ServerConfig::BOT_NORTH].name.data()));
+    ui.nomJoueurOuest->setText(QString(serverOptions.bots[ServerConfig::BOT_WEST].name.data()));
 
-    if (im.load(serverOptions.bots[ServerConfig::BOT_EAST].avatar) == true)
+    if (im.load(QString(serverOptions.bots[ServerConfig::BOT_EAST].avatar.data())) == true)
     {
         ui.pixEst->setPixmap(im);
     }
-    if (im.load(serverOptions.bots[ServerConfig::BOT_NORTH].avatar) == true)
+    if (im.load(QString(serverOptions.bots[ServerConfig::BOT_NORTH].avatar.data())) == true)
     {
         ui.pixNord->setPixmap(im);
     }
-    if (im.load(serverOptions.bots[ServerConfig::BOT_WEST].avatar) == true)
+    if (im.load(QString(serverOptions.bots[ServerConfig::BOT_WEST].avatar.data())) == true)
     {
         ui.pixOuest->setPixmap(im);
     }

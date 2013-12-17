@@ -27,14 +27,16 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include "TarotClub.h"
-#include "../TarotDeck.h"
+#include "TarotDeck.h"
 #include "ui_NumberedDealUI.h"
 #include "ui_WinUI.h"
-#include "../Tools.h"
-#include "../Log.h"
+#include "Tools.h"
+#include "Log.h"
 
 /*****************************************************************************/
-TarotClub::TarotClub() : MainWindow()
+TarotClub::TarotClub()
+  : MainWindow()
+  , mClient(*this)
 {
     // Board click events
     connect(tapis, &Canvas::sigViewportClicked, this, &TarotClub::slotClickTapis);
@@ -43,25 +45,6 @@ TarotClub::TarotClub() : MainWindow()
     connect(tapis, &Canvas::sigContract, this, &TarotClub::slotSetEnchere);
     connect(tapis, &Canvas::sigAcceptDiscard, this, &TarotClub::slotAcceptDiscard);
     connect(tapis, &Canvas::sigAcceptHandle, this, &TarotClub::slotAcceptHandle);
-
-    // Client events connection
-    connect(&client, &Client::sigPlayersList, this, &TarotClub::slotPlayersList);
-    connect(&client, &Client::sigMessage, this, &TarotClub::slotMessage);
-    connect(&client, &Client::sigAssignedPlace, this, &TarotClub::slotAssignedPlace);
-    connect(&client, &Client::sigReceiveCards, this, &TarotClub::slotReceiveCards);
-    connect(&client, &Client::sigSelectPlayer, this, &TarotClub::slotSelectPlayer);
-    connect(&client, &Client::sigRequestBid, this, &TarotClub::slotRequestBid);
-    connect(&client, &Client::sigShowBid, this, &TarotClub::slotShowBid);
-    connect(&client, &Client::sigStartDeal, this, &TarotClub::slotStartDeal);
-    connect(&client, &Client::sigShowDog, this, &TarotClub::slotShowDog);
-    connect(&client, &Client::sigBuildDiscard, this, &TarotClub::slotBuildDiscard);
-    connect(&client, &Client::sigDealAgain, this, &TarotClub::slotDealAgain);
-    connect(&client, &Client::sigPlayCard, this, &TarotClub::slotPlayCard);
-    connect(&client, &Client::sigShowCard, this, &TarotClub::slotShowCard);
-    connect(&client, &Client::sigShowHandle, this, &TarotClub::slotShowHandle);
-    connect(&client, &Client::sigWaitTrick, this, &TarotClub::slotWaitTrick);
-    connect(&client, &Client::sigEndOfDeal, this, &TarotClub::slotEndOfDeal);
-    connect(&client, &Client::sigEndOfGame, this, &TarotClub::slotEndOfGame);
 
     // Game Menu
     connect(newQuickGameAct, SIGNAL(triggered()), this, SLOT(slotNewQuickGame()));
@@ -75,7 +58,7 @@ TarotClub::TarotClub() : MainWindow()
     //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
 
     // Network chat
-    connect(chatDock, &ChatDock::sigEmitMessage, &client, &Client::SendChatMessage);
+    connect(chatDock, &ChatDock::sigEmitMessage, this, &TarotClub::slotSendChatMessage);
 
     // Parameters Menu
     connect(optionsAct, SIGNAL(triggered()), this, SLOT(slotShowOptions()));
@@ -92,17 +75,17 @@ void TarotClub::Initialize()
     debugDock->Initialize();
 
     // Check user's directory and create it if not exists
-    if (!QDir(Config::HomePath).exists())
+    if (!QDir(QString(Config::HomePath.data())).exists())
     {
-        QDir().mkdir(Config::HomePath);
+        QDir().mkdir(QString(Config::HomePath.data()));
     }
-    if (!QDir(Config::GamePath).exists())
+    if (!QDir(QString(Config::GamePath.data())).exists())
     {
-        QDir().mkdir(Config::GamePath);
+        QDir().mkdir(QString(Config::GamePath.data()));
     }
-    if (!QDir(Config::LogPath).exists())
+    if (!QDir(QString(Config::LogPath.data())).exists())
     {
-        QDir().mkdir(Config::LogPath);
+        QDir().mkdir(QString(Config::LogPath.data()));
     }
 
     clientConfig.Load();
@@ -114,8 +97,6 @@ void TarotClub::Initialize()
     }
     ApplyOptions();
 
-    table.moveToThread(&thread);
-    thread.start();
     deal.Initialize();
 
     statusBar()->showMessage(trUtf8("Welcome to TarotClub!"));;
@@ -127,17 +108,14 @@ void TarotClub::Initialize()
 void TarotClub::slotQuitTarotClub()
 {
     table.Stop();
-    // stop the thread
-    thread.quit();
 }
 /*****************************************************************************/
 void TarotClub::slotNewTournamentGame()
 {
-    TarotEngine::Shuffle sh;
-    sh.type = TarotEngine::RANDOM_DEAL;
-    table.SetShuffle(sh);
+    Game::Shuffle sh;
+    sh.type = Game::RANDOM_DEAL;
 
-    table.CreateGame(Game::TOURNAMENT);
+    table.CreateGame(Game::TOURNAMENT, 4U, sh);
     NewGame("127.0.0.1", DEFAULT_PORT);
     // start game
     table.ConnectBots();
@@ -151,12 +129,11 @@ void TarotClub::slotNewNumberedDeal()
 
     if (widget->exec() == QDialog::Accepted)
     {
-        TarotEngine::Shuffle sh;
-        sh.type = TarotEngine::NUMBERED_DEAL;
+        Game::Shuffle sh;
+        sh.type = Game::NUMBERED_DEAL;
         sh.seed = ui.dealNumber->value();
-        table.SetShuffle(sh);
 
-        table.CreateGame(Game::ONE_DEAL);
+        table.CreateGame(Game::ONE_DEAL, 4U, sh);
         NewGame("127.0.0.1", DEFAULT_PORT);
         // start game
         table.ConnectBots();
@@ -169,12 +146,11 @@ void TarotClub::slotNewCustomDeal()
 
     if (fileName.size() != 0)
     {
-        TarotEngine::Shuffle sh;
-        sh.type = TarotEngine::CUSTOM_DEAL;
-        sh.file = fileName;
-        table.SetShuffle(sh);
+        Game::Shuffle sh;
+        sh.type = Game::CUSTOM_DEAL;
+        sh.file = fileName.toStdString();
 
-        table.CreateGame(Game::ONE_DEAL);
+        table.CreateGame(Game::ONE_DEAL, 4U, sh);
         NewGame("127.0.0.1", DEFAULT_PORT);
         // start game
         table.ConnectBots();
@@ -183,11 +159,10 @@ void TarotClub::slotNewCustomDeal()
 /*****************************************************************************/
 void TarotClub::slotNewQuickGame()
 {
-    TarotEngine::Shuffle sh;
-    sh.type = TarotEngine::RANDOM_DEAL;
-    table.SetShuffle(sh);
+    Game::Shuffle sh;
+    sh.type = Game::RANDOM_DEAL;
 
-    table.CreateGame(Game::ONE_DEAL);
+    table.CreateGame(Game::ONE_DEAL, 4U, sh);
     NewGame("127.0.0.1", DEFAULT_PORT);
     // start game
     table.ConnectBots();
@@ -203,9 +178,9 @@ void TarotClub::NewGame(const QString &address, int port)
     tapis->SetFilter(Canvas::BLOCK_ALL);
 
     // Connect us to the server
-    client.Initialize();
-    client.Close();
-    client.ConnectToHost(address, port);
+    mClient.Initialize();
+    mClient.Close();
+    mClient.ConnectToHost(address.toStdString(), port);
 }
 /*****************************************************************************/
 void TarotClub::slotJoinNetworkGame()
@@ -237,18 +212,17 @@ void TarotClub::slotQuickJoinNetworkGame()
 /*****************************************************************************/
 void TarotClub::slotCreateNetworkGame()
 {
-    TarotEngine::Shuffle sh;
-    sh.type = TarotEngine::RANDOM_DEAL;
-    table.SetShuffle(sh);
+    Game::Shuffle sh;
+    sh.type = Game::RANDOM_DEAL;
 
-    table.CreateGame(Game::ONE_DEAL);
+    table.CreateGame(Game::ONE_DEAL, 4U, sh);
     NewGame("127.0.0.1", DEFAULT_PORT);
 }
 /*****************************************************************************/
 void TarotClub::ApplyOptions()
 {
     ClientOptions &options = clientConfig.GetOptions();
-    client.SetMyIdentity(options.identity);
+    mClient.SetMyIdentity(options.identity);
 
     table.LoadConfiguration();
 
@@ -292,7 +266,7 @@ void TarotClub::showVictoryWindow()
     QList<Place> podium = deal.GetPodium();
 
     QMessageBox::information(this, trUtf8("Tournament result"),
-                             trUtf8("The winner of the tournament is ") + players[podium[0]].name,
+                             trUtf8("The winner of the tournament is ") + QString(players[podium[0]].name.data()),
                              QMessageBox::Ok);
 
     /*
@@ -313,7 +287,7 @@ void TarotClub::HideTrick()
     int i;
     Card *c;
     GfxCard *gc;
-    Deck &trick = client.GetCurrentTrick();
+    Deck &trick = mClient.GetCurrentTrick();
 
     for (i = 0; i < trick.size(); i++)
     {
@@ -323,25 +297,78 @@ void TarotClub::HideTrick()
     }
 }
 /*****************************************************************************/
+void TarotClub::slotSetEnchere(Contract cont)
+{
+    mClient.SendBid(cont, tapis->GetSlamOption());
+    tapis->HideBidsChoice();
+}
+/*****************************************************************************/
+void TarotClub::slotAcceptDiscard()
+{
+    // Clear canvas and forbid new actions
+    tapis->DisplayDiscardMenu(false);
+    tapis->SetFilter(Canvas::BLOCK_ALL);
+    for (int i = 0; i < discard.size(); i++)
+    {
+        Card *c = discard.at(i);
+        GfxCard *gc = tapis->GetGfxCard(c->GetId());
+        gc->hide();
+    }
+
+    mClient.SetDiscard(discard);
+    ShowSouthCards();
+}
+/*****************************************************************************/
+void TarotClub::slotAcceptHandle()
+{
+    if (mClient.TestHandle() == false)
+    {
+        QMessageBox::information(this, trUtf8("Information"),
+                                 trUtf8("Your handle is not valid.\n"
+                                        "Showing the fool means that you have no any more trumps in your deck."));
+        return;
+    }
+
+    tapis->DisplayHandleMenu(false);
+    tapis->SetFilter(Canvas::CARDS);
+    mClient.SendHandle();
+    ShowSouthCards();
+    mClient.GetGameInfo().sequence = Game::PLAY_TRICK;
+    statusBar()->showMessage(trUtf8("Please, play a card, it's your turn!"));
+}
+/*****************************************************************************/
+/**
+ * @brief TarotClub::ShowSouthCards
+ *
+ * Show current player's cards
+ *
+ * @param pos = 0 for 18-cards in the hand, otherwise 1 (with cards from the chien)
+ */
+void TarotClub::ShowSouthCards()
+{
+    mClient.GetMyDeck().Sort();
+    tapis->DrawSouthCards(mClient.GetMyDeck());
+}
+/*****************************************************************************/
 void TarotClub::slotClickTapis()
 {
-    if (client.GetGameInfo().sequence == Game::SHOW_DOG)
+    if (mClient.GetGameInfo().sequence == Game::SHOW_DOG)
     {
         statusBar()->clearMessage();
         tapis->HidePopup();
-        client.SendSyncDog(); // We have seen the dog, let's inform the server about that
+        mClient.SendSyncDog(); // We have seen the dog, let's inform the server about that
     }
-    else if (client.GetGameInfo().sequence == Game::SHOW_DOG)
+    else if (mClient.GetGameInfo().sequence == Game::SHOW_DOG)
     {
         statusBar()->clearMessage();
         tapis->HidePopup();
-        client.SendSyncHandle(); // We have seen the handle, let's inform the server about that
+        mClient.SendSyncHandle(); // We have seen the handle, let's inform the server about that
     }
-    else if (client.GetGameInfo().sequence == Game::SYNC_TRICK)
+    else if (mClient.GetGameInfo().sequence == Game::SYNC_TRICK)
     {
         HideTrick();
         statusBar()->clearMessage();
-        client.SendSyncTrick();
+        mClient.SendSyncTrick();
     }
 }
 /*****************************************************************************/
@@ -356,12 +383,12 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
 {
     Card *c = tapis->GetObjectCard(gc);
 
-    if (client.GetMyDeck().contains(c) == false)
+    if (mClient.GetMyDeck().contains(c) == false)
     {
         return;
     }
 
-    if (client.GetGameInfo().sequence == Game::BUILD_DOG)
+    if (mClient.GetGameInfo().sequence == Game::BUILD_DOG)
     {
         if ((c->GetSuit() == Card::TRUMPS) ||
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
@@ -373,7 +400,7 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
             tapis->SetCursorType(Canvas::ARROW);
         }
     }
-    else if (client.GetGameInfo().sequence == Game::BUILD_HANDLE)
+    else if (mClient.GetGameInfo().sequence == Game::BUILD_HANDLE)
     {
         if (c->GetSuit() == Card::TRUMPS)
         {
@@ -384,9 +411,9 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
             tapis->SetCursorType(Canvas::FORBIDDEN);
         }
     }
-    else if (client.GetGameInfo().sequence == Game::PLAY_TRICK)
+    else if (mClient.GetGameInfo().sequence == Game::PLAY_TRICK)
     {
-        if (client.IsValid(c) == true)
+        if (mClient.IsValid(c) == true)
         {
             tapis->SetCursorType(Canvas::ARROW);
         }
@@ -397,31 +424,36 @@ void TarotClub::slotMoveCursor(GfxCard *gc)
     }
 }
 /*****************************************************************************/
+void TarotClub::slotSendChatMessage(const QString &message)
+{
+    mClient.SendChatMessage(message.toStdString());
+}
+/*****************************************************************************/
 void TarotClub::slotClickCard(GfxCard *gc)
 {
     Card *c = tapis->GetObjectCard(gc);
 
-    if (client.GetMyDeck().contains(c) == false)
+    if (mClient.GetMyDeck().contains(c) == false)
     {
         return;
     }
 
-    if (client.GetGameInfo().sequence == Game::PLAY_TRICK)
+    if (mClient.GetGameInfo().sequence == Game::PLAY_TRICK)
     {
-        if (client.IsValid(c) == false)
+        if (mClient.IsValid(c) == false)
         {
             return;
         }
         tapis->SetFilter(Canvas::BLOCK_ALL);
         statusBar()->clearMessage();
 
-        client.GetMyDeck().removeAll(c);
-        client.SendCard(c);
+        mClient.GetMyDeck().removeAll(c);
+        mClient.SendCard(c);
 
         ShowSouthCards();
 
     }
-    else if (client.GetGameInfo().sequence == Game::BUILD_DOG)
+    else if (mClient.GetGameInfo().sequence == Game::BUILD_DOG)
     {
 
         if ((c->GetSuit() == Card::TRUMPS) ||
@@ -455,22 +487,22 @@ void TarotClub::slotClickCard(GfxCard *gc)
         }
         gc->ToggleStatus();
     }
-    else if (client.GetGameInfo().sequence == Game::BUILD_HANDLE)
+    else if (mClient.GetGameInfo().sequence == Game::BUILD_HANDLE)
     {
         if (c->GetSuit() == Card::TRUMPS)
         {
             // select one card
             if (gc->GetStatus() == GfxCard::NORMAL)
             {
-                client.GetHandleDeck().append(c);
+                mClient.GetHandleDeck().append(c);
             }
             else if (gc->GetStatus() == GfxCard::SELECTED)
             {
-                client.GetHandleDeck().removeAll(c);
+                mClient.GetHandleDeck().removeAll(c);
             }
-            if ((client.GetHandleDeck().size() == 10) ||
-                    (client.GetHandleDeck().size() == 13) ||
-                    (client.GetHandleDeck().size() == 15))
+            if ((mClient.GetHandleDeck().size() == 10) ||
+                    (mClient.GetHandleDeck().size() == 13) ||
+                    (mClient.GetHandleDeck().size() == 15))
             {
                 tapis->SetFilter(Canvas::MENU | Canvas::CARDS);
                 tapis->DisplayHandleMenu(true);
@@ -485,148 +517,58 @@ void TarotClub::slotClickCard(GfxCard *gc)
     }
 }
 /*****************************************************************************/
-void TarotClub::slotPlayersList(QMap<Place, Identity> &pl)
+void TarotClub::Message(const std::string &message)
 {
-    players = pl;
-    tapis->SetPlayerIdentity(players, client.GetPlace());
+    chatDock->message(QString(message.data()));
+}
+/*****************************************************************************/
+void TarotClub::AssignedPlace(Place p)
+{
+    chatDock->message("The server grant you access to the table in place " + QString(Util::ToString(p).data()));
+}
+/*****************************************************************************/
+void TarotClub::PlayersList(std::map<Place, Identity> &pl)
+{
+    std::map<Place, Identity>::iterator iter;
+
+    players.clear();
+    for(iter = pl.begin(); iter != pl.end(); iter++)
+    {
+        players[iter->first] = iter->second;
+    }
+
+    tapis->SetPlayerIdentity(players, mClient.GetPlace());
     scoresDock->setPlayers(players);
 }
 /*****************************************************************************/
-void TarotClub::slotReceiveCards()
+void TarotClub::ReceiveCards()
 {
-    infosDock->PrintStats(client.GetStatistics());
+    infosDock->PrintStats(mClient.GetStatistics());
     tapis->ResetCards();
     ShowSouthCards();
 }
 /*****************************************************************************/
-void TarotClub::slotSelectPlayer(Place p)
+void TarotClub::SelectPlayer(Place p)
 {
-    tapis->ShowSelection(p, client.GetPlace());
+    tapis->ShowSelection(p, mClient.GetPlace());
 }
 /*****************************************************************************/
-void TarotClub::slotRequestBid(Contract highestBid)
+void TarotClub::RequestBid(Contract highestBid)
 {
     tapis->ShowBidsChoice(highestBid);
     tapis->SetFilter(Canvas::MENU);
 }
 /*****************************************************************************/
-void TarotClub::slotShowBid(Place p, bool slam, Contract c)
+void TarotClub::ShowBid(Place p, bool slam, Contract c)
 {
     // FIXME: show the announced slam on the screen
     Q_UNUSED(slam);
 
-    tapis->ShowBid(p, c, client.GetPlace());
-    client.SendSyncBid();
+    tapis->ShowBid(p, c, mClient.GetPlace());
+    mClient.SendSyncBid();
 }
 /*****************************************************************************/
-void TarotClub::slotAcceptDiscard()
-{
-    // Clear canvas and forbid new actions
-    tapis->DisplayDiscardMenu(false);
-    tapis->SetFilter(Canvas::BLOCK_ALL);
-    for (int i = 0; i < discard.size(); i++)
-    {
-        Card *c = discard.at(i);
-        GfxCard *gc = tapis->GetGfxCard(c->GetId());
-        gc->hide();
-    }
-
-    client.SetDiscard(discard);
-    ShowSouthCards();
-}
-/*****************************************************************************/
-void TarotClub::slotAcceptHandle()
-{
-    if (client.TestHandle() == false)
-    {
-        QMessageBox::information(this, trUtf8("Information"),
-                                 trUtf8("Your handle is not valid.\n"
-                                        "Showing the fool means that you have no any more trumps in your deck."));
-        return;
-    }
-
-    tapis->DisplayHandleMenu(false);
-    tapis->SetFilter(Canvas::CARDS);
-    client.SendHandle();
-    ShowSouthCards();
-    client.GetGameInfo().sequence = Game::PLAY_TRICK;
-    statusBar()->showMessage(trUtf8("Please, play a card, it's your turn!"));
-}
-/*****************************************************************************/
-void TarotClub::slotSetEnchere(Contract cont)
-{
-    client.SendBid(cont, tapis->GetSlamOption());
-    tapis->HideBidsChoice();
-}
-/*****************************************************************************/
-/**
- * @brief TarotClub::ShowSouthCards
- *
- * Show current player's cards
- *
- * @param pos = 0 for 18-cards in the hand, otherwise 1 (with cards from the chien)
- */
-void TarotClub::ShowSouthCards()
-{
-    client.GetMyDeck().Sort();
-    tapis->DrawSouthCards(client.GetMyDeck());
-}
-/*****************************************************************************/
-void TarotClub::slotShowDog()
-{
-    QList<Card *> cards;
-
-    for (int i = 0; i < client.GetDogDeck().size(); i++)
-    {
-        cards.append(client.GetDogDeck().at(i));
-    }
-    tapis->DrawCardsInPopup(cards);
-    statusBar()->showMessage(trUtf8("Click on the board once you have seen the dog."));
-}
-/*****************************************************************************/
-void TarotClub::slotShowHandle()
-{
-    QList<Card *> cards;
-
-    for (int i = 0; i < client.GetHandleDeck().size(); i++)
-    {
-        cards.append(client.GetHandleDeck().at(i));
-    }
-    tapis->DrawCardsInPopup(cards);
-    statusBar()->showMessage(trUtf8("Click on the board once you have seen the handle."));
-}
-/*****************************************************************************/
-void TarotClub::slotDealAgain()
-{
-    infosDock->Clear();
-    tapis->SetFilter(Canvas::BLOCK_ALL);
-    tapis->InitBoard();
-
-    QMessageBox::information(this, trUtf8("Information"),
-                             trUtf8("All the players have passed.\n"
-                                    "New deal will begin."));
-    client.SendReady();
-}
-/*****************************************************************************/
-void TarotClub::slotBuildDiscard()
-{
-    Card *c;
-
-    // We add the dog to the player's deck
-    for (int i = 0; i < client.GetDogDeck().size(); i++)
-    {
-        c = client.GetDogDeck().at(i);
-        client.GetMyDeck().append(c);
-    }
-    discard.clear();
-    tapis->SetFilter(Canvas::CARDS | Canvas::MENU);
-
-    // Player's cards are shown
-    ShowSouthCards();
-    statusBar()->showMessage(trUtf8("Select cards to build your discard."));
-}
-/*****************************************************************************/
-void TarotClub::slotStartDeal(Place p, Contract c)
+void TarotClub::StartDeal(Place taker, Contract c, const Game::Shuffle &sh)
 {
     firstTurn = true;
     infosDock->Clear();
@@ -634,13 +576,13 @@ void TarotClub::slotStartDeal(Place p, Contract c)
 
     QString name = "ERROR";
 
-    if (players.contains(p))
+    if (players.contains(taker))
     {
-        name = players.value(p).name;
+        name = QString(players.value(taker).name.data());
     }
-    infosDock->SetTaker(name, p);
-    TarotEngine::Shuffle sh = table.GetShuffle();
-    if (sh.type != TarotEngine::CUSTOM_DEAL)
+    infosDock->SetTaker(name, taker);
+
+    if (sh.type != Game::CUSTOM_DEAL)
     {
         infosDock->SetDealNumber(sh.seed);
     }
@@ -651,13 +593,67 @@ void TarotClub::slotStartDeal(Place p, Contract c)
     }
     tapis->SetFilter(Canvas::BLOCK_ALL);
     tapis->InitBoard();
-    tapis->ShowTaker(p, client.GetPlace());
+    tapis->ShowTaker(taker, mClient.GetPlace());
 
     // We are ready, let's inform the server about that
-    client.SendSyncStart();
+    mClient.SendSyncStart();
 }
 /*****************************************************************************/
-void TarotClub::slotPlayCard()
+void TarotClub::ShowDog()
+{
+    QList<Card *> cards;
+
+    for (int i = 0; i < mClient.GetDogDeck().size(); i++)
+    {
+        cards.append(mClient.GetDogDeck().at(i));
+    }
+    tapis->DrawCardsInPopup(cards);
+    statusBar()->showMessage(trUtf8("Click on the board once you have seen the dog."));
+}
+/*****************************************************************************/
+void TarotClub::ShowHandle()
+{
+    QList<Card *> cards;
+
+    for (int i = 0; i < mClient.GetHandleDeck().size(); i++)
+    {
+        cards.append(mClient.GetHandleDeck().at(i));
+    }
+    tapis->DrawCardsInPopup(cards);
+    statusBar()->showMessage(trUtf8("Click on the board once you have seen the handle."));
+}
+/*****************************************************************************/
+void TarotClub::DealAgain()
+{
+    infosDock->Clear();
+    tapis->SetFilter(Canvas::BLOCK_ALL);
+    tapis->InitBoard();
+
+    QMessageBox::information(this, trUtf8("Information"),
+                             trUtf8("All the players have passed.\n"
+                                    "New deal will begin."));
+    mClient.SendReady();
+}
+/*****************************************************************************/
+void TarotClub::BuildDiscard()
+{
+    Card *c;
+
+    // We add the dog to the player's deck
+    for (int i = 0; i < mClient.GetDogDeck().size(); i++)
+    {
+        c = mClient.GetDogDeck().at(i);
+        mClient.GetMyDeck().append(c);
+    }
+    discard.clear();
+    tapis->SetFilter(Canvas::CARDS | Canvas::MENU);
+
+    // Player's cards are shown
+    ShowSouthCards();
+    statusBar()->showMessage(trUtf8("Select cards to build your discard."));
+}
+/*****************************************************************************/
+void TarotClub::PlayCard()
 {
     tapis->SetFilter(Canvas::CARDS);
 
@@ -666,7 +662,7 @@ void TarotClub::slotPlayCard()
     {
         firstTurn = false;
         // If a handle exists in the player's deck, we propose to declare it
-        if (client.GetStatistics().trumps >= 10)
+        if (mClient.GetStatistics().trumps >= 10)
         {
             int ret = QMessageBox::question(this, trUtf8("Handle"),
                                             trUtf8("You have a handle.\n"
@@ -674,8 +670,8 @@ void TarotClub::slotPlayCard()
                                             QMessageBox::Yes | QMessageBox::No);
             if (ret == QMessageBox::Yes)
             {
-                client.GetGameInfo().sequence = Game::BUILD_HANDLE;
-                client.GetHandleDeck().clear();
+                mClient.GetGameInfo().sequence = Game::BUILD_HANDLE;
+                mClient.GetHandleDeck().clear();
                 statusBar()->showMessage(trUtf8("Build your handle."));
             }
         }
@@ -686,24 +682,24 @@ void TarotClub::slotPlayCard()
     }
 }
 /*****************************************************************************/
-void TarotClub::slotShowCard(int id, Place p)
+void TarotClub::ShowCard(Place p, const std::string &name)
 {
-    GfxCard *gc = tapis->GetGfxCard(id);
-    tapis->DrawCard(gc, p, client.GetPlace());
-    infosDock->AddRound(client.GetGameInfo(), p, TarotDeck::GetCard(id)->GetName());
+    GfxCard *gc = tapis->GetGfxCard(TarotDeck::GetIndex(name));
+    tapis->DrawCard(gc, p, mClient.GetPlace());
+    infosDock->AddRound(mClient.GetGameInfo(), p, QString(name.data()));
 
     // We have seen the card, let's inform the server about that
-    client.SendSyncCard();
+    mClient.SendSyncCard();
 }
 /*****************************************************************************/
-void TarotClub::slotEndOfDeal()
+void TarotClub::EndOfDeal()
 {
     statusBar()->showMessage(trUtf8("End of the deal."));
     tapis->SetFilter(Canvas::BLOCK_ALL);
     tapis->InitBoard();
     tapis->ResetCards();
 
-    resultWindow->SetResult(client.GetScore(), client.GetGameInfo());
+    resultWindow->SetResult(mClient.GetScore(), mClient.GetGameInfo());
     resultWindow->exec();
 
     /*
@@ -713,17 +709,17 @@ void TarotClub::slotEndOfDeal()
         - Otherwise, show the deal winner
      */
 
-    if (client.GetGameInfo().gameMode == Game::TOURNAMENT)
+    if (mClient.GetGameInfo().gameMode == Game::TOURNAMENT)
     {
         bool continueGame;
 
-        deal.SetScore(client.GetScore());
-        continueGame = deal.AddScore(client.GetGameInfo());
+        deal.SetScore(mClient.GetScore());
+        continueGame = deal.AddScore(mClient.GetGameInfo());
         scoresDock->SetNewScore(deal);
 
         if (continueGame == true)
         {
-            client.SendReady();
+            mClient.SendReady();
         }
         else
         {
@@ -739,9 +735,9 @@ void TarotClub::slotEndOfDeal()
  * This method is called at the end of each turn, when all the players have
  * played a card.
  */
-void TarotClub::slotWaitTrick(Place winner)
+void TarotClub::WaitTrick(Place winner)
 {
-    infosDock->SelectWinner(client.GetGameInfo(), winner);
+    infosDock->SelectWinner(mClient.GetGameInfo(), winner);
     tapis->SetFilter(Canvas::BLOCK_ALL);
     statusBar()->showMessage(trUtf8("Click on the board to continue."));
 
@@ -752,17 +748,7 @@ void TarotClub::slotWaitTrick(Place winner)
     }
 }
 /*****************************************************************************/
-void TarotClub::slotMessage(const QString &message)
-{
-    chatDock->message(message);
-}
-/*****************************************************************************/
-void TarotClub::slotAssignedPlace(Place p)
-{
-    chatDock->message("The server grant you access to the table in place " + Util::ToString(p));
-}
-/*****************************************************************************/
-void TarotClub::slotEndOfGame()
+void TarotClub::EndOfGame()
 {
 }
 

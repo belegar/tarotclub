@@ -27,7 +27,7 @@
 #include <QBrush>
 #include <QPainter>
 #include <QtGlobal>
-#include "../Tools.h"
+#include "Tools.h"
 
 static const int SPACE = 10;
 

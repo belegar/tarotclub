@@ -32,7 +32,7 @@
 #include <QAction>
 
 // Includes locales
-#include "../defines.h"
+#include "defines.h"
 #include "Canvas.h"
 #include "TextBox.h"
 #include "AboutWindow.h"

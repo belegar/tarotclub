@@ -64,7 +64,7 @@ void ScoresDock::setPlayers(QMap<Place, Identity> &players)
     while (i.hasNext())
     {
         i.next();
-        header += i.value().name;
+        header += i.value().name.data();
     }
     tableScores->setHorizontalHeaderLabels(header);
 }

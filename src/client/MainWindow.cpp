@@ -28,7 +28,7 @@
 #include <QMenuBar>
 #include <QDateTime>
 #include <QDir>
-#include "../Tools.h"
+#include "Tools.h"
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)

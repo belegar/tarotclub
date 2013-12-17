@@ -26,8 +26,8 @@
 #include "EditorWindow.h"
 #include <QObject>
 #include <QFileDialog>
-#include "../DealFile.h"
-#include "../TarotDeck.h"
+#include "DealFile.h"
+#include "TarotDeck.h"
 
 /*****************************************************************************/
 EditorWindow::EditorWindow(QWidget *parent)
@@ -180,7 +180,9 @@ void EditorWindow::slotSaveDeal()
 
     QString fileName = QFileDialog::getSaveFileName(this);
     if (fileName.isEmpty())
+    {
         return;
+    }
 
     DealFile editor;
     editor.dogDeck.clear();
@@ -220,7 +222,7 @@ void EditorWindow::slotSaveDeal()
         editor.northDeck.append(((CardListItem *)el)->GetCard());
     }
 
-    editor.SaveFile(fileName);
+    editor.SaveFile(fileName.toStdString());
 }
 
 //=============================================================================

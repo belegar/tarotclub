@@ -32,9 +32,9 @@
 #include <ui_InfosDockUI.h>
 
 // Includes locales
-#include "../defines.h"
-#include "../Game.h"
-#include "../Deck.h"
+#include "defines.h"
+#include "Game.h"
+#include "Deck.h"
 
 /*****************************************************************************/
 class InfosDock : public QDockWidget

@@ -25,8 +25,8 @@
 
 #include <QString>
 #include "HelpWindow.h"
-#include "../defines.h"
-#include "../Log.h"
+#include "defines.h"
+#include "Log.h"
 
 /*****************************************************************************/
 HelpBrowser::HelpBrowser(QHelpEngine *help, QWidget *parent)

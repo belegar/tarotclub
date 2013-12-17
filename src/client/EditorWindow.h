@@ -28,8 +28,8 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
-#include "../defines.h"
-#include "../Card.h"
+#include "defines.h"
+#include "Card.h"
 #include <ui_DealEditorUI.h>
 
 /*****************************************************************************/
@@ -41,7 +41,7 @@ public:
     CardListItem(Card *ref) : QListWidgetItem()
     {
         c = ref;
-        setText(c->GetName());
+        setText(QString(c->GetName().data()));
     }
 
     Card *GetCard()

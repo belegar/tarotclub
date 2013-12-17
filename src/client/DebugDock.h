@@ -33,12 +33,12 @@
 #include <QPushButton>
 
 // Includes locales
-#include "../defines.h"
-#include "../Identity.h"
-#include "../Log.h"
+#include "defines.h"
+#include "Identity.h"
+#include "Log.h"
 
 /*****************************************************************************/
-class DebugDock : public QDockWidget, public Observer<QString>
+class DebugDock : public QDockWidget, public Observer<std::string>
 {
     Q_OBJECT
 
@@ -57,7 +57,7 @@ public:
         return instance;
     }
 
-    void Update(const QString &info) { message(info); }
+    void Update(const std::string &info) { message(QString(info.data())); }
 
     void Initialize() { Log::RegisterListener(*this); }
 

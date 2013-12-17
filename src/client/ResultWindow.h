@@ -30,9 +30,9 @@
 #include <QDialog>
 
 // Local includes
-#include "../defines.h"
-#include "../Game.h"
-#include "../Score.h"
+#include "defines.h"
+#include "Game.h"
+#include "Score.h"
 #include <ui_ResultUI.h>
 
 /*****************************************************************************/

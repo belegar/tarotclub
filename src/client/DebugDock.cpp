@@ -30,6 +30,7 @@
 #include <QSplitter>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTextStream>
 
 // Includes locales
 #include "DebugDock.h"

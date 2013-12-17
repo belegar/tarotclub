@@ -30,7 +30,7 @@
 
 // Includes locales
 #include "InfosDock.h"
-#include "../Tools.h"
+#include "Tools.h"
 
 /*****************************************************************************/
 InfosDock::InfosDock(QWidget *parent)
@@ -83,12 +83,12 @@ void InfosDock::SetDealNumber(int n)
 /*****************************************************************************/
 void InfosDock::SetTaker(QString &name, Place place)
 {
-    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + Util::ToString(place) + ")");
+    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + QString(Util::ToString(place).data()) + ")");
 }
 /*****************************************************************************/
 void InfosDock::SetContract(Contract contract)
 {
-    ui.contratVar->setText("<b>" + Util::ToString(contract) + "</b>");
+    ui.contratVar->setText("<b>" + QString(Util::ToString(contract).data()) + "</b>");
 }
 /*****************************************************************************/
 void InfosDock::PrintStats(Deck::Statistics &stats)
