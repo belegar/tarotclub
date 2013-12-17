@@ -33,13 +33,17 @@ sub SendToSocket
 	my $data_to_send  = shift(@_);
     my $data;
 
-    sleep(2);
+    sleep(10);
     print "Sending data...\n";
     $locSocket->send($data_to_send);
     
+
+	sleep(10);
      print "Waiting for received data...\n";
     $locSocket->recv($data, 1024);
     
+sleep(10);
+
     # Data has been received
  #   my $payloadLength = length($data);
  #  print "Remote RX: $payloadLength bytes\n";

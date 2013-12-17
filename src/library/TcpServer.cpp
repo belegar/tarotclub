@@ -57,7 +57,7 @@ void TcpServer::Run()
     int    i, rc;
     bool end_server = false;
     struct timeval timeout;
-    struct fd_set working_set;
+    fd_set working_set;
 
     /*************************************************************/
     /* Initialize the master fd_set                              */
@@ -95,7 +95,7 @@ void TcpServer::Run()
             /**********************************************************/
             /* The select call failed.                                */
             /**********************************************************/
-            perror("  select() failed");
+          //  perror("  select() failed");
             break;
         }
         else if (rc == 0)
@@ -247,7 +247,7 @@ bool TcpServer::IncommingData(int in_sock)
     }
     else if (rc < 0)
     {
-        perror("  recv() failed");
+        //perror("  recv() failed");
         close_conn = true;
     }
     else if (rc == 0)

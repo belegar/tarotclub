@@ -77,7 +77,7 @@ bool TcpSocket::Bind(std::uint16_t port)
     if (IsValid())
     {
         mAddr.sin_family      = AF_INET;
-        mAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        mAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
         mAddr.sin_port        = htons(port);
 
         if (::bind(mSock,
@@ -94,11 +94,11 @@ void TcpSocket::Close()
 {
     if (IsValid())
     {
-        ::shutdown(mSock, SD_BOTH);
-
 #ifdef USE_UNIX_OS
+        ::shutdown(mSock, SHUT_RDWR);
         ::close(mSock);
 #else
+        ::shutdown(mSock, SD_BOTH);
         ::closesocket(mSock);
 #endif
     }
@@ -138,39 +138,44 @@ bool TcpSocket::Connect (const std::string &host, const int port)
     mPort = port;
     mAddr.sin_family = AF_INET;
     mAddr.sin_port = htons (port);
+    mAddr.sin_addr.s_addr = inet_addr(mHost.c_str()); // Convert a string IPv4 into a structure
 
-    // Convert a string IPv4 into a structure
-    unsigned long ulAddr = INADDR_NONE;
-    ulAddr  = inet_addr(mHost.c_str());
-
-    if ( ulAddr == INADDR_NONE )
+    if ( mAddr.sin_addr.s_addr == INADDR_NONE )
     {
         //printf("inet_addr failed and returned INADDR_NONE\n");
         //     WSACleanup();
         return false;
     }
-
-    if (ulAddr == INADDR_ANY)
+    if (mAddr.sin_addr.s_addr == INADDR_ANY)
     {
     //    printf("inet_addr failed and returned INADDR_ANY\n");
         return false;
     }
-    mAddr.sin_addr.S_un.S_addr = ulAddr;
 
     if (::connect(mSock, reinterpret_cast<sockaddr *>(&mAddr), sizeof(mAddr)) == 0)
     {
         ret = true;
     }
-   // if (status) m_lastError = errno;
 
     return ret;
 }
 /*****************************************************************************/
 bool TcpSocket::Send (const std::string & input) const
 {
-    return ::send(mSock, input.c_str(), input.size(), 0) != -1;
-}
+    size_t ret;
 
+    ret = ::send(mSock, input.c_str(), input.size(), 0);
+
+    if (ret > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+/*****************************************************************************/
 /**
  * @brief TcpSocket::Initialize
  * One time initialization for the sub-system
@@ -187,8 +192,8 @@ bool TcpSocket::Initialize()
         {
             return false;
         }
-    }
 #endif
+    }
 
     return true;
 }

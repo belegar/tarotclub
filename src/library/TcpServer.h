@@ -38,7 +38,7 @@ public:
 private:
     std::thread mThread;
     int  mMaxSd;
-    struct fd_set mMasterSet;
+    fd_set mMasterSet;
     Subject<Signal> mSubject;
     std::vector<int> mClients;
 
