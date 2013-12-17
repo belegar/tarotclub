@@ -5,7 +5,8 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include "Observer.h"
-#include "ByteStream.h"
+#include "ByteStreamReader.h"
+#include "ByteStreamWriter.h"
 #include <cstdint>
 
 static const std::uint32_t cNbObservers = 10U;
@@ -51,6 +52,7 @@ private Q_SLOTS:
     void AttachAndNotify();
     void DetachAndNotify();
     void TestByteStream();
+    void TestUtilFunctions();
 
 private:
     Subj mySubject;

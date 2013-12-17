@@ -1,10 +1,12 @@
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-#include "Observer.h"
-#include "ByteStream.h"
 #include <cstdint>
 
+#include "Observer.h"
+#include "ByteStreamReader.h"
+#include "ByteStreamWriter.h"
+#include "defines.h"
 #include "tst_utilities.h"
 
 std::uint32_t Obs::gCounter = 0U;
@@ -76,44 +78,61 @@ void Utilities::TestByteStream()
     std::uint32_t val32_in, val32_out;
 
     ByteArray block;
-    ByteStream stream(block);
+    ByteStreamReader stream_rd(block);
+    ByteStreamWriter stream_wr(block);
 
+    // Step 1 ---------------------------------------
     // Basic test: serialize a byte and deserialize it
     val8_in = 0x42U;
-    stream << val8_in;
+    stream_wr << val8_in;
     std::uint32_t size = 1U;
 
     QCOMPARE(block.Size(), size);
-    stream >> val8_out;
-
-    size = 0U;
-    QCOMPARE(block.Size(), size);
+    stream_rd >> val8_out;
 
     QCOMPARE(val8_in, val8_out);
 
+
+    // Step 2 ---------------------------------------
+    stream_rd.Seek(0U);
+    stream_wr.Seek(0U);
+
     val32_in = 0xAABBCCDD;
-    stream << val32_in;
-    stream.Print();
+    stream_wr << val32_in;
+
+    std::cout << stream_rd.ToString();
 
     val8_in = 0x23;
-    stream.Seek(1U);
-    stream << val8_in;
-    stream.Print();
+    stream_wr.Seek(1U);
+    stream_wr << val8_in;
 
-    stream >> val32_out;
+    std::cout << stream_rd.ToString();
 
+    stream_rd >> val32_out;
     val32_in = 0xAABB23DD;
     QCOMPARE(val32_in, val32_out);
 
+
+    // Step 3 ---------------------------------------
+    stream_rd.Seek(0U);
+    stream_wr.Seek(0U);
+
     std::string hello = "Hello, world!";
-    stream << hello;
+    stream_wr << hello;
     std::string reply;
-    stream >> reply;
+    stream_rd >> reply;
 
     if (hello != reply)
     {
         std::cout << "Stream output: " << reply << std::endl;
         QFAIL("Strings are not the same!");
     }
+}
+
+void Utilities::TestUtilFunctions()
+{
+    std::cout << Util::ExecutablePath() << std::endl;
+    std::cout << Util::HomePath() << std::endl;
+
 }
 

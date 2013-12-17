@@ -5,7 +5,9 @@
 #-------------------------------------------------
 
 VPATH += $${PWD}/../../src
+VPATH += $${PWD}/../../src/library
 INCLUDEPATH += $${PWD}/../../src
+INCLUDEPATH += $${PWD}/../../src/library
 
 QT       += testlib
 
@@ -19,9 +21,28 @@ TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++11
 
+# Specific OS stuff
+win32 {
+    LIBS +=  libws2_32
+    DEFINES += USE_WINDOWS_OS
+}
+unix {
+    DEFINES += USE_UNIX_OS
+}
+
+debug {
+    DEFINES += TAROT_DEBUG
+}
+
 HEADERS +=  Card.h \
+            tst_tarot_base.h \
+            tst_utilities.h \
             Deck.h \
-            TarotDeck.h
+            TarotDeck.h \
+            ByteArray.h \
+            ByteStreamReader.h \
+            ByteStreamWriter.h \
+            defines.h
 
 SOURCES +=  tst_utilities.cpp \
             main.cpp \
@@ -29,9 +50,3 @@ SOURCES +=  tst_utilities.cpp \
             Card.cpp \
             Deck.cpp \
             TarotDeck.cpp
-
-DEFINES += SRCDIR=\\\"$$PWD/\\\"
-
-HEADERS += \
-    tst_tarot_base.h \
-    tst_utilities.h
