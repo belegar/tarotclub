@@ -26,6 +26,10 @@
 #include "ResultWindow.h"
 #include "Tools.h"
 
+#define STR_WIN      QObject::tr("Contract succeded by ")
+#define STR_LOSE     QObject::tr("Contract failed by ")
+#define STR_POINTS   QObject::tr(" points")
+
 /*****************************************************************************/
 ResultWindow::ResultWindow(QWidget *parent)
     : QDialog(parent)
