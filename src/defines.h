@@ -30,6 +30,11 @@
 #include <windows.h>
 #endif
 
+#ifdef USE_UNIX_OS
+#include <cstdio>
+#include <unistd.h>
+#endif
+
 #include <ctime>
 #include <sstream>
 #include <iomanip>
@@ -60,11 +65,6 @@ static const std::string STR_SUD      = "South";
 static const std::string STR_EST      = "East";
 static const std::string STR_NORD     = "North";
 static const std::string STR_OUEST    = "West";
-
-
-#define STR_WIN      QObject::tr("Contract succeded by ")
-#define STR_LOSE     QObject::tr("Contract failed by ")
-#define STR_POINTS   QObject::tr(" points")
 
 
 /*****************************************************************************/
@@ -144,8 +144,8 @@ public:
         found = path.find_last_of("\\");
 
 #elif defined(USE_UNIX_OS)
-        char buf[MAX_PATH];
-        readlink("/proc/self/exe", buf, sizeof(buf))
+        char buf[FILENAME_MAX];
+        readlink("/proc/self/exe", buf, sizeof(buf));
         path = buf;
         found = path.find_last_of("/");
 #elif defined(USE_APPLE_OS)
