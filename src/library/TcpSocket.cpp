@@ -152,7 +152,8 @@ bool TcpSocket::Connect (const std::string &host, const int port)
         return false;
     }
 
-    if (::connect(mSock, reinterpret_cast<sockaddr *>(&mAddr), sizeof(mAddr)) == 0)
+    int retcode = ::connect(mSock, reinterpret_cast<sockaddr *>(&mAddr), sizeof(mAddr));
+    if (retcode == 0)
     {
         ret = true;
     }

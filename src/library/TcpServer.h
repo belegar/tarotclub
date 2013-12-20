@@ -41,6 +41,7 @@ private:
     fd_set mMasterSet;
     Subject<Signal> mSubject;
     std::vector<int> mClients;
+    bool mInitialized;
 
     static void EntryPoint(void *pthis);
     void Run();
