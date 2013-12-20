@@ -57,7 +57,7 @@ public:
 
     Controller();
 
-    void RegisterListener(Observer<Signal> &sig);
+    void RegisterListener(Observer<Signal> &observer);
     void Start();
     void ExecuteRequest(const ByteArray &packet);
 
@@ -66,6 +66,7 @@ private:
     Subject<Signal> mSubject;
     std::thread mThread;
     ThreadQueue<ByteArray> mQueue; //!< Queue of network packets received
+    bool mInitialized;
 
     /**
      * @brief Main server thread loop
