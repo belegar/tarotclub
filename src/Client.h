@@ -122,6 +122,7 @@ private:
     IEvent&     mEventHandler;
     TcpClient   mTcpClient;
     std::thread mThread;
+    bool        mInitialized;
 
     static void EntryPoint(void *pthis);
     void Run();
