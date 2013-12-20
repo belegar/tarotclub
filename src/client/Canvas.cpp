@@ -305,7 +305,9 @@ void Canvas::mousePressEvent(QMouseEvent *e)
 #ifdef QT_DEBUG
     if (e->button() == Qt::RightButton)
     {
-        TLogInfo("x=" + QString().setNum(e->pos().x()) + ", y=" + QString().setNum(e->pos().y()));
+        std::stringstream message;
+        message << "x=" << e->pos().x() << ", y=" << e->pos().y();
+        TLogInfo(message.str());
     }
 #endif
 
@@ -470,8 +472,8 @@ void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
         i.next();
         Place rel = SwapPlace(myPlace, i.key());  // relative place
 
-        playerBox.value(rel)->SetPlayerName(i.value().name);
-        playerBox.value(rel)->SetAvatar(":/images/avatars/" + i.value().avatar);
+        playerBox.value(rel)->SetPlayerName(i.value().name.data());
+        playerBox.value(rel)->SetAvatar(":/images/avatars/" + QString(i.value().avatar.data()));
     }
 }
 /*****************************************************************************/
@@ -564,7 +566,7 @@ void Canvas::ShowSelection(Place p, Place myPlace)
 void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 {
     Place rel = SwapPlace(myPlace, p);  // relative place
-    playerBox.value(rel)->SetBidText(Util::ToString(contract));
+    playerBox.value(rel)->SetBidText(Util::ToString(contract).data());
 }
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
