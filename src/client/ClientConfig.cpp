@@ -24,8 +24,7 @@
  */
 
 #include "ClientConfig.h"
-#include <QString>
-#include <QDesktopServices>
+#include <QtCore>
 #include "Log.h"
 
 
@@ -68,7 +67,7 @@ void ClientConfig::SetOptions(ClientOptions &newOptions)
 /*****************************************************************************/
 bool ClientConfig::Load()
 {
-    QFile f(Config::HomePath + CLIENT_CONFIG_FILE);
+    QFile f(QString(Config::HomePath.data()) + CLIENT_CONFIG_FILE);
     QString txt;
     int val;
     bool ret = true;
@@ -169,12 +168,12 @@ bool ClientConfig::Load()
                                 {
                                     txt = "Unknown";
                                 }
-                                options.identity.name = txt;
+                                options.identity.name = txt.toStdString();
 
                             }
                             else if (xml.name() == "quote")
                             {
-                                options.identity.quote = xml.readElementText();
+                                options.identity.quote = xml.readElementText().toStdString();
 
                             }
                             else if (xml.name() == "sex")
@@ -184,7 +183,7 @@ bool ClientConfig::Load()
                             }
                             else if (xml.name() == "avatar")
                             {
-                                options.identity.avatar = xml.readElementText();
+                                options.identity.avatar = xml.readElementText().toStdString();
                             }
                         }
                     }
@@ -213,7 +212,7 @@ bool ClientConfig::Save()
     bool ret = false;
 
     // Open configuration file for writing configuration
-    QFile f(Config::HomePath + CLIENT_CONFIG_FILE);
+    QFile f(QString(Config::HomePath.data()) + CLIENT_CONFIG_FILE);
     if (f.open(QIODevice::WriteOnly))
     {
         QXmlStreamWriter stream(&f);
@@ -240,13 +239,13 @@ bool ClientConfig::Save()
         stream.writeStartElement("identity");
 
         // name
-        stream.writeTextElement("name", options.identity.name);
+        stream.writeTextElement("name", options.identity.name.data());
         // avatar
-        stream.writeTextElement("avatar", options.identity.avatar);
+        stream.writeTextElement("avatar", options.identity.avatar.data());
         // sex
         stream.writeTextElement("sex", QString().setNum(options.identity.sex));
         // quote
-        stream.writeTextElement("quote", options.identity.quote);
+        stream.writeTextElement("quote", options.identity.quote.data());
 
         stream.writeEndElement(); // identity
         stream.writeEndElement(); // tarotclub
@@ -274,7 +273,7 @@ void ClientConfig::SetDefault(ClientOptions &opt)
 
     opt.identity.name = "Moi";
     opt.identity.avatar = ":/images/avatars/inconnu.png";
-    opt.identity.quote = QString::fromUtf8("L'inventeur de l'escalier habitait sûrement au premier étage.");
+    opt.identity.quote = "L'inventeur de l'escalier habitait sûrement au premier étage.";
     opt.identity.sex = Identity::MALE;
 }
 
