@@ -237,13 +237,13 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
 /*****************************************************************************/
 bool Player::IsFree()
 {
-    if (mPlace == NOWHERE)
+    if (mUuid == 0)
     {
-        return false;
+        return true;
     }
     else
     {
-        return true;
+        return false;
     }
 }
 /*****************************************************************************/
