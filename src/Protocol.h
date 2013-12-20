@@ -151,7 +151,7 @@ public:
     static ByteArray BuildShowDog(Deck &dog);
 
     // Admin to controller packets
-    static ByteArray BuildAddPlayer();
+    static ByteArray BuildAddPlayer(std::uint32_t uuid);
     static ByteArray BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle);
 
 };
