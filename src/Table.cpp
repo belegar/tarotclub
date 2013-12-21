@@ -26,11 +26,12 @@
 
 /*****************************************************************************/
 Table::Table()
-    : maximumPlayers(4)
+    : mControllerListener(*this)
+    , maximumPlayers(4)
     , mTcpPort(DEFAULT_PORT)
     , mIdManager(2U, 20U)
 {
-    mTcpServer.RegisterListener(*this);
+
 }
 /*****************************************************************************/
 void Table::Update(const TcpServer::Signal &info)
@@ -45,7 +46,7 @@ void Table::Update(const TcpServer::Signal &info)
         // Add the player to the list
         mUsers[uuid] = info.socket;
         // send the information to the Tarot engine
-        mController.ExecuteRequest(Protocol::BuildAddPlayer());
+        mController.ExecuteRequest(Protocol::BuildAddPlayer(uuid));
     }
 
     // FIXME: manage client disconnection
@@ -118,18 +119,25 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
         return;
     }
     maximumPlayers = nbPlayers;
-
     Stop();
-
+    mTcpServer.Start(mTcpPort, 10U);
+    mController.ExecuteRequest(Protocol::BuildNewGame(gameMode, nbPlayers, shuffle));
+}
+/*****************************************************************************/
+void Table::Initialize()
+{
     if (!TcpSocket::Initialize())
     {
         TLogError("Cannot initialize TCP context");
     }
 
     mTcpServer.RegisterListener(*this);
-    mTcpServer.Start(mTcpPort, 10U);
-
-    mController.ExecuteRequest(Protocol::BuildNewGame(gameMode, nbPlayers, shuffle));
+    mController.RegisterListener(mControllerListener);
+    mController.Start();
+    for (int i = 0; i < 3; i++)
+    {
+        mBots[i].Initialize();
+    }
 }
 /*****************************************************************************/
 void Table::Stop()
@@ -151,7 +159,6 @@ void Table::ConnectBots()
     std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     for (i = 0; i < 3; i++)
     {
-        mBots[i].Initialize();
         mBots[i].ConnectToHost("127.0.0.1", GetOptions().port);
         std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     }
