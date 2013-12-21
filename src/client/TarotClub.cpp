@@ -74,7 +74,7 @@ void TarotClub::Initialize()
 {
     debugDock->Initialize();
 
-    // Check user's directory and create it if not exists
+    // Check user TarotClub directories and create them if necessary
     if (!QDir(QString(Config::HomePath.data())).exists())
     {
         QDir().mkdir(QString(Config::HomePath.data()));
@@ -97,6 +97,8 @@ void TarotClub::Initialize()
     }
     ApplyOptions();
 
+    table.Initialize();
+    mClient.Initialize();
     deal.Initialize();
 
     statusBar()->showMessage(trUtf8("Welcome to TarotClub!"));;
@@ -178,8 +180,6 @@ void TarotClub::NewGame(const QString &address, int port)
     tapis->SetFilter(Canvas::BLOCK_ALL);
 
     // Connect us to the server
-    mClient.Initialize();
-    mClient.Close();
     mClient.ConnectToHost(address.toStdString(), port);
 }
 /*****************************************************************************/
