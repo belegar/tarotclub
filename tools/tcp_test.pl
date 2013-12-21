@@ -6,7 +6,7 @@ $| = 1;
 
 # Configuration
 my $remAddr = '127.0.0.1';
-my $remPort = '61617';
+my $remPort = '4269';
 
 # Create the client TCP socket
 print "Creating the remote TCP socket\n";
@@ -38,7 +38,7 @@ sub SendToSocket
     $locSocket->send($data_to_send);
     
 
-	sleep(10);
+	sleep(2);
      print "Waiting for received data...\n";
     $locSocket->recv($data, 1024);
     

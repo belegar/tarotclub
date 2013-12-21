@@ -31,6 +31,7 @@
 /*****************************************************************************/
 Client::Client(IEvent &handler)
     : mEventHandler(handler)
+    , mInitialized(false)
 {
 
 }
@@ -39,7 +40,12 @@ void Client::Initialize()
 {
     score.Reset();
 
-    mThread = std::thread(Client::EntryPoint, this);
+    if (!mInitialized)
+    {
+        mTcpClient.Create();
+        mThread = std::thread(Client::EntryPoint, this);
+        mInitialized = true;
+    }
 }
 /*****************************************************************************/
 Deck::Statistics &Client::GetStatistics()
@@ -280,7 +286,16 @@ bool Client::IsValid(Card *c)
 /*****************************************************************************/
 void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
-    mTcpClient.Connect(hostName, port);
+    if (!mTcpClient.IsValid())
+    {
+        // Create a socket before connection
+        mTcpClient.Create();
+    }
+
+    if (mTcpClient.Connect(hostName, port) == false)
+    {
+        TLogError("Client cannot connect to server.");
+    }
 }
 /*****************************************************************************/
 void Client::Close()

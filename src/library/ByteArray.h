@@ -56,7 +56,7 @@ public:
 
         if ((index + len) <= mData.size())
         {
-            array.mData.insert(array.mData.begin(), mData.begin() + index, mData.end() + index + len);
+            array.mData.insert(array.mData.begin(), mData.begin() + index, mData.begin() + index + len);
         }
         return array;
     }

@@ -41,6 +41,7 @@ public:
     // Helpers
     void LoadConfiguration(int port = DEFAULT_PORT);
     void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
+    void Initialize();
     void Stop();
     void ConnectBots();
 
@@ -78,6 +79,7 @@ private:
     void StopServer();
     void CloseClients();
 
+    ControllerListener mControllerListener;
     int maximumPlayers;
     int mTcpPort;
     Controller mController;

@@ -4,6 +4,7 @@
 
 /*****************************************************************************/
 TcpServer::TcpServer()
+    : mInitialized(false)
 {
 }
 /*****************************************************************************/
@@ -47,110 +48,118 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
         return false;
     }
 
-    mThread = std::thread(TcpServer::EntryPoint, this);
+    // Create the thread the first time only
+    if (!mInitialized)
+    {
+        mThread = std::thread(TcpServer::EntryPoint, this);
+        mInitialized = true;
+    }
 
     return true;
 }
 /*****************************************************************************/
 void TcpServer::Run()
 {
-    int    i, rc;
+    int rc;
     bool end_server = false;
     struct timeval timeout;
     fd_set working_set;
 
-    /*************************************************************/
-    /* Initialize the master fd_set                              */
-    /*************************************************************/
-    FD_ZERO(&mMasterSet);
-    mMaxSd = GetSocket();
-    FD_SET(GetSocket(), &mMasterSet);
-
-    /*************************************************************/
-    /* Initialize the timeval struct to 3 minutes.  If no        */
-    /* activity after 3 minutes this program will end.           */
-    /*************************************************************/
-    timeout.tv_sec  = 3 * 60;
-    timeout.tv_usec = 0;
-
-    /*************************************************************/
-    /* Loop waiting for incoming connects or for incoming data   */
-    /* on any of the connected sockets.                          */
-    /*************************************************************/
-    do
+    for (;;)
     {
-        /**********************************************************/
-        /* Copy the master fd_set over to the working fd_set.     */
-        /**********************************************************/
-        memcpy(&working_set, &mMasterSet, sizeof(mMasterSet));
+        /*************************************************************/
+        /* Initialize the master fd_set                              */
+        /*************************************************************/
+        FD_ZERO(&mMasterSet);
+        mMaxSd = GetSocket();
+        FD_SET(GetSocket(), &mMasterSet);
 
-        /**********************************************************/
-        /* Call select() and wait 5 minutes for it to complete.   */
-        /**********************************************************/
-        printf("Waiting on select()...\n");
-        rc = select(mMaxSd + 1, &working_set, NULL, NULL, &timeout);
+        /*************************************************************/
+        /* Initialize the timeval struct to 3 minutes.  If no        */
+        /* activity after 3 minutes this program will end.           */
+        /*************************************************************/
+        timeout.tv_sec  = 3 * 60;
+        timeout.tv_usec = 0;
 
-        if (rc < 0)
+        /*************************************************************/
+        /* Loop waiting for incoming connects or for incoming data   */
+        /* on any of the connected sockets.                          */
+        /*************************************************************/
+        do
         {
             /**********************************************************/
-            /* The select call failed.                                */
+            /* Copy the master fd_set over to the working fd_set.     */
             /**********************************************************/
-          //  perror("  select() failed");
-            break;
-        }
-        else if (rc == 0)
-        {
+            memcpy(&working_set, &mMasterSet, sizeof(mMasterSet));
+
             /**********************************************************/
-            /* The time out expired.                                  */
+            /* Call select() and wait 5 minutes for it to complete.   */
             /**********************************************************/
-            printf("  select() timed out.  End program.\n");
-            break;
-        }
-        else
-        {
-            /**********************************************************/
-            /* One or more descriptors are readable.  Need to         */
-            /* determine which ones they are.                         */
-            /**********************************************************/
-            for (i = 0; i < rc; i++)
+            printf("Waiting on select()...\n");
+            rc = select(mMaxSd + 1, &working_set, NULL, NULL, &timeout);
+
+            if (rc < 0)
             {
-                if (FD_ISSET(GetSocket(), &working_set))
+                /**********************************************************/
+                /* The select call failed.                                */
+                /**********************************************************/
+              //  perror("  select() failed");
+                break;
+            }
+            else if (rc == 0)
+            {
+                /**********************************************************/
+                /* The time out expired.                                  */
+                /**********************************************************/
+                printf("  select() timed out.  End program.\n");
+                break;
+            }
+            else
+            {
+                /**********************************************************/
+                /* One or more descriptors are readable.  Need to         */
+                /* determine which ones they are.                         */
+                /**********************************************************/
+                for (int i = 0; i < rc; i++)
                 {
-                    /****************************************************/
-                    /* This is the listening socket                     */
-                    /****************************************************/
-                    IncommingConnection();
-                }
-                else
-                {
-                    // Scan for already connected clients
-                    for (size_t j = 0; j < mClients.size(); j++)
+                    if (FD_ISSET(GetSocket(), &working_set))
                     {
-                        if (FD_ISSET(mClients[j], &working_set))
+                        /****************************************************/
+                        /* This is the listening socket                     */
+                        /****************************************************/
+                        IncommingConnection();
+                    }
+                    else
+                    {
+                        // Scan for already connected clients
+                        for (size_t j = 0; j < mClients.size(); j++)
                         {
-                            /****************************************************/
-                            /* This is not the listening socket, therefore an   */
-                            /* existing connection must be readable             */
-                            /****************************************************/
-                            IncommingData(mClients[j]);
+                            if (FD_ISSET(mClients[j], &working_set))
+                            {
+                                /****************************************************/
+                                /* This is not the listening socket, therefore an   */
+                                /* existing connection must be readable             */
+                                /****************************************************/
+                                IncommingData(mClients[j]);
+                            }
                         }
                     }
                 }
             }
         }
-    }
-    while (end_server == false);
+        while (end_server == false);
 
-    /*************************************************************/
-    /* Cleanup all of the sockets that are open                  */
-    /*************************************************************/
-    for (i=0; i <= mMaxSd; ++i)
-    {
-        if (FD_ISSET(i, &mMasterSet))
+        /*************************************************************/
+        /* Cleanup all of the sockets that are open                  */
+        /*************************************************************/
+        for (size_t i = 0; i < mClients.size(); i++)
         {
-            TcpSocket socket;
-            socket.SetSocket(i);
-            socket.Close();
+            if (FD_ISSET(mClients[i], &mMasterSet))
+            {
+                TcpSocket socket;
+                socket.SetSocket(i);
+                socket.Close();
+            }
         }
     }
 }
@@ -173,6 +182,8 @@ void TcpServer::IncommingConnection()
     /*************************************************/
     do
     {
+        new_sd = -1;
+
         /**********************************************/
         /* Accept each incoming connection.  If       */
         /* accept fails with EWOULDBLOCK, then we     */

@@ -127,6 +127,11 @@ void Utilities::TestByteStream()
         std::cout << "Stream output: " << reply << std::endl;
         QFAIL("Strings are not the same!");
     }
+
+    ByteArray sub = block.SubArray(7, 6);
+
+    std::string substr = sub.ToSring();
+    std::cout << "Subarray output: " << substr << std::endl;
 }
 
 void Utilities::TestUtilFunctions()

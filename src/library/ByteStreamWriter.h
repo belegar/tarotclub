@@ -12,7 +12,7 @@ class ByteStreamWriter
 public:
     ByteStreamWriter(ByteArray &array)
         : mArray(array)
-        , mIndex(0U)
+        , mIndex(array.Size())
     {
 
     }

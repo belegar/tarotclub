@@ -31,9 +31,15 @@
 
 /*****************************************************************************/
 Controller::Controller()
+    : mInitialized(false)
 {
     // Register ourself as an observer of Tarot Engine events
     engine.RegisterListener(*this);
+}
+/*****************************************************************************/
+void Controller::RegisterListener(Observer<Controller::Signal> &observer)
+{
+    mSubject.Attach(observer);
 }
 /*****************************************************************************/
 void Controller::Update(const TarotEngine::SignalInfo &info)
@@ -85,7 +91,10 @@ void Controller::NewServerGame(Game::Mode mode)
 /*****************************************************************************/
 void Controller::Start()
 {
-    mThread = std::thread(Controller::EntryPoint, this);
+    if (!mInitialized)
+    {
+        mThread = std::thread(Controller::EntryPoint, this);
+    }
 }
 /*****************************************************************************/
 void Controller::ExecuteRequest(const ByteArray &packet)
@@ -128,7 +137,7 @@ bool Controller::DoAction(const ByteArray &data)
     // Jump over some header bytes
     in.Seek(3U);
 
-    // Get the user id
+    // Get the id of the sender
     std::uint32_t uuid;
     in >> uuid;
 
@@ -151,17 +160,19 @@ bool Controller::DoAction(const ByteArray &data)
 
         case Protocol::ADMIN_ADD_PLAYER:
         {
+            std::uint32_t newplayer_uuid;
+            in >> newplayer_uuid;
             // Look for free Place
             Place assigned = engine.GetFreePlayer();
             if (assigned != NOWHERE)
             {
                 // Assign the uuid to this player
-                engine.GetPlayer(assigned).SetUuid(uuid);
+                engine.GetPlayer(assigned).SetUuid(newplayer_uuid);
                 SendPacket(Protocol::BuildRequestIdentity(
                                assigned,
                                engine.GetGameInfo().numberOfPlayers,
                                engine.GetGameInfo().gameMode,
-                               uuid));
+                               newplayer_uuid));
             }
             else
             {
