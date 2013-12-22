@@ -49,7 +49,7 @@ public:
     {
     public:
         virtual void Message(const std::string &message) = 0;
-        virtual void AssignedPlace(Place p) = 0;
+        virtual void AssignedPlace() = 0;
         virtual void PlayersList(std::map<Place, Identity> &players) = 0;
         virtual void ReceiveCards() = 0;
         virtual void SelectPlayer(Place p) = 0;

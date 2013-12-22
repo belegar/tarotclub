@@ -331,10 +331,6 @@ void Client::Run()
                     DoAction(subArray);
                 }
             }
-            else
-            {
-                std::this_thread::sleep_for(std::chrono::seconds(1U));
-            }
         }
         else
         {
@@ -355,8 +351,6 @@ bool Client::DoAction(const ByteArray &data)
     // Get the user id
     std::uint32_t uuid;
     in >> uuid;
-
-    mPlayer.SetUuid(uuid);
 
     // Get the command
     std::uint8_t cmd;
@@ -381,18 +375,21 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::SERVER_REQUEST_IDENTITY:
         {
             std::uint8_t place;
+            std::uint32_t myUuid;
             std::uint8_t nbPlayers;
             std::uint8_t mode;
 
             in >> place;
+            in >> myUuid;
             in >> nbPlayers;
             in >> mode;
 
             mPlayer.SetPlace((Place)place);
+            mPlayer.SetUuid(myUuid);
             info.Initialize(nbPlayers);
             info.gameMode = (Game::Mode)mode;
             SendIdentity();
-            mEventHandler.AssignedPlace((Place)place);
+            mEventHandler.AssignedPlace();
             break;
         }
 
@@ -563,7 +560,7 @@ bool Client::DoAction(const ByteArray &data)
         }
 
         default:
-            std::string msg = mPlayer.GetIdentity().name + ": Unkown packet received.";
+            std::string msg = mPlayer.GetIdentity().name + ": Unknown packet received.";
             TLogInfo(msg);
             ret = false;
             break;
