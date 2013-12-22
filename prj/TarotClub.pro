@@ -41,7 +41,7 @@ INCLUDEPATH += $${PWD}/../src/client
 INCLUDEPATH += $${PWD}/../src/server
 
 # Compiler definitions
-QT += xml network svg help qml
+QT += xml svg help qml
 RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
