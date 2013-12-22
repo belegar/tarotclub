@@ -45,6 +45,15 @@ TarotEngine::~TarotEngine()
 
 }
 /*****************************************************************************/
+/**
+ * @brief TarotEngine::Initialize
+ * Call this method before clients connections
+ */
+void TarotEngine::Initialize()
+{
+    cntSyncIdentity = 0;
+}
+/*****************************************************************************/
 void TarotEngine::NewGame(Game::Mode mode)
 {
     deal.Initialize();
@@ -140,19 +149,6 @@ void TarotEngine::StopGame()
     gameState.Stop();
 }
 /*****************************************************************************/
-int TarotEngine::GetNumberOfCurrentPlayers()
-{
-    int count = 0;
-    for (int i = 0; i < gameState.numberOfPlayers; i++)
-    {
-        if (players[i].IsFree() == false)
-        {
-            count++;
-        }
-    }
-    return count;
-}
-/*****************************************************************************/
 Place TarotEngine::GetFreePlayer()
 {
     Place p = NOWHERE;
@@ -167,6 +163,29 @@ Place TarotEngine::GetFreePlayer()
         }
     }
     return p;
+}
+/*****************************************************************************/
+bool TarotEngine::SetIdentity(std::uint32_t uuid, const Identity &ident)
+{
+    Player *player = GetPlayer(uuid);
+    if (player)
+    {
+        player->SetIdentity(ident);
+        cntSyncIdentity++;
+    }
+    else
+    {
+        TLogError("Fatal error, Uuid not found!");
+    }
+
+    if (cntSyncIdentity == gameState.numberOfPlayers)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 /*****************************************************************************/
 Player &TarotEngine::GetPlayer(Place p)

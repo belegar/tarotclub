@@ -62,6 +62,7 @@ public:
     ~TarotEngine();
 
     // Helpers
+    void Initialize();
     void NewGame(Game::Mode mode);
     void StopGame();
     void NewDeal();
@@ -84,10 +85,10 @@ public:
     Game &GetGameInfo();
     Deal &GetDeal();
     Game::Shuffle GetShuffle();
-    int GetNumberOfCurrentPlayers();
     Place GetFreePlayer();
 
     // Setters
+    bool SetIdentity(std::uint32_t uuid, const Identity &ident);
     void SetShuffle(const Game::Shuffle &s);
     void SetDiscard(Deck &discard);
     void SetHandle(Deck &handle, Place p);
@@ -95,21 +96,22 @@ public:
     Contract SetBid(Contract c, bool slam, Place p);
 
 private:
-    Player      players[5];     // [3..5] players
-    Deck        currentTrick;   // the main deck of cards
-    Deal        deal;
-    Game        gameState;
-    Game::Shuffle     shuffle;
+    Player  players[5];     // [3..5] players
+    Deck    currentTrick;   // the main deck of cards
+    Deal    deal;
+    Game    gameState;
+    Game::Shuffle       shuffle;
     Subject<SignalInfo> mSubject;
 
     // synchonization counters
-    int         cntSyncDog;     // players saw the dog
-    int         cntSyncBid;     // players saw the bid
-    int         cntSyncTrick;   // end of a round
-    int         cntSyncReady;   // end of a deal
-    int         cntSyncHandle;   // show a declared handle to all players
-    int         cntSyncStart;   // start of a deal
-    int         cntSyncCard;    // players saw the played card
+    int     cntSyncIdentity;    // player sent his identity
+    int     cntSyncDog;         // players saw the dog
+    int     cntSyncBid;         // players saw the bid
+    int     cntSyncTrick;       // end of a round
+    int     cntSyncReady;       // end of a deal
+    int     cntSyncHandle;      // show a declared handle to all players
+    int     cntSyncStart;       // start of a deal
+    int     cntSyncCard;        // players saw the played card
 
     bool IsCardValid(Card *c, Place p);
     bool HasCard(Card *c, Place p);
