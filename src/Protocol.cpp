@@ -207,6 +207,7 @@ ByteArray Protocol::BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::
     BuildHeader(packet, Protocol::SERVER_REQUEST_IDENTITY, uuid);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)p;         // assigned place
+    out << uuid;                    // assigned unique id
     out << (std::uint8_t)nbPlayers; // number of players in the current game
     out << (std::uint8_t)mode;      // game mode
     UpdateHeader(packet);
@@ -319,7 +320,7 @@ ByteArray Protocol::BuildClientBid(Contract c, bool slam, std::uint32_t uuid)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::SERVER_SHOW_PLAYER_BID, uuid);
+    BuildHeader(packet, Protocol::CLIENT_BID, uuid);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)c  // contract to show
         << slam;
