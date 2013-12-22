@@ -91,6 +91,7 @@ void Controller::NewServerGame(Game::Mode mode)
 /*****************************************************************************/
 void Controller::Start()
 {
+    engine.Initialize();
     if (!mInitialized)
     {
         mThread = std::thread(Controller::EntryPoint, this);
@@ -113,7 +114,6 @@ void Controller::Run()
     ByteArray data;
     while(true)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1U));
         mQueue.WaitAndPop(data);
 
         std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
@@ -195,19 +195,12 @@ bool Controller::DoAction(const ByteArray &data)
             in >> ident;
 
             ident.avatar = ":/images/avatars/" + ident.avatar;
-            Player *player = engine.GetPlayer(uuid);
-            if (player)
-            {
-                player->SetIdentity(ident);
-            }
-            else
-            {
-                TLogError("Fatal error, Uuid not found!");
-            }
+            bool ret = engine.SetIdentity(uuid, ident);
+
             std::string message = "The player " + ident.name + " has joined the game.";
             SendPacket(Protocol::BuildServerChatMessage(message));
 
-            if (engine.GetNumberOfCurrentPlayers() == engine.GetGameInfo().numberOfPlayers)
+            if (ret)
             {
                 std::map<Place, Identity> players;
 
