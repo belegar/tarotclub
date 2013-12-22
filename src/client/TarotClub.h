@@ -72,17 +72,33 @@ private:
     QMap<Place, Identity> players;
     Deal            deal;
     Deck            discard;
+    std::list<std::string> mMessages;
 
     // Client events
-    virtual void Message(const std::string &message);
-    virtual void AssignedPlace(Place p);
-    virtual void PlayersList(std::map<Place, Identity> &players);
-    virtual void ReceiveCards();
-    virtual void SelectPlayer(Place p);
-    virtual void RequestBid(Contract highestBid);
-    virtual void ShowBid(Place p, bool slam, Contract c);
-    virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh);
-    virtual void ShowDog();
+    virtual void Message(const std::string &message)
+    {
+        mMessages.push_back(message);
+        emit sigMessage();
+    }
+    virtual void AssignedPlace() { emit sigAssignedPlace(); }
+    virtual void PlayersList(std::map<Place, Identity> &pl)
+    {
+        std::map<Place, Identity>::iterator iter;
+
+        players.clear();
+        for(iter = pl.begin(); iter != pl.end(); iter++)
+        {
+            players[iter->first] = iter->second;
+        }
+
+        emit sigPlayersList();
+    }
+    virtual void ReceiveCards() { emit sigReceiveCards(); }
+    virtual void SelectPlayer(Place p) { emit sigSelectPlayer(p); }
+    virtual void RequestBid(Contract highestBid) { emit sigRequestBid(highestBid); }
+    virtual void ShowBid(Place p, bool slam, Contract c) { emit sigShowBid(p, slam, c); }
+    virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh) { emit sigStartDeal(taker, c, sh); }
+    virtual void ShowDog() { emit sigShowDog(); }
     virtual void ShowHandle();
     virtual void BuildDiscard();
     virtual void DealAgain();
@@ -92,7 +108,29 @@ private:
     virtual void EndOfDeal();
     virtual void EndOfGame();
 
+signals:
+   void sigReceiveCards();
+   void sigAssignedPlace();
+   void sigPlayersList();
+   void sigMessage();
+   void sigSelectPlayer(Place);
+   void sigRequestBid(Contract);
+   void sigShowBid(Place, bool, Contract);
+   void sigShowDog();
+   void sigStartDeal(Place, Contract, const Game::Shuffle &);
+
 private slots:
+    // Client events
+    void slotReceiveCards();
+    void slotAssignedPlace();
+    void slotPlayersList();
+    void slotMessage();
+    void slotSelectPlayer(Place p);
+    void slotRequestBid(Contract highestBid);
+    void slotShowBid(Place p, bool slam, Contract c);
+    void slotShowDog();
+    void slotStartDeal(Place taker, Contract c, const Game::Shuffle &sh);
+
     // Menus
     void slotNewTournamentGame();
     void slotNewNumberedDeal();
