@@ -71,7 +71,7 @@ private:
 
     // Client events
     virtual void Message(const std::string &message);
-    virtual void AssignedPlace(Place p);
+    virtual void AssignedPlace();
     virtual void PlayersList(std::map<Place, Identity> &players);
     virtual void ReceiveCards();
     virtual void SelectPlayer(Place p);

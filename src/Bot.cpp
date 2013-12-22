@@ -50,12 +50,12 @@ void Bot::Message(const string &message)
     // A bot cannot reply (yet :)
 }
 /*****************************************************************************/
-void Bot::AssignedPlace(Place p)
+void Bot::AssignedPlace()
 {
     InitializeScriptContext();
 
     QJSValueList args;
-    args << p;
+    args << mClient.GetPlace();
     CallScript("EnterGame", args);
 }
 /*****************************************************************************/
@@ -105,6 +105,7 @@ void Bot::RequestBid(Contract highestBid)
     {
         botContract = PASS;
     }
+
     mClient.SendBid(botContract, slam);
 }
 /*****************************************************************************/
