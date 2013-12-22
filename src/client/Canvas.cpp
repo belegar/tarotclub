@@ -517,7 +517,7 @@ void Canvas::DrawSouthCards(const Deck &cards)
 
     for (int i = 0; i < cards.size(); i++)
     {
-        cgfx = GetGfxCard(cards.at(i)->GetId());
+        cgfx = GetGfxCard(TarotDeck::GetIndex(cards.at(i)->GetName()));
         cgfx->setPos(x, y);
         cgfx->setZValue(i);
         cgfx->show();
@@ -531,7 +531,7 @@ void Canvas::DrawCardsInPopup(const QList<Card *> &cards)
 
     for (int i = 0; i < cards.size(); i++)
     {
-        items.append(GetGfxCard(cards.at(i)->GetId()));
+        items.append(GetGfxCard(TarotDeck::GetIndex(cards.at(i)->GetName())));
     }
 
     popupItem.DrawItems(items);
