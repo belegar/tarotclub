@@ -83,6 +83,9 @@ HEADERS += Log.h \
     UserId.h
 
 SOURCES += Log.cpp \
+    ByteArray.cpp \
+    ByteStreamReader.cpp \
+    ByteStreamWriter.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
