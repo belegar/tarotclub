@@ -473,7 +473,7 @@ void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
         Place rel = SwapPlace(myPlace, i.key());  // relative place
 
         playerBox.value(rel)->SetPlayerName(i.value().name.data());
-        playerBox.value(rel)->SetAvatar(":/images/avatars/" + QString(i.value().avatar.data()));
+        playerBox.value(rel)->SetAvatar(QString(i.value().avatar.data()));
     }
 }
 /*****************************************************************************/

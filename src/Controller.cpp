@@ -194,7 +194,6 @@ bool Controller::DoAction(const ByteArray &data)
             Identity ident;
             in >> ident;
 
-            ident.avatar = ":/images/avatars/" + ident.avatar;
             bool ret = engine.SetIdentity(uuid, ident);
 
             std::string message = "The player " + ident.name + " has joined the game.";
