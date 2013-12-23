@@ -27,7 +27,6 @@
 /*****************************************************************************/
 Table::Table()
     : mControllerListener(*this)
-    , maximumPlayers(4)
     , mTcpPort(DEFAULT_PORT)
     , mIdManager(2U, 20U)
 {
@@ -118,7 +117,6 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
     {
         return;
     }
-    maximumPlayers = nbPlayers;
     Stop();
     mTcpServer.Start(mTcpPort, 10U);
     mController.ExecuteRequest(Protocol::BuildNewGame(gameMode, nbPlayers, shuffle));

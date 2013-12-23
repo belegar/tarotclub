@@ -29,7 +29,7 @@
 #include "TcpServer.h"
 #include "Controller.h"
 #include "Bot.h"
-#include "UserId.h"
+#include "UniqueId.h"
 
 /*****************************************************************************/
 class Table : public Observer<TcpServer::Signal>
@@ -80,13 +80,12 @@ private:
     void CloseClients();
 
     ControllerListener mControllerListener;
-    int maximumPlayers;
-    int mTcpPort;
-    Controller mController;
-    ServerConfig serverConfig;
-    Bot mBots[3];
-    UserId mIdManager;
-    TcpServer mTcpServer;
+    int             mTcpPort;
+    Controller      mController;
+    ServerConfig    serverConfig;
+    Bot             mBots[3];
+    UniqueId        mIdManager;
+    TcpServer       mTcpServer;
 
     // Pair of UUID and socket
     std::map<std::uint32_t, std::int32_t> mUsers;
