@@ -99,14 +99,14 @@ private:
     virtual void ShowBid(Place p, bool slam, Contract c) { emit sigShowBid(p, slam, c); }
     virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh) { emit sigStartDeal(taker, c, sh); }
     virtual void ShowDog() { emit sigShowDog(); }
-    virtual void ShowHandle();
-    virtual void BuildDiscard();
-    virtual void DealAgain();
-    virtual void PlayCard();
-    virtual void ShowCard(Place p, const std::string &name);
-    virtual void WaitTrick(Place winner);
-    virtual void EndOfDeal();
-    virtual void EndOfGame();
+    virtual void ShowHandle() { emit sigShowHandle(); }
+    virtual void BuildDiscard() { emit sigBuildDiscard(); }
+    virtual void DealAgain() { emit sigDealAgain(); }
+    virtual void PlayCard()  { emit sigPlayCard(); }
+    virtual void ShowCard(Place p, const std::string &name)  { emit sigShowCard(p, name); }
+    virtual void WaitTrick(Place winner) { emit sigWaitTrick(winner); }
+    virtual void EndOfDeal() { emit sigEndOfDeal(); }
+    virtual void EndOfGame() { emit sigEndOfGame(); }
 
 signals:
    void sigReceiveCards();
@@ -117,7 +117,15 @@ signals:
    void sigRequestBid(Contract);
    void sigShowBid(Place, bool, Contract);
    void sigShowDog();
-   void sigStartDeal(Place, Contract, const Game::Shuffle &);
+   void sigStartDeal(Place, Contract, Game::Shuffle);
+   void sigShowHandle();
+   void sigBuildDiscard();
+   void sigDealAgain();
+   void sigPlayCard();
+   void sigShowCard(Place, std::string);
+   void sigWaitTrick(Place);
+   void sigEndOfDeal();
+   void sigEndOfGame();
 
 private slots:
     // Client events
@@ -129,7 +137,15 @@ private slots:
     void slotRequestBid(Contract highestBid);
     void slotShowBid(Place p, bool slam, Contract c);
     void slotShowDog();
-    void slotStartDeal(Place taker, Contract c, const Game::Shuffle &sh);
+    void slotStartDeal(Place taker, Contract c, Game::Shuffle sh);
+    void slotShowHandle();
+    void slotBuildDiscard();
+    void slotDealAgain();
+    void slotPlayCard();
+    void slotShowCard(Place p, std::string name);
+    void slotWaitTrick(Place p);
+    void slotEndOfDeal();
+    void slotEndOfGame();
 
     // Menus
     void slotNewTournamentGame();

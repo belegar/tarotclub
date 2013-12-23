@@ -41,6 +41,7 @@ TarotClub::TarotClub()
     qRegisterMetaType<Place>("Place");
     qRegisterMetaType<Contract>("Contract");
     qRegisterMetaType<Game::Shuffle>("Game::Shuffle");
+    qRegisterMetaType<std::string>("std::string");
 
     // Board click events
     connect(tapis, &Canvas::sigViewportClicked, this, &TarotClub::slotClickTapis);
@@ -72,6 +73,14 @@ TarotClub::TarotClub()
     connect(this, &TarotClub::sigShowBid, this, &TarotClub::slotShowBid, Qt::QueuedConnection);
     connect(this, &TarotClub::sigShowDog, this, &TarotClub::slotShowDog, Qt::QueuedConnection);
     connect(this, &TarotClub::sigStartDeal, this, &TarotClub::slotStartDeal, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigPlayCard, this, &TarotClub::slotPlayCard, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigBuildDiscard, this, &TarotClub::slotBuildDiscard, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigDealAgain, this, &TarotClub::slotDealAgain, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigEndOfDeal, this, &TarotClub::slotEndOfDeal, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigEndOfGame, this, &TarotClub::slotEndOfGame, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigShowCard, this, &TarotClub::slotShowCard, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigShowHandle, this, &TarotClub::slotShowHandle, Qt::QueuedConnection);
+    connect(this, &TarotClub::sigWaitTrick, this, &TarotClub::slotWaitTrick, Qt::QueuedConnection);
 
     // Network chat
     connect(chatDock, &ChatDock::sigEmitMessage, this, &TarotClub::slotSendChatMessage);
@@ -581,7 +590,7 @@ void TarotClub::slotShowBid(Place p, bool slam, Contract c)
     mClient.SendSyncBid();
 }
 /*****************************************************************************/
-void TarotClub::slotStartDeal(Place taker, Contract c, const Game::Shuffle &sh)
+void TarotClub::slotStartDeal(Place taker, Contract c, Game::Shuffle sh)
 {
     firstTurn = true;
     infosDock->Clear();
@@ -624,7 +633,7 @@ void TarotClub::slotShowDog()
     statusBar()->showMessage(trUtf8("Click on the board once you have seen the dog."));
 }
 /*****************************************************************************/
-void TarotClub::ShowHandle()
+void TarotClub::slotShowHandle()
 {
     QList<Card *> cards;
 
@@ -636,7 +645,7 @@ void TarotClub::ShowHandle()
     statusBar()->showMessage(trUtf8("Click on the board once you have seen the handle."));
 }
 /*****************************************************************************/
-void TarotClub::DealAgain()
+void TarotClub::slotDealAgain()
 {
     infosDock->Clear();
     tapis->SetFilter(Canvas::BLOCK_ALL);
@@ -648,7 +657,7 @@ void TarotClub::DealAgain()
     mClient.SendReady();
 }
 /*****************************************************************************/
-void TarotClub::BuildDiscard()
+void TarotClub::slotBuildDiscard()
 {
     Card *c;
 
@@ -666,7 +675,7 @@ void TarotClub::BuildDiscard()
     statusBar()->showMessage(trUtf8("Select cards to build your discard."));
 }
 /*****************************************************************************/
-void TarotClub::PlayCard()
+void TarotClub::slotPlayCard()
 {
     tapis->SetFilter(Canvas::CARDS);
 
@@ -695,7 +704,7 @@ void TarotClub::PlayCard()
     }
 }
 /*****************************************************************************/
-void TarotClub::ShowCard(Place p, const std::string &name)
+void TarotClub::slotShowCard(Place p, std::string name)
 {
     GfxCard *gc = tapis->GetGfxCard(TarotDeck::GetIndex(name));
     tapis->DrawCard(gc, p, mClient.GetPlace());
@@ -705,7 +714,7 @@ void TarotClub::ShowCard(Place p, const std::string &name)
     mClient.SendSyncCard();
 }
 /*****************************************************************************/
-void TarotClub::EndOfDeal()
+void TarotClub::slotEndOfDeal()
 {
     statusBar()->showMessage(trUtf8("End of the deal."));
     tapis->SetFilter(Canvas::BLOCK_ALL);
@@ -748,7 +757,7 @@ void TarotClub::EndOfDeal()
  * This method is called at the end of each turn, when all the players have
  * played a card.
  */
-void TarotClub::WaitTrick(Place winner)
+void TarotClub::slotWaitTrick(Place winner)
 {
     infosDock->SelectWinner(mClient.GetGameInfo(), winner);
     tapis->SetFilter(Canvas::BLOCK_ALL);
@@ -761,7 +770,7 @@ void TarotClub::WaitTrick(Place winner)
     }
 }
 /*****************************************************************************/
-void TarotClub::EndOfGame()
+void TarotClub::slotEndOfGame()
 {
 }
 
