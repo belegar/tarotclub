@@ -1,3 +1,28 @@
+/*=============================================================================
+ * TarotClub - ByteStreamWriter.h
+ *=============================================================================
+ * Utility class to write to a ByteArray in a stream fashion
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
+
 #ifndef BYTE_STREAM_WRITER_H
 #define BYTE_STREAM_WRITER_H
 
@@ -6,90 +31,24 @@
 #include <iostream>
 #include "ByteArray.h"
 
+/*****************************************************************************/
 class ByteStreamWriter
 {
 
 public:
-    ByteStreamWriter(ByteArray &array)
-        : mArray(array)
-        , mIndex(array.Size())
-    {
-
-    }
+    ByteStreamWriter(ByteArray &array);
 
     /**
      * @brief Sets the write/read index to a specified position in the array
      * @param pos
      */
-    void Seek(std::uint32_t pos)
-    {
-        if (pos < mArray.Size())
-        {
-            mIndex = pos;
-        }
-        else
-        {
-            mIndex = mArray.Size();
-        }
-    }
+    void Seek(std::uint32_t pos);
 
-    ByteStreamWriter& operator << (const std::uint8_t &d)
-    {
-        if (mIndex >= mArray.Size())
-        {
-            // Append data at the end
-            mArray.PushBack(d);
-        }
-        else
-        {
-            // Overwrite data
-            mArray[mIndex] = d;
-        }
-        mIndex++;
-        return *this;
-    }
-
-    ByteStreamWriter& operator << (const std::uint16_t &d)
-    {
-        std::uint8_t byte;
-        std::uint16_t data = d;
-
-        for (std::uint8_t i = 0U; i < 2U; i++)
-        {
-            byte = data & 0xFF;
-            *this << byte;
-            data = data >> 8;
-        }
-        return *this;
-    }
-
-    ByteStreamWriter& operator << (const std::uint32_t &d)
-    {
-        std::uint8_t byte;
-        std::uint32_t data = d;
-
-        for (std::uint8_t i = 0U; i < 4U; i++)
-        {
-            byte = data & 0xFF;
-            *this << byte;
-            data = data >> 8;
-        }
-        return *this;
-    }
-
-    ByteStreamWriter& operator << (const bool &d)
-    {
-        std::uint8_t byte = 0U;
-
-        if (d)
-        {
-            byte = 1U;
-        }
-        *this << byte;
-        return *this;
-    }
-
-
+    // Operators
+    ByteStreamWriter& operator << (const std::uint8_t &d);
+    ByteStreamWriter& operator << (const std::uint16_t &d);
+    ByteStreamWriter& operator << (const std::uint32_t &d);
+    ByteStreamWriter& operator << (const bool &d);
     /**
      * @brief Overloaded operator to add a string to a byte stream
      * The first uint32_t will contain the size of the string
@@ -97,19 +56,7 @@ public:
      * @param s
      * @return
      */
-    ByteStreamWriter& operator << (const std::string &s)
-    {
-        std::uint32_t size = s.size();
-        std::uint8_t byte;
-
-        *this << size;
-        for (std::uint32_t i = 0U; i < size; i++)
-        {
-            byte = static_cast<std::uint8_t>(s.at(i));
-            *this << byte;
-        }
-        return *this;
-    }
+    ByteStreamWriter& operator << (const std::string &s);
 
 private:
     ByteArray &mArray;
@@ -117,3 +64,7 @@ private:
 };
 
 #endif // BYTE_STREAM_WRITER_H
+
+//=============================================================================
+// End of file ByteStreamWriter.h
+//=============================================================================
