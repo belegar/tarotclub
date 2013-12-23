@@ -1,5 +1,5 @@
 /*=============================================================================
- * TarotClub - UserId.h
+ * TarotClub - UniqueId.cpp
  *=============================================================================
  * Unique User identifier utility class
  *=============================================================================
@@ -23,29 +23,39 @@
  *=============================================================================
  */
 
-#ifndef _USER_ID_H
-#define _USER_ID_H
+#include <algorithm>
+#include "UniqueId.h"
 
-#include <cstdint>
-#include <list>
 
 /*****************************************************************************/
-class UserId
+UniqueId::UniqueId(std::uint32_t min, std::uint32_t max)
+    : mMin(min)
+    , mMax(max)
 {
-public:
-    UserId(std::uint32_t min, std::uint32_t max);
 
-    std::uint32_t TakeId();
-    void ReleaseId(std::uint32_t id);
+}
+/*****************************************************************************/
+std::uint32_t UniqueId::TakeId()
+{
+    std::uint32_t id;
 
-private:
-    std::uint32_t mMin;
-    std::uint32_t mMax;
-    std::list<std::uint32_t> mUsedIds;
-};
-
-#endif // _USER_ID_H
+    for (id = mMin; id <= mMax; id++)
+    {
+        if (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end())
+        {
+            // Id not used
+            mUsedIds.push_back(id);
+            break;
+        }
+    }
+    return id;
+}
+/*****************************************************************************/
+void UniqueId::ReleaseId(std::uint32_t id)
+{
+    // TODO
+}
 
 //=============================================================================
-// End of file UserId.h
+// End of file UniqueId.cpp
 //=============================================================================

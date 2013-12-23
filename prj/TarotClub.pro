@@ -80,7 +80,7 @@ HEADERS += Log.h \
     TcpSocket.h \
     TcpServer.h \
     TcpClient.h \
-    UserId.h
+    UniqueId.h
 
 SOURCES += Log.cpp \
     ByteArray.cpp \
@@ -89,7 +89,7 @@ SOURCES += Log.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
-    UserId.cpp
+    UniqueId.cpp
 
 # -------------------------------------------------------------
 # TarotClub core files
