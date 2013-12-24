@@ -39,6 +39,7 @@
 #include "Score.h"
 #include "Game.h"
 #include "Deal.h"
+#include "ThreadQueue.h"
 
 /*****************************************************************************/
 class Client
@@ -112,6 +113,13 @@ public:
     void SendChatMessage(const std::string &message);
 
 private:
+    enum Command
+    {
+        START,
+        EXIT
+    };
+
+
     Player      mPlayer;
     Deck::Statistics   stats;   // statistics on player's cards
     Game        info;           // Helper class to store various game information
@@ -123,6 +131,7 @@ private:
     TcpClient   mTcpClient;
     std::thread mThread;
     bool        mInitialized;
+    ThreadQueue<Command> mQueue;
 
     static void EntryPoint(void *pthis);
     void Run();

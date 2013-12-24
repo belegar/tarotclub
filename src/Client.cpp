@@ -292,10 +292,15 @@ void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
         mTcpClient.Create();
     }
 
-    if (mTcpClient.Connect(hostName, port) == false)
+    if (mTcpClient.Connect(hostName, port) == true)
+    {
+        mQueue.Push(START);
+    }
+    else
     {
         TLogError("Client cannot connect to server.");
     }
+
 }
 /*****************************************************************************/
 void Client::Close()
@@ -312,30 +317,55 @@ void Client::EntryPoint(void *pthis)
 void Client::Run()
 {
     std::string buffer;
+    bool connected = false;
+    Command cmd;
+
     while(true)
     {
-        if (mTcpClient.IsValid())
+        mQueue.WaitAndPop(cmd);
+        if (cmd == START)
         {
-            if (mTcpClient.Recv(buffer) > 0)
+            if (mTcpClient.IsValid())
             {
-                ByteArray data(buffer);
+                connected = true;
+            }
 
-                std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
-
-                // Execute all packets
-                for (std::uint16_t i = 0U; i< packets.size(); i++)
+            while (connected)
+            {
+                std::int32_t ret = mTcpClient.Recv(buffer);
+                if (ret > 0)
                 {
-                    Protocol::PacketInfo inf = packets[i];
+                    ByteArray data(buffer);
 
-                    ByteArray subArray = data.SubArray(inf.offset, inf.size);
-                    DoAction(subArray);
+                    std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
+
+                    // Execute all packets
+                    for (std::uint16_t i = 0U; i< packets.size(); i++)
+                    {
+                        Protocol::PacketInfo inf = packets[i];
+
+                        ByteArray subArray = data.SubArray(inf.offset, inf.size);
+                        if (DoAction(subArray) == false)
+                        {
+                            // Exit from thread
+                            return;
+                        }
+                    }
+                }
+                else if (ret == 0)
+                {
+                    connected = false;
+                }
+                else
+                {
+                    // Error!
+                    TLogError("Rev() socket read error.");
                 }
             }
         }
-        else
+        else if (cmd == EXIT)
         {
-             std::this_thread::sleep_for(std::chrono::seconds(1U));
-             // FIXME: replace by an event, wait for connection!
+            return;
         }
     }
 }
@@ -369,6 +399,7 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::ADMIN_DISCONNECT:
         {
             mTcpClient.Close();
+            ret = false;
             break;
         }
 
@@ -562,7 +593,6 @@ bool Client::DoAction(const ByteArray &data)
         default:
             std::string msg = mPlayer.GetIdentity().name + ": Unknown packet received.";
             TLogInfo(msg);
-            ret = false;
             break;
     }
     return ret;
