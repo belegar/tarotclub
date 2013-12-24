@@ -47,27 +47,21 @@ private:
     QPushButton  *clearButton;
     QPushButton  *saveButton;
 
-    static DebugDock *instance;
-
 public:
     DebugDock(QWidget *parent);
 
-    static DebugDock *getInstance()
-    {
-        return instance;
-    }
-
-    void Update(const std::string &info) { message(QString(info.data())); }
-
+    void Update(const std::string &info) { emit sigMessage(QString(info.data())); }
     void Initialize() { Log::RegisterListener(*this); }
 
 protected:
     void closeEvent(QCloseEvent *e);
 
-public:
-    void message(const QString &message);
+signals:
+    void sigMessage(QString);
+
 
 public slots:
+    void slotMessage(QString message);
     void save();
     void clear();
 };

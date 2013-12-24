@@ -35,8 +35,6 @@
 // Includes locales
 #include "DebugDock.h"
 
-DebugDock *DebugDock::instance = NULL;
-
 /*****************************************************************************/
 DebugDock::DebugDock(QWidget *parent)
     : QDockWidget(trUtf8("Debug"), parent)
@@ -58,10 +56,10 @@ DebugDock::DebugDock(QWidget *parent)
     frame->setLayout(principal);
     setWidget(frame);
 
+    connect(this, &DebugDock::sigMessage, this, &DebugDock::slotMessage, Qt::QueuedConnection);
+
     connect(clearButton, SIGNAL(clicked()), this, SLOT(clear()));
     connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
-
-    instance = this;
 }
 /*****************************************************************************/
 void DebugDock::closeEvent(QCloseEvent *e)
@@ -76,7 +74,7 @@ void DebugDock::clear()
     logWindow->clear();
 }
 /*****************************************************************************/
-void DebugDock::message(const QString &message)
+void DebugDock::slotMessage(QString message)
 {
     logWindow->append(message);
 }
