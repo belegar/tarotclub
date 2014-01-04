@@ -91,7 +91,8 @@ public:
         // admin -> server
         ADMIN_NEW_SERVER_GAME   = 0xA0, //!< Ask the server to start a new game
         ADMIN_ADD_PLAYER        = 0xA1, //!< A new player is entering the game
-        ADMIN_DISCONNECT        = 0xA2  //!< Ask client(s) to quit properly
+        ADMIN_DISCONNECT        = 0xA2, //!< Ask client(s) to quit properly
+        ADMIN_START_DEAL        = 0xA3  //!< Start a new deal
     };
 
     /**
@@ -151,8 +152,9 @@ public:
     static ByteArray BuildShowDog(Deck &dog);
 
     // Admin to controller packets
-    static ByteArray BuildAddPlayer(std::uint32_t uuid);
+    static ByteArray BuildAddPlayer(std::uint32_t new_player_uuid);
     static ByteArray BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle);
+    static ByteArray BuildStartDeal();
 
 };
 

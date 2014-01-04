@@ -186,14 +186,19 @@ ByteArray Protocol::BuildDealAgain()
     return BuildCommand(Protocol::SERVER_DEAL_AGAIN, Protocol::ALL_PLAYERS);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildAddPlayer(std::uint32_t uuid)
+ByteArray Protocol::BuildStartDeal()
+{
+    return BuildCommand(Protocol::ADMIN_START_DEAL, Protocol::ADMIN_UID);
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildAddPlayer(std::uint32_t new_player_uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::ADMIN_ADD_PLAYER, Protocol::ADMIN_UID);
     out.Seek(HEADER_SIZE);
-    out << uuid;    // new player's uuid
+    out << new_player_uuid;
     UpdateHeader(packet);
 
     return packet;

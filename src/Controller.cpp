@@ -147,212 +147,218 @@ bool Controller::DoAction(const ByteArray &data)
 
     switch (cmd)
     {
-        case Protocol::ADMIN_NEW_SERVER_GAME:
-        {
-            std::uint8_t gameMode;
-            std::uint8_t nbPlayers;
+    case Protocol::ADMIN_NEW_SERVER_GAME:
+    {
+        std::uint8_t gameMode;
+        std::uint8_t nbPlayers;
 
-            in >> gameMode;
-            in >> nbPlayers;
-            NewServerGame((Game::Mode)gameMode);
-            break;
+        in >> gameMode;
+        in >> nbPlayers;
+        NewServerGame((Game::Mode)gameMode);
+        break;
+    }
+
+    case Protocol::ADMIN_ADD_PLAYER:
+    {
+        std::uint32_t newplayer_uuid;
+        in >> newplayer_uuid;
+        // Look for free Place
+        Place assigned = engine.GetFreePlayer();
+        if (assigned != NOWHERE)
+        {
+            // Assign the uuid to this player
+            engine.GetPlayer(assigned).SetUuid(newplayer_uuid);
+            SendPacket(Protocol::BuildRequestIdentity(
+                           assigned,
+                           engine.GetGameInfo().numberOfPlayers,
+                           engine.GetGameInfo().gameMode,
+                           newplayer_uuid));
         }
-
-        case Protocol::ADMIN_ADD_PLAYER:
+        else
         {
-            std::uint32_t newplayer_uuid;
-            in >> newplayer_uuid;
-            // Look for free Place
-            Place assigned = engine.GetFreePlayer();
-            if (assigned != NOWHERE)
+            SendPacket(Protocol::BuildErrorServerFull(uuid));
+        }
+        break;
+    }
+
+    case Protocol::ADMIN_START_DEAL:
+    {
+        engine.NewDeal();
+        break;
+    }
+
+    case Protocol::CLIENT_MESSAGE:
+    {
+        std::string message;
+        in >> message;
+        SendPacket(Protocol::BuildServerChatMessage(message));
+        break;
+    }
+
+    case Protocol::CLIENT_INFOS:
+    {
+        Identity ident;
+        in >> ident;
+
+        bool full = engine.SetIdentity(uuid, ident);
+
+        std::string message = "The player " + ident.name + " has joined the game.";
+        SendPacket(Protocol::BuildServerChatMessage(message));
+
+        if (full)
+        {
+            std::map<Place, Identity> players;
+
+            for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
             {
-                // Assign the uuid to this player
-                engine.GetPlayer(assigned).SetUuid(newplayer_uuid);
-                SendPacket(Protocol::BuildRequestIdentity(
-                               assigned,
-                               engine.GetGameInfo().numberOfPlayers,
-                               engine.GetGameInfo().gameMode,
-                               newplayer_uuid));
+                players[(Place)i] = engine.GetPlayer((Place)i).GetIdentity();
             }
-            else
-            {
-                SendPacket(Protocol::BuildErrorServerFull(uuid));
-            }
-            break;
+            SendPacket(Protocol::BuildPlayersList(players));
+            SignalGameFull();
         }
+        break;
+    }
 
-        case Protocol::CLIENT_MESSAGE:
+    case Protocol::CLIENT_BID:
+    {
+        std::uint8_t c;
+        std::uint8_t slam;
+
+        in >> c;
+        in >> slam;
+
+        Place p = engine.GetPlayerPlace(uuid);
+
+        if (p != NOWHERE)
         {
-            std::string message;
-            in >> message;
-            SendPacket(Protocol::BuildServerChatMessage(message));
-            break;
+            // FIXME: add protection like client origin, current sequence...
+
+            Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
+            // Broadcast player's bid, and wait for all acknowlegements
+            SendPacket(Protocol::BuildShowBid(cont, (slam == 1 ? true : false), p));
         }
-
-        case Protocol::CLIENT_INFOS:
+        else
         {
-            Identity ident;
-            in >> ident;
-
-            bool ret = engine.SetIdentity(uuid, ident);
-
-            std::string message = "The player " + ident.name + " has joined the game.";
-            SendPacket(Protocol::BuildServerChatMessage(message));
-
-            if (ret)
-            {
-                std::map<Place, Identity> players;
-
-                for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
-                {
-                    players[(Place)i] = engine.GetPlayer((Place)i).GetIdentity();
-                }
-                SendPacket(Protocol::BuildPlayersList(players));
-                engine.NewDeal();
-            }
-            break;
+            TLogError("Cannot get player place from UUID");
         }
+        break;
+    }
 
-        case Protocol::CLIENT_BID:
+    case Protocol::CLIENT_SYNC_DOG:
+    {
+        if (engine.SyncDog() == true)
         {
-            std::uint8_t c;
-            std::uint8_t slam;
+            Player &player = engine.GetPlayer(engine.GetGameInfo().taker);
+            std::uint32_t id = player.GetUuid();
+            SendPacket(Protocol::BuildDiscardRequest(id));
+        }
+        break;
+    }
 
-            in >> c;
-            in >> slam;
+    case Protocol::CLIENT_DISCARD:
+    {
+        Deck discard;
+        in >> discard;
 
+        // FIXME: add protectiontest if the sender is the right player
+        engine.SetDiscard(discard);
+        break;
+    }
+
+    case Protocol::CLIENT_HANDLE:
+    {
+        // FIXME: add protections: handle validity, game sequence ...
+        Deck handle;
+        in >> handle;
+
+        Place p = engine.GetPlayerPlace(uuid);
+
+        if (p != NOWHERE)
+        {
+            engine.SetHandle(handle, p);
+            SendPacket(Protocol::BuildShowHandle(handle, p));
+
+        }
+        else
+        {
+            TLogError("Cannot get player place from UUID");
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_START:
+    {
+        engine.SyncStart();
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_BID:
+    {
+        engine.SyncBid();
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_TRICK:
+    {
+        engine.SyncTrick();
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_HANDLE:
+    {
+        engine.SyncHandle();
+        break;
+    }
+
+    case Protocol::CLIENT_CARD:
+    {
+        std::string card;
+        Card *c;
+
+        // FIXME: tester la validité de la carte (ID + présence dans le jeu du joueur)
+        // REFUSER SI MAUVAISE SEQUENCE EN COURS
+        // si erreur : logguer et prévenir quelqu'un ??
+
+        in >> card;
+        c = TarotDeck::GetCard(card);
+        if (c != NULL)
+        {
             Place p = engine.GetPlayerPlace(uuid);
 
             if (p != NOWHERE)
             {
-                // FIXME: add protection like client origin, current sequence...
-
-                Contract cont = engine.SetBid((Contract)c, (slam == 1 ? true : false), p);
-                // Broadcast player's bid, and wait for all acknowlegements
-                SendPacket(Protocol::BuildShowBid(cont, (slam == 1 ? true : false), p));
+                engine.SetCard(c, p);
+                // Broadcast played card, and wait for all acknowlegements
+                SendPacket(Protocol::BuildShowCard(c, p));
             }
             else
             {
                 TLogError("Cannot get player place from UUID");
             }
-            break;
         }
-
-        case Protocol::CLIENT_SYNC_DOG:
+        else
         {
-            if (engine.SyncDog() == true)
-            {
-                Player &player = engine.GetPlayer(engine.GetGameInfo().taker);
-                std::uint32_t id = player.GetUuid();
-                SendPacket(Protocol::BuildDiscardRequest(id));
-            }
-            break;
+            TLogError("Bad card name!");
         }
+        break;
+    }
 
-        case Protocol::CLIENT_DISCARD:
-        {
-            Deck discard;
-            in >> discard;
+    case Protocol::CLIENT_SYNC_CARD:
+    {
+        engine.SyncCard();
+        break;
+    }
 
-            // FIXME: add protectiontest if the sender is the right player
-            engine.SetDiscard(discard);
-            break;
-        }
+    case Protocol::CLIENT_READY:
+    {
+        engine.SyncReady();
+        break;
+    }
 
-        case Protocol::CLIENT_HANDLE:
-        {
-            // FIXME: add protections: handle validity, game sequence ...
-            Deck handle;
-            in >> handle;
-
-            Place p = engine.GetPlayerPlace(uuid);
-
-            if (p != NOWHERE)
-            {
-                engine.SetHandle(handle, p);
-                SendPacket(Protocol::BuildShowHandle(handle, p));
-
-            }
-            else
-            {
-                TLogError("Cannot get player place from UUID");
-            }
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_START:
-        {
-            engine.SyncStart();
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_BID:
-        {
-            engine.SyncBid();
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_TRICK:
-        {
-            engine.SyncTrick();
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_HANDLE:
-        {
-            engine.SyncHandle();
-            break;
-        }
-
-        case Protocol::CLIENT_CARD:
-        {
-            std::string card;
-            Card *c;
-
-            // FIXME: tester la validité de la carte (ID + présence dans le jeu du joueur)
-            // REFUSER SI MAUVAISE SEQUENCE EN COURS
-            // si erreur : logguer et prévenir quelqu'un ??
-
-            in >> card;
-            c = TarotDeck::GetCard(card);
-            if (c != NULL)
-            {
-                Place p = engine.GetPlayerPlace(uuid);
-
-                if (p != NOWHERE)
-                {
-                    engine.SetCard(c, p);
-                    // Broadcast played card, and wait for all acknowlegements
-                    SendPacket(Protocol::BuildShowCard(c, p));
-                }
-                else
-                {
-                    TLogError("Cannot get player place from UUID");
-                }
-            }
-            else
-            {
-                TLogError("Bad card name!");
-            }
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_CARD:
-        {
-            engine.SyncCard();
-            break;
-        }
-
-        case Protocol::CLIENT_READY:
-        {
-            engine.SyncReady();
-            break;
-        }
-
-        default:
-            TLogError("Unknown packet received");
-            ret = false;
-            break;
+    default:
+        TLogError("Unknown packet received");
+        ret = false;
+        break;
     }
 
     return ret;
@@ -362,9 +368,19 @@ void Controller::SendPacket(const ByteArray &block)
 {
     Signal sig;
 
+    sig.type = SIG_SEND_DATA;
     sig.data = block;
     mSubject.Notify(sig);
 }
+/*****************************************************************************/
+void Controller::SignalGameFull()
+{
+    Signal sig;
+
+    sig.type = SIG_GAME_FULL;
+    mSubject.Notify(sig);
+}
+
 
 //=============================================================================
 // End of file Server.cpp

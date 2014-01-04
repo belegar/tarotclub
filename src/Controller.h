@@ -50,8 +50,16 @@ class Controller : public Observer<TarotEngine::SignalInfo>
 {
 
 public:
+
+    enum SignalType
+    {
+        SIG_SEND_DATA,    //!< Emitted when there is something to send to a client
+        SIG_GAME_FULL     //!< Emitted when there is enough players to start the game
+    };
+
     struct Signal
     {
+        SignalType type;
         ByteArray data;
     };
 
@@ -79,6 +87,7 @@ private:
     void Update(const TarotEngine::SignalInfo &info);
     bool DoAction(const ByteArray &data);
     void SendPacket(const ByteArray &block);
+    void SignalGameFull();
 
 };
 
