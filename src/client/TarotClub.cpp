@@ -37,6 +37,7 @@
 TarotClub::TarotClub()
   : MainWindow()
   , mClient(*this)
+  , mGameType(NO_GAME)
 {
     qRegisterMetaType<Place>("Place");
     qRegisterMetaType<Contract>("Contract");
@@ -186,16 +187,26 @@ void TarotClub::slotNewCustomDeal()
 /*****************************************************************************/
 void TarotClub::slotNewQuickGame()
 {
-    Game::Shuffle sh;
-    sh.type = Game::RANDOM_DEAL;
+    if (mGameType != QUICK_GAME)
+    {
+        mGameType = QUICK_GAME;
 
-    table.CreateGame(Game::ONE_DEAL, 4U, sh);
-    NewGame("127.0.0.1", DEFAULT_PORT);
-    // start game
-    table.ConnectBots();
+        Game::Shuffle sh;
+        sh.type = Game::RANDOM_DEAL;
+
+        table.CreateGame(Game::ONE_DEAL, 4U, sh);
+        NewGame("127.0.0.1", DEFAULT_PORT);
+        // start game
+        table.ConnectBots();
+    }
+    else
+    {
+        NewGame();
+        table.StartDeal();
+    }
 }
 /*****************************************************************************/
-void TarotClub::NewGame(const QString &address, int port)
+void TarotClub::NewGame()
 {
     // GUI initialization
     scoresDock->clear();
@@ -203,6 +214,11 @@ void TarotClub::NewGame(const QString &address, int port)
     tapis->InitBoard();
     tapis->ResetCards();
     tapis->SetFilter(Canvas::BLOCK_ALL);
+}
+/*****************************************************************************/
+void TarotClub::NewGame(const QString &address, int port)
+{
+    NewGame();
 
     // Connect us to the server
     mClient.ConnectToHost(address.toStdString(), port);

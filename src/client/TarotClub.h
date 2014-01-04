@@ -51,6 +51,13 @@ class TarotClub : public MainWindow, public Client::IEvent
     Q_OBJECT
 
 public:
+    enum GameType
+    {
+        NO_GAME,
+        QUICK_GAME,
+        TOURNAMENT_GAME
+    };
+
     TarotClub();
 
     // Helpers
@@ -58,6 +65,7 @@ public:
     void ApplyOptions();
     void ShowSouthCards();
     void HideTrick();
+    void NewGame();
     void NewGame(const QString &address, int port);
     void showVictoryWindow();
 
@@ -73,6 +81,7 @@ private:
     Deal            deal;
     Deck            discard;
     std::list<std::string> mMessages;
+    GameType        mGameType;
 
     // Client events
     virtual void Message(const std::string &message)
