@@ -29,6 +29,7 @@ Table::Table()
     : mControllerListener(*this)
     , mTcpPort(DEFAULT_PORT)
     , mIdManager(2U, 20U)
+    , mAutoStart(true)
 {
 
 }
@@ -120,6 +121,11 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
     Stop();
     mTcpServer.Start(mTcpPort, 10U);
     mController.ExecuteRequest(Protocol::BuildNewGame(gameMode, nbPlayers, shuffle));
+}
+/*****************************************************************************/
+void Table::StartDeal()
+{
+    mController.ExecuteRequest(Protocol::BuildStartDeal());
 }
 /*****************************************************************************/
 void Table::Initialize()

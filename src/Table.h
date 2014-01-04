@@ -41,6 +41,7 @@ public:
     // Helpers
     void LoadConfiguration(int port = DEFAULT_PORT);
     void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
+    void StartDeal();
     void Initialize();
     void Stop();
     void ConnectBots();
@@ -66,7 +67,17 @@ private:
 
         void Update(const Controller::Signal &info)
         {
-            mTable.SendToSocket(info.data);
+            if (info.type == Controller::SIG_SEND_DATA)
+            {
+                mTable.SendToSocket(info.data);
+            }
+            else if (info.type == Controller::SIG_GAME_FULL)
+            {
+                if (mTable.mAutoStart)
+                {
+                    mTable.StartDeal();
+                }
+            }
         }
 
     private:
@@ -86,6 +97,7 @@ private:
     Bot             mBots[3];
     UniqueId        mIdManager;
     TcpServer       mTcpServer;
+    bool            mAutoStart;
 
     // Pair of UUID and socket
     std::map<std::uint32_t, std::int32_t> mUsers;
