@@ -43,7 +43,6 @@ public:
     {
         std::lock_guard<std::mutex> lock(mMutex);
         mQueue.push(data);
-        mMutex.unlock();
         mCondVar.notify_one();
     }
 
