@@ -165,6 +165,12 @@ Place TarotEngine::GetFreePlayer()
     return p;
 }
 /*****************************************************************************/
+/**
+ * @brief TarotEngine::SetIdentity
+ * @param uuid
+ * @param ident
+ * @return true if the game is full
+ */
 bool TarotEngine::SetIdentity(std::uint32_t uuid, const Identity &ident)
 {
     Player *player = GetPlayer(uuid);
