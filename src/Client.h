@@ -77,6 +77,7 @@ public:
     void UpdateStatistics();
     Card *Play();
     bool IsValid(Card *c);
+    bool IsConnected();
     Deck BuildDogDeck();
 
     // Getters
@@ -132,6 +133,7 @@ private:
     std::thread mThread;
     bool        mInitialized;
     ThreadQueue<Command> mQueue;
+    bool        mConnected;
 
     static void EntryPoint(void *pthis);
     void Run();

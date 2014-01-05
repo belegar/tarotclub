@@ -67,6 +67,7 @@ public:
 
     void RegisterListener(Observer<Signal> &observer);
     void Start();
+    void Stop();
     void ExecuteRequest(const ByteArray &packet);
 
 private:

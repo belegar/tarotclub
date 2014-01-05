@@ -58,6 +58,13 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
     return true;
 }
 /*****************************************************************************/
+void TcpServer::Stop()
+{
+    Close();
+    mThread.join();
+    mInitialized = false;
+}
+/*****************************************************************************/
 void TcpServer::Run()
 {
     int rc;
@@ -103,16 +110,14 @@ void TcpServer::Run()
                 /**********************************************************/
                 /* The select call failed.                                */
                 /**********************************************************/
-              //  perror("  select() failed");
-                break;
+                end_server = true;
             }
             else if (rc == 0)
             {
                 /**********************************************************/
                 /* The time out expired.                                  */
                 /**********************************************************/
-                printf("  select() timed out.  End program.\n");
-                break;
+                //TODO: call a listener / signal this event
             }
             else
             {
@@ -161,6 +166,8 @@ void TcpServer::Run()
                 socket.Close();
             }
         }
+
+        return;
     }
 }
 /*****************************************************************************/

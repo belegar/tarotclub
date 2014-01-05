@@ -32,6 +32,7 @@
 Client::Client(IEvent &handler)
     : mEventHandler(handler)
     , mInitialized(false)
+    , mConnected(false)
 {
 
 }
@@ -284,6 +285,11 @@ bool Client::IsValid(Card *c)
     return mPlayer.CanPlayCard(c, currentTrick);
 }
 /*****************************************************************************/
+bool Client::IsConnected()
+{
+    return mConnected;
+}
+/*****************************************************************************/
 void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
     if (!mTcpClient.IsValid())
@@ -294,18 +300,21 @@ void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
 
     if (mTcpClient.Connect(hostName, port) == true)
     {
+        mConnected = true;
         mQueue.Push(START);
     }
     else
     {
         TLogError("Client cannot connect to server.");
     }
-
 }
 /*****************************************************************************/
 void Client::Close()
 {
+    mConnected = false;
     mTcpClient.Close();
+    mQueue.Push(EXIT);
+    mThread.join();
 }
 /*****************************************************************************/
 void Client::EntryPoint(void *pthis)
@@ -317,7 +326,6 @@ void Client::EntryPoint(void *pthis)
 void Client::Run()
 {
     std::string buffer;
-    bool connected = false;
     Command cmd;
 
     while(true)
@@ -325,12 +333,7 @@ void Client::Run()
         mQueue.WaitAndPop(cmd);
         if (cmd == START)
         {
-            if (mTcpClient.IsValid())
-            {
-                connected = true;
-            }
-
-            while (connected)
+            while (mConnected)
             {
                 std::int32_t ret = mTcpClient.Recv(buffer);
                 if (ret > 0)
@@ -354,7 +357,7 @@ void Client::Run()
                 }
                 else if (ret == 0)
                 {
-                    connected = false;
+                    mConnected = false;
                 }
                 else
                 {

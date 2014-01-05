@@ -28,7 +28,7 @@ public:
     virtual ~TcpServer(void) { }
 
     bool Start(std::uint16_t port, std::int32_t maxConnections);
-    void Join() { mThread.join(); }
+    void Stop();
 
     void RegisterListener(Observer<Signal> &obs)
     {

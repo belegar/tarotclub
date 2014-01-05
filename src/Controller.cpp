@@ -98,6 +98,12 @@ void Controller::Start()
     }
 }
 /*****************************************************************************/
+void Controller::Stop()
+{
+    mQueue.Push(Protocol::BuildQuitGame());
+    mThread.join();
+}
+/*****************************************************************************/
 void Controller::ExecuteRequest(const ByteArray &packet)
 {
     mQueue.Push(packet);
@@ -124,7 +130,11 @@ void Controller::Run()
             Protocol::PacketInfo inf = packets[i];
 
             ByteArray subArray = data.SubArray(inf.offset, inf.size);
-            DoAction(subArray);
+            if (!DoAction(subArray))
+            {
+                // Quit thread
+                return;
+            }
         }
     }
 }
@@ -147,6 +157,13 @@ bool Controller::DoAction(const ByteArray &data)
 
     switch (cmd)
     {
+
+    case Protocol::ADMIN_QUIT_GAME:
+    {
+        ret = false;
+        break;
+    }
+
     case Protocol::ADMIN_NEW_SERVER_GAME:
     {
         std::uint8_t gameMode;
@@ -357,7 +374,6 @@ bool Controller::DoAction(const ByteArray &data)
 
     default:
         TLogError("Unknown packet received");
-        ret = false;
         break;
     }
 

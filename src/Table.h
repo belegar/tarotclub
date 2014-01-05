@@ -101,6 +101,7 @@ private:
 
     // Pair of UUID and socket
     std::map<std::uint32_t, std::int32_t> mUsers;
+    std::mutex mUsersMutex;
 };
 
 #endif // TABLE_H

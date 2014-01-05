@@ -44,7 +44,10 @@ void Table::Update(const TcpServer::Signal &info)
     {
         std::uint32_t uuid = mIdManager.TakeId();
         // Add the player to the list
+
+        mUsersMutex.lock();
         mUsers[uuid] = info.socket;
+        mUsersMutex.unlock();
         // send the information to the Tarot engine
         mController.ExecuteRequest(Protocol::BuildAddPlayer(uuid));
     }
@@ -60,6 +63,8 @@ void Table::CloseClients()
     std::map<std::uint32_t, std::int32_t>::iterator iter;
     TcpSocket peer;
 
+    mUsersMutex.lock();
+
     // Send the data to a(all) peer(s)
     for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
@@ -68,6 +73,8 @@ void Table::CloseClients()
     }
 
     mUsers.clear();
+
+    mUsersMutex.unlock();
 }
 /*****************************************************************************/
 void Table::SendToSocket(const ByteArray &packet)
@@ -77,6 +84,8 @@ void Table::SendToSocket(const ByteArray &packet)
 
     std::map<std::uint32_t, std::int32_t>::iterator iter;
     TcpSocket peer;
+
+    mUsersMutex.lock();
 
     // Send the data to a(all) peer(s)
     for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
@@ -89,6 +98,7 @@ void Table::SendToSocket(const ByteArray &packet)
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(20U));
     }
+    mUsersMutex.unlock();
 }
 /*****************************************************************************/
 void Table::LoadConfiguration(int port)
@@ -116,10 +126,9 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
     // TODO: add support for 3 and 5 players game
     if (nbPlayers != 4)
     {
+        TLogError("3 or 5 players are not yet supported");
         return;
     }
-    Stop();
-    mTcpServer.Start(mTcpPort, 10U);
     mController.ExecuteRequest(Protocol::BuildNewGame(gameMode, nbPlayers, shuffle));
 }
 /*****************************************************************************/
@@ -136,6 +145,7 @@ void Table::Initialize()
     }
 
     mTcpServer.RegisterListener(*this);
+    mTcpServer.Start(mTcpPort, 10U);
     mController.RegisterListener(mControllerListener);
     mController.Start();
     for (int i = 0; i < 3; i++)
@@ -146,9 +156,16 @@ void Table::Initialize()
 /*****************************************************************************/
 void Table::Stop()
 {
-    // FIXME: send a command to all clients to disconnect gracefully
     CloseClients();
-    mTcpServer.Close();
+    mTcpServer.Stop();
+
+    // Close local bots
+    for (int i = 0; i < 3; i++)
+    {
+        mBots[i].Close();
+    }
+
+    mController.Stop();
 }
 /*****************************************************************************/
 ServerOptions &Table::GetOptions()
