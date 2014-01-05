@@ -51,26 +51,20 @@ class TarotClub : public MainWindow, public Client::IEvent
     Q_OBJECT
 
 public:
-    enum GameType
+    enum ConnectionType
     {
-        NO_GAME,
-        QUICK_GAME,
-        TOURNAMENT_GAME
+        NO_CONNECTION,
+        LOCAL,
+        REMOTE
     };
 
     TarotClub();
 
-    // Helpers
-    void Initialize(); // First time initialization
-    void ApplyOptions();
-    void ShowSouthCards();
-    void HideTrick();
-    void NewGame();
-    void NewGame(const QString &address, int port);
-    void showVictoryWindow();
-
-    // Setters
-    int setTheme();
+    /**
+     * @brief Initialize
+     * First time initialization
+     */
+    void Initialize();
 
 private:
     Table           table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
@@ -81,7 +75,16 @@ private:
     Deal            deal;
     Deck            discard;
     std::list<std::string> mMessages;
-    GameType        mGameType;
+    ConnectionType  mConnectionType;
+
+    // Helpers
+    void ApplyOptions();
+    void ShowSouthCards();
+    void HideTrick();
+    void LaunchLocalGame(Game::Mode, const Game::Shuffle &sh);
+    void InitScreen();
+    void showVictoryWindow();
+    bool HasLocalConnection();
 
     // Client events
     virtual void Message(const std::string &message)

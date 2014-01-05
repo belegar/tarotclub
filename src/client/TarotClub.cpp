@@ -37,7 +37,7 @@
 TarotClub::TarotClub()
   : MainWindow()
   , mClient(*this)
-  , mGameType(NO_GAME)
+  , mConnectionType(NO_CONNECTION)
 {
     qRegisterMetaType<Place>("Place");
     qRegisterMetaType<Contract>("Contract");
@@ -136,17 +136,9 @@ void TarotClub::Initialize()
 void TarotClub::slotQuitTarotClub()
 {
     table.Stop();
-}
-/*****************************************************************************/
-void TarotClub::slotNewTournamentGame()
-{
-    Game::Shuffle sh;
-    sh.type = Game::RANDOM_DEAL;
 
-    table.CreateGame(Game::TOURNAMENT, 4U, sh);
-    NewGame("127.0.0.1", DEFAULT_PORT);
-    // start game
-    table.ConnectBots();
+    // Close ourself
+    mClient.Close();
 }
 /*****************************************************************************/
 void TarotClub::slotNewNumberedDeal()
@@ -161,10 +153,7 @@ void TarotClub::slotNewNumberedDeal()
         sh.type = Game::NUMBERED_DEAL;
         sh.seed = ui.dealNumber->value();
 
-        table.CreateGame(Game::ONE_DEAL, 4U, sh);
-        NewGame("127.0.0.1", DEFAULT_PORT);
-        // start game
-        table.ConnectBots();
+        LaunchLocalGame(Game::ONE_DEAL, sh);
     }
 }
 /*****************************************************************************/
@@ -178,50 +167,24 @@ void TarotClub::slotNewCustomDeal()
         sh.type = Game::CUSTOM_DEAL;
         sh.file = fileName.toStdString();
 
-        table.CreateGame(Game::ONE_DEAL, 4U, sh);
-        NewGame("127.0.0.1", DEFAULT_PORT);
-        // start game
-        table.ConnectBots();
+        LaunchLocalGame(Game::ONE_DEAL, sh);
     }
+}
+/*****************************************************************************/
+void TarotClub::slotNewTournamentGame()
+{
+    Game::Shuffle sh;
+    sh.type = Game::RANDOM_DEAL;
+
+    LaunchLocalGame(Game::TOURNAMENT, sh);
 }
 /*****************************************************************************/
 void TarotClub::slotNewQuickGame()
 {
-    if (mGameType != QUICK_GAME)
-    {
-        mGameType = QUICK_GAME;
+    Game::Shuffle sh;
+    sh.type = Game::RANDOM_DEAL;
 
-        Game::Shuffle sh;
-        sh.type = Game::RANDOM_DEAL;
-
-        table.CreateGame(Game::ONE_DEAL, 4U, sh);
-        NewGame("127.0.0.1", DEFAULT_PORT);
-        // start game
-        table.ConnectBots();
-    }
-    else
-    {
-        NewGame();
-        table.StartDeal();
-    }
-}
-/*****************************************************************************/
-void TarotClub::NewGame()
-{
-    // GUI initialization
-    scoresDock->clear();
-    infosDock->Clear();
-    tapis->InitBoard();
-    tapis->ResetCards();
-    tapis->SetFilter(Canvas::BLOCK_ALL);
-}
-/*****************************************************************************/
-void TarotClub::NewGame(const QString &address, int port)
-{
-    NewGame();
-
-    // Connect us to the server
-    mClient.ConnectToHost(address.toStdString(), port);
+    LaunchLocalGame(Game::ONE_DEAL, sh);
 }
 /*****************************************************************************/
 void TarotClub::slotJoinNetworkGame()
@@ -234,7 +197,8 @@ void TarotClub::slotJoinNetworkGame()
 
         if (cn.isValid)
         {
-            NewGame(cn.ip, cn.port);
+            // Connect us to the server
+            mClient.ConnectToHost(cn.ip.toStdString(), cn.port);
         }
     }
 }
@@ -247,7 +211,8 @@ void TarotClub::slotQuickJoinNetworkGame()
         QString ip = uiQuickJoin.ipAddress->text();
         quint16 port = uiQuickJoin.tcpPort->value();
 
-        NewGame(ip, port);
+        // Connect us to the server
+        mClient.ConnectToHost(ip.toStdString(), port);
     }
 }
 /*****************************************************************************/
@@ -257,7 +222,50 @@ void TarotClub::slotCreateNetworkGame()
     sh.type = Game::RANDOM_DEAL;
 
     table.CreateGame(Game::ONE_DEAL, 4U, sh);
-    NewGame("127.0.0.1", DEFAULT_PORT);
+    // Connect us to the server
+    mClient.ConnectToHost("127.0.0.1", DEFAULT_PORT);
+}
+/*****************************************************************************/
+bool TarotClub::HasLocalConnection()
+{
+    if ((mConnectionType == LOCAL) &&
+        (mClient.IsConnected() == true))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+/*****************************************************************************/
+void TarotClub::LaunchLocalGame(Game::Mode mode, const Game::Shuffle &sh)
+{
+    table.CreateGame(mode, 4U, sh);
+    InitScreen();
+
+    if (HasLocalConnection())
+    {
+        table.StartDeal();
+    }
+    else
+    {
+        mConnectionType = LOCAL;
+        // Connect us to the server
+        mClient.ConnectToHost("127.0.0.1", DEFAULT_PORT);
+        // Connect the other players
+        table.ConnectBots();
+    }
+}
+/*****************************************************************************/
+void TarotClub::InitScreen()
+{
+    // GUI initialization
+    scoresDock->clear();
+    infosDock->Clear();
+    tapis->InitBoard();
+    tapis->ResetCards();
+    tapis->SetFilter(Canvas::BLOCK_ALL);
 }
 /*****************************************************************************/
 void TarotClub::ApplyOptions()
@@ -788,6 +796,7 @@ void TarotClub::slotWaitTrick(Place winner)
 /*****************************************************************************/
 void TarotClub::slotEndOfGame()
 {
+    // TODO
 }
 
 //=============================================================================
