@@ -191,6 +191,11 @@ ByteArray Protocol::BuildStartDeal()
     return BuildCommand(Protocol::ADMIN_START_DEAL, Protocol::ADMIN_UID);
 }
 /*****************************************************************************/
+ByteArray Protocol::BuildQuitGame()
+{
+    return BuildCommand(Protocol::ADMIN_QUIT_GAME, Protocol::ADMIN_UID);
+}
+/*****************************************************************************/
 ByteArray Protocol::BuildAddPlayer(std::uint32_t new_player_uuid)
 {
     ByteArray packet;

@@ -92,7 +92,8 @@ public:
         ADMIN_NEW_SERVER_GAME   = 0xA0, //!< Ask the server to start a new game
         ADMIN_ADD_PLAYER        = 0xA1, //!< A new player is entering the game
         ADMIN_DISCONNECT        = 0xA2, //!< Ask client(s) to quit properly
-        ADMIN_START_DEAL        = 0xA3  //!< Start a new deal
+        ADMIN_START_DEAL        = 0xA3, //!< Start a new deal
+        ADMIN_QUIT_GAME         = 0xA4
     };
 
     /**
@@ -155,6 +156,7 @@ public:
     static ByteArray BuildAddPlayer(std::uint32_t new_player_uuid);
     static ByteArray BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle);
     static ByteArray BuildStartDeal();
+    static ByteArray BuildQuitGame();
 
 };
 
