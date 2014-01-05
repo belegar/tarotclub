@@ -78,7 +78,7 @@ private:
     std::uint16_t mPort;
     int mSock;
     sockaddr_in mAddr;
-    static bool mInitialized;
+    static bool mOneTimeInit;
 };
 
 #endif // TCPSOCKET_H

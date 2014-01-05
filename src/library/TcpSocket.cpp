@@ -1,7 +1,7 @@
 
 #include "TcpSocket.h"
 
-bool TcpSocket::mInitialized = false;
+bool TcpSocket::mOneTimeInit = false;
 
 /*****************************************************************************/
 TcpSocket::TcpSocket()
@@ -14,9 +14,8 @@ TcpSocket::TcpSocket()
 /*****************************************************************************/
 TcpSocket::~TcpSocket()
 {
-//    if (IsValid()) ::close (mSock);
-}
 
+}
 /*****************************************************************************/
 /**
  * @brief TcpSocket::Create
@@ -184,8 +183,9 @@ bool TcpSocket::Send (const std::string & input) const
  */
 bool TcpSocket::Initialize()
 {
-    if (!mInitialized)
+    if (!mOneTimeInit)
     {
+        mOneTimeInit = true;
 #ifdef USE_WINDOWS_OS
         WSADATA wsaData;
 
@@ -211,7 +211,7 @@ std::int32_t TcpSocket::Recv (std::string & output) const
     // Most likely, we will read a packet, or if the message
     // is very short, we will receive the entire message in
     // a short packet. But it might be a long one.
-    status = ::recv(mSock, buf, MAXRECV, 0);//MSG_WAITALL );
+    status = ::recv(mSock, buf, MAXRECV, 0);
 
     if(status > 0)
     {
