@@ -25,7 +25,7 @@
 
 #include "Bot.h"
 #include "Log.h"
-#include "Tools.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -55,7 +55,7 @@ void Bot::AssignedPlace()
     InitializeScriptContext();
 
     QJSValueList args;
-    args << mClient.GetPlace();
+    args << mClient.GetPlace().Value();
     CallScript("EnterGame", args);
 }
 /*****************************************************************************/
@@ -83,12 +83,12 @@ void Bot::RequestBid(Contract highestBid)
     Contract botContract;
 
     QJSValueList args;
-    args << (int)highestBid;
+    args << QString(highestBid.ToString().c_str());
 
     ret = CallScript("AnnounceBid", args).toInt();
 
     // security test
-    if ((ret >= PASS) && (ret <= GUARD_AGAINST))
+    if ((ret >= Contract::PASS) && (ret <= Contract::GUARD_AGAINST))
     {
         botContract = (Contract)ret;
         // Ask to the bot if a slam has been announced
@@ -103,7 +103,7 @@ void Bot::RequestBid(Contract highestBid)
     // only bid over previous one is allowed
     if (botContract <= highestBid)
     {
-        botContract = PASS;
+        botContract = Contract::PASS;
     }
 
     mClient.SendBid(botContract, slam);
@@ -123,7 +123,7 @@ void Bot::StartDeal(Place taker, Contract contract, const Game::Shuffle &sh)
 
     // FIXME: pass the game type to the script
     QJSValueList args;
-    args << taker << contract;
+    args << QString(taker.ToString().c_str()) << QString(contract.ToString().c_str());
     CallScript("StartDeal", args);
 
     // We are ready, let's inform the server about that
@@ -220,7 +220,7 @@ void Bot::PlayCard()
 void Bot::ShowCard(Place p, const std::string &name)
 {
     QJSValueList args;
-    args << QString(name.data()) << (int)p;
+    args << QString(name.data()) << QString(p.ToString().c_str());
     CallScript("PlayedCard", args);
 
     // We have seen the card, let's inform the server about that
@@ -280,7 +280,7 @@ void Bot::slotTimeBeforeSend()
         if (mClient.IsValid(c) == false)
         {
             std::stringstream message;
-            message << Util::ToString(mClient.GetPlace()) << " played a non-valid card: " << ret.toStdString();
+            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.toStdString();
             TLogInfo(message.str());
             // The show must go on, play a random card
             c = mClient.Play();
@@ -289,11 +289,11 @@ void Bot::slotTimeBeforeSend()
     else
     {
         std::stringstream message;
-        message << Util::ToString(mClient.GetPlace()) << " played an unkown card: " << ret.toStdString();
+        message << mClient.GetPlace().ToString() << " played an unkown card: " << ret.toStdString();
         TLogInfo(message.str());
 
         message.flush();
-        message << Util::ToString(mClient.GetPlace()) << " engine deck is: " << mClient.GetMyDeck().GetCardList();
+        message << mClient.GetPlace().ToString() << " engine deck is: " << mClient.GetMyDeck().GetCardList();
         TLogInfo(message.str());
 
         // The show must go on, play a random card

@@ -47,7 +47,6 @@ Card::Card()
     : mSuit(Card::CLUBS)
     , mPoints(0.0)
     , mId(0)
-    , mOwner(NOWHERE)
     , mValue(0)
 {
 }

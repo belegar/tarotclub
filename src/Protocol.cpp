@@ -216,9 +216,9 @@ ByteArray Protocol::BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::
 
     BuildHeader(packet, Protocol::SERVER_REQUEST_IDENTITY, uuid);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)p;         // assigned place
+    out << p;                       // assigned place
     out << uuid;                    // assigned unique id
-    out << (std::uint8_t)nbPlayers; // number of players in the current game
+    out << nbPlayers;               // number of players in the current game
     out << (std::uint8_t)mode;      // game mode
     UpdateHeader(packet);
 
@@ -310,8 +310,8 @@ ByteArray Protocol::BuildShowBid(Contract c, bool slam, Place p)
 
     BuildHeader(packet, Protocol::SERVER_SHOW_PLAYER_BID, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)p   // current player bid
-        << (std::uint8_t)c;  // contract to show
+    out << p; // current player bid
+    out << c; // contract to show
     if (slam)
     {
         out << (std::uint8_t)1;
@@ -332,8 +332,8 @@ ByteArray Protocol::BuildClientBid(Contract c, bool slam, std::uint32_t uuid)
 
     BuildHeader(packet, Protocol::CLIENT_BID, uuid);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)c  // contract to show
-        << slam;
+    out << c;  // contract to show
+    out << slam;
     UpdateHeader(packet);
 
     return packet;
@@ -351,7 +351,7 @@ ByteArray Protocol::BuildPlayersList(std::map<Place, Identity> players)
 
     for(iter = players.begin(); iter != players.end(); iter++)
     {
-        out << (std::uint8_t)iter->first;
+        out << iter->first;
         out << iter->second;
     }
 
@@ -367,7 +367,7 @@ ByteArray Protocol::BuildShowCard(Card *c, Place p)
 
     BuildHeader(packet, Protocol::SERVER_SHOW_CARD, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)p
+    out << p
         << c->GetName();
     UpdateHeader(packet);
 
@@ -382,7 +382,7 @@ ByteArray Protocol::BuildShowHandle(Deck &handle, Place p)
 
     BuildHeader(packet, Protocol::SERVER_SHOW_HANDLE, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)p;
+    out << p;
     out << handle;
     UpdateHeader(packet);
 
@@ -422,7 +422,7 @@ ByteArray Protocol::BuildEndOfTrick(Place winner)
 
     BuildHeader(packet, Protocol::SERVER_END_OF_TRICK, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)winner;
+    out << winner;
     UpdateHeader(packet);
 
     return packet;
@@ -435,8 +435,8 @@ ByteArray Protocol::BuildStartDeal(Place taker, Contract contract, const Game::S
 
     BuildHeader(packet, Protocol::SERVER_START_DEAL, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)taker;
-    out << (std::uint8_t)contract;
+    out << taker;
+    out << contract;
     out << sh;
     UpdateHeader(packet);
 
@@ -450,7 +450,7 @@ ByteArray Protocol::BuildPlayCard(Place p)
 
     BuildHeader(packet, Protocol::SERVER_PLAY_CARD, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)p; // this player has to play a card
+    out << p; // this player has to play a card
     UpdateHeader(packet);
 
     return packet;
@@ -463,8 +463,8 @@ ByteArray Protocol::BuildBidRequest(Contract c, Place p)
 
     BuildHeader(packet, Protocol::SERVER_REQUEST_BID, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)c; // previous bid
-    out << (std::uint8_t)p; // player to declare something
+    out << c; // previous bid
+    out << p; // player to declare something
     UpdateHeader(packet);
 
     return packet;

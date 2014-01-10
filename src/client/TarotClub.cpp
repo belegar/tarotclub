@@ -30,7 +30,7 @@
 #include "TarotDeck.h"
 #include "ui_NumberedDealUI.h"
 #include "ui_WinUI.h"
-#include "Tools.h"
+#include "Common.h"
 #include "Log.h"
 
 /*****************************************************************************/
@@ -572,13 +572,13 @@ void TarotClub::slotMessage()
     {
         std::string msg = mMessages.front();
         mMessages.pop_front();
-        chatDock->message(QString(msg.data()));
+        chatDock->message(msg);
     }
 }
 /*****************************************************************************/
 void TarotClub::slotAssignedPlace()
 {
-    chatDock->message("The server grant you access to the table in place " + QString(Util::ToString(mClient.GetPlace()).data()));
+    chatDock->message("The server grant you access to the table in place " + mClient.GetPlace().ToString());
 }
 /*****************************************************************************/
 void TarotClub::slotPlayersList()

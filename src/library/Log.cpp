@@ -27,7 +27,6 @@
 #include <vector>
 #include <fstream>
 #include "Log.h"
-#include "Tools.h"
 
 std::mutex Log::mMutex;
 Subject<std::string> Log::mSubject;

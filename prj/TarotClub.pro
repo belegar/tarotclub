@@ -18,14 +18,18 @@
 # along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# -------------------------------------------------------------
 # Directories for generated files
+# -------------------------------------------------------------
 UI_DIR = ./ui
 UI_HEADERS_DIR = ./include
 UI_SOURCES_DIR = ./src
 OBJECTS_DIR = ./obj
 DESTDIR = ./bin
 
+# -------------------------------------------------------------
 # The search path to find supplied files
+# -------------------------------------------------------------
 VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/library
 VPATH += $${PWD}/../src/client
@@ -34,7 +38,9 @@ VPATH += $${PWD}/../lib
 VPATH += $${PWD}/../ai
 VPATH += $${PWD}/../ai/tarotlib
 
+# -------------------------------------------------------------
 # Where to find header files
+# -------------------------------------------------------------
 INCLUDEPATH += $${PWD}/../src
 INCLUDEPATH += $${PWD}/../src/library
 INCLUDEPATH += $${PWD}/../src/client
@@ -73,6 +79,7 @@ TRANSLATIONS = tarotclub_fr.ts \
 # -------------------------------------------------------------
 HEADERS += Log.h \
     Observer.h \
+    Util.h \
     ThreadQueue.h \
     ByteStreamReader.h \
     ByteStreamWriter.h \
@@ -80,23 +87,25 @@ HEADERS += Log.h \
     TcpSocket.h \
     TcpServer.h \
     TcpClient.h \
-    UniqueId.h
+    UniqueId.h \
+    Common.h
 
 SOURCES += Log.cpp \
+    Util.cpp \
     ByteArray.cpp \
     ByteStreamReader.cpp \
     ByteStreamWriter.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
-    UniqueId.cpp
+    UniqueId.cpp \
+    Common.cpp
 
 # -------------------------------------------------------------
 # TarotClub core files
 # -------------------------------------------------------------
 HEADERS += ServerConfig.h \
     DealFile.h \
-    TarotClub.h \
     TarotDeck.h \
     Deck.h \
     Card.h \
@@ -104,7 +113,6 @@ HEADERS += ServerConfig.h \
     Client.h \
     Bot.h \
     defines.h \
-    Tools.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \
@@ -116,7 +124,6 @@ HEADERS += ServerConfig.h \
 
 SOURCES += ServerConfig.cpp \
     DealFile.cpp \
-    TarotClub.cpp \
     TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
@@ -150,6 +157,7 @@ HEADERS += AboutWindow.h \
     JoinWizard.h \
     GfxCard.h \
     MenuItem.h \
+    TarotClub.h \
     PlayerBox.h \
     CustomTypes.h \
     PopupItem.h
@@ -180,7 +188,8 @@ SOURCES += AboutWindow.cpp \
     Canvas.cpp \
     TextBox.cpp \
     ClientConfig.cpp \
-    main.cpp \    
+    main.cpp \
+    TarotClub.cpp \
     JoinWizard.cpp \
     GfxCard.cpp \
     MenuItem.cpp \

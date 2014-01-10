@@ -27,6 +27,7 @@
 #define _DEAL_H
 
 // Game includes
+#include <map>
 #include <QList>
 #include "Card.h"
 #include "Deck.h"
@@ -45,7 +46,7 @@ public:
     void Initialize();
     void NewDeal();
     bool Calculate(Game &info);
-    void GenerateEndDealLog(Game &info, QMap<Place, Identity> &players);
+    void GenerateEndDealLog(Game &info, std::map<Place, Identity> &players);
     bool AddScore(const Game &info);
 
     // Getters
@@ -69,7 +70,7 @@ private:
     void AnalyzeGame(Game &info);
     void CalculateScore(Game &info);
     int GetHandlePoints(Handle h);
-    QStringList GetSortedTrick(int trick);
+    std::list<std::string> GetSortedTrick(int trick);
 
     // We store played cards to count points
     Deck dogDeck;

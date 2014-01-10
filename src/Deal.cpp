@@ -23,12 +23,9 @@
  *=============================================================================
  */
 
+#include <QtCore>
 #include "Deal.h"
-#include "Tools.h"
-#include <stdlib.h>
-#include <QFile>
-#include <QString>
-#include <QTextStream>
+#include "Common.h"
 #include "Log.h"
 
 #define DEAL_RESULT_XML_VERSION     "1.0"
@@ -86,7 +83,7 @@ void Deal::NewDeal()
 Place Deal::SetTrick(Deck &trick, Game &info)
 {
     int turn = info.trickCounter - 1;
-    Place winner = NOWHERE;
+    Place winner;
 
     // Get the number of tricks we must play, it depends of the number of players
     int numberOfTricks = info.GetNumberOfCards();
@@ -211,7 +208,7 @@ int Deal::GetTotalPoints(Place p)
     total = 0;
     for (i = 0; i < dealCounter; i++)
     {
-        total += scores[i][p];
+        total += scores[i][p.Value()];
     }
     return (total);
 }
@@ -268,7 +265,7 @@ bool Deal::AddScore(const Game &info)
 {
     for (int i = 0; i < info.numberOfPlayers; i++)
     {
-        if (i == info.taker)
+        if (Place(i) == info.taker)
         {
             scores[dealCounter][i] = score.GetAttackScore();
         }
@@ -377,15 +374,15 @@ void Deal::AnalyzeGame(Game &info)
  */
 void Deal::CalculateScore(Game &info)
 {
-    if (info.contract == TAKE)
+    if (info.contract == Contract::TAKE)
     {
         score.multiplier = 1;
     }
-    else if (info.contract == GUARD)
+    else if (info.contract == Contract::GUARD)
     {
         score.multiplier = 2;
     }
-    else if (info.contract == GUARD_WITHOUT)
+    else if (info.contract == Contract::GUARD_WITHOUT)
     {
         score.multiplier = 4;
     }
@@ -463,14 +460,17 @@ int Deal::GetHandlePoints(Handle h)
     }
 }
 /*****************************************************************************/
-QStringList Deal::GetSortedTrick(int trick)
+std::list<std::string> Deal::GetSortedTrick(int trick)
 {
-    QStringList list;
+    std::list<std::string> list;
+
     for (int i = 0; i < tricks[trick].size(); i++)
     {
+        std::list<std::string>::iterator it = list.begin();
         Card *c = tricks[trick].at(i);
-        std::string name = c->GetName();
-        list.insert((int)(c->GetOwner()), QString(name.data()));
+
+        std::advance(it, c->GetOwner().Value());
+        list.insert(it, c->GetName());
     }
 
     return list;
@@ -492,7 +492,7 @@ void Deal::SetDog(Deck &dog, Team owner)
  * line 3: the original owner of the card
  * line 4: the final owner of the card
  */
-void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
+void Deal::GenerateEndDealLog(Game &info, std::map<Place, Identity> &players)
 {
     // Open a file where to stream out the XML
     QString fileName = QString(Config::GamePath.c_str()) + "/deal_result_" + QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss") + ".xml" ;
@@ -513,21 +513,19 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
         stream.writeStartElement("deal_info");
 
         stream.writeStartElement("players");
-        QMapIterator<Place, Identity> i(players);
-        while (i.hasNext())
+        std::map<Place, Identity>::iterator it;
+        for (it = players.begin(); it != players.end(); ++it)
         {
-            i.next();
-
             stream.writeStartElement("player");
-            stream.writeAttribute("place", QString(Util::ToString(i.key()).c_str()));
-            stream.writeCharacters(QString(i.value().name.data()));
+            stream.writeAttribute("place", (it->first).ToString().c_str());
+            stream.writeCharacters((it->second).name.data());
             stream.writeEndElement(); // player
         }
         stream.writeEndElement(); // players
 
-        stream.writeTextElement("taker", QString(Util::ToString(info.taker).c_str()));
-        stream.writeTextElement("contract", QString(Util::ToString(info.contract).c_str()));
-        stream.writeTextElement("first_trick_lead", QString(Util::ToString(tricks[0].at(0)->GetOwner()).c_str()));
+        stream.writeTextElement("taker", info.taker.ToString().c_str() );
+        stream.writeTextElement("contract", info.contract.ToString().c_str());
+        stream.writeTextElement("first_trick_lead", tricks[0].at(0)->GetOwner().ToString().c_str());
         stream.writeTextElement("score", QString(score.ToString().data()));
 
         stream.writeEndElement(); // deal_info
@@ -544,13 +542,16 @@ void Deal::GenerateEndDealLog(Game &info, QMap<Place, Identity> &players)
             stream.writeStartElement("trick");
             stream.writeAttribute("number", QString::number(i + 1));
 
-            QStringList list = GetSortedTrick(i);
-            for (int j = 0; j < info.numberOfPlayers; j++)
+            std::list<std::string> list = GetSortedTrick(i);
+            std::list<std::string>::iterator it;
+            int j = 0;
+            for (it = list.begin(); it != list.end(); ++it)
             {
                 stream.writeStartElement("card");
-                stream.writeAttribute("place", QString(Util::ToString((Place)j).c_str()));
-                stream.writeCharacters(list[j]);
+                stream.writeAttribute("place", Place(j).ToString().c_str());
+                stream.writeCharacters(it->c_str());
                 stream.writeEndElement(); // card
+                j++;
             }
 
             stream.writeEndElement(); // trick

@@ -39,26 +39,20 @@
 class TarotEngine
 {
 public:
-    enum Signal
+    class IEvent
     {
-        SIG_REQUEST_BID,    // void sigRequestBid(Contract c, Place p);
-        SIG_DEAL_AGAIN,     // void sigDealAgain();
-        SIG_PLAY_CARD,      // void sigPlayCard(Place p);
-        SIG_END_OF_TRICK,   // void sigEndOfTrick(Place p);
-        SIG_END_OF_DEAL,    // void sigEndOfDeal();
-        SIG_SEND_CARDS,     // void sigSendCards();
-        SIG_SHOW_DOG,       // void sigShowDog();
-        SIG_START_DEAL      // void sigStartDeal();
+    public:
+        virtual void RequestBid(Contract c, Place p) = 0;
+        virtual void DealAgain() = 0;
+        virtual void PlayCard(Place p) = 0;
+        virtual void EndOfTrick(Place p) = 0;
+        virtual void EndOfDeal() = 0;
+        virtual void SendCards() = 0;
+        virtual void ShowDog() = 0;
+        virtual void StartDeal() = 0;
     };
 
-    struct SignalInfo
-    {
-        Signal sig;
-        Place p;
-        Contract c;
-    };
-
-    TarotEngine();
+    TarotEngine(IEvent &handler);
     ~TarotEngine();
 
     // Helpers
@@ -75,7 +69,6 @@ public:
     void SyncBid();
     void SyncHandle();
     void BidSequence();
-    void RegisterListener(Observer<SignalInfo> &listener);
 
     // Getters
     Player &GetPlayer(Place p);
@@ -101,7 +94,7 @@ private:
     Deal    deal;
     Game    gameState;
     Game::Shuffle       shuffle;
-    Subject<SignalInfo> mSubject;
+    IEvent& mEventHandler;
 
     // synchonization counters
     int     cntSyncIdentity;    // player sent his identity
@@ -119,7 +112,6 @@ private:
     void ShowDog();
     void GameSateMachine();
     void EndOfDeal();
-    void SendSignal(Signal s, Place p = NOWHERE, Contract c = PASS);
 };
 
 #endif // _TAROTENGINE_H

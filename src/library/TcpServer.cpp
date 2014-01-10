@@ -1,10 +1,35 @@
+/*=============================================================================
+ * TarotClub - TcpServer.cpp
+ *=============================================================================
+ * TCP socket wrapper class, server side
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
 
 #include <algorithm>
 #include "TcpServer.h"
 
 /*****************************************************************************/
-TcpServer::TcpServer()
+TcpServer::TcpServer(IEvent &handler)
     : mInitialized(false)
+    , mEventHandler(handler)
 {
 }
 /*****************************************************************************/
@@ -215,11 +240,8 @@ void TcpServer::IncommingConnection()
         // Update the maximum socket file identifier
         UpdateMaxSocket();
 
-        // Signal a new client to registered objects
-        Signal sig;
-        sig.type = NEW_CONNECTION;
-        sig.socket = new_sd;
-        mSubject.Notify(sig);
+        // Signal a new client
+        mEventHandler.NewConnection(new_sd);
 
         /**********************************************/
         /* Loop back up and accept another incoming   */
@@ -256,16 +278,12 @@ bool TcpServer::IncommingData(int in_sock)
     {
         ret = true;
 
-        // Send to listeners the received data
-        Signal sig;
-        sig.type = DATA_RECEIVED;
-        sig.socket = in_sock;
-        sig.data = buffer;
-        mSubject.Notify(sig);
+        // Send the received data
+        mEventHandler.ReadData(buffer);
     }
     else if (rc < 0)
     {
-        //perror("  recv() failed");
+        // Receive failure
         close_conn = true;
     }
     else if (rc == 0)
@@ -274,7 +292,6 @@ bool TcpServer::IncommingData(int in_sock)
         /* Check to see if the connection has been    */
         /* closed by the client                       */
         /**********************************************/
-        printf("  Connection closed\n");
         close_conn = true;
     }
 
@@ -300,6 +317,9 @@ bool TcpServer::IncommingData(int in_sock)
         }
         FD_CLR((u_int)in_sock, &mMasterSet); // need a cast here because of the macro
         UpdateMaxSocket();
+
+        // Signal the disconnection
+        mEventHandler.ClientClosed(in_sock);
     }
 
     return ret;
@@ -322,4 +342,6 @@ void TcpServer::UpdateMaxSocket()
     }
 }
 
-
+//=============================================================================
+// End of file TcpServer.cpp
+//=============================================================================

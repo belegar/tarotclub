@@ -17,11 +17,11 @@
  */
 
 #include "Lobby.h"
-#include <iostream>
-using namespace std;
+#include "Log.h"
 
 /*****************************************************************************/
 Lobby::Lobby()
+    : mTcpServer(*this)
 {
     saloons[0].name = "Noobs";
     saloons[1].name = "Normal";
@@ -39,8 +39,8 @@ void Lobby::Initialize()
 {
     TarotDeck::Initialize();
 
-    TarotEngine::Shuffle sh;
-    sh.type = TarotEngine::RANDOM_DEAL;
+    Game::Shuffle sh;
+    sh.type = Game::RANDOM_DEAL;
     int tcpPort = DEFAULT_PORT;
 
     for (int j = 0; j < SERVER_MAX_SALOONS; j++)
@@ -48,8 +48,6 @@ void Lobby::Initialize()
         for (int i = 0; i < SERVER_MAX_TABLES; i++)
         {
             saloons[j].tables[i].table.LoadConfiguration(tcpPort);
-            saloons[j].tables[i].table.moveToThread(&saloons[j].tables[i].thread);
-            saloons[j].tables[i].table.SetShuffle(sh);
             saloons[j].tables[i].table.CreateGame(Game::ONE_DEAL);
 
             // Start all threads
@@ -60,22 +58,26 @@ void Lobby::Initialize()
         }
     }
 
-    socket.listen(QHostAddress::Any, 4242);
-    if (!socket.isListening())
+    mTcpServer.listen(QHostAddress::Any, 4242);
+    if (!mTcpServer.isListening())
     {
         cerr << "Failed to bind to port 4242";
         qApp->quit();
     }
-    connect(&socket, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    connect(&mTcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 /*****************************************************************************/
-void Lobby::slotClientClosed()
+void Lobby::WaitForEnd()
 {
-    QTcpSocket *s = qobject_cast<QTcpSocket *>(sender());
-    s->deleteLater();
+    mTcpServer.
 }
 /*****************************************************************************/
-void Lobby::slotReadData()
+void Lobby::ClientClosed(int socket)
+{
+
+}
+/*****************************************************************************/
+void Lobby::ReadData(const std::string &data)
 {
     // This slot is called when the client sent data to the server. The
     // server looks if it was a get request and sends a very simple ASCII
@@ -148,11 +150,9 @@ void Lobby::slotReadData()
     }
 }
 /*****************************************************************************/
-void Lobby::slotNewConnection()
+void Lobby::NewConnection(int socket)
 {
-    QTcpSocket *s = socket.nextPendingConnection();
-    connect(s, SIGNAL(disconnected()), this, SLOT(slotClientClosed()));
-    connect(s, SIGNAL(readyRead()), this, SLOT(slotReadData()));
+
 }
 
 //=============================================================================

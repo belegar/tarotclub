@@ -19,43 +19,41 @@
 #ifndef LOBBY_H
 #define LOBBY_H
 
-#include <QtCore>
-#include "../Table.h"
+#include "TcpServer.h"
+#include "Table.h"
 #include "ServerConfig.h"
 
 /*****************************************************************************/
-class Lobby : public QObject
+class Lobby : public TcpServer::IEvent
 {
-    Q_OBJECT
-
-private:
-
-    struct TableInstance
-    {
-        QString name;
-        Table table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
-        QThread thread;
-    };
-
-    struct Saloon
-    {
-        QString name; // name of
-        TableInstance tables[SERVER_MAX_TABLES]; // available game tables in this saloon
-    };
-
-    QTcpServer socket;
-    Saloon  saloons[SERVER_MAX_SALOONS];
 
 public:
     Lobby();
 
     void Initialize();
+    void WaitForEnd();
 
-public slots:
-    // Connections to the lobby
-    void slotNewConnection();
-    void slotClientClosed();
-    void slotReadData();
+private:
+    struct TableInstance
+    {
+        std::string name;
+        Table table;   // A Tarot table, owns a thread, bots and a Tarot network engine game
+    };
+
+    struct Saloon
+    {
+        std::string name; // name of the saloon
+        TableInstance tables[SERVER_MAX_TABLES]; // available game tables in this saloon
+    };
+
+    // TcpServer class events
+    virtual void NewConnection(int socket);
+    virtual void ReadData(const std::string &data);
+    virtual void ClientClosed(int socket);
+
+    TcpServer mTcpServer;
+    Saloon  saloons[SERVER_MAX_SALOONS];
+
 };
 
 #endif // LOBBY_H

@@ -30,7 +30,7 @@
 
 // Includes locales
 #include "InfosDock.h"
-#include "Tools.h"
+#include "Common.h"
 
 /*****************************************************************************/
 InfosDock::InfosDock(QWidget *parent)
@@ -83,12 +83,12 @@ void InfosDock::SetDealNumber(int n)
 /*****************************************************************************/
 void InfosDock::SetTaker(QString &name, Place place)
 {
-    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + QString(Util::ToString(place).data()) + ")");
+    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + QString(place.ToString().data()) + ")");
 }
 /*****************************************************************************/
 void InfosDock::SetContract(Contract contract)
 {
-    ui.contratVar->setText("<b>" + QString(Util::ToString(contract).data()) + "</b>");
+    ui.contratVar->setText("<b>" + QString(contract.ToString().data()) + "</b>");
 }
 /*****************************************************************************/
 void InfosDock::PrintStats(Deck::Statistics &stats)
@@ -124,19 +124,19 @@ void InfosDock::PrintStats(Deck::Statistics &stats)
 /*****************************************************************************/
 void InfosDock::AddRound(Game &info, Place p, const QString &txt)
 {
-    ui.tableWidget->item(info.trickCounter, p)->setText(txt);
+    ui.tableWidget->item(info.trickCounter, p.Value())->setText(txt);
 }
 /*****************************************************************************/
 void InfosDock::SelectWinner(Game &info, Place p)
 {
     QBrush brush(Qt::darkGreen);
-    ui.tableWidget->item(info.trickCounter - 1, p)->setBackground(brush);
+    ui.tableWidget->item(info.trickCounter - 1, p.Value())->setBackground(brush);
 }
 /*****************************************************************************/
 void InfosDock::SelectFirstPlayer(int turn, Place p)
 {
     QBrush brush(Qt::lightGray);
-    ui.tableWidget->item(turn, p)->setBackground(brush);
+    ui.tableWidget->item(turn, p.Value())->setBackground(brush);
 }
 
 //=============================================================================

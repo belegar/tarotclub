@@ -29,29 +29,31 @@ Table::Table()
     : mControllerListener(*this)
     , mTcpPort(DEFAULT_PORT)
     , mIdManager(2U, 20U)
+    , mTcpServer(*this)
     , mAutoStart(true)
 {
 
 }
 /*****************************************************************************/
-void Table::Update(const TcpServer::Signal &info)
+void Table::NewConnection(int socket)
 {
-    if (info.type == TcpServer::DATA_RECEIVED)
-    {
-        mController.ExecuteRequest(info.data);
-    }
-    else if (info.type == TcpServer::NEW_CONNECTION)
-    {
-        std::uint32_t uuid = mIdManager.TakeId();
-        // Add the player to the list
+    std::uint32_t uuid = mIdManager.TakeId();
+    // Add the player to the list
 
-        mUsersMutex.lock();
-        mUsers[uuid] = info.socket;
-        mUsersMutex.unlock();
-        // send the information to the Tarot engine
-        mController.ExecuteRequest(Protocol::BuildAddPlayer(uuid));
-    }
-
+    mUsersMutex.lock();
+    mUsers[uuid] = socket;
+    mUsersMutex.unlock();
+    // send the information to the Tarot engine
+    mController.ExecuteRequest(Protocol::BuildAddPlayer(uuid));
+}
+/*****************************************************************************/
+void Table::ReadData(const std::string &data)
+{
+    mController.ExecuteRequest(data);
+}
+/*****************************************************************************/
+void Table::ClientClosed(int socket)
+{
     // FIXME: manage client disconnection
     // FIXME: if a player has quit during a game, replace it by a bot
     //SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
@@ -144,7 +146,6 @@ void Table::Initialize()
         TLogError("Cannot initialize TCP context");
     }
 
-    mTcpServer.RegisterListener(*this);
     mTcpServer.Start(mTcpPort, 10U);
     mController.RegisterListener(mControllerListener);
     mController.Start();

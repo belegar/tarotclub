@@ -27,7 +27,7 @@
 #include <QBrush>
 #include <QPainter>
 #include <QtGlobal>
-#include "Tools.h"
+#include "Common.h"
 
 static const int SPACE = 10;
 
@@ -42,13 +42,13 @@ static const int SPACE = 10;
 
 static const MenuItem::MenuButton buttonList[] =
 {
-    { QObject::tr(STR_PASS.data()),             QPointF(10, 10),                                    MenuItem::PASS_BUTTON, MenuItem::BIDS_MENU },
-    { QObject::tr(STR_TAKE.data()),             QPointF(TEXT_BOX_WIDTH + 20, 10),                     MenuItem::TAKE_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr(STR_GUARD.data()),            QPointF(10, TEXT_BOX_HEIGHT + 20),                    MenuItem::GUARD_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr(STR_GUARD_WITHOUT.data()),    QPointF(TEXT_BOX_WIDTH + 20, TEXT_BOX_HEIGHT + 20),     MenuItem::GUARD_WITHOUT_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr(STR_GUARD_AGAINST.data()),    QPointF(10, 2 * TEXT_BOX_HEIGHT + 30),                  MenuItem::GUARD_AGAINST_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr("Handle"), QPointF(10, 10),                                    MenuItem::DECLARE_HANDLE_BUTTON, MenuItem::HANDLE_MENU  },
-    { QObject::tr("Accept"), QPointF(10, 10),                                    MenuItem::ACCEPT_DISCARD_BUTTON, MenuItem::DISCARD_MENU  }
+    { QObject::tr(Contract::STR_PASS.data()),           QPointF(10, 10),                                    MenuItem::PASS_BUTTON, MenuItem::BIDS_MENU },
+    { QObject::tr(Contract::STR_TAKE.data()),           QPointF(TEXT_BOX_WIDTH + 20, 10),                   MenuItem::TAKE_BUTTON, MenuItem::BIDS_MENU  },
+    { QObject::tr(Contract::STR_GUARD.data()),          QPointF(10, TEXT_BOX_HEIGHT + 20),                  MenuItem::GUARD_BUTTON, MenuItem::BIDS_MENU  },
+    { QObject::tr(Contract::STR_GUARD_WITHOUT.data()),  QPointF(TEXT_BOX_WIDTH + 20, TEXT_BOX_HEIGHT + 20), MenuItem::GUARD_WITHOUT_BUTTON, MenuItem::BIDS_MENU  },
+    { QObject::tr(Contract::STR_GUARD_AGAINST.data()),  QPointF(10, 2 * TEXT_BOX_HEIGHT + 30),              MenuItem::GUARD_AGAINST_BUTTON, MenuItem::BIDS_MENU  },
+    { QObject::tr("Handle"),                            QPointF(10, 10),                                    MenuItem::DECLARE_HANDLE_BUTTON, MenuItem::HANDLE_MENU  },
+    { QObject::tr("Accept"),                            QPointF(10, 10),                                    MenuItem::ACCEPT_DISCARD_BUTTON, MenuItem::DISCARD_MENU  }
 };
 
 /*****************************************************************************/
@@ -218,7 +218,7 @@ void MenuItem::DisplayMenu(Contract minContract)
         if (i.key()->menu == BIDS_MENU)
         {
             i.value()->show();
-            if (i.key()->widget != PASS)
+            if (i.key()->widget != Contract::PASS)
             {
                 if (minContract >= i.key()->widget)
                 {

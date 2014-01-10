@@ -32,9 +32,9 @@
 /*****************************************************************************/
 Controller::Controller()
     : mInitialized(false)
+    , engine(*this)
 {
-    // Register ourself as an observer of Tarot Engine events
-    engine.RegisterListener(*this);
+
 }
 /*****************************************************************************/
 void Controller::RegisterListener(Observer<Controller::Signal> &observer)
@@ -42,51 +42,56 @@ void Controller::RegisterListener(Observer<Controller::Signal> &observer)
     mSubject.Attach(observer);
 }
 /*****************************************************************************/
-void Controller::Update(const TarotEngine::SignalInfo &info)
-{
-    switch (info.sig)
-    {
-    case TarotEngine::SIG_REQUEST_BID:
-        SendPacket(Protocol::BuildBidRequest(info.c, info.p));
-        break;
-    case TarotEngine::SIG_DEAL_AGAIN:
-        SendPacket(Protocol::BuildDealAgain());
-        break;
-    case TarotEngine::SIG_PLAY_CARD:
-        SendPacket(Protocol::BuildPlayCard(info.p));
-        break;
-    case TarotEngine::SIG_END_OF_TRICK:
-        SendPacket(Protocol::BuildEndOfTrick(info.p));
-        break;
-    case TarotEngine::SIG_END_OF_DEAL:
-        SendPacket(Protocol::BuildEndOfDeal(engine.GetScore()));
-        break;
-    case TarotEngine::SIG_SEND_CARDS:
-    {
-        for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
-        {
-            Player &player = engine.GetPlayer((Place)i);
-            SendPacket(Protocol::BuildSendCards(player.GetUuid(), player.GetDeck()));
-        }
-    }
-        break;
-    case TarotEngine::SIG_SHOW_DOG:
-        SendPacket(Protocol::BuildShowDog(engine.GetDeal().GetDog()));
-        break;
-    case TarotEngine::SIG_START_DEAL:
-        SendPacket(Protocol::BuildStartDeal(engine.GetGameInfo().taker,
-                                            engine.GetGameInfo().contract,
-                                            engine.GetShuffle()));
-        break;
-        default:
-        break;
-    }
-}
-/*****************************************************************************/
 void Controller::NewServerGame(Game::Mode mode)
 {
     // Init everything
     engine.NewGame(mode);
+}
+/*****************************************************************************/
+void Controller::RequestBid(Contract c, Place p)
+{
+    SendPacket(Protocol::BuildBidRequest(c, p));
+}
+/*****************************************************************************/
+void Controller::DealAgain()
+{
+    SendPacket(Protocol::BuildDealAgain());
+}
+/*****************************************************************************/
+void Controller::PlayCard(Place p)
+{
+    SendPacket(Protocol::BuildPlayCard(p));
+}
+/*****************************************************************************/
+void Controller::EndOfTrick(Place p)
+{
+    SendPacket(Protocol::BuildEndOfTrick(p));
+}
+/*****************************************************************************/
+void Controller::EndOfDeal()
+{
+    SendPacket(Protocol::BuildEndOfDeal(engine.GetScore()));
+}
+/*****************************************************************************/
+void Controller::SendCards()
+{
+    for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
+    {
+        Player &player = engine.GetPlayer((Place)i);
+        SendPacket(Protocol::BuildSendCards(player.GetUuid(), player.GetDeck()));
+    }
+}
+/*****************************************************************************/
+void Controller::ShowDog()
+{
+    SendPacket(Protocol::BuildShowDog(engine.GetDeal().GetDog()));
+}
+/*****************************************************************************/
+void Controller::StartDeal()
+{
+    SendPacket(Protocol::BuildStartDeal(engine.GetGameInfo().taker,
+                                        engine.GetGameInfo().contract,
+                                        engine.GetShuffle()));
 }
 /*****************************************************************************/
 void Controller::Start()
@@ -181,7 +186,7 @@ bool Controller::DoAction(const ByteArray &data)
         in >> newplayer_uuid;
         // Look for free Place
         Place assigned = engine.GetFreePlayer();
-        if (assigned != NOWHERE)
+        if (assigned.Value() != Place::NOWHERE)
         {
             // Assign the uuid to this player
             engine.GetPlayer(assigned).SetUuid(newplayer_uuid);
@@ -246,7 +251,7 @@ bool Controller::DoAction(const ByteArray &data)
 
         Place p = engine.GetPlayerPlace(uuid);
 
-        if (p != NOWHERE)
+        if (p.Value() != Place::NOWHERE)
         {
             // FIXME: add protection like client origin, current sequence...
 
@@ -290,7 +295,7 @@ bool Controller::DoAction(const ByteArray &data)
 
         Place p = engine.GetPlayerPlace(uuid);
 
-        if (p != NOWHERE)
+        if (p.Value() != Place::NOWHERE)
         {
             engine.SetHandle(handle, p);
             SendPacket(Protocol::BuildShowHandle(handle, p));
@@ -342,7 +347,7 @@ bool Controller::DoAction(const ByteArray &data)
         {
             Place p = engine.GetPlayerPlace(uuid);
 
-            if (p != NOWHERE)
+            if (p.Value() != Place::NOWHERE)
             {
                 engine.SetCard(c, p);
                 // Broadcast played card, and wait for all acknowlegements

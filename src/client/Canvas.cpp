@@ -27,7 +27,7 @@
 #include <QtCore>
 #include <QResizeEvent>
 #include <QMouseEvent>
-#include "Tools.h"
+#include "Common.h"
 #include "TarotDeck.h"
 #include "Log.h"
 
@@ -328,23 +328,23 @@ void Canvas::mousePressEvent(QMouseEvent *e)
                     Contract contract;
                     if (ret->widget == MenuItem::TAKE_BUTTON)
                     {
-                        contract = TAKE;
+                        contract = Contract::TAKE;
                     }
                     else if (ret->widget == MenuItem::GUARD_BUTTON)
                     {
-                        contract = GUARD;
+                        contract = Contract::GUARD;
                     }
                     else if (ret->widget == MenuItem::GUARD_WITHOUT_BUTTON)
                     {
-                        contract = GUARD_WITHOUT;
+                        contract = Contract::GUARD_WITHOUT;
                     }
                     else if (ret->widget == MenuItem::GUARD_AGAINST_BUTTON)
                     {
-                        contract = GUARD_AGAINST;
+                        contract = Contract::GUARD_AGAINST;
                     }
                     else
                     {
-                        contract = PASS;
+                        contract = Contract::PASS;
                     }
                     emit sigContract(contract);
                 }
@@ -456,7 +456,7 @@ void Canvas::SetAvatar(Place p, const QString &file)
 Place Canvas::SwapPlace(Place my_place, Place absolute)
 {
     // FIXME: generalize this algorithm with the number of players from GameInfo
-    Place pl = (Place)((absolute + 4 - my_place) % 4);
+    Place pl = (std::uint8_t)((absolute.Value() + 4 - my_place.Value()) % 4);
 
     return pl;
 }
@@ -566,7 +566,7 @@ void Canvas::ShowSelection(Place p, Place myPlace)
 void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 {
     Place rel = SwapPlace(myPlace, p);  // relative place
-    playerBox.value(rel)->SetBidText(Util::ToString(contract).data());
+    playerBox.value(rel)->SetBidText(contract.ToString().data());
 }
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)

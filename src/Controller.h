@@ -46,7 +46,7 @@
  * calls within the thread context.
  *
  */
-class Controller : public Observer<TarotEngine::SignalInfo>
+class Controller : public TarotEngine::IEvent
 {
 
 public:
@@ -85,7 +85,16 @@ private:
 
     void NewServerGame(Game::Mode mode);
 
-    void Update(const TarotEngine::SignalInfo &info);
+    // From TarotEngine
+    void RequestBid(Contract c, Place p);
+    void DealAgain();
+    void PlayCard(Place p);
+    void EndOfTrick(Place p);
+    void EndOfDeal();
+    void SendCards();
+    void ShowDog();
+    void StartDeal();
+
     bool DoAction(const ByteArray &data);
     void SendPacket(const ByteArray &block);
     void SignalGameFull();

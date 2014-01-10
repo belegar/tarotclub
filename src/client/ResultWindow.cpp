@@ -24,7 +24,7 @@
  */
 
 #include "ResultWindow.h"
-#include "Tools.h"
+#include "Common.h"
 
 #define STR_WIN      QObject::tr("Contract succeded by ")
 #define STR_LOSE     QObject::tr("Contract failed by ")
@@ -42,8 +42,8 @@ void ResultWindow::SetResult(Score &score, Game &info)
     QString result_str;
 
     // Deal caracteristics
-    ui.lblTaker->setText(Util::ToString(info.taker).data());
-    ui.lblContrat->setText(Util::ToString(info.contract).data());
+    ui.lblTaker->setText(info.taker.ToString().data());
+    ui.lblContrat->setText(info.contract.ToString().data());
     ui.lblNbBouts->setNum(score.GetNumberOfOudlers());
     ui.lblPoints->setNum((int)score.pointsAttack);
     ui.lblPointsToDo->setNum((int)score.pointsToDo);

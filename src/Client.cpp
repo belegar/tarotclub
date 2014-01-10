@@ -185,23 +185,23 @@ Contract Client::CalculateBid()
     // We can decide the bid
     if (total <= 35)
     {
-        cont = PASS;
+        cont = Contract::PASS;
     }
     else if (total >= 36  && total <= 50)
     {
-        cont = TAKE;
+        cont = Contract::TAKE;
     }
     else if (total >= 51  && total <= 65)
     {
-        cont = GUARD;
+        cont = Contract::GUARD;
     }
     else if (total >= 66  && total <= 75)
     {
-        cont = GUARD_WITHOUT;
+        cont = Contract::GUARD_WITHOUT;
     }
     else
     {
-        cont = GUARD_AGAINST;
+        cont = Contract::GUARD_AGAINST;
     }
     return cont;
 }
@@ -418,7 +418,7 @@ bool Client::DoAction(const ByteArray &data)
             in >> nbPlayers;
             in >> mode;
 
-            mPlayer.SetPlace((Place)place);
+            mPlayer.SetPlace(place);
             mPlayer.SetUuid(myUuid);
             info.Initialize(nbPlayers);
             info.gameMode = (Game::Mode)mode;
@@ -436,11 +436,11 @@ bool Client::DoAction(const ByteArray &data)
             for (int i = 0; i < nombre; i++)
             {
                 Identity ident;
-                std::uint8_t place;
+                Place place;
 
                 in >> place;
                 in >> ident;
-                players[(Place)place] = ident;
+                players[place] = ident;
             }
             mEventHandler.PlayersList(players);
             break;
@@ -458,11 +458,11 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::SERVER_REQUEST_BID:
         {
             std::uint8_t c;
-            std::uint8_t p;
+            Place p;
 
             in >> c; // Most important contract announced before
             in >> p;
-            mEventHandler.SelectPlayer((Place)p);
+            mEventHandler.SelectPlayer(p);
             if (p == mPlayer.GetPlace())
             {
                 // The request bid is for us! We must declare something
@@ -473,11 +473,13 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_SHOW_PLAYER_BID:
         {
-            std::uint8_t c, p, slam;
+            std::uint8_t c, slam;
+            Place p;
+
             in >> p;
             in >> c;
             in >> slam;
-            mEventHandler.ShowBid((Place)p, (slam == 1 ? true : false), (Contract)c);
+            mEventHandler.ShowBid(p, (slam == 1 ? true : false), (Contract)c);
             break;
         }
 
@@ -499,28 +501,28 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_START_DEAL:
         {
-            std::uint8_t preneur;
+            Place taker;
             std::uint8_t contrat;
             Game::Shuffle sh;
 
-            in >> preneur;
+            in >> taker;
             in >> contrat;
             in >> sh;
             info.NewDeal();
-            info.taker = (Place)preneur;
+            info.taker = taker;
             info.contract = (Contract)contrat;
             currentTrick.clear();
             info.sequence = Game::SYNC_START;
-            mEventHandler.StartDeal((Place)preneur, (Contract)contrat, sh);
+            mEventHandler.StartDeal(taker, (Contract)contrat, sh);
             break;
         }
 
         case Protocol::SERVER_SHOW_HANDLE:
         {
-            std::uint8_t p;
+            Place p;
             in >> p;
             in >> handleDeck;
-            if (GetGameInfo().taker == (Place)p)
+            if (GetGameInfo().taker == p)
             {
                 handleDeck.SetOwner(ATTACK);
             }
@@ -536,7 +538,7 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::SERVER_SHOW_CARD:
         {
             std::string name;
-            std::uint8_t player;
+            Place player;
 
             in >> player;
             in >> name;
@@ -544,16 +546,16 @@ bool Client::DoAction(const ByteArray &data)
             info.Next();
             currentTrick.append(TarotDeck::GetCard(name));
             info.sequence = Game::SYNC_CARD;
-            mEventHandler.ShowCard((Place)player, name);
+            mEventHandler.ShowCard(player, name);
             break;
         }
 
         case Protocol::SERVER_PLAY_CARD:
         {
-            std::uint8_t p;
+            Place p;
             in >> p;
 
-            mEventHandler.SelectPlayer((Place)p);
+            mEventHandler.SelectPlayer(p);
             if (p == mPlayer.GetPlace())
             {
                 // Our turn to play a card
@@ -571,11 +573,11 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_END_OF_TRICK:
         {
-            std::uint8_t winner;
+            Place winner;
             in >> winner;
             info.Next();
             info.sequence = Game::SYNC_TRICK;
-            mEventHandler.WaitTrick((Place)winner);
+            mEventHandler.WaitTrick(winner);
             break;
         }
 

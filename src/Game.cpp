@@ -42,7 +42,7 @@ void Game::Initialize(int players)
     trickCounter = 0;
     numberOfPlayers = players;
     dealer = static_cast<Place>(std::rand() % 4);
-    contract = PASS;
+    contract = Contract::PASS;
     slamAnnounced = false;
     attackHandle.declared = false;
     defenseHandle.declared = false;
@@ -52,7 +52,7 @@ void Game::Initialize(int players)
 void Game::NewDeal()
 {
     dealer = NextPlayer(dealer);
-    contract = PASS;
+    contract = Contract::PASS;
     slamAnnounced = false;
     attackHandle.declared = false;
     defenseHandle.declared = false;
@@ -148,21 +148,21 @@ Place Game::NextPlayer(Place j)
 {
     Place p;
 
-    if (j == SOUTH)
+    if (j == Place::SOUTH)
     {
-        p = EAST;
+        p = Place::EAST;
     }
-    else if (j == EAST)
+    else if (j == Place::EAST)
     {
-        p = NORTH;
+        p = Place::NORTH;
     }
-    else if (j == NORTH)
+    else if (j == Place::NORTH)
     {
-        p = WEST;
+        p = Place::WEST;
     }
     else
     {
-        p = SOUTH;
+        p = Place::SOUTH;
     }
     return (p);
 }

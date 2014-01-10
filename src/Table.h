@@ -32,7 +32,7 @@
 #include "UniqueId.h"
 
 /*****************************************************************************/
-class Table : public Observer<TcpServer::Signal>
+class Table : public TcpServer::IEvent
 {
 
 public:
@@ -52,8 +52,10 @@ public:
     // Setters
     void SaveConfiguration(const ServerOptions &opt);
 
-    // Handle incomming connections and data
-    void Update(const TcpServer::Signal &info);
+    // TcpServer class events
+    virtual void NewConnection(int socket);
+    virtual void ReadData(const std::string &data);
+    virtual void ClientClosed(int socket);
 
 private:
     class ControllerListener : public Observer<Controller::Signal>

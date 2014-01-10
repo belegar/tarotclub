@@ -34,8 +34,7 @@ using namespace std;
 
 /*****************************************************************************/
 Player::Player()
-    : mPlace(NOWHERE)
-    , mUuid(0U)
+    : mUuid(0U)
 {
 
 }

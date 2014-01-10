@@ -56,9 +56,9 @@ void ChatDock::clear()
     chatWindow->clear();
 }
 /*****************************************************************************/
-void ChatDock::message(const QString &message)
+void ChatDock::message(const std::string &message)
 {
-    chatWindow->append(message);
+    chatWindow->append(message.c_str());
 }
 /*****************************************************************************/
 void ChatDock::slotReturnPressed()

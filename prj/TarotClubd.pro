@@ -25,59 +25,99 @@ UI_SOURCES_DIR = ./src
 OBJECTS_DIR = ./obj
 DESTDIR = ./bin
 
-# Qt build configuration
 # The search path to find supplied files
 VPATH += $${PWD}/../src
+VPATH += $${PWD}/../src/library
 VPATH += $${PWD}/../src/server
-VPATH += $${PWD}/include
+VPATH += $${PWD}/../lib
+VPATH += $${PWD}/../ai
+VPATH += $${PWD}/../ai/tarotlib
 
-QT += xml network script scripttools
-CONFIG += qt console warn_on
-
-INCLUDEPATH += $${PWD}/include
-INCLUDEPATH += $${PWD}/../src/client
+# Where to find header files
+INCLUDEPATH += $${PWD}/../src
+INCLUDEPATH += $${PWD}/../src/library
 INCLUDEPATH += $${PWD}/../src/server
 
-# libraries and other annoying OS stuff
+QT += xml qml
+CONFIG += qt console warn_on
+QMAKE_CXXFLAGS += -std=c++11
+
+# Specific OS stuff
 win32 {
-   RC_FILE = server.rc
+    RC_FILE = server.rc
+    LIBS +=  libws2_32
+    DEFINES += USE_WINDOWS_OS
+}
+unix {
+    DEFINES += USE_UNIX_OS
 }
 
-HEADERS = TarotEngine.h \
-    defines.h \
-    Identity.h \
-    Card.h \
-    Deck.h \
-    Deal.h \
+# -------------------------------------------------------------
+# Library files
+# -------------------------------------------------------------
+HEADERS += Log.h \
+    Observer.h \
+    ThreadQueue.h \
+    ByteStreamReader.h \
+    ByteStreamWriter.h \
+    ByteArray.h \
+    TcpSocket.h \
+    TcpServer.h \
+    TcpClient.h \
+    UniqueId.h
+
+SOURCES += Log.cpp \
+    ByteArray.cpp \
+    ByteStreamReader.cpp \
+    ByteStreamWriter.cpp \
+    TcpSocket.cpp \
+    TcpServer.cpp \
+    TcpClient.cpp \
+    UniqueId.cpp
+
+
+# -------------------------------------------------------------
+# TarotClub core files
+# -------------------------------------------------------------
+HEADERS += ServerConfig.h \
+    DealFile.h \
     TarotDeck.h \
+    Deck.h \
+    Card.h \
     Player.h \
-    NetPlayer.h \
     Client.h \
     Bot.h \
+    defines.h \
+    TarotEngine.h \
+    Deal.h \
+    Identity.h \
+    Game.h \
     Score.h \
-    Table.h \
-    DealFile.h \
-    ServerConfig.h \
-    Lobby.h \
-    Server.h \
     Protocol.h \
-    Game.h
+    Controller.h \
+    Table.h
 
-SOURCES = main.cpp \
-    TarotEngine.cpp \
-    Card.cpp \
-    Deck.cpp \
-    Deal.cpp \
+SOURCES += ServerConfig.cpp \
+    DealFile.cpp \
     TarotDeck.cpp \
+    Deck.cpp \
+    Card.cpp \
     Player.cpp \
-    NetPlayer.cpp \
     Client.cpp \
     Bot.cpp \
-    Score.cpp \
-    DealFile.cpp \
-    ServerConfig.cpp \
-    Lobby.cpp \
-    Server.cpp \
-    Protocol.cpp \
+    TarotEngine.cpp \
+    Deal.cpp \
     Game.cpp \
-    Table.cpp
+    Protocol.cpp \
+    Controller.cpp \
+    Table.cpp \
+    Score.cpp
+
+
+# -------------------------------------------------------------
+# Server files
+# -------------------------------------------------------------
+HEADERS += Lobby.h
+
+SOURCES += main.cpp \
+    Lobby.cpp \
