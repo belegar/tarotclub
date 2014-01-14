@@ -68,7 +68,7 @@ void Log::Save(const std::string &line)
 
     fileName = Config::LogPath + "/log_" + Util::CurrentDateTime("%Y-%m-%d") + ".csv";
 
-    f.open(fileName, std::ios_base::out | std::ios_base::app);
+    f.open(fileName, std::ios_base::out | std::ios_base::binary  | std::ios_base::app);
 
     if (f.is_open())
     {
