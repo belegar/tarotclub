@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "Observer.h"
+#include "ByteArray.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
 #include "defines.h"
@@ -139,5 +140,6 @@ void Utilities::TestUtilFunctions()
     std::cout << Util::ExecutablePath() << std::endl;
     std::cout << Util::HomePath() << std::endl;
 
+    Util::Mkdir("c:/test_mkdir/sub/directory/");
 }
 
