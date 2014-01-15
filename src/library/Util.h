@@ -17,7 +17,7 @@ public:
     static std::string ExecutablePath();
     static std::string HomePath();
     static bool FolderExists(const std::string &foldername);
-    static int Mkdir(const char *path);
+    static bool Mkdir(const char *path);
 };
 
 #endif // UTIL_H

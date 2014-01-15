@@ -3,6 +3,7 @@
 #ifdef USE_WINDOWS_OS
 #include <windows.h>
 #include <direct.h>
+#include <sys/stat.h>
 #endif
 
 #ifdef USE_UNIX_OS
@@ -93,7 +94,7 @@ std::string Util::HomePath()
 bool Util::FolderExists(const std::string &foldername)
 {
     struct stat st;
-    stat(foldername.c_str(), &st);
+    ::stat(foldername.c_str(), &st);
     return st.st_mode & S_IFDIR;
 }
 /*****************************************************************************/
@@ -116,7 +117,7 @@ int my_mkdir(const char *path)
  * @param[in] path the full path of the directory to create.
  * @return zero on success, otherwise -1.
  */
-int Util::Mkdir(const char *path)
+bool Util::Mkdir(const char *path)
 {
     std::string current_level = "";
     std::string level;
@@ -127,12 +128,25 @@ int Util::Mkdir(const char *path)
     {
         current_level += level; // append folder to the current level
 
-        // create current level
-        if (!FolderExists(current_level) && my_mkdir(current_level.c_str()) != 0)
-            return -1;
-
+        if (FolderExists(current_level))
+        {
+            continue;
+        }
+        else if ((current_level[1] == ':') && (current_level.size() == 2))
+        {
+            // not a directory but a disk letter (windows only)
+            continue;
+        }
+        else
+        {
+            // create current level
+            if (my_mkdir(current_level.c_str()) != 0)
+            {
+                return false;
+            }
+        }
         current_level += "/"; // don't forget to append a slash
     }
 
-    return 0;
+    return true;
 }
