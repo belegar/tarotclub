@@ -4,6 +4,7 @@
 
 #include "tst_tarot_base.h"
 #include "tst_utilities.h"
+#include "tst_jsengine.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,6 +15,9 @@ int main(int argc, char *argv[])
 
     TarotBase tst_base;
     QTest::qExec(&tst_base, argc, argv);
+
+    JsonTest tst_json;
+    QTest::qExec(&tst_json, argc, argv);
 
     return 0;
 }
