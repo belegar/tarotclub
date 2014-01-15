@@ -26,7 +26,6 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include <QtNetwork>
 #include "defines.h"
 #include "Deck.h"
 #include "Identity.h"
