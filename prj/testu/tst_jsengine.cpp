@@ -7,6 +7,7 @@
 #include "tst_jsengine.h"
 #include "Util.h"
 #include "JsonReader.h"
+#include "JsonWriter.h"
 
 extern "C" void my_panic_handler(int code, const char *msg)
 {
@@ -26,7 +27,7 @@ void JsonTest::ParseFile()
 {
     JsonReader json;
 
-    std::string path = Util::ExecutablePath() + "/tarotclub.json";
+    std::string path = Util::ExecutablePath() + "/../../testu/test.json";
 
     json.Open(path);
     std::string value;
@@ -38,5 +39,22 @@ void JsonTest::ParseFile()
     json.GetValue("identity", "name", value);
 
     std::cout << "identity.version = " << value << std::endl;
+}
+
+void JsonTest::GenerateFile()
+{
+    JsonWriter json;
+
+    json.CreateValuePair("toto", "titi");
+    json.CreateValuePair("tutu", "tata");
+    JsonObject *obj = json.CreateObjectPair("first");
+    obj->CreateValuePair("prout", 42);
+
+    JsonObject *obj2 = obj->CreateObjectPair("second");
+    obj2->CreateValuePair("prat", false);
+    obj2->CreateValuePair("prut", -3400);
+    obj2->CreateValuePair("prot", 807.53);
+
+    json.SaveToFile("essai.json");
 }
 

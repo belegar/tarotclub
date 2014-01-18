@@ -16,6 +16,8 @@ public:
 private Q_SLOTS:
     void ParseFile();
 
+    void GenerateFile();
+
 private:
 
 };

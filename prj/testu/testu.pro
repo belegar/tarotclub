@@ -81,6 +81,7 @@ HEADERS += duktape.h \
 #    JSEngine.h
 
 SOURCES += duktape.c \
+    JsonWriter.cpp \
     JsonReader.cpp
 
 # -------------------------------------------------------------
