@@ -31,7 +31,7 @@ public:
     std::string ToString() const;
     std::uint8_t Value();
 
-    Place& operator = (Place const &rhs)
+    Place &operator = (Place const &rhs)
     {
         mPlace = rhs.mPlace;
         return *this;
@@ -84,7 +84,7 @@ public:
     std::string ToString() const;
     std::uint8_t Value();
 
-    Contract& operator = (Contract const &rhs)
+    Contract &operator = (Contract const &rhs)
     {
         mContract = rhs.mContract;
         return *this;
