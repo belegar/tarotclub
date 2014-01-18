@@ -1,7 +1,49 @@
+/*=============================================================================
+ * TarotClub - JsonReader.cpp
+ *=============================================================================
+ * Wrapper class to read JSON values from a file
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
 
 #include "JsonReader.h"
 
 /*****************************************************************************/
+JsonReader::JsonReader()
+{
+    mCtx = NULL;
+}
+/*****************************************************************************/
+JsonReader::~JsonReader()
+{
+    Close();
+}
+/*****************************************************************************/
+/**
+ * @brief Open a JSON file for parsing
+ *
+ * After opening the JSON file, the context is ready for requests.
+ *
+ * @param fileName to open
+ * @return true if the file has been parsed successfully
+ */
 bool JsonReader::Open(const std::string &fileName)
 {
     std::ifstream f;
@@ -34,6 +76,16 @@ bool JsonReader::Open(const std::string &fileName)
     return retval;
 }
 /*****************************************************************************/
+/**
+ * @brief GetValue
+ *
+ * Gets a JSON value by specifying the key.
+ * The value returned must be a string format, if not, false is returned
+ *
+ * @param key
+ * @param value
+ * @return
+ */
 bool JsonReader::GetValue(const std::string &key, std::string &value)
 {
     if (!mValid)
@@ -68,7 +120,7 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::s
         return false;
     }
 
-    // Push argument into the stack (JSON key)
+    // Push arguments into the stack (JSON object and key)
     duk_push_lstring(mCtx, obj.c_str(), obj.size());
     duk_push_lstring(mCtx, key.c_str(), key.size());
 
@@ -80,7 +132,6 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::s
     }
     else
     {
-        PrintTop();
         if (duk_check_type(mCtx, -1, DUK_TYPE_STRING))
         {
             value = duk_get_string(mCtx, -1);
@@ -91,6 +142,12 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::s
 
 }
 /*****************************************************************************/
+/**
+ * @brief Close
+ *
+ * Cleans the context and free memory
+ *
+ */
 void JsonReader::Close()
 {
     if (mCtx)
@@ -100,6 +157,75 @@ void JsonReader::Close()
     mValid = false;
 }
 /*****************************************************************************/
+/**
+ * @brief WrappedJsonDecode
+ *
+ * Decode a JSON string, throw an error if parsing problem
+ *
+ * @param ctx
+ * @return
+ */
+int JsonReader::WrappedJsonDecode(duk_context *ctx)
+{
+    duk_json_decode(ctx, -1);
+    return 1; // return parsed json object
+}
+/*****************************************************************************/
+/**
+ * @brief WrappedJsonGetValue
+ *
+ * Key is pushed into the stack
+ *
+ * @param ctx
+ * @return
+ */
+int JsonReader::WrappedJsonGetValue(duk_context *ctx)
+{
+    std::string key = duk_get_string(ctx, -1);
+    duk_pop(ctx);
+
+    if(duk_has_prop_string(ctx, -1, key.c_str()))
+    {
+        duk_get_prop_string(ctx, -1, key.c_str());
+        // leave the answer into the stack to retreive it by the caller
+        // so, we have one return value
+        return 1;
+    }
+    return 0; // no return values
+}
+/*****************************************************************************/
+/**
+ * @brief WrappedJsonGetObjectValue
+ *
+ * Gets a property in an object value
+ *
+ * @param ctx
+ * @return
+ */
+int JsonReader::WrappedJsonGetObjectValue(duk_context *ctx)
+{
+    std::string obj = duk_get_string(ctx, -2); // [ json "obj" "key" ]
+    std::string key = duk_get_string(ctx, -1);
+    duk_pop(ctx); // [ json "obj" ]
+
+    duk_get_prop(ctx, -2);  // [ json obj ] object name has been replaced by the real object
+
+    if (duk_has_prop_string(ctx, -1, key.c_str()))
+    {
+        duk_get_prop_string(ctx, -1, key.c_str());
+        // leave the answer into the stack to retreive it by the caller
+        // so, we have one return value
+        return 1;
+    }
+    return 0; // no return values
+}
+/*****************************************************************************/
+/**
+ * @brief PrintError
+ *
+ * Print and pop error.
+ *
+ */
 void JsonReader::PrintError()
 {
     if (duk_is_object(mCtx, -1) && duk_has_prop_string(mCtx, -1, "stack"))
@@ -123,54 +249,17 @@ void JsonReader::PrintError()
     duk_pop(mCtx);
 }
 /*****************************************************************************/
-int JsonReader::WrappedJsonDecode(duk_context *ctx)
-{
-    duk_json_decode(ctx, -1);
-    return 1; // return parsed json object
-}
-/*****************************************************************************/
-int JsonReader::WrappedJsonGetValue(duk_context *ctx)
-{
-    std::string key = duk_get_string(ctx, -1);
-    duk_pop(ctx);
-
-    if(duk_has_prop_string(ctx, -1, key.c_str()))
-    {
-        duk_get_prop_string(ctx, -1, key.c_str());
-        // leave the answer into the stack to retreive it by the caller
-        // so, we have one return value
-        return 1;
-    }
-    return 0; // no return values
-}
-/*****************************************************************************/
-int JsonReader::WrappedJsonGetObjectValue(duk_context *ctx)
-{
-    std::string obj = duk_get_string(ctx, -2); // [ json "obj" "key" ]
-    std::string key = duk_get_string(ctx, -1);
-    duk_pop(ctx); // [ json "obj" ]
-
-    std::cout << "Stack size: " << duk_get_top(ctx) << std::endl;
-    std::cout << "Top type is: " << duk_get_type(ctx, -1) << std::endl;
-
-    duk_get_prop(ctx, -2);  // [ json obj ] object name has been replaced by the object
-
-    std::cout << "Stack size: " << duk_get_top(ctx) << std::endl;
-    std::cout << "Top type is: " << duk_get_type(ctx, -1) << std::endl;
-
-    if (duk_has_prop_string(ctx, -1, key.c_str()))
-    {
-        duk_get_prop_string(ctx, -1, key.c_str());
-        // leave the answer into the stack to retreive it by the caller
-        // so, we have one return value
-        return 1;
-    }
-    return 0; // no return values
-}
-/*****************************************************************************/
+/**
+ * @brief PrintTop
+ *
+ * Prints the top value information of the stack
+ */
 void JsonReader::PrintTop()
 {
     std::cout << "Stack size: " << duk_get_top(mCtx) << std::endl;
     std::cout << "Top type is: " << duk_get_type(mCtx, -1) << std::endl;
 }
 
+//=============================================================================
+// End of file JsonReader.cpp
+//=============================================================================

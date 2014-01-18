@@ -1,3 +1,27 @@
+/*=============================================================================
+ * TarotClub - JsonReader.h
+ *=============================================================================
+ * Wrapper class to read JSON values from a file
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
 
 #ifndef JSON_READER_H
 #define JSON_READER_H
@@ -8,101 +32,38 @@
 #include <sstream>
 #include "duktape.h"
 
+/*****************************************************************************/
 class JsonReader
 {
 
 public:
-    JsonReader()
-    {
-        mCtx = NULL;
-    }
+    // ctors / dtor
+    JsonReader();
+    ~JsonReader();
     
-    ~JsonReader()
-    {
-        Close();
-    }
-    
-    /**
-     * @brief Open a JSON file for parsing
-     *
-     * After opening the JSON file, the context is ready for requests.
-     *
-     * @param fileName to open
-     * @return true if the file has been parsed successfully
-     */
+    // Helpers
     bool Open(const std::string &fileName);
-
-
-    /**
-     * @brief GetValue
-     *
-     * Gets a JSON value by specifying the key.
-     * The value returned must be a string format, if not, false is returned
-     *
-     * @param key
-     * @param value
-     * @return
-     */
-    bool GetValue(const std::string &key, std::string &value);
-
-    bool GetValue(const std::string &obj, const std::string &key, std::string &value);
-
-    /**
-     * @brief Close
-     *
-     * Cleans the context and free memory
-     *
-     */
     void Close();
+
+    // Getters
+    bool GetValue(const std::string &key, std::string &value);
+    bool GetValue(const std::string &obj, const std::string &key, std::string &value);
     
 private:
     duk_context *mCtx;
     bool mValid;
 
-    /**
-     * @brief WrappedJsonDecode
-     *
-     * Decode a JSON string, throw an error if parsing problem
-     *
-     * @param ctx
-     * @return
-     */
+    // Static function to be run in protected call
     static int WrappedJsonDecode(duk_context *ctx);
-
-    /**
-     * @brief WrappedJsonGetValue
-     *
-     * Key is pushed into the stack
-     *
-     * @param ctx
-     * @return
-     */
     static int WrappedJsonGetValue(duk_context *ctx);
-
-    /**
-     * @brief WrappedJsonGetObjectValue
-     *
-     * Gets a property in an object value
-     *
-     * @param ctx
-     * @return
-     */
     static int WrappedJsonGetObjectValue(duk_context *ctx);
 
-    /**
-     * @brief PrintError
-     *
-     * Print and pop error.
-     *
-     */
     void PrintError();
-
-    /**
-     * @brief PrintTop
-     *
-     * Prints the top value information of the stack
-     */
     void PrintTop();
 };
 
 #endif // JSON_READER_H
+
+//=============================================================================
+// End of file JsonReader.h
+//=============================================================================
