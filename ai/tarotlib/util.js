@@ -60,41 +60,23 @@ this.TarotLib = this.TarotLib || {};
 // ****************************************************************************
 	function Stats()
 	{
-        this.oudlers;   // 0, 1, 2 ou 3
-        this.majorTrumps; // atouts >= 15
-
-        this.kings;
-        this.queens;
-        this.knights;
-        this.jacks;
-
-        this.weddings;   // nombre de mariages dans la main
-        this.longSuits;
-        this.cuts;     // aucune carte dans une couleur
-        this.singletons; // une seule carte dans une couleur
-        this.sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
-
         this.suits = new Array(5);
  
-        this.littleTrump;
-        this.bigTrump;
-        this.fool;
-
         this.reset = function()
         {
-        	this.oudlers = 0;
-	        this.majorTrumps = 0;
+            this.oudlers = 0;       // 0, 1, 2 ou 3
+            this.majorTrumps = 0;   // atouts >= 15
 
 	        this.kings = 0;
 	        this.queens = 0;
 	        this.knights = 0;
 	        this.jacks = 0;
 
-	        this.weddings = 0;
+            this.weddings = 0;      // nombre de mariages dans la main
 	        this.longSuits = 0;
-	        this.cuts = 0;
-	        this.singletons = 0;
-	        this.sequences = 0;
+            this.cuts = 0;          // aucune carte dans une couleur
+            this.singletons = 0;    // une seule carte dans une couleur
+            this.sequences = 0;     // cartes qui se suivent (au moins 5 cartes pour Ãªtre comptÃ©es)
 
 	        for (var i=0; i<5; i++)
 	        {

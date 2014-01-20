@@ -29,66 +29,51 @@ this.TarotLib = this.TarotLib || {};
 (function() {
 
 /**
- * Game class
+ * @brief Game class
  *
- * MManage all game states and events, record all played cards
+ * Manages all game states and events, record all played cards
  * The Game class also contains statistics on other players
  */
 var Game = function() {
-    this.ctor();
-};
+    var i;
 
-var p = Game.prototype;
+    // all the players, including the bot
+    this.players = new Array(p.NUMBER_OF_PLAYERS);
+    // Player statistics
+    for(i=0; i<p.NUMBER_OF_PLAYERS; i++) {
+        this.players[i] = new TarotLib.Player(i);	// assigned place is passed in argument
+    }
 
-// ****************************************************************************
-// PUBLIC STATIC PROPERTIES
-// ****************************************************************************
-    p.NUMBER_OF_PLAYERS = 4;
+    this.playedCards = new Array(18); // turns for 4 players;
+    for(i=0; i<18; i++) {
+        this.playedCards[i] = new TarotLib.Deck();
+    }
 
-// ****************************************************************************
-// PUBLIC PROPERTIES
-// ****************************************************************************
-	
+    this.bot = new TarotLib.Bot;
+
     // Game state variables
     this.contract = "";
     this.taker = 0;
-    this.trickCounter = 0;		// number of turns, 18 with 4 players
-    this.currentPosition = 0; 	// position of the current turn [0..3] with 4 players
-	this.playedCards = null;
-	this.players = null;		// all the players, including the bot
-
-	this.botPlace = 0;
-    this.bot = null;
+    this.trickCounter = 0;
+    this.currentPosition = 0;
+    this.botPlace = 0;
 
     // Variables of the current turn
     this.trickSuit = 0;
     this.firstCardValue = 0;
     this.firstPlayer = 0;
     this.startedWithExcuse = false;
+};
+
+var p = Game.prototype;
 
 // ****************************************************************************
-// CONSTRUCTOR
+// PUBLIC PROPERTIES
 // ****************************************************************************
-    p.ctor = function()
-	{
-        var i;
-
-		this.players = new Array(p.NUMBER_OF_PLAYERS);
-        // Player statistics
-        for(i=0; i<p.NUMBER_OF_PLAYERS; i++) {
-            this.players[i] = new TarotLib.Player(i);	// assigned place is passed in argument
-        }
-		
-		this.playedCards = new Array(18); // turns for 4 players;
-        for(i=0; i<18; i++) {
-            this.playedCards[i] = new TarotLib.Deck();
-        }
-
-        this.bot = new TarotLib.Bot;
-    };
+    p.NUMBER_OF_PLAYERS = 4;
 
 // ****************************************************************************
-// PUBLIC STATIC METHODS
+// PUBLIC METHODS
 // ****************************************************************************
 	/**
 	 * @brief Reinitialize internal state variables before starting a new deal

@@ -29,43 +29,21 @@ this.TarotLib = this.TarotLib || {};
 (function() {
 
 /**
- * Player class
+ * @brief Player class
  *
  * This class is used to manage a Tarot player
  */
 var Player = function(place) {
-    this.ctor(place);
+    this.hasSuits = new Array(5);
+    this.place = place;
+
+    this.initialize();
 };
 
 var p = Player.prototype;
 
 // ****************************************************************************
-// PUBLIC PROPERTIES
-// ****************************************************************************
-
-// ****************************************************************************
-// PRIVATE PROPERTIES
-// ****************************************************************************
-    this.place = 0;
-
-    /**
-     * Table of suits, for each one, true if suit is available for that player
-     */
-    this.hasSuits = null;
-
-// ****************************************************************************
-// CONSTRUCTOR
-// ****************************************************************************
-    p.ctor = function(place)
-	{
-		this.hasSuits = new Array(5);
-		this.place = place;
-
-        this.initialize();
-	};
-
-// ****************************************************************************
-// PUBLIC STATIC METHODS
+// PUBLIC METHODS
 // ****************************************************************************
 
 	p.initialize = function()

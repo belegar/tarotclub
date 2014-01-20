@@ -24,53 +24,27 @@
  */
 
 // namespace 
-this.TarotLib = this.TarotLib||{};
+this.TarotLib = this.TarotLib || {};
 
 (function() {
 
 /**
- * Card class
+ * @brief Card class
  *
  * This class allow you to specify an owner along with the card value
  * If you don't provide the second argument, the owner will be set to HYPERSPACE
  */
 var Card = function(cardName, place) {
-    this.ctor(cardName, place);
+    var elem = cardName.split("-");
+    this.value = parseInt(elem[0]);
+    this.suit = elem[1];
+    this.owner = place;
 };
 
 var p = Card.prototype;
 
 // ****************************************************************************
-// PUBLIC PROPERTIES
-// ****************************************************************************
-	
-// ****************************************************************************
-// PRIVATE PROPERTIES
-// ****************************************************************************
-	/**
-	 * Face value of the card
-	 * @property target
-	 * @type Object
-	 * @default null
-	 * @readonly
-	 */
-	this.value = 0;
-	this.suit = "";
-	this.owner = 0;
-	
-// ****************************************************************************
-// CONSTRUCTOR
-// ****************************************************************************
-    p.ctor = function(cardName, place)
-	{
-		var elem = cardName.split("-");
-		this.value = parseInt(elem[0]);
-		this.suit = elem[1];
-		this.owner = place;
-	};
-
-// ****************************************************************************
-// PUBLIC STATIC METHODS
+// PUBLIC METHODS
 // ****************************************************************************
 
     p.getName = function()
