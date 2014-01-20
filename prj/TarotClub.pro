@@ -34,6 +34,8 @@ VPATH += $${PWD}/../src
 VPATH += $${PWD}/../src/library
 VPATH += $${PWD}/../src/client
 VPATH += $${PWD}/../src/server
+VPATH += $${PWD}/../src/jsengine
+VPATH += $${PWD}/../src/json
 VPATH += $${PWD}/../lib
 VPATH += $${PWD}/../ai
 VPATH += $${PWD}/../ai/tarotlib
@@ -45,12 +47,17 @@ INCLUDEPATH += $${PWD}/../src
 INCLUDEPATH += $${PWD}/../src/library
 INCLUDEPATH += $${PWD}/../src/client
 INCLUDEPATH += $${PWD}/../src/server
+INCLUDEPATH += $${PWD}/../src/jsengine
+INCLUDEPATH += $${PWD}/../src/json
 
+# -------------------------------------------------------------
 # Compiler definitions
+# -------------------------------------------------------------
 QT += xml svg help qml
 RESOURCES = $${PWD}/../src/data/data.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
 
 # Specific OS stuff
 win32 {
@@ -62,17 +69,28 @@ unix {
     DEFINES += USE_UNIX_OS
 }
 
+debug {
+    DEFINES += TAROT_DEBUG
+    DEFINES += DUK_OPT_DEBUG
+}
+
+# -------------------------------------------------------------
+# JavaScript files
+# -------------------------------------------------------------
 OTHER_FILES = beginner.js \
               system.js \
               card.js \
               util.js \
               deck.js \
               game.js \
-              player.js
+              player.js \
+              unit_test.js
 
+# -------------------------------------------------------------
+# Translation files
+# -------------------------------------------------------------
 TRANSLATIONS = tarotclub_fr.ts \
                tarotclub_en.ts
-
 
 # -------------------------------------------------------------
 # Library files
@@ -100,6 +118,20 @@ SOURCES += Log.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
     Common.cpp
+
+# -------------------------------------------------------------
+# JSEngine and JSON files
+# -------------------------------------------------------------
+
+HEADERS += duktape.h \
+    JsonWriter.h \
+    JsonReader.h \
+    JSEngine.h
+
+SOURCES += duktape.c \
+    JsonWriter.cpp \
+    JsonReader.cpp \
+    JSEngine.cpp
 
 # -------------------------------------------------------------
 # TarotClub core files
@@ -196,4 +228,4 @@ SOURCES += AboutWindow.cpp \
     PlayerBox.cpp \
     PopupItem.cpp
 
-
+# End of project file
