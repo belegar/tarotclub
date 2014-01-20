@@ -27,7 +27,7 @@ var CurrentGame = new TarotLib.Game();
 
 // ****************************************************************************
 // TAROTCLUB API CALLED BY C++
-// The functions are called in the order, more or less
+// The functions are called in this order, more or less
 // ****************************************************************************
 
 /**
