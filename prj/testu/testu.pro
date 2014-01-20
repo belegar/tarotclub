@@ -57,8 +57,7 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    Common.h \
-    ../../src/json/JsonWriter.h
+    Common.h
 
 SOURCES += Log.cpp \
     Util.cpp \
