@@ -23,6 +23,7 @@
  *=============================================================================
  */
 
+#include <sstream>
 #include "Bot.h"
 #include "Log.h"
 #include "Util.h"
@@ -32,11 +33,9 @@ using namespace std;
 /*****************************************************************************/
 Bot::Bot()
     : mClient(*this)
+    , mTimeBeforeSend(0U)
 {
-    timeBeforeSend.setSingleShot(true);
-    timeBeforeSend.setInterval(0);
-    //connect (&timeBeforeSend, SIGNAL(timeout()), this, SLOT(slotTimeBeforeSend()));
-    connect(&timeBeforeSend, &QTimer::timeout, this, &Bot::slotTimeBeforeSend);
+
 }
 /*****************************************************************************/
 Bot::~Bot()
@@ -54,9 +53,9 @@ void Bot::AssignedPlace()
 {
     InitializeScriptContext();
 
-    QJSValueList args;
-    args << mClient.GetPlace().Value();
-    CallScript("EnterGame", args);
+    JSEngine::StringList args;
+    args.push_back(mClient.GetPlace().ToString());
+    botEngine.Call("EnterGame", args);
 }
 /*****************************************************************************/
 void Bot::PlayersList(std::map<Place, Identity> &players)
@@ -66,9 +65,9 @@ void Bot::PlayersList(std::map<Place, Identity> &players)
 /*****************************************************************************/
 void Bot::ReceiveCards()
 {
-    QJSValueList args;
-    args << QString(mClient.GetMyDeck().GetCardList().data());
-    CallScript("ReceiveCards", args);
+    JSEngine::StringList args;
+    args.push_back(mClient.GetMyDeck().GetCardList());
+    botEngine.Call("ReceiveCards", args);
 }
 /*****************************************************************************/
 void Bot::SelectPlayer(Place p)
@@ -78,22 +77,32 @@ void Bot::SelectPlayer(Place p)
 /*****************************************************************************/
 void Bot::RequestBid(Contract highestBid)
 {
-    qint32 ret;
+    std::uint8_t ret;
     bool slam = false;
     Contract botContract;
 
-    QJSValueList args;
-    args << QString(highestBid.ToString().c_str());
+    JSEngine::StringList args;
+    args.push_back(highestBid.ToString());
 
-    ret = CallScript("AnnounceBid", args).toInt();
+    std::string result = botEngine.Call("AnnounceBid", args);
+
+    istringstream(result) >> ret;
 
     // security test
     if ((ret >= Contract::PASS) && (ret <= Contract::GUARD_AGAINST))
     {
-        botContract = (Contract)ret;
+        botContract = ret;
         // Ask to the bot if a slam has been announced
         args.clear();
-        slam = CallScript("AnnounceSlam", args).toBool();
+        result = botEngine.Call("AnnounceSlam", args);
+        if (result == "true")
+        {
+            slam = true;
+        }
+        else
+        {
+            slam = false;
+        }
     }
     else
     {
@@ -122,9 +131,10 @@ void Bot::StartDeal(Place taker, Contract contract, const Game::Shuffle &sh)
     Q_UNUSED(sh);
 
     // FIXME: pass the game type to the script
-    QJSValueList args;
-    args << QString(taker.ToString().c_str()) << QString(contract.ToString().c_str());
-    CallScript("StartDeal", args);
+    JSEngine::StringList args;
+    args.push_back(taker.ToString());
+    args.push_back(contract.ToString());
+    botEngine.Call("StartDeal", args);
 
     // We are ready, let's inform the server about that
     mClient.SendSyncStart();
@@ -137,9 +147,17 @@ void Bot::ShowDog()
 /*****************************************************************************/
 void Bot::ShowHandle()
 {
-    QJSValueList args;
-    args << QString(mClient.GetHandleDeck().GetCardList().data()) << (int)mClient.GetHandleDeck().GetOwner();
-    CallScript("ShowHandle", args);
+    JSEngine::StringList args;
+    args.push_back(mClient.GetHandleDeck().GetCardList());
+    if (mClient.GetHandleDeck().GetOwner() == ATTACK)
+    {
+        args.push_back("0");
+    }
+    else
+    {
+        args.push_back("1");
+    }
+    botEngine.Call("ShowHandle", args);
 
     // We have seen the handle, let's inform the server about that
     mClient.SendSyncHandle();
@@ -148,13 +166,13 @@ void Bot::ShowHandle()
 void Bot::BuildDiscard()
 {
     bool valid = true;
-    QJSValueList args;
+    JSEngine::StringList args;
     Deck discard;
 
-    args << QString(mClient.GetDogDeck().GetCardList().data());
-    QString ret = CallScript("BuildDiscard", args).toString();
+    args.push_back(mClient.GetDogDeck().GetCardList());
+    std::string ret = botEngine.Call("BuildDiscard", args);
 
-    int count = discard.SetCards(ret.toStdString());
+    int count = discard.SetCards(ret);
 
     if (count == 6)
     {
@@ -214,14 +232,51 @@ void Bot::DealAgain()
 /*****************************************************************************/
 void Bot::PlayCard()
 {
-    timeBeforeSend.start();
+    Card *c = NULL;
+
+    // Wait some time before playing
+    std::this_thread::sleep_for(std::chrono::milliseconds(mTimeBeforeSend));
+
+    JSEngine::StringList args;
+    std::string ret = botEngine.Call("PlayCard", args);
+
+    // Test validity of card
+    c = mClient.GetMyDeck().GetCardByName(ret);
+    if (c != NULL)
+    {
+        if (mClient.IsValid(c) == false)
+        {
+            std::stringstream message;
+            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret;
+            TLogInfo(message.str());
+            // The show must go on, play a random card
+            c = mClient.Play();
+        }
+    }
+    else
+    {
+        std::stringstream message;
+        message << mClient.GetPlace().ToString() << " played an unkown card: " << ret;
+        TLogInfo(message.str());
+
+        message.flush();
+        message << mClient.GetPlace().ToString() << " engine deck is: " << mClient.GetMyDeck().GetCardList();
+        TLogInfo(message.str());
+
+        // The show must go on, play a random card
+        c = mClient.Play();
+    }
+
+    mClient.GetMyDeck().removeAll(c);
+    mClient.SendCard(c);
 }
 /*****************************************************************************/
 void Bot::ShowCard(Place p, const std::string &name)
 {
-    QJSValueList args;
-    args << QString(name.data()) << QString(p.ToString().c_str());
-    CallScript("PlayedCard", args);
+    JSEngine::StringList args;
+    args.push_back(name);
+    args.push_back(p.ToString());
+    botEngine.Call("PlayedCard", args);
 
     // We have seen the card, let's inform the server about that
     mClient.SendSyncCard();
@@ -246,9 +301,9 @@ void Bot::EndOfGame()
     // FIXME What must we do?
 }
 /*****************************************************************************/
-void Bot::SetTimeBeforeSend(int t)
+void Bot::SetTimeBeforeSend(std::uint16_t t)
 {
-    timeBeforeSend.setInterval(t);
+    mTimeBeforeSend = t;
 }
 /*****************************************************************************/
 void Bot::SetIdentity(const Identity &ident)
@@ -266,127 +321,47 @@ void Bot::ConnectToHost(const string &hostName, std::uint16_t port)
     mClient.ConnectToHost(hostName, port);
 }
 /*****************************************************************************/
-void Bot::slotTimeBeforeSend()
-{
-    Card *c = NULL;
-
-    QJSValueList args;
-    QString ret = CallScript("PlayCard", args).toString();
-
-    // Test validity of card
-    c = mClient.GetMyDeck().GetCardByName(ret.toStdString());
-    if (c != NULL)
-    {
-        if (mClient.IsValid(c) == false)
-        {
-            std::stringstream message;
-            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.toStdString();
-            TLogInfo(message.str());
-            // The show must go on, play a random card
-            c = mClient.Play();
-        }
-    }
-    else
-    {
-        std::stringstream message;
-        message << mClient.GetPlace().ToString() << " played an unkown card: " << ret.toStdString();
-        TLogInfo(message.str());
-
-        message.flush();
-        message << mClient.GetPlace().ToString() << " engine deck is: " << mClient.GetMyDeck().GetCardList();
-        TLogInfo(message.str());
-
-        // The show must go on, play a random card
-        c = mClient.Play();
-    }
-
-    mClient.GetMyDeck().removeAll(c);
-    mClient.SendCard(c);
-}
-/*****************************************************************************/
 bool Bot::InitializeScriptContext()
 {
-    QStringList scriptFiles;
-    QString appRoot;
+    JSEngine::StringList scriptFiles;
+    std::string appRoot;
 
-#ifndef QT_NO_DEBUG
+#ifdef TAROT_DEBUG
     // Debug, the binary is inside the build directory
-    appRoot = qApp->applicationDirPath() + "/../../ai";
+    appRoot = Util::ExecutablePath() + "/../../ai";
 #else
     // Release
-    appRoot = qApp->applicationDirPath() + "/ai";
+    appRoot = Util::ExecutablePath() + "/ai";
 #endif
 
     // TarotClub Javascript library files
     // Beware, the order is important, for global objects creation
-    scriptFiles << appRoot + "/tarotlib/system.js";
-    scriptFiles << appRoot + "/tarotlib/util.js";
-    scriptFiles << appRoot + "/tarotlib/card.js";
-    scriptFiles << appRoot + "/tarotlib/deck.js";
-    scriptFiles << appRoot + "/tarotlib/player.js";
-    scriptFiles << appRoot + "/tarotlib/bot.js";
-    scriptFiles << appRoot + "/tarotlib/game.js";
-    scriptFiles << appRoot + "/beginner.js";
+    scriptFiles.push_back("/tarotlib/system.js");
+    scriptFiles.push_back("/tarotlib/util.js");
+    scriptFiles.push_back("/tarotlib/card.js");
+    scriptFiles.push_back("/tarotlib/deck.js");
+    scriptFiles.push_back("/tarotlib/player.js");
+    scriptFiles.push_back("/tarotlib/bot.js");
+    scriptFiles.push_back("/tarotlib/game.js");
+    scriptFiles.push_back("/beginner.js");
 
-    // Give access to some global objects from the JavaScript engine
-    botEngine.globalObject().setProperty("TarotUtil", botEngine.newQObject(&utilObj));
+    botEngine.Initialize();
+    // FIXME: register print function TLogInfo
 
     // Load all Javascript files
-    QListIterator<QString> i(scriptFiles);
-    while (i.hasNext())
+    for (std::uint32_t i = 0; i < scriptFiles.size(); i++)
     {
-        QString fileName = i.next();
-        QFile scriptFile(fileName);
-        std::stringstream message;
-
-        if (! scriptFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        std::string fileName = appRoot + scriptFiles[i];
+        if (!botEngine.Evaluate(fileName))
         {
-            message << "Script error: could not open program file: " << fileName.toStdString();
-            TLogInfo(message.str());
-            return false;
-        }
-
-        QString strProgram = scriptFile.readAll();
-        scriptFile.close();
-
-        QJSValue ret = botEngine.evaluate(strProgram, fileName);
-
-        // uncaught exception?
-        if (ret.isError())
-        {
-            message << "Evaluate uncaught exception: " << ret.toString().toStdString();
-            TLogInfo(message.str());
-            return false;
+            std::stringstream message;
+            message << "Script error: could not open program file: " << fileName;
+            TLogError(message.str());
         }
     }
 
     return true;
 }
-/*****************************************************************************/
-QJSValue Bot::CallScript(const QString &function, QJSValueList &args)
-{
-    QJSValue ret;
-    std::stringstream message;
-    QJSValue createFunc = botEngine.globalObject().property(function);
-
-    if (createFunc.isError())
-    {
-        message << "Script error: script threw an uncaught exception while looking for create func: " << createFunc.toString().toStdString();
-        TLogInfo(message.str());
-        return ret;
-    }
-
-    ret = createFunc.call(args);
-
-    if (ret.isError())
-    {
-        message << "Script threw an uncaught exception while looking for create func: " << ret.toString().toStdString();
-        TLogInfo(message.str());
-    }
-
-    return ret;
-}
-
 
 //=============================================================================
 // End of file Bot.cpp

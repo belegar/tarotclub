@@ -23,37 +23,22 @@
  *=============================================================================
  */
 
-#ifndef _BOT_H
-#define _BOT_H
+#ifndef BOT_H
+#define BOT_H
 
 #include "Client.h"
-#include <QJSEngine>
+#include "JSEngine.h"
 #include "Log.h"
 
-class TarotUtil : public QObject
-{
-    Q_OBJECT
-
-public:
-
-public slots:
-
-    void Print(const QString &message)
-    {
-        std::string toPrint = "Bot script: " + message.toStdString();
-        TLogInfo(toPrint);
-    }
-};
 /*****************************************************************************/
-class Bot : public QObject, public Client::IEvent
+class Bot : public Client::IEvent
 {
-    Q_OBJECT
 
 public:
     Bot();
     ~Bot();
 
-    void SetTimeBeforeSend(int t);
+    void SetTimeBeforeSend(std::uint16_t t);
     void SetIdentity(const Identity &ident);
     void Initialize();
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
@@ -61,13 +46,9 @@ public:
 
 private:
     Client  mClient;
-    QTimer  timeBeforeSend;
-    QJSEngine botEngine;
-    // Exposed object to the Javascript
-    TarotUtil utilObj;
+    std::uint16_t  mTimeBeforeSend;
+    JSEngine botEngine;
 
-    // Javascript stuff
-    QJSValue CallScript(const QString &function, QJSValueList &args);
     bool InitializeScriptContext();
 
     // Client events
@@ -88,12 +69,9 @@ private:
     virtual void WaitTrick(Place winner);
     virtual void EndOfDeal();
     virtual void EndOfGame();
-
-private slots:
-    void slotTimeBeforeSend();
 };
 
-#endif // _BOT_H
+#endif // BOT_H
 
 //=============================================================================
 // End of file Bot.h
