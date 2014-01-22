@@ -25,8 +25,9 @@ public:
 
     // Constructors
     Place();
-    Place(int p);
+    Place(std::uint32_t p);
     Place(std::uint8_t p);
+    Place(std::string p);
 
     std::string ToString() const;
     std::uint8_t Value();
