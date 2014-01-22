@@ -59,6 +59,7 @@ class JsonValue : public JsonNode
 public:
     enum ValueType
     {
+        INVALID,
         INTEGER,
         DOUBLE,
         BOOLEAN,
@@ -68,17 +69,24 @@ public:
     JsonValue(std::int32_t value);
     JsonValue(double value);
     JsonValue(const char *value);
+    JsonValue(const std::string &value);
     JsonValue(bool value);
     JsonValue(const JsonValue &value);
+    JsonValue(); // default constructor creates an invalid value!
     ~JsonValue();
 
     std::string ToString();
 
     JsonValue &operator = (JsonValue const &rhs);
 
-private:
-    JsonValue(); // Default constuctor is hidden to forbid instance without specifying a type
+    bool IsValid() { return mType != INVALID; }
 
+    std::int32_t    GetInteger(){ return mIntegerValue; }
+    double          GetDouble() { return mDoubleValue; }
+    bool            GetBool()   { return mBoolValue; }
+    std::string     GetString() { return mStringValue; }
+
+private:
     ValueType mType;
     std::int32_t mIntegerValue;
     double mDoubleValue;
