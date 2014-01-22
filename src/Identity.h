@@ -43,14 +43,15 @@ public:
     };
 
     Identity()
+        : gender(MALE)
     {
-        sex = MALE;
+
     }
 
     std::string name;
     std::string quote;
     std::string avatar;  // path to the avatar image (local or network path)
-    Gender      sex;
+    Gender      gender;
 
     // operator overload to easily serialize parameters
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Identity &ident)
@@ -58,7 +59,7 @@ public:
         out << ident.name
             << ident.avatar
             << ident.quote
-            << (std::uint8_t)ident.sex;
+            << (std::uint8_t)ident.gender;
         return out;
     }
 
@@ -70,7 +71,7 @@ public:
         in >> ident.avatar;
         in >> ident.quote;
         in >> var8;
-        ident.sex = (Gender)var8;
+        ident.gender = (Gender)var8;
 
         return in;
     }

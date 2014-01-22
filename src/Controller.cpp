@@ -75,7 +75,7 @@ void Controller::EndOfDeal()
 /*****************************************************************************/
 void Controller::SendCards()
 {
-    for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
+    for (std::uint32_t i = 0U; i < engine.GetGameInfo().numberOfPlayers; i++)
     {
         Player &player = engine.GetPlayer((Place)i);
         SendPacket(Protocol::BuildSendCards(player.GetUuid(), player.GetDeck()));
@@ -231,7 +231,7 @@ bool Controller::DoAction(const ByteArray &data)
         {
             std::map<Place, Identity> players;
 
-            for (int i = 0; i < engine.GetGameInfo().numberOfPlayers; i++)
+            for (std::uint32_t i = 0U; i < engine.GetGameInfo().numberOfPlayers; i++)
             {
                 players[(Place)i] = engine.GetPlayer((Place)i).GetIdentity();
             }

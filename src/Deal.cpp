@@ -217,19 +217,19 @@ QList<Place> Deal::GetPodium()
 {
     QList<Place> placePodium;
     QList<int> pointsPodium;
-    int i, j;
+    std::uint32_t i, j;
 
     // init lists
-    for (i = 0; i < 5; i++)
+    for (i = 0U; i < 5U; i++)
     {
         placePodium.append((Place)i);
         pointsPodium.append(scores[dealCounter - 1][i]);
     }
 
     // bubble sort
-    for (i = 0; i < 5; i++)
+    for (i = 0U; i < 5U; i++)
     {
-        for (j = 0; j < (- 1); j++)
+        for (j = 0U; j < 5U; j++)
         {
             if (pointsPodium[j] < pointsPodium[j + 1])
             {
@@ -263,7 +263,7 @@ void Deal::SetScore(const Score &s)
  */
 bool Deal::AddScore(const Game &info)
 {
-    for (int i = 0; i < info.numberOfPlayers; i++)
+    for (std::uint32_t i = 0U; i < info.numberOfPlayers; i++)
     {
         if (Place(i) == info.taker)
         {
@@ -537,14 +537,14 @@ void Deal::GenerateEndDealLog(Game &info, std::map<Place, Identity> &players)
 
         stream.writeStartElement("tricks");
 
-        for (int i = 0; i < info.GetNumberOfCards(); i++)
+        for (std::uint32_t i = 0U; i < info.GetNumberOfCards(); i++)
         {
             stream.writeStartElement("trick");
             stream.writeAttribute("number", QString::number(i + 1));
 
             std::list<std::string> list = GetSortedTrick(i);
             std::list<std::string>::iterator it;
-            int j = 0;
+            std::uint32_t j = 0U;
             for (it = list.begin(); it != list.end(); ++it)
             {
                 stream.writeStartElement("card");

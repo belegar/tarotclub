@@ -91,11 +91,13 @@ HEADERS += TarotDeck.h \
     Card.h \
     Player.h \
     defines.h \
+    ServerConfig.h
 
 SOURCES += TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
-    Player.cpp
+    Player.cpp \
+    ServerConfig.cpp
 
 # -------------------------------------------------------------
 # Unit test files

@@ -62,7 +62,7 @@ Place::Place()
 
 }
 /*****************************************************************************/
-Place::Place(int p)
+Place::Place(std::uint32_t p)
 {
     if (p > NOWHERE)
     {
@@ -85,6 +85,18 @@ Place::Place(std::uint8_t p)
     else
     {
         mPlace = p;
+    }
+}
+/*****************************************************************************/
+Place::Place(std::string p)
+{
+    mPlace = NOWHERE;
+    for (std::uint32_t i = 0U; i < mStrings.size(); i++)
+    {
+        if (p == mStrings[i])
+        {
+            mPlace = static_cast<std::uint8_t>(i);
+        }
     }
 }
 /*****************************************************************************/

@@ -22,33 +22,22 @@
  *
  *=============================================================================
  */
-#ifndef _CONFIGFILE_H
-#define _CONFIGFILE_H
-
-// Qt includes
-#include <QString>
-#include <QFile>
-#include <QStringList>
+#ifndef SERVER_CONFIG_H
+#define SERVER_CONFIG_H
 
 // Game includes
-#include "../defines.h"
-#include "../Identity.h"
+#include "defines.h"
+#include "Identity.h"
 
-#define SERVER_XML_VERSION    "1.5"
-#define SERVER_CONFIG_FILE    "tarotclubd.xml"
 #define SERVER_MAX_TABLES     10
 #define SERVER_MAX_SALOONS    2
-
-// default values
-#define TIMER1_DEF      500
-#define DEFAULT_PORT    4269
 
 /*****************************************************************************/
 typedef struct
 {
-    int      timer;  // between players, in milliseconds
-    int      port;   // TCP/IP port
-    Identity bots[3];
+    std::uint16_t   timer;      // between players, in milliseconds
+    std::uint16_t   tcp_port;   // TCP/IP port
+    std::map<Place, Identity>   bots;
 } ServerOptions;
 
 /*****************************************************************************/
@@ -56,13 +45,6 @@ class ServerConfig
 {
 
 public:
-    enum BotPlace
-    {
-        BOT_EAST = 0,
-        BOT_NORTH = 1,
-        BOT_WEST = 2
-    };
-
     ServerConfig();
 
     // Helpers
@@ -81,7 +63,7 @@ private:
 
 };
 
-#endif // _CONFIGFILE_H
+#endif // SERVER_CONFIG_H
 
 //=============================================================================
 // End of file ServerConfig.h

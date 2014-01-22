@@ -50,6 +50,13 @@ JsonValue::JsonValue(const char * value)
 
 }
 /*****************************************************************************/
+JsonValue::JsonValue(const std::string &value)
+    : mType(STRING)
+    , mStringValue(value)
+{
+
+}
+/*****************************************************************************/
 JsonValue::JsonValue(bool value)
     : mType(BOOLEAN)
     , mBoolValue(value)
@@ -64,7 +71,7 @@ JsonValue::JsonValue(const JsonValue &value)
 /*****************************************************************************/
 JsonValue::JsonValue()
 {
-    // do nothing
+    mType = INVALID;
 }
 /*****************************************************************************/
 JsonValue::~JsonValue()

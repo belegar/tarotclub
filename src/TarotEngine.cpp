@@ -35,7 +35,7 @@ TarotEngine::TarotEngine(IEvent &handler)
 {
     shuffle.type = Game::RANDOM_DEAL;
     shuffle.seed = 0;
-    for (int i = 0; i < 5; i++)
+    for (std::uint32_t i = 0U; i < 5U; i++)
     {
         players[i].SetPlace(i);
     }
@@ -155,7 +155,7 @@ Place TarotEngine::GetFreePlayer()
     Place p;
 
     // Look for free space
-    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
     {
         if (players[i].IsFree() == true)
         {
@@ -202,7 +202,7 @@ Player &TarotEngine::GetPlayer(Place p)
 /*****************************************************************************/
 Player *TarotEngine::GetPlayer(std::uint32_t uuid)
 {
-    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
     {
         if (players[i].GetUuid() == uuid)
         {
@@ -216,7 +216,7 @@ Place TarotEngine::GetPlayerPlace(std::uint32_t uuid)
 {
     Place p;
 
-    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
     {
         if (players[i].GetUuid() == uuid)
         {
@@ -427,7 +427,7 @@ void TarotEngine::EndOfDeal()
     std::map<Place, Identity> list;
 
     // Create a QMap list of players
-    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
     {
         Place p(i);
         list[p] = players[i].GetIdentity();
@@ -523,7 +523,7 @@ void TarotEngine::CreateDeal()
     }
 
     int n = gameState.GetNumberOfCards();
-    for (int i = 0; i < gameState.numberOfPlayers; i++)
+    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
     {
         players[i].GetDeck().clear();
         players[i].GetDeck().append(currentTrick.mid(i * n, n));

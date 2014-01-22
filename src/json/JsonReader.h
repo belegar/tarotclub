@@ -31,6 +31,7 @@
 #include <fstream>
 #include <sstream>
 #include "duktape.h"
+#include "JsonWriter.h"
 
 /*****************************************************************************/
 class JsonReader
@@ -46,8 +47,9 @@ public:
     void Close();
 
     // Getters
-    bool GetValue(const std::string &key, std::string &value);
+    bool GetValue(const std::string &obj, const std::string &key, std::int32_t &value);
     bool GetValue(const std::string &obj, const std::string &key, std::string &value);
+    bool GetValue(const std::string &obj, const std::string &key, bool &value);
     
 private:
     duk_context *mCtx;
@@ -56,8 +58,8 @@ private:
     // Static function to be run in protected call
     static int WrappedJsonDecode(duk_context *ctx);
     static int WrappedJsonGetValue(duk_context *ctx);
-    static int WrappedJsonGetObjectValue(duk_context *ctx);
 
+    JsonValue GetJsonValue(const std::string &obj, const std::string &key, JsonValue::ValueType type);
     void PrintError();
     void PrintTop();
 };
