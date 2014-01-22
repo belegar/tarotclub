@@ -140,9 +140,9 @@ void OptionsWindow::slotBtnOk()
     serverOptions.timer = ui.slider1->value();
     serverOptions.port = QString(ui.portReseau->text()).toInt();
 
-    serverOptions.bots[ServerConfig::BOT_EAST].name = ui.nomJoueurEst->text().toStdString();
-    serverOptions.bots[ServerConfig::BOT_NORTH].name = ui.nomJoueurNord->text().toStdString();
-    serverOptions.bots[ServerConfig::BOT_WEST].name = ui.nomJoueurOuest->text().toStdString();
+    serverOptions.bots[Place::EAST].name = ui.nomJoueurEst->text().toStdString();
+    serverOptions.bots[Place::NORTH].name = ui.nomJoueurNord->text().toStdString();
+    serverOptions.bots[Place::WEST].name = ui.nomJoueurOuest->text().toStdString();
 
     accept();
 }
@@ -237,12 +237,12 @@ void OptionsWindow::slotBtnPixEst()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(QString(serverOptions.bots[ServerConfig::BOT_EAST].avatar.data()));
+    s = choixAvatar(QString(serverOptions.bots[Place::EAST].avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[ServerConfig::BOT_EAST].avatar = s.toStdString();
+    serverOptions.bots[Place::EAST].avatar = s.toStdString();
     ui.pixEst->setPixmap(im);
 }
 /*****************************************************************************/
@@ -251,12 +251,12 @@ void OptionsWindow::slotBtnPixNord()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(QString(serverOptions.bots[ServerConfig::BOT_NORTH].avatar.data()));
+    s = choixAvatar(QString(serverOptions.bots[Place::NORTH].avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[ServerConfig::BOT_NORTH].avatar = s.toStdString();
+    serverOptions.bots[Place::NORTH].avatar = s.toStdString();
     ui.pixNord->setPixmap(im);
 }
 /*****************************************************************************/
@@ -265,12 +265,12 @@ void OptionsWindow::slotBtnPixOuest()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(QString(serverOptions.bots[ServerConfig::BOT_WEST].avatar.data()));
+    s = choixAvatar(QString(serverOptions.bots[ServerConfig::WEST_BOT].avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[ServerConfig::BOT_WEST].avatar = s.toStdString();
+    serverOptions.bots[ServerConfig::WEST_BOT].avatar = s.toStdString();
     ui.pixOuest->setPixmap(im);
 }
 /*****************************************************************************/
@@ -323,19 +323,19 @@ void OptionsWindow::refresh()
     // server stuff
     ui.slider1->setValue(serverOptions.timer);
     ui.portReseau->setValue(serverOptions.port);
-    ui.nomJoueurEst->setText(QString(serverOptions.bots[ServerConfig::BOT_EAST].name.data()));
-    ui.nomJoueurNord->setText(QString(serverOptions.bots[ServerConfig::BOT_NORTH].name.data()));
-    ui.nomJoueurOuest->setText(QString(serverOptions.bots[ServerConfig::BOT_WEST].name.data()));
+    ui.nomJoueurEst->setText(QString(serverOptions.bots[Place::EAST].name.data()));
+    ui.nomJoueurNord->setText(QString(serverOptions.bots[Place::NORTH].name.data()));
+    ui.nomJoueurOuest->setText(QString(serverOptions.bots[ServerConfig::WEST_BOT].name.data()));
 
-    if (im.load(QString(serverOptions.bots[ServerConfig::BOT_EAST].avatar.data())) == true)
+    if (im.load(QString(serverOptions.bots[Place::EAST].avatar.data())) == true)
     {
         ui.pixEst->setPixmap(im);
     }
-    if (im.load(QString(serverOptions.bots[ServerConfig::BOT_NORTH].avatar.data())) == true)
+    if (im.load(QString(serverOptions.bots[Place::NORTH].avatar.data())) == true)
     {
         ui.pixNord->setPixmap(im);
     }
-    if (im.load(QString(serverOptions.bots[ServerConfig::BOT_WEST].avatar.data())) == true)
+    if (im.load(QString(serverOptions.bots[ServerConfig::WEST_BOT].avatar.data())) == true)
     {
         ui.pixOuest->setPixmap(im);
     }
