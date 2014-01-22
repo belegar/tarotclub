@@ -9,6 +9,7 @@
 #include "Card.h"
 #include "Deck.h"
 #include "TarotDeck.h"
+#include "ServerConfig.h"
 
 TarotBase::TarotBase()
 {
@@ -77,6 +78,16 @@ void TarotBase::TestDeckClass()
     std::cout << "Deck ordered: \n";
     std::cout << myDeck.GetCardList() << std::endl;
 
+}
+
+void TarotBase::TestConfig()
+{
+    ServerOptions options;
+    ServerConfig conf;
+
+    conf.SetDefault(options);
+    conf.SetOptions(options);
+    conf.Save();
 }
 
 

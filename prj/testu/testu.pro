@@ -57,8 +57,7 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    Common.h \
-    ../../src/json/JsonWriter.h
+    Common.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -92,11 +91,13 @@ HEADERS += TarotDeck.h \
     Card.h \
     Player.h \
     defines.h \
+    ServerConfig.h
 
 SOURCES += TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
-    Player.cpp
+    Player.cpp \
+    ServerConfig.cpp
 
 # -------------------------------------------------------------
 # Unit test files
