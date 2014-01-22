@@ -31,14 +31,31 @@ void JsonTest::ParseFile()
 
     json.Open(path);
     std::string value;
-    json.GetValue("version", value); // key is at the root of the document
+    // key is at the root of the document
+    if (!json.GetValue("", "version", value))
+    {
+        QFAIL("Get value error");
+    }
 
     std::cout << "version = " << value << std::endl;
+    QCOMPARE(value, std::string("1.5"));
+
     value.clear();
+    if (!json.GetValue("identity", "name", value))
+    {
+        QFAIL("Get value error");
+    }
 
-    json.GetValue("identity", "name", value);
+    std::cout << "identity.name = " << value << std::endl;
+    QCOMPARE(value, std::string("Moi"));
 
-    std::cout << "identity.version = " << value << std::endl;
+    std::int32_t intvalue = 0;
+    if (!json.GetValue("", "delay_before_cleaning", intvalue))
+    {
+        QFAIL("Get value error");
+    }
+    std::cout << "delay_before_cleaning = " << intvalue << std::endl;
+    QCOMPARE(intvalue, 1500);
 }
 
 void JsonTest::GenerateFile()
