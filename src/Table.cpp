@@ -108,8 +108,9 @@ void Table::LoadConfiguration(int port)
     serverConfig.Load();
 
     // Apply configuration
-    for (int i = 0; i < 3; i++)
+    for (std::uint32_t i = 0U; i < 3U; i++)
     {
+#error To correct, create a map iterator
         mBots[i].SetIdentity(serverConfig.GetOptions().bots[i]);
         mBots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
     }
@@ -181,7 +182,7 @@ void Table::ConnectBots()
     std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     for (i = 0; i < 3; i++)
     {
-        mBots[i].ConnectToHost("127.0.0.1", GetOptions().port);
+        mBots[i].ConnectToHost("127.0.0.1", GetOptions().tcp_port);
         std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     }
 }

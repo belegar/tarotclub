@@ -41,7 +41,9 @@ void Game::Initialize(int players)
     position = 0;
     trickCounter = 0;
     numberOfPlayers = players;
-    dealer = static_cast<Place>(std::rand() % 4);
+
+    std::uint32_t random = std::rand() % 4;
+    dealer = random;
     contract = Contract::PASS;
     slamAnnounced = false;
     attackHandle.declared = false;
