@@ -97,14 +97,14 @@ private:
     IEvent& mEventHandler;
 
     // synchonization counters
-    int     cntSyncIdentity;    // player sent his identity
-    int     cntSyncDog;         // players saw the dog
-    int     cntSyncBid;         // players saw the bid
-    int     cntSyncTrick;       // end of a round
-    int     cntSyncReady;       // end of a deal
-    int     cntSyncHandle;      // show a declared handle to all players
-    int     cntSyncStart;       // start of a deal
-    int     cntSyncCard;        // players saw the played card
+    std::uint32_t     cntSyncIdentity;    // player sent his identity
+    std::uint32_t     cntSyncDog;         // players saw the dog
+    std::uint32_t     cntSyncBid;         // players saw the bid
+    std::uint32_t     cntSyncTrick;       // end of a round
+    std::uint32_t     cntSyncReady;       // end of a deal
+    std::uint32_t     cntSyncHandle;      // show a declared handle to all players
+    std::uint32_t     cntSyncStart;       // start of a deal
+    std::uint32_t     cntSyncCard;        // players saw the played card
 
     bool IsCardValid(Card *c, Place p);
     bool HasCard(Card *c, Place p);
