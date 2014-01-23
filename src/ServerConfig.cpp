@@ -29,11 +29,8 @@
 #include "ServerConfig.h"
 #include "Log.h"
 
-static const std::uint16_t DEFAULT_DELAY        = 500U;     // in ms
-static const std::uint16_t DEFAULT_TCP_PORT     = 4269U;
 static const std::string SERVER_CONFIG_VERSION  = "2.0";
-static const std::string SERVER_CONFIG_FILE     = "tcd.json";
-
+static const std::string SERVER_CONFIG_FILE     = "tcsc.json"; // tcs = TarotClub Server Configuration
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
@@ -65,135 +62,69 @@ bool ServerConfig::Load()
         {
             if (value == SERVER_CONFIG_VERSION)
             {
+                // The general strategy is to be tolerant on the values.
+                // If they are not in the acceptable range, we set the default value
+                // without throwing any error
+                std::int32_t intval;
+                if (json.GetValue("", "delay", intval))
+                {
+                    if ((intval < 0) || (intval > 9000))
+                    {
+                        intval = DEFAULT_DELAY;
+                    }
+                    options.timer = intval;
+                }
+                if (json.GetValue("", "tcp_port", intval))
+                {
+                    options.tcp_port = intval;
+                }
 
+                for (std::uint32_t i = 1U; i < 4U; i++)
+                {
+                    Place bot(i);
+                    if (json.GetValue(bot.ToString(), "name", value))
+                    {
+                        options.bots[i].name = value;
+                    }
+                    if (json.GetValue(bot.ToString(), "avatar", value))
+                    {
+                        options.bots[i].avatar = value;
+                    }
+                    if (json.GetValue(bot.ToString(), "gender", value))
+                    {
+                        if (value == "female")
+                        {
+                            options.bots[i].gender = Identity::FEMALE;
+                        }
+                        else
+                        {
+                            options.bots[i].gender = Identity::MALE;
+                        }
+
+                    }
+                    if (json.GetValue(bot.ToString(), "quote", value))
+                    {
+                        options.bots[i].quote = value;
+                    }
+                }
             }
             else
             {
+                TLogError("Wrong server configuration file version");
                 ret = false;
             }
         }
         else
         {
+            TLogError("Cannot read server configuration file version");
             ret = false;
-        }
-    }
-
-
-/*
-    QFile f(QString(Config::HomePath.data()) + SERVER_CONFIG_FILE);
-    QString txt;
-    int val;
-
-
-    if (f.open(QIODevice::ReadOnly))
-    {
-        QXmlStreamReader xml(&f);
-
-        while (!xml.atEnd() && ret)
-        {
-            QXmlStreamReader::TokenType token = xml.readNext();
-
-            // If token is just StartDocument, we'll go to next
-            if (token == QXmlStreamReader::StartDocument)
-            {
-                continue;
-            }
-            // If token is StartElement, we'll see if we can read it
-            if (token == QXmlStreamReader::StartElement)
-            {
-                if (xml.name() == "tarotclubd")
-                {
-                    // Let's get the attributes
-                    QXmlStreamAttributes attributes = xml.attributes();
-                    // Let's check the version number
-                    if (attributes.hasAttribute("version"))
-                    {
-                        if (attributes.value("version").toString() != QString(SERVER_XML_VERSION))
-                        {
-                            ret = false;
-                        }
-                    }
-                    else
-                    {
-                        ret = false;
-                    }
-                }
-                if (xml.name() == "pause")
-                {
-                    val = xml.readElementText().toInt();
-                    if ((val < 0) || (val > 9000))
-                    {
-                        val = TIMER1_DEF;
-                    }
-                    options.timer = val;
-
-                }
-                else if (xml.name() == "port")
-                {
-                    options.port = xml.readElementText().toInt();
-
-                }
-                else if (xml.name() == "identity")
-                {
-                    QXmlStreamAttributes attributes = xml.attributes();
-                    if (attributes.hasAttribute("pos"))
-                    {
-                        int pos;
-                        pos = attributes.value("pos").toInt();
-                        if ((pos < 0) || (pos > 2))
-                        {
-                            ret = false;
-                        }
-                        else
-                        {
-                            while (!(xml.tokenType() == QXmlStreamReader::EndElement &&
-                                     xml.name() == "identity"))
-                            {
-                                QXmlStreamReader::TokenType ident_token = xml.readNext();
-                                if (ident_token == QXmlStreamReader::StartElement)
-                                {
-                                    if (xml.name() == "name")
-                                    {
-                                        txt = xml.readElementText();
-                                        if (txt.isEmpty())
-                                        {
-                                            txt = "Unknown";
-                                        }
-                                        options.bots[pos].name = txt.toStdString();
-
-                                    }
-                                    else if (xml.name() == "quote")
-                                    {
-                                        options.bots[pos].quote = xml.readElementText().toStdString();
-
-                                    }
-                                    else if (xml.name() == "sex")
-                                    {
-                                        options.bots[pos].sex = (Identity::Gender)xml.readElementText().toInt();
-
-                                    }
-                                    else if (xml.name() == "avatar")
-                                    {
-                                        options.bots[pos].avatar = xml.readElementText().toStdString();
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ret = false;
-                    }
-                }
-            }
         }
     }
     else
     {
-        ret = false;
+        TLogError("Cannot open server configuration file");
     }
-*/
+
     return ret;
 }
 /*****************************************************************************/

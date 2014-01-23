@@ -32,6 +32,9 @@
 #define SERVER_MAX_TABLES     10
 #define SERVER_MAX_SALOONS    2
 
+static const std::uint16_t DEFAULT_DELAY        = 500U;     // in ms
+static const std::uint16_t DEFAULT_TCP_PORT     = 4269U;
+
 /*****************************************************************************/
 typedef struct
 {
