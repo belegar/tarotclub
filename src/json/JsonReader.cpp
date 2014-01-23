@@ -105,7 +105,15 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::s
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &obj, const std::string &key, bool &value)
 {
+    bool ret = false;
+    JsonValue val = GetJsonValue(obj, key, JsonValue::BOOLEAN);
 
+    if (val.IsValid())
+    {
+        value = val.GetBool();
+        ret = true;
+    }
+    return ret;
 }
 /*****************************************************************************/
 JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &key, JsonValue::ValueType type)
