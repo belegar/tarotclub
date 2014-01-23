@@ -27,7 +27,7 @@
 /*****************************************************************************/
 Table::Table()
     : mControllerListener(*this)
-    , mTcpPort(DEFAULT_PORT)
+    , mTcpPort(DEFAULT_TCP_PORT)
     , mIdManager(2U, 20U)
     , mTcpServer(*this)
     , mAutoStart(true)
@@ -103,19 +103,17 @@ void Table::SendToSocket(const ByteArray &packet)
     mUsersMutex.unlock();
 }
 /*****************************************************************************/
-void Table::LoadConfiguration(int port)
+void Table::LoadConfiguration()
 {
     serverConfig.Load();
 
     // Apply configuration
     for (std::uint32_t i = 0U; i < 3U; i++)
     {
-#error To correct, create a map iterator
-        mBots[i].SetIdentity(serverConfig.GetOptions().bots[i]);
+        mBots[i].SetIdentity(serverConfig.GetOptions().bots[i+1]);
         mBots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
     }
-
-    mTcpPort = port;
+    mTcpPort = serverConfig.GetOptions().tcp_port;
 }
 /*****************************************************************************/
 void Table::SaveConfiguration(const ServerOptions &opt)

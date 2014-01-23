@@ -39,7 +39,7 @@ public:
     Table();
 
     // Helpers
-    void LoadConfiguration(int port = DEFAULT_PORT);
+    void LoadConfiguration();
     void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
     void StartDeal();
     void Initialize();
