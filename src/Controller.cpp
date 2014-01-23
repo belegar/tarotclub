@@ -31,8 +31,8 @@
 
 /*****************************************************************************/
 Controller::Controller()
-    : mInitialized(false)
-    , engine(*this)
+    : engine(*this)
+    , mInitialized(false)
 {
 
 }
