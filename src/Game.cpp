@@ -38,7 +38,7 @@ Game::Game()
 void Game::Initialize(int players)
 {
     // One time initialization
-    position = 0;
+    mPosition = 0;
     trickCounter = 0;
     numberOfPlayers = players;
 
@@ -58,7 +58,7 @@ void Game::NewDeal()
     slamAnnounced = false;
     attackHandle.declared = false;
     defenseHandle.declared = false;
-    position = 0;
+    mPosition = 0;
     trickCounter = 0;
     currentPlayer = NextPlayer(dealer); // The first player on the dealer's right begins the bid
 }
@@ -72,7 +72,7 @@ void Game::StartDeal()
 {
     sequence = SYNC_START;
     trickCounter = 0;
-    position = 0;
+    mPosition = 0;
 
     // In case of slam, the first player to play is the taker.
     // Otherwise, it is the player on the right of the dealer
@@ -101,16 +101,16 @@ bool Game::IsDealFinished()
 bool Game::Next()
 {
     bool endOfTrick = false;
-    position++;
-    if (position > numberOfPlayers)
+    mPosition++;
+    if (mPosition > numberOfPlayers)
     {
-        position = 0;
+        mPosition = 0;
         trickCounter++;
         endOfTrick = true;
     }
     else
     {
-        if (position > 1)
+        if (mPosition > 1)
         {
             currentPlayer = NextPlayer(currentPlayer);
         }
@@ -124,7 +124,7 @@ int Game::GetRemainingTurns()
     return (GetNumberOfCards() - trickCounter);
 }
 /*****************************************************************************/
-int Game::GetNumberOfCards()
+std::uint32_t Game::GetNumberOfCards()
 {
     if (numberOfPlayers == 3)
     {

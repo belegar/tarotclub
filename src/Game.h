@@ -113,23 +113,23 @@ public:
 
     // Getters
     int GetRemainingTurns();
-    int GetNumberOfCards();
+    std::uint32_t GetNumberOfCards();
     int GetNumberOfDogCards();
 
     // Various information of the current deal
-    Place       taker;             // who has taken
-    Contract    contract;          // taker's contract
-    bool        slamAnnounced;     // true if the taker has announced a slam (chelem)
-    HandleInfo  attackHandle;
-    HandleInfo  defenseHandle;
-    int         numberOfPlayers;   // 3, 4 or 5
-    Mode        gameMode;
+    Place           taker;             // who has taken
+    Contract        contract;          // taker's contract
+    bool            slamAnnounced;     // true if the taker has announced a slam (chelem)
+    HandleInfo      attackHandle;
+    HandleInfo      defenseHandle;
+    std::uint32_t   numberOfPlayers;   // 3, 4 or 5
+    Mode            gameMode;
 
     // Various game states and counters
-    int         trickCounter;      // number of tricks played [1..18] for 4 players
-    Place       dealer;            // who has dealt the cards
-    Place       currentPlayer;
-    Sequence    sequence;
+    std::uint32_t   trickCounter;      // number of tricks played [1..18] for 4 players
+    Place           dealer;            // who has dealt the cards
+    Place           currentPlayer;
+    Sequence        sequence;
 
 private:
     /**
@@ -139,7 +139,7 @@ private:
      */
     Place NextPlayer(Place j);
 
-    int         position;          // Current position, [1..numberOfPlayers]
+    std::uint32_t   mPosition;          // Current position, [1..numberOfPlayers]
 };
 
 #endif // _GAME_H
