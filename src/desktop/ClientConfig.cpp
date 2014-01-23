@@ -178,7 +178,7 @@ bool ClientConfig::Load()
                             }
                             else if (xml.name() == "sex")
                             {
-                                options.identity.sex = (Identity::Gender)xml.readElementText().toInt();
+                                options.identity.gender = (Identity::Gender)xml.readElementText().toInt();
 
                             }
                             else if (xml.name() == "avatar")
@@ -243,7 +243,7 @@ bool ClientConfig::Save()
         // avatar
         stream.writeTextElement("avatar", options.identity.avatar.data());
         // sex
-        stream.writeTextElement("sex", QString().setNum(options.identity.sex));
+        stream.writeTextElement("sex", QString().setNum(options.identity.gender));
         // quote
         stream.writeTextElement("quote", options.identity.quote.data());
 
@@ -274,7 +274,7 @@ void ClientConfig::SetDefault(ClientOptions &opt)
     opt.identity.name = "Moi";
     opt.identity.avatar = ":/images/avatars/inconnu.png";
     opt.identity.quote = "L'inventeur de l'escalier habitait sûrement au premier étage.";
-    opt.identity.sex = Identity::MALE;
+    opt.identity.gender = Identity::MALE;
 }
 
 //=============================================================================

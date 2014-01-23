@@ -76,9 +76,9 @@ void ScoresDock::SetNewScore(Deal &deal)
     n = tableScores->rowCount() + 1;
     tableScores->setRowCount(n);
 
-    for (int i = 0; i < tableScores->columnCount(); i++)
+    for (std::uint32_t i = 0; i < static_cast<std::uint32_t>(tableScores->columnCount()); i++)
     {
-        total = deal.GetTotalPoints((Place)i);
+        total = deal.GetTotalPoints(i);
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(total));
         tableScores->setItem(n - 1, i, newItem);
     }

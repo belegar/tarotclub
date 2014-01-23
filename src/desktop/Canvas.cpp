@@ -196,7 +196,7 @@ bool Canvas::Initialize(ClientOptions &opt)
     cardSize.setHeight(cardSize.height() * SCALE_FACTOR);
 
     // 4 players by default
-    for (int i = 0; i < 4; i++)
+    for (std::uint32_t i = 0U; i < 4U; i++)
     {
         PlayerBox *pb = new PlayerBox(cardSize);
         pb->setPos(coordPlayerBox[i]);

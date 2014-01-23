@@ -223,7 +223,7 @@ void TarotClub::slotCreateNetworkGame()
 
     table.CreateGame(Game::ONE_DEAL, 4U, sh);
     // Connect us to the server
-    mClient.ConnectToHost("127.0.0.1", DEFAULT_PORT);
+    mClient.ConnectToHost("127.0.0.1", DEFAULT_TCP_PORT);
 }
 /*****************************************************************************/
 bool TarotClub::HasLocalConnection()
@@ -252,7 +252,7 @@ void TarotClub::LaunchLocalGame(Game::Mode mode, const Game::Shuffle &sh)
     {
         mConnectionType = LOCAL;
         // Connect us to the server
-        mClient.ConnectToHost("127.0.0.1", DEFAULT_PORT);
+        mClient.ConnectToHost("127.0.0.1", DEFAULT_TCP_PORT);
         // Connect the other players
         table.ConnectBots();
     }
@@ -407,7 +407,7 @@ void TarotClub::slotClickTapis()
         tapis->HidePopup();
         mClient.SendSyncDog(); // We have seen the dog, let's inform the server about that
     }
-    else if (mClient.GetGameInfo().sequence == Game::SHOW_DOG)
+    else if (mClient.GetGameInfo().sequence == Game::SHOW_HANDLE)
     {
         statusBar()->clearMessage();
         tapis->HidePopup();

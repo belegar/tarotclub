@@ -102,11 +102,11 @@ void OptionsWindow::slotBtnOk()
     clientOptions.identity.quote = ui.citationSud->text().toStdString();
     if (ui.sexeM->isChecked())
     {
-        clientOptions.identity.sex = Identity::MALE;
+        clientOptions.identity.gender = Identity::MALE;
     }
     else
     {
-        clientOptions.identity.sex = Identity::FEMALE;
+        clientOptions.identity.gender = Identity::FEMALE;
     }
 
     if (ui.afficheAvatars->isChecked())
@@ -138,7 +138,7 @@ void OptionsWindow::slotBtnOk()
 
     // Server stuff
     serverOptions.timer = ui.slider1->value();
-    serverOptions.port = QString(ui.portReseau->text()).toInt();
+    serverOptions.tcp_port = QString(ui.portReseau->text()).toInt();
 
     serverOptions.bots[Place::EAST].name = ui.nomJoueurEst->text().toStdString();
     serverOptions.bots[Place::NORTH].name = ui.nomJoueurNord->text().toStdString();
@@ -283,7 +283,7 @@ void OptionsWindow::refresh()
 
     ui.nomJoueurSud->setText(QString(clientOptions.identity.name.data()));
     ui.citationSud->setText(QString(clientOptions.identity.quote.data()));
-    if (clientOptions.identity.sex == Identity::MALE)
+    if (clientOptions.identity.gender == Identity::MALE)
     {
         ui.sexeM->setChecked(true);
     }
@@ -322,7 +322,7 @@ void OptionsWindow::refresh()
 
     // server stuff
     ui.slider1->setValue(serverOptions.timer);
-    ui.portReseau->setValue(serverOptions.port);
+    ui.portReseau->setValue(serverOptions.tcp_port);
     ui.nomJoueurEst->setText(QString(serverOptions.bots[Place::EAST].name.data()));
     ui.nomJoueurNord->setText(QString(serverOptions.bots[Place::NORTH].name.data()));
     ui.nomJoueurOuest->setText(QString(serverOptions.bots[Place::WEST].name.data()));
