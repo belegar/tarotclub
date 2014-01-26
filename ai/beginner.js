@@ -26,8 +26,9 @@
 var CurrentGame = new TarotLib.Game();
 
 // ****************************************************************************
-// TAROTCLUB API CALLED BY C++
-// The functions are called in this order, more or less
+// TAROTCLUB API CALLED BY THE C++ world
+// The functions are called in the order of definition in this file
+// All the parameters are strings
 // ****************************************************************************
 
 /**
@@ -37,7 +38,7 @@ var CurrentGame = new TarotLib.Game();
  */
 function EnterGame(place, mode)
 {
-    CurrentGame.botPlace = place;
+    CurrentGame.botPlace = TarotLib.Place.fromString(place);
 }
 
 /**
@@ -54,13 +55,12 @@ function ReceiveCards(cards)
 /**
  * @brief This function is called when the bot must declare a bid
  *
- * @return The bid announced, use the definition format
- * @see Variable 'Contract'
+ * @return The bid announced, string format
  */
 function AnnounceBid()
 {
-    var cont = CurrentGame.bot.calculateBid();
-	systemPrint("The bot " + TarotLib.Place.toString(CurrentGame.botPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
+    var cont = TarotLib.Contract.toString(CurrentGame.bot.calculateBid());
+    systemPrint("The bot " + TarotLib.Place.toString(CurrentGame.botPlace) + " is announcing bid: " + cont);
 
 	return cont;
 }
