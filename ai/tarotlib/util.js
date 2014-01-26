@@ -227,9 +227,9 @@ this.TarotLib = this.TarotLib || {};
 // ****************************************************************************
 // PUBLIC STATIC METHODS
 // ****************************************************************************
-	/**
-	 * This function transform a place integer into a string
-	 */
+    /**
+     * integer Place --> string Place
+     */
 	Place.toString = function(place)
 	{
 		var position = "";
@@ -247,24 +247,69 @@ this.TarotLib = this.TarotLib || {};
 		}
 		return position;
 	};
-	
-	Contract.toString = function(contract)
-	{
-		var text;
-		
-		if (contract == Contract.PASS) {
-			text = "Pass";
-		} else if (contract == Contract.TAKE) {
-			text = "Take";
-		} else if (contract == Contract.GUARD) {
-			text = "Guard";
-		} else if (contract == Contract.GUARD_WITHOUT) {
-			text = "Guard without";
-		} else if (contract == Contract.GUARD_AGAINST) {
-			text = "Guard against";
-		}
-		return text;
-	}
+
+    /**
+     * string Place --> integer Place
+     */
+    Place.fromString = function(place)
+    {
+        var position = 0;
+
+        if (place === "South") {
+            position = Place.SOUTH;
+        } else if (place === "North") {
+            position = Place.NORTH;
+        } else if (place === "West") {
+            position = Place.WEST;
+        } else if (place === "East") {
+            position = Place.EAST;
+        } else {
+            position = "Nowhere";
+        }
+        return position;
+    };
+
+    /**
+     * integer Contract --> string Contract
+     */
+    Contract.toString = function(contract)
+    {
+        var text;
+
+        if (contract === Contract.PASS) {
+            text = "Pass";
+        } else if (contract === Contract.TAKE) {
+            text = "Take";
+        } else if (contract === Contract.GUARD) {
+            text = "Guard";
+        } else if (contract === Contract.GUARD_WITHOUT) {
+            text = "Guard without";
+        } else if (contract === Contract.GUARD_AGAINST) {
+            text = "Guard against";
+        }
+        return text;
+    }
+
+    /**
+     * string Contract --> integer Contract
+     */
+    Contract.fromString = function(contract)
+    {
+        var value;
+
+        if (contract === "Pass") {
+            value = Contract.PASS;
+        } else if (contract === "Take") {
+            value = Contract.TAKE;
+        } else if (contract === "Guard") {
+            value = Contract.GUARD;
+        } else if (contract === "Guard without") {
+            value = Contract.GUARD_WITHOUT;
+        } else if (contract === "Guard against") {
+            value = Contract.GUARD_AGAINST;
+        }
+        return value;
+    }
 
 	Suit.toString = function(intValue)
 	{

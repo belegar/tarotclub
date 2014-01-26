@@ -3,26 +3,14 @@
 #define JSENGINE_H
 
 #include "duktape.h"
+#include "IScriptEngine.h"
 #include <string>
 #include <vector>
 #include <iostream>
 
-class IScriptEngine
-{
-public:
-
-    virtual void Initialize() = 0;
-
-    virtual bool Evaluate(const std::string &fileName) = 0;
-    virtual std::string Call(const std::string &function, const std::vector<std::string> &args) const = 0;
-};
-
-
 class JSEngine : public IScriptEngine
 {
 public:
-    typedef std::vector<std::string> StringList;
-
     JSEngine()
         : mCtx(NULL)
         , mValid(false)
@@ -57,9 +45,11 @@ public:
         }
     }
 
-    std::string Call(const std::string &function, const StringList &args) const
+    std::string Call(const std::string &function, const IScriptEngine::StringList &args) const
     {
         std::string ret;
+
+
 
         return ret;
     }
@@ -84,6 +74,35 @@ private:
 
         duk_eval_file(ctx, fileName.c_str());
         return 0; // no return values
+    }
+
+    static int WrappedScriptCall(duk_context *ctx)
+    {
+        int nret = 0;
+
+        // Push function to call
+        duk_get_prop_string(mCtx, -1 /*index*/, function.c_str());
+        // Push all the arguments
+        for (int i = 0; i < args.size(); i++)
+        {
+            duk_push_string(mCtx, args[i].c_str());
+        }
+        // Call the function
+        duk_call(ctx, args.size() /*nargs*/);
+
+        // deduct
+        printf("%s\n", duk_to_string(ctx, -1));
+        duk_pop(ctx);
+
+
+        // Context garbage collector: remove elements except the global context
+        while (duk_get_top(mCtx) > 1)
+        {
+            duk_pop(mCtx);
+            nret = 1;
+        }
+
+        return nret; // number of return values
     }
 
     /**
