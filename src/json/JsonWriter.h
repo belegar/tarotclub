@@ -30,71 +30,14 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include "JsonValue.h"
 
 // Forward declarations to resolve inter-dependency between Array and Object
 class JsonArray;
 class JsonObject;
 
 /*****************************************************************************/
-class JsonNode
-{
-public:
-    virtual ~JsonNode() {}
-
-    virtual std::string ToString() = 0;
-};
-/*****************************************************************************/
-/**
- * @brief The JsonValue class
- * The currently supported values are:
- *  \li a double
- *  \li a string
- *  \li an integer
- *  \li a boolean
- *
- * null is not supported. Array and Object are managed with dedicated classes.
- */
-class JsonValue : public JsonNode
-{
-public:
-    enum ValueType
-    {
-        INVALID,
-        INTEGER,
-        DOUBLE,
-        BOOLEAN,
-        STRING
-    };
-
-    JsonValue(std::int32_t value);
-    JsonValue(double value);
-    JsonValue(const char *value);
-    JsonValue(const std::string &value);
-    JsonValue(bool value);
-    JsonValue(const JsonValue &value);
-    JsonValue(); // default constructor creates an invalid value!
-    ~JsonValue();
-
-    std::string ToString();
-
-    JsonValue &operator = (JsonValue const &rhs);
-
-    bool IsValid() { return mType != INVALID; }
-
-    std::int32_t    GetInteger(){ return mIntegerValue; }
-    double          GetDouble() { return mDoubleValue; }
-    bool            GetBool()   { return mBoolValue; }
-    std::string     GetString() { return mStringValue; }
-
-private:
-    ValueType mType;
-    std::int32_t mIntegerValue;
-    double mDoubleValue;
-    std::string mStringValue;
-    bool mBoolValue;
-};
-/*****************************************************************************/
-class JsonArray : public JsonNode
+class JsonArray : public IJsonNode
 {
 public:
     virtual ~JsonArray();
@@ -106,10 +49,10 @@ public:
     JsonObject *CreateObject(); // no name in an object inside an object
 
 private:
-    std::vector<JsonNode *> mArray;
+    std::vector<IJsonNode *> mArray;
 };
 /*****************************************************************************/
-class JsonObject : public JsonNode
+class JsonObject : public IJsonNode
 {
 public:
     JsonObject(std::uint32_t level);
@@ -121,7 +64,7 @@ public:
     JsonObject *CreateObjectPair(const std::string &name);
 
 private:
-    std::vector<std::pair<std::string, JsonNode *> > mObject;
+    std::vector<std::pair<std::string, IJsonNode *> > mObject;
     std::uint32_t mLevel;
 };
 /*****************************************************************************/

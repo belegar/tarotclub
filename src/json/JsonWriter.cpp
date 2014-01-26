@@ -25,109 +25,14 @@
 
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include "JsonWriter.h"
 
-/*****************************************************************************/
-JsonValue::JsonValue(std::int32_t value)
-    : mType(INTEGER)
-    , mIntegerValue(value)
-{
-
-}
-/*****************************************************************************/
-JsonValue::JsonValue(double value)
-    : mType(DOUBLE)
-    , mDoubleValue(value)
-{
-
-}
-/*****************************************************************************/
-JsonValue::JsonValue(const char * value)
-    : mType(STRING)
-    , mStringValue(value)
-{
-
-}
-/*****************************************************************************/
-JsonValue::JsonValue(const std::string &value)
-    : mType(STRING)
-    , mStringValue(value)
-{
-
-}
-/*****************************************************************************/
-JsonValue::JsonValue(bool value)
-    : mType(BOOLEAN)
-    , mBoolValue(value)
-{
-
-}
-/*****************************************************************************/
-JsonValue::JsonValue(const JsonValue &value)
-{
-    *this = value;
-}
-/*****************************************************************************/
-JsonValue::JsonValue()
-{
-    mType = INVALID;
-}
-/*****************************************************************************/
-JsonValue::~JsonValue()
-{
-
-}
-/*****************************************************************************/
-std::string JsonValue::ToString()
-{
-    std::string text;
-    std::stringstream ss;
-
-    if (mType == STRING)
-    {
-       text += "\"" + mStringValue + "\"";
-    }
-    else if (mType == INTEGER)
-    {
-        ss << mIntegerValue;
-        text += ss.str();
-    }
-    else if (mType == BOOLEAN)
-    {
-        if (mBoolValue)
-        {
-            text = "true";
-        }
-        else
-        {
-            text = "false";
-        }
-    }
-    else if (mType == DOUBLE)
-    {
-        ss << mDoubleValue;
-        text += ss.str();
-    }
-
-    return text;
-}
-/*****************************************************************************/
-JsonValue &JsonValue::operator =(const JsonValue &rhs)
-{
-    mType = rhs.mType;
-    mIntegerValue = rhs.mIntegerValue;
-    mDoubleValue = rhs.mDoubleValue;
-    mStringValue = rhs.mStringValue;
-    mBoolValue = rhs.mBoolValue;
-    return *this;
-}
 /*****************************************************************************/
 JsonArray::~JsonArray()
 {
     for (std::uint32_t i = 0; i < mArray.size(); i++)
     {
-        JsonNode *node = mArray[i];
+        IJsonNode *node = mArray[i];
         delete node;
     }
     mArray.clear();
@@ -169,7 +74,7 @@ JsonObject::~JsonObject()
 
     for (std::uint32_t i = 0; i < mObject.size(); i++)
     {
-        std::pair<std::string, JsonNode *> node = mObject[i];
+        std::pair<std::string, IJsonNode *> node = mObject[i];
         delete node.second;
 #ifdef JSON_DEBUG
         counter++;
@@ -196,7 +101,7 @@ std::string JsonObject::ToString()
     std::uint32_t index = 0;
     for (std::uint32_t i = 0; i < mObject.size(); i++)
     {
-        std::pair<std::string, JsonNode *> node = mObject[i];
+        std::pair<std::string, IJsonNode *> node = mObject[i];
 
         text += indent + "\"" + node.first + "\": " + node.second->ToString();
         index++;
@@ -217,14 +122,14 @@ std::string JsonObject::ToString()
 void JsonObject::CreateValuePair(const std::string &name, const JsonValue &value)
 {
     JsonValue *val = new JsonValue(value);
-    std::pair<std::string, JsonNode *> node(name, val);
+    std::pair<std::string, IJsonNode *> node(name, val);
     mObject.push_back(node);
 }
 /*****************************************************************************/
 JsonArray *JsonObject::CreateArrayPair(const std::string &name)
 {
     JsonArray *array = new JsonArray();
-    std::pair<std::string, JsonNode *> node(name, array);
+    std::pair<std::string, IJsonNode *> node(name, array);
     mObject.push_back(node);
     return array;
 }
@@ -232,7 +137,7 @@ JsonArray *JsonObject::CreateArrayPair(const std::string &name)
 JsonObject *JsonObject::CreateObjectPair(const std::string &name)
 {
     JsonObject *obj = new JsonObject(mLevel+1);
-     std::pair<std::string, JsonNode *> node(name, obj);
+     std::pair<std::string, IJsonNode *> node(name, obj);
     mObject.push_back(node);
     return obj;
 }

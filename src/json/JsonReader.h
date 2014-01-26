@@ -31,7 +31,7 @@
 #include <fstream>
 #include <sstream>
 #include "duktape.h"
-#include "JsonWriter.h"
+#include "JsonValue.h"
 
 /*****************************************************************************/
 class JsonReader
