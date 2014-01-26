@@ -55,6 +55,7 @@ void Bot::AssignedPlace()
 
     JSEngine::StringList args;
     args.push_back(mClient.GetPlace().ToString());
+    args.push_back(""); // FIXME replace by the game mode, string format
     botEngine.Call("EnterGame", args);
 }
 /*****************************************************************************/
