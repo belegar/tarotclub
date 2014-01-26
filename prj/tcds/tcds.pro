@@ -41,6 +41,7 @@ INCLUDEPATH += $${PWD}/../src/server
 QT += xml qml
 CONFIG += qt console warn_on
 QMAKE_CXXFLAGS += -std=c++11
+TARGET = tcds
 
 # Specific OS stuff
 win32 {
