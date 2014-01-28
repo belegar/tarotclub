@@ -26,7 +26,7 @@ UI_HEADERS_DIR = ./include
 UI_SOURCES_DIR = ./src
 OBJECTS_DIR = ./obj
 DESTDIR = ./bin
-BASE_DIR = $${PWD}/../..
+BASE_DIR = $${PWD}/..
 
 # ------------------------------------------------------------------------------
 # The search path to find supplied files
