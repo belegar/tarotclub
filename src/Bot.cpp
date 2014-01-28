@@ -78,31 +78,32 @@ void Bot::SelectPlayer(Place p)
 /*****************************************************************************/
 void Bot::RequestBid(Contract highestBid)
 {
-    std::uint8_t ret;
     bool slam = false;
-    Contract botContract;
-
     JSEngine::StringList args;
+
     args.push_back(highestBid.ToString());
+    JSValue result = botEngine.Call("AnnounceBid", args);
 
-    std::string result = botEngine.Call("AnnounceBid", args);
+    if (!result.IsValid())
+    {
+        TLogError("Invalid script answer, requested string");
+    }
 
-    istringstream(result) >> ret;
+    Contract botContract(result.GetString());
 
     // security test
-    if ((ret >= Contract::PASS) && (ret <= Contract::GUARD_AGAINST))
+    if ((botContract >= Contract::PASS) && (botContract <= Contract::GUARD_AGAINST))
     {
-        botContract = ret;
         // Ask to the bot if a slam has been announced
         args.clear();
         result = botEngine.Call("AnnounceSlam", args);
-        if (result == "true")
+        if (result.IsValid())
         {
-            slam = true;
+            slam = result.GetBool();
         }
         else
         {
-            slam = false;
+            TLogError("Invalid script answer, requested boolean");
         }
     }
     else
@@ -171,9 +172,14 @@ void Bot::BuildDiscard()
     Deck discard;
 
     args.push_back(mClient.GetDogDeck().GetCardList());
-    std::string ret = botEngine.Call("BuildDiscard", args);
+    JSValue ret = botEngine.Call("BuildDiscard", args);
 
-    int count = discard.SetCards(ret);
+    if (!ret.IsValid())
+    {
+        TLogError("Invalid script answer, requested string");
+    }
+
+    int count = discard.SetCards(ret.GetString());
 
     if (count == 6)
     {
@@ -239,16 +245,21 @@ void Bot::PlayCard()
     std::this_thread::sleep_for(std::chrono::milliseconds(mTimeBeforeSend));
 
     JSEngine::StringList args;
-    std::string ret = botEngine.Call("PlayCard", args);
+    JSValue ret = botEngine.Call("PlayCard", args);
+
+    if (!ret.IsValid())
+    {
+        TLogError("Invalid script answer, requested string");
+    }
 
     // Test validity of card
-    c = mClient.GetMyDeck().GetCardByName(ret);
+    c = mClient.GetMyDeck().GetCardByName(ret.GetString());
     if (c != NULL)
     {
         if (mClient.IsValid(c) == false)
         {
             std::stringstream message;
-            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret;
+            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.GetString();
             TLogInfo(message.str());
             // The show must go on, play a random card
             c = mClient.Play();
@@ -257,7 +268,7 @@ void Bot::PlayCard()
     else
     {
         std::stringstream message;
-        message << mClient.GetPlace().ToString() << " played an unkown card: " << ret;
+        message << mClient.GetPlace().ToString() << " played an unkown card: " << ret.GetString();
         TLogInfo(message.str());
 
         message.flush();
