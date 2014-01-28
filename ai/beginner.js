@@ -68,11 +68,11 @@ function AnnounceBid()
 /**
  * @brief This function is called to ask if the bot wants to declare a slam
  *
- * @return true if the bot declares a slam, otherwise false
+ * @return true if the bot declares a slam, otherwise false, Boolean format
  */
 function AnnounceSlam()
 {
-	return false;
+    return false;
 }
 
 /**
