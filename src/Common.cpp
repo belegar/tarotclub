@@ -154,6 +154,18 @@ Contract::Contract(std::uint8_t c)
     }
 }
 /*****************************************************************************/
+Contract::Contract(std::string c)
+{
+    mContract = PASS;
+    for (std::uint32_t i = 0U; i < mStrings.size(); i++)
+    {
+        if (c == mStrings[i])
+        {
+            mContract = static_cast<std::uint8_t>(i);
+        }
+    }
+}
+/*****************************************************************************/
 std::string Contract::ToString() const
 {
     return mStrings[mContract];

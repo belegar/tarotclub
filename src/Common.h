@@ -106,6 +106,7 @@ public:
     Contract();
     Contract(int c);
     Contract(std::uint8_t c);
+    Contract(std::string c);
 
     std::string ToString() const;
     std::uint8_t Value();
