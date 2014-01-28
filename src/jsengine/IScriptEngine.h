@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "JSValue.h"
 
 class IScriptEngine
 {
@@ -12,7 +13,7 @@ public:
     virtual void Initialize() = 0;
 
     virtual bool Evaluate(const std::string &fileName) = 0;
-    virtual std::string Call(const std::string &function, const StringList &args) const = 0;
+    virtual JSValue Call(const std::string &function, const StringList &args) = 0;
 };
 
 #endif // I_SCRIPT_ENGINE_H
