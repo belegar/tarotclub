@@ -1,6 +1,3 @@
-
-#define DUK_PANIC_HANDLER(code,msg) my_panic_handler((code),(msg))
-
 #line 1 "duk_internal.h"
 /*
  *  Top-level include file to be used for all (internal) source files.
@@ -399,7 +396,6 @@ typedef uintptr_t duk_uintptr_t;
 typedef intptr_t duk_intptr_t;
 typedef uintmax_t duk_uintmax_t;
 typedef intmax_t duk_intmax_t;
-typedef size_t duk_size_t;
 
 #define DUK_UINT8_MIN         0
 #define DUK_UINT8_MAX         UINT8_MAX
@@ -537,8 +533,6 @@ typedef unsigned long long duk_uintptr_t;
 typedef duk_uint32_t duk_uintmax_t;
 typedef duk_int32_t duk_intmax_t;
 
-typedef size_t duk_size_t;
-
 #define DUK_UINT8_MIN         0UL
 #define DUK_UINT8_MAX         0xffUL
 #define DUK_INT8_MIN          (-0x80L)
@@ -612,12 +606,20 @@ typedef size_t duk_size_t;
  */
 typedef duk_int_fast32_t duk_int_t;
 typedef duk_uint_fast32_t duk_uint_t;
+#define DUK_INT_MIN           DUK_INT_FAST32_MIN
+#define DUK_INT_MAX           DUK_INT_FAST32_MAX
+#define DUK_UINT_MIN          DUK_UINT_FAST32_MIN
+#define DUK_UINT_MAX          DUK_UINT_FAST32_MAX
 
 /* Small integers (16 bits or more) can fall back to the 'int' type, but
  * have a typedef so they are marked "small" explicitly.
  */
 typedef int duk_small_int_t;
 typedef unsigned int duk_small_uint_t;
+#define DUK_SMALL_INT_MIN     INT_MIN
+#define DUK_SMALL_INT_MAX     INT_MAX
+#define DUK_SMALL_UINT_MIN    0
+#define DUK_SMALL_UINT_MAX    UINT_MAX
 
 /* Codepoint type.  Must be 32 bits or more because it is used also for
  * internal codepoints.  The type is signed because negative codepoints
@@ -1116,6 +1118,13 @@ extern double duk_computed_nan;
 #undef DUK_USE_MARK_AND_SWEEP
 #endif
 
+#if defined(DUK_USE_MARK_AND_SWEEP)
+#define DUK_USE_VOLUNTARY_GC
+#if defined(DUK_OPT_NO_VOLUNTARY_GC)
+#undef DUK_USE_VOLUNTARY_GC
+#endif
+#endif
+
 #if !defined(DUK_USE_MARK_AND_SWEEP) && !defined(DUK_USE_REFERENCE_COUNTING)
 #error must have either mark-and-sweep or reference counting enabled
 #endif
@@ -1154,6 +1163,9 @@ extern double duk_computed_nan;
 #define DUK_USE_TRACEBACK_DEPTH  10
 #endif
 #endif
+
+/* Include messages in executor internal errors. */
+#define DUK_USE_VERBOSE_EXECUTOR_ERRORS
 
 /*
  *  Execution and debugger options
@@ -1217,9 +1229,9 @@ extern double duk_computed_nan;
 #undef DUK_USE_REGEXP_SUPPORT
 #endif
 
-#define DUK_USE_STRICT_UTF8_SOURCE
-#if defined(DUK_OPT_NO_STRICT_UTF8_SOURCE)
 #undef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_OPT_STRICT_UTF8_SOURCE)
+#define DUK_USE_STRICT_UTF8_SOURCE
 #endif
 
 #define DUK_USE_OCTAL_SUPPORT
@@ -1240,6 +1252,24 @@ extern double duk_computed_nan;
 #define DUK_USE_SECTION_B
 #if defined(DUK_OPT_NO_SECTION_B)
 #undef DUK_USE_SECTION_B
+#endif
+
+/* Treat function statements (function declarations outside top level of
+ * Program or FunctionBody) same as normal function declarations.  This is
+ * also V8 behavior.  See test-dev-func-decl-outside-top.js.
+ */ 
+#define DUK_USE_FUNC_STMT
+#if defined(DUK_OPT_NO_FUNC_STMT)
+#undef DUK_USE_FUNC_STMT
+#endif
+
+/*
+ *  Function instance features.
+ */
+
+#define DUK_USE_PC2LINE
+#if defined(DUK_OPT_NO_PC2LINE)
+#undef DUK_USE_PC2LINE
 #endif
 
 /*
@@ -1320,6 +1350,12 @@ extern double duk_computed_nan;
 #endif
 
 /*
+ *  InitJS code
+ */
+
+#define DUK_USE_INITJS
+
+/*
  *  Miscellaneous
  */
 
@@ -1378,7 +1414,7 @@ extern double duk_computed_nan;
  *
  *  This is a direct platform dependency which is difficult to eliminate.
  *  Select provider through defines, and then include necessary system
- *  headers so that duk_builtin_date.c compiles.
+ *  headers so that duk_bi_date.c compiles.
  *
  *  FIXME: add a way to provide custom functions to provide the critical
  *  primitives; this would be convenient when porting to unknown platforms
@@ -1999,7 +2035,7 @@ typedef struct duk_re_compiler_ctx duk_re_compiler_ctx;
 #if defined(DUK_USE_DOUBLE_LE)
 extern const duk_uint8_t duk_strings_data[];
 
-#define DUK_STRDATA_DATA_LENGTH                                       1825
+#define DUK_STRDATA_DATA_LENGTH                                       1789
 #define DUK_STRDATA_MAX_STRLEN                                        24
 
 #define DUK_STRIDX_UC_THREAD                                          0                              /* 'Thread' */
@@ -2029,289 +2065,285 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_STRIDX_JSON_EXT_UNDEFINED                                 24                             /* '{"_undef":true}' */
 #define DUK_STRIDX_CURRENT                                            25                             /* 'current' */
 #define DUK_STRIDX_RESUME                                             26                             /* 'resume' */
-#define DUK_STRIDX_BASE64                                             27                             /* 'base64' */
-#define DUK_STRIDX_HEX                                                28                             /* 'hex' */
-#define DUK_STRIDX_JSONC_DEC                                          29                             /* 'jsoncDec' */
-#define DUK_STRIDX_JSONC_ENC                                          30                             /* 'jsoncEnc' */
-#define DUK_STRIDX_JSONX_DEC                                          31                             /* 'jsonxDec' */
-#define DUK_STRIDX_JSONX_ENC                                          32                             /* 'jsonxEnc' */
-#define DUK_STRIDX_DEC                                                33                             /* 'dec' */
-#define DUK_STRIDX_ENC                                                34                             /* 'enc' */
-#define DUK_STRIDX_GET_FINALIZER                                      35                             /* 'getFinalizer' */
-#define DUK_STRIDX_SET_FINALIZER                                      36                             /* 'setFinalizer' */
-#define DUK_STRIDX_GC                                                 37                             /* 'gc' */
-#define DUK_STRIDX_REFC                                               38                             /* 'refc' */
-#define DUK_STRIDX_ADDR                                               39                             /* 'addr' */
-#define DUK_STRIDX_VERSION                                            40                             /* 'version' */
-#define DUK_STRIDX_ENV                                                41                             /* 'env' */
-#define DUK_STRIDX_DUK                                                42                             /* 'Duktape' */
-#define DUK_STRIDX_COMPILE                                            43                             /* 'compile' */
-#define DUK_STRIDX_INT_REGBASE                                        44                             /* '\x00regbase' */
-#define DUK_STRIDX_INT_THREAD                                         45                             /* '\x00thread' */
-#define DUK_STRIDX_INT_FINALIZER                                      46                             /* '\x00finalizer' */
-#define DUK_STRIDX_INT_CALLEE                                         47                             /* '\x00callee' */
-#define DUK_STRIDX_INT_MAP                                            48                             /* '\x00map' */
-#define DUK_STRIDX_INT_ARGS                                           49                             /* '\x00args' */
-#define DUK_STRIDX_INT_THIS                                           50                             /* '\x00this' */
-#define DUK_STRIDX_INT_PC2LINE                                        51                             /* '\x00pc2line' */
-#define DUK_STRIDX_INT_SOURCE                                         52                             /* '\x00source' */
-#define DUK_STRIDX_INT_VARENV                                         53                             /* '\x00varenv' */
-#define DUK_STRIDX_INT_LEXENV                                         54                             /* '\x00lexenv' */
-#define DUK_STRIDX_INT_VARMAP                                         55                             /* '\x00varmap' */
-#define DUK_STRIDX_INT_FORMALS                                        56                             /* '\x00formals' */
-#define DUK_STRIDX_INT_BYTECODE                                       57                             /* '\x00bytecode' */
-#define DUK_STRIDX_INT_NEXT                                           58                             /* '\x00next' */
-#define DUK_STRIDX_INT_TARGET                                         59                             /* '\x00target' */
-#define DUK_STRIDX_INT_VALUE                                          60                             /* '\x00value' */
-#define DUK_STRIDX_LC_POINTER                                         61                             /* 'pointer' */
-#define DUK_STRIDX_LC_BUFFER                                          62                             /* 'buffer' */
-#define DUK_STRIDX_TRACEDATA                                          63                             /* 'tracedata' */
-#define DUK_STRIDX_LINE_NUMBER                                        64                             /* 'lineNumber' */
-#define DUK_STRIDX_FILE_NAME                                          65                             /* 'fileName' */
-#define DUK_STRIDX_PC                                                 66                             /* 'pc' */
-#define DUK_STRIDX_STACK                                              67                             /* 'stack' */
-#define DUK_STRIDX_THROW_TYPE_ERROR                                   68                             /* 'ThrowTypeError' */
-#define DUK_STRIDX_CALLEE                                             69                             /* 'callee' */
-#define DUK_STRIDX_INVALID_DATE                                       70                             /* 'Invalid Date' */
-#define DUK_STRIDX_BRACKETED_ELLIPSIS                                 71                             /* '[...]' */
-#define DUK_STRIDX_NEWLINE_TAB                                        72                             /* '\n\t' */
-#define DUK_STRIDX_SPACE                                              73                             /* ' ' */
-#define DUK_STRIDX_COMMA                                              74                             /* ',' */
-#define DUK_STRIDX_MINUS_ZERO                                         75                             /* '-0' */
-#define DUK_STRIDX_PLUS_ZERO                                          76                             /* '+0' */
-#define DUK_STRIDX_ZERO                                               77                             /* '0' */
-#define DUK_STRIDX_MINUS_INFINITY                                     78                             /* '-Infinity' */
-#define DUK_STRIDX_PLUS_INFINITY                                      79                             /* '+Infinity' */
-#define DUK_STRIDX_INFINITY                                           80                             /* 'Infinity' */
-#define DUK_STRIDX_LC_OBJECT                                          81                             /* 'object' */
-#define DUK_STRIDX_LC_STRING                                          82                             /* 'string' */
-#define DUK_STRIDX_LC_NUMBER                                          83                             /* 'number' */
-#define DUK_STRIDX_LC_BOOLEAN                                         84                             /* 'boolean' */
-#define DUK_STRIDX_UNDEFINED                                          85                             /* 'undefined' */
-#define DUK_STRIDX_STRINGIFY                                          86                             /* 'stringify' */
-#define DUK_STRIDX_TAN                                                87                             /* 'tan' */
-#define DUK_STRIDX_SQRT                                               88                             /* 'sqrt' */
-#define DUK_STRIDX_SIN                                                89                             /* 'sin' */
-#define DUK_STRIDX_ROUND                                              90                             /* 'round' */
-#define DUK_STRIDX_RANDOM                                             91                             /* 'random' */
-#define DUK_STRIDX_POW                                                92                             /* 'pow' */
-#define DUK_STRIDX_MIN                                                93                             /* 'min' */
-#define DUK_STRIDX_MAX                                                94                             /* 'max' */
-#define DUK_STRIDX_LOG                                                95                             /* 'log' */
-#define DUK_STRIDX_FLOOR                                              96                             /* 'floor' */
-#define DUK_STRIDX_EXP                                                97                             /* 'exp' */
-#define DUK_STRIDX_COS                                                98                             /* 'cos' */
-#define DUK_STRIDX_CEIL                                               99                             /* 'ceil' */
-#define DUK_STRIDX_ATAN2                                              100                            /* 'atan2' */
-#define DUK_STRIDX_ATAN                                               101                            /* 'atan' */
-#define DUK_STRIDX_ASIN                                               102                            /* 'asin' */
-#define DUK_STRIDX_ACOS                                               103                            /* 'acos' */
-#define DUK_STRIDX_ABS                                                104                            /* 'abs' */
-#define DUK_STRIDX_SQRT2                                              105                            /* 'SQRT2' */
-#define DUK_STRIDX_SQRT1_2                                            106                            /* 'SQRT1_2' */
-#define DUK_STRIDX_PI                                                 107                            /* 'PI' */
-#define DUK_STRIDX_LOG10E                                             108                            /* 'LOG10E' */
-#define DUK_STRIDX_LOG2E                                              109                            /* 'LOG2E' */
-#define DUK_STRIDX_LN2                                                110                            /* 'LN2' */
-#define DUK_STRIDX_LN10                                               111                            /* 'LN10' */
-#define DUK_STRIDX_E                                                  112                            /* 'E' */
-#define DUK_STRIDX_MESSAGE                                            113                            /* 'message' */
-#define DUK_STRIDX_NAME                                               114                            /* 'name' */
-#define DUK_STRIDX_INPUT                                              115                            /* 'input' */
-#define DUK_STRIDX_INDEX                                              116                            /* 'index' */
-#define DUK_STRIDX_ESCAPED_EMPTY_REGEXP                               117                            /* '(?:)' */
-#define DUK_STRIDX_LAST_INDEX                                         118                            /* 'lastIndex' */
-#define DUK_STRIDX_MULTILINE                                          119                            /* 'multiline' */
-#define DUK_STRIDX_IGNORE_CASE                                        120                            /* 'ignoreCase' */
-#define DUK_STRIDX_SOURCE                                             121                            /* 'source' */
-#define DUK_STRIDX_TEST                                               122                            /* 'test' */
-#define DUK_STRIDX_EXEC                                               123                            /* 'exec' */
-#define DUK_STRIDX_TO_GMT_STRING                                      124                            /* 'toGMTString' */
-#define DUK_STRIDX_SET_YEAR                                           125                            /* 'setYear' */
-#define DUK_STRIDX_GET_YEAR                                           126                            /* 'getYear' */
-#define DUK_STRIDX_TO_JSON                                            127                            /* 'toJSON' */
-#define DUK_STRIDX_TO_ISO_STRING                                      128                            /* 'toISOString' */
-#define DUK_STRIDX_TO_UTC_STRING                                      129                            /* 'toUTCString' */
-#define DUK_STRIDX_SET_UTC_FULL_YEAR                                  130                            /* 'setUTCFullYear' */
-#define DUK_STRIDX_SET_FULL_YEAR                                      131                            /* 'setFullYear' */
-#define DUK_STRIDX_SET_UTC_MONTH                                      132                            /* 'setUTCMonth' */
-#define DUK_STRIDX_SET_MONTH                                          133                            /* 'setMonth' */
-#define DUK_STRIDX_SET_UTC_DATE                                       134                            /* 'setUTCDate' */
-#define DUK_STRIDX_SET_DATE                                           135                            /* 'setDate' */
-#define DUK_STRIDX_SET_UTC_HOURS                                      136                            /* 'setUTCHours' */
-#define DUK_STRIDX_SET_HOURS                                          137                            /* 'setHours' */
-#define DUK_STRIDX_SET_UTC_MINUTES                                    138                            /* 'setUTCMinutes' */
-#define DUK_STRIDX_SET_MINUTES                                        139                            /* 'setMinutes' */
-#define DUK_STRIDX_SET_UTC_SECONDS                                    140                            /* 'setUTCSeconds' */
-#define DUK_STRIDX_SET_SECONDS                                        141                            /* 'setSeconds' */
-#define DUK_STRIDX_SET_UTC_MILLISECONDS                               142                            /* 'setUTCMilliseconds' */
-#define DUK_STRIDX_SET_MILLISECONDS                                   143                            /* 'setMilliseconds' */
-#define DUK_STRIDX_SET_TIME                                           144                            /* 'setTime' */
-#define DUK_STRIDX_GET_TIMEZONE_OFFSET                                145                            /* 'getTimezoneOffset' */
-#define DUK_STRIDX_GET_UTC_MILLISECONDS                               146                            /* 'getUTCMilliseconds' */
-#define DUK_STRIDX_GET_MILLISECONDS                                   147                            /* 'getMilliseconds' */
-#define DUK_STRIDX_GET_UTC_SECONDS                                    148                            /* 'getUTCSeconds' */
-#define DUK_STRIDX_GET_SECONDS                                        149                            /* 'getSeconds' */
-#define DUK_STRIDX_GET_UTC_MINUTES                                    150                            /* 'getUTCMinutes' */
-#define DUK_STRIDX_GET_MINUTES                                        151                            /* 'getMinutes' */
-#define DUK_STRIDX_GET_UTC_HOURS                                      152                            /* 'getUTCHours' */
-#define DUK_STRIDX_GET_HOURS                                          153                            /* 'getHours' */
-#define DUK_STRIDX_GET_UTC_DAY                                        154                            /* 'getUTCDay' */
-#define DUK_STRIDX_GET_DAY                                            155                            /* 'getDay' */
-#define DUK_STRIDX_GET_UTC_DATE                                       156                            /* 'getUTCDate' */
-#define DUK_STRIDX_GET_DATE                                           157                            /* 'getDate' */
-#define DUK_STRIDX_GET_UTC_MONTH                                      158                            /* 'getUTCMonth' */
-#define DUK_STRIDX_GET_MONTH                                          159                            /* 'getMonth' */
-#define DUK_STRIDX_GET_UTC_FULL_YEAR                                  160                            /* 'getUTCFullYear' */
-#define DUK_STRIDX_GET_FULL_YEAR                                      161                            /* 'getFullYear' */
-#define DUK_STRIDX_GET_TIME                                           162                            /* 'getTime' */
-#define DUK_STRIDX_TO_LOCALE_TIME_STRING                              163                            /* 'toLocaleTimeString' */
-#define DUK_STRIDX_TO_LOCALE_DATE_STRING                              164                            /* 'toLocaleDateString' */
-#define DUK_STRIDX_TO_TIME_STRING                                     165                            /* 'toTimeString' */
-#define DUK_STRIDX_TO_DATE_STRING                                     166                            /* 'toDateString' */
-#define DUK_STRIDX_NOW                                                167                            /* 'now' */
-#define DUK_STRIDX_UTC                                                168                            /* 'UTC' */
-#define DUK_STRIDX_PARSE                                              169                            /* 'parse' */
-#define DUK_STRIDX_TO_PRECISION                                       170                            /* 'toPrecision' */
-#define DUK_STRIDX_TO_EXPONENTIAL                                     171                            /* 'toExponential' */
-#define DUK_STRIDX_TO_FIXED                                           172                            /* 'toFixed' */
-#define DUK_STRIDX_POSITIVE_INFINITY                                  173                            /* 'POSITIVE_INFINITY' */
-#define DUK_STRIDX_NEGATIVE_INFINITY                                  174                            /* 'NEGATIVE_INFINITY' */
-#define DUK_STRIDX_NAN                                                175                            /* 'NaN' */
-#define DUK_STRIDX_MIN_VALUE                                          176                            /* 'MIN_VALUE' */
-#define DUK_STRIDX_MAX_VALUE                                          177                            /* 'MAX_VALUE' */
-#define DUK_STRIDX_SUBSTR                                             178                            /* 'substr' */
-#define DUK_STRIDX_TRIM                                               179                            /* 'trim' */
-#define DUK_STRIDX_TO_LOCALE_UPPER_CASE                               180                            /* 'toLocaleUpperCase' */
-#define DUK_STRIDX_TO_UPPER_CASE                                      181                            /* 'toUpperCase' */
-#define DUK_STRIDX_TO_LOCALE_LOWER_CASE                               182                            /* 'toLocaleLowerCase' */
-#define DUK_STRIDX_TO_LOWER_CASE                                      183                            /* 'toLowerCase' */
-#define DUK_STRIDX_SUBSTRING                                          184                            /* 'substring' */
-#define DUK_STRIDX_SPLIT                                              185                            /* 'split' */
-#define DUK_STRIDX_SEARCH                                             186                            /* 'search' */
-#define DUK_STRIDX_REPLACE                                            187                            /* 'replace' */
-#define DUK_STRIDX_MATCH                                              188                            /* 'match' */
-#define DUK_STRIDX_LOCALE_COMPARE                                     189                            /* 'localeCompare' */
-#define DUK_STRIDX_CHAR_CODE_AT                                       190                            /* 'charCodeAt' */
-#define DUK_STRIDX_CHAR_AT                                            191                            /* 'charAt' */
-#define DUK_STRIDX_FROM_CHAR_CODE                                     192                            /* 'fromCharCode' */
-#define DUK_STRIDX_REDUCE_RIGHT                                       193                            /* 'reduceRight' */
-#define DUK_STRIDX_REDUCE                                             194                            /* 'reduce' */
-#define DUK_STRIDX_FILTER                                             195                            /* 'filter' */
-#define DUK_STRIDX_MAP                                                196                            /* 'map' */
-#define DUK_STRIDX_FOR_EACH                                           197                            /* 'forEach' */
-#define DUK_STRIDX_SOME                                               198                            /* 'some' */
-#define DUK_STRIDX_EVERY                                              199                            /* 'every' */
-#define DUK_STRIDX_LAST_INDEX_OF                                      200                            /* 'lastIndexOf' */
-#define DUK_STRIDX_INDEX_OF                                           201                            /* 'indexOf' */
-#define DUK_STRIDX_UNSHIFT                                            202                            /* 'unshift' */
-#define DUK_STRIDX_SPLICE                                             203                            /* 'splice' */
-#define DUK_STRIDX_SORT                                               204                            /* 'sort' */
-#define DUK_STRIDX_SLICE                                              205                            /* 'slice' */
-#define DUK_STRIDX_SHIFT                                              206                            /* 'shift' */
-#define DUK_STRIDX_REVERSE                                            207                            /* 'reverse' */
-#define DUK_STRIDX_PUSH                                               208                            /* 'push' */
-#define DUK_STRIDX_POP                                                209                            /* 'pop' */
-#define DUK_STRIDX_JOIN                                               210                            /* 'join' */
-#define DUK_STRIDX_CONCAT                                             211                            /* 'concat' */
-#define DUK_STRIDX_IS_ARRAY                                           212                            /* 'isArray' */
-#define DUK_STRIDX_LC_ARGUMENTS                                       213                            /* 'arguments' */
-#define DUK_STRIDX_CALLER                                             214                            /* 'caller' */
-#define DUK_STRIDX_BIND                                               215                            /* 'bind' */
-#define DUK_STRIDX_CALL                                               216                            /* 'call' */
-#define DUK_STRIDX_APPLY                                              217                            /* 'apply' */
-#define DUK_STRIDX_PROPERTY_IS_ENUMERABLE                             218                            /* 'propertyIsEnumerable' */
-#define DUK_STRIDX_IS_PROTOTYPE_OF                                    219                            /* 'isPrototypeOf' */
-#define DUK_STRIDX_HAS_OWN_PROPERTY                                   220                            /* 'hasOwnProperty' */
-#define DUK_STRIDX_VALUE_OF                                           221                            /* 'valueOf' */
-#define DUK_STRIDX_TO_LOCALE_STRING                                   222                            /* 'toLocaleString' */
-#define DUK_STRIDX_TO_STRING                                          223                            /* 'toString' */
-#define DUK_STRIDX_CONSTRUCTOR                                        224                            /* 'constructor' */
-#define DUK_STRIDX_ENUMERABLE                                         225                            /* 'enumerable' */
-#define DUK_STRIDX_CONFIGURABLE                                       226                            /* 'configurable' */
-#define DUK_STRIDX_WRITABLE                                           227                            /* 'writable' */
-#define DUK_STRIDX_VALUE                                              228                            /* 'value' */
-#define DUK_STRIDX_KEYS                                               229                            /* 'keys' */
-#define DUK_STRIDX_IS_EXTENSIBLE                                      230                            /* 'isExtensible' */
-#define DUK_STRIDX_IS_FROZEN                                          231                            /* 'isFrozen' */
-#define DUK_STRIDX_IS_SEALED                                          232                            /* 'isSealed' */
-#define DUK_STRIDX_PREVENT_EXTENSIONS                                 233                            /* 'preventExtensions' */
-#define DUK_STRIDX_FREEZE                                             234                            /* 'freeze' */
-#define DUK_STRIDX_SEAL                                               235                            /* 'seal' */
-#define DUK_STRIDX_DEFINE_PROPERTIES                                  236                            /* 'defineProperties' */
-#define DUK_STRIDX_DEFINE_PROPERTY                                    237                            /* 'defineProperty' */
-#define DUK_STRIDX_CREATE                                             238                            /* 'create' */
-#define DUK_STRIDX_GET_OWN_PROPERTY_NAMES                             239                            /* 'getOwnPropertyNames' */
-#define DUK_STRIDX_GET_OWN_PROPERTY_DESCRIPTOR                        240                            /* 'getOwnPropertyDescriptor' */
-#define DUK_STRIDX_GET_PROTOTYPE_OF                                   241                            /* 'getPrototypeOf' */
-#define DUK_STRIDX_PROTOTYPE                                          242                            /* 'prototype' */
-#define DUK_STRIDX_LENGTH                                             243                            /* 'length' */
-#define DUK_STRIDX_ALERT                                              244                            /* 'alert' */
-#define DUK_STRIDX_PRINT                                              245                            /* 'print' */
-#define DUK_STRIDX_UNESCAPE                                           246                            /* 'unescape' */
-#define DUK_STRIDX_ESCAPE                                             247                            /* 'escape' */
-#define DUK_STRIDX_ENCODE_URI_COMPONENT                               248                            /* 'encodeURIComponent' */
-#define DUK_STRIDX_ENCODE_URI                                         249                            /* 'encodeURI' */
-#define DUK_STRIDX_DECODE_URI_COMPONENT                               250                            /* 'decodeURIComponent' */
-#define DUK_STRIDX_DECODE_URI                                         251                            /* 'decodeURI' */
-#define DUK_STRIDX_IS_FINITE                                          252                            /* 'isFinite' */
-#define DUK_STRIDX_IS_NAN                                             253                            /* 'isNaN' */
-#define DUK_STRIDX_PARSE_FLOAT                                        254                            /* 'parseFloat' */
-#define DUK_STRIDX_PARSE_INT                                          255                            /* 'parseInt' */
-#define DUK_STRIDX_EVAL                                               256                            /* 'eval' */
-#define DUK_STRIDX_URI_ERROR                                          257                            /* 'URIError' */
-#define DUK_STRIDX_TYPE_ERROR                                         258                            /* 'TypeError' */
-#define DUK_STRIDX_SYNTAX_ERROR                                       259                            /* 'SyntaxError' */
-#define DUK_STRIDX_REFERENCE_ERROR                                    260                            /* 'ReferenceError' */
-#define DUK_STRIDX_RANGE_ERROR                                        261                            /* 'RangeError' */
-#define DUK_STRIDX_EVAL_ERROR                                         262                            /* 'EvalError' */
-#define DUK_STRIDX_BREAK                                              263                            /* 'break' */
-#define DUK_STRIDX_CASE                                               264                            /* 'case' */
-#define DUK_STRIDX_CATCH                                              265                            /* 'catch' */
-#define DUK_STRIDX_CONTINUE                                           266                            /* 'continue' */
-#define DUK_STRIDX_DEBUGGER                                           267                            /* 'debugger' */
-#define DUK_STRIDX_DEFAULT                                            268                            /* 'default' */
-#define DUK_STRIDX_DELETE                                             269                            /* 'delete' */
-#define DUK_STRIDX_DO                                                 270                            /* 'do' */
-#define DUK_STRIDX_ELSE                                               271                            /* 'else' */
-#define DUK_STRIDX_FINALLY                                            272                            /* 'finally' */
-#define DUK_STRIDX_FOR                                                273                            /* 'for' */
-#define DUK_STRIDX_LC_FUNCTION                                        274                            /* 'function' */
-#define DUK_STRIDX_IF                                                 275                            /* 'if' */
-#define DUK_STRIDX_IN                                                 276                            /* 'in' */
-#define DUK_STRIDX_INSTANCEOF                                         277                            /* 'instanceof' */
-#define DUK_STRIDX_NEW                                                278                            /* 'new' */
-#define DUK_STRIDX_RETURN                                             279                            /* 'return' */
-#define DUK_STRIDX_SWITCH                                             280                            /* 'switch' */
-#define DUK_STRIDX_THIS                                               281                            /* 'this' */
-#define DUK_STRIDX_THROW                                              282                            /* 'throw' */
-#define DUK_STRIDX_TRY                                                283                            /* 'try' */
-#define DUK_STRIDX_TYPEOF                                             284                            /* 'typeof' */
-#define DUK_STRIDX_VAR                                                285                            /* 'var' */
-#define DUK_STRIDX_VOID                                               286                            /* 'void' */
-#define DUK_STRIDX_WHILE                                              287                            /* 'while' */
-#define DUK_STRIDX_WITH                                               288                            /* 'with' */
-#define DUK_STRIDX_CLASS                                              289                            /* 'class' */
-#define DUK_STRIDX_CONST                                              290                            /* 'const' */
-#define DUK_STRIDX_ENUM                                               291                            /* 'enum' */
-#define DUK_STRIDX_EXPORT                                             292                            /* 'export' */
-#define DUK_STRIDX_EXTENDS                                            293                            /* 'extends' */
-#define DUK_STRIDX_IMPORT                                             294                            /* 'import' */
-#define DUK_STRIDX_SUPER                                              295                            /* 'super' */
-#define DUK_STRIDX_NULL                                               296                            /* 'null' */
-#define DUK_STRIDX_TRUE                                               297                            /* 'true' */
-#define DUK_STRIDX_FALSE                                              298                            /* 'false' */
-#define DUK_STRIDX_GET                                                299                            /* 'get' */
-#define DUK_STRIDX_SET                                                300                            /* 'set' */
-#define DUK_STRIDX_IMPLEMENTS                                         301                            /* 'implements' */
-#define DUK_STRIDX_INTERFACE                                          302                            /* 'interface' */
-#define DUK_STRIDX_LET                                                303                            /* 'let' */
-#define DUK_STRIDX_PACKAGE                                            304                            /* 'package' */
-#define DUK_STRIDX_PRIVATE                                            305                            /* 'private' */
-#define DUK_STRIDX_PROTECTED                                          306                            /* 'protected' */
-#define DUK_STRIDX_PUBLIC                                             307                            /* 'public' */
-#define DUK_STRIDX_STATIC                                             308                            /* 'static' */
-#define DUK_STRIDX_YIELD                                              309                            /* 'yield' */
+#define DUK_STRIDX_JSONC                                              27                             /* 'jsonc' */
+#define DUK_STRIDX_JSONX                                              28                             /* 'jsonx' */
+#define DUK_STRIDX_BASE64                                             29                             /* 'base64' */
+#define DUK_STRIDX_HEX                                                30                             /* 'hex' */
+#define DUK_STRIDX_DEC                                                31                             /* 'dec' */
+#define DUK_STRIDX_ENC                                                32                             /* 'enc' */
+#define DUK_STRIDX_FIN                                                33                             /* 'fin' */
+#define DUK_STRIDX_GC                                                 34                             /* 'gc' */
+#define DUK_STRIDX_INFO                                               35                             /* 'info' */
+#define DUK_STRIDX_VERSION                                            36                             /* 'version' */
+#define DUK_STRIDX_ENV                                                37                             /* 'env' */
+#define DUK_STRIDX_DUK                                                38                             /* 'Duktape' */
+#define DUK_STRIDX_COMPILE                                            39                             /* 'compile' */
+#define DUK_STRIDX_INT_REGBASE                                        40                             /* '\x00regbase' */
+#define DUK_STRIDX_INT_THREAD                                         41                             /* '\x00thread' */
+#define DUK_STRIDX_INT_FINALIZER                                      42                             /* '\x00finalizer' */
+#define DUK_STRIDX_INT_CALLEE                                         43                             /* '\x00callee' */
+#define DUK_STRIDX_INT_MAP                                            44                             /* '\x00map' */
+#define DUK_STRIDX_INT_ARGS                                           45                             /* '\x00args' */
+#define DUK_STRIDX_INT_THIS                                           46                             /* '\x00this' */
+#define DUK_STRIDX_INT_PC2LINE                                        47                             /* '\x00pc2line' */
+#define DUK_STRIDX_INT_SOURCE                                         48                             /* '\x00source' */
+#define DUK_STRIDX_INT_VARENV                                         49                             /* '\x00varenv' */
+#define DUK_STRIDX_INT_LEXENV                                         50                             /* '\x00lexenv' */
+#define DUK_STRIDX_INT_VARMAP                                         51                             /* '\x00varmap' */
+#define DUK_STRIDX_INT_FORMALS                                        52                             /* '\x00formals' */
+#define DUK_STRIDX_INT_BYTECODE                                       53                             /* '\x00bytecode' */
+#define DUK_STRIDX_INT_NEXT                                           54                             /* '\x00next' */
+#define DUK_STRIDX_INT_TARGET                                         55                             /* '\x00target' */
+#define DUK_STRIDX_INT_VALUE                                          56                             /* '\x00value' */
+#define DUK_STRIDX_LC_POINTER                                         57                             /* 'pointer' */
+#define DUK_STRIDX_LC_BUFFER                                          58                             /* 'buffer' */
+#define DUK_STRIDX_TRACEDATA                                          59                             /* 'tracedata' */
+#define DUK_STRIDX_LINE_NUMBER                                        60                             /* 'lineNumber' */
+#define DUK_STRIDX_FILE_NAME                                          61                             /* 'fileName' */
+#define DUK_STRIDX_PC                                                 62                             /* 'pc' */
+#define DUK_STRIDX_STACK                                              63                             /* 'stack' */
+#define DUK_STRIDX_THROW_TYPE_ERROR                                   64                             /* 'ThrowTypeError' */
+#define DUK_STRIDX_CALLEE                                             65                             /* 'callee' */
+#define DUK_STRIDX_INVALID_DATE                                       66                             /* 'Invalid Date' */
+#define DUK_STRIDX_BRACKETED_ELLIPSIS                                 67                             /* '[...]' */
+#define DUK_STRIDX_NEWLINE_TAB                                        68                             /* '\n\t' */
+#define DUK_STRIDX_SPACE                                              69                             /* ' ' */
+#define DUK_STRIDX_COMMA                                              70                             /* ',' */
+#define DUK_STRIDX_MINUS_ZERO                                         71                             /* '-0' */
+#define DUK_STRIDX_PLUS_ZERO                                          72                             /* '+0' */
+#define DUK_STRIDX_ZERO                                               73                             /* '0' */
+#define DUK_STRIDX_MINUS_INFINITY                                     74                             /* '-Infinity' */
+#define DUK_STRIDX_PLUS_INFINITY                                      75                             /* '+Infinity' */
+#define DUK_STRIDX_INFINITY                                           76                             /* 'Infinity' */
+#define DUK_STRIDX_LC_OBJECT                                          77                             /* 'object' */
+#define DUK_STRIDX_LC_STRING                                          78                             /* 'string' */
+#define DUK_STRIDX_LC_NUMBER                                          79                             /* 'number' */
+#define DUK_STRIDX_LC_BOOLEAN                                         80                             /* 'boolean' */
+#define DUK_STRIDX_UNDEFINED                                          81                             /* 'undefined' */
+#define DUK_STRIDX_STRINGIFY                                          82                             /* 'stringify' */
+#define DUK_STRIDX_TAN                                                83                             /* 'tan' */
+#define DUK_STRIDX_SQRT                                               84                             /* 'sqrt' */
+#define DUK_STRIDX_SIN                                                85                             /* 'sin' */
+#define DUK_STRIDX_ROUND                                              86                             /* 'round' */
+#define DUK_STRIDX_RANDOM                                             87                             /* 'random' */
+#define DUK_STRIDX_POW                                                88                             /* 'pow' */
+#define DUK_STRIDX_MIN                                                89                             /* 'min' */
+#define DUK_STRIDX_MAX                                                90                             /* 'max' */
+#define DUK_STRIDX_LOG                                                91                             /* 'log' */
+#define DUK_STRIDX_FLOOR                                              92                             /* 'floor' */
+#define DUK_STRIDX_EXP                                                93                             /* 'exp' */
+#define DUK_STRIDX_COS                                                94                             /* 'cos' */
+#define DUK_STRIDX_CEIL                                               95                             /* 'ceil' */
+#define DUK_STRIDX_ATAN2                                              96                             /* 'atan2' */
+#define DUK_STRIDX_ATAN                                               97                             /* 'atan' */
+#define DUK_STRIDX_ASIN                                               98                             /* 'asin' */
+#define DUK_STRIDX_ACOS                                               99                             /* 'acos' */
+#define DUK_STRIDX_ABS                                                100                            /* 'abs' */
+#define DUK_STRIDX_SQRT2                                              101                            /* 'SQRT2' */
+#define DUK_STRIDX_SQRT1_2                                            102                            /* 'SQRT1_2' */
+#define DUK_STRIDX_PI                                                 103                            /* 'PI' */
+#define DUK_STRIDX_LOG10E                                             104                            /* 'LOG10E' */
+#define DUK_STRIDX_LOG2E                                              105                            /* 'LOG2E' */
+#define DUK_STRIDX_LN2                                                106                            /* 'LN2' */
+#define DUK_STRIDX_LN10                                               107                            /* 'LN10' */
+#define DUK_STRIDX_E                                                  108                            /* 'E' */
+#define DUK_STRIDX_MESSAGE                                            109                            /* 'message' */
+#define DUK_STRIDX_NAME                                               110                            /* 'name' */
+#define DUK_STRIDX_INPUT                                              111                            /* 'input' */
+#define DUK_STRIDX_INDEX                                              112                            /* 'index' */
+#define DUK_STRIDX_ESCAPED_EMPTY_REGEXP                               113                            /* '(?:)' */
+#define DUK_STRIDX_LAST_INDEX                                         114                            /* 'lastIndex' */
+#define DUK_STRIDX_MULTILINE                                          115                            /* 'multiline' */
+#define DUK_STRIDX_IGNORE_CASE                                        116                            /* 'ignoreCase' */
+#define DUK_STRIDX_SOURCE                                             117                            /* 'source' */
+#define DUK_STRIDX_TEST                                               118                            /* 'test' */
+#define DUK_STRIDX_EXEC                                               119                            /* 'exec' */
+#define DUK_STRIDX_TO_GMT_STRING                                      120                            /* 'toGMTString' */
+#define DUK_STRIDX_SET_YEAR                                           121                            /* 'setYear' */
+#define DUK_STRIDX_GET_YEAR                                           122                            /* 'getYear' */
+#define DUK_STRIDX_TO_JSON                                            123                            /* 'toJSON' */
+#define DUK_STRIDX_TO_ISO_STRING                                      124                            /* 'toISOString' */
+#define DUK_STRIDX_TO_UTC_STRING                                      125                            /* 'toUTCString' */
+#define DUK_STRIDX_SET_UTC_FULL_YEAR                                  126                            /* 'setUTCFullYear' */
+#define DUK_STRIDX_SET_FULL_YEAR                                      127                            /* 'setFullYear' */
+#define DUK_STRIDX_SET_UTC_MONTH                                      128                            /* 'setUTCMonth' */
+#define DUK_STRIDX_SET_MONTH                                          129                            /* 'setMonth' */
+#define DUK_STRIDX_SET_UTC_DATE                                       130                            /* 'setUTCDate' */
+#define DUK_STRIDX_SET_DATE                                           131                            /* 'setDate' */
+#define DUK_STRIDX_SET_UTC_HOURS                                      132                            /* 'setUTCHours' */
+#define DUK_STRIDX_SET_HOURS                                          133                            /* 'setHours' */
+#define DUK_STRIDX_SET_UTC_MINUTES                                    134                            /* 'setUTCMinutes' */
+#define DUK_STRIDX_SET_MINUTES                                        135                            /* 'setMinutes' */
+#define DUK_STRIDX_SET_UTC_SECONDS                                    136                            /* 'setUTCSeconds' */
+#define DUK_STRIDX_SET_SECONDS                                        137                            /* 'setSeconds' */
+#define DUK_STRIDX_SET_UTC_MILLISECONDS                               138                            /* 'setUTCMilliseconds' */
+#define DUK_STRIDX_SET_MILLISECONDS                                   139                            /* 'setMilliseconds' */
+#define DUK_STRIDX_SET_TIME                                           140                            /* 'setTime' */
+#define DUK_STRIDX_GET_TIMEZONE_OFFSET                                141                            /* 'getTimezoneOffset' */
+#define DUK_STRIDX_GET_UTC_MILLISECONDS                               142                            /* 'getUTCMilliseconds' */
+#define DUK_STRIDX_GET_MILLISECONDS                                   143                            /* 'getMilliseconds' */
+#define DUK_STRIDX_GET_UTC_SECONDS                                    144                            /* 'getUTCSeconds' */
+#define DUK_STRIDX_GET_SECONDS                                        145                            /* 'getSeconds' */
+#define DUK_STRIDX_GET_UTC_MINUTES                                    146                            /* 'getUTCMinutes' */
+#define DUK_STRIDX_GET_MINUTES                                        147                            /* 'getMinutes' */
+#define DUK_STRIDX_GET_UTC_HOURS                                      148                            /* 'getUTCHours' */
+#define DUK_STRIDX_GET_HOURS                                          149                            /* 'getHours' */
+#define DUK_STRIDX_GET_UTC_DAY                                        150                            /* 'getUTCDay' */
+#define DUK_STRIDX_GET_DAY                                            151                            /* 'getDay' */
+#define DUK_STRIDX_GET_UTC_DATE                                       152                            /* 'getUTCDate' */
+#define DUK_STRIDX_GET_DATE                                           153                            /* 'getDate' */
+#define DUK_STRIDX_GET_UTC_MONTH                                      154                            /* 'getUTCMonth' */
+#define DUK_STRIDX_GET_MONTH                                          155                            /* 'getMonth' */
+#define DUK_STRIDX_GET_UTC_FULL_YEAR                                  156                            /* 'getUTCFullYear' */
+#define DUK_STRIDX_GET_FULL_YEAR                                      157                            /* 'getFullYear' */
+#define DUK_STRIDX_GET_TIME                                           158                            /* 'getTime' */
+#define DUK_STRIDX_TO_LOCALE_TIME_STRING                              159                            /* 'toLocaleTimeString' */
+#define DUK_STRIDX_TO_LOCALE_DATE_STRING                              160                            /* 'toLocaleDateString' */
+#define DUK_STRIDX_TO_TIME_STRING                                     161                            /* 'toTimeString' */
+#define DUK_STRIDX_TO_DATE_STRING                                     162                            /* 'toDateString' */
+#define DUK_STRIDX_NOW                                                163                            /* 'now' */
+#define DUK_STRIDX_UTC                                                164                            /* 'UTC' */
+#define DUK_STRIDX_PARSE                                              165                            /* 'parse' */
+#define DUK_STRIDX_TO_PRECISION                                       166                            /* 'toPrecision' */
+#define DUK_STRIDX_TO_EXPONENTIAL                                     167                            /* 'toExponential' */
+#define DUK_STRIDX_TO_FIXED                                           168                            /* 'toFixed' */
+#define DUK_STRIDX_POSITIVE_INFINITY                                  169                            /* 'POSITIVE_INFINITY' */
+#define DUK_STRIDX_NEGATIVE_INFINITY                                  170                            /* 'NEGATIVE_INFINITY' */
+#define DUK_STRIDX_NAN                                                171                            /* 'NaN' */
+#define DUK_STRIDX_MIN_VALUE                                          172                            /* 'MIN_VALUE' */
+#define DUK_STRIDX_MAX_VALUE                                          173                            /* 'MAX_VALUE' */
+#define DUK_STRIDX_SUBSTR                                             174                            /* 'substr' */
+#define DUK_STRIDX_TRIM                                               175                            /* 'trim' */
+#define DUK_STRIDX_TO_LOCALE_UPPER_CASE                               176                            /* 'toLocaleUpperCase' */
+#define DUK_STRIDX_TO_UPPER_CASE                                      177                            /* 'toUpperCase' */
+#define DUK_STRIDX_TO_LOCALE_LOWER_CASE                               178                            /* 'toLocaleLowerCase' */
+#define DUK_STRIDX_TO_LOWER_CASE                                      179                            /* 'toLowerCase' */
+#define DUK_STRIDX_SUBSTRING                                          180                            /* 'substring' */
+#define DUK_STRIDX_SPLIT                                              181                            /* 'split' */
+#define DUK_STRIDX_SEARCH                                             182                            /* 'search' */
+#define DUK_STRIDX_REPLACE                                            183                            /* 'replace' */
+#define DUK_STRIDX_MATCH                                              184                            /* 'match' */
+#define DUK_STRIDX_LOCALE_COMPARE                                     185                            /* 'localeCompare' */
+#define DUK_STRIDX_CHAR_CODE_AT                                       186                            /* 'charCodeAt' */
+#define DUK_STRIDX_CHAR_AT                                            187                            /* 'charAt' */
+#define DUK_STRIDX_FROM_CHAR_CODE                                     188                            /* 'fromCharCode' */
+#define DUK_STRIDX_REDUCE_RIGHT                                       189                            /* 'reduceRight' */
+#define DUK_STRIDX_REDUCE                                             190                            /* 'reduce' */
+#define DUK_STRIDX_FILTER                                             191                            /* 'filter' */
+#define DUK_STRIDX_MAP                                                192                            /* 'map' */
+#define DUK_STRIDX_FOR_EACH                                           193                            /* 'forEach' */
+#define DUK_STRIDX_SOME                                               194                            /* 'some' */
+#define DUK_STRIDX_EVERY                                              195                            /* 'every' */
+#define DUK_STRIDX_LAST_INDEX_OF                                      196                            /* 'lastIndexOf' */
+#define DUK_STRIDX_INDEX_OF                                           197                            /* 'indexOf' */
+#define DUK_STRIDX_UNSHIFT                                            198                            /* 'unshift' */
+#define DUK_STRIDX_SPLICE                                             199                            /* 'splice' */
+#define DUK_STRIDX_SORT                                               200                            /* 'sort' */
+#define DUK_STRIDX_SLICE                                              201                            /* 'slice' */
+#define DUK_STRIDX_SHIFT                                              202                            /* 'shift' */
+#define DUK_STRIDX_REVERSE                                            203                            /* 'reverse' */
+#define DUK_STRIDX_PUSH                                               204                            /* 'push' */
+#define DUK_STRIDX_POP                                                205                            /* 'pop' */
+#define DUK_STRIDX_JOIN                                               206                            /* 'join' */
+#define DUK_STRIDX_CONCAT                                             207                            /* 'concat' */
+#define DUK_STRIDX_IS_ARRAY                                           208                            /* 'isArray' */
+#define DUK_STRIDX_LC_ARGUMENTS                                       209                            /* 'arguments' */
+#define DUK_STRIDX_CALLER                                             210                            /* 'caller' */
+#define DUK_STRIDX_BIND                                               211                            /* 'bind' */
+#define DUK_STRIDX_CALL                                               212                            /* 'call' */
+#define DUK_STRIDX_APPLY                                              213                            /* 'apply' */
+#define DUK_STRIDX_PROPERTY_IS_ENUMERABLE                             214                            /* 'propertyIsEnumerable' */
+#define DUK_STRIDX_IS_PROTOTYPE_OF                                    215                            /* 'isPrototypeOf' */
+#define DUK_STRIDX_HAS_OWN_PROPERTY                                   216                            /* 'hasOwnProperty' */
+#define DUK_STRIDX_VALUE_OF                                           217                            /* 'valueOf' */
+#define DUK_STRIDX_TO_LOCALE_STRING                                   218                            /* 'toLocaleString' */
+#define DUK_STRIDX_TO_STRING                                          219                            /* 'toString' */
+#define DUK_STRIDX_CONSTRUCTOR                                        220                            /* 'constructor' */
+#define DUK_STRIDX_SET                                                221                            /* 'set' */
+#define DUK_STRIDX_GET                                                222                            /* 'get' */
+#define DUK_STRIDX_ENUMERABLE                                         223                            /* 'enumerable' */
+#define DUK_STRIDX_CONFIGURABLE                                       224                            /* 'configurable' */
+#define DUK_STRIDX_WRITABLE                                           225                            /* 'writable' */
+#define DUK_STRIDX_VALUE                                              226                            /* 'value' */
+#define DUK_STRIDX_KEYS                                               227                            /* 'keys' */
+#define DUK_STRIDX_IS_EXTENSIBLE                                      228                            /* 'isExtensible' */
+#define DUK_STRIDX_IS_FROZEN                                          229                            /* 'isFrozen' */
+#define DUK_STRIDX_IS_SEALED                                          230                            /* 'isSealed' */
+#define DUK_STRIDX_PREVENT_EXTENSIONS                                 231                            /* 'preventExtensions' */
+#define DUK_STRIDX_FREEZE                                             232                            /* 'freeze' */
+#define DUK_STRIDX_SEAL                                               233                            /* 'seal' */
+#define DUK_STRIDX_DEFINE_PROPERTIES                                  234                            /* 'defineProperties' */
+#define DUK_STRIDX_DEFINE_PROPERTY                                    235                            /* 'defineProperty' */
+#define DUK_STRIDX_CREATE                                             236                            /* 'create' */
+#define DUK_STRIDX_GET_OWN_PROPERTY_NAMES                             237                            /* 'getOwnPropertyNames' */
+#define DUK_STRIDX_GET_OWN_PROPERTY_DESCRIPTOR                        238                            /* 'getOwnPropertyDescriptor' */
+#define DUK_STRIDX_GET_PROTOTYPE_OF                                   239                            /* 'getPrototypeOf' */
+#define DUK_STRIDX_PROTOTYPE                                          240                            /* 'prototype' */
+#define DUK_STRIDX_LENGTH                                             241                            /* 'length' */
+#define DUK_STRIDX_ALERT                                              242                            /* 'alert' */
+#define DUK_STRIDX_PRINT                                              243                            /* 'print' */
+#define DUK_STRIDX_UNESCAPE                                           244                            /* 'unescape' */
+#define DUK_STRIDX_ESCAPE                                             245                            /* 'escape' */
+#define DUK_STRIDX_ENCODE_URI_COMPONENT                               246                            /* 'encodeURIComponent' */
+#define DUK_STRIDX_ENCODE_URI                                         247                            /* 'encodeURI' */
+#define DUK_STRIDX_DECODE_URI_COMPONENT                               248                            /* 'decodeURIComponent' */
+#define DUK_STRIDX_DECODE_URI                                         249                            /* 'decodeURI' */
+#define DUK_STRIDX_IS_FINITE                                          250                            /* 'isFinite' */
+#define DUK_STRIDX_IS_NAN                                             251                            /* 'isNaN' */
+#define DUK_STRIDX_PARSE_FLOAT                                        252                            /* 'parseFloat' */
+#define DUK_STRIDX_PARSE_INT                                          253                            /* 'parseInt' */
+#define DUK_STRIDX_EVAL                                               254                            /* 'eval' */
+#define DUK_STRIDX_URI_ERROR                                          255                            /* 'URIError' */
+#define DUK_STRIDX_TYPE_ERROR                                         256                            /* 'TypeError' */
+#define DUK_STRIDX_SYNTAX_ERROR                                       257                            /* 'SyntaxError' */
+#define DUK_STRIDX_REFERENCE_ERROR                                    258                            /* 'ReferenceError' */
+#define DUK_STRIDX_RANGE_ERROR                                        259                            /* 'RangeError' */
+#define DUK_STRIDX_EVAL_ERROR                                         260                            /* 'EvalError' */
+#define DUK_STRIDX_BREAK                                              261                            /* 'break' */
+#define DUK_STRIDX_CASE                                               262                            /* 'case' */
+#define DUK_STRIDX_CATCH                                              263                            /* 'catch' */
+#define DUK_STRIDX_CONTINUE                                           264                            /* 'continue' */
+#define DUK_STRIDX_DEBUGGER                                           265                            /* 'debugger' */
+#define DUK_STRIDX_DEFAULT                                            266                            /* 'default' */
+#define DUK_STRIDX_DELETE                                             267                            /* 'delete' */
+#define DUK_STRIDX_DO                                                 268                            /* 'do' */
+#define DUK_STRIDX_ELSE                                               269                            /* 'else' */
+#define DUK_STRIDX_FINALLY                                            270                            /* 'finally' */
+#define DUK_STRIDX_FOR                                                271                            /* 'for' */
+#define DUK_STRIDX_LC_FUNCTION                                        272                            /* 'function' */
+#define DUK_STRIDX_IF                                                 273                            /* 'if' */
+#define DUK_STRIDX_IN                                                 274                            /* 'in' */
+#define DUK_STRIDX_INSTANCEOF                                         275                            /* 'instanceof' */
+#define DUK_STRIDX_NEW                                                276                            /* 'new' */
+#define DUK_STRIDX_RETURN                                             277                            /* 'return' */
+#define DUK_STRIDX_SWITCH                                             278                            /* 'switch' */
+#define DUK_STRIDX_THIS                                               279                            /* 'this' */
+#define DUK_STRIDX_THROW                                              280                            /* 'throw' */
+#define DUK_STRIDX_TRY                                                281                            /* 'try' */
+#define DUK_STRIDX_TYPEOF                                             282                            /* 'typeof' */
+#define DUK_STRIDX_VAR                                                283                            /* 'var' */
+#define DUK_STRIDX_VOID                                               284                            /* 'void' */
+#define DUK_STRIDX_WHILE                                              285                            /* 'while' */
+#define DUK_STRIDX_WITH                                               286                            /* 'with' */
+#define DUK_STRIDX_CLASS                                              287                            /* 'class' */
+#define DUK_STRIDX_CONST                                              288                            /* 'const' */
+#define DUK_STRIDX_ENUM                                               289                            /* 'enum' */
+#define DUK_STRIDX_EXPORT                                             290                            /* 'export' */
+#define DUK_STRIDX_EXTENDS                                            291                            /* 'extends' */
+#define DUK_STRIDX_IMPORT                                             292                            /* 'import' */
+#define DUK_STRIDX_SUPER                                              293                            /* 'super' */
+#define DUK_STRIDX_NULL                                               294                            /* 'null' */
+#define DUK_STRIDX_TRUE                                               295                            /* 'true' */
+#define DUK_STRIDX_FALSE                                              296                            /* 'false' */
+#define DUK_STRIDX_IMPLEMENTS                                         297                            /* 'implements' */
+#define DUK_STRIDX_INTERFACE                                          298                            /* 'interface' */
+#define DUK_STRIDX_LET                                                299                            /* 'let' */
+#define DUK_STRIDX_PACKAGE                                            300                            /* 'package' */
+#define DUK_STRIDX_PRIVATE                                            301                            /* 'private' */
+#define DUK_STRIDX_PROTECTED                                          302                            /* 'protected' */
+#define DUK_STRIDX_PUBLIC                                             303                            /* 'public' */
+#define DUK_STRIDX_STATIC                                             304                            /* 'static' */
+#define DUK_STRIDX_YIELD                                              305                            /* 'yield' */
 
 #define DUK_HEAP_STRING_UC_THREAD(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_UC_THREAD)
 #define DUK_HTHREAD_STRING_UC_THREAD(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_UC_THREAD)
@@ -2367,32 +2399,24 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_CURRENT(thr)                               DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_CURRENT)
 #define DUK_HEAP_STRING_RESUME(heap)                                  DUK_HEAP_GET_STRING((heap),DUK_STRIDX_RESUME)
 #define DUK_HTHREAD_STRING_RESUME(thr)                                DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_RESUME)
+#define DUK_HEAP_STRING_JSONC(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC)
+#define DUK_HTHREAD_STRING_JSONC(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC)
+#define DUK_HEAP_STRING_JSONX(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX)
+#define DUK_HTHREAD_STRING_JSONX(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX)
 #define DUK_HEAP_STRING_BASE64(heap)                                  DUK_HEAP_GET_STRING((heap),DUK_STRIDX_BASE64)
 #define DUK_HTHREAD_STRING_BASE64(thr)                                DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_BASE64)
 #define DUK_HEAP_STRING_HEX(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_HEX)
 #define DUK_HTHREAD_STRING_HEX(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_HEX)
-#define DUK_HEAP_STRING_JSONC_DEC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC_DEC)
-#define DUK_HTHREAD_STRING_JSONC_DEC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC_DEC)
-#define DUK_HEAP_STRING_JSONC_ENC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC_ENC)
-#define DUK_HTHREAD_STRING_JSONC_ENC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC_ENC)
-#define DUK_HEAP_STRING_JSONX_DEC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX_DEC)
-#define DUK_HTHREAD_STRING_JSONX_DEC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX_DEC)
-#define DUK_HEAP_STRING_JSONX_ENC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX_ENC)
-#define DUK_HTHREAD_STRING_JSONX_ENC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX_ENC)
 #define DUK_HEAP_STRING_DEC(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_DEC)
 #define DUK_HTHREAD_STRING_DEC(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_DEC)
 #define DUK_HEAP_STRING_ENC(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENC)
 #define DUK_HTHREAD_STRING_ENC(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ENC)
-#define DUK_HEAP_STRING_GET_FINALIZER(heap)                           DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET_FINALIZER)
-#define DUK_HTHREAD_STRING_GET_FINALIZER(thr)                         DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET_FINALIZER)
-#define DUK_HEAP_STRING_SET_FINALIZER(heap)                           DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET_FINALIZER)
-#define DUK_HTHREAD_STRING_SET_FINALIZER(thr)                         DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET_FINALIZER)
+#define DUK_HEAP_STRING_FIN(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_FIN)
+#define DUK_HTHREAD_STRING_FIN(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_FIN)
 #define DUK_HEAP_STRING_GC(heap)                                      DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GC)
 #define DUK_HTHREAD_STRING_GC(thr)                                    DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GC)
-#define DUK_HEAP_STRING_REFC(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_REFC)
-#define DUK_HTHREAD_STRING_REFC(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_REFC)
-#define DUK_HEAP_STRING_ADDR(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ADDR)
-#define DUK_HTHREAD_STRING_ADDR(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ADDR)
+#define DUK_HEAP_STRING_INFO(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_INFO)
+#define DUK_HTHREAD_STRING_INFO(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_INFO)
 #define DUK_HEAP_STRING_VERSION(heap)                                 DUK_HEAP_GET_STRING((heap),DUK_STRIDX_VERSION)
 #define DUK_HTHREAD_STRING_VERSION(thr)                               DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_VERSION)
 #define DUK_HEAP_STRING_ENV(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENV)
@@ -2763,6 +2787,10 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_TO_STRING(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_TO_STRING)
 #define DUK_HEAP_STRING_CONSTRUCTOR(heap)                             DUK_HEAP_GET_STRING((heap),DUK_STRIDX_CONSTRUCTOR)
 #define DUK_HTHREAD_STRING_CONSTRUCTOR(thr)                           DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_CONSTRUCTOR)
+#define DUK_HEAP_STRING_SET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET)
+#define DUK_HTHREAD_STRING_SET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET)
+#define DUK_HEAP_STRING_GET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET)
+#define DUK_HTHREAD_STRING_GET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET)
 #define DUK_HEAP_STRING_ENUMERABLE(heap)                              DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENUMERABLE)
 #define DUK_HTHREAD_STRING_ENUMERABLE(thr)                            DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ENUMERABLE)
 #define DUK_HEAP_STRING_CONFIGURABLE(heap)                            DUK_HEAP_GET_STRING((heap),DUK_STRIDX_CONFIGURABLE)
@@ -2911,10 +2939,6 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_TRUE(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_TRUE)
 #define DUK_HEAP_STRING_FALSE(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_FALSE)
 #define DUK_HTHREAD_STRING_FALSE(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_FALSE)
-#define DUK_HEAP_STRING_GET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET)
-#define DUK_HTHREAD_STRING_GET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET)
-#define DUK_HEAP_STRING_SET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET)
-#define DUK_HTHREAD_STRING_SET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET)
 #define DUK_HEAP_STRING_IMPLEMENTS(heap)                              DUK_HEAP_GET_STRING((heap),DUK_STRIDX_IMPLEMENTS)
 #define DUK_HTHREAD_STRING_IMPLEMENTS(thr)                            DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_IMPLEMENTS)
 #define DUK_HEAP_STRING_INTERFACE(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_INTERFACE)
@@ -2934,17 +2958,22 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HEAP_STRING_YIELD(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_YIELD)
 #define DUK_HTHREAD_STRING_YIELD(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_YIELD)
 
-#define DUK_HEAP_NUM_STRINGS                                          310
+#define DUK_HEAP_NUM_STRINGS                                          306
 
-#define DUK_STRIDX_START_RESERVED                                     263
-#define DUK_STRIDX_START_STRICT_RESERVED                              301
-#define DUK_STRIDX_END_RESERVED                                       310                            /* exclusive endpoint */
+#define DUK_STRIDX_START_RESERVED                                     261
+#define DUK_STRIDX_START_STRICT_RESERVED                              297
+#define DUK_STRIDX_END_RESERVED                                       306                            /* exclusive endpoint */
 
-extern const duk_c_function duk_builtin_native_functions[];
-
+extern const duk_c_function duk_bi_native_functions[];
 extern const duk_uint8_t duk_builtins_data[];
+#ifdef DUK_USE_INITJS
+extern const duk_uint8_t duk_initjs_data[];
+#endif  /* DUK_USE_INITJS */
 
-#define DUK_BUILTINS_DATA_LENGTH                                      1252
+#define DUK_BUILTINS_DATA_LENGTH                                      1237
+#ifdef DUK_USE_INITJS
+#define DUK_INITJS_DATA_LENGTH                                        430
+#endif  /* DUK_USE_INITJS */
 
 #define DUK_BIDX_GLOBAL                                               0
 #define DUK_BIDX_GLOBAL_ENV                                           1
@@ -2995,7 +3024,7 @@ extern const duk_uint8_t duk_builtins_data[];
 #elif defined(DUK_USE_DOUBLE_BE)
 extern const duk_uint8_t duk_strings_data[];
 
-#define DUK_STRDATA_DATA_LENGTH                                       1825
+#define DUK_STRDATA_DATA_LENGTH                                       1789
 #define DUK_STRDATA_MAX_STRLEN                                        24
 
 #define DUK_STRIDX_UC_THREAD                                          0                              /* 'Thread' */
@@ -3025,289 +3054,285 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_STRIDX_JSON_EXT_UNDEFINED                                 24                             /* '{"_undef":true}' */
 #define DUK_STRIDX_CURRENT                                            25                             /* 'current' */
 #define DUK_STRIDX_RESUME                                             26                             /* 'resume' */
-#define DUK_STRIDX_BASE64                                             27                             /* 'base64' */
-#define DUK_STRIDX_HEX                                                28                             /* 'hex' */
-#define DUK_STRIDX_JSONC_DEC                                          29                             /* 'jsoncDec' */
-#define DUK_STRIDX_JSONC_ENC                                          30                             /* 'jsoncEnc' */
-#define DUK_STRIDX_JSONX_DEC                                          31                             /* 'jsonxDec' */
-#define DUK_STRIDX_JSONX_ENC                                          32                             /* 'jsonxEnc' */
-#define DUK_STRIDX_DEC                                                33                             /* 'dec' */
-#define DUK_STRIDX_ENC                                                34                             /* 'enc' */
-#define DUK_STRIDX_GET_FINALIZER                                      35                             /* 'getFinalizer' */
-#define DUK_STRIDX_SET_FINALIZER                                      36                             /* 'setFinalizer' */
-#define DUK_STRIDX_GC                                                 37                             /* 'gc' */
-#define DUK_STRIDX_REFC                                               38                             /* 'refc' */
-#define DUK_STRIDX_ADDR                                               39                             /* 'addr' */
-#define DUK_STRIDX_VERSION                                            40                             /* 'version' */
-#define DUK_STRIDX_ENV                                                41                             /* 'env' */
-#define DUK_STRIDX_DUK                                                42                             /* 'Duktape' */
-#define DUK_STRIDX_COMPILE                                            43                             /* 'compile' */
-#define DUK_STRIDX_INT_REGBASE                                        44                             /* '\x00regbase' */
-#define DUK_STRIDX_INT_THREAD                                         45                             /* '\x00thread' */
-#define DUK_STRIDX_INT_FINALIZER                                      46                             /* '\x00finalizer' */
-#define DUK_STRIDX_INT_CALLEE                                         47                             /* '\x00callee' */
-#define DUK_STRIDX_INT_MAP                                            48                             /* '\x00map' */
-#define DUK_STRIDX_INT_ARGS                                           49                             /* '\x00args' */
-#define DUK_STRIDX_INT_THIS                                           50                             /* '\x00this' */
-#define DUK_STRIDX_INT_PC2LINE                                        51                             /* '\x00pc2line' */
-#define DUK_STRIDX_INT_SOURCE                                         52                             /* '\x00source' */
-#define DUK_STRIDX_INT_VARENV                                         53                             /* '\x00varenv' */
-#define DUK_STRIDX_INT_LEXENV                                         54                             /* '\x00lexenv' */
-#define DUK_STRIDX_INT_VARMAP                                         55                             /* '\x00varmap' */
-#define DUK_STRIDX_INT_FORMALS                                        56                             /* '\x00formals' */
-#define DUK_STRIDX_INT_BYTECODE                                       57                             /* '\x00bytecode' */
-#define DUK_STRIDX_INT_NEXT                                           58                             /* '\x00next' */
-#define DUK_STRIDX_INT_TARGET                                         59                             /* '\x00target' */
-#define DUK_STRIDX_INT_VALUE                                          60                             /* '\x00value' */
-#define DUK_STRIDX_LC_POINTER                                         61                             /* 'pointer' */
-#define DUK_STRIDX_LC_BUFFER                                          62                             /* 'buffer' */
-#define DUK_STRIDX_TRACEDATA                                          63                             /* 'tracedata' */
-#define DUK_STRIDX_LINE_NUMBER                                        64                             /* 'lineNumber' */
-#define DUK_STRIDX_FILE_NAME                                          65                             /* 'fileName' */
-#define DUK_STRIDX_PC                                                 66                             /* 'pc' */
-#define DUK_STRIDX_STACK                                              67                             /* 'stack' */
-#define DUK_STRIDX_THROW_TYPE_ERROR                                   68                             /* 'ThrowTypeError' */
-#define DUK_STRIDX_CALLEE                                             69                             /* 'callee' */
-#define DUK_STRIDX_INVALID_DATE                                       70                             /* 'Invalid Date' */
-#define DUK_STRIDX_BRACKETED_ELLIPSIS                                 71                             /* '[...]' */
-#define DUK_STRIDX_NEWLINE_TAB                                        72                             /* '\n\t' */
-#define DUK_STRIDX_SPACE                                              73                             /* ' ' */
-#define DUK_STRIDX_COMMA                                              74                             /* ',' */
-#define DUK_STRIDX_MINUS_ZERO                                         75                             /* '-0' */
-#define DUK_STRIDX_PLUS_ZERO                                          76                             /* '+0' */
-#define DUK_STRIDX_ZERO                                               77                             /* '0' */
-#define DUK_STRIDX_MINUS_INFINITY                                     78                             /* '-Infinity' */
-#define DUK_STRIDX_PLUS_INFINITY                                      79                             /* '+Infinity' */
-#define DUK_STRIDX_INFINITY                                           80                             /* 'Infinity' */
-#define DUK_STRIDX_LC_OBJECT                                          81                             /* 'object' */
-#define DUK_STRIDX_LC_STRING                                          82                             /* 'string' */
-#define DUK_STRIDX_LC_NUMBER                                          83                             /* 'number' */
-#define DUK_STRIDX_LC_BOOLEAN                                         84                             /* 'boolean' */
-#define DUK_STRIDX_UNDEFINED                                          85                             /* 'undefined' */
-#define DUK_STRIDX_STRINGIFY                                          86                             /* 'stringify' */
-#define DUK_STRIDX_TAN                                                87                             /* 'tan' */
-#define DUK_STRIDX_SQRT                                               88                             /* 'sqrt' */
-#define DUK_STRIDX_SIN                                                89                             /* 'sin' */
-#define DUK_STRIDX_ROUND                                              90                             /* 'round' */
-#define DUK_STRIDX_RANDOM                                             91                             /* 'random' */
-#define DUK_STRIDX_POW                                                92                             /* 'pow' */
-#define DUK_STRIDX_MIN                                                93                             /* 'min' */
-#define DUK_STRIDX_MAX                                                94                             /* 'max' */
-#define DUK_STRIDX_LOG                                                95                             /* 'log' */
-#define DUK_STRIDX_FLOOR                                              96                             /* 'floor' */
-#define DUK_STRIDX_EXP                                                97                             /* 'exp' */
-#define DUK_STRIDX_COS                                                98                             /* 'cos' */
-#define DUK_STRIDX_CEIL                                               99                             /* 'ceil' */
-#define DUK_STRIDX_ATAN2                                              100                            /* 'atan2' */
-#define DUK_STRIDX_ATAN                                               101                            /* 'atan' */
-#define DUK_STRIDX_ASIN                                               102                            /* 'asin' */
-#define DUK_STRIDX_ACOS                                               103                            /* 'acos' */
-#define DUK_STRIDX_ABS                                                104                            /* 'abs' */
-#define DUK_STRIDX_SQRT2                                              105                            /* 'SQRT2' */
-#define DUK_STRIDX_SQRT1_2                                            106                            /* 'SQRT1_2' */
-#define DUK_STRIDX_PI                                                 107                            /* 'PI' */
-#define DUK_STRIDX_LOG10E                                             108                            /* 'LOG10E' */
-#define DUK_STRIDX_LOG2E                                              109                            /* 'LOG2E' */
-#define DUK_STRIDX_LN2                                                110                            /* 'LN2' */
-#define DUK_STRIDX_LN10                                               111                            /* 'LN10' */
-#define DUK_STRIDX_E                                                  112                            /* 'E' */
-#define DUK_STRIDX_MESSAGE                                            113                            /* 'message' */
-#define DUK_STRIDX_NAME                                               114                            /* 'name' */
-#define DUK_STRIDX_INPUT                                              115                            /* 'input' */
-#define DUK_STRIDX_INDEX                                              116                            /* 'index' */
-#define DUK_STRIDX_ESCAPED_EMPTY_REGEXP                               117                            /* '(?:)' */
-#define DUK_STRIDX_LAST_INDEX                                         118                            /* 'lastIndex' */
-#define DUK_STRIDX_MULTILINE                                          119                            /* 'multiline' */
-#define DUK_STRIDX_IGNORE_CASE                                        120                            /* 'ignoreCase' */
-#define DUK_STRIDX_SOURCE                                             121                            /* 'source' */
-#define DUK_STRIDX_TEST                                               122                            /* 'test' */
-#define DUK_STRIDX_EXEC                                               123                            /* 'exec' */
-#define DUK_STRIDX_TO_GMT_STRING                                      124                            /* 'toGMTString' */
-#define DUK_STRIDX_SET_YEAR                                           125                            /* 'setYear' */
-#define DUK_STRIDX_GET_YEAR                                           126                            /* 'getYear' */
-#define DUK_STRIDX_TO_JSON                                            127                            /* 'toJSON' */
-#define DUK_STRIDX_TO_ISO_STRING                                      128                            /* 'toISOString' */
-#define DUK_STRIDX_TO_UTC_STRING                                      129                            /* 'toUTCString' */
-#define DUK_STRIDX_SET_UTC_FULL_YEAR                                  130                            /* 'setUTCFullYear' */
-#define DUK_STRIDX_SET_FULL_YEAR                                      131                            /* 'setFullYear' */
-#define DUK_STRIDX_SET_UTC_MONTH                                      132                            /* 'setUTCMonth' */
-#define DUK_STRIDX_SET_MONTH                                          133                            /* 'setMonth' */
-#define DUK_STRIDX_SET_UTC_DATE                                       134                            /* 'setUTCDate' */
-#define DUK_STRIDX_SET_DATE                                           135                            /* 'setDate' */
-#define DUK_STRIDX_SET_UTC_HOURS                                      136                            /* 'setUTCHours' */
-#define DUK_STRIDX_SET_HOURS                                          137                            /* 'setHours' */
-#define DUK_STRIDX_SET_UTC_MINUTES                                    138                            /* 'setUTCMinutes' */
-#define DUK_STRIDX_SET_MINUTES                                        139                            /* 'setMinutes' */
-#define DUK_STRIDX_SET_UTC_SECONDS                                    140                            /* 'setUTCSeconds' */
-#define DUK_STRIDX_SET_SECONDS                                        141                            /* 'setSeconds' */
-#define DUK_STRIDX_SET_UTC_MILLISECONDS                               142                            /* 'setUTCMilliseconds' */
-#define DUK_STRIDX_SET_MILLISECONDS                                   143                            /* 'setMilliseconds' */
-#define DUK_STRIDX_SET_TIME                                           144                            /* 'setTime' */
-#define DUK_STRIDX_GET_TIMEZONE_OFFSET                                145                            /* 'getTimezoneOffset' */
-#define DUK_STRIDX_GET_UTC_MILLISECONDS                               146                            /* 'getUTCMilliseconds' */
-#define DUK_STRIDX_GET_MILLISECONDS                                   147                            /* 'getMilliseconds' */
-#define DUK_STRIDX_GET_UTC_SECONDS                                    148                            /* 'getUTCSeconds' */
-#define DUK_STRIDX_GET_SECONDS                                        149                            /* 'getSeconds' */
-#define DUK_STRIDX_GET_UTC_MINUTES                                    150                            /* 'getUTCMinutes' */
-#define DUK_STRIDX_GET_MINUTES                                        151                            /* 'getMinutes' */
-#define DUK_STRIDX_GET_UTC_HOURS                                      152                            /* 'getUTCHours' */
-#define DUK_STRIDX_GET_HOURS                                          153                            /* 'getHours' */
-#define DUK_STRIDX_GET_UTC_DAY                                        154                            /* 'getUTCDay' */
-#define DUK_STRIDX_GET_DAY                                            155                            /* 'getDay' */
-#define DUK_STRIDX_GET_UTC_DATE                                       156                            /* 'getUTCDate' */
-#define DUK_STRIDX_GET_DATE                                           157                            /* 'getDate' */
-#define DUK_STRIDX_GET_UTC_MONTH                                      158                            /* 'getUTCMonth' */
-#define DUK_STRIDX_GET_MONTH                                          159                            /* 'getMonth' */
-#define DUK_STRIDX_GET_UTC_FULL_YEAR                                  160                            /* 'getUTCFullYear' */
-#define DUK_STRIDX_GET_FULL_YEAR                                      161                            /* 'getFullYear' */
-#define DUK_STRIDX_GET_TIME                                           162                            /* 'getTime' */
-#define DUK_STRIDX_TO_LOCALE_TIME_STRING                              163                            /* 'toLocaleTimeString' */
-#define DUK_STRIDX_TO_LOCALE_DATE_STRING                              164                            /* 'toLocaleDateString' */
-#define DUK_STRIDX_TO_TIME_STRING                                     165                            /* 'toTimeString' */
-#define DUK_STRIDX_TO_DATE_STRING                                     166                            /* 'toDateString' */
-#define DUK_STRIDX_NOW                                                167                            /* 'now' */
-#define DUK_STRIDX_UTC                                                168                            /* 'UTC' */
-#define DUK_STRIDX_PARSE                                              169                            /* 'parse' */
-#define DUK_STRIDX_TO_PRECISION                                       170                            /* 'toPrecision' */
-#define DUK_STRIDX_TO_EXPONENTIAL                                     171                            /* 'toExponential' */
-#define DUK_STRIDX_TO_FIXED                                           172                            /* 'toFixed' */
-#define DUK_STRIDX_POSITIVE_INFINITY                                  173                            /* 'POSITIVE_INFINITY' */
-#define DUK_STRIDX_NEGATIVE_INFINITY                                  174                            /* 'NEGATIVE_INFINITY' */
-#define DUK_STRIDX_NAN                                                175                            /* 'NaN' */
-#define DUK_STRIDX_MIN_VALUE                                          176                            /* 'MIN_VALUE' */
-#define DUK_STRIDX_MAX_VALUE                                          177                            /* 'MAX_VALUE' */
-#define DUK_STRIDX_SUBSTR                                             178                            /* 'substr' */
-#define DUK_STRIDX_TRIM                                               179                            /* 'trim' */
-#define DUK_STRIDX_TO_LOCALE_UPPER_CASE                               180                            /* 'toLocaleUpperCase' */
-#define DUK_STRIDX_TO_UPPER_CASE                                      181                            /* 'toUpperCase' */
-#define DUK_STRIDX_TO_LOCALE_LOWER_CASE                               182                            /* 'toLocaleLowerCase' */
-#define DUK_STRIDX_TO_LOWER_CASE                                      183                            /* 'toLowerCase' */
-#define DUK_STRIDX_SUBSTRING                                          184                            /* 'substring' */
-#define DUK_STRIDX_SPLIT                                              185                            /* 'split' */
-#define DUK_STRIDX_SEARCH                                             186                            /* 'search' */
-#define DUK_STRIDX_REPLACE                                            187                            /* 'replace' */
-#define DUK_STRIDX_MATCH                                              188                            /* 'match' */
-#define DUK_STRIDX_LOCALE_COMPARE                                     189                            /* 'localeCompare' */
-#define DUK_STRIDX_CHAR_CODE_AT                                       190                            /* 'charCodeAt' */
-#define DUK_STRIDX_CHAR_AT                                            191                            /* 'charAt' */
-#define DUK_STRIDX_FROM_CHAR_CODE                                     192                            /* 'fromCharCode' */
-#define DUK_STRIDX_REDUCE_RIGHT                                       193                            /* 'reduceRight' */
-#define DUK_STRIDX_REDUCE                                             194                            /* 'reduce' */
-#define DUK_STRIDX_FILTER                                             195                            /* 'filter' */
-#define DUK_STRIDX_MAP                                                196                            /* 'map' */
-#define DUK_STRIDX_FOR_EACH                                           197                            /* 'forEach' */
-#define DUK_STRIDX_SOME                                               198                            /* 'some' */
-#define DUK_STRIDX_EVERY                                              199                            /* 'every' */
-#define DUK_STRIDX_LAST_INDEX_OF                                      200                            /* 'lastIndexOf' */
-#define DUK_STRIDX_INDEX_OF                                           201                            /* 'indexOf' */
-#define DUK_STRIDX_UNSHIFT                                            202                            /* 'unshift' */
-#define DUK_STRIDX_SPLICE                                             203                            /* 'splice' */
-#define DUK_STRIDX_SORT                                               204                            /* 'sort' */
-#define DUK_STRIDX_SLICE                                              205                            /* 'slice' */
-#define DUK_STRIDX_SHIFT                                              206                            /* 'shift' */
-#define DUK_STRIDX_REVERSE                                            207                            /* 'reverse' */
-#define DUK_STRIDX_PUSH                                               208                            /* 'push' */
-#define DUK_STRIDX_POP                                                209                            /* 'pop' */
-#define DUK_STRIDX_JOIN                                               210                            /* 'join' */
-#define DUK_STRIDX_CONCAT                                             211                            /* 'concat' */
-#define DUK_STRIDX_IS_ARRAY                                           212                            /* 'isArray' */
-#define DUK_STRIDX_LC_ARGUMENTS                                       213                            /* 'arguments' */
-#define DUK_STRIDX_CALLER                                             214                            /* 'caller' */
-#define DUK_STRIDX_BIND                                               215                            /* 'bind' */
-#define DUK_STRIDX_CALL                                               216                            /* 'call' */
-#define DUK_STRIDX_APPLY                                              217                            /* 'apply' */
-#define DUK_STRIDX_PROPERTY_IS_ENUMERABLE                             218                            /* 'propertyIsEnumerable' */
-#define DUK_STRIDX_IS_PROTOTYPE_OF                                    219                            /* 'isPrototypeOf' */
-#define DUK_STRIDX_HAS_OWN_PROPERTY                                   220                            /* 'hasOwnProperty' */
-#define DUK_STRIDX_VALUE_OF                                           221                            /* 'valueOf' */
-#define DUK_STRIDX_TO_LOCALE_STRING                                   222                            /* 'toLocaleString' */
-#define DUK_STRIDX_TO_STRING                                          223                            /* 'toString' */
-#define DUK_STRIDX_CONSTRUCTOR                                        224                            /* 'constructor' */
-#define DUK_STRIDX_ENUMERABLE                                         225                            /* 'enumerable' */
-#define DUK_STRIDX_CONFIGURABLE                                       226                            /* 'configurable' */
-#define DUK_STRIDX_WRITABLE                                           227                            /* 'writable' */
-#define DUK_STRIDX_VALUE                                              228                            /* 'value' */
-#define DUK_STRIDX_KEYS                                               229                            /* 'keys' */
-#define DUK_STRIDX_IS_EXTENSIBLE                                      230                            /* 'isExtensible' */
-#define DUK_STRIDX_IS_FROZEN                                          231                            /* 'isFrozen' */
-#define DUK_STRIDX_IS_SEALED                                          232                            /* 'isSealed' */
-#define DUK_STRIDX_PREVENT_EXTENSIONS                                 233                            /* 'preventExtensions' */
-#define DUK_STRIDX_FREEZE                                             234                            /* 'freeze' */
-#define DUK_STRIDX_SEAL                                               235                            /* 'seal' */
-#define DUK_STRIDX_DEFINE_PROPERTIES                                  236                            /* 'defineProperties' */
-#define DUK_STRIDX_DEFINE_PROPERTY                                    237                            /* 'defineProperty' */
-#define DUK_STRIDX_CREATE                                             238                            /* 'create' */
-#define DUK_STRIDX_GET_OWN_PROPERTY_NAMES                             239                            /* 'getOwnPropertyNames' */
-#define DUK_STRIDX_GET_OWN_PROPERTY_DESCRIPTOR                        240                            /* 'getOwnPropertyDescriptor' */
-#define DUK_STRIDX_GET_PROTOTYPE_OF                                   241                            /* 'getPrototypeOf' */
-#define DUK_STRIDX_PROTOTYPE                                          242                            /* 'prototype' */
-#define DUK_STRIDX_LENGTH                                             243                            /* 'length' */
-#define DUK_STRIDX_ALERT                                              244                            /* 'alert' */
-#define DUK_STRIDX_PRINT                                              245                            /* 'print' */
-#define DUK_STRIDX_UNESCAPE                                           246                            /* 'unescape' */
-#define DUK_STRIDX_ESCAPE                                             247                            /* 'escape' */
-#define DUK_STRIDX_ENCODE_URI_COMPONENT                               248                            /* 'encodeURIComponent' */
-#define DUK_STRIDX_ENCODE_URI                                         249                            /* 'encodeURI' */
-#define DUK_STRIDX_DECODE_URI_COMPONENT                               250                            /* 'decodeURIComponent' */
-#define DUK_STRIDX_DECODE_URI                                         251                            /* 'decodeURI' */
-#define DUK_STRIDX_IS_FINITE                                          252                            /* 'isFinite' */
-#define DUK_STRIDX_IS_NAN                                             253                            /* 'isNaN' */
-#define DUK_STRIDX_PARSE_FLOAT                                        254                            /* 'parseFloat' */
-#define DUK_STRIDX_PARSE_INT                                          255                            /* 'parseInt' */
-#define DUK_STRIDX_EVAL                                               256                            /* 'eval' */
-#define DUK_STRIDX_URI_ERROR                                          257                            /* 'URIError' */
-#define DUK_STRIDX_TYPE_ERROR                                         258                            /* 'TypeError' */
-#define DUK_STRIDX_SYNTAX_ERROR                                       259                            /* 'SyntaxError' */
-#define DUK_STRIDX_REFERENCE_ERROR                                    260                            /* 'ReferenceError' */
-#define DUK_STRIDX_RANGE_ERROR                                        261                            /* 'RangeError' */
-#define DUK_STRIDX_EVAL_ERROR                                         262                            /* 'EvalError' */
-#define DUK_STRIDX_BREAK                                              263                            /* 'break' */
-#define DUK_STRIDX_CASE                                               264                            /* 'case' */
-#define DUK_STRIDX_CATCH                                              265                            /* 'catch' */
-#define DUK_STRIDX_CONTINUE                                           266                            /* 'continue' */
-#define DUK_STRIDX_DEBUGGER                                           267                            /* 'debugger' */
-#define DUK_STRIDX_DEFAULT                                            268                            /* 'default' */
-#define DUK_STRIDX_DELETE                                             269                            /* 'delete' */
-#define DUK_STRIDX_DO                                                 270                            /* 'do' */
-#define DUK_STRIDX_ELSE                                               271                            /* 'else' */
-#define DUK_STRIDX_FINALLY                                            272                            /* 'finally' */
-#define DUK_STRIDX_FOR                                                273                            /* 'for' */
-#define DUK_STRIDX_LC_FUNCTION                                        274                            /* 'function' */
-#define DUK_STRIDX_IF                                                 275                            /* 'if' */
-#define DUK_STRIDX_IN                                                 276                            /* 'in' */
-#define DUK_STRIDX_INSTANCEOF                                         277                            /* 'instanceof' */
-#define DUK_STRIDX_NEW                                                278                            /* 'new' */
-#define DUK_STRIDX_RETURN                                             279                            /* 'return' */
-#define DUK_STRIDX_SWITCH                                             280                            /* 'switch' */
-#define DUK_STRIDX_THIS                                               281                            /* 'this' */
-#define DUK_STRIDX_THROW                                              282                            /* 'throw' */
-#define DUK_STRIDX_TRY                                                283                            /* 'try' */
-#define DUK_STRIDX_TYPEOF                                             284                            /* 'typeof' */
-#define DUK_STRIDX_VAR                                                285                            /* 'var' */
-#define DUK_STRIDX_VOID                                               286                            /* 'void' */
-#define DUK_STRIDX_WHILE                                              287                            /* 'while' */
-#define DUK_STRIDX_WITH                                               288                            /* 'with' */
-#define DUK_STRIDX_CLASS                                              289                            /* 'class' */
-#define DUK_STRIDX_CONST                                              290                            /* 'const' */
-#define DUK_STRIDX_ENUM                                               291                            /* 'enum' */
-#define DUK_STRIDX_EXPORT                                             292                            /* 'export' */
-#define DUK_STRIDX_EXTENDS                                            293                            /* 'extends' */
-#define DUK_STRIDX_IMPORT                                             294                            /* 'import' */
-#define DUK_STRIDX_SUPER                                              295                            /* 'super' */
-#define DUK_STRIDX_NULL                                               296                            /* 'null' */
-#define DUK_STRIDX_TRUE                                               297                            /* 'true' */
-#define DUK_STRIDX_FALSE                                              298                            /* 'false' */
-#define DUK_STRIDX_GET                                                299                            /* 'get' */
-#define DUK_STRIDX_SET                                                300                            /* 'set' */
-#define DUK_STRIDX_IMPLEMENTS                                         301                            /* 'implements' */
-#define DUK_STRIDX_INTERFACE                                          302                            /* 'interface' */
-#define DUK_STRIDX_LET                                                303                            /* 'let' */
-#define DUK_STRIDX_PACKAGE                                            304                            /* 'package' */
-#define DUK_STRIDX_PRIVATE                                            305                            /* 'private' */
-#define DUK_STRIDX_PROTECTED                                          306                            /* 'protected' */
-#define DUK_STRIDX_PUBLIC                                             307                            /* 'public' */
-#define DUK_STRIDX_STATIC                                             308                            /* 'static' */
-#define DUK_STRIDX_YIELD                                              309                            /* 'yield' */
+#define DUK_STRIDX_JSONC                                              27                             /* 'jsonc' */
+#define DUK_STRIDX_JSONX                                              28                             /* 'jsonx' */
+#define DUK_STRIDX_BASE64                                             29                             /* 'base64' */
+#define DUK_STRIDX_HEX                                                30                             /* 'hex' */
+#define DUK_STRIDX_DEC                                                31                             /* 'dec' */
+#define DUK_STRIDX_ENC                                                32                             /* 'enc' */
+#define DUK_STRIDX_FIN                                                33                             /* 'fin' */
+#define DUK_STRIDX_GC                                                 34                             /* 'gc' */
+#define DUK_STRIDX_INFO                                               35                             /* 'info' */
+#define DUK_STRIDX_VERSION                                            36                             /* 'version' */
+#define DUK_STRIDX_ENV                                                37                             /* 'env' */
+#define DUK_STRIDX_DUK                                                38                             /* 'Duktape' */
+#define DUK_STRIDX_COMPILE                                            39                             /* 'compile' */
+#define DUK_STRIDX_INT_REGBASE                                        40                             /* '\x00regbase' */
+#define DUK_STRIDX_INT_THREAD                                         41                             /* '\x00thread' */
+#define DUK_STRIDX_INT_FINALIZER                                      42                             /* '\x00finalizer' */
+#define DUK_STRIDX_INT_CALLEE                                         43                             /* '\x00callee' */
+#define DUK_STRIDX_INT_MAP                                            44                             /* '\x00map' */
+#define DUK_STRIDX_INT_ARGS                                           45                             /* '\x00args' */
+#define DUK_STRIDX_INT_THIS                                           46                             /* '\x00this' */
+#define DUK_STRIDX_INT_PC2LINE                                        47                             /* '\x00pc2line' */
+#define DUK_STRIDX_INT_SOURCE                                         48                             /* '\x00source' */
+#define DUK_STRIDX_INT_VARENV                                         49                             /* '\x00varenv' */
+#define DUK_STRIDX_INT_LEXENV                                         50                             /* '\x00lexenv' */
+#define DUK_STRIDX_INT_VARMAP                                         51                             /* '\x00varmap' */
+#define DUK_STRIDX_INT_FORMALS                                        52                             /* '\x00formals' */
+#define DUK_STRIDX_INT_BYTECODE                                       53                             /* '\x00bytecode' */
+#define DUK_STRIDX_INT_NEXT                                           54                             /* '\x00next' */
+#define DUK_STRIDX_INT_TARGET                                         55                             /* '\x00target' */
+#define DUK_STRIDX_INT_VALUE                                          56                             /* '\x00value' */
+#define DUK_STRIDX_LC_POINTER                                         57                             /* 'pointer' */
+#define DUK_STRIDX_LC_BUFFER                                          58                             /* 'buffer' */
+#define DUK_STRIDX_TRACEDATA                                          59                             /* 'tracedata' */
+#define DUK_STRIDX_LINE_NUMBER                                        60                             /* 'lineNumber' */
+#define DUK_STRIDX_FILE_NAME                                          61                             /* 'fileName' */
+#define DUK_STRIDX_PC                                                 62                             /* 'pc' */
+#define DUK_STRIDX_STACK                                              63                             /* 'stack' */
+#define DUK_STRIDX_THROW_TYPE_ERROR                                   64                             /* 'ThrowTypeError' */
+#define DUK_STRIDX_CALLEE                                             65                             /* 'callee' */
+#define DUK_STRIDX_INVALID_DATE                                       66                             /* 'Invalid Date' */
+#define DUK_STRIDX_BRACKETED_ELLIPSIS                                 67                             /* '[...]' */
+#define DUK_STRIDX_NEWLINE_TAB                                        68                             /* '\n\t' */
+#define DUK_STRIDX_SPACE                                              69                             /* ' ' */
+#define DUK_STRIDX_COMMA                                              70                             /* ',' */
+#define DUK_STRIDX_MINUS_ZERO                                         71                             /* '-0' */
+#define DUK_STRIDX_PLUS_ZERO                                          72                             /* '+0' */
+#define DUK_STRIDX_ZERO                                               73                             /* '0' */
+#define DUK_STRIDX_MINUS_INFINITY                                     74                             /* '-Infinity' */
+#define DUK_STRIDX_PLUS_INFINITY                                      75                             /* '+Infinity' */
+#define DUK_STRIDX_INFINITY                                           76                             /* 'Infinity' */
+#define DUK_STRIDX_LC_OBJECT                                          77                             /* 'object' */
+#define DUK_STRIDX_LC_STRING                                          78                             /* 'string' */
+#define DUK_STRIDX_LC_NUMBER                                          79                             /* 'number' */
+#define DUK_STRIDX_LC_BOOLEAN                                         80                             /* 'boolean' */
+#define DUK_STRIDX_UNDEFINED                                          81                             /* 'undefined' */
+#define DUK_STRIDX_STRINGIFY                                          82                             /* 'stringify' */
+#define DUK_STRIDX_TAN                                                83                             /* 'tan' */
+#define DUK_STRIDX_SQRT                                               84                             /* 'sqrt' */
+#define DUK_STRIDX_SIN                                                85                             /* 'sin' */
+#define DUK_STRIDX_ROUND                                              86                             /* 'round' */
+#define DUK_STRIDX_RANDOM                                             87                             /* 'random' */
+#define DUK_STRIDX_POW                                                88                             /* 'pow' */
+#define DUK_STRIDX_MIN                                                89                             /* 'min' */
+#define DUK_STRIDX_MAX                                                90                             /* 'max' */
+#define DUK_STRIDX_LOG                                                91                             /* 'log' */
+#define DUK_STRIDX_FLOOR                                              92                             /* 'floor' */
+#define DUK_STRIDX_EXP                                                93                             /* 'exp' */
+#define DUK_STRIDX_COS                                                94                             /* 'cos' */
+#define DUK_STRIDX_CEIL                                               95                             /* 'ceil' */
+#define DUK_STRIDX_ATAN2                                              96                             /* 'atan2' */
+#define DUK_STRIDX_ATAN                                               97                             /* 'atan' */
+#define DUK_STRIDX_ASIN                                               98                             /* 'asin' */
+#define DUK_STRIDX_ACOS                                               99                             /* 'acos' */
+#define DUK_STRIDX_ABS                                                100                            /* 'abs' */
+#define DUK_STRIDX_SQRT2                                              101                            /* 'SQRT2' */
+#define DUK_STRIDX_SQRT1_2                                            102                            /* 'SQRT1_2' */
+#define DUK_STRIDX_PI                                                 103                            /* 'PI' */
+#define DUK_STRIDX_LOG10E                                             104                            /* 'LOG10E' */
+#define DUK_STRIDX_LOG2E                                              105                            /* 'LOG2E' */
+#define DUK_STRIDX_LN2                                                106                            /* 'LN2' */
+#define DUK_STRIDX_LN10                                               107                            /* 'LN10' */
+#define DUK_STRIDX_E                                                  108                            /* 'E' */
+#define DUK_STRIDX_MESSAGE                                            109                            /* 'message' */
+#define DUK_STRIDX_NAME                                               110                            /* 'name' */
+#define DUK_STRIDX_INPUT                                              111                            /* 'input' */
+#define DUK_STRIDX_INDEX                                              112                            /* 'index' */
+#define DUK_STRIDX_ESCAPED_EMPTY_REGEXP                               113                            /* '(?:)' */
+#define DUK_STRIDX_LAST_INDEX                                         114                            /* 'lastIndex' */
+#define DUK_STRIDX_MULTILINE                                          115                            /* 'multiline' */
+#define DUK_STRIDX_IGNORE_CASE                                        116                            /* 'ignoreCase' */
+#define DUK_STRIDX_SOURCE                                             117                            /* 'source' */
+#define DUK_STRIDX_TEST                                               118                            /* 'test' */
+#define DUK_STRIDX_EXEC                                               119                            /* 'exec' */
+#define DUK_STRIDX_TO_GMT_STRING                                      120                            /* 'toGMTString' */
+#define DUK_STRIDX_SET_YEAR                                           121                            /* 'setYear' */
+#define DUK_STRIDX_GET_YEAR                                           122                            /* 'getYear' */
+#define DUK_STRIDX_TO_JSON                                            123                            /* 'toJSON' */
+#define DUK_STRIDX_TO_ISO_STRING                                      124                            /* 'toISOString' */
+#define DUK_STRIDX_TO_UTC_STRING                                      125                            /* 'toUTCString' */
+#define DUK_STRIDX_SET_UTC_FULL_YEAR                                  126                            /* 'setUTCFullYear' */
+#define DUK_STRIDX_SET_FULL_YEAR                                      127                            /* 'setFullYear' */
+#define DUK_STRIDX_SET_UTC_MONTH                                      128                            /* 'setUTCMonth' */
+#define DUK_STRIDX_SET_MONTH                                          129                            /* 'setMonth' */
+#define DUK_STRIDX_SET_UTC_DATE                                       130                            /* 'setUTCDate' */
+#define DUK_STRIDX_SET_DATE                                           131                            /* 'setDate' */
+#define DUK_STRIDX_SET_UTC_HOURS                                      132                            /* 'setUTCHours' */
+#define DUK_STRIDX_SET_HOURS                                          133                            /* 'setHours' */
+#define DUK_STRIDX_SET_UTC_MINUTES                                    134                            /* 'setUTCMinutes' */
+#define DUK_STRIDX_SET_MINUTES                                        135                            /* 'setMinutes' */
+#define DUK_STRIDX_SET_UTC_SECONDS                                    136                            /* 'setUTCSeconds' */
+#define DUK_STRIDX_SET_SECONDS                                        137                            /* 'setSeconds' */
+#define DUK_STRIDX_SET_UTC_MILLISECONDS                               138                            /* 'setUTCMilliseconds' */
+#define DUK_STRIDX_SET_MILLISECONDS                                   139                            /* 'setMilliseconds' */
+#define DUK_STRIDX_SET_TIME                                           140                            /* 'setTime' */
+#define DUK_STRIDX_GET_TIMEZONE_OFFSET                                141                            /* 'getTimezoneOffset' */
+#define DUK_STRIDX_GET_UTC_MILLISECONDS                               142                            /* 'getUTCMilliseconds' */
+#define DUK_STRIDX_GET_MILLISECONDS                                   143                            /* 'getMilliseconds' */
+#define DUK_STRIDX_GET_UTC_SECONDS                                    144                            /* 'getUTCSeconds' */
+#define DUK_STRIDX_GET_SECONDS                                        145                            /* 'getSeconds' */
+#define DUK_STRIDX_GET_UTC_MINUTES                                    146                            /* 'getUTCMinutes' */
+#define DUK_STRIDX_GET_MINUTES                                        147                            /* 'getMinutes' */
+#define DUK_STRIDX_GET_UTC_HOURS                                      148                            /* 'getUTCHours' */
+#define DUK_STRIDX_GET_HOURS                                          149                            /* 'getHours' */
+#define DUK_STRIDX_GET_UTC_DAY                                        150                            /* 'getUTCDay' */
+#define DUK_STRIDX_GET_DAY                                            151                            /* 'getDay' */
+#define DUK_STRIDX_GET_UTC_DATE                                       152                            /* 'getUTCDate' */
+#define DUK_STRIDX_GET_DATE                                           153                            /* 'getDate' */
+#define DUK_STRIDX_GET_UTC_MONTH                                      154                            /* 'getUTCMonth' */
+#define DUK_STRIDX_GET_MONTH                                          155                            /* 'getMonth' */
+#define DUK_STRIDX_GET_UTC_FULL_YEAR                                  156                            /* 'getUTCFullYear' */
+#define DUK_STRIDX_GET_FULL_YEAR                                      157                            /* 'getFullYear' */
+#define DUK_STRIDX_GET_TIME                                           158                            /* 'getTime' */
+#define DUK_STRIDX_TO_LOCALE_TIME_STRING                              159                            /* 'toLocaleTimeString' */
+#define DUK_STRIDX_TO_LOCALE_DATE_STRING                              160                            /* 'toLocaleDateString' */
+#define DUK_STRIDX_TO_TIME_STRING                                     161                            /* 'toTimeString' */
+#define DUK_STRIDX_TO_DATE_STRING                                     162                            /* 'toDateString' */
+#define DUK_STRIDX_NOW                                                163                            /* 'now' */
+#define DUK_STRIDX_UTC                                                164                            /* 'UTC' */
+#define DUK_STRIDX_PARSE                                              165                            /* 'parse' */
+#define DUK_STRIDX_TO_PRECISION                                       166                            /* 'toPrecision' */
+#define DUK_STRIDX_TO_EXPONENTIAL                                     167                            /* 'toExponential' */
+#define DUK_STRIDX_TO_FIXED                                           168                            /* 'toFixed' */
+#define DUK_STRIDX_POSITIVE_INFINITY                                  169                            /* 'POSITIVE_INFINITY' */
+#define DUK_STRIDX_NEGATIVE_INFINITY                                  170                            /* 'NEGATIVE_INFINITY' */
+#define DUK_STRIDX_NAN                                                171                            /* 'NaN' */
+#define DUK_STRIDX_MIN_VALUE                                          172                            /* 'MIN_VALUE' */
+#define DUK_STRIDX_MAX_VALUE                                          173                            /* 'MAX_VALUE' */
+#define DUK_STRIDX_SUBSTR                                             174                            /* 'substr' */
+#define DUK_STRIDX_TRIM                                               175                            /* 'trim' */
+#define DUK_STRIDX_TO_LOCALE_UPPER_CASE                               176                            /* 'toLocaleUpperCase' */
+#define DUK_STRIDX_TO_UPPER_CASE                                      177                            /* 'toUpperCase' */
+#define DUK_STRIDX_TO_LOCALE_LOWER_CASE                               178                            /* 'toLocaleLowerCase' */
+#define DUK_STRIDX_TO_LOWER_CASE                                      179                            /* 'toLowerCase' */
+#define DUK_STRIDX_SUBSTRING                                          180                            /* 'substring' */
+#define DUK_STRIDX_SPLIT                                              181                            /* 'split' */
+#define DUK_STRIDX_SEARCH                                             182                            /* 'search' */
+#define DUK_STRIDX_REPLACE                                            183                            /* 'replace' */
+#define DUK_STRIDX_MATCH                                              184                            /* 'match' */
+#define DUK_STRIDX_LOCALE_COMPARE                                     185                            /* 'localeCompare' */
+#define DUK_STRIDX_CHAR_CODE_AT                                       186                            /* 'charCodeAt' */
+#define DUK_STRIDX_CHAR_AT                                            187                            /* 'charAt' */
+#define DUK_STRIDX_FROM_CHAR_CODE                                     188                            /* 'fromCharCode' */
+#define DUK_STRIDX_REDUCE_RIGHT                                       189                            /* 'reduceRight' */
+#define DUK_STRIDX_REDUCE                                             190                            /* 'reduce' */
+#define DUK_STRIDX_FILTER                                             191                            /* 'filter' */
+#define DUK_STRIDX_MAP                                                192                            /* 'map' */
+#define DUK_STRIDX_FOR_EACH                                           193                            /* 'forEach' */
+#define DUK_STRIDX_SOME                                               194                            /* 'some' */
+#define DUK_STRIDX_EVERY                                              195                            /* 'every' */
+#define DUK_STRIDX_LAST_INDEX_OF                                      196                            /* 'lastIndexOf' */
+#define DUK_STRIDX_INDEX_OF                                           197                            /* 'indexOf' */
+#define DUK_STRIDX_UNSHIFT                                            198                            /* 'unshift' */
+#define DUK_STRIDX_SPLICE                                             199                            /* 'splice' */
+#define DUK_STRIDX_SORT                                               200                            /* 'sort' */
+#define DUK_STRIDX_SLICE                                              201                            /* 'slice' */
+#define DUK_STRIDX_SHIFT                                              202                            /* 'shift' */
+#define DUK_STRIDX_REVERSE                                            203                            /* 'reverse' */
+#define DUK_STRIDX_PUSH                                               204                            /* 'push' */
+#define DUK_STRIDX_POP                                                205                            /* 'pop' */
+#define DUK_STRIDX_JOIN                                               206                            /* 'join' */
+#define DUK_STRIDX_CONCAT                                             207                            /* 'concat' */
+#define DUK_STRIDX_IS_ARRAY                                           208                            /* 'isArray' */
+#define DUK_STRIDX_LC_ARGUMENTS                                       209                            /* 'arguments' */
+#define DUK_STRIDX_CALLER                                             210                            /* 'caller' */
+#define DUK_STRIDX_BIND                                               211                            /* 'bind' */
+#define DUK_STRIDX_CALL                                               212                            /* 'call' */
+#define DUK_STRIDX_APPLY                                              213                            /* 'apply' */
+#define DUK_STRIDX_PROPERTY_IS_ENUMERABLE                             214                            /* 'propertyIsEnumerable' */
+#define DUK_STRIDX_IS_PROTOTYPE_OF                                    215                            /* 'isPrototypeOf' */
+#define DUK_STRIDX_HAS_OWN_PROPERTY                                   216                            /* 'hasOwnProperty' */
+#define DUK_STRIDX_VALUE_OF                                           217                            /* 'valueOf' */
+#define DUK_STRIDX_TO_LOCALE_STRING                                   218                            /* 'toLocaleString' */
+#define DUK_STRIDX_TO_STRING                                          219                            /* 'toString' */
+#define DUK_STRIDX_CONSTRUCTOR                                        220                            /* 'constructor' */
+#define DUK_STRIDX_SET                                                221                            /* 'set' */
+#define DUK_STRIDX_GET                                                222                            /* 'get' */
+#define DUK_STRIDX_ENUMERABLE                                         223                            /* 'enumerable' */
+#define DUK_STRIDX_CONFIGURABLE                                       224                            /* 'configurable' */
+#define DUK_STRIDX_WRITABLE                                           225                            /* 'writable' */
+#define DUK_STRIDX_VALUE                                              226                            /* 'value' */
+#define DUK_STRIDX_KEYS                                               227                            /* 'keys' */
+#define DUK_STRIDX_IS_EXTENSIBLE                                      228                            /* 'isExtensible' */
+#define DUK_STRIDX_IS_FROZEN                                          229                            /* 'isFrozen' */
+#define DUK_STRIDX_IS_SEALED                                          230                            /* 'isSealed' */
+#define DUK_STRIDX_PREVENT_EXTENSIONS                                 231                            /* 'preventExtensions' */
+#define DUK_STRIDX_FREEZE                                             232                            /* 'freeze' */
+#define DUK_STRIDX_SEAL                                               233                            /* 'seal' */
+#define DUK_STRIDX_DEFINE_PROPERTIES                                  234                            /* 'defineProperties' */
+#define DUK_STRIDX_DEFINE_PROPERTY                                    235                            /* 'defineProperty' */
+#define DUK_STRIDX_CREATE                                             236                            /* 'create' */
+#define DUK_STRIDX_GET_OWN_PROPERTY_NAMES                             237                            /* 'getOwnPropertyNames' */
+#define DUK_STRIDX_GET_OWN_PROPERTY_DESCRIPTOR                        238                            /* 'getOwnPropertyDescriptor' */
+#define DUK_STRIDX_GET_PROTOTYPE_OF                                   239                            /* 'getPrototypeOf' */
+#define DUK_STRIDX_PROTOTYPE                                          240                            /* 'prototype' */
+#define DUK_STRIDX_LENGTH                                             241                            /* 'length' */
+#define DUK_STRIDX_ALERT                                              242                            /* 'alert' */
+#define DUK_STRIDX_PRINT                                              243                            /* 'print' */
+#define DUK_STRIDX_UNESCAPE                                           244                            /* 'unescape' */
+#define DUK_STRIDX_ESCAPE                                             245                            /* 'escape' */
+#define DUK_STRIDX_ENCODE_URI_COMPONENT                               246                            /* 'encodeURIComponent' */
+#define DUK_STRIDX_ENCODE_URI                                         247                            /* 'encodeURI' */
+#define DUK_STRIDX_DECODE_URI_COMPONENT                               248                            /* 'decodeURIComponent' */
+#define DUK_STRIDX_DECODE_URI                                         249                            /* 'decodeURI' */
+#define DUK_STRIDX_IS_FINITE                                          250                            /* 'isFinite' */
+#define DUK_STRIDX_IS_NAN                                             251                            /* 'isNaN' */
+#define DUK_STRIDX_PARSE_FLOAT                                        252                            /* 'parseFloat' */
+#define DUK_STRIDX_PARSE_INT                                          253                            /* 'parseInt' */
+#define DUK_STRIDX_EVAL                                               254                            /* 'eval' */
+#define DUK_STRIDX_URI_ERROR                                          255                            /* 'URIError' */
+#define DUK_STRIDX_TYPE_ERROR                                         256                            /* 'TypeError' */
+#define DUK_STRIDX_SYNTAX_ERROR                                       257                            /* 'SyntaxError' */
+#define DUK_STRIDX_REFERENCE_ERROR                                    258                            /* 'ReferenceError' */
+#define DUK_STRIDX_RANGE_ERROR                                        259                            /* 'RangeError' */
+#define DUK_STRIDX_EVAL_ERROR                                         260                            /* 'EvalError' */
+#define DUK_STRIDX_BREAK                                              261                            /* 'break' */
+#define DUK_STRIDX_CASE                                               262                            /* 'case' */
+#define DUK_STRIDX_CATCH                                              263                            /* 'catch' */
+#define DUK_STRIDX_CONTINUE                                           264                            /* 'continue' */
+#define DUK_STRIDX_DEBUGGER                                           265                            /* 'debugger' */
+#define DUK_STRIDX_DEFAULT                                            266                            /* 'default' */
+#define DUK_STRIDX_DELETE                                             267                            /* 'delete' */
+#define DUK_STRIDX_DO                                                 268                            /* 'do' */
+#define DUK_STRIDX_ELSE                                               269                            /* 'else' */
+#define DUK_STRIDX_FINALLY                                            270                            /* 'finally' */
+#define DUK_STRIDX_FOR                                                271                            /* 'for' */
+#define DUK_STRIDX_LC_FUNCTION                                        272                            /* 'function' */
+#define DUK_STRIDX_IF                                                 273                            /* 'if' */
+#define DUK_STRIDX_IN                                                 274                            /* 'in' */
+#define DUK_STRIDX_INSTANCEOF                                         275                            /* 'instanceof' */
+#define DUK_STRIDX_NEW                                                276                            /* 'new' */
+#define DUK_STRIDX_RETURN                                             277                            /* 'return' */
+#define DUK_STRIDX_SWITCH                                             278                            /* 'switch' */
+#define DUK_STRIDX_THIS                                               279                            /* 'this' */
+#define DUK_STRIDX_THROW                                              280                            /* 'throw' */
+#define DUK_STRIDX_TRY                                                281                            /* 'try' */
+#define DUK_STRIDX_TYPEOF                                             282                            /* 'typeof' */
+#define DUK_STRIDX_VAR                                                283                            /* 'var' */
+#define DUK_STRIDX_VOID                                               284                            /* 'void' */
+#define DUK_STRIDX_WHILE                                              285                            /* 'while' */
+#define DUK_STRIDX_WITH                                               286                            /* 'with' */
+#define DUK_STRIDX_CLASS                                              287                            /* 'class' */
+#define DUK_STRIDX_CONST                                              288                            /* 'const' */
+#define DUK_STRIDX_ENUM                                               289                            /* 'enum' */
+#define DUK_STRIDX_EXPORT                                             290                            /* 'export' */
+#define DUK_STRIDX_EXTENDS                                            291                            /* 'extends' */
+#define DUK_STRIDX_IMPORT                                             292                            /* 'import' */
+#define DUK_STRIDX_SUPER                                              293                            /* 'super' */
+#define DUK_STRIDX_NULL                                               294                            /* 'null' */
+#define DUK_STRIDX_TRUE                                               295                            /* 'true' */
+#define DUK_STRIDX_FALSE                                              296                            /* 'false' */
+#define DUK_STRIDX_IMPLEMENTS                                         297                            /* 'implements' */
+#define DUK_STRIDX_INTERFACE                                          298                            /* 'interface' */
+#define DUK_STRIDX_LET                                                299                            /* 'let' */
+#define DUK_STRIDX_PACKAGE                                            300                            /* 'package' */
+#define DUK_STRIDX_PRIVATE                                            301                            /* 'private' */
+#define DUK_STRIDX_PROTECTED                                          302                            /* 'protected' */
+#define DUK_STRIDX_PUBLIC                                             303                            /* 'public' */
+#define DUK_STRIDX_STATIC                                             304                            /* 'static' */
+#define DUK_STRIDX_YIELD                                              305                            /* 'yield' */
 
 #define DUK_HEAP_STRING_UC_THREAD(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_UC_THREAD)
 #define DUK_HTHREAD_STRING_UC_THREAD(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_UC_THREAD)
@@ -3363,32 +3388,24 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_CURRENT(thr)                               DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_CURRENT)
 #define DUK_HEAP_STRING_RESUME(heap)                                  DUK_HEAP_GET_STRING((heap),DUK_STRIDX_RESUME)
 #define DUK_HTHREAD_STRING_RESUME(thr)                                DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_RESUME)
+#define DUK_HEAP_STRING_JSONC(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC)
+#define DUK_HTHREAD_STRING_JSONC(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC)
+#define DUK_HEAP_STRING_JSONX(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX)
+#define DUK_HTHREAD_STRING_JSONX(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX)
 #define DUK_HEAP_STRING_BASE64(heap)                                  DUK_HEAP_GET_STRING((heap),DUK_STRIDX_BASE64)
 #define DUK_HTHREAD_STRING_BASE64(thr)                                DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_BASE64)
 #define DUK_HEAP_STRING_HEX(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_HEX)
 #define DUK_HTHREAD_STRING_HEX(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_HEX)
-#define DUK_HEAP_STRING_JSONC_DEC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC_DEC)
-#define DUK_HTHREAD_STRING_JSONC_DEC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC_DEC)
-#define DUK_HEAP_STRING_JSONC_ENC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC_ENC)
-#define DUK_HTHREAD_STRING_JSONC_ENC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC_ENC)
-#define DUK_HEAP_STRING_JSONX_DEC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX_DEC)
-#define DUK_HTHREAD_STRING_JSONX_DEC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX_DEC)
-#define DUK_HEAP_STRING_JSONX_ENC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX_ENC)
-#define DUK_HTHREAD_STRING_JSONX_ENC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX_ENC)
 #define DUK_HEAP_STRING_DEC(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_DEC)
 #define DUK_HTHREAD_STRING_DEC(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_DEC)
 #define DUK_HEAP_STRING_ENC(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENC)
 #define DUK_HTHREAD_STRING_ENC(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ENC)
-#define DUK_HEAP_STRING_GET_FINALIZER(heap)                           DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET_FINALIZER)
-#define DUK_HTHREAD_STRING_GET_FINALIZER(thr)                         DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET_FINALIZER)
-#define DUK_HEAP_STRING_SET_FINALIZER(heap)                           DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET_FINALIZER)
-#define DUK_HTHREAD_STRING_SET_FINALIZER(thr)                         DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET_FINALIZER)
+#define DUK_HEAP_STRING_FIN(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_FIN)
+#define DUK_HTHREAD_STRING_FIN(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_FIN)
 #define DUK_HEAP_STRING_GC(heap)                                      DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GC)
 #define DUK_HTHREAD_STRING_GC(thr)                                    DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GC)
-#define DUK_HEAP_STRING_REFC(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_REFC)
-#define DUK_HTHREAD_STRING_REFC(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_REFC)
-#define DUK_HEAP_STRING_ADDR(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ADDR)
-#define DUK_HTHREAD_STRING_ADDR(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ADDR)
+#define DUK_HEAP_STRING_INFO(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_INFO)
+#define DUK_HTHREAD_STRING_INFO(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_INFO)
 #define DUK_HEAP_STRING_VERSION(heap)                                 DUK_HEAP_GET_STRING((heap),DUK_STRIDX_VERSION)
 #define DUK_HTHREAD_STRING_VERSION(thr)                               DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_VERSION)
 #define DUK_HEAP_STRING_ENV(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENV)
@@ -3759,6 +3776,10 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_TO_STRING(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_TO_STRING)
 #define DUK_HEAP_STRING_CONSTRUCTOR(heap)                             DUK_HEAP_GET_STRING((heap),DUK_STRIDX_CONSTRUCTOR)
 #define DUK_HTHREAD_STRING_CONSTRUCTOR(thr)                           DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_CONSTRUCTOR)
+#define DUK_HEAP_STRING_SET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET)
+#define DUK_HTHREAD_STRING_SET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET)
+#define DUK_HEAP_STRING_GET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET)
+#define DUK_HTHREAD_STRING_GET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET)
 #define DUK_HEAP_STRING_ENUMERABLE(heap)                              DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENUMERABLE)
 #define DUK_HTHREAD_STRING_ENUMERABLE(thr)                            DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ENUMERABLE)
 #define DUK_HEAP_STRING_CONFIGURABLE(heap)                            DUK_HEAP_GET_STRING((heap),DUK_STRIDX_CONFIGURABLE)
@@ -3907,10 +3928,6 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_TRUE(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_TRUE)
 #define DUK_HEAP_STRING_FALSE(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_FALSE)
 #define DUK_HTHREAD_STRING_FALSE(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_FALSE)
-#define DUK_HEAP_STRING_GET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET)
-#define DUK_HTHREAD_STRING_GET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET)
-#define DUK_HEAP_STRING_SET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET)
-#define DUK_HTHREAD_STRING_SET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET)
 #define DUK_HEAP_STRING_IMPLEMENTS(heap)                              DUK_HEAP_GET_STRING((heap),DUK_STRIDX_IMPLEMENTS)
 #define DUK_HTHREAD_STRING_IMPLEMENTS(thr)                            DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_IMPLEMENTS)
 #define DUK_HEAP_STRING_INTERFACE(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_INTERFACE)
@@ -3930,17 +3947,22 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HEAP_STRING_YIELD(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_YIELD)
 #define DUK_HTHREAD_STRING_YIELD(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_YIELD)
 
-#define DUK_HEAP_NUM_STRINGS                                          310
+#define DUK_HEAP_NUM_STRINGS                                          306
 
-#define DUK_STRIDX_START_RESERVED                                     263
-#define DUK_STRIDX_START_STRICT_RESERVED                              301
-#define DUK_STRIDX_END_RESERVED                                       310                            /* exclusive endpoint */
+#define DUK_STRIDX_START_RESERVED                                     261
+#define DUK_STRIDX_START_STRICT_RESERVED                              297
+#define DUK_STRIDX_END_RESERVED                                       306                            /* exclusive endpoint */
 
-extern const duk_c_function duk_builtin_native_functions[];
-
+extern const duk_c_function duk_bi_native_functions[];
 extern const duk_uint8_t duk_builtins_data[];
+#ifdef DUK_USE_INITJS
+extern const duk_uint8_t duk_initjs_data[];
+#endif  /* DUK_USE_INITJS */
 
-#define DUK_BUILTINS_DATA_LENGTH                                      1252
+#define DUK_BUILTINS_DATA_LENGTH                                      1237
+#ifdef DUK_USE_INITJS
+#define DUK_INITJS_DATA_LENGTH                                        430
+#endif  /* DUK_USE_INITJS */
 
 #define DUK_BIDX_GLOBAL                                               0
 #define DUK_BIDX_GLOBAL_ENV                                           1
@@ -3991,7 +4013,7 @@ extern const duk_uint8_t duk_builtins_data[];
 #elif defined(DUK_USE_DOUBLE_ME)
 extern const duk_uint8_t duk_strings_data[];
 
-#define DUK_STRDATA_DATA_LENGTH                                       1825
+#define DUK_STRDATA_DATA_LENGTH                                       1789
 #define DUK_STRDATA_MAX_STRLEN                                        24
 
 #define DUK_STRIDX_UC_THREAD                                          0                              /* 'Thread' */
@@ -4021,289 +4043,285 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_STRIDX_JSON_EXT_UNDEFINED                                 24                             /* '{"_undef":true}' */
 #define DUK_STRIDX_CURRENT                                            25                             /* 'current' */
 #define DUK_STRIDX_RESUME                                             26                             /* 'resume' */
-#define DUK_STRIDX_BASE64                                             27                             /* 'base64' */
-#define DUK_STRIDX_HEX                                                28                             /* 'hex' */
-#define DUK_STRIDX_JSONC_DEC                                          29                             /* 'jsoncDec' */
-#define DUK_STRIDX_JSONC_ENC                                          30                             /* 'jsoncEnc' */
-#define DUK_STRIDX_JSONX_DEC                                          31                             /* 'jsonxDec' */
-#define DUK_STRIDX_JSONX_ENC                                          32                             /* 'jsonxEnc' */
-#define DUK_STRIDX_DEC                                                33                             /* 'dec' */
-#define DUK_STRIDX_ENC                                                34                             /* 'enc' */
-#define DUK_STRIDX_GET_FINALIZER                                      35                             /* 'getFinalizer' */
-#define DUK_STRIDX_SET_FINALIZER                                      36                             /* 'setFinalizer' */
-#define DUK_STRIDX_GC                                                 37                             /* 'gc' */
-#define DUK_STRIDX_REFC                                               38                             /* 'refc' */
-#define DUK_STRIDX_ADDR                                               39                             /* 'addr' */
-#define DUK_STRIDX_VERSION                                            40                             /* 'version' */
-#define DUK_STRIDX_ENV                                                41                             /* 'env' */
-#define DUK_STRIDX_DUK                                                42                             /* 'Duktape' */
-#define DUK_STRIDX_COMPILE                                            43                             /* 'compile' */
-#define DUK_STRIDX_INT_REGBASE                                        44                             /* '\x00regbase' */
-#define DUK_STRIDX_INT_THREAD                                         45                             /* '\x00thread' */
-#define DUK_STRIDX_INT_FINALIZER                                      46                             /* '\x00finalizer' */
-#define DUK_STRIDX_INT_CALLEE                                         47                             /* '\x00callee' */
-#define DUK_STRIDX_INT_MAP                                            48                             /* '\x00map' */
-#define DUK_STRIDX_INT_ARGS                                           49                             /* '\x00args' */
-#define DUK_STRIDX_INT_THIS                                           50                             /* '\x00this' */
-#define DUK_STRIDX_INT_PC2LINE                                        51                             /* '\x00pc2line' */
-#define DUK_STRIDX_INT_SOURCE                                         52                             /* '\x00source' */
-#define DUK_STRIDX_INT_VARENV                                         53                             /* '\x00varenv' */
-#define DUK_STRIDX_INT_LEXENV                                         54                             /* '\x00lexenv' */
-#define DUK_STRIDX_INT_VARMAP                                         55                             /* '\x00varmap' */
-#define DUK_STRIDX_INT_FORMALS                                        56                             /* '\x00formals' */
-#define DUK_STRIDX_INT_BYTECODE                                       57                             /* '\x00bytecode' */
-#define DUK_STRIDX_INT_NEXT                                           58                             /* '\x00next' */
-#define DUK_STRIDX_INT_TARGET                                         59                             /* '\x00target' */
-#define DUK_STRIDX_INT_VALUE                                          60                             /* '\x00value' */
-#define DUK_STRIDX_LC_POINTER                                         61                             /* 'pointer' */
-#define DUK_STRIDX_LC_BUFFER                                          62                             /* 'buffer' */
-#define DUK_STRIDX_TRACEDATA                                          63                             /* 'tracedata' */
-#define DUK_STRIDX_LINE_NUMBER                                        64                             /* 'lineNumber' */
-#define DUK_STRIDX_FILE_NAME                                          65                             /* 'fileName' */
-#define DUK_STRIDX_PC                                                 66                             /* 'pc' */
-#define DUK_STRIDX_STACK                                              67                             /* 'stack' */
-#define DUK_STRIDX_THROW_TYPE_ERROR                                   68                             /* 'ThrowTypeError' */
-#define DUK_STRIDX_CALLEE                                             69                             /* 'callee' */
-#define DUK_STRIDX_INVALID_DATE                                       70                             /* 'Invalid Date' */
-#define DUK_STRIDX_BRACKETED_ELLIPSIS                                 71                             /* '[...]' */
-#define DUK_STRIDX_NEWLINE_TAB                                        72                             /* '\n\t' */
-#define DUK_STRIDX_SPACE                                              73                             /* ' ' */
-#define DUK_STRIDX_COMMA                                              74                             /* ',' */
-#define DUK_STRIDX_MINUS_ZERO                                         75                             /* '-0' */
-#define DUK_STRIDX_PLUS_ZERO                                          76                             /* '+0' */
-#define DUK_STRIDX_ZERO                                               77                             /* '0' */
-#define DUK_STRIDX_MINUS_INFINITY                                     78                             /* '-Infinity' */
-#define DUK_STRIDX_PLUS_INFINITY                                      79                             /* '+Infinity' */
-#define DUK_STRIDX_INFINITY                                           80                             /* 'Infinity' */
-#define DUK_STRIDX_LC_OBJECT                                          81                             /* 'object' */
-#define DUK_STRIDX_LC_STRING                                          82                             /* 'string' */
-#define DUK_STRIDX_LC_NUMBER                                          83                             /* 'number' */
-#define DUK_STRIDX_LC_BOOLEAN                                         84                             /* 'boolean' */
-#define DUK_STRIDX_UNDEFINED                                          85                             /* 'undefined' */
-#define DUK_STRIDX_STRINGIFY                                          86                             /* 'stringify' */
-#define DUK_STRIDX_TAN                                                87                             /* 'tan' */
-#define DUK_STRIDX_SQRT                                               88                             /* 'sqrt' */
-#define DUK_STRIDX_SIN                                                89                             /* 'sin' */
-#define DUK_STRIDX_ROUND                                              90                             /* 'round' */
-#define DUK_STRIDX_RANDOM                                             91                             /* 'random' */
-#define DUK_STRIDX_POW                                                92                             /* 'pow' */
-#define DUK_STRIDX_MIN                                                93                             /* 'min' */
-#define DUK_STRIDX_MAX                                                94                             /* 'max' */
-#define DUK_STRIDX_LOG                                                95                             /* 'log' */
-#define DUK_STRIDX_FLOOR                                              96                             /* 'floor' */
-#define DUK_STRIDX_EXP                                                97                             /* 'exp' */
-#define DUK_STRIDX_COS                                                98                             /* 'cos' */
-#define DUK_STRIDX_CEIL                                               99                             /* 'ceil' */
-#define DUK_STRIDX_ATAN2                                              100                            /* 'atan2' */
-#define DUK_STRIDX_ATAN                                               101                            /* 'atan' */
-#define DUK_STRIDX_ASIN                                               102                            /* 'asin' */
-#define DUK_STRIDX_ACOS                                               103                            /* 'acos' */
-#define DUK_STRIDX_ABS                                                104                            /* 'abs' */
-#define DUK_STRIDX_SQRT2                                              105                            /* 'SQRT2' */
-#define DUK_STRIDX_SQRT1_2                                            106                            /* 'SQRT1_2' */
-#define DUK_STRIDX_PI                                                 107                            /* 'PI' */
-#define DUK_STRIDX_LOG10E                                             108                            /* 'LOG10E' */
-#define DUK_STRIDX_LOG2E                                              109                            /* 'LOG2E' */
-#define DUK_STRIDX_LN2                                                110                            /* 'LN2' */
-#define DUK_STRIDX_LN10                                               111                            /* 'LN10' */
-#define DUK_STRIDX_E                                                  112                            /* 'E' */
-#define DUK_STRIDX_MESSAGE                                            113                            /* 'message' */
-#define DUK_STRIDX_NAME                                               114                            /* 'name' */
-#define DUK_STRIDX_INPUT                                              115                            /* 'input' */
-#define DUK_STRIDX_INDEX                                              116                            /* 'index' */
-#define DUK_STRIDX_ESCAPED_EMPTY_REGEXP                               117                            /* '(?:)' */
-#define DUK_STRIDX_LAST_INDEX                                         118                            /* 'lastIndex' */
-#define DUK_STRIDX_MULTILINE                                          119                            /* 'multiline' */
-#define DUK_STRIDX_IGNORE_CASE                                        120                            /* 'ignoreCase' */
-#define DUK_STRIDX_SOURCE                                             121                            /* 'source' */
-#define DUK_STRIDX_TEST                                               122                            /* 'test' */
-#define DUK_STRIDX_EXEC                                               123                            /* 'exec' */
-#define DUK_STRIDX_TO_GMT_STRING                                      124                            /* 'toGMTString' */
-#define DUK_STRIDX_SET_YEAR                                           125                            /* 'setYear' */
-#define DUK_STRIDX_GET_YEAR                                           126                            /* 'getYear' */
-#define DUK_STRIDX_TO_JSON                                            127                            /* 'toJSON' */
-#define DUK_STRIDX_TO_ISO_STRING                                      128                            /* 'toISOString' */
-#define DUK_STRIDX_TO_UTC_STRING                                      129                            /* 'toUTCString' */
-#define DUK_STRIDX_SET_UTC_FULL_YEAR                                  130                            /* 'setUTCFullYear' */
-#define DUK_STRIDX_SET_FULL_YEAR                                      131                            /* 'setFullYear' */
-#define DUK_STRIDX_SET_UTC_MONTH                                      132                            /* 'setUTCMonth' */
-#define DUK_STRIDX_SET_MONTH                                          133                            /* 'setMonth' */
-#define DUK_STRIDX_SET_UTC_DATE                                       134                            /* 'setUTCDate' */
-#define DUK_STRIDX_SET_DATE                                           135                            /* 'setDate' */
-#define DUK_STRIDX_SET_UTC_HOURS                                      136                            /* 'setUTCHours' */
-#define DUK_STRIDX_SET_HOURS                                          137                            /* 'setHours' */
-#define DUK_STRIDX_SET_UTC_MINUTES                                    138                            /* 'setUTCMinutes' */
-#define DUK_STRIDX_SET_MINUTES                                        139                            /* 'setMinutes' */
-#define DUK_STRIDX_SET_UTC_SECONDS                                    140                            /* 'setUTCSeconds' */
-#define DUK_STRIDX_SET_SECONDS                                        141                            /* 'setSeconds' */
-#define DUK_STRIDX_SET_UTC_MILLISECONDS                               142                            /* 'setUTCMilliseconds' */
-#define DUK_STRIDX_SET_MILLISECONDS                                   143                            /* 'setMilliseconds' */
-#define DUK_STRIDX_SET_TIME                                           144                            /* 'setTime' */
-#define DUK_STRIDX_GET_TIMEZONE_OFFSET                                145                            /* 'getTimezoneOffset' */
-#define DUK_STRIDX_GET_UTC_MILLISECONDS                               146                            /* 'getUTCMilliseconds' */
-#define DUK_STRIDX_GET_MILLISECONDS                                   147                            /* 'getMilliseconds' */
-#define DUK_STRIDX_GET_UTC_SECONDS                                    148                            /* 'getUTCSeconds' */
-#define DUK_STRIDX_GET_SECONDS                                        149                            /* 'getSeconds' */
-#define DUK_STRIDX_GET_UTC_MINUTES                                    150                            /* 'getUTCMinutes' */
-#define DUK_STRIDX_GET_MINUTES                                        151                            /* 'getMinutes' */
-#define DUK_STRIDX_GET_UTC_HOURS                                      152                            /* 'getUTCHours' */
-#define DUK_STRIDX_GET_HOURS                                          153                            /* 'getHours' */
-#define DUK_STRIDX_GET_UTC_DAY                                        154                            /* 'getUTCDay' */
-#define DUK_STRIDX_GET_DAY                                            155                            /* 'getDay' */
-#define DUK_STRIDX_GET_UTC_DATE                                       156                            /* 'getUTCDate' */
-#define DUK_STRIDX_GET_DATE                                           157                            /* 'getDate' */
-#define DUK_STRIDX_GET_UTC_MONTH                                      158                            /* 'getUTCMonth' */
-#define DUK_STRIDX_GET_MONTH                                          159                            /* 'getMonth' */
-#define DUK_STRIDX_GET_UTC_FULL_YEAR                                  160                            /* 'getUTCFullYear' */
-#define DUK_STRIDX_GET_FULL_YEAR                                      161                            /* 'getFullYear' */
-#define DUK_STRIDX_GET_TIME                                           162                            /* 'getTime' */
-#define DUK_STRIDX_TO_LOCALE_TIME_STRING                              163                            /* 'toLocaleTimeString' */
-#define DUK_STRIDX_TO_LOCALE_DATE_STRING                              164                            /* 'toLocaleDateString' */
-#define DUK_STRIDX_TO_TIME_STRING                                     165                            /* 'toTimeString' */
-#define DUK_STRIDX_TO_DATE_STRING                                     166                            /* 'toDateString' */
-#define DUK_STRIDX_NOW                                                167                            /* 'now' */
-#define DUK_STRIDX_UTC                                                168                            /* 'UTC' */
-#define DUK_STRIDX_PARSE                                              169                            /* 'parse' */
-#define DUK_STRIDX_TO_PRECISION                                       170                            /* 'toPrecision' */
-#define DUK_STRIDX_TO_EXPONENTIAL                                     171                            /* 'toExponential' */
-#define DUK_STRIDX_TO_FIXED                                           172                            /* 'toFixed' */
-#define DUK_STRIDX_POSITIVE_INFINITY                                  173                            /* 'POSITIVE_INFINITY' */
-#define DUK_STRIDX_NEGATIVE_INFINITY                                  174                            /* 'NEGATIVE_INFINITY' */
-#define DUK_STRIDX_NAN                                                175                            /* 'NaN' */
-#define DUK_STRIDX_MIN_VALUE                                          176                            /* 'MIN_VALUE' */
-#define DUK_STRIDX_MAX_VALUE                                          177                            /* 'MAX_VALUE' */
-#define DUK_STRIDX_SUBSTR                                             178                            /* 'substr' */
-#define DUK_STRIDX_TRIM                                               179                            /* 'trim' */
-#define DUK_STRIDX_TO_LOCALE_UPPER_CASE                               180                            /* 'toLocaleUpperCase' */
-#define DUK_STRIDX_TO_UPPER_CASE                                      181                            /* 'toUpperCase' */
-#define DUK_STRIDX_TO_LOCALE_LOWER_CASE                               182                            /* 'toLocaleLowerCase' */
-#define DUK_STRIDX_TO_LOWER_CASE                                      183                            /* 'toLowerCase' */
-#define DUK_STRIDX_SUBSTRING                                          184                            /* 'substring' */
-#define DUK_STRIDX_SPLIT                                              185                            /* 'split' */
-#define DUK_STRIDX_SEARCH                                             186                            /* 'search' */
-#define DUK_STRIDX_REPLACE                                            187                            /* 'replace' */
-#define DUK_STRIDX_MATCH                                              188                            /* 'match' */
-#define DUK_STRIDX_LOCALE_COMPARE                                     189                            /* 'localeCompare' */
-#define DUK_STRIDX_CHAR_CODE_AT                                       190                            /* 'charCodeAt' */
-#define DUK_STRIDX_CHAR_AT                                            191                            /* 'charAt' */
-#define DUK_STRIDX_FROM_CHAR_CODE                                     192                            /* 'fromCharCode' */
-#define DUK_STRIDX_REDUCE_RIGHT                                       193                            /* 'reduceRight' */
-#define DUK_STRIDX_REDUCE                                             194                            /* 'reduce' */
-#define DUK_STRIDX_FILTER                                             195                            /* 'filter' */
-#define DUK_STRIDX_MAP                                                196                            /* 'map' */
-#define DUK_STRIDX_FOR_EACH                                           197                            /* 'forEach' */
-#define DUK_STRIDX_SOME                                               198                            /* 'some' */
-#define DUK_STRIDX_EVERY                                              199                            /* 'every' */
-#define DUK_STRIDX_LAST_INDEX_OF                                      200                            /* 'lastIndexOf' */
-#define DUK_STRIDX_INDEX_OF                                           201                            /* 'indexOf' */
-#define DUK_STRIDX_UNSHIFT                                            202                            /* 'unshift' */
-#define DUK_STRIDX_SPLICE                                             203                            /* 'splice' */
-#define DUK_STRIDX_SORT                                               204                            /* 'sort' */
-#define DUK_STRIDX_SLICE                                              205                            /* 'slice' */
-#define DUK_STRIDX_SHIFT                                              206                            /* 'shift' */
-#define DUK_STRIDX_REVERSE                                            207                            /* 'reverse' */
-#define DUK_STRIDX_PUSH                                               208                            /* 'push' */
-#define DUK_STRIDX_POP                                                209                            /* 'pop' */
-#define DUK_STRIDX_JOIN                                               210                            /* 'join' */
-#define DUK_STRIDX_CONCAT                                             211                            /* 'concat' */
-#define DUK_STRIDX_IS_ARRAY                                           212                            /* 'isArray' */
-#define DUK_STRIDX_LC_ARGUMENTS                                       213                            /* 'arguments' */
-#define DUK_STRIDX_CALLER                                             214                            /* 'caller' */
-#define DUK_STRIDX_BIND                                               215                            /* 'bind' */
-#define DUK_STRIDX_CALL                                               216                            /* 'call' */
-#define DUK_STRIDX_APPLY                                              217                            /* 'apply' */
-#define DUK_STRIDX_PROPERTY_IS_ENUMERABLE                             218                            /* 'propertyIsEnumerable' */
-#define DUK_STRIDX_IS_PROTOTYPE_OF                                    219                            /* 'isPrototypeOf' */
-#define DUK_STRIDX_HAS_OWN_PROPERTY                                   220                            /* 'hasOwnProperty' */
-#define DUK_STRIDX_VALUE_OF                                           221                            /* 'valueOf' */
-#define DUK_STRIDX_TO_LOCALE_STRING                                   222                            /* 'toLocaleString' */
-#define DUK_STRIDX_TO_STRING                                          223                            /* 'toString' */
-#define DUK_STRIDX_CONSTRUCTOR                                        224                            /* 'constructor' */
-#define DUK_STRIDX_ENUMERABLE                                         225                            /* 'enumerable' */
-#define DUK_STRIDX_CONFIGURABLE                                       226                            /* 'configurable' */
-#define DUK_STRIDX_WRITABLE                                           227                            /* 'writable' */
-#define DUK_STRIDX_VALUE                                              228                            /* 'value' */
-#define DUK_STRIDX_KEYS                                               229                            /* 'keys' */
-#define DUK_STRIDX_IS_EXTENSIBLE                                      230                            /* 'isExtensible' */
-#define DUK_STRIDX_IS_FROZEN                                          231                            /* 'isFrozen' */
-#define DUK_STRIDX_IS_SEALED                                          232                            /* 'isSealed' */
-#define DUK_STRIDX_PREVENT_EXTENSIONS                                 233                            /* 'preventExtensions' */
-#define DUK_STRIDX_FREEZE                                             234                            /* 'freeze' */
-#define DUK_STRIDX_SEAL                                               235                            /* 'seal' */
-#define DUK_STRIDX_DEFINE_PROPERTIES                                  236                            /* 'defineProperties' */
-#define DUK_STRIDX_DEFINE_PROPERTY                                    237                            /* 'defineProperty' */
-#define DUK_STRIDX_CREATE                                             238                            /* 'create' */
-#define DUK_STRIDX_GET_OWN_PROPERTY_NAMES                             239                            /* 'getOwnPropertyNames' */
-#define DUK_STRIDX_GET_OWN_PROPERTY_DESCRIPTOR                        240                            /* 'getOwnPropertyDescriptor' */
-#define DUK_STRIDX_GET_PROTOTYPE_OF                                   241                            /* 'getPrototypeOf' */
-#define DUK_STRIDX_PROTOTYPE                                          242                            /* 'prototype' */
-#define DUK_STRIDX_LENGTH                                             243                            /* 'length' */
-#define DUK_STRIDX_ALERT                                              244                            /* 'alert' */
-#define DUK_STRIDX_PRINT                                              245                            /* 'print' */
-#define DUK_STRIDX_UNESCAPE                                           246                            /* 'unescape' */
-#define DUK_STRIDX_ESCAPE                                             247                            /* 'escape' */
-#define DUK_STRIDX_ENCODE_URI_COMPONENT                               248                            /* 'encodeURIComponent' */
-#define DUK_STRIDX_ENCODE_URI                                         249                            /* 'encodeURI' */
-#define DUK_STRIDX_DECODE_URI_COMPONENT                               250                            /* 'decodeURIComponent' */
-#define DUK_STRIDX_DECODE_URI                                         251                            /* 'decodeURI' */
-#define DUK_STRIDX_IS_FINITE                                          252                            /* 'isFinite' */
-#define DUK_STRIDX_IS_NAN                                             253                            /* 'isNaN' */
-#define DUK_STRIDX_PARSE_FLOAT                                        254                            /* 'parseFloat' */
-#define DUK_STRIDX_PARSE_INT                                          255                            /* 'parseInt' */
-#define DUK_STRIDX_EVAL                                               256                            /* 'eval' */
-#define DUK_STRIDX_URI_ERROR                                          257                            /* 'URIError' */
-#define DUK_STRIDX_TYPE_ERROR                                         258                            /* 'TypeError' */
-#define DUK_STRIDX_SYNTAX_ERROR                                       259                            /* 'SyntaxError' */
-#define DUK_STRIDX_REFERENCE_ERROR                                    260                            /* 'ReferenceError' */
-#define DUK_STRIDX_RANGE_ERROR                                        261                            /* 'RangeError' */
-#define DUK_STRIDX_EVAL_ERROR                                         262                            /* 'EvalError' */
-#define DUK_STRIDX_BREAK                                              263                            /* 'break' */
-#define DUK_STRIDX_CASE                                               264                            /* 'case' */
-#define DUK_STRIDX_CATCH                                              265                            /* 'catch' */
-#define DUK_STRIDX_CONTINUE                                           266                            /* 'continue' */
-#define DUK_STRIDX_DEBUGGER                                           267                            /* 'debugger' */
-#define DUK_STRIDX_DEFAULT                                            268                            /* 'default' */
-#define DUK_STRIDX_DELETE                                             269                            /* 'delete' */
-#define DUK_STRIDX_DO                                                 270                            /* 'do' */
-#define DUK_STRIDX_ELSE                                               271                            /* 'else' */
-#define DUK_STRIDX_FINALLY                                            272                            /* 'finally' */
-#define DUK_STRIDX_FOR                                                273                            /* 'for' */
-#define DUK_STRIDX_LC_FUNCTION                                        274                            /* 'function' */
-#define DUK_STRIDX_IF                                                 275                            /* 'if' */
-#define DUK_STRIDX_IN                                                 276                            /* 'in' */
-#define DUK_STRIDX_INSTANCEOF                                         277                            /* 'instanceof' */
-#define DUK_STRIDX_NEW                                                278                            /* 'new' */
-#define DUK_STRIDX_RETURN                                             279                            /* 'return' */
-#define DUK_STRIDX_SWITCH                                             280                            /* 'switch' */
-#define DUK_STRIDX_THIS                                               281                            /* 'this' */
-#define DUK_STRIDX_THROW                                              282                            /* 'throw' */
-#define DUK_STRIDX_TRY                                                283                            /* 'try' */
-#define DUK_STRIDX_TYPEOF                                             284                            /* 'typeof' */
-#define DUK_STRIDX_VAR                                                285                            /* 'var' */
-#define DUK_STRIDX_VOID                                               286                            /* 'void' */
-#define DUK_STRIDX_WHILE                                              287                            /* 'while' */
-#define DUK_STRIDX_WITH                                               288                            /* 'with' */
-#define DUK_STRIDX_CLASS                                              289                            /* 'class' */
-#define DUK_STRIDX_CONST                                              290                            /* 'const' */
-#define DUK_STRIDX_ENUM                                               291                            /* 'enum' */
-#define DUK_STRIDX_EXPORT                                             292                            /* 'export' */
-#define DUK_STRIDX_EXTENDS                                            293                            /* 'extends' */
-#define DUK_STRIDX_IMPORT                                             294                            /* 'import' */
-#define DUK_STRIDX_SUPER                                              295                            /* 'super' */
-#define DUK_STRIDX_NULL                                               296                            /* 'null' */
-#define DUK_STRIDX_TRUE                                               297                            /* 'true' */
-#define DUK_STRIDX_FALSE                                              298                            /* 'false' */
-#define DUK_STRIDX_GET                                                299                            /* 'get' */
-#define DUK_STRIDX_SET                                                300                            /* 'set' */
-#define DUK_STRIDX_IMPLEMENTS                                         301                            /* 'implements' */
-#define DUK_STRIDX_INTERFACE                                          302                            /* 'interface' */
-#define DUK_STRIDX_LET                                                303                            /* 'let' */
-#define DUK_STRIDX_PACKAGE                                            304                            /* 'package' */
-#define DUK_STRIDX_PRIVATE                                            305                            /* 'private' */
-#define DUK_STRIDX_PROTECTED                                          306                            /* 'protected' */
-#define DUK_STRIDX_PUBLIC                                             307                            /* 'public' */
-#define DUK_STRIDX_STATIC                                             308                            /* 'static' */
-#define DUK_STRIDX_YIELD                                              309                            /* 'yield' */
+#define DUK_STRIDX_JSONC                                              27                             /* 'jsonc' */
+#define DUK_STRIDX_JSONX                                              28                             /* 'jsonx' */
+#define DUK_STRIDX_BASE64                                             29                             /* 'base64' */
+#define DUK_STRIDX_HEX                                                30                             /* 'hex' */
+#define DUK_STRIDX_DEC                                                31                             /* 'dec' */
+#define DUK_STRIDX_ENC                                                32                             /* 'enc' */
+#define DUK_STRIDX_FIN                                                33                             /* 'fin' */
+#define DUK_STRIDX_GC                                                 34                             /* 'gc' */
+#define DUK_STRIDX_INFO                                               35                             /* 'info' */
+#define DUK_STRIDX_VERSION                                            36                             /* 'version' */
+#define DUK_STRIDX_ENV                                                37                             /* 'env' */
+#define DUK_STRIDX_DUK                                                38                             /* 'Duktape' */
+#define DUK_STRIDX_COMPILE                                            39                             /* 'compile' */
+#define DUK_STRIDX_INT_REGBASE                                        40                             /* '\x00regbase' */
+#define DUK_STRIDX_INT_THREAD                                         41                             /* '\x00thread' */
+#define DUK_STRIDX_INT_FINALIZER                                      42                             /* '\x00finalizer' */
+#define DUK_STRIDX_INT_CALLEE                                         43                             /* '\x00callee' */
+#define DUK_STRIDX_INT_MAP                                            44                             /* '\x00map' */
+#define DUK_STRIDX_INT_ARGS                                           45                             /* '\x00args' */
+#define DUK_STRIDX_INT_THIS                                           46                             /* '\x00this' */
+#define DUK_STRIDX_INT_PC2LINE                                        47                             /* '\x00pc2line' */
+#define DUK_STRIDX_INT_SOURCE                                         48                             /* '\x00source' */
+#define DUK_STRIDX_INT_VARENV                                         49                             /* '\x00varenv' */
+#define DUK_STRIDX_INT_LEXENV                                         50                             /* '\x00lexenv' */
+#define DUK_STRIDX_INT_VARMAP                                         51                             /* '\x00varmap' */
+#define DUK_STRIDX_INT_FORMALS                                        52                             /* '\x00formals' */
+#define DUK_STRIDX_INT_BYTECODE                                       53                             /* '\x00bytecode' */
+#define DUK_STRIDX_INT_NEXT                                           54                             /* '\x00next' */
+#define DUK_STRIDX_INT_TARGET                                         55                             /* '\x00target' */
+#define DUK_STRIDX_INT_VALUE                                          56                             /* '\x00value' */
+#define DUK_STRIDX_LC_POINTER                                         57                             /* 'pointer' */
+#define DUK_STRIDX_LC_BUFFER                                          58                             /* 'buffer' */
+#define DUK_STRIDX_TRACEDATA                                          59                             /* 'tracedata' */
+#define DUK_STRIDX_LINE_NUMBER                                        60                             /* 'lineNumber' */
+#define DUK_STRIDX_FILE_NAME                                          61                             /* 'fileName' */
+#define DUK_STRIDX_PC                                                 62                             /* 'pc' */
+#define DUK_STRIDX_STACK                                              63                             /* 'stack' */
+#define DUK_STRIDX_THROW_TYPE_ERROR                                   64                             /* 'ThrowTypeError' */
+#define DUK_STRIDX_CALLEE                                             65                             /* 'callee' */
+#define DUK_STRIDX_INVALID_DATE                                       66                             /* 'Invalid Date' */
+#define DUK_STRIDX_BRACKETED_ELLIPSIS                                 67                             /* '[...]' */
+#define DUK_STRIDX_NEWLINE_TAB                                        68                             /* '\n\t' */
+#define DUK_STRIDX_SPACE                                              69                             /* ' ' */
+#define DUK_STRIDX_COMMA                                              70                             /* ',' */
+#define DUK_STRIDX_MINUS_ZERO                                         71                             /* '-0' */
+#define DUK_STRIDX_PLUS_ZERO                                          72                             /* '+0' */
+#define DUK_STRIDX_ZERO                                               73                             /* '0' */
+#define DUK_STRIDX_MINUS_INFINITY                                     74                             /* '-Infinity' */
+#define DUK_STRIDX_PLUS_INFINITY                                      75                             /* '+Infinity' */
+#define DUK_STRIDX_INFINITY                                           76                             /* 'Infinity' */
+#define DUK_STRIDX_LC_OBJECT                                          77                             /* 'object' */
+#define DUK_STRIDX_LC_STRING                                          78                             /* 'string' */
+#define DUK_STRIDX_LC_NUMBER                                          79                             /* 'number' */
+#define DUK_STRIDX_LC_BOOLEAN                                         80                             /* 'boolean' */
+#define DUK_STRIDX_UNDEFINED                                          81                             /* 'undefined' */
+#define DUK_STRIDX_STRINGIFY                                          82                             /* 'stringify' */
+#define DUK_STRIDX_TAN                                                83                             /* 'tan' */
+#define DUK_STRIDX_SQRT                                               84                             /* 'sqrt' */
+#define DUK_STRIDX_SIN                                                85                             /* 'sin' */
+#define DUK_STRIDX_ROUND                                              86                             /* 'round' */
+#define DUK_STRIDX_RANDOM                                             87                             /* 'random' */
+#define DUK_STRIDX_POW                                                88                             /* 'pow' */
+#define DUK_STRIDX_MIN                                                89                             /* 'min' */
+#define DUK_STRIDX_MAX                                                90                             /* 'max' */
+#define DUK_STRIDX_LOG                                                91                             /* 'log' */
+#define DUK_STRIDX_FLOOR                                              92                             /* 'floor' */
+#define DUK_STRIDX_EXP                                                93                             /* 'exp' */
+#define DUK_STRIDX_COS                                                94                             /* 'cos' */
+#define DUK_STRIDX_CEIL                                               95                             /* 'ceil' */
+#define DUK_STRIDX_ATAN2                                              96                             /* 'atan2' */
+#define DUK_STRIDX_ATAN                                               97                             /* 'atan' */
+#define DUK_STRIDX_ASIN                                               98                             /* 'asin' */
+#define DUK_STRIDX_ACOS                                               99                             /* 'acos' */
+#define DUK_STRIDX_ABS                                                100                            /* 'abs' */
+#define DUK_STRIDX_SQRT2                                              101                            /* 'SQRT2' */
+#define DUK_STRIDX_SQRT1_2                                            102                            /* 'SQRT1_2' */
+#define DUK_STRIDX_PI                                                 103                            /* 'PI' */
+#define DUK_STRIDX_LOG10E                                             104                            /* 'LOG10E' */
+#define DUK_STRIDX_LOG2E                                              105                            /* 'LOG2E' */
+#define DUK_STRIDX_LN2                                                106                            /* 'LN2' */
+#define DUK_STRIDX_LN10                                               107                            /* 'LN10' */
+#define DUK_STRIDX_E                                                  108                            /* 'E' */
+#define DUK_STRIDX_MESSAGE                                            109                            /* 'message' */
+#define DUK_STRIDX_NAME                                               110                            /* 'name' */
+#define DUK_STRIDX_INPUT                                              111                            /* 'input' */
+#define DUK_STRIDX_INDEX                                              112                            /* 'index' */
+#define DUK_STRIDX_ESCAPED_EMPTY_REGEXP                               113                            /* '(?:)' */
+#define DUK_STRIDX_LAST_INDEX                                         114                            /* 'lastIndex' */
+#define DUK_STRIDX_MULTILINE                                          115                            /* 'multiline' */
+#define DUK_STRIDX_IGNORE_CASE                                        116                            /* 'ignoreCase' */
+#define DUK_STRIDX_SOURCE                                             117                            /* 'source' */
+#define DUK_STRIDX_TEST                                               118                            /* 'test' */
+#define DUK_STRIDX_EXEC                                               119                            /* 'exec' */
+#define DUK_STRIDX_TO_GMT_STRING                                      120                            /* 'toGMTString' */
+#define DUK_STRIDX_SET_YEAR                                           121                            /* 'setYear' */
+#define DUK_STRIDX_GET_YEAR                                           122                            /* 'getYear' */
+#define DUK_STRIDX_TO_JSON                                            123                            /* 'toJSON' */
+#define DUK_STRIDX_TO_ISO_STRING                                      124                            /* 'toISOString' */
+#define DUK_STRIDX_TO_UTC_STRING                                      125                            /* 'toUTCString' */
+#define DUK_STRIDX_SET_UTC_FULL_YEAR                                  126                            /* 'setUTCFullYear' */
+#define DUK_STRIDX_SET_FULL_YEAR                                      127                            /* 'setFullYear' */
+#define DUK_STRIDX_SET_UTC_MONTH                                      128                            /* 'setUTCMonth' */
+#define DUK_STRIDX_SET_MONTH                                          129                            /* 'setMonth' */
+#define DUK_STRIDX_SET_UTC_DATE                                       130                            /* 'setUTCDate' */
+#define DUK_STRIDX_SET_DATE                                           131                            /* 'setDate' */
+#define DUK_STRIDX_SET_UTC_HOURS                                      132                            /* 'setUTCHours' */
+#define DUK_STRIDX_SET_HOURS                                          133                            /* 'setHours' */
+#define DUK_STRIDX_SET_UTC_MINUTES                                    134                            /* 'setUTCMinutes' */
+#define DUK_STRIDX_SET_MINUTES                                        135                            /* 'setMinutes' */
+#define DUK_STRIDX_SET_UTC_SECONDS                                    136                            /* 'setUTCSeconds' */
+#define DUK_STRIDX_SET_SECONDS                                        137                            /* 'setSeconds' */
+#define DUK_STRIDX_SET_UTC_MILLISECONDS                               138                            /* 'setUTCMilliseconds' */
+#define DUK_STRIDX_SET_MILLISECONDS                                   139                            /* 'setMilliseconds' */
+#define DUK_STRIDX_SET_TIME                                           140                            /* 'setTime' */
+#define DUK_STRIDX_GET_TIMEZONE_OFFSET                                141                            /* 'getTimezoneOffset' */
+#define DUK_STRIDX_GET_UTC_MILLISECONDS                               142                            /* 'getUTCMilliseconds' */
+#define DUK_STRIDX_GET_MILLISECONDS                                   143                            /* 'getMilliseconds' */
+#define DUK_STRIDX_GET_UTC_SECONDS                                    144                            /* 'getUTCSeconds' */
+#define DUK_STRIDX_GET_SECONDS                                        145                            /* 'getSeconds' */
+#define DUK_STRIDX_GET_UTC_MINUTES                                    146                            /* 'getUTCMinutes' */
+#define DUK_STRIDX_GET_MINUTES                                        147                            /* 'getMinutes' */
+#define DUK_STRIDX_GET_UTC_HOURS                                      148                            /* 'getUTCHours' */
+#define DUK_STRIDX_GET_HOURS                                          149                            /* 'getHours' */
+#define DUK_STRIDX_GET_UTC_DAY                                        150                            /* 'getUTCDay' */
+#define DUK_STRIDX_GET_DAY                                            151                            /* 'getDay' */
+#define DUK_STRIDX_GET_UTC_DATE                                       152                            /* 'getUTCDate' */
+#define DUK_STRIDX_GET_DATE                                           153                            /* 'getDate' */
+#define DUK_STRIDX_GET_UTC_MONTH                                      154                            /* 'getUTCMonth' */
+#define DUK_STRIDX_GET_MONTH                                          155                            /* 'getMonth' */
+#define DUK_STRIDX_GET_UTC_FULL_YEAR                                  156                            /* 'getUTCFullYear' */
+#define DUK_STRIDX_GET_FULL_YEAR                                      157                            /* 'getFullYear' */
+#define DUK_STRIDX_GET_TIME                                           158                            /* 'getTime' */
+#define DUK_STRIDX_TO_LOCALE_TIME_STRING                              159                            /* 'toLocaleTimeString' */
+#define DUK_STRIDX_TO_LOCALE_DATE_STRING                              160                            /* 'toLocaleDateString' */
+#define DUK_STRIDX_TO_TIME_STRING                                     161                            /* 'toTimeString' */
+#define DUK_STRIDX_TO_DATE_STRING                                     162                            /* 'toDateString' */
+#define DUK_STRIDX_NOW                                                163                            /* 'now' */
+#define DUK_STRIDX_UTC                                                164                            /* 'UTC' */
+#define DUK_STRIDX_PARSE                                              165                            /* 'parse' */
+#define DUK_STRIDX_TO_PRECISION                                       166                            /* 'toPrecision' */
+#define DUK_STRIDX_TO_EXPONENTIAL                                     167                            /* 'toExponential' */
+#define DUK_STRIDX_TO_FIXED                                           168                            /* 'toFixed' */
+#define DUK_STRIDX_POSITIVE_INFINITY                                  169                            /* 'POSITIVE_INFINITY' */
+#define DUK_STRIDX_NEGATIVE_INFINITY                                  170                            /* 'NEGATIVE_INFINITY' */
+#define DUK_STRIDX_NAN                                                171                            /* 'NaN' */
+#define DUK_STRIDX_MIN_VALUE                                          172                            /* 'MIN_VALUE' */
+#define DUK_STRIDX_MAX_VALUE                                          173                            /* 'MAX_VALUE' */
+#define DUK_STRIDX_SUBSTR                                             174                            /* 'substr' */
+#define DUK_STRIDX_TRIM                                               175                            /* 'trim' */
+#define DUK_STRIDX_TO_LOCALE_UPPER_CASE                               176                            /* 'toLocaleUpperCase' */
+#define DUK_STRIDX_TO_UPPER_CASE                                      177                            /* 'toUpperCase' */
+#define DUK_STRIDX_TO_LOCALE_LOWER_CASE                               178                            /* 'toLocaleLowerCase' */
+#define DUK_STRIDX_TO_LOWER_CASE                                      179                            /* 'toLowerCase' */
+#define DUK_STRIDX_SUBSTRING                                          180                            /* 'substring' */
+#define DUK_STRIDX_SPLIT                                              181                            /* 'split' */
+#define DUK_STRIDX_SEARCH                                             182                            /* 'search' */
+#define DUK_STRIDX_REPLACE                                            183                            /* 'replace' */
+#define DUK_STRIDX_MATCH                                              184                            /* 'match' */
+#define DUK_STRIDX_LOCALE_COMPARE                                     185                            /* 'localeCompare' */
+#define DUK_STRIDX_CHAR_CODE_AT                                       186                            /* 'charCodeAt' */
+#define DUK_STRIDX_CHAR_AT                                            187                            /* 'charAt' */
+#define DUK_STRIDX_FROM_CHAR_CODE                                     188                            /* 'fromCharCode' */
+#define DUK_STRIDX_REDUCE_RIGHT                                       189                            /* 'reduceRight' */
+#define DUK_STRIDX_REDUCE                                             190                            /* 'reduce' */
+#define DUK_STRIDX_FILTER                                             191                            /* 'filter' */
+#define DUK_STRIDX_MAP                                                192                            /* 'map' */
+#define DUK_STRIDX_FOR_EACH                                           193                            /* 'forEach' */
+#define DUK_STRIDX_SOME                                               194                            /* 'some' */
+#define DUK_STRIDX_EVERY                                              195                            /* 'every' */
+#define DUK_STRIDX_LAST_INDEX_OF                                      196                            /* 'lastIndexOf' */
+#define DUK_STRIDX_INDEX_OF                                           197                            /* 'indexOf' */
+#define DUK_STRIDX_UNSHIFT                                            198                            /* 'unshift' */
+#define DUK_STRIDX_SPLICE                                             199                            /* 'splice' */
+#define DUK_STRIDX_SORT                                               200                            /* 'sort' */
+#define DUK_STRIDX_SLICE                                              201                            /* 'slice' */
+#define DUK_STRIDX_SHIFT                                              202                            /* 'shift' */
+#define DUK_STRIDX_REVERSE                                            203                            /* 'reverse' */
+#define DUK_STRIDX_PUSH                                               204                            /* 'push' */
+#define DUK_STRIDX_POP                                                205                            /* 'pop' */
+#define DUK_STRIDX_JOIN                                               206                            /* 'join' */
+#define DUK_STRIDX_CONCAT                                             207                            /* 'concat' */
+#define DUK_STRIDX_IS_ARRAY                                           208                            /* 'isArray' */
+#define DUK_STRIDX_LC_ARGUMENTS                                       209                            /* 'arguments' */
+#define DUK_STRIDX_CALLER                                             210                            /* 'caller' */
+#define DUK_STRIDX_BIND                                               211                            /* 'bind' */
+#define DUK_STRIDX_CALL                                               212                            /* 'call' */
+#define DUK_STRIDX_APPLY                                              213                            /* 'apply' */
+#define DUK_STRIDX_PROPERTY_IS_ENUMERABLE                             214                            /* 'propertyIsEnumerable' */
+#define DUK_STRIDX_IS_PROTOTYPE_OF                                    215                            /* 'isPrototypeOf' */
+#define DUK_STRIDX_HAS_OWN_PROPERTY                                   216                            /* 'hasOwnProperty' */
+#define DUK_STRIDX_VALUE_OF                                           217                            /* 'valueOf' */
+#define DUK_STRIDX_TO_LOCALE_STRING                                   218                            /* 'toLocaleString' */
+#define DUK_STRIDX_TO_STRING                                          219                            /* 'toString' */
+#define DUK_STRIDX_CONSTRUCTOR                                        220                            /* 'constructor' */
+#define DUK_STRIDX_SET                                                221                            /* 'set' */
+#define DUK_STRIDX_GET                                                222                            /* 'get' */
+#define DUK_STRIDX_ENUMERABLE                                         223                            /* 'enumerable' */
+#define DUK_STRIDX_CONFIGURABLE                                       224                            /* 'configurable' */
+#define DUK_STRIDX_WRITABLE                                           225                            /* 'writable' */
+#define DUK_STRIDX_VALUE                                              226                            /* 'value' */
+#define DUK_STRIDX_KEYS                                               227                            /* 'keys' */
+#define DUK_STRIDX_IS_EXTENSIBLE                                      228                            /* 'isExtensible' */
+#define DUK_STRIDX_IS_FROZEN                                          229                            /* 'isFrozen' */
+#define DUK_STRIDX_IS_SEALED                                          230                            /* 'isSealed' */
+#define DUK_STRIDX_PREVENT_EXTENSIONS                                 231                            /* 'preventExtensions' */
+#define DUK_STRIDX_FREEZE                                             232                            /* 'freeze' */
+#define DUK_STRIDX_SEAL                                               233                            /* 'seal' */
+#define DUK_STRIDX_DEFINE_PROPERTIES                                  234                            /* 'defineProperties' */
+#define DUK_STRIDX_DEFINE_PROPERTY                                    235                            /* 'defineProperty' */
+#define DUK_STRIDX_CREATE                                             236                            /* 'create' */
+#define DUK_STRIDX_GET_OWN_PROPERTY_NAMES                             237                            /* 'getOwnPropertyNames' */
+#define DUK_STRIDX_GET_OWN_PROPERTY_DESCRIPTOR                        238                            /* 'getOwnPropertyDescriptor' */
+#define DUK_STRIDX_GET_PROTOTYPE_OF                                   239                            /* 'getPrototypeOf' */
+#define DUK_STRIDX_PROTOTYPE                                          240                            /* 'prototype' */
+#define DUK_STRIDX_LENGTH                                             241                            /* 'length' */
+#define DUK_STRIDX_ALERT                                              242                            /* 'alert' */
+#define DUK_STRIDX_PRINT                                              243                            /* 'print' */
+#define DUK_STRIDX_UNESCAPE                                           244                            /* 'unescape' */
+#define DUK_STRIDX_ESCAPE                                             245                            /* 'escape' */
+#define DUK_STRIDX_ENCODE_URI_COMPONENT                               246                            /* 'encodeURIComponent' */
+#define DUK_STRIDX_ENCODE_URI                                         247                            /* 'encodeURI' */
+#define DUK_STRIDX_DECODE_URI_COMPONENT                               248                            /* 'decodeURIComponent' */
+#define DUK_STRIDX_DECODE_URI                                         249                            /* 'decodeURI' */
+#define DUK_STRIDX_IS_FINITE                                          250                            /* 'isFinite' */
+#define DUK_STRIDX_IS_NAN                                             251                            /* 'isNaN' */
+#define DUK_STRIDX_PARSE_FLOAT                                        252                            /* 'parseFloat' */
+#define DUK_STRIDX_PARSE_INT                                          253                            /* 'parseInt' */
+#define DUK_STRIDX_EVAL                                               254                            /* 'eval' */
+#define DUK_STRIDX_URI_ERROR                                          255                            /* 'URIError' */
+#define DUK_STRIDX_TYPE_ERROR                                         256                            /* 'TypeError' */
+#define DUK_STRIDX_SYNTAX_ERROR                                       257                            /* 'SyntaxError' */
+#define DUK_STRIDX_REFERENCE_ERROR                                    258                            /* 'ReferenceError' */
+#define DUK_STRIDX_RANGE_ERROR                                        259                            /* 'RangeError' */
+#define DUK_STRIDX_EVAL_ERROR                                         260                            /* 'EvalError' */
+#define DUK_STRIDX_BREAK                                              261                            /* 'break' */
+#define DUK_STRIDX_CASE                                               262                            /* 'case' */
+#define DUK_STRIDX_CATCH                                              263                            /* 'catch' */
+#define DUK_STRIDX_CONTINUE                                           264                            /* 'continue' */
+#define DUK_STRIDX_DEBUGGER                                           265                            /* 'debugger' */
+#define DUK_STRIDX_DEFAULT                                            266                            /* 'default' */
+#define DUK_STRIDX_DELETE                                             267                            /* 'delete' */
+#define DUK_STRIDX_DO                                                 268                            /* 'do' */
+#define DUK_STRIDX_ELSE                                               269                            /* 'else' */
+#define DUK_STRIDX_FINALLY                                            270                            /* 'finally' */
+#define DUK_STRIDX_FOR                                                271                            /* 'for' */
+#define DUK_STRIDX_LC_FUNCTION                                        272                            /* 'function' */
+#define DUK_STRIDX_IF                                                 273                            /* 'if' */
+#define DUK_STRIDX_IN                                                 274                            /* 'in' */
+#define DUK_STRIDX_INSTANCEOF                                         275                            /* 'instanceof' */
+#define DUK_STRIDX_NEW                                                276                            /* 'new' */
+#define DUK_STRIDX_RETURN                                             277                            /* 'return' */
+#define DUK_STRIDX_SWITCH                                             278                            /* 'switch' */
+#define DUK_STRIDX_THIS                                               279                            /* 'this' */
+#define DUK_STRIDX_THROW                                              280                            /* 'throw' */
+#define DUK_STRIDX_TRY                                                281                            /* 'try' */
+#define DUK_STRIDX_TYPEOF                                             282                            /* 'typeof' */
+#define DUK_STRIDX_VAR                                                283                            /* 'var' */
+#define DUK_STRIDX_VOID                                               284                            /* 'void' */
+#define DUK_STRIDX_WHILE                                              285                            /* 'while' */
+#define DUK_STRIDX_WITH                                               286                            /* 'with' */
+#define DUK_STRIDX_CLASS                                              287                            /* 'class' */
+#define DUK_STRIDX_CONST                                              288                            /* 'const' */
+#define DUK_STRIDX_ENUM                                               289                            /* 'enum' */
+#define DUK_STRIDX_EXPORT                                             290                            /* 'export' */
+#define DUK_STRIDX_EXTENDS                                            291                            /* 'extends' */
+#define DUK_STRIDX_IMPORT                                             292                            /* 'import' */
+#define DUK_STRIDX_SUPER                                              293                            /* 'super' */
+#define DUK_STRIDX_NULL                                               294                            /* 'null' */
+#define DUK_STRIDX_TRUE                                               295                            /* 'true' */
+#define DUK_STRIDX_FALSE                                              296                            /* 'false' */
+#define DUK_STRIDX_IMPLEMENTS                                         297                            /* 'implements' */
+#define DUK_STRIDX_INTERFACE                                          298                            /* 'interface' */
+#define DUK_STRIDX_LET                                                299                            /* 'let' */
+#define DUK_STRIDX_PACKAGE                                            300                            /* 'package' */
+#define DUK_STRIDX_PRIVATE                                            301                            /* 'private' */
+#define DUK_STRIDX_PROTECTED                                          302                            /* 'protected' */
+#define DUK_STRIDX_PUBLIC                                             303                            /* 'public' */
+#define DUK_STRIDX_STATIC                                             304                            /* 'static' */
+#define DUK_STRIDX_YIELD                                              305                            /* 'yield' */
 
 #define DUK_HEAP_STRING_UC_THREAD(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_UC_THREAD)
 #define DUK_HTHREAD_STRING_UC_THREAD(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_UC_THREAD)
@@ -4359,32 +4377,24 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_CURRENT(thr)                               DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_CURRENT)
 #define DUK_HEAP_STRING_RESUME(heap)                                  DUK_HEAP_GET_STRING((heap),DUK_STRIDX_RESUME)
 #define DUK_HTHREAD_STRING_RESUME(thr)                                DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_RESUME)
+#define DUK_HEAP_STRING_JSONC(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC)
+#define DUK_HTHREAD_STRING_JSONC(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC)
+#define DUK_HEAP_STRING_JSONX(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX)
+#define DUK_HTHREAD_STRING_JSONX(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX)
 #define DUK_HEAP_STRING_BASE64(heap)                                  DUK_HEAP_GET_STRING((heap),DUK_STRIDX_BASE64)
 #define DUK_HTHREAD_STRING_BASE64(thr)                                DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_BASE64)
 #define DUK_HEAP_STRING_HEX(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_HEX)
 #define DUK_HTHREAD_STRING_HEX(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_HEX)
-#define DUK_HEAP_STRING_JSONC_DEC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC_DEC)
-#define DUK_HTHREAD_STRING_JSONC_DEC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC_DEC)
-#define DUK_HEAP_STRING_JSONC_ENC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONC_ENC)
-#define DUK_HTHREAD_STRING_JSONC_ENC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONC_ENC)
-#define DUK_HEAP_STRING_JSONX_DEC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX_DEC)
-#define DUK_HTHREAD_STRING_JSONX_DEC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX_DEC)
-#define DUK_HEAP_STRING_JSONX_ENC(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_JSONX_ENC)
-#define DUK_HTHREAD_STRING_JSONX_ENC(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_JSONX_ENC)
 #define DUK_HEAP_STRING_DEC(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_DEC)
 #define DUK_HTHREAD_STRING_DEC(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_DEC)
 #define DUK_HEAP_STRING_ENC(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENC)
 #define DUK_HTHREAD_STRING_ENC(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ENC)
-#define DUK_HEAP_STRING_GET_FINALIZER(heap)                           DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET_FINALIZER)
-#define DUK_HTHREAD_STRING_GET_FINALIZER(thr)                         DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET_FINALIZER)
-#define DUK_HEAP_STRING_SET_FINALIZER(heap)                           DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET_FINALIZER)
-#define DUK_HTHREAD_STRING_SET_FINALIZER(thr)                         DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET_FINALIZER)
+#define DUK_HEAP_STRING_FIN(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_FIN)
+#define DUK_HTHREAD_STRING_FIN(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_FIN)
 #define DUK_HEAP_STRING_GC(heap)                                      DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GC)
 #define DUK_HTHREAD_STRING_GC(thr)                                    DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GC)
-#define DUK_HEAP_STRING_REFC(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_REFC)
-#define DUK_HTHREAD_STRING_REFC(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_REFC)
-#define DUK_HEAP_STRING_ADDR(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ADDR)
-#define DUK_HTHREAD_STRING_ADDR(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ADDR)
+#define DUK_HEAP_STRING_INFO(heap)                                    DUK_HEAP_GET_STRING((heap),DUK_STRIDX_INFO)
+#define DUK_HTHREAD_STRING_INFO(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_INFO)
 #define DUK_HEAP_STRING_VERSION(heap)                                 DUK_HEAP_GET_STRING((heap),DUK_STRIDX_VERSION)
 #define DUK_HTHREAD_STRING_VERSION(thr)                               DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_VERSION)
 #define DUK_HEAP_STRING_ENV(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENV)
@@ -4755,6 +4765,10 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_TO_STRING(thr)                             DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_TO_STRING)
 #define DUK_HEAP_STRING_CONSTRUCTOR(heap)                             DUK_HEAP_GET_STRING((heap),DUK_STRIDX_CONSTRUCTOR)
 #define DUK_HTHREAD_STRING_CONSTRUCTOR(thr)                           DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_CONSTRUCTOR)
+#define DUK_HEAP_STRING_SET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET)
+#define DUK_HTHREAD_STRING_SET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET)
+#define DUK_HEAP_STRING_GET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET)
+#define DUK_HTHREAD_STRING_GET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET)
 #define DUK_HEAP_STRING_ENUMERABLE(heap)                              DUK_HEAP_GET_STRING((heap),DUK_STRIDX_ENUMERABLE)
 #define DUK_HTHREAD_STRING_ENUMERABLE(thr)                            DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_ENUMERABLE)
 #define DUK_HEAP_STRING_CONFIGURABLE(heap)                            DUK_HEAP_GET_STRING((heap),DUK_STRIDX_CONFIGURABLE)
@@ -4903,10 +4917,6 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HTHREAD_STRING_TRUE(thr)                                  DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_TRUE)
 #define DUK_HEAP_STRING_FALSE(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_FALSE)
 #define DUK_HTHREAD_STRING_FALSE(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_FALSE)
-#define DUK_HEAP_STRING_GET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_GET)
-#define DUK_HTHREAD_STRING_GET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_GET)
-#define DUK_HEAP_STRING_SET(heap)                                     DUK_HEAP_GET_STRING((heap),DUK_STRIDX_SET)
-#define DUK_HTHREAD_STRING_SET(thr)                                   DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_SET)
 #define DUK_HEAP_STRING_IMPLEMENTS(heap)                              DUK_HEAP_GET_STRING((heap),DUK_STRIDX_IMPLEMENTS)
 #define DUK_HTHREAD_STRING_IMPLEMENTS(thr)                            DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_IMPLEMENTS)
 #define DUK_HEAP_STRING_INTERFACE(heap)                               DUK_HEAP_GET_STRING((heap),DUK_STRIDX_INTERFACE)
@@ -4926,17 +4936,22 @@ extern const duk_uint8_t duk_strings_data[];
 #define DUK_HEAP_STRING_YIELD(heap)                                   DUK_HEAP_GET_STRING((heap),DUK_STRIDX_YIELD)
 #define DUK_HTHREAD_STRING_YIELD(thr)                                 DUK_HTHREAD_GET_STRING((thr),DUK_STRIDX_YIELD)
 
-#define DUK_HEAP_NUM_STRINGS                                          310
+#define DUK_HEAP_NUM_STRINGS                                          306
 
-#define DUK_STRIDX_START_RESERVED                                     263
-#define DUK_STRIDX_START_STRICT_RESERVED                              301
-#define DUK_STRIDX_END_RESERVED                                       310                            /* exclusive endpoint */
+#define DUK_STRIDX_START_RESERVED                                     261
+#define DUK_STRIDX_START_STRICT_RESERVED                              297
+#define DUK_STRIDX_END_RESERVED                                       306                            /* exclusive endpoint */
 
-extern const duk_c_function duk_builtin_native_functions[];
-
+extern const duk_c_function duk_bi_native_functions[];
 extern const duk_uint8_t duk_builtins_data[];
+#ifdef DUK_USE_INITJS
+extern const duk_uint8_t duk_initjs_data[];
+#endif  /* DUK_USE_INITJS */
 
-#define DUK_BUILTINS_DATA_LENGTH                                      1252
+#define DUK_BUILTINS_DATA_LENGTH                                      1237
+#ifdef DUK_USE_INITJS
+#define DUK_INITJS_DATA_LENGTH                                        430
+#endif  /* DUK_USE_INITJS */
 
 #define DUK_BIDX_GLOBAL                                               0
 #define DUK_BIDX_GLOBAL_ENV                                           1
@@ -5268,28 +5283,32 @@ typedef void (*duk_re_range_callback)(void *user, duk_codepoint_t r1, duk_codepo
 #define DUK_TOK_IMPORT                            35
 #define DUK_TOK_SUPER                             36
 
-/* "get" and "set" are not reserved words in the spec, but behave like
- * reserved words, so we treat them as such.
-*/
+/* "null", "true", and "false" are always reserved words.
+ * Note that "get" and "set" are not!
+ */
 #define DUK_TOK_NULL                              37
 #define DUK_TOK_TRUE                              38
 #define DUK_TOK_FALSE                             39
-#define DUK_TOK_GET                               40
-#define DUK_TOK_SET                               41
 
 /* reserved words: additional future reserved words in strict mode */
-#define DUK_TOK_START_STRICT_RESERVED             42  /* inclusive */
-#define DUK_TOK_IMPLEMENTS                        42
-#define DUK_TOK_INTERFACE                         43
-#define DUK_TOK_LET                               44
-#define DUK_TOK_PACKAGE                           45
-#define DUK_TOK_PRIVATE                           46
-#define DUK_TOK_PROTECTED                         47
-#define DUK_TOK_PUBLIC                            48
-#define DUK_TOK_STATIC                            49
-#define DUK_TOK_YIELD                             50
+#define DUK_TOK_START_STRICT_RESERVED             40  /* inclusive */
+#define DUK_TOK_IMPLEMENTS                        40
+#define DUK_TOK_INTERFACE                         41
+#define DUK_TOK_LET                               42
+#define DUK_TOK_PACKAGE                           43
+#define DUK_TOK_PRIVATE                           44
+#define DUK_TOK_PROTECTED                         45
+#define DUK_TOK_PUBLIC                            46
+#define DUK_TOK_STATIC                            47
+#define DUK_TOK_YIELD                             48
 
-#define DUK_TOK_END_RESERVED                      51  /* exclusive */
+#define DUK_TOK_END_RESERVED                      49  /* exclusive */
+
+/* "get" and "set" are tokens but NOT ReservedWords.  They are currently
+ * parsed and identifiers and these defines are actually now unused.
+ */
+#define DUK_TOK_GET                               49
+#define DUK_TOK_SET                               50
 
 /* punctuators (unlike the spec, also includes "/" and "/=") */
 #define DUK_TOK_LCURLY                            51
@@ -5467,12 +5486,6 @@ typedef void (*duk_re_range_callback)(void *user, duk_codepoint_t r1, duk_codepo
 #if (DUK_STRIDX_TO_TOK(DUK_STRIDX_FALSE) != DUK_TOK_FALSE)
 #error mismatch in token defines
 #endif
-#if (DUK_STRIDX_TO_TOK(DUK_STRIDX_GET) != DUK_TOK_GET)
-#error mismatch in token defines
-#endif
-#if (DUK_STRIDX_TO_TOK(DUK_STRIDX_SET) != DUK_TOK_SET)
-#error mismatch in token defines
-#endif
 #if (DUK_STRIDX_TO_TOK(DUK_STRIDX_IMPLEMENTS) != DUK_TOK_IMPLEMENTS)
 #error mismatch in token defines
 #endif
@@ -5532,51 +5545,54 @@ typedef void (*duk_re_range_callback)(void *user, duk_codepoint_t r1, duk_codepo
 
 /* A token value.  Can be memcpy()'d, but note that slot1/slot2 values are on the valstack. */
 struct duk_token {
-        int t;                  /* token type (with reserved word identification) */
-        int t_nores;            /* token type (with reserved words as DUK_TOK_IDENTIFER) */
-        double num;             /* numeric value of token */
-        duk_hstring *str1;      /* string 1 of token (borrowed, stored to ctx->slot1_idx) */
-        duk_hstring *str2;      /* string 2 of token (borrowed, stored to ctx->slot1_idx) */
-        int num_escapes;        /* number of escapes and line continuations (for directive prologue) */
-        int start_line;         /* start line of token (first char) */
-        int end_line;           /* end line of token (char after last token char) */
-        int lineterm;           /* token was preceded by a lineterm */
-        int allow_auto_semi;    /* token allows automatic semicolon insertion (eof or preceded by newline) */
+	int t;                  /* token type (with reserved word identification) */
+	int t_nores;            /* token type (with reserved words as DUK_TOK_IDENTIFER) */
+	double num;             /* numeric value of token */
+	duk_hstring *str1;      /* string 1 of token (borrowed, stored to ctx->slot1_idx) */
+	duk_hstring *str2;      /* string 2 of token (borrowed, stored to ctx->slot1_idx) */
+	int num_escapes;        /* number of escapes and line continuations (for directive prologue) */
+	int start_line;         /* start line of token (first char) */
+	int end_line;           /* end line of token (char after last token char) */
+	int lineterm;           /* token was preceded by a lineterm */
+	int allow_auto_semi;    /* token allows automatic semicolon insertion (eof or preceded by newline) */
 };
 
 #define DUK_RE_QUANTIFIER_INFINITE         ((duk_uint32_t) 0xffffffffUL)
 
 /* A regexp token value. */
 struct duk_re_token {
-        int t;                  /* token type */
-        duk_uint32_t num;       /* numeric value (character, count) */
-        duk_uint32_t qmin;
-        duk_uint32_t qmax;
-        int greedy;
+	int t;                  /* token type */
+	duk_uint32_t num;       /* numeric value (character, count) */
+	duk_uint32_t qmin;
+	duk_uint32_t qmax;
+	int greedy;
 };
 
 /* A structure for 'snapshotting' a point for rewinding */
 struct duk_lexer_point {
-        int offset;
-        int line;
+	int offset;
+	int line;
 };
 
 /* Lexer context.  Same context is used for Ecmascript and Regexp parsing. */
 struct duk_lexer_ctx {
-        duk_hthread *thr;                       /* thread; minimizes argument passing */
+	duk_hthread *thr;                       /* thread; minimizes argument passing */
 
-        duk_uint8_t *input;
-        int input_length;
-        int window[DUK_LEXER_WINDOW_SIZE];      /* window of unicode code points */
-        int offsets[DUK_LEXER_WINDOW_SIZE];     /* input offset for each char */
-        int lines[DUK_LEXER_WINDOW_SIZE];       /* input lines for each char */
-        int input_offset;                       /* input offset for window leading edge (not window[0]) */
-        int input_line;                         /* input linenumber at input_offset (not window[0]), init to 1 */
+	duk_uint8_t *input;
+	int input_length;
+	int window[DUK_LEXER_WINDOW_SIZE];      /* window of unicode code points */
+	int offsets[DUK_LEXER_WINDOW_SIZE];     /* input offset for each char */
+	int lines[DUK_LEXER_WINDOW_SIZE];       /* input lines for each char */
+	int input_offset;                       /* input offset for window leading edge (not window[0]) */
+	int input_line;                         /* input linenumber at input_offset (not window[0]), init to 1 */
 
-        int slot1_idx;                          /* valstack slot for 1st token value */
-        int slot2_idx;                          /* valstack slot for 2nd token value */
-        int buf_idx;                            /* valstack slot for temp buffer */
-        duk_hbuffer_dynamic *buf;               /* temp accumulation buffer (on valstack) */
+	int slot1_idx;                          /* valstack slot for 1st token value */
+	int slot2_idx;                          /* valstack slot for 2nd token value */
+	int buf_idx;                            /* valstack slot for temp buffer */
+	duk_hbuffer_dynamic *buf;               /* temp accumulation buffer (on valstack) */
+
+	duk_int_t token_count;                  /* number of tokens parsed */
+	duk_int_t token_limit;                  /* maximum token count before error (sanity backstop) */
 };
 
 /*
@@ -5612,6 +5628,7 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 #else
 #define DUK_COMPILER_RECURSION_LIMIT       50
 #endif
+#define DUK_COMPILER_TOKEN_LIMIT           100000000  /* 1e8: protects against deeply nested inner functions */
 
 /* maximum loopcount for peephole optimization */
 #define DUK_COMPILER_PEEPHOLE_MAXITER      3
@@ -5677,8 +5694,9 @@ struct duk_compiler_instr {
  *  Compiler state
  */
 
-#define MAX_MAPPED_REGS                  128  /* max regs mapped to arguments and variables */
-#define MAX_ACTIVE_LABELS                64
+/* FIXME: these two defines are not referenced? */
+#define DUK_MAX_MAPPED_REGS              128  /* max regs mapped to arguments and variables */
+#define DUK_MAX_ACTIVE_LABELS            64
 
 #define DUK_LABEL_FLAG_ALLOW_BREAK       (1 << 0)
 #define DUK_LABEL_FLAG_ALLOW_CONTINUE    (1 << 1)
@@ -5839,10 +5857,15 @@ void duk_js_compile(duk_hthread *thr, int flags);
 #else
 #define DUK_RE_COMPILE_RECURSION_LIMIT     100
 #endif
+#define DUK_RE_COMPILE_TOKEN_LIMIT         100000000L   /* 1e8 */
 
 /* regexp execution limits */
+#if defined(DUK_USE_DEEP_C_STACK)
+#define DUK_RE_EXECUTE_RECURSION_LIMIT     1000
+#else
 #define DUK_RE_EXECUTE_RECURSION_LIMIT     100
-#define DUK_RE_EXECUTE_STEPS_LIMIT         (1 * 1000 * 1000 * 1000)
+#endif
+#define DUK_RE_EXECUTE_STEPS_LIMIT         1000000000L  /* 1e9 */
 
 /* regexp opcodes */
 #define DUK_REOP_MATCH                     1
@@ -5880,8 +5903,8 @@ struct duk_re_matcher_ctx {
 	duk_uint8_t **saved;		/* allocated from valstack (fixed buffer) */
 	duk_uint32_t nsaved;
 	duk_uint32_t recursion_depth;
-	duk_uint32_t steps_count;
 	duk_uint32_t recursion_limit;
+	duk_uint32_t steps_count;
 	duk_uint32_t steps_limit;
 };
 
@@ -6492,6 +6515,7 @@ void duk_push_builtin(duk_context *ctx, int builtin_idx);
 int duk_push_object_helper(duk_context *ctx, int hobject_flags_and_class, int prototype_bidx);
 int duk_push_object_internal(duk_context *ctx);
 int duk_push_compiledfunction(duk_context *ctx);
+void duk_push_c_function_nonconstruct(duk_context *ctx, duk_c_function func, int nargs);
 
 int duk_get_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx);     /* [] -> [val] */
 int duk_put_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx);     /* [val] -> [] */
@@ -6499,6 +6523,7 @@ int duk_del_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx);  
 int duk_has_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx);     /* [] -> [] */
 
 void duk_def_prop(duk_context *ctx, int obj_index, int desc_flags);  /* [key val] -> [] */
+void duk_def_prop_index(duk_context *ctx, int obj_index, unsigned int arr_index, int desc_flags);  /* [val] -> [] */
 void duk_def_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx, int desc_flags);  /* [val] -> [] */
 void duk_def_prop_stridx_builtin(duk_context *ctx, int obj_index, unsigned int stridx, unsigned int builtin_idx, int desc_flags);  /* [] -> [] */
 
@@ -6909,6 +6934,13 @@ struct duk_hstring {
 
 #define DUK_HOBJECT_HASHIDX_UNUSED              0xffffffffUL
 #define DUK_HOBJECT_HASHIDX_DELETED             0xfffffffeUL
+
+#define DUK_HOBJECT_E_ALLOC_SIZE(h) \
+	( \
+		(h)->e_size * (sizeof(duk_hstring *) + sizeof(duk_propvalue) + sizeof(duk_uint8_t)) + \
+		(h)->a_size * sizeof(duk_tval) + \
+		(h)->h_size * sizeof(duk_uint32_t) \
+	)
 
 /*
  *  Misc
@@ -7375,6 +7407,10 @@ struct duk_hnativefunction {
                                                  * always added to user-defined 'extra' for e.g. the
                                                  * duk_check_stack() call.
                                                  */
+#define DUK_VALSTACK_API_ENTRY_MINIMUM  DUK_API_ENTRY_STACK
+                                                /* number of elements guaranteed to be user accessible
+                                                 * (in addition to call arguments) on Duktape/C function entry.
+                                                 */
 #define DUK_VALSTACK_DEFAULT_MAX        1000000
 
 #define DUK_CALLSTACK_GROW_STEP         8       /* roughly 256 bytes */
@@ -7517,12 +7553,13 @@ struct duk_activation {
 
 /* Note: it's nice if size is 2^N (not 4x4 = 16 bytes on 32 bit) */
 struct duk_catcher {
-	int flags;               /* type and control flags */
-	int callstack_index;     /* callstack index of related activation */
-	int pc_base;             /* resume execution from pc_base or pc_base+1 */
-	int idx_base;            /* idx_base and idx_base+1 get completion value and type */
-	duk_hstring *h_varname;  /* borrowed reference to catch variable name (or NULL if none) */
-	                         /* (reference is valid as long activation exists) */
+	/* FIXME: typing */
+	duk_size_t callstack_index;     /* callstack index of related activation */
+	int flags;                      /* type and control flags */
+	int pc_base;                    /* resume execution from pc_base or pc_base+1 */
+	int idx_base;                   /* idx_base and idx_base+1 get completion value and type */
+	duk_hstring *h_varname;         /* borrowed reference to catch variable name (or NULL if none) */
+	                                /* (reference is valid as long activation exists) */
 };
 
 struct duk_hthread {
@@ -7539,9 +7576,9 @@ struct duk_hthread {
 	duk_uint8_t unused2;
 
 	/* sanity limits */
-	size_t valstack_max;
-	size_t callstack_max;
-	size_t catchstack_max;
+	duk_size_t valstack_max;
+	duk_size_t callstack_max;
+	duk_size_t catchstack_max;
 
 	/* XXX: valstack, callstack, and catchstack are currently assumed
 	 * to have non-NULL pointers.  Relaxing this would not lead to big
@@ -7556,14 +7593,14 @@ struct duk_hthread {
 
 	/* call stack */
 	duk_activation *callstack;
-	size_t callstack_size;			/* allocation size */
-	size_t callstack_top;			/* next to use, highest used is top - 1 */
-	size_t callstack_preventcount;		/* number of activation records in callstack preventing a yield */
+	duk_size_t callstack_size;		/* allocation size */
+	duk_size_t callstack_top;		/* next to use, highest used is top - 1 */
+	duk_size_t callstack_preventcount;	/* number of activation records in callstack preventing a yield */
 
 	/* catch stack */
 	duk_catcher *catchstack;
-	size_t catchstack_size;			/* allocation size */
-	size_t catchstack_top;			/* next to use, highest used is top - 1 */
+	duk_size_t catchstack_size;		/* allocation size */
+	duk_size_t catchstack_top;		/* next to use, highest used is top - 1 */
 
 	/* yield/resume book-keeping */
 	duk_hthread *resumer;			/* who resumed us (if any) */
@@ -7854,20 +7891,33 @@ void duk_hbuffer_append_slice(duk_hthread *thr, duk_hbuffer_dynamic *buf, size_t
  */
 #if defined(DUK_USE_MARK_AND_SWEEP)
 #if defined(DUK_USE_GC_TORTURE)
-#define DUK_HEAP_DEFAULT_MARK_AND_SWEEP_RECURSION_LIMIT   3
+#define DUK_HEAP_MARK_AND_SWEEP_RECURSION_LIMIT   3
 #elif defined(DUK_USE_DEEP_C_STACK)
-#define DUK_HEAP_DEFAULT_MARK_AND_SWEEP_RECURSION_LIMIT   256
+#define DUK_HEAP_MARK_AND_SWEEP_RECURSION_LIMIT   256
 #else
-#define DUK_HEAP_DEFAULT_MARK_AND_SWEEP_RECURSION_LIMIT   32
+#define DUK_HEAP_MARK_AND_SWEEP_RECURSION_LIMIT   32
 #endif
 #endif
 
-/* Mark-and-sweep interval can be much lower with reference counting. */
+/* Mark-and-sweep interval is relative to combined count of objects and
+ * strings kept in the heap during the latest mark-and-sweep pass.
+ * Fixed point .8 multiplier and .0 adder.  Trigger count (interval) is
+ * decreased by each (re)allocation attempt (regardless of size), and each
+ * refzero processed object.
+ *
+ * 'SKIP' indicates how many (re)allocations to wait until a retry if
+ * GC is skipped because there is no thread do it with yet (happens
+ * only during init phases).
+ */
 #if defined(DUK_USE_MARK_AND_SWEEP)
 #if defined(DUK_USE_REFERENCE_COUNTING)
-#define DUK_HEAP_DEFAULT_MARK_AND_SWEEP_TRIGGER_LIMIT     10000
+#define DUK_HEAP_MARK_AND_SWEEP_TRIGGER_MULT              12800  /* 50x heap size */
+#define DUK_HEAP_MARK_AND_SWEEP_TRIGGER_ADD               1024
+#define DUK_HEAP_MARK_AND_SWEEP_TRIGGER_SKIP              256
 #else
-#define DUK_HEAP_DEFAULT_MARK_AND_SWEEP_TRIGGER_LIMIT     1000
+#define DUK_HEAP_MARK_AND_SWEEP_TRIGGER_MULT              256    /* 1x heap size */
+#define DUK_HEAP_MARK_AND_SWEEP_TRIGGER_ADD               1024
+#define DUK_HEAP_MARK_AND_SWEEP_TRIGGER_SKIP              256
 #endif
 #endif
 
@@ -8039,10 +8089,10 @@ struct duk_heap {
 	int flags;
 
 	/* allocator functions */
-        duk_alloc_function alloc_func;
-        duk_realloc_function realloc_func;
-        duk_free_function free_func;
-        void *alloc_udata;
+	duk_alloc_function alloc_func;
+	duk_realloc_function realloc_func;
+	duk_free_function free_func;
+	void *alloc_udata;
 
 	/* allocated heap objects */
 	duk_heaphdr *heap_allocated;
@@ -8058,10 +8108,10 @@ struct duk_heap {
 
 #ifdef DUK_USE_MARK_AND_SWEEP
 	/* mark-and-sweep control */
+#ifdef DUK_USE_VOLUNTARY_GC
 	int mark_and_sweep_trigger_counter;
-	int mark_and_sweep_trigger_limit;
+#endif
 	int mark_and_sweep_recursion_depth;
-	int mark_and_sweep_recursion_limit;
 
 	/* mark-and-sweep flags automatically active (used for critical sections) */
 	int mark_and_sweep_base_flags;
@@ -8096,7 +8146,7 @@ struct duk_heap {
 	int call_recursion_limit;
 
 	/* mix-in value for computing string hashes; should be reasonably unpredictable */
-        duk_uint32_t hash_seed;
+	duk_uint32_t hash_seed;
 
 	/* rnd_state for duk_util_tinyrandom.c */
 	duk_uint32_t rnd_state;
@@ -8290,7 +8340,7 @@ duk_uint32_t duk_heap_hashstring(duk_heap *heap, duk_uint8_t *str, duk_size_t le
 
 #define DUK_DEBUG_SUMMARY_CHAR(ch)  do { \
 		duk_debug_summary_buf[duk_debug_summary_idx++] = (ch); \
-		if (duk_debug_summary_idx >= sizeof(duk_debug_summary_buf) - 1) { \
+		if ((duk_size_t) duk_debug_summary_idx >= (duk_size_t) (sizeof(duk_debug_summary_buf) - 1)) { \
 			duk_debug_summary_buf[duk_debug_summary_idx++] = (char) 0; \
 			DUK_DPRINT("    %s", duk_debug_summary_buf); \
 			DUK_DEBUG_SUMMARY_INIT(); \
@@ -8416,12 +8466,6 @@ extern int duk_debug_summary_idx;
 #define DUK_ERR_OK                   0     /* call successful */
 #define DUK_ERR_FAIL                 1     /* call failed */
 
-/* duk_executor results */
-/* FIXME: these need to be in the public API too */
-#define DUK_ERR_EXEC_SUCCESS         0     /* thread returned to entry level with success */
-#define DUK_ERR_EXEC_ERROR           1     /* thread encountered a so far uncaught error */
-#define DUK_ERR_EXEC_TERM            2     /* thread was terminated due to an unrecoverable error */
-
 /*
  *  Normal error is thrown with a longjmp() through the current setjmp()
  *  catchpoint record in the duk_heap.  The 'curr_thread' of the duk_heap
@@ -8522,6 +8566,11 @@ extern int duk_debug_summary_idx;
 
 #endif  /* DUK_USE_ASSERTIONS */
 
+/* this variant is used when an assert would generate a compile warning by
+ * being always true (e.g. >= 0 comparison for an unsigned value
+ */
+#define DUK_ASSERT_DISABLE(x)  do { /* assertion disabled */ } while(0)
+
 /*
  *  Final panic handler macro (unless defined already)
  */
@@ -8595,7 +8644,8 @@ extern int duk_debug_summary_idx;
 #define DUK_ASSERT_REFCOUNT_NONZERO_TVAL(tv)    /* no refcount check */
 #endif
 
-#define DUK_ASSERT_TOP(ctx,n)  DUK_ASSERT(duk_get_top((ctx)) == (n))
+/* FIXME: fix typing to match duk_get_top() eventual return value type */
+#define DUK_ASSERT_TOP(ctx,n)  DUK_ASSERT((duk_int_t) duk_get_top((ctx)) == (duk_int_t) (n))
 
 #if defined(DUK_USE_ASSERTIONS) && defined(DUK_USE_PACKED_TVAL)
 #define DUK_ASSERT_DOUBLE_IS_NORMALIZED(dval)  do { \
@@ -8610,7 +8660,7 @@ extern int duk_debug_summary_idx;
 /*
  *  Helper for valstack space
  *
- *  Caller of ASSERT_VALSTACK_SPACE() estimates the number of free stack entries
+ *  Caller of DUK_ASSERT_VALSTACK_SPACE() estimates the number of free stack entries
  *  required for its own use, and any child calls which are not (a) Duktape API calls
  *  or (b) Duktape calls which involve extending the valstack (e.g. getter call).
  */
@@ -8619,12 +8669,12 @@ extern int duk_debug_summary_idx;
                                         * API calls in addition to function's own use
                                         */
 #if defined(DUK_USE_ASSERTIONS)
-#define ASSERT_VALSTACK_SPACE(thr,n)   do { \
+#define DUK_ASSERT_VALSTACK_SPACE(thr,n)   do { \
 		DUK_ASSERT((thr) != NULL); \
 		DUK_ASSERT((thr)->valstack_end - (thr)->valstack_top >= (n) + DUK_VALSTACK_ASSERT_EXTRA); \
 	} while (0)
 #else
-#define ASSERT_VALSTACK_SPACE(thr,n)   /* no valstack space check */
+#define DUK_ASSERT_VALSTACK_SPACE(thr,n)   /* no valstack space check */
 #endif
 
 /*
@@ -8843,7 +8893,7 @@ duk_small_int_t duk_unicode_re_is_wordchar(duk_codepoint_t cp);
 
 #line 1 "duk_json.h"
 /*
- *  Defines for JSON, especially duk_builtin_json.c.
+ *  Defines for JSON, especially duk_bi_json.c.
  */
 
 #ifndef DUK_JSON_H_INCLUDED
@@ -9085,7 +9135,7 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
 
 #endif  /* DUK_NUMCONV_H_INCLUDED */
 
-#line 1 "duk_builtin_protos.h"
+#line 1 "duk_bi_protos.h"
 /*
  *  Prototypes for all built-in functions.
  */
@@ -9093,171 +9143,169 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
 #ifndef DUK_BUILTIN_PROTOS_H_INCLUDED
 #define DUK_BUILTIN_PROTOS_H_INCLUDED
 
-duk_ret duk_builtin_array_constructor(duk_context *ctx);
-duk_ret duk_builtin_array_constructor_is_array(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_to_string(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_concat(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_join_shared(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_pop(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_push(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_reverse(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_shift(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_slice(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_sort(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_splice(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_unshift(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_indexof_shared(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_iter_shared(duk_context *ctx);
-duk_ret duk_builtin_array_prototype_reduce_shared(duk_context *ctx);
+duk_ret_t duk_bi_array_constructor(duk_context *ctx);
+duk_ret_t duk_bi_array_constructor_is_array(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_to_string(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_concat(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_join_shared(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_pop(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_push(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_reverse(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_shift(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_slice(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_sort(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_splice(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_unshift(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_indexof_shared(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_iter_shared(duk_context *ctx);
+duk_ret_t duk_bi_array_prototype_reduce_shared(duk_context *ctx);
 
-duk_ret duk_builtin_boolean_constructor(duk_context *ctx);
-duk_ret duk_builtin_boolean_prototype_tostring_shared(duk_context *ctx);
+duk_ret_t duk_bi_boolean_constructor(duk_context *ctx);
+duk_ret_t duk_bi_boolean_prototype_tostring_shared(duk_context *ctx);
 
-duk_ret duk_builtin_buffer_constructor(duk_context *ctx);
-duk_ret duk_builtin_buffer_prototype_tostring_shared(duk_context *ctx);
+duk_ret_t duk_bi_buffer_constructor(duk_context *ctx);
+duk_ret_t duk_bi_buffer_prototype_tostring_shared(duk_context *ctx);
 
-duk_ret duk_builtin_date_constructor(duk_context *ctx);
-duk_ret duk_builtin_date_constructor_parse(duk_context *ctx);
-duk_ret duk_builtin_date_constructor_utc(duk_context *ctx);
-duk_ret duk_builtin_date_constructor_now(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_tostring_shared(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_value_of(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_to_json(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_get_shared(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_get_time(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_get_timezone_offset(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_set_shared(duk_context *ctx);
-duk_ret duk_builtin_date_prototype_set_time(duk_context *ctx);
+duk_ret_t duk_bi_date_constructor(duk_context *ctx);
+duk_ret_t duk_bi_date_constructor_parse(duk_context *ctx);
+duk_ret_t duk_bi_date_constructor_utc(duk_context *ctx);
+duk_ret_t duk_bi_date_constructor_now(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_tostring_shared(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_value_of(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_to_json(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_get_shared(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_get_time(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_get_timezone_offset(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_set_shared(duk_context *ctx);
+duk_ret_t duk_bi_date_prototype_set_time(duk_context *ctx);
+/* Helper exposed for internal use */
+duk_double_t duk_bi_date_get_now(duk_context *ctx);
 
-duk_ret duk_builtin_duk_object_addr(duk_context *ctx);
-duk_ret duk_builtin_duk_object_refc(duk_context *ctx);
-duk_ret duk_builtin_duk_object_gc(duk_context *ctx);
-duk_ret duk_builtin_duk_object_get_finalizer(duk_context *ctx);
-duk_ret duk_builtin_duk_object_set_finalizer(duk_context *ctx);
-duk_ret duk_builtin_duk_object_enc(duk_context *ctx);
-duk_ret duk_builtin_duk_object_dec(duk_context *ctx);
-duk_ret duk_builtin_duk_object_jsonx_dec(duk_context *ctx);
-duk_ret duk_builtin_duk_object_jsonx_enc(duk_context *ctx);
-duk_ret duk_builtin_duk_object_jsonc_dec(duk_context *ctx);
-duk_ret duk_builtin_duk_object_jsonc_enc(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_info(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_gc(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_fin(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_enc(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_dec(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_jx_dec(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_jx_enc(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_jc_dec(duk_context *ctx);
+duk_ret_t duk_bi_duk_object_jc_enc(duk_context *ctx);
 
-duk_ret duk_builtin_error_constructor_shared(duk_context *ctx);
-duk_ret duk_builtin_error_prototype_to_string(duk_context *ctx);
-duk_ret duk_builtin_error_prototype_stack_getter(duk_context *ctx);
-duk_ret duk_builtin_error_prototype_filename_getter(duk_context *ctx);
-duk_ret duk_builtin_error_prototype_linenumber_getter(duk_context *ctx);
-duk_ret duk_builtin_error_prototype_stack_getter(duk_context *ctx);
-duk_ret duk_builtin_error_prototype_nop_setter(duk_context *ctx);
+duk_ret_t duk_bi_error_constructor_shared(duk_context *ctx);
+duk_ret_t duk_bi_error_prototype_to_string(duk_context *ctx);
+duk_ret_t duk_bi_error_prototype_stack_getter(duk_context *ctx);
+duk_ret_t duk_bi_error_prototype_filename_getter(duk_context *ctx);
+duk_ret_t duk_bi_error_prototype_linenumber_getter(duk_context *ctx);
+duk_ret_t duk_bi_error_prototype_stack_getter(duk_context *ctx);
+duk_ret_t duk_bi_error_prototype_nop_setter(duk_context *ctx);
 
-duk_ret duk_builtin_function_constructor(duk_context *ctx);
-duk_ret duk_builtin_function_prototype(duk_context *ctx);
-duk_ret duk_builtin_function_prototype_to_string(duk_context *ctx);
-duk_ret duk_builtin_function_prototype_apply(duk_context *ctx);
-duk_ret duk_builtin_function_prototype_call(duk_context *ctx);
-duk_ret duk_builtin_function_prototype_bind(duk_context *ctx);
+duk_ret_t duk_bi_function_constructor(duk_context *ctx);
+duk_ret_t duk_bi_function_prototype(duk_context *ctx);
+duk_ret_t duk_bi_function_prototype_to_string(duk_context *ctx);
+duk_ret_t duk_bi_function_prototype_apply(duk_context *ctx);
+duk_ret_t duk_bi_function_prototype_call(duk_context *ctx);
+duk_ret_t duk_bi_function_prototype_bind(duk_context *ctx);
 
-duk_ret duk_builtin_global_object_eval(duk_context *ctx);
-duk_ret duk_builtin_global_object_parse_int(duk_context *ctx);
-duk_ret duk_builtin_global_object_parse_float(duk_context *ctx);
-duk_ret duk_builtin_global_object_is_nan(duk_context *ctx);
-duk_ret duk_builtin_global_object_is_finite(duk_context *ctx);
-duk_ret duk_builtin_global_object_decode_uri(duk_context *ctx);
-duk_ret duk_builtin_global_object_decode_uri_component(duk_context *ctx);
-duk_ret duk_builtin_global_object_encode_uri(duk_context *ctx);
-duk_ret duk_builtin_global_object_encode_uri_component(duk_context *ctx);
+duk_ret_t duk_bi_global_object_eval(duk_context *ctx);
+duk_ret_t duk_bi_global_object_parse_int(duk_context *ctx);
+duk_ret_t duk_bi_global_object_parse_float(duk_context *ctx);
+duk_ret_t duk_bi_global_object_is_nan(duk_context *ctx);
+duk_ret_t duk_bi_global_object_is_finite(duk_context *ctx);
+duk_ret_t duk_bi_global_object_decode_uri(duk_context *ctx);
+duk_ret_t duk_bi_global_object_decode_uri_component(duk_context *ctx);
+duk_ret_t duk_bi_global_object_encode_uri(duk_context *ctx);
+duk_ret_t duk_bi_global_object_encode_uri_component(duk_context *ctx);
 #ifdef DUK_USE_SECTION_B
-duk_ret duk_builtin_global_object_escape(duk_context *ctx);
-duk_ret duk_builtin_global_object_unescape(duk_context *ctx);
+duk_ret_t duk_bi_global_object_escape(duk_context *ctx);
+duk_ret_t duk_bi_global_object_unescape(duk_context *ctx);
 #endif
 #ifdef DUK_USE_BROWSER_LIKE
-duk_ret duk_builtin_global_object_print(duk_context *ctx);
-duk_ret duk_builtin_global_object_alert(duk_context *ctx);
+duk_ret_t duk_bi_global_object_print(duk_context *ctx);
+duk_ret_t duk_bi_global_object_alert(duk_context *ctx);
 #endif
 
 /* FIXME: typing */
-void duk_builtin_json_parse_helper(duk_context *ctx,
-                                   int idx_value,
-                                   int idx_reviver,
-                                   int flags);
-void duk_builtin_json_stringify_helper(duk_context *ctx,
-                                       int idx_value,
-                                       int idx_replacer,
-                                       int idx_space,
-                                       int flags);
-duk_ret duk_builtin_json_object_parse(duk_context *ctx);
-duk_ret duk_builtin_json_object_stringify(duk_context *ctx);
+void duk_bi_json_parse_helper(duk_context *ctx,
+                              int idx_value,
+                              int idx_reviver,
+                              int flags);
+void duk_bi_json_stringify_helper(duk_context *ctx,
+                                  int idx_value,
+                                  int idx_replacer,
+                                  int idx_space,
+                                  int flags);
+duk_ret_t duk_bi_json_object_parse(duk_context *ctx);
+duk_ret_t duk_bi_json_object_stringify(duk_context *ctx);
 
-duk_ret duk_builtin_math_object_onearg_shared(duk_context *ctx);
-duk_ret duk_builtin_math_object_twoarg_shared(duk_context *ctx);
-duk_ret duk_builtin_math_object_max(duk_context *ctx);
-duk_ret duk_builtin_math_object_min(duk_context *ctx);
-duk_ret duk_builtin_math_object_random(duk_context *ctx);
+duk_ret_t duk_bi_math_object_onearg_shared(duk_context *ctx);
+duk_ret_t duk_bi_math_object_twoarg_shared(duk_context *ctx);
+duk_ret_t duk_bi_math_object_max(duk_context *ctx);
+duk_ret_t duk_bi_math_object_min(duk_context *ctx);
+duk_ret_t duk_bi_math_object_random(duk_context *ctx);
 
-duk_ret duk_builtin_number_constructor(duk_context *ctx);
-duk_ret duk_builtin_number_prototype_to_string(duk_context *ctx);
-duk_ret duk_builtin_number_prototype_to_locale_string(duk_context *ctx);
-duk_ret duk_builtin_number_prototype_value_of(duk_context *ctx);
-duk_ret duk_builtin_number_prototype_to_fixed(duk_context *ctx);
-duk_ret duk_builtin_number_prototype_to_exponential(duk_context *ctx);
-duk_ret duk_builtin_number_prototype_to_precision(duk_context *ctx);
+duk_ret_t duk_bi_number_constructor(duk_context *ctx);
+duk_ret_t duk_bi_number_prototype_to_string(duk_context *ctx);
+duk_ret_t duk_bi_number_prototype_to_locale_string(duk_context *ctx);
+duk_ret_t duk_bi_number_prototype_value_of(duk_context *ctx);
+duk_ret_t duk_bi_number_prototype_to_fixed(duk_context *ctx);
+duk_ret_t duk_bi_number_prototype_to_exponential(duk_context *ctx);
+duk_ret_t duk_bi_number_prototype_to_precision(duk_context *ctx);
 
-duk_ret duk_builtin_object_constructor(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_get_prototype_of(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_get_own_property_descriptor(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_get_own_property_names(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_create(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_define_property(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_define_properties(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_seal(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_freeze(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_prevent_extensions(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_is_sealed(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_is_frozen(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_is_extensible(duk_context *ctx);
-duk_ret duk_builtin_object_constructor_keys(duk_context *ctx);
-duk_ret duk_builtin_object_prototype_to_string(duk_context *ctx);
-duk_ret duk_builtin_object_prototype_to_locale_string(duk_context *ctx);
-duk_ret duk_builtin_object_prototype_value_of(duk_context *ctx);
-duk_ret duk_builtin_object_prototype_has_own_property(duk_context *ctx);
-duk_ret duk_builtin_object_prototype_is_prototype_of(duk_context *ctx);
-duk_ret duk_builtin_object_prototype_property_is_enumerable(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_get_prototype_of(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_get_own_property_descriptor(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_get_own_property_names(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_create(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_define_property(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_define_properties(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_seal(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_freeze(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_prevent_extensions(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_is_sealed(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_is_frozen(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_is_extensible(duk_context *ctx);
+duk_ret_t duk_bi_object_constructor_keys(duk_context *ctx);
+duk_ret_t duk_bi_object_prototype_to_string(duk_context *ctx);
+duk_ret_t duk_bi_object_prototype_to_locale_string(duk_context *ctx);
+duk_ret_t duk_bi_object_prototype_value_of(duk_context *ctx);
+duk_ret_t duk_bi_object_prototype_has_own_property(duk_context *ctx);
+duk_ret_t duk_bi_object_prototype_is_prototype_of(duk_context *ctx);
+duk_ret_t duk_bi_object_prototype_property_is_enumerable(duk_context *ctx);
 
-duk_ret duk_builtin_pointer_constructor(duk_context *ctx);
-duk_ret duk_builtin_pointer_prototype_tostring_shared(duk_context *ctx);
+duk_ret_t duk_bi_pointer_constructor(duk_context *ctx);
+duk_ret_t duk_bi_pointer_prototype_tostring_shared(duk_context *ctx);
 
-duk_ret duk_builtin_regexp_constructor(duk_context *ctx);
-duk_ret duk_builtin_regexp_prototype_exec(duk_context *ctx);
-duk_ret duk_builtin_regexp_prototype_test(duk_context *ctx);
-duk_ret duk_builtin_regexp_prototype_to_string(duk_context *ctx);
+duk_ret_t duk_bi_regexp_constructor(duk_context *ctx);
+duk_ret_t duk_bi_regexp_prototype_exec(duk_context *ctx);
+duk_ret_t duk_bi_regexp_prototype_test(duk_context *ctx);
+duk_ret_t duk_bi_regexp_prototype_to_string(duk_context *ctx);
 
-duk_ret duk_builtin_string_constructor(duk_context *ctx);
-duk_ret duk_builtin_string_constructor_from_char_code(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_to_string(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_value_of(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_char_at(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_char_code_at(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_concat(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_indexof_shared(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_locale_compare(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_match(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_replace(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_search(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_slice(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_split(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_substring(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_caseconv_shared(duk_context *ctx);
-duk_ret duk_builtin_string_prototype_trim(duk_context *ctx);
+duk_ret_t duk_bi_string_constructor(duk_context *ctx);
+duk_ret_t duk_bi_string_constructor_from_char_code(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_to_string(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_value_of(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_char_at(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_char_code_at(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_concat(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_indexof_shared(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_locale_compare(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_match(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_replace(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_search(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_slice(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_split(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_substring(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_caseconv_shared(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_trim(duk_context *ctx);
 #ifdef DUK_USE_SECTION_B
-duk_ret duk_builtin_string_prototype_substr(duk_context *ctx);
+duk_ret_t duk_bi_string_prototype_substr(duk_context *ctx);
 #endif
-duk_ret duk_builtin_thread_constructor(duk_context *ctx);
-duk_ret duk_builtin_thread_resume(duk_context *ctx);
-duk_ret duk_builtin_thread_yield(duk_context *ctx);
-duk_ret duk_builtin_thread_current(duk_context *ctx);
-duk_ret duk_builtin_thread_prototype_to_string(duk_context *ctx);
-duk_ret duk_builtin_thread_prototype_value_of(duk_context *ctx);
+duk_ret_t duk_bi_thread_constructor(duk_context *ctx);
+duk_ret_t duk_bi_thread_resume(duk_context *ctx);
+duk_ret_t duk_bi_thread_yield(duk_context *ctx);
+duk_ret_t duk_bi_thread_current(duk_context *ctx);
 
-duk_ret duk_builtin_type_error_thrower(duk_context *ctx);
+duk_ret_t duk_bi_type_error_thrower(duk_context *ctx);
 
 #endif  /* DUK_BUILTIN_PROTOS_H_INCLUDED */
 
@@ -9608,14 +9656,14 @@ static int resize_valstack(duk_context *ctx, size_t new_size) {
 #endif
 	duk_tval *new_valstack;
 	duk_tval *p;
-	size_t new_alloc_size;
+	duk_size_t new_alloc_size;
 
 	DUK_ASSERT(ctx != NULL);
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(thr->valstack_bottom >= thr->valstack);
 	DUK_ASSERT(thr->valstack_top >= thr->valstack_bottom);
 	DUK_ASSERT(thr->valstack_end >= thr->valstack_top);
-	DUK_ASSERT(thr->valstack_top - thr->valstack <= new_size);  /* can't resize below 'top' */
+	DUK_ASSERT((duk_size_t) (thr->valstack_top - thr->valstack) <= new_size);  /* can't resize below 'top' */
 
 	/* get pointer offsets for tweaking below */
 	old_bottom_offset = (((duk_uint8_t *) thr->valstack_bottom) - ((duk_uint8_t *) thr->valstack));
@@ -10029,7 +10077,7 @@ void duk_xmove(duk_context *ctx, duk_context *from_ctx, unsigned int count) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hthread *from_thr = (duk_hthread *) from_ctx;
 	void *src;
-	size_t nbytes;
+	duk_size_t nbytes;
 	duk_tval *p;
 
 	DUK_ASSERT(ctx != NULL);
@@ -10039,10 +10087,11 @@ void duk_xmove(duk_context *ctx, duk_context *from_ctx, unsigned int count) {
 	if (nbytes == 0) {
 		return;
 	}
-	if (((duk_uint8_t *) thr->valstack_end) - ((duk_uint8_t *) thr->valstack_top) < nbytes) {
+	DUK_ASSERT(thr->valstack_top <= thr->valstack_end);
+	if ((duk_size_t) ((duk_uint8_t *) thr->valstack_end - (duk_uint8_t *) thr->valstack_top) < nbytes) {
 		DUK_ERROR(thr, DUK_ERR_API_ERROR, "attempt to push beyond currently allocated stack");
 	}
-	src = (void *) (((duk_uint8_t *) from_thr->valstack_top) - nbytes);
+	src = (void *) ((duk_uint8_t *) from_thr->valstack_top - nbytes);
 	if (src < (void *) thr->valstack_bottom) {
 		DUK_ERROR(thr, DUK_ERR_API_ERROR, "source stack does not contain enough elements");
 	}
@@ -10528,6 +10577,7 @@ duk_hnativefunction *duk_require_hnativefunction(duk_context *ctx, int index) {
 	return (duk_hnativefunction *) h;
 }
 
+#if 0  /* FIXME: unused */
 /* about 300 bytes, worth it? */
 void duk_get_multiple(duk_context *ctx, int start_index, const char *types, ...) {
 	va_list ap;
@@ -10610,6 +10660,7 @@ void duk_get_multiple(duk_context *ctx, int start_index, const char *types, ...)
 
 	va_end(ap);
 }
+#endif  /* FIXME: unused */
 
 duk_c_function duk_get_c_function(duk_context *ctx, int index) {
 	duk_tval *tv;
@@ -11721,6 +11772,7 @@ void duk_push_pointer(duk_context *ctx, void *val) {
 	duk_push_tval(ctx, &tv);
 }
 
+#if 0  /* FIXME: unused */
 void duk_push_multiple(duk_context *ctx, const char *types, ...) {
 	va_list ap;
 	duk_hthread *thr;
@@ -11788,20 +11840,22 @@ void duk_push_multiple(duk_context *ctx, const char *types, ...) {
 
 	va_end(ap);
 }
+#endif  /* FIXME: unused */
 
-#define PUSH_THIS_FLAG_CHECK_COERC  (1 << 0)
-#define PUSH_THIS_FLAG_TO_OBJECT    (1 << 1)
-#define PUSH_THIS_FLAG_TO_STRING    (1 << 2)
+#define DUK__PUSH_THIS_FLAG_CHECK_COERC  (1 << 0)
+#define DUK__PUSH_THIS_FLAG_TO_OBJECT    (1 << 1)
+#define DUK__PUSH_THIS_FLAG_TO_STRING    (1 << 2)
 
 static void push_this_helper(duk_context *ctx, int flags) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(thr->callstack_top >= 0 && thr->callstack_top <= thr->callstack_size);
+	DUK_ASSERT_DISABLE(thr->callstack_top >= 0);  /* avoid warning (unsigned) */
+	DUK_ASSERT(thr->callstack_top <= thr->callstack_size);
 
 	if (thr->callstack_top == 0) {
-		if (flags & PUSH_THIS_FLAG_CHECK_COERC) {
+		if (flags & DUK__PUSH_THIS_FLAG_CHECK_COERC) {
 			goto type_error;
 		}
 		duk_push_undefined(ctx);
@@ -11812,7 +11866,7 @@ static void push_this_helper(duk_context *ctx, int flags) {
 		/* 'this' binding is just before current activation's bottom */
 		DUK_ASSERT(thr->valstack_bottom > thr->valstack);
 		tv = thr->valstack_bottom - 1;
-		if (flags & PUSH_THIS_FLAG_CHECK_COERC) {
+		if (flags & DUK__PUSH_THIS_FLAG_CHECK_COERC) {
 			if (DUK_TVAL_IS_UNDEFINED(tv) || DUK_TVAL_IS_NULL(tv)) {
 				goto type_error;
 			}
@@ -11822,9 +11876,9 @@ static void push_this_helper(duk_context *ctx, int flags) {
 		duk_push_tval(ctx, &tv_tmp);
 	}
 
-	if (flags & PUSH_THIS_FLAG_TO_OBJECT) {
+	if (flags & DUK__PUSH_THIS_FLAG_TO_OBJECT) {
 		duk_to_object(ctx, -1);
-	} else if (flags & PUSH_THIS_FLAG_TO_STRING) {
+	} else if (flags & DUK__PUSH_THIS_FLAG_TO_STRING) {
 		duk_to_string(ctx, -1);
 	}
 
@@ -11839,13 +11893,13 @@ void duk_push_this(duk_context *ctx) {
 }
 
 void duk_push_this_check_object_coercible(duk_context *ctx) {
-	push_this_helper(ctx, PUSH_THIS_FLAG_CHECK_COERC /*flags*/);
+	push_this_helper(ctx, DUK__PUSH_THIS_FLAG_CHECK_COERC /*flags*/);
 }
 
 duk_hobject *duk_push_this_coercible_to_object(duk_context *ctx) {
 	duk_hobject *h;
-	push_this_helper(ctx, PUSH_THIS_FLAG_CHECK_COERC |
-	                      PUSH_THIS_FLAG_TO_OBJECT /*flags*/);
+	push_this_helper(ctx, DUK__PUSH_THIS_FLAG_CHECK_COERC |
+	                      DUK__PUSH_THIS_FLAG_TO_OBJECT /*flags*/);
 	h = duk_get_hobject(ctx, -1);
 	DUK_ASSERT(h != NULL);
 	return h;
@@ -11853,8 +11907,8 @@ duk_hobject *duk_push_this_coercible_to_object(duk_context *ctx) {
 
 duk_hstring *duk_push_this_coercible_to_string(duk_context *ctx) {
 	duk_hstring *h;
-	push_this_helper(ctx, PUSH_THIS_FLAG_CHECK_COERC |
-	                      PUSH_THIS_FLAG_TO_STRING /*flags*/);
+	push_this_helper(ctx, DUK__PUSH_THIS_FLAG_CHECK_COERC |
+	                      DUK__PUSH_THIS_FLAG_TO_STRING /*flags*/);
 	h = duk_get_hstring(ctx, -1);
 	DUK_ASSERT(h != NULL);
 	return h;
@@ -11865,7 +11919,8 @@ void duk_push_current_function(duk_context *ctx) {
 
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(thr->callstack_top >= 0 && thr->callstack_top <= thr->callstack_size);
+	DUK_ASSERT_DISABLE(thr->callstack_top >= 0);
+	DUK_ASSERT(thr->callstack_top <= thr->callstack_size);
 
 	if (thr->callstack_top == 0) {
 		duk_push_undefined(ctx);
@@ -12198,6 +12253,16 @@ int duk_push_c_function(duk_context *ctx, duk_c_function func, int nargs) {
  api_error:
 	DUK_ERROR(thr, DUK_ERR_API_ERROR, "invalid argument(s)");
 	return 0;  /* not reached */
+}
+
+/* This is only used by built-in initialization now, so it can be clunky. */
+void duk_push_c_function_nonconstruct(duk_context *ctx, duk_c_function func, int nargs) {
+	duk_hobject *h;
+
+	(void) duk_push_c_function(ctx, func, nargs);
+	h = duk_get_hobject(ctx, -1);
+	DUK_ASSERT(h != NULL);
+	DUK_HOBJECT_CLEAR_CONSTRUCTABLE(h);
 }
 
 static int duk_push_error_object_vsprintf(duk_context *ctx, int err_code, const char *filename, int line, const char *fmt, va_list ap) {
@@ -12638,7 +12703,7 @@ void duk_destroy_heap(duk_context *ctx) {
 
 /* include removed: duk_internal.h */
 
-void *duk_resize_buffer(duk_context *ctx, int index, size_t new_size) {
+void *duk_resize_buffer(duk_context *ctx, duk_idx_t index, duk_size_t new_size) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hbuffer_dynamic *h;
 
@@ -12657,10 +12722,10 @@ void *duk_resize_buffer(duk_context *ctx, int index, size_t new_size) {
 	return DUK_HBUFFER_DYNAMIC_GET_CURR_DATA_PTR(h);
 }
 
-void duk_to_fixed_buffer(duk_context *ctx, int index) {
+void duk_to_fixed_buffer(duk_context *ctx, duk_idx_t index) {
 	duk_hbuffer_dynamic *h_src;
-	char *data;
-	size_t size;
+	duk_uint8_t *data;
+	duk_size_t size;
 
 	index = duk_require_normalize_index(ctx, index);
 
@@ -12671,8 +12736,8 @@ void duk_to_fixed_buffer(duk_context *ctx, int index) {
 	}
 
 	size = DUK_HBUFFER_GET_SIZE(h_src);
-	data = (char *) duk_push_fixed_buffer(ctx, size);
-	if (size > 0) {
+	data = (duk_uint8_t *) duk_push_fixed_buffer(ctx, size);
+	if (size > 0U) {
 		DUK_ASSERT(data != NULL);
 		DUK_MEMCPY(data, DUK_HBUFFER_DYNAMIC_GET_CURR_DATA_PTR(h_src), size);
 	}
@@ -12850,15 +12915,23 @@ int duk_pcall(duk_context *ctx, int nargs, int errhandler_index) {
 
 	idx_func = duk_get_top(ctx) - nargs - 1;  /* must work for nargs <= 0 */
 	if (idx_func < 0 || nargs < 0) {
-		/* note that we can't reliably pop anything here */
+		/* We can't reliably pop anything here because the stack input
+		 * shape is incorrect.  So we throw an error; if the caller has
+		 * no catch point for this, a fatal error will occur.  Another
+		 * alternative would be to just return an error.  But then the
+		 * stack would be in an unknown state which might cause some
+		 * very hard to diagnose problems later on.  Also note that even
+		 * if we did not throw an error here, the underlying call handler
+		 * might STILL throw an out-of-memory error or some other internal
+		 * fatal error.
+		 */
 		DUK_ERROR(thr, DUK_ERR_API_ERROR, "invalid call args");
-		/* FIXME: actually terminate thread? */
-		return DUK_ERR_EXEC_TERM;
+		return DUK_EXEC_ERROR;  /* unreachable */
 	}
 
 	if (!resolve_errhandler(ctx, nargs + 1, errhandler_index, &errhandler)) {
 		/* error on top of stack */
-		return DUK_ERR_EXEC_ERROR;
+		return DUK_EXEC_ERROR;
 	}
 
 	/* awkward; we assume there is space for this */
@@ -12887,14 +12960,14 @@ int duk_pcall_method(duk_context *ctx, int nargs, int errhandler_index) {
 
 	idx_func = duk_get_top(ctx) - nargs - 2;  /* must work for nargs <= 0 */
 	if (idx_func < 0 || nargs < 0) {
-		/* note that we can't reliably pop anything here */
-		/* FIXME: actually terminate thread? */
-		return DUK_ERR_EXEC_TERM;
+		/* See comments in duk_pcall(). */
+		DUK_ERROR(thr, DUK_ERR_API_ERROR, "invalid call args");
+		return DUK_EXEC_ERROR;  /* unreachable */
 	}
 
 	if (!resolve_errhandler(ctx, nargs + 2, errhandler_index, &errhandler)) {
 		/* error on top of stack */
-		return DUK_ERR_EXEC_ERROR;
+		return DUK_EXEC_ERROR;
 	}
 
 	call_flags = DUK_CALL_FLAG_PROTECTED;  /* protected, respect reclimit, not constructor */
@@ -12924,16 +12997,14 @@ int duk_safe_call(duk_context *ctx, duk_safe_call_function func, int nargs, int 
 	DUK_ASSERT(thr != NULL);
 
 	if (duk_get_top(ctx) < nargs || nrets < 0) {
-		/* also covers sanity for negative 'nargs'; note that we can't
-		 * reliably pop anything here
-		 */
-		/* FIXME: actually terminate thread? */
-		return DUK_ERR_EXEC_TERM;
+		/* See comments in duk_pcall(). */
+		DUK_ERROR(thr, DUK_ERR_API_ERROR, "invalid call args");
+		return DUK_EXEC_ERROR;  /* unreachable */
 	}
 
 	if (!resolve_errhandler(ctx, nargs, errhandler_index, &errhandler)) {
 		/* error on top of stack (args popped) */
-		return DUK_ERR_EXEC_ERROR;
+		return DUK_EXEC_ERROR;
 	}
 
 	rc = duk_handle_safe_call(thr,           /* thread */
@@ -13126,7 +13197,7 @@ int duk_is_constructor_call(duk_context *ctx) {
 
 	DUK_ASSERT(ctx != NULL);
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->callstack_top >= 0);
+	DUK_ASSERT_DISABLE(thr->callstack_top >= 0);
 
 	if (thr->callstack_top <= 0) {
 		return 0;
@@ -13142,7 +13213,7 @@ int duk_is_strict_call(duk_context *ctx) {
 
 	DUK_ASSERT(ctx != NULL);
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->callstack_top >= 0);
+	DUK_ASSERT_DISABLE(thr->callstack_top >= 0);
 
 	if (thr->callstack_top <= 0) {
 		return 0;
@@ -13163,7 +13234,7 @@ int duk_get_magic(duk_context *ctx) {
 
 	DUK_ASSERT(ctx != NULL);
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->callstack_top >= 0);
+	DUK_ASSERT_DISABLE(thr->callstack_top >= 0);
 
 	if (thr->callstack_top <= 0) {
 		return 0;
@@ -13515,11 +13586,11 @@ const char *duk_json_encode(duk_context *ctx, int index) {
 	const char *ret;
 
 	index = duk_require_normalize_index(ctx, index);
-	duk_builtin_json_stringify_helper(ctx,
-	                                  index /*idx_value*/,
-	                                  DUK_INVALID_INDEX /*idx_replacer*/,
-	                                  DUK_INVALID_INDEX /*idx_space*/,
-	                                  0 /*flags*/);
+	duk_bi_json_stringify_helper(ctx,
+	                             index /*idx_value*/,
+	                             DUK_INVALID_INDEX /*idx_replacer*/,
+	                             DUK_INVALID_INDEX /*idx_space*/,
+	                             0 /*flags*/);
 	DUK_ASSERT(duk_is_string(ctx, -1));
 	duk_replace(ctx, index);
 	ret = duk_get_string(ctx, index);
@@ -13535,10 +13606,10 @@ void duk_json_decode(duk_context *ctx, int index) {
 #endif
 
 	index = duk_require_normalize_index(ctx, index);
-	duk_builtin_json_parse_helper(ctx,
-	                              index /*idx_value*/,
-	                              DUK_INVALID_INDEX /*idx_reviver*/,
-	                              0 /*flags*/);
+	duk_bi_json_parse_helper(ctx,
+	                         index /*idx_value*/,
+	                         DUK_INVALID_INDEX /*idx_reviver*/,
+	                         0 /*flags*/);
 	duk_replace(ctx, index);
 
 	DUK_ASSERT(duk_get_top(ctx) == top_at_entry);
@@ -13769,7 +13840,8 @@ int duk_get_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(stridx >= 0 && stridx < DUK_HEAP_NUM_STRINGS);
+	DUK_ASSERT_DISABLE(stridx >= 0);
+	DUK_ASSERT(stridx < DUK_HEAP_NUM_STRINGS);
 
 	obj_index = duk_require_normalize_index(ctx, obj_index);
 	duk_push_hstring(ctx, thr->strs[stridx]);
@@ -13825,7 +13897,8 @@ int duk_put_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(stridx >= 0 && stridx < DUK_HEAP_NUM_STRINGS);
+	DUK_ASSERT_DISABLE(stridx >= 0);
+	DUK_ASSERT(stridx < DUK_HEAP_NUM_STRINGS);
 
 	obj_index = duk_require_normalize_index(ctx, obj_index);
 	duk_push_hstring(ctx, thr->strs[stridx]);
@@ -13877,7 +13950,8 @@ int duk_del_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(stridx >= 0 && stridx < DUK_HEAP_NUM_STRINGS);
+	DUK_ASSERT_DISABLE(stridx >= 0);
+	DUK_ASSERT(stridx < DUK_HEAP_NUM_STRINGS);
 
 	obj_index = duk_require_normalize_index(ctx, obj_index);
 	duk_push_hstring(ctx, thr->strs[stridx]);
@@ -13926,13 +14000,19 @@ int duk_has_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(stridx >= 0 && stridx < DUK_HEAP_NUM_STRINGS);
+	DUK_ASSERT_DISABLE(stridx >= 0);
+	DUK_ASSERT(stridx < DUK_HEAP_NUM_STRINGS);
 
 	obj_index = duk_require_normalize_index(ctx, obj_index);
 	duk_push_hstring(ctx, thr->strs[stridx]);
 	return duk_has_prop(ctx, obj_index);
 }
 
+/* Define own property without inheritance looks and such.  This differs from
+ * [[DefineOwnProperty]] because special behaviors (like Array 'length') are
+ * not invoked by this method.  The caller must be careful to invoke any such
+ * behaviors if necessary.
+ */
 void duk_def_prop(duk_context *ctx, int obj_index, int desc_flags) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *obj;
@@ -13951,13 +14031,24 @@ void duk_def_prop(duk_context *ctx, int obj_index, int desc_flags) {
 	duk_pop(ctx);  /* pop key */
 }
 
+void duk_def_prop_index(duk_context *ctx, int obj_index, unsigned int arr_index, int desc_flags) {
+	/* FIXME: interns arr_index and used from some fast path call sites (at least
+	 * duk_error_augment.c traceback creation.  Implement a fast path.
+	 */
+	obj_index = duk_require_normalize_index(ctx, obj_index);
+	duk_push_number(ctx, (double) arr_index);  /* FIXME: push u32 */
+	duk_insert(ctx, -2);  /* [ key value ] */
+	duk_def_prop(ctx, obj_index, desc_flags);
+}
+
 void duk_def_prop_stridx(duk_context *ctx, int obj_index, unsigned int stridx, int desc_flags) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *obj;
 	duk_hstring *key;
 
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(stridx >= 0 && stridx < DUK_HEAP_NUM_STRINGS);
+	DUK_ASSERT_DISABLE(stridx >= 0);
+	DUK_ASSERT(stridx < DUK_HEAP_NUM_STRINGS);
 
 	obj = duk_require_hobject(ctx, obj_index);
 	DUK_ASSERT(obj != NULL);
@@ -13976,8 +14067,10 @@ void duk_def_prop_stridx_builtin(duk_context *ctx, int obj_index, unsigned int s
 	duk_hstring *key;
 
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(stridx >= 0 && stridx < DUK_HEAP_NUM_STRINGS);
-	DUK_ASSERT(builtin_idx >= 0 && builtin_idx < DUK_NUM_BUILTINS);
+	DUK_ASSERT_DISABLE(stridx >= 0);
+	DUK_ASSERT(stridx < DUK_HEAP_NUM_STRINGS);
+	DUK_ASSERT_DISABLE(builtin_idx >= 0);
+	DUK_ASSERT(builtin_idx < DUK_NUM_BUILTINS);
 
 	obj = duk_require_hobject(ctx, obj_index);
 	DUK_ASSERT(obj != NULL);
@@ -13991,7 +14084,7 @@ void duk_def_prop_stridx_builtin(duk_context *ctx, int obj_index, unsigned int s
 
 /* This is a rare property helper; it sets the global thrower (E5 Section 13.2.3)
  * setter/getter into an object property.  This is needed by the 'arguments'
- * object creation code and by function instance creation code.
+ * object creation code, function instance creation code, and Function.prototype.bind().
  */
 
 void duk_def_prop_stridx_thrower(duk_context *ctx, int obj_index, unsigned int stridx, int desc_flags) {
@@ -14045,7 +14138,7 @@ int duk_next(duk_context *ctx, int enum_index, int get_value) {
 
 /* include removed: duk_internal.h */
 
-static void concat_and_join_helper(duk_context *ctx, int count, int is_join) {
+static void concat_and_join_helper(duk_context *ctx, unsigned int count, int is_join) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	unsigned int i;
 	unsigned int idx;
@@ -14147,18 +14240,65 @@ void duk_join(duk_context *ctx, unsigned int count) {
 	concat_and_join_helper(ctx, count, 1 /*is_join*/);
 }
 
+/* FIXME: could map/decode be unified with duk_unicode_support.c code?
+ * Case conversion needs also the character surroundings though.
+ */
+
 void duk_decode_string(duk_context *ctx, int index, duk_decode_char_function callback, void *udata) {
-	DUK_UNREF(index);
-	DUK_UNREF(callback);
-	DUK_UNREF(udata);
-	DUK_ERROR((duk_hthread *) ctx, DUK_ERR_UNIMPLEMENTED_ERROR, "FIXME");
+	duk_hthread *thr = (duk_hthread *) ctx;
+	duk_hstring *h_input;
+	duk_uint8_t *p, *p_start, *p_end;
+	duk_codepoint_t cp;
+
+	h_input = duk_require_hstring(ctx, index);
+	DUK_ASSERT(h_input != NULL);
+
+	p_start = (duk_uint8_t *) DUK_HSTRING_GET_DATA(h_input);
+	p_end = p_start + DUK_HSTRING_GET_BYTELEN(h_input);
+	p = p_start;
+
+	for (;;) {
+		if (p >= p_end) {
+			break;
+		}
+		cp = (int) duk_unicode_decode_xutf8_checked(thr, &p, p_start, p_end);
+		callback(udata, cp);
+	}
 }
 
 void duk_map_string(duk_context *ctx, int index, duk_map_char_function callback, void *udata) {
-	DUK_UNREF(index);
-	DUK_UNREF(callback);
-	DUK_UNREF(udata);
-	DUK_ERROR((duk_hthread *) ctx, DUK_ERR_UNIMPLEMENTED_ERROR, "FIXME");
+	duk_hthread *thr = (duk_hthread *) ctx;
+	duk_hstring *h_input;
+	duk_hbuffer_dynamic *h_buf;
+	duk_uint8_t *p, *p_start, *p_end;
+	duk_codepoint_t cp;
+
+	index = duk_normalize_index(ctx, index);
+
+	h_input = duk_require_hstring(ctx, index);
+	DUK_ASSERT(h_input != NULL);
+
+	/* FIXME: should init with a spare of at least h_input->blen? */
+	duk_push_dynamic_buffer(ctx, 0);
+	h_buf = (duk_hbuffer_dynamic *) duk_get_hbuffer(ctx, -1);
+	DUK_ASSERT(h_buf != NULL);
+	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(h_buf));
+
+	p_start = (duk_uint8_t *) DUK_HSTRING_GET_DATA(h_input);
+	p_end = p_start + DUK_HSTRING_GET_BYTELEN(h_input);
+	p = p_start;
+
+	for (;;) {
+		if (p >= p_end) {
+			break;
+		}
+		cp = (int) duk_unicode_decode_xutf8_checked(thr, &p, p_start, p_end);
+		cp = callback(udata, cp);
+		duk_hbuffer_append_xutf8(thr, h_buf, cp);
+	}
+
+	duk_to_string(ctx, -1);  /* invalidates h_buf pointer */
+	duk_replace(ctx, index);
 }
 
 void duk_substring(duk_context *ctx, int index, size_t start_offset, size_t end_offset) {
@@ -14181,8 +14321,10 @@ void duk_substring(duk_context *ctx, int index, size_t start_offset, size_t end_
 		start_offset = end_offset;
 	}
 
-	DUK_ASSERT(start_offset >= 0 && start_offset <= end_offset && start_offset <= DUK_HSTRING_GET_CHARLEN(h));
-	DUK_ASSERT(end_offset >= 0 && end_offset >= start_offset && end_offset <= DUK_HSTRING_GET_CHARLEN(h));
+	DUK_ASSERT_DISABLE(start_offset >= 0);
+	DUK_ASSERT(start_offset <= end_offset && start_offset <= DUK_HSTRING_GET_CHARLEN(h));
+	DUK_ASSERT_DISABLE(end_offset >= 0);
+	DUK_ASSERT(end_offset >= start_offset && end_offset <= DUK_HSTRING_GET_CHARLEN(h));
 
 	start_byte_offset = (size_t) duk_heap_strcache_offset_char2byte(thr, h, start_offset);
 	end_byte_offset = (size_t) duk_heap_strcache_offset_char2byte(thr, h, end_offset);
@@ -14294,7 +14436,7 @@ void duk_get_var(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_activation *act;
 	duk_hstring *h_varname;
-	int throw_flag = 1;  /* always throw ReferenceError for unresolvable */
+	duk_small_int_t throw_flag = 1;  /* always throw ReferenceError for unresolvable */
 
 	DUK_ASSERT(ctx != NULL);
 
@@ -14328,7 +14470,7 @@ void duk_put_var(duk_context *ctx) {
 	duk_activation *act;
 	duk_hstring *h_varname;
 	duk_tval *tv_val;
-	int throw_flag;
+	duk_small_int_t throw_flag;
 
 	DUK_ASSERT(ctx != NULL);
 
@@ -14357,18 +14499,17 @@ void duk_put_var(duk_context *ctx) {
 	return;
 }
 
-int duk_del_var(duk_context *ctx) {
+duk_bool_t duk_del_var(duk_context *ctx) {
 	DUK_ERROR((duk_hthread *) ctx, DUK_ERR_UNIMPLEMENTED_ERROR, "unimplemented");
 	return 0;
 }
 
-int duk_has_var(duk_context *ctx) {
+duk_bool_t duk_has_var(duk_context *ctx) {
 	DUK_ERROR((duk_hthread *) ctx, DUK_ERR_UNIMPLEMENTED_ERROR, "unimplemented");
 	return 0;
 }
 
-
-#line 1 "duk_builtin_array.c"
+#line 1 "duk_bi_array.c"
 /*
  *  Array built-ins
  *
@@ -14382,6 +14523,23 @@ int duk_has_var(duk_context *ctx) {
  *  is incorrect in several places, and array lengths above 2G won't work
  *  reliably.  Further, some valid array length values may be above 2**32-1,
  *  and this is not always correctly handled.
+ *
+ *  On using "put" vs. "def" prop
+ *  =============================
+ *
+ *  Code below must be careful to use the appropriate primitive as it matters
+ *  for compliance.  When using "put" there may be inherited properties in
+ *  Array.prototype which cause side effects when values are written.  When
+ *  using "define" there are no such side effects, and many test262 test cases
+ *  check for this (for real world code, such side effects are very rare).
+ *  Both "put" and "define" are used in the E5.1 specification; as a rule,
+ *  "put" is used when modifying an existing array (or a non-array 'this'
+ *  binding) and "define" for setting values into a fresh result array.
+ *
+ *  Also note that Array instance 'length' should be writable, but not
+ *  enumerable and definitely not configurable: even Duktape code internally
+ *  assumes that an Array instance will always have a 'length' property.
+ *  Preventing deletion of the property is critical.
  */
 
 /* include removed: duk_internal.h */
@@ -14389,7 +14547,7 @@ int duk_has_var(duk_context *ctx) {
 /* Perform an intermediate join when this many elements have been pushed
  * on the value stack.
  */
-#define  DUK_ARRAY_MID_JOIN_LIMIT  4096
+#define  DUK__ARRAY_MID_JOIN_LIMIT  4096
 
 /* Shared entry code for many Array built-ins.  Note that length is left
  * on stack (it could be popped, but that's not necessary).
@@ -14409,7 +14567,7 @@ static unsigned int push_this_obj_len_u32(duk_context *ctx) {
  *  Constructor
  */
 
-int duk_builtin_array_constructor(duk_context *ctx) {
+int duk_bi_array_constructor(duk_context *ctx) {
 	int nargs;
 	double d;
 	duk_uint32_t len;
@@ -14430,7 +14588,7 @@ int duk_builtin_array_constructor(duk_context *ctx) {
 		 * the caller is likely to want a dense array.
 		 */
 		duk_dup(ctx, 0);
-		duk_put_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH);  /* [ ToUint32(len) array ToUint32(len) ] -> [ ToUint32(len) array ] */
+		duk_def_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_W);  /* [ ToUint32(len) array ToUint32(len) ] -> [ ToUint32(len) array ] */
 		return 1;
 	}
 
@@ -14440,8 +14598,11 @@ int duk_builtin_array_constructor(duk_context *ctx) {
 	 */
 	for (i = 0; i < nargs; i++) {
 		duk_dup(ctx, i);
-		duk_put_prop_index(ctx, -2, i);
+		duk_def_prop_index(ctx, -2, i, DUK_PROPDESC_FLAGS_WEC);
 	}
+
+	duk_push_number(ctx, (double) nargs);  /* FIXME: push_u32 */
+	duk_def_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_W);
 	return 1;
 }
 
@@ -14449,7 +14610,7 @@ int duk_builtin_array_constructor(duk_context *ctx) {
  *  isArray()
  */
 
-int duk_builtin_array_constructor_is_array(duk_context *ctx) {
+int duk_bi_array_constructor_is_array(duk_context *ctx) {
 	duk_hobject *h;
 
 	h = duk_get_hobject_with_class(ctx, 0, DUK_HOBJECT_CLASS_ARRAY);
@@ -14461,7 +14622,7 @@ int duk_builtin_array_constructor_is_array(duk_context *ctx) {
  *  toString()
  */
 
-int duk_builtin_array_prototype_to_string(duk_context *ctx) {
+int duk_bi_array_prototype_to_string(duk_context *ctx) {
 	(void) duk_push_this_coercible_to_object(ctx);
 	duk_get_prop_stridx(ctx, -1, DUK_STRIDX_JOIN);
 
@@ -14479,7 +14640,7 @@ int duk_builtin_array_prototype_to_string(duk_context *ctx) {
 		 */
 		DUK_DDDPRINT("this.join is not callable, fall back to (original) Object.toString");
 		duk_set_top(ctx, 0);
-		return duk_builtin_object_prototype_to_string(ctx);
+		return duk_bi_object_prototype_to_string(ctx);
 	}
 
 	/* [ ... this func ] */
@@ -14498,10 +14659,10 @@ int duk_builtin_array_prototype_to_string(duk_context *ctx) {
  *  concat()
  */
 
-int duk_builtin_array_prototype_concat(duk_context *ctx) {
+int duk_bi_array_prototype_concat(duk_context *ctx) {
 	int i, n;
 	int j, len;
-	int idx;
+	int idx, idx_last;
 	duk_hobject *h;
 
 	/* FIXME: the insert here is a bit expensive if there are a lot of items.
@@ -14514,7 +14675,16 @@ int duk_builtin_array_prototype_concat(duk_context *ctx) {
 	n = duk_get_top(ctx);
 	duk_push_array(ctx);  /* -> [ ToObject(this) item1 ... itemN arr ] */
 
+	/* FIXME: the duk_def_prop_index() calls are currently slow as they intern
+	 * the index as a string.  Further, the Array special behaviors are NOT
+	 * invoked (which differs from the official algorithm).  If no error is
+	 * thrown, this doesn't matter as the length is updated at the end.  However,
+	 * if an error is thrown, the length will be unset.  That shouldn't matter
+	 * because the caller won't get a reference to the intermediate value.
+	 */
+
 	idx = 0;
+	idx_last = 0;
 	for (i = 0; i < n; i++) {
 		DUK_ASSERT_TOP(ctx, n + 1);
 
@@ -14523,7 +14693,8 @@ int duk_builtin_array_prototype_concat(duk_context *ctx) {
 		duk_dup(ctx, i);
 		h = duk_get_hobject_with_class(ctx, -1, DUK_HOBJECT_CLASS_ARRAY);
 		if (!h) {
-			duk_put_prop_index(ctx, -2, idx++);
+			duk_def_prop_index(ctx, -2, idx++, DUK_PROPDESC_FLAGS_WEC);
+			idx_last = idx;
 			continue;
 		}
 
@@ -14536,14 +14707,22 @@ int duk_builtin_array_prototype_concat(duk_context *ctx) {
 		for (j = 0; j < len; j++) {
 			if (duk_get_prop_index(ctx, -1, j)) {
 				/* [ ToObject(this) item1 ... itemN arr item(i) item(i)[j] ] */
-				duk_put_prop_index(ctx, -3, idx++);
+				duk_def_prop_index(ctx, -3, idx++, DUK_PROPDESC_FLAGS_WEC);
+				idx_last = idx;
 			} else {
+				/* XXX: according to E5.1 Section 15.4.4.4 nonexistent trailing
+				 * elements do not affect 'length' but test262 disagrees.  Work
+				 * as E5.1 mandates for now and don't touch idx_last.
+				 */
 				idx++;
 				duk_pop(ctx);
 			}
 		}
 		duk_pop(ctx);
 	}
+
+	duk_push_number(ctx, (double) idx_last);
+	duk_def_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_W);
 
 	DUK_ASSERT_TOP(ctx, n + 1);
 	return 1;
@@ -14562,7 +14741,7 @@ int duk_builtin_array_prototype_concat(duk_context *ctx) {
  *  There is no fancy handling; the prefix gets re-joined multiple times.
  */
 
-int duk_builtin_array_prototype_join_shared(duk_context *ctx) {
+int duk_bi_array_prototype_join_shared(duk_context *ctx) {
 	duk_uint32_t len, count;
 	duk_uint32_t idx;
 	duk_small_int_t to_locale_string = duk_get_magic(ctx);
@@ -14587,8 +14766,8 @@ int duk_builtin_array_prototype_join_shared(duk_context *ctx) {
 	DUK_DDDPRINT("sep=%!T, this=%!T, len=%d",
 	             duk_get_tval(ctx, 0), duk_get_tval(ctx, 1), (int) len);
 
-	valstack_required = (len >= DUK_ARRAY_MID_JOIN_LIMIT ?
-	                     DUK_ARRAY_MID_JOIN_LIMIT : len);
+	valstack_required = (len >= DUK__ARRAY_MID_JOIN_LIMIT ?
+	                     DUK__ARRAY_MID_JOIN_LIMIT : len);
 	valstack_required++;
 	duk_require_stack(ctx, valstack_required);
 
@@ -14599,7 +14778,7 @@ int duk_builtin_array_prototype_join_shared(duk_context *ctx) {
 	count = 0;
 	idx = 0;
 	for (;;) {
-		if (count >= DUK_ARRAY_MID_JOIN_LIMIT ||   /* intermediate join to avoid valstack overflow */
+		if (count >= DUK__ARRAY_MID_JOIN_LIMIT ||   /* intermediate join to avoid valstack overflow */
 		    idx >= len) { /* end of loop (careful with len==0) */
 			/* [ sep ToObject(this) len sep str0 ... str(count-1) ] */
 			DUK_DDDPRINT("mid/final join, count=%d, idx=%d, len=%d",
@@ -14643,7 +14822,7 @@ int duk_builtin_array_prototype_join_shared(duk_context *ctx) {
  *  pop(), push()
  */
 
-int duk_builtin_array_prototype_pop(duk_context *ctx) {
+int duk_bi_array_prototype_pop(duk_context *ctx) {
 	unsigned int len;
 	unsigned int idx;
 
@@ -14663,7 +14842,7 @@ int duk_builtin_array_prototype_pop(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_array_prototype_push(duk_context *ctx) {
+int duk_bi_array_prototype_push(duk_context *ctx) {
 	/* Note: 'this' is not necessarily an Array object.  The push()
 	 * algorithm is supposed to work for other kinds of objects too,
 	 * so the algorithm has e.g. an explicit update for the 'length'
@@ -14971,7 +15150,7 @@ static void array_qsort(duk_context *ctx, int lo, int hi) {
 	array_qsort(ctx, r + 1, hi);
 }
 
-int duk_builtin_array_prototype_sort(duk_context *ctx) {
+int duk_bi_array_prototype_sort(duk_context *ctx) {
 	unsigned int len;
 
 	len = push_this_obj_len_u32(ctx);
@@ -15001,7 +15180,7 @@ int duk_builtin_array_prototype_sort(duk_context *ctx) {
  *   unshift is (close to?) <--> splice(0, 0, [items])?
  */
 
-int duk_builtin_array_prototype_splice(duk_context *ctx) {
+int duk_bi_array_prototype_splice(duk_context *ctx) {
 	int nargs;
 	int item_count;
 	int len;
@@ -15043,11 +15222,13 @@ int duk_builtin_array_prototype_splice(duk_context *ctx) {
 
 	for (i = 0; i < del_count; i++) {
 		if (duk_get_prop_index(ctx, -3, act_start + i)) {
-			duk_put_prop_index(ctx, -2, i);  /* throw flag irrelevant (false in std alg) */
+			duk_def_prop_index(ctx, -2, i, DUK_PROPDESC_FLAGS_WEC);  /* throw flag irrelevant (false in std alg) */
 		} else {
 			duk_pop(ctx);
 		}
 	}
+	duk_push_int(ctx, del_count);  /* FIXME: typing */
+	duk_def_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_W);
 
 	/* Steps 12 and 13: reorganize elements to make room for itemCount elements */
 
@@ -15129,7 +15310,7 @@ int duk_builtin_array_prototype_splice(duk_context *ctx) {
  *  reverse()
  */
 
-int duk_builtin_array_prototype_reverse(duk_context *ctx) {
+int duk_bi_array_prototype_reverse(duk_context *ctx) {
 	unsigned int len;
 	unsigned int middle;
 	unsigned int lower, upper;
@@ -15174,11 +15355,12 @@ int duk_builtin_array_prototype_reverse(duk_context *ctx) {
  *  slice()
  */
 
-int duk_builtin_array_prototype_slice(duk_context *ctx) {
+int duk_bi_array_prototype_slice(duk_context *ctx) {
 	unsigned int len;
 	int start, end;
 	int idx;
 	int i;
+	duk_uint32_t res_length = 0;
 
 	len = push_this_obj_len_u32(ctx);
 	duk_push_array(ctx);
@@ -15205,20 +15387,24 @@ int duk_builtin_array_prototype_slice(duk_context *ctx) {
 			end = len + end;
 		}
 	}
-	DUK_ASSERT(start >= 0 && start <= len);
-	DUK_ASSERT(end >= 0 && end <= len);
+	DUK_ASSERT(start >= 0 && (duk_uint32_t) start <= len);
+	DUK_ASSERT(end >= 0 && (duk_uint32_t) end <= len);
 
 	idx = 0;
 	for (i = start; i < end; i++) {
 		DUK_ASSERT_TOP(ctx, 5);
 		if (duk_get_prop_index(ctx, 2, i)) {
-			duk_put_prop_index(ctx, 4, idx);
+			duk_def_prop_index(ctx, 4, idx, DUK_PROPDESC_FLAGS_WEC);
+			res_length = idx + 1;
 		} else {
 			duk_pop(ctx);
 		}
 		idx++;
 		DUK_ASSERT_TOP(ctx, 5);
 	}
+
+	duk_push_int(ctx, res_length);  /* FIXME */
+	duk_def_prop_stridx(ctx, 4, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_W);
 
 	DUK_ASSERT_TOP(ctx, 5);
 	return 1;
@@ -15228,7 +15414,7 @@ int duk_builtin_array_prototype_slice(duk_context *ctx) {
  *  shift()
  */
 
-int duk_builtin_array_prototype_shift(duk_context *ctx) {
+int duk_bi_array_prototype_shift(duk_context *ctx) {
 	unsigned int len;
 	unsigned int i;
 
@@ -15270,7 +15456,7 @@ int duk_builtin_array_prototype_shift(duk_context *ctx) {
  *  unshift()
  */
 
-int duk_builtin_array_prototype_unshift(duk_context *ctx) {
+int duk_bi_array_prototype_unshift(duk_context *ctx) {
 	unsigned int nargs;
 	unsigned int len;
 	unsigned int i;
@@ -15329,7 +15515,7 @@ int duk_builtin_array_prototype_unshift(duk_context *ctx) {
  *  indexOf(), lastIndexOf()
  */
 
-int duk_builtin_array_prototype_indexof_shared(duk_context *ctx) {
+int duk_bi_array_prototype_indexof_shared(duk_context *ctx) {
 	/* FIXME: types, ensure loop below works when fixed (i must be able to go negative right now) */
 	int nargs;
 	int i, len;
@@ -15421,23 +15607,24 @@ int duk_builtin_array_prototype_indexof_shared(duk_context *ctx) {
  *  every(), some(), forEach(), map(), filter()
  */
 
-#define ITER_EVERY    0
-#define ITER_SOME     1
-#define ITER_FOREACH  2
-#define ITER_MAP      3
-#define ITER_FILTER   4
+#define DUK__ITER_EVERY    0
+#define DUK__ITER_SOME     1
+#define DUK__ITER_FOREACH  2
+#define DUK__ITER_MAP      3
+#define DUK__ITER_FILTER   4
 
 /* FIXME: This helper is a bit awkward because the handling for the different iteration
  * callers is quite different.  This now compiles to a bit less than 500 bytes, so with
  * 5 callers the net result is about 100 bytes / caller.
  */
 
-int duk_builtin_array_prototype_iter_shared(duk_context *ctx) {
+int duk_bi_array_prototype_iter_shared(duk_context *ctx) {
 	int len;
 	int i;
 	int k;
 	int bval;
 	int iter_type = duk_get_magic(ctx);
+	duk_uint32_t res_length = 0;
 
 	/* each call this helper serves has nargs==2 */
 	DUK_ASSERT_TOP(ctx, 2);
@@ -15448,7 +15635,7 @@ int duk_builtin_array_prototype_iter_shared(duk_context *ctx) {
 	}
 	/* if thisArg not supplied, behave as if undefined was supplied */
 
-	if (iter_type == ITER_MAP || iter_type == ITER_FILTER) {
+	if (iter_type == DUK__ITER_MAP || iter_type == DUK__ITER_FILTER) {
 		duk_push_array(ctx);
 	} else {
 		duk_push_undefined(ctx);
@@ -15483,31 +15670,35 @@ int duk_builtin_array_prototype_iter_shared(duk_context *ctx) {
 		duk_call_method(ctx, 3); /* -> [ ... val retval ] */
 
 		switch (iter_type) {
-		case ITER_EVERY:
+		case DUK__ITER_EVERY:
 			bval = duk_to_boolean(ctx, -1);
 			if (!bval) {
+				/* stack top contains 'false' */
 				return 1;
 			}
 			break;
-		case ITER_SOME:
+		case DUK__ITER_SOME:
 			bval = duk_to_boolean(ctx, -1);
 			if (bval) {
+				/* stack top contains 'true' */
 				return 1;
 			}
 			break;
-		case ITER_FOREACH:
+		case DUK__ITER_FOREACH:
 			/* nop */
 			break;
-		case ITER_MAP:
+		case DUK__ITER_MAP:
 			duk_dup(ctx, -1);
-			duk_put_prop_index(ctx, 4, i);  /* retval to result[i] */
+			duk_def_prop_index(ctx, 4, i, DUK_PROPDESC_FLAGS_WEC);  /* retval to result[i] */
+			res_length = i + 1;
 			break;
-		case ITER_FILTER:
+		case DUK__ITER_FILTER:
 			bval = duk_to_boolean(ctx, -1);
 			if (bval) {
 				duk_dup(ctx, -2);  /* orig value */
-				duk_put_prop_index(ctx, 4, k);
+				duk_def_prop_index(ctx, 4, k, DUK_PROPDESC_FLAGS_WEC);
 				k++;
+				res_length = k;
 			}
 			break;
 		default:
@@ -15520,19 +15711,21 @@ int duk_builtin_array_prototype_iter_shared(duk_context *ctx) {
 	}
 
 	switch (iter_type) {
-	case ITER_EVERY:
+	case DUK__ITER_EVERY:
 		duk_push_true(ctx);
 		break;
-	case ITER_SOME:
+	case DUK__ITER_SOME:
 		duk_push_false(ctx);
 		break;
-	case ITER_FOREACH:
+	case DUK__ITER_FOREACH:
 		duk_push_undefined(ctx);
 		break;
-	case ITER_MAP:
-	case ITER_FILTER:
+	case DUK__ITER_MAP:
+	case DUK__ITER_FILTER:
 		DUK_ASSERT_TOP(ctx, 5);
 		DUK_ASSERT(duk_is_array(ctx, -1));  /* topmost element is the result array already */
+		duk_push_number(ctx, (double) res_length);  /* FIXME */
+		duk_def_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_W);
 		break;
 	default:
 		DUK_UNREACHABLE();
@@ -15549,7 +15742,7 @@ int duk_builtin_array_prototype_iter_shared(duk_context *ctx) {
  *  reduce(), reduceRight()
  */
 
-int duk_builtin_array_prototype_reduce_shared(duk_context *ctx) {
+int duk_bi_array_prototype_reduce_shared(duk_context *ctx) {
 	int nargs;
 	int have_acc;
 	int i, len;
@@ -15627,7 +15820,7 @@ int duk_builtin_array_prototype_reduce_shared(duk_context *ctx) {
 	return DUK_RET_TYPE_ERROR;
 }
 
-#line 1 "duk_builtin_boolean.c"
+#line 1 "duk_bi_boolean.c"
 /*
  *  Boolean built-ins
  */
@@ -15637,7 +15830,7 @@ int duk_builtin_array_prototype_reduce_shared(duk_context *ctx) {
 /* Shared helper to provide toString() and valueOf().  Checks 'this', gets
  * the primitive value to stack top, and optionally coerces with ToString().
  */
-int duk_builtin_boolean_prototype_tostring_shared(duk_context *ctx) {
+int duk_bi_boolean_prototype_tostring_shared(duk_context *ctx) {
 	duk_tval *tv;
 	duk_hobject *h;
 	int coerce_tostring = duk_get_magic(ctx);
@@ -15673,7 +15866,7 @@ int duk_builtin_boolean_prototype_tostring_shared(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_boolean_constructor(duk_context *ctx) {
+int duk_bi_boolean_constructor(duk_context *ctx) {
 	duk_hobject *h_this;
 
 	duk_to_boolean(ctx, 0);
@@ -15694,7 +15887,7 @@ int duk_builtin_boolean_constructor(duk_context *ctx) {
 	return 1;
 }
 
-#line 1 "duk_builtin_buffer.c"
+#line 1 "duk_bi_buffer.c"
 /*
  *  Buffer built-ins
  */
@@ -15705,7 +15898,7 @@ int duk_builtin_boolean_constructor(duk_context *ctx) {
  *  Constructor
  */
 
-int duk_builtin_buffer_constructor(duk_context *ctx) {
+int duk_bi_buffer_constructor(duk_context *ctx) {
 	if (duk_get_top(ctx) == 0) {
 		(void) duk_push_fixed_buffer(ctx, 0);
 	} else {
@@ -15733,7 +15926,7 @@ int duk_builtin_buffer_constructor(duk_context *ctx) {
  *  toString(), valueOf()
  */
 
-int duk_builtin_buffer_prototype_tostring_shared(duk_context *ctx) {
+int duk_bi_buffer_prototype_tostring_shared(duk_context *ctx) {
 	duk_tval *tv;
 	int to_string = duk_get_magic(ctx);
 
@@ -15766,7 +15959,7 @@ int duk_builtin_buffer_prototype_tostring_shared(duk_context *ctx) {
 	return DUK_RET_TYPE_ERROR;
 }
 
-#line 1 "duk_builtin_date.c"
+#line 1 "duk_bi_date.c"
 /*
  *  Date built-ins
  *
@@ -15792,29 +15985,14 @@ int duk_builtin_buffer_prototype_tostring_shared(duk_context *ctx) {
  *  that clutter here.
  */
 
-#if defined(DUK_USE_DATE_NOW_GETTIMEOFDAY)
-#define GET_NOW_TIMEVAL      get_now_timeval_gettimeofday
-#elif defined(DUK_USE_DATE_NOW_TIME)
-#define GET_NOW_TIMEVAL      get_now_timeval_time
-#elif defined(DUK_USE_DATE_NOW_WINDOWS)
-#define GET_NOW_TIMEVAL      get_now_timeval_windows
-#else
-#error no function to get current time
-#endif
-
-#if defined(DUK_USE_DATE_TZO_GMTIME) || defined(DUK_USE_DATE_TZO_GMTIME_R)
-#define GET_LOCAL_TZOFFSET   get_local_tzoffset_gmtime
-#elif defined(DUK_USE_DATE_TZO_WINDOWS)
-#define GET_LOCAL_TZOFFSET   get_local_tzoffset_windows
-#else
-#error no function to get local tzoffset
-#endif
+#define DUK__GET_NOW_TIMEVAL      duk_bi_date_get_now
+#define DUK__GET_LOCAL_TZOFFSET   duk_bi_date_get_local_tzoffset
 
 /* Buffer sizes for some UNIX calls.  Larger than strictly necessary
  * to avoid Valgrind errors.
  */
-#define STRPTIME_BUF_SIZE  64
-#define STRFTIME_BUF_SIZE  64
+#define DUK__STRPTIME_BUF_SIZE  64
+#define DUK__STRFTIME_BUF_SIZE  64
 
 /*
  *  Other file level defines
@@ -15828,27 +16006,27 @@ static double get_timeval_from_dparts(double *dparts, int flags);
 static void twodigit_year_fixup(duk_context *ctx, int idx_val);
 
 /* Millisecond count constants. */
-#define MS_SECOND          1000
-#define MS_MINUTE          (60 * 1000)
-#define MS_HOUR            (60 * 60 * 1000)
-#define MS_DAY             (24 * 60 * 60 * 1000)
+#define DUK__MS_SECOND          1000
+#define DUK__MS_MINUTE          (60 * 1000)
+#define DUK__MS_HOUR            (60 * 60 * 1000)
+#define DUK__MS_DAY             (24 * 60 * 60 * 1000)
 
-/* Part indices for internal breakdowns.  Part order from IDX_YEAR to
- * IDX_MILLISECOND matches argument ordering of Ecmascript API calls
+/* Part indices for internal breakdowns.  Part order from DUK__IDX_YEAR to
+ * DUK__IDX_MILLISECOND matches argument ordering of Ecmascript API calls
  * (like Date constructor call).  A few functions in this file depend
  * on the specific ordering, so change with care.
  *
  * (Must be in-sync with genbuiltins.py.)
  */
-#define IDX_YEAR           0  /* year */
-#define IDX_MONTH          1  /* month: 0 to 11 */
-#define IDX_DAY            2  /* day within month: 0 to 30 */
-#define IDX_HOUR           3
-#define IDX_MINUTE         4
-#define IDX_SECOND         5
-#define IDX_MILLISECOND    6
-#define IDX_WEEKDAY        7  /* weekday: 0 to 6, 0=sunday, 1=monday, etc */
-#define NUM_PARTS          8
+#define DUK__IDX_YEAR           0  /* year */
+#define DUK__IDX_MONTH          1  /* month: 0 to 11 */
+#define DUK__IDX_DAY            2  /* day within month: 0 to 30 */
+#define DUK__IDX_HOUR           3
+#define DUK__IDX_MINUTE         4
+#define DUK__IDX_SECOND         5
+#define DUK__IDX_MILLISECOND    6
+#define DUK__IDX_WEEKDAY        7  /* weekday: 0 to 6, 0=sunday, 1=monday, etc */
+#define DUK__NUM_PARTS          8
 
 /* Internal API call flags, used for various functions in this file.
  * Certain flags are used by only certain functions, but since the flags
@@ -15860,17 +16038,17 @@ static void twodigit_year_fixup(duk_context *ctx, int idx_val);
  *
  * (Must be in-sync with genbuiltins.py.)
  */
-#define FLAG_NAN_TO_ZERO          (1 << 0)  /* timeval breakdown: internal time value NaN -> zero */
-#define FLAG_NAN_TO_RANGE_ERROR   (1 << 1)  /* timeval breakdown: internal time value NaN -> RangeError (toISOString) */
-#define FLAG_ONEBASED             (1 << 2)  /* timeval breakdown: convert month and day-of-month parts to one-based (default is zero-based) */
-#define FLAG_LOCALTIME            (1 << 3)  /* convert time value to local time */
-#define FLAG_SUB1900              (1 << 4)  /* getter: subtract 1900 from year when getting year part */
-#define FLAG_TOSTRING_DATE        (1 << 5)  /* include date part in string conversion result */
-#define FLAG_TOSTRING_TIME        (1 << 6)  /* include time part in string conversion result */
-#define FLAG_TOSTRING_LOCALE      (1 << 7)  /* use locale specific formatting if available */
-#define FLAG_TIMESETTER           (1 << 8)  /* setter: call is a time setter (affects hour, min, sec, ms); otherwise date setter (affects year, month, day-in-month) */
-#define FLAG_YEAR_FIXUP           (1 << 9)  /* setter: perform 2-digit year fixup (00...99 -> 1900...1999) */
-#define FLAG_SEP_T                (1 << 10) /* string conversion: use 'T' instead of ' ' as a separator */
+#define DUK__FLAG_NAN_TO_ZERO          (1 << 0)  /* timeval breakdown: internal time value NaN -> zero */
+#define DUK__FLAG_NAN_TO_RANGE_ERROR   (1 << 1)  /* timeval breakdown: internal time value NaN -> RangeError (toISOString) */
+#define DUK__FLAG_ONEBASED             (1 << 2)  /* timeval breakdown: convert month and day-of-month parts to one-based (default is zero-based) */
+#define DUK__FLAG_LOCALTIME            (1 << 3)  /* convert time value to local time */
+#define DUK__FLAG_SUB1900              (1 << 4)  /* getter: subtract 1900 from year when getting year part */
+#define DUK__FLAG_TOSTRING_DATE        (1 << 5)  /* include date part in string conversion result */
+#define DUK__FLAG_TOSTRING_TIME        (1 << 6)  /* include time part in string conversion result */
+#define DUK__FLAG_TOSTRING_LOCALE      (1 << 7)  /* use locale specific formatting if available */
+#define DUK__FLAG_TIMESETTER           (1 << 8)  /* setter: call is a time setter (affects hour, min, sec, ms); otherwise date setter (affects year, month, day-in-month) */
+#define DUK__FLAG_YEAR_FIXUP           (1 << 9)  /* setter: perform 2-digit year fixup (00...99 -> 1900...1999) */
+#define DUK__FLAG_SEP_T                (1 << 10) /* string conversion: use 'T' instead of ' ' as a separator */
 
 /*
  *  Platform specific helpers
@@ -15878,7 +16056,7 @@ static void twodigit_year_fixup(duk_context *ctx, int idx_val);
 
 #ifdef DUK_USE_DATE_NOW_GETTIMEOFDAY
 /* Get current Ecmascript time (= UNIX/Posix time, but in milliseconds). */
-static double get_now_timeval_gettimeofday(duk_context *ctx) {
+duk_double_t duk_bi_date_get_now(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	struct timeval tv;
 	double d;
@@ -15897,7 +16075,7 @@ static double get_now_timeval_gettimeofday(duk_context *ctx) {
 
 #ifdef DUK_USE_DATE_NOW_TIME
 /* Not a very good provider: only full seconds are available. */
-static double get_now_timeval_time(duk_context *ctx) {
+duk_double_t duk_bi_date_get_now(duk_context *ctx) {
 	time_t t = time(NULL);
 	return ((double) t) * 1000.0;
 }
@@ -15929,7 +16107,7 @@ static void set_systime_jan1970(SYSTEMTIME *st) {
 #endif  /* defined(DUK_USE_DATE_NOW_WINDOWS) || defined(DUK_USE_DATE_TZO_WINDOWS) */
 
 #ifdef DUK_USE_DATE_NOW_WINDOWS
-static double get_now_timeval_windows(duk_context *ctx) {
+duk_double_t duk_bi_date_get_now(duk_context *ctx) {
 	/* Suggested step-by-step method from documentation of RtlTimeToSecondsSince1970:
 	 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms724928(v=vs.85).aspx
 	 */
@@ -15949,10 +16127,10 @@ static double get_now_timeval_windows(duk_context *ctx) {
 
 #if defined(DUK_USE_DATE_TZO_GMTIME) || defined(DUK_USE_DATE_TZO_GMTIME_R)
 /* Get local time offset (in seconds) for a certain (UTC) instant 'd'. */
-static int get_local_tzoffset_gmtime(double d) {
+static int duk_bi_date_get_local_tzoffset(double d) {
 	time_t t, t1, t2;
-	int parts[NUM_PARTS];
-	double dparts[NUM_PARTS];
+	int parts[DUK__NUM_PARTS];
+	double dparts[DUK__NUM_PARTS];
 	struct tm tms[2];
 #ifdef DUK_USE_DATE_TZO_GMTIME
 	struct tm *tm_ptr;
@@ -15991,10 +16169,10 @@ static int get_local_tzoffset_gmtime(double d) {
 	 *  FIXME: must choose 'equivalent year', E5 Section 15.9.1.8, instead
 	 *  of just clamping.
 	 */
-	if (parts[IDX_YEAR] < 1971) {
-		dparts[IDX_YEAR] = 1971.0;
-	} else if (parts[IDX_YEAR] > 2037) {
-		dparts[IDX_YEAR] = 2037.0;
+	if (parts[DUK__IDX_YEAR] < 1971) {
+		dparts[DUK__IDX_YEAR] = 1971.0;
+	} else if (parts[DUK__IDX_YEAR] > 2037) {
+		dparts[DUK__IDX_YEAR] = 2037.0;
 	}
 
 	d = get_timeval_from_dparts(dparts, 0 /*flags*/);
@@ -16057,7 +16235,7 @@ static int get_local_tzoffset_gmtime(double d) {
 #endif  /* DUK_USE_DATE_TZO_GMTIME */
 
 #if defined(DUK_USE_DATE_TZO_WINDOWS)
-static int get_local_tzoffset_windows(double d) {
+static int duk_bi_date_get_local_tzoffset(double d) {
 	SYSTEMTIME st1;
 	SYSTEMTIME st2;
 	SYSTEMTIME st3;
@@ -16093,7 +16271,7 @@ static int get_local_tzoffset_windows(double d) {
 static int parse_string_strptime(duk_context *ctx, const char *str) {
 	struct tm tm;
 	time_t t;
-	char buf[STRPTIME_BUF_SIZE];
+	char buf[DUK__STRPTIME_BUF_SIZE];
 
 	/* copy to buffer with spare to avoid Valgrind gripes from strptime */
 	DUK_ASSERT(str != NULL);
@@ -16154,7 +16332,7 @@ static int parse_string_getdate(duk_context *ctx, const char *str) {
 
 #ifdef DUK_USE_DATE_FMT_STRFTIME
 static int format_parts_strftime(duk_context *ctx, int *parts, int tzoffset, int flags) {
-	char buf[STRFTIME_BUF_SIZE];
+	char buf[DUK__STRFTIME_BUF_SIZE];
 	struct tm tm;
 	const char *fmt;
 
@@ -16168,28 +16346,28 @@ static int format_parts_strftime(duk_context *ctx, int *parts, int tzoffset, int
 	 * supporting or not supporting a large time range.
 	 */
 	if (sizeof(time_t) < 8 &&
-	   (parts[IDX_YEAR] < 1970 || parts[IDX_YEAR] > 2037)) {
+	   (parts[DUK__IDX_YEAR] < 1970 || parts[DUK__IDX_YEAR] > 2037)) {
 		/* be paranoid for 32-bit time values (even avoiding negative ones) */
 		return 0;
 	}
 
 	DUK_MEMSET(&tm, 0, sizeof(tm));
-	tm.tm_sec = parts[IDX_SECOND];
-	tm.tm_min = parts[IDX_MINUTE];
-	tm.tm_hour = parts[IDX_HOUR];
-	tm.tm_mday = parts[IDX_DAY];       /* already one-based */
-	tm.tm_mon = parts[IDX_MONTH] - 1;  /* one-based -> zero-based */
-	tm.tm_year = parts[IDX_YEAR] - 1900;
-	tm.tm_wday = parts[IDX_WEEKDAY];
+	tm.tm_sec = parts[DUK__IDX_SECOND];
+	tm.tm_min = parts[DUK__IDX_MINUTE];
+	tm.tm_hour = parts[DUK__IDX_HOUR];
+	tm.tm_mday = parts[DUK__IDX_DAY];       /* already one-based */
+	tm.tm_mon = parts[DUK__IDX_MONTH] - 1;  /* one-based -> zero-based */
+	tm.tm_year = parts[DUK__IDX_YEAR] - 1900;
+	tm.tm_wday = parts[DUK__IDX_WEEKDAY];
 	tm.tm_isdst = 0;
 
 	DUK_MEMSET(buf, 0, sizeof(buf));
-	if ((flags & FLAG_TOSTRING_DATE) && (flags & FLAG_TOSTRING_TIME)) {
+	if ((flags & DUK__FLAG_TOSTRING_DATE) && (flags & DUK__FLAG_TOSTRING_TIME)) {
 		fmt = "%c";
-	} else if (flags & FLAG_TOSTRING_DATE) {
+	} else if (flags & DUK__FLAG_TOSTRING_DATE) {
 		fmt = "%x";
 	} else {
-		DUK_ASSERT(flags & FLAG_TOSTRING_TIME);
+		DUK_ASSERT(flags & DUK__FLAG_TOSTRING_TIME);
 		fmt = "%X";
 	}
 	(void) strftime(buf, sizeof(buf) - 1, fmt, &tm);
@@ -16205,64 +16383,64 @@ static int format_parts_strftime(duk_context *ctx, int *parts, int tzoffset, int
  */
 
 /* Parser part count. */
-#define NUM_ISO8601_PARSER_PARTS  9
+#define DUK__NUM_ISO8601_PARSER_PARTS  9
 
 /* Parser part indices. */
-#define PI_YEAR         0
-#define PI_MONTH        1
-#define PI_DAY          2
-#define PI_HOUR         3
-#define PI_MINUTE       4
-#define PI_SECOND       5
-#define PI_MILLISECOND  6
-#define PI_TZHOUR       7
-#define PI_TZMINUTE     8
+#define DUK__PI_YEAR         0
+#define DUK__PI_MONTH        1
+#define DUK__PI_DAY          2
+#define DUK__PI_HOUR         3
+#define DUK__PI_MINUTE       4
+#define DUK__PI_SECOND       5
+#define DUK__PI_MILLISECOND  6
+#define DUK__PI_TZHOUR       7
+#define DUK__PI_TZMINUTE     8
 
 /* Parser part masks. */
-#define PM_YEAR         (1 << PI_YEAR)
-#define PM_MONTH        (1 << PI_MONTH)
-#define PM_DAY          (1 << PI_DAY)
-#define PM_HOUR         (1 << PI_HOUR)
-#define PM_MINUTE       (1 << PI_MINUTE)
-#define PM_SECOND       (1 << PI_SECOND)
-#define PM_MILLISECOND  (1 << PI_MILLISECOND)
-#define PM_TZHOUR       (1 << PI_TZHOUR)
-#define PM_TZMINUTE     (1 << PI_TZMINUTE)
+#define DUK__PM_YEAR         (1 << DUK__PI_YEAR)
+#define DUK__PM_MONTH        (1 << DUK__PI_MONTH)
+#define DUK__PM_DAY          (1 << DUK__PI_DAY)
+#define DUK__PM_HOUR         (1 << DUK__PI_HOUR)
+#define DUK__PM_MINUTE       (1 << DUK__PI_MINUTE)
+#define DUK__PM_SECOND       (1 << DUK__PI_SECOND)
+#define DUK__PM_MILLISECOND  (1 << DUK__PI_MILLISECOND)
+#define DUK__PM_TZHOUR       (1 << DUK__PI_TZHOUR)
+#define DUK__PM_TZMINUTE     (1 << DUK__PI_TZMINUTE)
 
 /* Parser separator indices. */
-#define SI_PLUS         0
-#define SI_MINUS        1
-#define SI_T            2
-#define SI_SPACE        3
-#define SI_COLON        4
-#define SI_PERIOD       5
-#define SI_Z            6
-#define SI_NUL          7
+#define DUK__SI_PLUS         0
+#define DUK__SI_MINUS        1
+#define DUK__SI_T            2
+#define DUK__SI_SPACE        3
+#define DUK__SI_COLON        4
+#define DUK__SI_PERIOD       5
+#define DUK__SI_Z            6
+#define DUK__SI_NUL          7
 
 /* Parser separator masks. */
-#define SM_PLUS         (1 << SI_PLUS)
-#define SM_MINUS        (1 << SI_MINUS)
-#define SM_T            (1 << SI_T)
-#define SM_SPACE        (1 << SI_SPACE)
-#define SM_COLON        (1 << SI_COLON)
-#define SM_PERIOD       (1 << SI_PERIOD)
-#define SM_Z            (1 << SI_Z)
-#define SM_NUL          (1 << SI_NUL)
+#define DUK__SM_PLUS         (1 << DUK__SI_PLUS)
+#define DUK__SM_MINUS        (1 << DUK__SI_MINUS)
+#define DUK__SM_T            (1 << DUK__SI_T)
+#define DUK__SM_SPACE        (1 << DUK__SI_SPACE)
+#define DUK__SM_COLON        (1 << DUK__SI_COLON)
+#define DUK__SM_PERIOD       (1 << DUK__SI_PERIOD)
+#define DUK__SM_Z            (1 << DUK__SI_Z)
+#define DUK__SM_NUL          (1 << DUK__SI_NUL)
 
 /* Rule control flags. */
-#define CF_NEG          (1 << 0)  /* continue matching, set neg_tzoffset flag */
-#define CF_ACCEPT       (1 << 1)  /* accept string */
-#define CF_ACCEPT_NUL   (1 << 2)  /* accept string if next char is NUL (otherwise reject) */
+#define DUK__CF_NEG          (1 << 0)  /* continue matching, set neg_tzoffset flag */
+#define DUK__CF_ACCEPT       (1 << 1)  /* accept string */
+#define DUK__CF_ACCEPT_NUL   (1 << 2)  /* accept string if next char is NUL (otherwise reject) */
 
-#define PACK_RULE(partmask,sepmask,nextpart,flags)  \
+#define DUK__PACK_RULE(partmask,sepmask,nextpart,flags)  \
 	((partmask) + ((sepmask) << 9) + ((nextpart) << 17) + ((flags) << 21))
 
-#define UNPACK_RULE(rule,var_nextidx,var_flags)  do { \
+#define DUK__UNPACK_RULE(rule,var_nextidx,var_flags)  do { \
 		(var_nextidx) = ((rule) >> 17) & 0x0f; \
 		(var_flags) = (rule) >> 21; \
 	} while (0)
 
-#define RULE_MASK_PART_SEP  0x1ffff
+#define DUK__RULE_MASK_PART_SEP  0x1ffff
 
 /* Matching separator index is used in the control table */
 static const char parse_iso8601_seps[] = {
@@ -16272,17 +16450,17 @@ static const char parse_iso8601_seps[] = {
 
 /* Rule table: first matching rule is used to determine what to do next. */
 static const int parse_iso8601_control[] = {
-	PACK_RULE(PM_YEAR, SM_MINUS, PI_MONTH, 0),
-	PACK_RULE(PM_MONTH, SM_MINUS, PI_DAY, 0),
-	PACK_RULE(PM_YEAR | PM_MONTH | PM_DAY, SM_T | SM_SPACE, PI_HOUR, 0),
-	PACK_RULE(PM_HOUR, SM_COLON, PI_MINUTE, 0),
-	PACK_RULE(PM_MINUTE, SM_COLON, PI_SECOND, 0),
-	PACK_RULE(PM_SECOND, SM_PERIOD, PI_MILLISECOND, 0),
-	PACK_RULE(PM_TZHOUR, SM_COLON, PI_TZMINUTE, 0),
-	PACK_RULE(PM_YEAR | PM_MONTH | PM_DAY | PM_HOUR /*Note1*/ | PM_MINUTE | PM_SECOND | PM_MILLISECOND, SM_PLUS, PI_TZHOUR, 0),
-	PACK_RULE(PM_YEAR | PM_MONTH | PM_DAY | PM_HOUR /*Note1*/ | PM_MINUTE | PM_SECOND | PM_MILLISECOND, SM_MINUS, PI_TZHOUR, CF_NEG),
-	PACK_RULE(PM_YEAR | PM_MONTH | PM_DAY | PM_HOUR /*Note1*/ | PM_MINUTE | PM_SECOND | PM_MILLISECOND, SM_Z, 0, CF_ACCEPT_NUL),
-	PACK_RULE(PM_YEAR | PM_MONTH | PM_DAY | PM_HOUR /*Note1*/ | PM_MINUTE | PM_SECOND | PM_MILLISECOND | PM_TZHOUR /*Note2*/ | PM_TZMINUTE, SM_NUL, 0, CF_ACCEPT)
+	DUK__PACK_RULE(DUK__PM_YEAR, DUK__SM_MINUS, DUK__PI_MONTH, 0),
+	DUK__PACK_RULE(DUK__PM_MONTH, DUK__SM_MINUS, DUK__PI_DAY, 0),
+	DUK__PACK_RULE(DUK__PM_YEAR | DUK__PM_MONTH | DUK__PM_DAY, DUK__SM_T | DUK__SM_SPACE, DUK__PI_HOUR, 0),
+	DUK__PACK_RULE(DUK__PM_HOUR, DUK__SM_COLON, DUK__PI_MINUTE, 0),
+	DUK__PACK_RULE(DUK__PM_MINUTE, DUK__SM_COLON, DUK__PI_SECOND, 0),
+	DUK__PACK_RULE(DUK__PM_SECOND, DUK__SM_PERIOD, DUK__PI_MILLISECOND, 0),
+	DUK__PACK_RULE(DUK__PM_TZHOUR, DUK__SM_COLON, DUK__PI_TZMINUTE, 0),
+	DUK__PACK_RULE(DUK__PM_YEAR | DUK__PM_MONTH | DUK__PM_DAY | DUK__PM_HOUR /*Note1*/ | DUK__PM_MINUTE | DUK__PM_SECOND | DUK__PM_MILLISECOND, DUK__SM_PLUS, DUK__PI_TZHOUR, 0),
+	DUK__PACK_RULE(DUK__PM_YEAR | DUK__PM_MONTH | DUK__PM_DAY | DUK__PM_HOUR /*Note1*/ | DUK__PM_MINUTE | DUK__PM_SECOND | DUK__PM_MILLISECOND, DUK__SM_MINUS, DUK__PI_TZHOUR, DUK__CF_NEG),
+	DUK__PACK_RULE(DUK__PM_YEAR | DUK__PM_MONTH | DUK__PM_DAY | DUK__PM_HOUR /*Note1*/ | DUK__PM_MINUTE | DUK__PM_SECOND | DUK__PM_MILLISECOND, DUK__SM_Z, 0, DUK__CF_ACCEPT_NUL),
+	DUK__PACK_RULE(DUK__PM_YEAR | DUK__PM_MONTH | DUK__PM_DAY | DUK__PM_HOUR /*Note1*/ | DUK__PM_MINUTE | DUK__PM_SECOND | DUK__PM_MILLISECOND | DUK__PM_TZHOUR /*Note2*/ | DUK__PM_TZMINUTE, DUK__SM_NUL, 0, DUK__CF_ACCEPT)
 
 	/* Note1: the specification doesn't require matching a time form with
 	 *        just hours ("HH"), but we accept it here, e.g. "2012-01-02T12Z".
@@ -16293,8 +16471,8 @@ static const int parse_iso8601_control[] = {
 };
 
 static int parse_string_iso8601_subset(duk_context *ctx, const char *str) {
-	int parts[NUM_ISO8601_PARSER_PARTS];
-	double dparts[NUM_PARTS];
+	int parts[DUK__NUM_ISO8601_PARSER_PARTS];
+	double dparts[DUK__NUM_PARTS];
 	double d;
 	const char *p;
 	int part_idx = 0;
@@ -16307,9 +16485,9 @@ static int parse_string_iso8601_subset(duk_context *ctx, const char *str) {
 
 	/* During parsing, month and day are one-based; set defaults here. */
 	DUK_MEMSET(parts, 0, sizeof(parts));
-	DUK_ASSERT(parts[IDX_YEAR] == 0);  /* don't care value, year is mandatory */
-	parts[IDX_MONTH] = 1;
-	parts[IDX_DAY] = 1;
+	DUK_ASSERT(parts[DUK__IDX_YEAR] == 0);  /* don't care value, year is mandatory */
+	parts[DUK__IDX_MONTH] = 1;
+	parts[DUK__IDX_DAY] = 1;
 
 	/* Special handling for year sign. */
 	p = str;
@@ -16331,7 +16509,7 @@ static int parse_string_iso8601_subset(duk_context *ctx, const char *str) {
 				DUK_DDDPRINT("too many digits -> reject");
 				goto reject;
 			}
-			if (part_idx == PI_MILLISECOND /*msec*/ && ndigits >= 3) {
+			if (part_idx == DUK__PI_MILLISECOND /*msec*/ && ndigits >= 3) {
 				/* ignore millisecond fractions after 3 */
 			} else {
 				accum = accum * 10 + ((int) ch) - ((int) '0') + 0x00;
@@ -16344,7 +16522,7 @@ static int parse_string_iso8601_subset(duk_context *ctx, const char *str) {
 			if (ndigits <= 0) {
 				goto reject;
 			}
-			if (part_idx == PI_MILLISECOND) {
+			if (part_idx == DUK__PI_MILLISECOND) {
 				/* complete the millisecond field */
 				while (ndigits < 3) {
 					accum *= 10;
@@ -16382,20 +16560,20 @@ static int parse_string_iso8601_subset(duk_context *ctx, const char *str) {
 					continue;
 				}
 
-				UNPACK_RULE(rule, nextpart, cflags);
+				DUK__UNPACK_RULE(rule, nextpart, cflags);
 
 				DUK_DDDPRINT("rule match -> part_idx=%d, sep_idx=%d, match_val=0x%08x, rule=0x%08x -> nextpart=%d, cflags=0x%02x",
 				             part_idx, sep_idx, match_val, rule, nextpart, cflags);
 
-				if (cflags & CF_NEG) {
+				if (cflags & DUK__CF_NEG) {
 					neg_tzoffset = 1;
 				}
 
-				if (cflags & CF_ACCEPT) {
+				if (cflags & DUK__CF_ACCEPT) {
 					goto accept;
 				}
 
-				if (cflags & CF_ACCEPT_NUL) {
+				if (cflags & DUK__CF_ACCEPT_NUL) {
 					DUK_ASSERT(*(p-1) != (char) 0);
 					if (*p == '\0') {
 						goto accept;
@@ -16436,26 +16614,26 @@ static int parse_string_iso8601_subset(duk_context *ctx, const char *str) {
 
 	/* Apply timezone offset to get the main parts in UTC */
 	if (neg_year) {
-		parts[PI_YEAR] = -parts[PI_YEAR];
+		parts[DUK__PI_YEAR] = -parts[DUK__PI_YEAR];
 	}
 	if (neg_tzoffset) {
-		parts[PI_HOUR] += parts[PI_TZHOUR];
-		parts[PI_MINUTE] += parts[PI_TZMINUTE];
+		parts[DUK__PI_HOUR] += parts[DUK__PI_TZHOUR];
+		parts[DUK__PI_MINUTE] += parts[DUK__PI_TZMINUTE];
 	} else {
-		parts[PI_HOUR] -= parts[PI_TZHOUR];
-		parts[PI_MINUTE] -= parts[PI_TZMINUTE];
+		parts[DUK__PI_HOUR] -= parts[DUK__PI_TZHOUR];
+		parts[DUK__PI_MINUTE] -= parts[DUK__PI_TZMINUTE];
 	}
-	parts[PI_MONTH] -= 1;  /* zero-based month */
-	parts[PI_DAY] -= 1;  /* zero-based day */
+	parts[DUK__PI_MONTH] -= 1;  /* zero-based month */
+	parts[DUK__PI_DAY] -= 1;  /* zero-based day */
 
 	/* Use double parts, they tolerate unnormalized time.
 	 *
-	 * Note: IDX_WEEKDAY is initialized with a bogus value (PI_TZHOUR)
+	 * Note: DUK__IDX_WEEKDAY is initialized with a bogus value (DUK__PI_TZHOUR)
 	 * on purpose.  It won't be actually used by get_timeval_from_dparts(),
 	 * but will make the value initialized just in case, and avoid any
 	 * potential for Valgrind issues.
 	 */
-	for (i = 0; i < NUM_PARTS; i++) {
+	for (i = 0; i < DUK__NUM_PARTS; i++) {
 		DUK_DDDPRINT("part[%d] = %d", i, parts[i]);
 		dparts[i] = parts[i];
 	}
@@ -16678,13 +16856,13 @@ static void timeval_to_parts(double d, int *parts, double *dparts, int flags) {
 	/* these computations are guaranteed to be exact for the valid
 	 * E5 time value range, assuming milliseconds without fractions.
 	 */
-	d1 = fmod(d, (double) MS_DAY);
+	d1 = fmod(d, (double) DUK__MS_DAY);
 	if (d1 < 0.0) {
 		/* deal with negative values */
-		d1 += (double) MS_DAY;
+		d1 += (double) DUK__MS_DAY;
 	}
-	d2 = floor(d / (double) MS_DAY);
-	DUK_ASSERT(d2 * ((double) MS_DAY) + d1 == d);
+	d2 = floor(d / (double) DUK__MS_DAY);
+	DUK_ASSERT(d2 * ((double) DUK__MS_DAY) + d1 == d);
 
 	/* now expected to fit into a 32-bit integer */
 	t1 = (int) d1;
@@ -16694,19 +16872,19 @@ static void timeval_to_parts(double d, int *parts, double *dparts, int flags) {
 
 	/* t1 = milliseconds within day, t2 = day number */
 
-	parts[IDX_MILLISECOND] = t1 % 1000; t1 /= 1000;
-	parts[IDX_SECOND] = t1 % 60; t1 /= 60;
-	parts[IDX_MINUTE] = t1 % 60; t1 /= 60;
-	parts[IDX_HOUR] = t1;
-	DUK_ASSERT(parts[IDX_MILLISECOND] >= 0 && parts[IDX_MILLISECOND] <= 999);
-	DUK_ASSERT(parts[IDX_SECOND] >= 0 && parts[IDX_SECOND] <= 59);
-	DUK_ASSERT(parts[IDX_MINUTE] >= 0 && parts[IDX_MINUTE] <= 59);
-	DUK_ASSERT(parts[IDX_HOUR] >= 0 && parts[IDX_HOUR] <= 23);
+	parts[DUK__IDX_MILLISECOND] = t1 % 1000; t1 /= 1000;
+	parts[DUK__IDX_SECOND] = t1 % 60; t1 /= 60;
+	parts[DUK__IDX_MINUTE] = t1 % 60; t1 /= 60;
+	parts[DUK__IDX_HOUR] = t1;
+	DUK_ASSERT(parts[DUK__IDX_MILLISECOND] >= 0 && parts[DUK__IDX_MILLISECOND] <= 999);
+	DUK_ASSERT(parts[DUK__IDX_SECOND] >= 0 && parts[DUK__IDX_SECOND] <= 59);
+	DUK_ASSERT(parts[DUK__IDX_MINUTE] >= 0 && parts[DUK__IDX_MINUTE] <= 59);
+	DUK_ASSERT(parts[DUK__IDX_HOUR] >= 0 && parts[DUK__IDX_HOUR] <= 23);
 
-	parts[IDX_WEEKDAY] = (t2 + 4) % 7;  /* E5.1 Section 15.9.1.6 */
-	if (parts[IDX_WEEKDAY] < 0) {
+	parts[DUK__IDX_WEEKDAY] = (t2 + 4) % 7;  /* E5.1 Section 15.9.1.6 */
+	if (parts[DUK__IDX_WEEKDAY] < 0) {
 		/* deal with negative values */
-		parts[IDX_WEEKDAY] += 7;
+		parts[DUK__IDX_WEEKDAY] += 7;
 	}
 
 	year = year_from_day(t2, &day);
@@ -16726,17 +16904,17 @@ static void timeval_to_parts(double d, int *parts, double *dparts, int flags) {
 	DUK_ASSERT(month >= 0 && month <= 11);
 	DUK_ASSERT(day >= 0 && day <= 31);
 
-	parts[IDX_YEAR] = year;
-	parts[IDX_MONTH] = month;
-	parts[IDX_DAY] = day;
+	parts[DUK__IDX_YEAR] = year;
+	parts[DUK__IDX_MONTH] = month;
+	parts[DUK__IDX_DAY] = day;
 
-	if (flags & FLAG_ONEBASED) {
-		parts[IDX_MONTH]++;  /* zero-based -> one-based */
-		parts[IDX_DAY]++;    /* -""- */
+	if (flags & DUK__FLAG_ONEBASED) {
+		parts[DUK__IDX_MONTH]++;  /* zero-based -> one-based */
+		parts[DUK__IDX_DAY]++;    /* -""- */
 	}
 
 	if (dparts != NULL) {
-		for (i = 0; i < NUM_PARTS; i++) {
+		for (i = 0; i < DUK__NUM_PARTS; i++) {
 			dparts[i] = (double) parts[i];
 		}
 	}
@@ -16756,10 +16934,10 @@ static double get_timeval_from_dparts(double *dparts, int flags) {
 	 * zero.  If ToInteger() has already been called, this has no side
 	 * effects and is idempotent.
 	 *
-	 * Don't read dparts[IDX_WEEKDAY]; it will cause Valgrind issues
+	 * Don't read dparts[DUK__IDX_WEEKDAY]; it will cause Valgrind issues
 	 * if the value is uninitialized.
 	 */
-	for (i = 0; i <= IDX_MILLISECOND; i++) {
+	for (i = 0; i <= DUK__IDX_MILLISECOND; i++) {
 		d = dparts[i];
 		if (DUK_ISFINITE(d)) {
 			dparts[i] = duk_js_tointeger_number(d);
@@ -16775,35 +16953,35 @@ static double get_timeval_from_dparts(double *dparts, int flags) {
 	
 	/* MakeTime */
 	tmp_time = 0;
-	tmp_time += dparts[IDX_HOUR] * ((double) MS_HOUR);
-	tmp_time += dparts[IDX_MINUTE] * ((double) MS_MINUTE);
-	tmp_time += dparts[IDX_SECOND] * ((double) MS_SECOND);
-	tmp_time += dparts[IDX_MILLISECOND];
+	tmp_time += dparts[DUK__IDX_HOUR] * ((double) DUK__MS_HOUR);
+	tmp_time += dparts[DUK__IDX_MINUTE] * ((double) DUK__MS_MINUTE);
+	tmp_time += dparts[DUK__IDX_SECOND] * ((double) DUK__MS_SECOND);
+	tmp_time += dparts[DUK__IDX_MILLISECOND];
 
 	/* MakeDay */
-	tmp_day = make_day(dparts[IDX_YEAR], dparts[IDX_MONTH], dparts[IDX_DAY]);
+	tmp_day = make_day(dparts[DUK__IDX_YEAR], dparts[DUK__IDX_MONTH], dparts[DUK__IDX_DAY]);
 
 	/* MakeDate */
-	d = tmp_day * ((double) MS_DAY) + tmp_time;
+	d = tmp_day * ((double) DUK__MS_DAY) + tmp_time;
 
 	DUK_DDDPRINT("time=%lf day=%lf --> timeval=%lf", tmp_time, tmp_day, d);
 
 	/* Optional UTC conversion followed by TimeClip().
 	 * Note that this also handles Infinity -> NaN conversion.
 	 */
-	if (flags & FLAG_LOCALTIME) {
+	if (flags & DUK__FLAG_LOCALTIME) {
 		/* FIXME: this is now incorrect.  'd' is local time here (as
-		 * we're converting to UTC), but GET_LOCAL_TZOFFSET() should
+		 * we're converting to UTC), but DUK__GET_LOCAL_TZOFFSET() should
 		 * be called with UTC time.  This needs to be reworked to avoid
 		 * the chicken-and-egg problem.
 		 *
 		 * See E5.1 Section 15.9.1.9:
 		 * UTC(t) = t - LocalTZA - DaylightSavingTA(t - LocalTZA)
 		 *
-		 * For NaN/inf, GET_LOCAL_TZOFFSET() returns 0.
+		 * For NaN/inf, DUK__GET_LOCAL_TZOFFSET() returns 0.
 		 */
 
-		d -= GET_LOCAL_TZOFFSET(d) * 1000;
+		d -= DUK__GET_LOCAL_TZOFFSET(d) * 1000;
 	}
 	d = timeclip(d);
 
@@ -16835,21 +17013,21 @@ static double push_this_and_get_timeval_tzoffset(duk_context *ctx, int flags, in
 	duk_pop(ctx);
 
 	if (DUK_ISNAN(d)) {
-		if (flags & FLAG_NAN_TO_ZERO) {
+		if (flags & DUK__FLAG_NAN_TO_ZERO) {
 			d = 0.0;
 		}
-		if (flags & FLAG_NAN_TO_RANGE_ERROR) {
+		if (flags & DUK__FLAG_NAN_TO_RANGE_ERROR) {
 			DUK_ERROR(thr, DUK_ERR_RANGE_ERROR, "Invalid Date");
 		}
 	}
 	/* if no NaN handling flag, may still be NaN here, but not Inf */
 	DUK_ASSERT(!DUK_ISINF(d));
 
-	if (flags & FLAG_LOCALTIME) {
+	if (flags & DUK__FLAG_LOCALTIME) {
 		/* Note: DST adjustment is determined using UTC time.
 		 * If 'd' is NaN, tzoffset will be 0.
 		 */
-		tzoffset = GET_LOCAL_TZOFFSET(d);  /* seconds */
+		tzoffset = DUK__GET_LOCAL_TZOFFSET(d);  /* seconds */
 		d += tzoffset * 1000;
 	}
 	if (out_tzoffset) {
@@ -16885,23 +17063,23 @@ static int set_this_timeval_from_dparts(duk_context *ctx, double *dparts, int fl
 static int format_parts_iso8601(duk_context *ctx, int *parts, int tzoffset, int flags) {
 	char yearstr[8];   /* "-123456\0" */
 	char tzstr[8];     /* "+11:22\0" */
-	char sep = (flags & FLAG_SEP_T) ? 'T' : ' ';
+	char sep = (flags & DUK__FLAG_SEP_T) ? 'T' : ' ';
 
-	DUK_ASSERT(parts[IDX_MONTH] >= 1 && parts[IDX_MONTH] <= 12);
-	DUK_ASSERT(parts[IDX_DAY] >= 1 && parts[IDX_DAY] <= 31);
-	DUK_ASSERT(parts[IDX_YEAR] >= -999999 && parts[IDX_YEAR] <= 999999);
+	DUK_ASSERT(parts[DUK__IDX_MONTH] >= 1 && parts[DUK__IDX_MONTH] <= 12);
+	DUK_ASSERT(parts[DUK__IDX_DAY] >= 1 && parts[DUK__IDX_DAY] <= 31);
+	DUK_ASSERT(parts[DUK__IDX_YEAR] >= -999999 && parts[DUK__IDX_YEAR] <= 999999);
 
 	/* Note: %06d for positive value, %07d for negative value to include
 	 * sign and 6 digits.
 	 */
 	DUK_SNPRINTF(yearstr,
 	             sizeof(yearstr),
-	             (parts[IDX_YEAR] >= 0 && parts[IDX_YEAR] <= 9999) ? "%04d" :
-	                    ((parts[IDX_YEAR] >= 0) ? "+%06d" : "%07d"),
-	             parts[IDX_YEAR]);
+	             (parts[DUK__IDX_YEAR] >= 0 && parts[DUK__IDX_YEAR] <= 9999) ? "%04d" :
+	                    ((parts[DUK__IDX_YEAR] >= 0) ? "+%06d" : "%07d"),
+	             parts[DUK__IDX_YEAR]);
 	yearstr[sizeof(yearstr) - 1] = (char) 0;
 
-	if (flags & FLAG_LOCALTIME) {
+	if (flags & DUK__FLAG_LOCALTIME) {
 		/* tzoffset seconds are dropped */
 		if (tzoffset >= 0) {
 			int tmp = tzoffset / 60;
@@ -16916,17 +17094,17 @@ static int format_parts_iso8601(duk_context *ctx, int *parts, int tzoffset, int 
 		tzstr[1] = (char) 0;
 	}
 
-	if ((flags & FLAG_TOSTRING_DATE) && (flags & FLAG_TOSTRING_TIME)) {
+	if ((flags & DUK__FLAG_TOSTRING_DATE) && (flags & DUK__FLAG_TOSTRING_TIME)) {
 		duk_push_sprintf(ctx, "%s-%02d-%02d%c%02d:%02d:%02d.%03d%s",
-		                 yearstr, parts[IDX_MONTH], parts[IDX_DAY], sep,
-		                 parts[IDX_HOUR], parts[IDX_MINUTE], parts[IDX_SECOND],
-		                 parts[IDX_MILLISECOND], tzstr);
-	} else if (flags & FLAG_TOSTRING_DATE) {
-		duk_push_sprintf(ctx, "%s-%02d-%02d", yearstr, parts[IDX_MONTH], parts[IDX_DAY]);
+		                 yearstr, parts[DUK__IDX_MONTH], parts[DUK__IDX_DAY], sep,
+		                 parts[DUK__IDX_HOUR], parts[DUK__IDX_MINUTE], parts[DUK__IDX_SECOND],
+		                 parts[DUK__IDX_MILLISECOND], tzstr);
+	} else if (flags & DUK__FLAG_TOSTRING_DATE) {
+		duk_push_sprintf(ctx, "%s-%02d-%02d", yearstr, parts[DUK__IDX_MONTH], parts[DUK__IDX_DAY]);
 	} else {
-		DUK_ASSERT(flags & FLAG_TOSTRING_TIME);
-		duk_push_sprintf(ctx, "%02d:%02d:%02d.%03d%s", parts[IDX_HOUR], parts[IDX_MINUTE],
-		                 parts[IDX_SECOND], parts[IDX_MILLISECOND], tzstr);
+		DUK_ASSERT(flags & DUK__FLAG_TOSTRING_TIME);
+		duk_push_sprintf(ctx, "%02d:%02d:%02d.%03d%s", parts[DUK__IDX_HOUR], parts[DUK__IDX_MINUTE],
+		                 parts[DUK__IDX_SECOND], parts[DUK__IDX_MILLISECOND], tzstr);
 	}
 
 	return 1;
@@ -16937,7 +17115,7 @@ static int format_parts_iso8601(duk_context *ctx, int *parts, int tzoffset, int 
  */
 static int to_string_helper(duk_context *ctx, int flags) {
 	double d;
-	int parts[NUM_PARTS];
+	int parts[DUK__NUM_PARTS];
 	int tzoffset;  /* seconds */
 	int rc;
 
@@ -16949,11 +17127,11 @@ static int to_string_helper(duk_context *ctx, int flags) {
 	DUK_ASSERT(DUK_ISFINITE(d));
 
 	/* formatters always get one-based month/day-of-month */
-	timeval_to_parts(d, parts, NULL, FLAG_ONEBASED);
-	DUK_ASSERT(parts[IDX_MONTH] >= 1 && parts[IDX_MONTH] <= 12);
-	DUK_ASSERT(parts[IDX_DAY] >= 1 && parts[IDX_DAY] <= 31);
+	timeval_to_parts(d, parts, NULL, DUK__FLAG_ONEBASED);
+	DUK_ASSERT(parts[DUK__IDX_MONTH] >= 1 && parts[DUK__IDX_MONTH] <= 12);
+	DUK_ASSERT(parts[DUK__IDX_DAY] >= 1 && parts[DUK__IDX_DAY] <= 31);
 
-	if (flags & FLAG_TOSTRING_LOCALE) {
+	if (flags & DUK__FLAG_TOSTRING_LOCALE) {
 		/* try locale specific formatter; if it refuses to format the
 		 * string, fall back to an ISO 8601 formatted value in local
 		 * time.
@@ -16981,10 +17159,10 @@ static int to_string_helper(duk_context *ctx, int flags) {
  */
 static int get_part_helper(duk_context *ctx, int flags_and_idx) {
 	double d;
-	int parts[NUM_PARTS];
+	int parts[DUK__NUM_PARTS];
 	int idx_part = flags_and_idx >> 12;  /* unpack args */
 
-	DUK_ASSERT(idx_part >= 0 && idx_part < NUM_PARTS);
+	DUK_ASSERT(idx_part >= 0 && idx_part < DUK__NUM_PARTS);
 
 	d = push_this_and_get_timeval(ctx, flags_and_idx);
 	if (DUK_ISNAN(d)) {
@@ -16999,7 +17177,7 @@ static int get_part_helper(duk_context *ctx, int flags_and_idx) {
 	 * only in certain cases.  The legacy getYear() getter applies -1900
 	 * unconditionally.
 	 */
-	duk_push_int(ctx, (flags_and_idx & FLAG_SUB1900) ? parts[idx_part] - 1900 : parts[idx_part]);
+	duk_push_int(ctx, (flags_and_idx & DUK__FLAG_SUB1900) ? parts[idx_part] - 1900 : parts[idx_part]);
 	return 1;
 }
 
@@ -17012,8 +17190,8 @@ static int get_part_helper(duk_context *ctx, int flags_and_idx) {
  */
 static int set_part_helper(duk_context *ctx, int flags_and_maxnargs) {
 	double d;
-	int parts[NUM_PARTS];
-	double dparts[NUM_PARTS];
+	int parts[DUK__NUM_PARTS];
+	double dparts[DUK__NUM_PARTS];
 	int nargs;
 	int maxnargs = flags_and_maxnargs >> 12;  /* unpack args */
 	int idx_first, idx;
@@ -17038,7 +17216,7 @@ static int set_part_helper(duk_context *ctx, int flags_and_maxnargs) {
 	 *  stack arguments is a bit complicated, but important to factor
 	 *  out from setters themselves for compactness.
 	 *
-	 *  If FLAG_TIMESETTER, maxnargs indicates setter type:
+	 *  If DUK__FLAG_TIMESETTER, maxnargs indicates setter type:
 	 *
 	 *   1 -> millisecond
 	 *   2 -> second, [millisecond]
@@ -17055,14 +17233,14 @@ static int set_part_helper(duk_context *ctx, int flags_and_maxnargs) {
 	 *  components to override.  We rely on part index ordering.
 	 */
 
-	if (flags_and_maxnargs & FLAG_TIMESETTER) {
+	if (flags_and_maxnargs & DUK__FLAG_TIMESETTER) {
 		DUK_ASSERT(maxnargs >= 1 && maxnargs <= 4);
-		idx_first = IDX_MILLISECOND - (maxnargs - 1);
+		idx_first = DUK__IDX_MILLISECOND - (maxnargs - 1);
 	} else {
 		DUK_ASSERT(maxnargs >= 1 && maxnargs <= 3);
-		idx_first = IDX_DAY - (maxnargs - 1);
+		idx_first = DUK__IDX_DAY - (maxnargs - 1);
 	}
-	DUK_ASSERT(idx_first >= 0 && idx_first < NUM_PARTS);
+	DUK_ASSERT(idx_first >= 0 && idx_first < DUK__NUM_PARTS);
 
 	for (i = 0; i < maxnargs; i++) {
 		if (i >= nargs) {
@@ -17070,15 +17248,15 @@ static int set_part_helper(duk_context *ctx, int flags_and_maxnargs) {
 			break;
 		}
 		idx = idx_first + i;
-		DUK_ASSERT(idx >= 0 && idx < NUM_PARTS);
+		DUK_ASSERT(idx >= 0 && idx < DUK__NUM_PARTS);
 
-		if (idx == IDX_YEAR && (flags_and_maxnargs & FLAG_YEAR_FIXUP)) {
+		if (idx == DUK__IDX_YEAR && (flags_and_maxnargs & DUK__FLAG_YEAR_FIXUP)) {
 			twodigit_year_fixup(ctx, i);
 		}
 
 		dparts[idx] = duk_to_number(ctx, i);
 
-		if (idx == IDX_DAY) {
+		if (idx == DUK__IDX_DAY) {
 			/* Day-of-month is one-based in the API, but zero-based
 			 * internally, so fix here.  Note that month is zero-based
 			 * both in the API and internally.
@@ -17135,15 +17313,15 @@ static void set_parts_from_args(duk_context *ctx, double *dparts, int nargs) {
 	twodigit_year_fixup(ctx, 0);
 
 	/* There are at most 7 args, but we use 8 here so that also
-	 * IDX_WEEKDAY gets initialized (to zero) to avoid the potential
+	 * DUK__IDX_WEEKDAY gets initialized (to zero) to avoid the potential
 	 * for any Valgrind gripes later.
 	 */
 	for (i = 0; i < 8; i++) {
 		/* Note: rely on index ordering */
-		idx = IDX_YEAR + i;
+		idx = DUK__IDX_YEAR + i;
 		if (i < nargs) {
 			d = duk_to_number(ctx, i);
-			if (idx == IDX_DAY) {
+			if (idx == DUK__IDX_DAY) {
 				/* Convert day from one-based to zero-based (internal).  This may
 				 * cause the day part to be negative, which is OK.
 				 */
@@ -17168,10 +17346,10 @@ static void set_parts_from_args(duk_context *ctx, double *dparts, int nargs) {
  *  Constructor calls
  */
 
-int duk_builtin_date_constructor(duk_context *ctx) {
+int duk_bi_date_constructor(duk_context *ctx) {
 	int nargs = duk_get_top(ctx);
 	int is_cons = duk_is_constructor_call(ctx);
-	double dparts[NUM_PARTS];
+	double dparts[DUK__NUM_PARTS];
 	double d;
 
 	DUK_DDDPRINT("Date constructor, nargs=%d, is_cons=%d", nargs, is_cons);
@@ -17186,7 +17364,7 @@ int duk_builtin_date_constructor(duk_context *ctx) {
 	 */
 
 	if (nargs == 0 || !is_cons) {
-		d = timeclip(GET_NOW_TIMEVAL(ctx));
+		d = timeclip(DUK__GET_NOW_TIMEVAL(ctx));
 		duk_push_number(ctx, d);
 		duk_def_prop_stridx(ctx, -2, DUK_STRIDX_INT_VALUE, DUK_PROPDESC_FLAGS_W);
 		if (!is_cons) {
@@ -17210,18 +17388,18 @@ int duk_builtin_date_constructor(duk_context *ctx) {
 
 	/* Parts are in local time, convert when setting. */
 
-	set_this_timeval_from_dparts(ctx, dparts, FLAG_LOCALTIME /*flags*/);  /* -> [ ... this timeval ] */
+	set_this_timeval_from_dparts(ctx, dparts, DUK__FLAG_LOCALTIME /*flags*/);  /* -> [ ... this timeval ] */
 	duk_pop(ctx);  /* -> [ ... this ] */
 	return 1;
 }
 
-int duk_builtin_date_constructor_parse(duk_context *ctx) {
+int duk_bi_date_constructor_parse(duk_context *ctx) {
 	return parse_string(ctx, duk_to_string(ctx, 0));
 }
 
-int duk_builtin_date_constructor_utc(duk_context *ctx) {
+int duk_bi_date_constructor_utc(duk_context *ctx) {
 	int nargs = duk_get_top(ctx);
-	double dparts[NUM_PARTS];
+	double dparts[DUK__NUM_PARTS];
 	double d;
 
 	/* Behavior for nargs < 2 is implementation dependent: currently we'll
@@ -17238,10 +17416,10 @@ int duk_builtin_date_constructor_utc(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_date_constructor_now(duk_context *ctx) {
+int duk_bi_date_constructor_now(duk_context *ctx) {
 	double d;
 
-	d = GET_NOW_TIMEVAL(ctx);
+	d = DUK__GET_NOW_TIMEVAL(ctx);
 	DUK_ASSERT(timeclip(d) == d);  /* TimeClip() should never be necessary */
 	duk_push_number(ctx, d);
 	return 1;
@@ -17281,12 +17459,12 @@ int duk_builtin_date_constructor_now(duk_context *ctx) {
  *      toISOString() requires a RangeError for invalid date values.
  */
 
-int duk_builtin_date_prototype_tostring_shared(duk_context *ctx) {
+int duk_bi_date_prototype_tostring_shared(duk_context *ctx) {
 	int flags = duk_get_magic(ctx);
 	return to_string_helper(ctx, flags);
 }
 
-int duk_builtin_date_prototype_value_of(duk_context *ctx) {
+int duk_bi_date_prototype_value_of(duk_context *ctx) {
 	/* This native function is also used for Date.prototype.getTime()
 	 * as their behavior is identical.
 	 */
@@ -17297,7 +17475,7 @@ int duk_builtin_date_prototype_value_of(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_date_prototype_to_json(duk_context *ctx) {
+int duk_bi_date_prototype_to_json(duk_context *ctx) {
 	/* Note: toJSON() is a generic function which works even if 'this'
 	 * is not a Date.  The sole argument is ignored.
 	 */
@@ -17360,15 +17538,15 @@ int duk_builtin_date_prototype_to_json(duk_context *ctx) {
  *
  *    - Date.prototype.getTime() and Date.prototype.valueOf() have identical
  *      behavior.  They have separate function objects, but share the same C
- *      function (duk_builtin_date_prototype_value_of).
+ *      function (duk_bi_date_prototype_value_of).
  */
 
-int duk_builtin_date_prototype_get_shared(duk_context *ctx) {
+int duk_bi_date_prototype_get_shared(duk_context *ctx) {
 	int flags_and_idx = duk_get_magic(ctx);
 	return get_part_helper(ctx, flags_and_idx);
 }
 
-int duk_builtin_date_prototype_get_timezone_offset(duk_context *ctx) {
+int duk_bi_date_prototype_get_timezone_offset(duk_context *ctx) {
 	/*
 	 *  Return (t - LocalTime(t)) in minutes:
 	 *
@@ -17393,7 +17571,7 @@ int duk_builtin_date_prototype_get_timezone_offset(duk_context *ctx) {
 		duk_push_nan(ctx);
 	} else {
 		DUK_ASSERT(DUK_ISFINITE(d));
-		tzoffset = GET_LOCAL_TZOFFSET(d);
+		tzoffset = DUK__GET_LOCAL_TZOFFSET(d);
 		duk_push_int(ctx, -tzoffset / 60);
 	}
 	return 1;
@@ -17448,12 +17626,12 @@ int duk_builtin_date_prototype_get_timezone_offset(duk_context *ctx) {
  *      the year will be set regardless of actual argument count.
  */
 
-int duk_builtin_date_prototype_set_shared(duk_context *ctx) {
+int duk_bi_date_prototype_set_shared(duk_context *ctx) {
 	int flags_and_maxnargs = duk_get_magic(ctx);
 	return set_part_helper(ctx, flags_and_maxnargs);
 }
 
-int duk_builtin_date_prototype_set_time(duk_context *ctx) {
+int duk_bi_date_prototype_set_time(duk_context *ctx) {
 	double d;
 
 	(void) push_this_and_get_timeval(ctx, 0 /*flags*/); /* -> [ timeval this ] */
@@ -17465,47 +17643,122 @@ int duk_builtin_date_prototype_set_time(duk_context *ctx) {
 	return 1;
 }
 
-#line 1 "duk_builtin_duk.c"
+#line 1 "duk_bi_duk.c"
 /*
  *  Duktape built-ins
+ *
+ *  Size optimization note: it might seem that vararg multipurpose functions
+ *  like fin(), enc(), and dec() are not very size optimal, but using a single
+ *  user-visible Ecmascript function saves a lot of run-time footprint; each
+ *  Function instance takes >100 bytes.  Using a shared native helper and a
+ *  'magic' value won't save much if there are multiple Function instances
+ *  anyway.
  */
 
 /* include removed: duk_internal.h */
 
-duk_ret duk_builtin_duk_object_addr(duk_context *ctx) {
+/* Raw helper to extract internal information / statistics about a value.
+ * The return values are version specific and must not expose anything
+ * that would lead to security issues (e.g. exposing compiled function
+ * 'data' buffer might be an issue).  Currently only counts and sizes and
+ * such are given so there should not be a security impact.
+ */
+duk_ret_t duk_bi_duk_object_info(duk_context *ctx) {
 	duk_tval *tv;
-	void *p;
+	duk_heaphdr *h;
+	duk_int_t i, n;
 
 	tv = duk_get_tval(ctx, 0);
-	if (!tv || !DUK_TVAL_IS_HEAP_ALLOCATED(tv)) {
-		return 0;  /* undefined */
+	DUK_ASSERT(tv != NULL);  /* because arg count is 1 */
+
+	duk_push_array(ctx);  /* -> [ val arr ] */
+
+	/* type tag (public) */
+	duk_push_int(ctx, duk_get_type(ctx, 0));
+
+	/* address */
+	if (DUK_TVAL_IS_HEAP_ALLOCATED(tv)) {
+		h = DUK_TVAL_GET_HEAPHDR(tv);
+		duk_push_pointer(ctx, (void *) h);
+	} else {
+		goto done;
 	}
-	p = (void *) DUK_TVAL_GET_HEAPHDR(tv);
+	DUK_ASSERT(h != NULL);
 
-	/* any heap allocated value (string, object, buffer) has a stable pointer */
-	duk_push_sprintf(ctx, "%p", p);
-	return 1;
-}
-
-duk_ret duk_builtin_duk_object_refc(duk_context *ctx) {
+	/* refcount */
 #ifdef DUK_USE_REFERENCE_COUNTING
-	duk_tval *tv = duk_get_tval(ctx, 0);
-	duk_heaphdr *h;
-	if (!tv) {
-		return 0;
-	}
-	if (!DUK_TVAL_IS_HEAP_ALLOCATED(tv)) {
-		return 0;
-	}
-	h = DUK_TVAL_GET_HEAPHDR(tv);
 	duk_push_int(ctx, DUK_HEAPHDR_GET_REFCOUNT(h));
-	return 1;
 #else
-	return 0;
+	duk_push_undefined(ctx);
 #endif
+
+	/* heaphdr size and additional allocation size, followed by
+	 * type specific stuff (with varying value count)
+	 */
+	switch (DUK_HEAPHDR_GET_TYPE(h)) {
+	case DUK_HTYPE_STRING: {
+		duk_hstring *h_str = (duk_hstring *) h;
+		duk_push_int(ctx, (int) (sizeof(duk_hstring) + DUK_HSTRING_GET_BYTELEN(h_str) + 1));
+		break;
+	}
+	case DUK_HTYPE_OBJECT: {
+		duk_hobject *h_obj = (duk_hobject *) h;
+		duk_int_t hdr_size;
+		if (DUK_HOBJECT_IS_COMPILEDFUNCTION(h_obj)) {
+			hdr_size = (duk_int_t) sizeof(duk_hcompiledfunction);
+		} else if (DUK_HOBJECT_IS_NATIVEFUNCTION(h_obj)) {
+			hdr_size = (duk_int_t) sizeof(duk_hnativefunction);
+		} else if (DUK_HOBJECT_IS_THREAD(h_obj)) {
+			hdr_size = (duk_int_t) sizeof(duk_hthread);
+		} else {
+			hdr_size = (duk_int_t) sizeof(duk_hobject);
+		}
+		duk_push_int(ctx, (int) hdr_size);
+		duk_push_int(ctx, (int) DUK_HOBJECT_E_ALLOC_SIZE(h_obj));
+		duk_push_int(ctx, (int) h_obj->e_size);
+		duk_push_int(ctx, (int) h_obj->e_used);
+		duk_push_int(ctx, (int) h_obj->a_size);
+		duk_push_int(ctx, (int) h_obj->h_size);
+		if (DUK_HOBJECT_IS_COMPILEDFUNCTION(h_obj)) {
+			duk_hbuffer *h_data = ((duk_hcompiledfunction *) h_obj)->data;
+			if (h_data) {
+				duk_push_int(ctx, DUK_HBUFFER_GET_SIZE(h_data));
+			} else {
+				duk_push_int(ctx, 0);
+			}
+		}
+		break;
+	}
+	case DUK_HTYPE_BUFFER: {
+		duk_hbuffer *h_buf = (duk_hbuffer *) h;
+		if (DUK_HBUFFER_HAS_DYNAMIC(h_buf)) {
+			/* XXX: when usable_size == 0, dynamic buf ptr may now be NULL, in which case
+			 * the second allocation does not exist.
+			 */
+			duk_hbuffer_dynamic *h_dyn = (duk_hbuffer_dynamic *) h;
+			duk_push_int(ctx, (int) (sizeof(duk_hbuffer_dynamic)));
+			duk_push_int(ctx, (int) (DUK_HBUFFER_DYNAMIC_GET_ALLOC_SIZE(h_dyn)));
+		} else {
+			duk_push_int(ctx, (int) (sizeof(duk_hbuffer_fixed) + DUK_HBUFFER_GET_SIZE(h_buf) + 1));
+		}
+		break;
+
+	}
+	}
+
+ done:
+	/* set values into ret array */
+	/* FIXME: primitive to make array from valstack slice */
+	n = duk_get_top(ctx);
+	for (i = 2; i < n; i++) {
+		duk_dup(ctx, i);
+		duk_put_prop_index(ctx, 1, i - 2);
+	}
+	duk_dup(ctx, 1);
+	return 1;
 }
 
-duk_ret duk_builtin_duk_object_gc(duk_context *ctx) {
+duk_ret_t duk_bi_duk_object_gc(duk_context *ctx) {
 #ifdef DUK_USE_MARK_AND_SWEEP
 	duk_hthread *thr = (duk_hthread *) ctx;
 	int flags;
@@ -17520,115 +17773,162 @@ duk_ret duk_builtin_duk_object_gc(duk_context *ctx) {
 #endif
 }
 
-duk_ret duk_builtin_duk_object_get_finalizer(duk_context *ctx) {
+duk_ret_t duk_bi_duk_object_fin(duk_context *ctx) {
 	(void) duk_require_hobject(ctx, 0);
-	duk_get_prop_stridx(ctx, 0, DUK_STRIDX_INT_FINALIZER);
-	return 1;
+	if (duk_get_top(ctx) >= 2) {
+		/* Set: currently a finalizer is disabled by setting it to
+		 * undefined; this does not remove the property at the moment.
+		 * The value could be type checked to be either a function
+		 * or something else; if something else, the property could
+		 * be deleted.
+		 */
+		duk_set_top(ctx, 2);
+		(void) duk_put_prop_stridx(ctx, 0, DUK_STRIDX_INT_FINALIZER);
+		return 0;
+	} else {
+		/* Get. */
+		DUK_ASSERT(duk_get_top(ctx) == 1);
+		duk_get_prop_stridx(ctx, 0, DUK_STRIDX_INT_FINALIZER);
+		return 1;
+	}
 }
 
-duk_ret duk_builtin_duk_object_set_finalizer(duk_context *ctx) {
-	DUK_ASSERT_TOP(ctx, 2);
-	(void) duk_put_prop_stridx(ctx, 0, DUK_STRIDX_INT_FINALIZER);  /* XXX: check value? */
-	return 0;
-}
-
-duk_ret duk_builtin_duk_object_enc(duk_context *ctx) {
+duk_ret_t duk_bi_duk_object_enc(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_str;
 
-	h_str = duk_to_hstring(ctx, 0);
+	/* Vararg function: must be careful to check/require arguments.
+	 * The JSON helpers accept invalid indices and treat them like
+	 * non-existent optional parameters.
+	 */
+
+	h_str = duk_require_hstring(ctx, 0);
+	duk_require_valid_index(ctx, 1);
+
 	if (h_str == DUK_HTHREAD_STRING_HEX(thr)) {
+		duk_set_top(ctx, 2);
 		duk_hex_encode(ctx, 1);
 		DUK_ASSERT_TOP(ctx, 2);
-		return 1;
 	} else if (h_str == DUK_HTHREAD_STRING_BASE64(thr)) {
+		duk_set_top(ctx, 2);
 		duk_base64_encode(ctx, 1);
 		DUK_ASSERT_TOP(ctx, 2);
-		return 1;
+#ifdef DUK_USE_JSONX
+	} else if (h_str == DUK_HTHREAD_STRING_JSONX(thr)) {
+		duk_bi_json_stringify_helper(ctx,
+		                             1 /*idx_value*/,
+		                             2 /*idx_replacer*/,
+		                             3 /*idx_space*/,
+		                             DUK_JSON_FLAG_EXT_CUSTOM |
+		                             DUK_JSON_FLAG_ASCII_ONLY |
+		                             DUK_JSON_FLAG_AVOID_KEY_QUOTES /*flags*/);
+#endif
+#ifdef DUK_USE_JSONC
+	} else if (h_str == DUK_HTHREAD_STRING_JSONC(thr)) {
+		duk_bi_json_stringify_helper(ctx,
+		                             1 /*idx_value*/,
+		                             2 /*idx_replacer*/,
+		                             3 /*idx_space*/,
+		                             DUK_JSON_FLAG_EXT_COMPATIBLE |
+		                             DUK_JSON_FLAG_ASCII_ONLY /*flags*/);
+#endif
 	} else {
 		return DUK_RET_TYPE_ERROR;
 	}
+	return 1;
 }
 
-duk_ret duk_builtin_duk_object_dec(duk_context *ctx) {
+duk_ret_t duk_bi_duk_object_dec(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_str;
 
-	h_str = duk_to_hstring(ctx, 0);
+	/* Vararg function: must be careful to check/require arguments.
+	 * The JSON helpers accept invalid indices and treat them like
+	 * non-existent optional parameters.
+	 */
+
+	h_str = duk_require_hstring(ctx, 0);
+	duk_require_valid_index(ctx, 1);
+
 	if (h_str == DUK_HTHREAD_STRING_HEX(thr)) {
+		duk_set_top(ctx, 2);
 		duk_hex_decode(ctx, 1);
 		DUK_ASSERT_TOP(ctx, 2);
-		return 1;
 	} else if (h_str == DUK_HTHREAD_STRING_BASE64(thr)) {
+		duk_set_top(ctx, 2);
 		duk_base64_decode(ctx, 1);
 		DUK_ASSERT_TOP(ctx, 2);
-		return 1;
+#ifdef DUK_USE_JSONX
+	} else if (h_str == DUK_HTHREAD_STRING_JSONX(thr)) {
+		duk_bi_json_parse_helper(ctx,
+		                         1 /*idx_value*/,
+		                         2 /*idx_replacer*/,
+		                         DUK_JSON_FLAG_EXT_CUSTOM /*flags*/);
+#endif
+#ifdef DUK_USE_JSONC
+	} else if (h_str == DUK_HTHREAD_STRING_JSONC(thr)) {
+		duk_bi_json_parse_helper(ctx,
+		                         1 /*idx_value*/,
+		                         2 /*idx_replacer*/,
+		                         DUK_JSON_FLAG_EXT_COMPATIBLE /*flags*/);
+#endif
 	} else {
 		return DUK_RET_TYPE_ERROR;
 	}
+	return 1;
 }
 
-#ifdef DUK_USE_JSONX
-duk_ret duk_builtin_duk_object_jsonx_dec(duk_context *ctx) {
-	duk_builtin_json_parse_helper(ctx,
-	                              0 /*idx_value*/,
-	                              1 /*idx_replacer*/,
-	                              DUK_JSON_FLAG_EXT_CUSTOM /*flags*/);
-	return 1;
-}
-duk_ret duk_builtin_duk_object_jsonx_enc(duk_context *ctx) {
-	duk_builtin_json_stringify_helper(ctx,
-	                                  0 /*idx_value*/,
-	                                  1 /*idx_replacer*/,
-	                                  2 /*idx_space*/,
-	                                  DUK_JSON_FLAG_EXT_CUSTOM |
-	                                  DUK_JSON_FLAG_ASCII_ONLY |
-	                                  DUK_JSON_FLAG_AVOID_KEY_QUOTES /*flags*/);
-	return 1;
-}
-#else  /* DUK_USE_JSONX */
-duk_ret duk_builtin_duk_object_jsonx_dec(duk_context *ctx) {
-	return DUK_RET_UNSUPPORTED_ERROR;
-}
-duk_ret duk_builtin_duk_object_jsonx_enc(duk_context *ctx) {
-	return DUK_RET_UNSUPPORTED_ERROR;
-}
-#endif  /* DUK_USE_JSONX */
+/*
+ *  Logging support
+ */
 
-#ifdef DUK_USE_JSONC
-duk_ret duk_builtin_duk_object_jsonc_dec(duk_context *ctx) {
-	duk_builtin_json_parse_helper(ctx,
-	                              0 /*idx_value*/,
-	                              1 /*idx_replacer*/,
-	                              DUK_JSON_FLAG_EXT_COMPATIBLE /*flags*/);
-	return 1;
-}
-duk_ret duk_builtin_duk_object_jsonc_enc(duk_context *ctx) {
-	duk_builtin_json_stringify_helper(ctx,
-	                                  0 /*idx_value*/,
-	                                  1 /*idx_replacer*/,
-	                                  2 /*idx_space*/,
-	                                  DUK_JSON_FLAG_EXT_COMPATIBLE |
-	                                  DUK_JSON_FLAG_ASCII_ONLY /*flags*/);
-	return 1;
-}
-#else  /* DUK_USE_JSONC */
-duk_ret duk_builtin_duk_object_jsonc_dec(duk_context *ctx) {
-	return DUK_RET_UNSUPPORTED_ERROR;
-}
-duk_ret duk_builtin_duk_object_jsonc_enc(duk_context *ctx) {
-	return DUK_RET_UNSUPPORTED_ERROR;
-}
-#endif  /* DUK_USE_JSONC */
+#if 0
+duk_ret_t duk_bi_duk_object_write_log(duk_context *ctx) {
+	duk_double_t now;
+	duk_int_t nargs;
+	duk_int_t logger_level;
+	duk_int_t message_level;
 
-#line 1 "duk_builtin_error.c"
+	/* this binding: logger
+	 * magic: log level
+	 * stack: plain log args
+	 */
+
+	nargs = duk_get_top(ctx);
+	duk_push_this(ctx);  /* at idx nargs */
+
+	duk_get_prop_stridx(ctx, -1, DUK_STRIDX_LEVEL);
+	logger_level = duk_to_int(ctx, -1);
+
+	message_level = duk_get_magic(ctx);
+
+	if (message_level < logger_level) {
+		return 0;
+	}
+
+	duk_push_int(ctx, message_level);
+
+	/* [ args logger logger_level message_level ] */
+
+	/* FIXME: here would be a point for pluggable backend */
+
+	now = duk_bi_date_get_now(ctx);
+
+	/* FIXME: stringify, sanitize ascii */
+
+	/* FIXME: here would be another point for pluggable backend */
+
+}
+#endif
+
+#line 1 "duk_bi_error.c"
 /*
  *  Error built-ins
  */
 
 /* include removed: duk_internal.h */
 
-int duk_builtin_error_constructor_shared(duk_context *ctx) {
+int duk_bi_error_constructor_shared(duk_context *ctx) {
 	/* Behavior for constructor and non-constructor call is
 	 * the same except for augmenting the created error.  When
 	 * called as a constructor, the caller (duk_new()) will handle
@@ -17669,7 +17969,7 @@ int duk_builtin_error_constructor_shared(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_error_prototype_to_string(duk_context *ctx) {
+int duk_bi_error_prototype_to_string(duk_context *ctx) {
 	/* FIXME: optimize with more direct internal access */
 
 	duk_push_this(ctx);
@@ -17896,15 +18196,15 @@ static int traceback_getter_helper(duk_context *ctx, int output_type) {
  * save space.
  */
 
-int duk_builtin_error_prototype_stack_getter(duk_context *ctx) {
+int duk_bi_error_prototype_stack_getter(duk_context *ctx) {
 	return traceback_getter_helper(ctx, DUK__OUTPUT_TYPE_TRACEBACK);
 }
 
-int duk_builtin_error_prototype_filename_getter(duk_context *ctx) {
+int duk_bi_error_prototype_filename_getter(duk_context *ctx) {
 	return traceback_getter_helper(ctx, DUK__OUTPUT_TYPE_FILENAME);
 }
 
-int duk_builtin_error_prototype_linenumber_getter(duk_context *ctx) {
+int duk_bi_error_prototype_linenumber_getter(duk_context *ctx) {
 	return traceback_getter_helper(ctx, DUK__OUTPUT_TYPE_LINENUMBER);
 }
 
@@ -17926,24 +18226,24 @@ int duk_builtin_error_prototype_linenumber_getter(duk_context *ctx) {
  *  of the error so this makes sense.
  */
 
-int duk_builtin_error_prototype_stack_getter(duk_context *ctx) {
+int duk_bi_error_prototype_stack_getter(duk_context *ctx) {
 	/* FIXME: remove this native function and map 'stack' accessor
 	 * to the toString() implementation directly.
 	 */
-	return duk_builtin_error_prototype_to_string(ctx);
+	return duk_bi_error_prototype_to_string(ctx);
 }
 
-int duk_builtin_error_prototype_filename_getter(duk_context *ctx) {
+int duk_bi_error_prototype_filename_getter(duk_context *ctx) {
 	return 0;
 }
 
-int duk_builtin_error_prototype_linenumber_getter(duk_context *ctx) {
+int duk_bi_error_prototype_linenumber_getter(duk_context *ctx) {
 	return 0;
 }
 
 #endif  /* DUK_USE_TRACEBACKS */
 
-int duk_builtin_error_prototype_nop_setter(duk_context *ctx) {
+int duk_bi_error_prototype_nop_setter(duk_context *ctx) {
 	/* Attempt to write 'stack', 'fileName', 'lineNumber' is a silent no-op.
 	 * User can use Object.defineProperty() to override this behavior.
 	 */
@@ -17951,14 +18251,14 @@ int duk_builtin_error_prototype_nop_setter(duk_context *ctx) {
 	DUK_UNREF(ctx);
 	return 0;
 }
-#line 1 "duk_builtin_function.c"
+#line 1 "duk_bi_function.c"
 /*
  *  Function built-ins
  */
 
 /* include removed: duk_internal.h */
 
-int duk_builtin_function_constructor(duk_context *ctx) {
+int duk_bi_function_constructor(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	int num_args;
 	int i;
@@ -18026,13 +18326,13 @@ int duk_builtin_function_constructor(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_function_prototype(duk_context *ctx) {
+int duk_bi_function_prototype(duk_context *ctx) {
 	/* ignore arguments, return undefined (E5 Section 15.3.4) */
 	DUK_UNREF(ctx);
 	return 0;
 }
 
-int duk_builtin_function_prototype_to_string(duk_context *ctx) {
+int duk_bi_function_prototype_to_string(duk_context *ctx) {
 	duk_tval *tv;
 
 	/*
@@ -18095,7 +18395,7 @@ int duk_builtin_function_prototype_to_string(duk_context *ctx) {
 	return DUK_RET_TYPE_ERROR;
 }
 
-int duk_builtin_function_prototype_apply(duk_context *ctx) {
+int duk_bi_function_prototype_apply(duk_context *ctx) {
 	unsigned int len;
 	unsigned int i;
 
@@ -18150,7 +18450,7 @@ int duk_builtin_function_prototype_apply(duk_context *ctx) {
 	return DUK_RET_TYPE_ERROR;
 }
 
-int duk_builtin_function_prototype_call(duk_context *ctx) {
+int duk_bi_function_prototype_call(duk_context *ctx) {
 	int nargs;
 
 	/* Step 1 is not necessary because duk_call_method() will take
@@ -18184,7 +18484,7 @@ int duk_builtin_function_prototype_call(duk_context *ctx) {
  * function) would require a "collapsing" implementation which
  * merges argument lists etc here.
  */
-int duk_builtin_function_prototype_bind(duk_context *ctx) {
+int duk_bi_function_prototype_bind(duk_context *ctx) {
 	duk_hobject *h_target;
 	int nargs;
 	int i;
@@ -18251,6 +18551,10 @@ int duk_builtin_function_prototype_bind(duk_context *ctx) {
 	}
 	duk_def_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_NONE);  /* attrs in E5 Section 15.3.5.1 */
 
+	/* caller and arguments must use the same thrower, [[ThrowTypeError]] */
+	duk_def_prop_stridx_thrower(ctx, -1, DUK_STRIDX_CALLER, DUK_PROPDESC_FLAGS_NONE);
+	duk_def_prop_stridx_thrower(ctx, -1, DUK_STRIDX_LC_ARGUMENTS, DUK_PROPDESC_FLAGS_NONE);
+
 	/* these non-standard properties are copied for convenience */
 	/* FIXME: 'copy properties' API call? */
 	duk_get_prop_stridx(ctx, -2, DUK_STRIDX_NAME);
@@ -18266,7 +18570,7 @@ int duk_builtin_function_prototype_bind(duk_context *ctx) {
 	return DUK_RET_TYPE_ERROR;
 }
 
-#line 1 "duk_builtin_global.c"
+#line 1 "duk_bi_global.c"
 /*
  *  Global object built-ins
  */
@@ -18280,71 +18584,71 @@ int duk_builtin_function_prototype_bind(duk_context *ctx) {
 /* Macros for creating and checking bitmasks for character encoding.
  * Bit number is a bit counterintuitive, but minimizes code size.
  */
-#define MKBITS(a,b,c,d,e,f,g,h)  ((unsigned char) ( \
+#define DUK__MKBITS(a,b,c,d,e,f,g,h)  ((unsigned char) ( \
 	((a) << 0) | ((b) << 1) | ((c) << 2) | ((d) << 3) | \
 	((e) << 4) | ((f) << 5) | ((g) << 6) | ((h) << 7) \
 	))
-#define CHECK_BITMASK(table,cp)  ((table)[(cp) >> 3] & (1 << ((cp) & 0x07)))
+#define DUK__CHECK_BITMASK(table,cp)  ((table)[(cp) >> 3] & (1 << ((cp) & 0x07)))
 
 /* E5.1 Section 15.1.3.3: uriReserved + uriUnescaped + '#' */
 static unsigned char encode_uri_unescaped_table[16] = {
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
-	MKBITS(0, 1, 0, 1, 1, 0, 1, 1), MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x20-0x2f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 1, 0, 1, 0, 1),  /* 0x30-0x3f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x40-0x4f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 0, 0, 0, 0, 1),  /* 0x50-0x5f */
-	MKBITS(0, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x60-0x6f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 0, 0, 0, 1, 0),  /* 0x70-0x7f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
+	DUK__MKBITS(0, 1, 0, 1, 1, 0, 1, 1), DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x20-0x2f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 1, 0, 1, 0, 1),  /* 0x30-0x3f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x40-0x4f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 0, 0, 0, 0, 1),  /* 0x50-0x5f */
+	DUK__MKBITS(0, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x60-0x6f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 0, 0, 0, 1, 0),  /* 0x70-0x7f */
 };
 
 /* E5.1 Section 15.1.3.4: uriUnescaped */
 static unsigned char encode_uri_component_unescaped_table[16] = {
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
-	MKBITS(0, 1, 0, 0, 0, 0, 0, 1), MKBITS(1, 1, 1, 0, 0, 1, 1, 0),  /* 0x20-0x2f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 0, 0, 0, 0, 0, 0),  /* 0x30-0x3f */
-	MKBITS(0, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x40-0x4f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 0, 0, 0, 0, 1),  /* 0x50-0x5f */
-	MKBITS(0, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x60-0x6f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 0, 0, 0, 1, 0),  /* 0x70-0x7f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
+	DUK__MKBITS(0, 1, 0, 0, 0, 0, 0, 1), DUK__MKBITS(1, 1, 1, 0, 0, 1, 1, 0),  /* 0x20-0x2f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 0, 0, 0, 0, 0, 0),  /* 0x30-0x3f */
+	DUK__MKBITS(0, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x40-0x4f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 0, 0, 0, 0, 1),  /* 0x50-0x5f */
+	DUK__MKBITS(0, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x60-0x6f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 0, 0, 0, 1, 0),  /* 0x70-0x7f */
 };
 
 /* E5.1 Section 15.1.3.1: uriReserved + '#' */
 static unsigned char decode_uri_reserved_table[16] = {
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
-	MKBITS(0, 0, 0, 1, 1, 0, 1, 0), MKBITS(0, 0, 0, 1, 1, 0, 0, 1),  /* 0x20-0x2f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 1, 1, 0, 1, 0, 1),  /* 0x30-0x3f */
-	MKBITS(1, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x40-0x4f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x50-0x5f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x60-0x6f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x70-0x7f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
+	DUK__MKBITS(0, 0, 0, 1, 1, 0, 1, 0), DUK__MKBITS(0, 0, 0, 1, 1, 0, 0, 1),  /* 0x20-0x2f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 1, 1, 0, 1, 0, 1),  /* 0x30-0x3f */
+	DUK__MKBITS(1, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x40-0x4f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x50-0x5f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x60-0x6f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x70-0x7f */
 };
 
 /* E5.1 Section 15.1.3.2: empty */
 static unsigned char decode_uri_component_reserved_table[16] = {
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x20-0x2f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x30-0x3f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x40-0x4f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x50-0x5f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x60-0x6f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x70-0x7f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x20-0x2f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x30-0x3f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x40-0x4f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x50-0x5f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x60-0x6f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x70-0x7f */
 };
 
 #ifdef DUK_USE_SECTION_B
 /* E5.1 Section B.2.2, step 7. */
 static unsigned char escape_unescaped_table[16] = {
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
-	MKBITS(0, 0, 0, 0, 0, 0, 0, 0), MKBITS(0, 0, 1, 1, 0, 1, 1, 1),  /* 0x20-0x2f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 0, 0, 0, 0, 0, 0),  /* 0x30-0x3f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x40-0x4f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 0, 0, 0, 0, 1),  /* 0x50-0x5f */
-	MKBITS(0, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x60-0x6f */
-	MKBITS(1, 1, 1, 1, 1, 1, 1, 1), MKBITS(1, 1, 1, 0, 0, 0, 0, 0)   /* 0x70-0x7f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x00-0x0f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0),  /* 0x10-0x1f */
+	DUK__MKBITS(0, 0, 0, 0, 0, 0, 0, 0), DUK__MKBITS(0, 0, 1, 1, 0, 1, 1, 1),  /* 0x20-0x2f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 0, 0, 0, 0, 0, 0),  /* 0x30-0x3f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x40-0x4f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 0, 0, 0, 0, 1),  /* 0x50-0x5f */
+	DUK__MKBITS(0, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1),  /* 0x60-0x6f */
+	DUK__MKBITS(1, 1, 1, 1, 1, 1, 1, 1), DUK__MKBITS(1, 1, 1, 0, 0, 0, 0, 0)   /* 0x70-0x7f */
 };
 #endif  /* DUK_USE_SECTION_B */
 
@@ -18420,7 +18724,7 @@ static void duk_transform_callback_encode_uri(duk_transform_context *tfm_ctx, vo
 
 	if (cp < 0) {
 		goto uri_error;
-	} else if ((cp < 0x80L) && CHECK_BITMASK(unescaped_table, cp)) {
+	} else if ((cp < 0x80L) && DUK__CHECK_BITMASK(unescaped_table, cp)) {
 		duk_hbuffer_append_byte(tfm_ctx->thr, tfm_ctx->h_buf, (duk_uint8_t) cp);
 		return;
 	} else if (cp >= 0xdc00L && cp <= 0xdfffL) {
@@ -18488,7 +18792,7 @@ static void duk_transform_callback_decode_uri(duk_transform_context *tfm_ctx, vo
 		}
 
 		if (t < 128) {
-			if (CHECK_BITMASK(reserved_table, t)) {
+			if (DUK__CHECK_BITMASK(reserved_table, t)) {
 				/* decode '%xx' to '%xx' if decoded char in reserved set */
 				DUK_ASSERT(tfm_ctx->p - 1 >= tfm_ctx->p_start);
 				duk_hbuffer_append_bytes(tfm_ctx->thr, tfm_ctx->h_buf, (duk_uint8_t *) (p - 1), 3);
@@ -18597,7 +18901,7 @@ static void duk_transform_callback_escape(duk_transform_context *tfm_ctx, void *
 
 	if (cp < 0) {
 		goto esc_error;
-	} else if ((cp < 0x80L) && CHECK_BITMASK(escape_unescaped_table, cp)) {
+	} else if ((cp < 0x80L) && DUK__CHECK_BITMASK(escape_unescaped_table, cp)) {
 		buf[0] = (duk_uint8_t) cp;
 		len = 1;
 	} else if (cp < 0x100L) {
@@ -18657,9 +18961,11 @@ static void duk_transform_callback_unescape(duk_transform_context *tfm_ctx, void
  *  Eval
  */
 
-int duk_builtin_global_object_eval(duk_context *ctx) {
+int duk_bi_global_object_eval(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h;
+	duk_activation *act_caller;
+	duk_activation *act_eval;
 	duk_activation *act;
 	duk_hcompiledfunction *func;
 	duk_hobject *outer_lex_env;
@@ -18688,10 +18994,17 @@ int duk_builtin_global_object_eval(duk_context *ctx) {
 	/* FIXME: uses internal API */
 
 	comp_flags = DUK_JS_COMPILE_FLAG_EVAL;
-	act = thr->callstack + thr->callstack_top - 2;  /* caller */
-	if (act->flags & DUK_ACT_FLAG_STRICT) {
+	act_caller = thr->callstack + thr->callstack_top - 2;  /* caller */
+	act_eval = thr->callstack + thr->callstack_top - 1;    /* this function */
+	if ((act_caller->flags & DUK_ACT_FLAG_STRICT) &&
+	    (act_eval->flags & DUK_ACT_FLAG_DIRECT_EVAL)) {
+		/* Only direct eval inherits strictness from calling code
+		 * (E5.1 Section 10.1.1).
+		 */
 		comp_flags |= DUK_JS_COMPILE_FLAG_STRICT;
 	}
+	act_caller = NULL;  /* avoid dereference after potential callstack realloc */
+	act_eval = NULL;
 
 	duk_push_hstring_stridx(ctx, DUK_STRIDX_INPUT);  /* XXX: copy from caller? */
 	duk_js_compile(thr, comp_flags);
@@ -18790,7 +19103,7 @@ int duk_builtin_global_object_eval(duk_context *ctx) {
  *  Parsing of ints and floats
  */
 
-int duk_builtin_global_object_parse_int(duk_context *ctx) {
+int duk_bi_global_object_parse_int(duk_context *ctx) {
 	int strip_prefix;
 	duk_int32_t radix;
 	int s2n_flags;
@@ -18831,7 +19144,7 @@ int duk_builtin_global_object_parse_int(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_global_object_parse_float(duk_context *ctx) {
+int duk_bi_global_object_parse_float(duk_context *ctx) {
 	int s2n_flags;
 
 	DUK_ASSERT_TOP(ctx, 1);
@@ -18856,13 +19169,13 @@ int duk_builtin_global_object_parse_float(duk_context *ctx) {
 /*
  *  Number checkers
  */
-int duk_builtin_global_object_is_nan(duk_context *ctx) {
+int duk_bi_global_object_is_nan(duk_context *ctx) {
 	double d = duk_to_number(ctx, 0);
 	duk_push_boolean(ctx, DUK_ISNAN(d));
 	return 1;
 }
 
-int duk_builtin_global_object_is_finite(duk_context *ctx) {
+int duk_bi_global_object_is_finite(duk_context *ctx) {
 	double d = duk_to_number(ctx, 0);
 	duk_push_boolean(ctx, DUK_ISFINITE(d));
 	return 1;
@@ -18872,36 +19185,38 @@ int duk_builtin_global_object_is_finite(duk_context *ctx) {
  *  URI handling
  */
 
-int duk_builtin_global_object_decode_uri(duk_context *ctx) {
+int duk_bi_global_object_decode_uri(duk_context *ctx) {
 	return transform_helper(ctx, duk_transform_callback_decode_uri, (void *) decode_uri_reserved_table);
 }
 
-int duk_builtin_global_object_decode_uri_component(duk_context *ctx) {
+int duk_bi_global_object_decode_uri_component(duk_context *ctx) {
 	return transform_helper(ctx, duk_transform_callback_decode_uri, (void *) decode_uri_component_reserved_table);
 }
 
-int duk_builtin_global_object_encode_uri(duk_context *ctx) {
+int duk_bi_global_object_encode_uri(duk_context *ctx) {
 	return transform_helper(ctx, duk_transform_callback_encode_uri, (void *) encode_uri_unescaped_table);
 }
 
-int duk_builtin_global_object_encode_uri_component(duk_context *ctx) {
+int duk_bi_global_object_encode_uri_component(duk_context *ctx) {
 	return transform_helper(ctx, duk_transform_callback_encode_uri, (void *) encode_uri_component_unescaped_table);
 }
 
 #ifdef DUK_USE_SECTION_B
-int duk_builtin_global_object_escape(duk_context *ctx) {
+int duk_bi_global_object_escape(duk_context *ctx) {
 	return transform_helper(ctx, duk_transform_callback_escape, (void *) NULL);
 }
 
-int duk_builtin_global_object_unescape(duk_context *ctx) {
+int duk_bi_global_object_unescape(duk_context *ctx) {
 	return transform_helper(ctx, duk_transform_callback_unescape, (void *) NULL);
 }
 #else  /* DUK_USE_SECTION_B */
-int duk_builtin_global_object_escape(duk_context *ctx) {
+int duk_bi_global_object_escape(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 
-int duk_builtin_global_object_unescape(duk_context *ctx) {
+int duk_bi_global_object_unescape(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 #endif  /* DUK_USE_SECTION_B */
@@ -18958,33 +19273,35 @@ static int print_alert_helper(duk_context *ctx, FILE *f_out) {
 	return 0;
 }
 
-int duk_builtin_global_object_print(duk_context *ctx) {
+int duk_bi_global_object_print(duk_context *ctx) {
 	return print_alert_helper(ctx, stdout);
 }
 
-int duk_builtin_global_object_alert(duk_context *ctx) {
+int duk_bi_global_object_alert(duk_context *ctx) {
 	return print_alert_helper(ctx, stderr);
 }
 #else  /* DUK_USE_FILE_IO */
 /* Supported but no file I/O -> silently ignore, no error */
-int duk_builtin_global_object_print(duk_context *ctx) {
+int duk_bi_global_object_print(duk_context *ctx) {
 	return 0;
 }
 
-int duk_builtin_global_object_alert(duk_context *ctx) {
+int duk_bi_global_object_alert(duk_context *ctx) {
 	return 0;
 }
 #endif  /* DUK_USE_FILE_IO */
 #else  /* DUK_USE_BROWSER_LIKE */
-int duk_builtin_global_object_print(duk_context *ctx) {
+int duk_bi_global_object_print(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 
-int duk_builtin_global_object_alert(duk_context *ctx) {
+int duk_bi_global_object_alert(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 #endif  /* DUK_USE_BROWSER_LIKE */
-#line 1 "duk_builtin_json.c"
+#line 1 "duk_bi_json.c"
 /*
  *  JSON built-ins.
  *
@@ -19751,15 +20068,15 @@ static void json_dec_reviver_walk(duk_json_dec_ctx *js_ctx) {
  *  Stringify implementation.
  */
 
-#define EMIT_1(js_ctx,ch)          json_emit_1((js_ctx),(ch))
-#define EMIT_2(js_ctx,ch1,ch2)     json_emit_2((js_ctx),(((int)(ch1)) << 8) + (int)(ch2))
-#define EMIT_ESC_AUTO(js_ctx,cp)   json_emit_esc_auto((js_ctx),(cp))
-#define EMIT_XUTF8(js_ctx,cp)      json_emit_xutf8((js_ctx),(cp))
-#define EMIT_HSTR(js_ctx,h)        json_emit_hstring((js_ctx),(h))
+#define DUK__EMIT_1(js_ctx,ch)          json_emit_1((js_ctx),(ch))
+#define DUK__EMIT_2(js_ctx,ch1,ch2)     json_emit_2((js_ctx),(((int)(ch1)) << 8) + (int)(ch2))
+#define DUK__EMIT_ESC_AUTO(js_ctx,cp)   json_emit_esc_auto((js_ctx),(cp))
+#define DUK__EMIT_XUTF8(js_ctx,cp)      json_emit_xutf8((js_ctx),(cp))
+#define DUK__EMIT_HSTR(js_ctx,h)        json_emit_hstring((js_ctx),(h))
 #if defined(DUK_USE_JSONX) || defined(DUK_USE_JSONC)
-#define EMIT_CSTR(js_ctx,p)        json_emit_cstring((js_ctx),(p))
+#define DUK__EMIT_CSTR(js_ctx,p)        json_emit_cstring((js_ctx),(p))
 #endif
-#define EMIT_STRIDX(js_ctx,i)      json_emit_stridx((js_ctx),(i))
+#define DUK__EMIT_STRIDX(js_ctx,i)      json_emit_stridx((js_ctx),(i))
 
 static void json_emit_1(duk_json_enc_ctx *js_ctx, char ch) {
 	duk_hbuffer_append_byte(js_ctx->thr, js_ctx->h_buf, (duk_uint8_t) ch);
@@ -19772,7 +20089,7 @@ static void json_emit_2(duk_json_enc_ctx *js_ctx, int chars) {
 	duk_hbuffer_append_bytes(js_ctx->thr, js_ctx->h_buf, (duk_uint8_t *) buf, 2);
 }
 
-#define MKESC(nybbles,esc1,esc2)  \
+#define DUK__MKESC(nybbles,esc1,esc2)  \
 	(((duk_int_t) (nybbles)) << 16) | \
 	(((duk_int_t) (esc1)) << 8) | \
 	((duk_int_t) (esc2))
@@ -19791,18 +20108,18 @@ static void json_emit_esc_auto(duk_json_enc_ctx *js_ctx, duk_uint32_t cp) {
 #ifdef DUK_USE_JSONX
 	if (DUK_LIKELY(cp < 0x100)) {
 		if (DUK_UNLIKELY(js_ctx->flag_ext_custom)) {
-			tmp = MKESC(2, '\\', 'x');
+			tmp = DUK__MKESC(2, '\\', 'x');
 		} else {
-			tmp = MKESC(4, '\\', 'u');
+			tmp = DUK__MKESC(4, '\\', 'u');
 		}
 	} else
 #endif
 	if (DUK_LIKELY(cp < 0x10000)) {
-		tmp = MKESC(4, '\\', 'u');
+		tmp = DUK__MKESC(4, '\\', 'u');
 	} else {
 #ifdef DUK_USE_JSONX
 		if (DUK_LIKELY(js_ctx->flag_ext_custom)) {
-			tmp = MKESC(8, '\\', 'U');
+			tmp = DUK__MKESC(8, '\\', 'U');
 		} else
 #endif
 		{
@@ -19811,7 +20128,7 @@ static void json_emit_esc_auto(duk_json_enc_ctx *js_ctx, duk_uint32_t cp) {
 			 * roundtrip but will still be more or less readable and
 			 * more useful than an error.
 			 */
-			tmp = MKESC(8, 'U', '+');
+			tmp = DUK__MKESC(8, 'U', '+');
 		}
 	}
 
@@ -19915,7 +20232,7 @@ static void json_enc_quote_string(duk_json_enc_ctx *js_ctx, duk_hstring *h_str) 
 	p_end = p_start + DUK_HSTRING_GET_BYTELEN(h_str);
 	p = p_start;
 
-	EMIT_1(js_ctx, '"');
+	DUK__EMIT_1(js_ctx, '"');
 
 	while (p < p_end) {
 		cp = *p;
@@ -19925,7 +20242,7 @@ static void json_enc_quote_string(duk_json_enc_ctx *js_ctx, duk_hstring *h_str) 
 			p++;
 			if (cp == 0x22 || cp == 0x5c) {
 				/* double quote or backslash */
-				EMIT_2(js_ctx, '\\', (char) cp);
+				DUK__EMIT_2(js_ctx, '\\', (char) cp);
 			} else if (cp < 0x20) {
 				char esc_char;
 
@@ -19934,15 +20251,15 @@ static void json_enc_quote_string(duk_json_enc_ctx *js_ctx, duk_hstring *h_str) 
 				 */
 				if (cp < sizeof(quote_esc) &&
 				    (esc_char = quote_esc[cp]) != (char) 0) {
-					EMIT_2(js_ctx, '\\', esc_char);
+					DUK__EMIT_2(js_ctx, '\\', esc_char);
 				} else {
-					EMIT_ESC_AUTO(js_ctx, cp);
+					DUK__EMIT_ESC_AUTO(js_ctx, cp);
 				}
 			} else if (cp == 0x7f && js_ctx->flag_ascii_only) {
-				EMIT_ESC_AUTO(js_ctx, cp);
+				DUK__EMIT_ESC_AUTO(js_ctx, cp);
 			} else {
 				/* any other printable -> as is */
-				EMIT_1(js_ctx, (char) cp);
+				DUK__EMIT_1(js_ctx, (char) cp);
 			}
 		} else {
 			/* slow path decode */
@@ -19968,15 +20285,15 @@ static void json_enc_quote_string(duk_json_enc_ctx *js_ctx, duk_hstring *h_str) 
 			}
 
 			if (js_ctx->flag_ascii_only) {
-				EMIT_ESC_AUTO(js_ctx, cp);
+				DUK__EMIT_ESC_AUTO(js_ctx, cp);
 			} else {
 				/* as is */
-				EMIT_XUTF8(js_ctx, cp);
+				DUK__EMIT_XUTF8(js_ctx, cp);
 			}
 		}
 	}
 
-	EMIT_1(js_ctx, '"');
+	DUK__EMIT_1(js_ctx, '"');
 }
 
 /* Shared entry handling for object/array serialization: indent/stepback,
@@ -20119,7 +20436,7 @@ static void json_enc_object(duk_json_enc_ctx *js_ctx) {
 
 	/* Steps 8-10 have been merged to avoid a "partial" variable. */
 
-	EMIT_1(js_ctx, '{');
+	DUK__EMIT_1(js_ctx, '{');
 
 	/* FIXME: keys is an internal object with all keys to be processed
 	 * in its (gapless) array part.  Because nobody can touch the keys
@@ -20148,26 +20465,26 @@ static void json_enc_object(duk_json_enc_ctx *js_ctx) {
 		if (first) {
 			first = 0;
 		} else {
-			EMIT_1(js_ctx, (char) ',');
+			DUK__EMIT_1(js_ctx, (char) ',');
 		}
 		if (h_indent != NULL) {
-			EMIT_1(js_ctx, (char) 0x0a);
-			EMIT_HSTR(js_ctx, h_indent);
+			DUK__EMIT_1(js_ctx, (char) 0x0a);
+			DUK__EMIT_HSTR(js_ctx, h_indent);
 		}
 
 		h_key = duk_get_hstring(ctx, -2);
 		DUK_ASSERT(h_key != NULL);
 		if (js_ctx->flag_avoid_key_quotes && !json_enc_key_quotes_needed(h_key)) {
 			/* emit key as is */
-			EMIT_HSTR(js_ctx, h_key);
+			DUK__EMIT_HSTR(js_ctx, h_key);
 		} else {
 			json_enc_quote_string(js_ctx, h_key);
 		}
 
 		if (h_indent != NULL) {
-			EMIT_2(js_ctx, ':', ' ');
+			DUK__EMIT_2(js_ctx, ':', ' ');
 		} else {
-			EMIT_1(js_ctx, ':');
+			DUK__EMIT_1(js_ctx, ':');
 		}
 
 		/* [ ... key val ] */
@@ -20178,11 +20495,11 @@ static void json_enc_object(duk_json_enc_ctx *js_ctx) {
 	if (!first) {
 		if (h_stepback != NULL) {
 			DUK_ASSERT(h_indent != NULL);
-			EMIT_1(js_ctx, (char) 0x0a);
-			EMIT_HSTR(js_ctx, h_stepback);
+			DUK__EMIT_1(js_ctx, (char) 0x0a);
+			DUK__EMIT_HSTR(js_ctx, h_stepback);
 		}
 	}
-	EMIT_1(js_ctx, '}');
+	DUK__EMIT_1(js_ctx, '}');
 
 	json_enc_objarr_shared_exit(js_ctx, &h_stepback, &h_indent, &entry_top);
 
@@ -20211,7 +20528,7 @@ static void json_enc_array(duk_json_enc_ctx *js_ctx) {
 
 	/* Steps 8-10 have been merged to avoid a "partial" variable. */
 
-	EMIT_1(js_ctx, '[');
+	DUK__EMIT_1(js_ctx, '[');
 
 	arr_len = duk_get_length(ctx, idx_arr);
 	for (i = 0; i < arr_len; i++) {
@@ -20219,11 +20536,11 @@ static void json_enc_array(duk_json_enc_ctx *js_ctx) {
 		             duk_get_tval(ctx, idx_arr), h_indent, h_stepback, i, arr_len);
 
 		if (i > 0) {
-			EMIT_1(js_ctx, ',');
+			DUK__EMIT_1(js_ctx, ',');
 		}
 		if (h_indent != NULL) {
-			EMIT_1(js_ctx, (char) 0x0a);
-			EMIT_HSTR(js_ctx, h_indent);
+			DUK__EMIT_1(js_ctx, (char) 0x0a);
+			DUK__EMIT_HSTR(js_ctx, h_indent);
 		}
 
 		/* FIXME: duk_push_uint_string() */
@@ -20232,7 +20549,7 @@ static void json_enc_array(duk_json_enc_ctx *js_ctx) {
 		undef = json_enc_value1(js_ctx, idx_arr);
 
 		if (undef) {
-			EMIT_STRIDX(js_ctx, DUK_STRIDX_NULL);
+			DUK__EMIT_STRIDX(js_ctx, DUK_STRIDX_NULL);
 		} else {
 			/* [ ... key val ] */
 			json_enc_value2(js_ctx);
@@ -20242,11 +20559,11 @@ static void json_enc_array(duk_json_enc_ctx *js_ctx) {
 	if (arr_len > 0) {
 		if (h_stepback != NULL) {
 			DUK_ASSERT(h_indent != NULL);
-			EMIT_1(js_ctx, (char) 0x0a);
-			EMIT_HSTR(js_ctx, h_stepback);
+			DUK__EMIT_1(js_ctx, (char) 0x0a);
+			DUK__EMIT_HSTR(js_ctx, h_stepback);
 		}
 	}
-	EMIT_1(js_ctx, ']');
+	DUK__EMIT_1(js_ctx, ']');
 
 	json_enc_objarr_shared_exit(js_ctx, &h_stepback, &h_indent, &entry_top);
 
@@ -20399,17 +20716,17 @@ static void json_enc_value2(duk_json_enc_ctx *js_ctx) {
 #if defined(DUK_USE_JSONX) || defined(DUK_USE_JSONC)
 	/* When JSONX/JSONC not in use, json_enc_value1 will block undefined values. */
 	case DUK_TAG_UNDEFINED: {
-		EMIT_STRIDX(js_ctx, js_ctx->stridx_custom_undefined);
+		DUK__EMIT_STRIDX(js_ctx, js_ctx->stridx_custom_undefined);
 		break;
 	}
 #endif
 	case DUK_TAG_NULL: {
-		EMIT_STRIDX(js_ctx, DUK_STRIDX_NULL);
+		DUK__EMIT_STRIDX(js_ctx, DUK_STRIDX_NULL);
 		break;
 	}
 	case DUK_TAG_BOOLEAN: {
-		EMIT_STRIDX(js_ctx, DUK_TVAL_GET_BOOLEAN(tv) ?
-		            DUK_STRIDX_TRUE : DUK_STRIDX_FALSE);
+		DUK__EMIT_STRIDX(js_ctx, DUK_TVAL_GET_BOOLEAN(tv) ?
+		                 DUK_STRIDX_TRUE : DUK_STRIDX_FALSE);
 		break;
 	}
 #if defined(DUK_USE_JSONX) || defined(DUK_USE_JSONC)
@@ -20419,16 +20736,31 @@ static void json_enc_value2(duk_json_enc_ctx *js_ctx) {
 		const char *fmt;
 		void *ptr = DUK_TVAL_GET_POINTER(tv);
 
-		/* FIXME: more refined ifdef */
 		DUK_MEMSET(buf, 0, sizeof(buf));
-		if (js_ctx->flag_ext_custom) {
+
+		/* The #ifdef clutter here needs to handle the three cases:
+		 * (1) JSONX+JSONC, (2) JSONX only, (3) JSONC only.
+		 */
+#if defined(DUK_USE_JSONX) && defined(DUK_USE_JSONC)
+		if (js_ctx->flag_ext_custom)
+#endif
+#if defined(DUK_USE_JSONX)
+		{
 			fmt = ptr ? "(%p)" : "(null)";
-		} else {
+		}
+#endif
+#if defined(DUK_USE_JSONX) && defined(DUK_USE_JSONC)
+		else
+#endif
+#if defined(DUK_USE_JSONC)
+		{
 			fmt = ptr ? "{\"_ptr\":\"%p\"}" : "{\"_ptr\":\"null\"}";
 		}
+#endif
+
 		/* When ptr == NULL, the format argument is unused. */
 		DUK_SNPRINTF(buf, sizeof(buf) - 1, fmt, ptr);  /* must not truncate */
-		EMIT_CSTR(js_ctx, buf);
+		DUK__EMIT_CSTR(js_ctx, buf);
 		break;
 	}
 #endif  /* DUK_USE_JSONX || DUK_USE_JSONC */
@@ -20447,7 +20779,7 @@ static void json_enc_value2(duk_json_enc_ctx *js_ctx) {
 		if (DUK_HOBJECT_IS_CALLABLE(h)) {
 			/* We only get here when doing non-standard JSON encoding */
 			DUK_ASSERT(js_ctx->flag_ext_custom || js_ctx->flag_ext_compatible);
-			EMIT_STRIDX(js_ctx, js_ctx->stridx_custom_function);
+			DUK__EMIT_STRIDX(js_ctx, js_ctx->stridx_custom_function);
 		} else  /* continues below */
 #endif
 		if (DUK_HOBJECT_GET_CLASS_NUMBER(h) == DUK_HOBJECT_CLASS_ARRAY) {
@@ -20460,35 +20792,49 @@ static void json_enc_value2(duk_json_enc_ctx *js_ctx) {
 #if defined(DUK_USE_JSONX) || defined(DUK_USE_JSONC)
 	/* When JSONX/JSONC not in use, json_enc_value1 will block buffer values. */
 	case DUK_TAG_BUFFER: {
-		duk_hbuffer *h = DUK_TVAL_GET_BUFFER(tv);
-		DUK_ASSERT(h != NULL);
-
 		/* Buffer values are encoded in (lowercase) hex to make the
 		 * binary data readable.  Base64 or similar would be more
 		 * compact but less readable, and the point of JSONX/JSONC
 		 * variants is to be as useful to a programmer as possible.
 		 */
 
-		/* FIXME: more refined ifdef */
-		if (js_ctx->flag_ext_custom) {
+		/* The #ifdef clutter here needs to handle the three cases:
+		 * (1) JSONX+JSONC, (2) JSONX only, (3) JSONC only.
+		 */
+#if defined(DUK_USE_JSONX) && defined(DUK_USE_JSONC)
+		if (js_ctx->flag_ext_custom)
+#endif
+#if defined(DUK_USE_JSONX)
+		{
 			duk_uint8_t *p, *p_end;
 			int x;
+			duk_hbuffer *h;
+
+			h = DUK_TVAL_GET_BUFFER(tv);
+			DUK_ASSERT(h != NULL);
 			p = (duk_uint8_t *) DUK_HBUFFER_GET_DATA_PTR(h);
 			p_end = p + DUK_HBUFFER_GET_SIZE(h);
-			EMIT_1(js_ctx, '|');
+			DUK__EMIT_1(js_ctx, '|');
 			while (p < p_end) {
 				x = (int) *p++;
 				duk_hbuffer_append_byte(js_ctx->thr, js_ctx->h_buf, duk_lc_digits[(x >> 4) & 0x0f]);
 				duk_hbuffer_append_byte(js_ctx->thr, js_ctx->h_buf, duk_lc_digits[x & 0x0f]);
 			}
-			EMIT_1(js_ctx, '|');
-		} else {
+			DUK__EMIT_1(js_ctx, '|');
+		}
+#endif
+#if defined(DUK_USE_JSONX) && defined(DUK_USE_JSONC)
+		else
+#endif
+#if defined(DUK_USE_JSONC)
+		{
 			DUK_ASSERT(js_ctx->flag_ext_compatible);
 			duk_hex_encode(ctx, -1);
-			EMIT_CSTR(js_ctx, "{\"_buf\":");
+			DUK__EMIT_CSTR(js_ctx, "{\"_buf\":");
 			json_enc_quote_string(js_ctx, duk_require_hstring(ctx, -1));
-			EMIT_1(js_ctx, '}');
+			DUK__EMIT_1(js_ctx, '}');
 		}
+#endif
 		break;
 	}
 #endif  /* DUK_USE_JSONX || DUK_USE_JSONC */
@@ -20514,11 +20860,9 @@ static void json_enc_value2(duk_json_enc_ctx *js_ctx) {
 			duk_numconv_stringify(ctx, 10 /*radix*/, 0 /*digits*/, n2s_flags);
 			h_str = duk_to_hstring(ctx, -1);
 			DUK_ASSERT(h_str != NULL);
-			EMIT_HSTR(js_ctx, h_str);
+			DUK__EMIT_HSTR(js_ctx, h_str);
 			break;
 		}
-
-		/* FIXME: awkward check */
 
 #if defined(DUK_USE_JSONX) || defined(DUK_USE_JSONC)
 		if (!(js_ctx->flags & (DUK_JSON_FLAG_EXT_CUSTOM |
@@ -20534,7 +20878,7 @@ static void json_enc_value2(duk_json_enc_ctx *js_ctx) {
 #else
 		stridx = DUK_STRIDX_NULL;
 #endif
-		EMIT_STRIDX(js_ctx, stridx);
+		DUK__EMIT_STRIDX(js_ctx, stridx);
 		break;
 	}
 	}
@@ -20568,7 +20912,7 @@ static int json_enc_allow_into_proplist(duk_tval *tv) {
  *  Top level wrappers
  */
 
-void duk_builtin_json_parse_helper(duk_context *ctx,
+void duk_bi_json_parse_helper(duk_context *ctx,
                                    int idx_value,
                                    int idx_reviver,
                                    int flags) {
@@ -20625,8 +20969,6 @@ void duk_builtin_json_parse_helper(duk_context *ctx,
 
 		js_ctx->idx_reviver = idx_reviver;
 
-		DUK_ASSERT_TOP(ctx, 3);
-
 		duk_push_object(ctx);
 		duk_dup(ctx, -2);  /* -> [ ... val root val ] */
 		duk_put_prop_stridx(ctx, -2, DUK_STRIDX_EMPTY_STRING);  /* default attrs ok */
@@ -20651,7 +20993,7 @@ void duk_builtin_json_parse_helper(duk_context *ctx,
 	DUK_ASSERT(duk_get_top(ctx) == top_at_entry + 1);
 }
 
-void duk_builtin_json_stringify_helper(duk_context *ctx,
+void duk_bi_json_stringify_helper(duk_context *ctx,
                                        int idx_value,
                                        int idx_replacer,
                                        int idx_space,
@@ -20698,8 +21040,11 @@ void duk_builtin_json_stringify_helper(duk_context *ctx,
 	js_ctx->flag_ext_compatible = flags & DUK_JSON_FLAG_EXT_COMPATIBLE;
 #endif
 
-	/* FIXME: conditional, proper refined condition */
+	/* The #ifdef clutter here handles the JSONX/JSONC enable/disable
+	 * combinations properly.
+	 */
 #if defined(DUK_USE_JSONX) || defined(DUK_USE_JSONC)
+#if defined(DUK_USE_JSONX)
 	if (flags & DUK_JSON_FLAG_EXT_CUSTOM) {
 		js_ctx->stridx_custom_undefined = DUK_STRIDX_UNDEFINED;
 		js_ctx->stridx_custom_nan = DUK_STRIDX_NAN;
@@ -20709,20 +21054,30 @@ void duk_builtin_json_stringify_helper(duk_context *ctx,
 		        (flags & DUK_JSON_FLAG_AVOID_KEY_QUOTES) ?
 		                DUK_STRIDX_JSON_EXT_FUNCTION2 :
 		                DUK_STRIDX_JSON_EXT_FUNCTION1;
-	} else if (js_ctx->flags & DUK_JSON_FLAG_EXT_COMPATIBLE) {
+	}
+#endif  /* DUK_USE_JSONX */
+#if defined(DUK_USE_JSONX) && defined(DUK_USE_JSONC)
+	else
+#endif  /* DUK_USE_JSONX && DUK_USE_JSONC */
+#if defined(DUK_USE_JSONC)
+	if (js_ctx->flags & DUK_JSON_FLAG_EXT_COMPATIBLE) {
 		js_ctx->stridx_custom_undefined = DUK_STRIDX_JSON_EXT_UNDEFINED;
 		js_ctx->stridx_custom_nan = DUK_STRIDX_JSON_EXT_NAN;
 		js_ctx->stridx_custom_neginf = DUK_STRIDX_JSON_EXT_NEGINF;
 		js_ctx->stridx_custom_posinf = DUK_STRIDX_JSON_EXT_POSINF;
 		js_ctx->stridx_custom_function = DUK_STRIDX_JSON_EXT_FUNCTION1;
 	}
+#endif  /* DUK_USE_JSONC */
 #endif  /* DUK_USE_JSONX || DUK_USE_JSONC */
 
-	/* FIXME: conditional */
+#if defined(DUK_USE_JSONX) || defined(DUK_USE_JSONC)
 	if (js_ctx->flags & (DUK_JSON_FLAG_EXT_CUSTOM |
 	                     DUK_JSON_FLAG_EXT_COMPATIBLE)) {
 		DUK_ASSERT(js_ctx->mask_for_undefined == 0);  /* already zero */
-	} else {
+	}
+	else
+#endif  /* DUK_USE_JSONX || DUK_USE_JSONC */
+	{
 		js_ctx->mask_for_undefined = DUK_TYPE_MASK_UNDEFINED |
 		                             DUK_TYPE_MASK_POINTER |
 		                             DUK_TYPE_MASK_BUFFER;
@@ -20914,24 +21269,24 @@ void duk_builtin_json_stringify_helper(duk_context *ctx,
  *  Entry points
  */
 
-int duk_builtin_json_object_parse(duk_context *ctx) {
-	duk_builtin_json_parse_helper(ctx,
-	                              0 /*idx_value*/,
-	                              1 /*idx_replacer*/,
-	                              0 /*flags*/);
+int duk_bi_json_object_parse(duk_context *ctx) {
+	duk_bi_json_parse_helper(ctx,
+	                         0 /*idx_value*/,
+	                         1 /*idx_replacer*/,
+	                         0 /*flags*/);
 	return 1;
 }
 
-int duk_builtin_json_object_stringify(duk_context *ctx) {
-	duk_builtin_json_stringify_helper(ctx,
-	                                  0 /*idx_value*/,
-	                                  1 /*idx_replacer*/,
-	                                  2 /*idx_space*/,
-	                                  0 /*flags*/);
+int duk_bi_json_object_stringify(duk_context *ctx) {
+	duk_bi_json_stringify_helper(ctx,
+	                             0 /*idx_value*/,
+	                             1 /*idx_replacer*/,
+	                             2 /*idx_space*/,
+	                             0 /*flags*/);
 	return 1;
 }
 
-#line 1 "duk_builtin_math.c"
+#line 1 "duk_bi_math.c"
 /*
  *  Math built-ins
  */
@@ -20942,14 +21297,17 @@ int duk_builtin_json_object_stringify(duk_context *ctx) {
  *  Use static helpers which can work with math.h functions matching
  *  the following signatures. This is not portable if any of these math
  *  functions is actually a macro.
+ *
+ *  Typing here is intentionally 'double' because that's what the standard
+ *  library APIs use.
  */
 
 typedef double (*one_arg_func)(double);
 typedef double (*two_arg_func)(double, double);
 
 static int math_minmax(duk_context *ctx, double initial, two_arg_func min_max) {
-	int n = duk_get_top(ctx);
-	int i;
+	duk_int_t n = duk_get_top(ctx);
+	duk_int_t i;
 	double res = initial;
 	double t;
 
@@ -21103,39 +21461,43 @@ static const two_arg_func two_arg_funcs[] = {
 	pow_fixed
 };
 
-int duk_builtin_math_object_onearg_shared(duk_context *ctx) {
-	int fun_idx = duk_get_magic(ctx);
+duk_ret_t duk_bi_math_object_onearg_shared(duk_context *ctx) {
+	duk_small_int_t fun_idx = duk_get_magic(ctx);
 	one_arg_func fun;
 
-	DUK_ASSERT(fun_idx >= 0 && fun_idx < sizeof(one_arg_funcs) / sizeof(one_arg_func));
+	DUK_ASSERT(fun_idx >= 0);
+	DUK_ASSERT(fun_idx < (duk_small_int_t) (sizeof(one_arg_funcs) / sizeof(one_arg_func)));
 	fun = one_arg_funcs[fun_idx];
-	duk_push_number(ctx, fun(duk_to_number(ctx, 0)));
+	/* FIXME: double typing here: double or duk_double_t? */
+	duk_push_number(ctx, fun((double) duk_to_number(ctx, 0)));
 	return 1;
 }
 
-int duk_builtin_math_object_twoarg_shared(duk_context *ctx) {
-	int fun_idx = duk_get_magic(ctx);
+duk_ret_t duk_bi_math_object_twoarg_shared(duk_context *ctx) {
+	duk_small_int_t fun_idx = duk_get_magic(ctx);
 	two_arg_func fun;
 
-	DUK_ASSERT(fun_idx >= 0 && fun_idx < sizeof(two_arg_funcs) / sizeof(two_arg_func));
+	DUK_ASSERT(fun_idx >= 0);
+	DUK_ASSERT(fun_idx < (duk_small_int_t) (sizeof(two_arg_funcs) / sizeof(two_arg_func)));
 	fun = two_arg_funcs[fun_idx];
-	duk_push_number(ctx, fun(duk_to_number(ctx, 0), duk_to_number(ctx, 1)));
+	/* FIXME: double typing here: double or duk_double_t? */
+	duk_push_number(ctx, fun((double) duk_to_number(ctx, 0), (double) duk_to_number(ctx, 1)));
 	return 1;
 }
 
-int duk_builtin_math_object_max(duk_context *ctx) {
+duk_ret_t duk_bi_math_object_max(duk_context *ctx) {
 	return math_minmax(ctx, -DUK_DOUBLE_INFINITY, fmax_fixed);
 }
 
-int duk_builtin_math_object_min(duk_context *ctx) {
+duk_ret_t duk_bi_math_object_min(duk_context *ctx) {
 	return math_minmax(ctx, DUK_DOUBLE_INFINITY, fmin_fixed);
 }
 
-int duk_builtin_math_object_random(duk_context *ctx) {
-	duk_push_number(ctx, (double) duk_util_tinyrandom_get_double((duk_hthread *) ctx));
+duk_ret_t duk_bi_math_object_random(duk_context *ctx) {
+	duk_push_number(ctx, (duk_double_t) duk_util_tinyrandom_get_double((duk_hthread *) ctx));
 	return 1;
 }
-#line 1 "duk_builtin_number.c"
+#line 1 "duk_bi_number.c"
 /*
  *  Number built-ins
  */
@@ -21173,7 +21535,7 @@ static double push_this_number_plain(duk_context *ctx) {
 	return duk_get_number(ctx, -1);
 }
 
-int duk_builtin_number_constructor(duk_context *ctx) {
+int duk_bi_number_constructor(duk_context *ctx) {
 	int nargs;
 	duk_hobject *h_this;
 
@@ -21224,12 +21586,12 @@ int duk_builtin_number_constructor(duk_context *ctx) {
 	return 0;  /* no return value -> don't replace created value */
 }
 
-int duk_builtin_number_prototype_value_of(duk_context *ctx) {
+int duk_bi_number_prototype_value_of(duk_context *ctx) {
 	(void) push_this_number_plain(ctx);
 	return 1;
 }
 
-int duk_builtin_number_prototype_to_string(duk_context *ctx) {
+int duk_bi_number_prototype_to_string(duk_context *ctx) {
 	int radix;
 	int n2s_flags;
 
@@ -21250,11 +21612,11 @@ int duk_builtin_number_prototype_to_string(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_number_prototype_to_locale_string(duk_context *ctx) {
+int duk_bi_number_prototype_to_locale_string(duk_context *ctx) {
 	/* FIXME: just use toString() for now; permitted although not recommended.
 	 * nargs==1, so radix is passed to toString().
 	 */
-	return duk_builtin_number_prototype_to_string(ctx);
+	return duk_bi_number_prototype_to_string(ctx);
 }
 
 /*
@@ -21263,7 +21625,7 @@ int duk_builtin_number_prototype_to_locale_string(duk_context *ctx) {
 
 /* FIXME: shared helper for toFixed(), toExponential(), toPrecision()? */
 
-int duk_builtin_number_prototype_to_fixed(duk_context *ctx) {
+int duk_bi_number_prototype_to_fixed(duk_context *ctx) {
 	int frac_digits;
 	double d;
 	int c;
@@ -21296,7 +21658,7 @@ int duk_builtin_number_prototype_to_fixed(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_number_prototype_to_exponential(duk_context *ctx) {
+int duk_bi_number_prototype_to_exponential(duk_context *ctx) {
 	int frac_undefined;
 	int frac_digits;
 	double d;
@@ -21330,7 +21692,7 @@ int duk_builtin_number_prototype_to_exponential(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_number_prototype_to_precision(duk_context *ctx) {
+int duk_bi_number_prototype_to_precision(duk_context *ctx) {
 	/* The specification has quite awkward order of coercion and
 	 * checks for toPrecision().  The operations below are a bit
 	 * reordered, within constraints of observable side effects.
@@ -21377,14 +21739,14 @@ int duk_builtin_number_prototype_to_precision(duk_context *ctx) {
 	return 1;
 }
 
-#line 1 "duk_builtin_object.c"
+#line 1 "duk_bi_object.c"
 /*
  *  Object built-ins
  */
 
 /* include removed: duk_internal.h */
 
-int duk_builtin_object_constructor(duk_context *ctx) {
+int duk_bi_object_constructor(duk_context *ctx) {
 	if (!duk_is_constructor_call(ctx) &&
 	    !duk_is_null_or_undefined(ctx, 0)) {
 		duk_to_object(ctx, 0);
@@ -21411,7 +21773,7 @@ int duk_builtin_object_constructor(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_get_prototype_of(duk_context *ctx) {
+int duk_bi_object_constructor_get_prototype_of(duk_context *ctx) {
 	duk_hobject *h;
 
 	h = duk_require_hobject(ctx, 0);
@@ -21429,19 +21791,19 @@ int duk_builtin_object_constructor_get_prototype_of(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_get_own_property_descriptor(duk_context *ctx) {
+int duk_bi_object_constructor_get_own_property_descriptor(duk_context *ctx) {
 	/* FIXME: no need for indirect call */
 	return duk_hobject_object_get_own_property_descriptor(ctx);
 }
 
-int duk_builtin_object_constructor_get_own_property_names(duk_context *ctx) {
+int duk_bi_object_constructor_get_own_property_names(duk_context *ctx) {
 	DUK_ASSERT_TOP(ctx, 1);
 	(void) duk_require_hobject(ctx, 0);
 	return duk_hobject_get_enumerated_keys(ctx, DUK_ENUM_INCLUDE_NONENUMERABLE |
 	                                            DUK_ENUM_OWN_PROPERTIES_ONLY);
 }
 
-int duk_builtin_object_constructor_create(duk_context *ctx) {
+int duk_bi_object_constructor_create(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_tval *tv;
 	duk_hobject *proto = NULL;
@@ -21489,12 +21851,12 @@ int duk_builtin_object_constructor_create(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_define_property(duk_context *ctx) {
+int duk_bi_object_constructor_define_property(duk_context *ctx) {
 	/* FIXME: no need for indirect call */
 	return duk_hobject_object_define_property(ctx);
 }
 
-int duk_builtin_object_constructor_define_properties(duk_context *ctx) {
+int duk_bi_object_constructor_define_properties(duk_context *ctx) {
 	/* FIXME: no need for indirect call */
 	return duk_hobject_object_define_properties(ctx);
 }
@@ -21516,15 +21878,15 @@ static int seal_freeze_helper(duk_context *ctx, int is_freeze) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_seal(duk_context *ctx) {
+int duk_bi_object_constructor_seal(duk_context *ctx) {
 	return seal_freeze_helper(ctx, 0);
 }
 
-int duk_builtin_object_constructor_freeze(duk_context *ctx) {
+int duk_bi_object_constructor_freeze(duk_context *ctx) {
 	return seal_freeze_helper(ctx, 1);
 }
 
-int duk_builtin_object_constructor_prevent_extensions(duk_context *ctx) {
+int duk_bi_object_constructor_prevent_extensions(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *h;
 
@@ -21541,7 +21903,7 @@ int duk_builtin_object_constructor_prevent_extensions(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_is_sealed(duk_context *ctx) {
+int duk_bi_object_constructor_is_sealed(duk_context *ctx) {
 	duk_hobject *h;
 	int rc;
 
@@ -21553,7 +21915,7 @@ int duk_builtin_object_constructor_is_sealed(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_is_frozen(duk_context *ctx) {
+int duk_bi_object_constructor_is_frozen(duk_context *ctx) {
 	duk_hobject *h;
 	int rc;
 
@@ -21565,7 +21927,7 @@ int duk_builtin_object_constructor_is_frozen(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_is_extensible(duk_context *ctx) {
+int duk_bi_object_constructor_is_extensible(duk_context *ctx) {
 	duk_hobject *h;
 
 	h = duk_require_hobject(ctx, 0);
@@ -21575,13 +21937,13 @@ int duk_builtin_object_constructor_is_extensible(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_constructor_keys(duk_context *ctx) {
+int duk_bi_object_constructor_keys(duk_context *ctx) {
 	DUK_ASSERT_TOP(ctx, 1);
 	(void) duk_require_hobject(ctx, 0);
 	return duk_hobject_get_enumerated_keys(ctx, DUK_ENUM_OWN_PROPERTIES_ONLY);
 }
 
-int duk_builtin_object_prototype_to_string(duk_context *ctx) {
+int duk_bi_object_prototype_to_string(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 
 	duk_push_this(ctx);
@@ -21610,7 +21972,7 @@ int duk_builtin_object_prototype_to_string(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_prototype_to_locale_string(duk_context *ctx) {
+int duk_bi_object_prototype_to_locale_string(duk_context *ctx) {
 	DUK_ASSERT_TOP(ctx, 0);
 	(void) duk_push_this_coercible_to_object(ctx);
 	duk_get_prop_stridx(ctx, 0, DUK_STRIDX_TO_STRING);
@@ -21622,12 +21984,12 @@ int duk_builtin_object_prototype_to_locale_string(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_prototype_value_of(duk_context *ctx) {
+int duk_bi_object_prototype_value_of(duk_context *ctx) {
 	(void) duk_push_this_coercible_to_object(ctx);
 	return 1;
 }
 
-int duk_builtin_object_prototype_is_prototype_of(duk_context *ctx) {
+int duk_bi_object_prototype_is_prototype_of(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *h_v;
 	duk_hobject *h_obj;
@@ -21648,15 +22010,15 @@ int duk_builtin_object_prototype_is_prototype_of(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_object_prototype_has_own_property(duk_context *ctx) {
+int duk_bi_object_prototype_has_own_property(duk_context *ctx) {
 	return duk_hobject_object_ownprop_helper(ctx, 0 /*required_desc_flags*/);
 }
 
-int duk_builtin_object_prototype_property_is_enumerable(duk_context *ctx) {
+int duk_bi_object_prototype_property_is_enumerable(duk_context *ctx) {
 	return duk_hobject_object_ownprop_helper(ctx, DUK_PROPDESC_FLAG_ENUMERABLE /*required_desc_flags*/);
 }
 
-#line 1 "duk_builtin_pointer.c"
+#line 1 "duk_bi_pointer.c"
 /*
  *  Pointer built-ins
  */
@@ -21667,7 +22029,7 @@ int duk_builtin_object_prototype_property_is_enumerable(duk_context *ctx) {
  *  Constructor
  */
 
-int duk_builtin_pointer_constructor(duk_context *ctx) {
+int duk_bi_pointer_constructor(duk_context *ctx) {
 	/* FIXME: this behavior is quite useless now; it would be nice to be able
 	 * to create pointer values from e.g. numbers or strings.  Numbers are
 	 * problematic on 64-bit platforms though.  Hex encoded strings?
@@ -21699,7 +22061,7 @@ int duk_builtin_pointer_constructor(duk_context *ctx) {
  *  toString(), valueOf()
  */
 
-int duk_builtin_pointer_prototype_tostring_shared(duk_context *ctx) {
+int duk_bi_pointer_prototype_tostring_shared(duk_context *ctx) {
 	duk_tval *tv;
 	int to_string = duk_get_magic(ctx);
 
@@ -21732,7 +22094,7 @@ int duk_builtin_pointer_prototype_tostring_shared(duk_context *ctx) {
 	return DUK_RET_TYPE_ERROR;
 }
 
-#line 1 "duk_builtin_regexp.c"
+#line 1 "duk_bi_regexp.c"
 /*
  *  RegExp built-ins
  */
@@ -21752,7 +22114,7 @@ static void get_this_regexp(duk_context *ctx) {
 }
 
 /* FIXME: much to improve (code size) */
-int duk_builtin_regexp_constructor(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_constructor(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *h_pattern;
 
@@ -21831,7 +22193,7 @@ int duk_builtin_regexp_constructor(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_regexp_prototype_exec(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_prototype_exec(duk_context *ctx) {
 	get_this_regexp(ctx);
 
 	/* [ regexp input ] */
@@ -21843,7 +22205,7 @@ int duk_builtin_regexp_prototype_exec(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_regexp_prototype_test(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_prototype_test(duk_context *ctx) {
 	get_this_regexp(ctx);
 
 	/* [ regexp input ] */
@@ -21858,9 +22220,32 @@ int duk_builtin_regexp_prototype_test(duk_context *ctx) {
 	return 1;
 }
 
-int duk_builtin_regexp_prototype_to_string(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_prototype_to_string(duk_context *ctx) {
 	duk_hstring *h_bc;
-	int re_flags;
+	duk_small_int_t re_flags;
+
+#if 0
+	/* A little tricky string approach to provide the flags string.
+	 * This depends on the specific flag values in duk_regexp.h,
+	 * which needs to be asserted for.  In practice this doesn't
+	 * produce more compact code than the easier approach in use.
+	 */
+
+	const char *flag_strings = "gim\0gi\0gm\0g\0";
+	duk_uint8_t flag_offsets[8] = {
+		(duk_uint8_t) 3,   /* flags: ""    */
+		(duk_uint8_t) 10,  /* flags: "g"   */
+		(duk_uint8_t) 5,   /* flags: "i"   */
+		(duk_uint8_t) 4,   /* flags: "gi"  */
+		(duk_uint8_t) 2,   /* flags: "m"   */
+		(duk_uint8_t) 7,   /* flags: "gm"  */
+		(duk_uint8_t) 1,   /* flags: "im"  */
+		(duk_uint8_t) 0,   /* flags: "gim" */
+	};
+	DUK_ASSERT(DUK_RE_FLAG_GLOBAL == 1);
+	DUK_ASSERT(DUK_RE_FLAG_IGNORE_CASE == 2);
+	DUK_ASSERT(DUK_RE_FLAG_MULTILINE == 4);
+#endif
 
 	get_this_regexp(ctx);
 
@@ -21873,58 +22258,58 @@ int duk_builtin_regexp_prototype_to_string(duk_context *ctx) {
 	DUK_ASSERT(DUK_HSTRING_GET_BYTELEN(h_bc) >= 1);
 	DUK_ASSERT(DUK_HSTRING_GET_CHARLEN(h_bc) >= 1);
 	DUK_ASSERT(DUK_HSTRING_GET_DATA(h_bc)[0] < 0x80);
-	re_flags = (int) DUK_HSTRING_GET_DATA(h_bc)[0];
+	re_flags = (duk_small_int_t) DUK_HSTRING_GET_DATA(h_bc)[0];
 
 	/* [ regexp source bytecode ] */
 
+#if 1
+	/* This is a cleaner approach and also produces smaller code than
+	 * the other alternative.
+	 */
 	duk_push_sprintf(ctx, "/%s/%s%s%s",
 	                 duk_get_string(ctx, -2),
 	                 (re_flags & DUK_RE_FLAG_GLOBAL) ? "g" : "",
 	                 (re_flags & DUK_RE_FLAG_IGNORE_CASE) ? "i" : "",
 	                 (re_flags & DUK_RE_FLAG_MULTILINE) ? "m" : "");
+#else
+	/* This should not be necessary because no-one should tamper with the
+	 * regexp bytecode, but is prudent to avoid potential segfaults if that
+	 * were to happen for some reason.
+	 */
+	re_flags &= 0x07;
+	DUK_ASSERT(re_flags >= 0 && re_flags <= 7);  /* three flags */
+	duk_push_sprintf(ctx, "/%s/%s",
+	                 duk_get_string(ctx, -2),
+	                 flag_strings + flag_offsets[re_flags]);
+#endif
 
 	return 1;
 }
 
 #else  /* DUK_USE_REGEXP_SUPPORT */
 
-int duk_builtin_regexp_constructor(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_constructor(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 
-int duk_builtin_regexp_prototype_exec(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_prototype_exec(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 
-int duk_builtin_regexp_prototype_test(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_prototype_test(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 
-int duk_builtin_regexp_prototype_to_string(duk_context *ctx) {
+duk_ret_t duk_bi_regexp_prototype_to_string(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 
 #endif  /* DUK_USE_REGEXP_SUPPORT */
-
-/*
-
-could also map flag values as follows:
-
-"gim\0gi\0gm\0g\0"
-
-flags	desc		offset in above string
-0	(none)		3
-1	g		11	
-2	i		5
-3	gi		4
-4	m		2
-5	gm		7
-6	im		1
-7	gim		0
-
-*/
-
-#line 1 "duk_builtin_string.c"
+#line 1 "duk_bi_string.c"
 /*
  *  String built-ins
  */
@@ -21939,7 +22324,7 @@ flags	desc		offset in above string
  *  Constructor
  */
 
-duk_ret duk_builtin_string_constructor(duk_context *ctx) {
+duk_ret_t duk_bi_string_constructor(duk_context *ctx) {
 	/* String constructor needs to distinguish between an argument not given at all
 	 * vs. given as 'undefined'.  We're a vararg function to handle this properly.
 	 */
@@ -21968,10 +22353,10 @@ duk_ret duk_builtin_string_constructor(duk_context *ctx) {
 	return 1;
 }
 
-duk_ret duk_builtin_string_constructor_from_char_code(duk_context *ctx) {
+duk_ret_t duk_bi_string_constructor_from_char_code(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hbuffer_dynamic *h;
-	duk_idx i, n;
+	duk_idx_t i, n;
 	duk_ucodepoint_t cp;
 
 	/* XXX: It would be nice to build the string directly but ToUint16()
@@ -21997,7 +22382,7 @@ duk_ret duk_builtin_string_constructor_from_char_code(duk_context *ctx) {
  *  toString(), valueOf()
  */
 
-duk_ret duk_builtin_string_prototype_to_string(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_to_string(duk_context *ctx) {
 	duk_tval *tv;
 
 	duk_push_this(ctx);
@@ -22036,7 +22421,7 @@ duk_ret duk_builtin_string_prototype_to_string(duk_context *ctx) {
 
 /* FIXME: charAt() and charCodeAt() could probably use a shared helper. */
 
-duk_ret duk_builtin_string_prototype_char_at(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_char_at(duk_context *ctx) {
 	duk_int_t pos;  /* FIXME: type, duk_to_int() needs to be fixed */
 
 	/* FIXME: faster implementation */
@@ -22050,7 +22435,7 @@ duk_ret duk_builtin_string_prototype_char_at(duk_context *ctx) {
 	return 1;
 }
 
-duk_ret duk_builtin_string_prototype_char_code_at(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_char_code_at(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_int_t pos;  /* FIXME: type, duk_to_int() needs to be fixed */
 	duk_uint32_t boff;
@@ -22078,7 +22463,8 @@ duk_ret duk_builtin_string_prototype_char_code_at(duk_context *ctx) {
 
 	boff = duk_heap_strcache_offset_char2byte(thr, h, (duk_uint32_t) pos);
 	DUK_DDDPRINT("charCodeAt: pos=%d -> boff=%d, str=%!O", pos, boff, h);
-	DUK_ASSERT(boff >= 0 && boff < DUK_HSTRING_GET_BYTELEN(h));
+	DUK_ASSERT_DISABLE(boff >= 0);
+	DUK_ASSERT(boff < DUK_HSTRING_GET_BYTELEN(h));
 	p_start = DUK_HSTRING_GET_DATA(h);
 	p_end = p_start + DUK_HSTRING_GET_BYTELEN(h);
 	p = p_start + boff;
@@ -22097,7 +22483,7 @@ duk_ret duk_builtin_string_prototype_char_code_at(duk_context *ctx) {
 
 /* FIXME: any chance of merging these three similar algorithms? */
 
-duk_ret duk_builtin_string_prototype_substring(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_substring(duk_context *ctx) {
 	duk_hstring *h;
 	duk_int_t start_pos, end_pos;
 	duk_int_t len;
@@ -22130,7 +22516,7 @@ duk_ret duk_builtin_string_prototype_substring(duk_context *ctx) {
 }
 
 #ifdef DUK_USE_SECTION_B
-duk_ret duk_builtin_string_prototype_substr(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_substr(duk_context *ctx) {
 	duk_hstring *h;
 	duk_int_t start_pos, end_pos;
 	duk_int_t len;
@@ -22173,12 +22559,13 @@ duk_ret duk_builtin_string_prototype_substr(duk_context *ctx) {
 	return 1;
 }
 #else  /* DUK_USE_SECTION_B */
-duk_ret duk_builtin_string_prototype_substr(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_substr(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 #endif  /* DUK_USE_SECTION_B */
 
-duk_ret duk_builtin_string_prototype_slice(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_slice(duk_context *ctx) {
 	duk_hstring *h;
 	duk_int_t start_pos, end_pos;
 	duk_int_t len;
@@ -22218,7 +22605,7 @@ duk_ret duk_builtin_string_prototype_slice(duk_context *ctx) {
  *  Case conversion
  */
 
-duk_ret duk_builtin_string_prototype_caseconv_shared(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_caseconv_shared(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_small_int_t uppercase = duk_get_magic(ctx);
 
@@ -22231,7 +22618,7 @@ duk_ret duk_builtin_string_prototype_caseconv_shared(duk_context *ctx) {
  *  indexOf() and lastIndexOf()
  */
 
-duk_ret duk_builtin_string_prototype_indexof_shared(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_indexof_shared(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_this;
 	duk_hstring *h_search;
@@ -22342,7 +22729,7 @@ duk_ret duk_builtin_string_prototype_indexof_shared(duk_context *ctx) {
  * - API call to get_prop and to_boolean
  */
 
-duk_ret duk_builtin_string_prototype_replace(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_replace(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_input;
 	duk_hstring *h_repl;
@@ -22437,7 +22824,7 @@ duk_ret duk_builtin_string_prototype_replace(duk_context *ctx) {
 		 *  NOTE: the E5.1 specification is a bit vague how the RegExp should
 		 *  behave in the replacement process; e.g. is matching done first for
 		 *  all matches (in the global RegExp case) before any replacer calls
-		 *  are made?  See: test-builtin-string-proto-replace.js for discussion.
+		 *  are made?  See: test-bi-string-proto-replace.js for discussion.
 		 */
 
 		DUK_ASSERT_TOP(ctx, 4);
@@ -22544,7 +22931,7 @@ duk_ret duk_builtin_string_prototype_replace(duk_context *ctx) {
 		prev_match_end_boff = match_start_boff + DUK_HSTRING_GET_BYTELEN(h_match);
 
 		if (is_repl_func) {
-			duk_idx idx_args;
+			duk_idx_t idx_args;
 			duk_hstring *h_repl;
 
 			/* regexp res_obj is at index 4 */
@@ -22722,7 +23109,7 @@ duk_ret duk_builtin_string_prototype_replace(duk_context *ctx) {
 /* FIXME: remove unused variables (they are nominally used so compiled doesn't complain) */
 /* FIXME: general cleanup */
 
-int duk_builtin_string_prototype_split(duk_context *ctx) {
+int duk_bi_string_prototype_split(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_input;
 	duk_hstring *h_sep;
@@ -23004,7 +23391,7 @@ int duk_builtin_string_prototype_split(duk_context *ctx) {
  */
 
 #ifdef DUK_USE_REGEXP_SUPPORT
-static void to_regexp_helper(duk_context *ctx, duk_idx index, int force_new) {
+static void to_regexp_helper(duk_context *ctx, duk_idx_t index, int force_new) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *h;
 
@@ -23031,7 +23418,7 @@ static void to_regexp_helper(duk_context *ctx, duk_idx index, int force_new) {
 #endif  /* DUK_USE_REGEXP_SUPPORT */
 
 #ifdef DUK_USE_REGEXP_SUPPORT
-duk_ret duk_builtin_string_prototype_search(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_search(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 
 	/* Easiest way to implement the search required by the specification
@@ -23070,13 +23457,14 @@ duk_ret duk_builtin_string_prototype_search(duk_context *ctx) {
 	return 1;
 }
 #else  /* DUK_USE_REGEXP_SUPPORT */
-duk_ret duk_builtin_string_prototype_search(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_search(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 #endif  /* DUK_USE_REGEXP_SUPPORT */
 
 #ifdef DUK_USE_REGEXP_SUPPORT
-duk_ret duk_builtin_string_prototype_match(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_match(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_small_int_t global;
 	duk_int_t prev_last_index;
@@ -23151,12 +23539,13 @@ duk_ret duk_builtin_string_prototype_match(duk_context *ctx) {
 	return 1;  /* return 'res_arr' or 'null' */
 }
 #else  /* DUK_USE_REGEXP_SUPPORT */
-duk_ret duk_builtin_string_prototype_match(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_match(duk_context *ctx) {
+	DUK_UNREF(ctx);
 	return DUK_RET_UNSUPPORTED_ERROR;
 }
 #endif  /* DUK_USE_REGEXP_SUPPORT */
 
-duk_ret duk_builtin_string_prototype_concat(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_concat(duk_context *ctx) {
 	/* duk_concat() coerces arguments with ToString() in correct order */
 	(void) duk_push_this_coercible_to_string(ctx);
 	duk_insert(ctx, 0);  /* this is relatively expensive */
@@ -23164,7 +23553,7 @@ duk_ret duk_builtin_string_prototype_concat(duk_context *ctx) {
 	return 1;
 }
 
-duk_ret duk_builtin_string_prototype_trim(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_trim(duk_context *ctx) {
 	DUK_ASSERT_TOP(ctx, 0);
 	(void) duk_push_this_coercible_to_string(ctx);
 	duk_trim(ctx, 0);
@@ -23172,7 +23561,7 @@ duk_ret duk_builtin_string_prototype_trim(duk_context *ctx) {
 	return 1;
 }
 
-duk_ret duk_builtin_string_prototype_locale_compare(duk_context *ctx) {
+duk_ret_t duk_bi_string_prototype_locale_compare(duk_context *ctx) {
 	duk_hstring *h1;
 	duk_hstring *h2;
 	duk_size_t h1_len, h2_len, prefix_len;
@@ -23230,7 +23619,7 @@ duk_ret duk_builtin_string_prototype_locale_compare(duk_context *ctx) {
 	return 1;
 }
 
-#line 1 "duk_builtin_thread.c"
+#line 1 "duk_bi_thread.c"
 /*
  *  Thread builtins
  */
@@ -23241,7 +23630,7 @@ duk_ret duk_builtin_string_prototype_locale_compare(duk_context *ctx) {
  *  Constructor
  */
 
-int duk_builtin_thread_constructor(duk_context *ctx) {
+duk_ret_t duk_bi_thread_constructor(duk_context *ctx) {
 	duk_hthread *new_thr;
 	duk_hobject *func;
 
@@ -23279,13 +23668,13 @@ int duk_builtin_thread_constructor(duk_context *ctx) {
  *  Note: yield and resume handling is currently asymmetric.
  */
 
-int duk_builtin_thread_resume(duk_context *ctx) {
+duk_ret_t duk_bi_thread_resume(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hthread *thr_resume;
 	duk_tval tv_tmp;
 	duk_tval *tv;
 	duk_hobject *func;
-	int is_error;
+	duk_small_int_t is_error;
 
 	DUK_DDDPRINT("Duktape.Thread.resume(): thread=%!T, value=%!T, is_error=%!T",
 	             duk_get_tval(ctx, 0),
@@ -23296,7 +23685,7 @@ int duk_builtin_thread_resume(duk_context *ctx) {
 	DUK_ASSERT(thr->heap->curr_thread == thr);
 
 	thr_resume = duk_require_hthread(ctx, 0);
-	is_error = duk_to_boolean(ctx, 2);
+	is_error = (duk_small_int_t) duk_to_boolean(ctx, 2);
 
 	/*
 	 *  Thread state and calling context checks
@@ -23426,10 +23815,10 @@ int duk_builtin_thread_resume(duk_context *ctx) {
  *  Note: yield and resume handling is currently asymmetric.
  */
 
-int duk_builtin_thread_yield(duk_context *ctx) {
+duk_ret_t duk_bi_thread_yield(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_tval tv_tmp;
-	int is_error;
+	duk_small_int_t is_error;
 
 	DUK_DDDPRINT("Duktape.Thread.yield(): value=%!T, is_error=%!T",
 	             duk_get_tval(ctx, 0),
@@ -23438,7 +23827,7 @@ int duk_builtin_thread_yield(duk_context *ctx) {
 	DUK_ASSERT(thr->state == DUK_HTHREAD_STATE_RUNNING);
 	DUK_ASSERT(thr->heap->curr_thread == thr);
 
-	is_error = duk_to_boolean(ctx, 1);
+	is_error = (duk_small_int_t) duk_to_boolean(ctx, 1);
 
 	/*
 	 *  Thread state and calling context checks
@@ -23467,7 +23856,7 @@ int duk_builtin_thread_yield(duk_context *ctx) {
 	if (thr->callstack_preventcount != 1) {
 		/* Note: the only yield-preventing call is Duktape.Thread.yield(), hence check for 1, not 0 */
 		DUK_DDPRINT("yield state invalid: there must be no yield-preventing calls in current thread callstack (preventcount is %d)",
-		            thr->callstack_preventcount);
+		            (int) thr->callstack_preventcount);
 		goto state_error;
 	}
 
@@ -23513,19 +23902,19 @@ int duk_builtin_thread_yield(duk_context *ctx) {
 	return 0;  /* never here */
 }
 
-int duk_builtin_thread_current(duk_context *ctx) {
+duk_ret_t duk_bi_thread_current(duk_context *ctx) {
 	duk_push_current_thread(ctx);
 	return 1;
 }
 
-#line 1 "duk_builtin_thrower.c"
+#line 1 "duk_bi_thrower.c"
 /*
  *  Type error thrower, E5 Section 13.2.3.
  */
 
 /* include removed: duk_internal.h */
 
-int duk_builtin_type_error_thrower(duk_context *ctx) {
+int duk_bi_type_error_thrower(duk_context *ctx) {
 	DUK_UNREF(ctx);
 	return DUK_RET_TYPE_ERROR;
 }
@@ -23546,282 +23935,299 @@ const duk_uint8_t duk_strings_data[] = {
 139,70,139,232,190,234,113,161,63,245,223,247,244,90,106,26,95,162,251,169,
 198,132,255,214,255,223,209,105,13,47,209,125,212,227,66,127,235,127,239,
 232,180,208,55,232,190,234,113,161,63,245,255,247,244,90,163,70,66,253,23,
-221,78,52,39,254,156,84,140,72,217,154,36,149,24,67,4,18,39,219,125,160,
-206,75,161,50,115,69,209,144,72,76,156,209,116,141,18,19,39,54,253,25,4,
-132,201,205,191,72,209,12,100,16,200,209,48,196,159,74,134,129,104,201,34,
-201,18,125,42,26,5,163,36,136,140,34,68,133,17,0,49,196,245,36,100,135,52,
-100,109,79,209,209,83,3,200,113,57,143,66,200,141,196,134,8,36,67,238,103,
-137,0,53,108,168,104,22,140,146,39,216,128,181,144,132,219,0,242,236,17,52,
-139,185,157,18,70,222,47,178,90,26,67,238,78,164,68,67,238,160,137,27,83,
-237,100,185,27,83,238,160,139,0,244,108,174,139,0,185,39,97,196,200,39,12,
-133,219,73,121,159,115,4,76,73,155,117,2,232,67,189,200,108,201,19,6,133,
-41,34,153,196,2,32,193,48,41,104,105,58,218,48,36,138,10,133,147,173,3,8,
-39,136,178,152,4,167,118,103,139,173,217,225,228,233,35,23,68,194,2,214,66,
-51,168,109,64,180,15,232,58,48,76,133,253,191,174,250,239,174,253,209,124,
-87,196,135,232,3,245,130,250,223,176,23,213,253,128,126,193,63,91,212,52,
-168,106,39,132,253,95,80,210,161,168,158,17,212,52,168,106,39,131,56,41,32,
-166,105,78,40,105,140,218,48,36,137,194,231,44,128,106,104,209,144,168,105,
-6,153,78,40,105,144,92,14,96,105,37,8,204,114,67,75,23,81,163,52,64,209,
-185,131,123,172,54,33,163,96,46,53,184,197,42,220,232,140,151,120,196,233,
-16,68,66,202,9,129,191,100,64,76,13,32,36,134,144,2,116,134,0,200,190,148,
-35,63,178,63,165,8,207,236,117,246,66,243,208,111,45,198,251,31,176,33,124,
-183,27,236,136,63,45,191,100,79,45,191,99,246,1,233,14,194,74,64,49,8,208,
-48,133,67,95,73,149,13,25,46,79,168,251,255,186,250,148,172,18,159,80,209,
-146,233,101,23,52,45,13,34,144,102,186,36,232,129,34,26,78,164,68,66,76,
-146,153,9,114,9,115,119,140,201,203,211,138,26,99,200,147,238,8,8,156,196,
-159,112,64,68,211,119,147,39,53,115,119,145,39,75,211,138,26,101,205,222,
-164,197,47,78,40,105,157,34,79,212,152,139,234,45,125,193,1,21,200,147,233,
-104,181,247,4,4,87,34,79,212,152,153,231,54,103,68,137,62,177,205,153,213,
-34,79,212,152,135,224,76,135,145,39,209,130,100,92,137,63,82,98,63,157,72,
-201,18,36,250,119,82,50,108,137,63,82,98,103,144,218,76,146,84,137,62,177,
-13,164,201,38,200,147,245,38,41,120,130,115,71,37,72,147,236,136,39,52,114,
-148,137,63,82,98,103,144,181,162,68,19,154,57,62,68,159,88,133,173,18,32,
-156,209,200,242,36,251,52,48,145,49,39,217,161,132,203,154,78,184,165,145,
-39,35,18,126,164,196,207,33,107,68,136,39,52,114,121,137,62,177,11,90,36,
-65,57,163,147,76,73,250,147,20,188,65,57,163,146,140,73,246,68,19,154,57,
-52,196,159,169,49,51,200,109,38,73,40,196,159,88,134,210,100,146,204,73,
-250,147,17,252,234,70,72,49,39,211,186,145,146,76,73,250,147,16,252,12,24,
-196,159,70,12,40,196,159,169,49,15,192,153,14,98,79,163,4,200,179,18,126,
-164,196,207,57,179,58,12,73,245,142,108,206,227,18,126,164,196,95,81,107,
-238,8,8,172,196,159,75,69,175,184,32,34,115,18,125,154,24,73,77,221,91,132,
-5,147,179,67,9,217,78,40,105,165,55,117,110,16,22,78,140,19,39,101,56,161,
-166,100,221,217,161,132,236,167,20,52,204,155,186,48,76,157,148,226,134,
-152,109,117,135,234,76,69,120,35,34,46,110,235,226,65,34,72,115,91,55,116,
-151,123,154,70,205,0,89,230,238,149,23,32,227,231,186,72,154,42,77,33,165,
-67,81,60,71,205,33,129,52,84,154,67,74,134,162,120,31,90,14,181,62,98,27,
-170,129,116,34,124,192,95,85,2,232,67,74,129,148,226,73,197,12,140,221,213,
-184,64,89,59,71,188,145,232,129,34,46,110,237,30,242,71,162,4,137,25,187,
-171,112,128,178,117,110,177,35,209,2,68,92,221,213,186,196,143,68,9,17,50,
-160,101,56,161,166,44,158,180,76,210,32,34,35,158,36,122,192,34,21,128,152,
-142,213,184,64,89,58,39,49,224,137,20,35,130,61,19,134,78,130,102,17,193,
-30,130,108,44,92,206,136,224,143,68,225,145,113,32,232,34,118,40,49,230,
-104,144,116,17,12,84,46,100,136,216,7,156,174,143,72,1,28,146,115,8,82,84,
-145,194,214,9,79,168,104,201,126,184,167,67,70,75,245,197,61,27,35,160,179,
-52,158,180,8,132,147,163,50,201,104,17,11,35,160,179,60,73,82,70,68,35,233,
-35,141,238,121,18,228,52,194,115,68,9,157,18,232,35,16,97,32,137,168,194,
-54,114,48,128,181,146,36,10,26,50,8,11,89,64,247,175,20,124,92,242,70,120,
-234,37,210,54,140,36,64,21,145,168,151,95,23,77,211,195,201,215,21,199,4,
-186,235,55,175,139,158,72,207,7,168,23,66,117,197,116,221,213,184,64,89,59,
-41,197,13,50,38,238,202,113,67,76,177,57,178,156,104,41,186,42,35,104,194,
-68,1,89,24,39,52,168,53,34,0,172,136,180,81,48,5,100,45,64,186,16,138,38,
-36,196,75,164,188,200,217,32,43,34,17,46,150,46,201,26,132,75,178,32,22,65,
-197,241,37,72,217,244,151,153,27,36,57,178,49,98,66,100,132,145,0,184,12,
-133,67,73,215,197,207,36,102,130,73,195,33,80,210,117,241,115,201,25,224,
-194,137,1,50,76,196,159,93,102,245,241,115,201,25,227,173,3,9,44,24,147,
-235,172,222,190,46,121,35,60,116,100,144,162,135,205,209,113,137,62,190,46,
-155,167,135,147,174,42,95,23,77,211,195,200,101,145,166,153,202,5,146,51,
-43,226,134,205,20,105,36,32,60,134,36,132,7,146,68,104,156,50,122,145,64,
-188,230,61,205,35,102,146,52,78,25,61,72,162,67,32,156,50,122,145,64,188,
-230,61,205,35,102,145,144,78,25,61,72,161,8,151,74,134,162,100,42,37,214,
-131,173,83,193,25,19,165,91,129,52,60,17,145,58,134,204,132,168,22,143,82,
-40,39,163,23,69,61,158,30,78,146,49,116,87,217,97,179,5,250,72,197,209,119,
-98,66,146,36,104,137,210,70,46,138,187,16,52,196,233,35,23,69,61,37,64,190,
-146,49,116,74,24,144,10,32,129,34,20,64,152,142,129,57,179,67,104,68,12,
-129,161,140,72,156,100,40,40,185,152,100,89,38,65,13,196,34,228,67,149,13,
-2,215,129,149,209,65,104,209,77,14,104,144,81,33,170,67,101,48,52,68,113,
-70,210,88,209,36,233,22,154,86,68,196,114,76,232,145,102,120,186,195,156,
-112,105,225,228,113,71,80,68,149,114,6,91,29,11,33,44,137,156,162,88,37,34,
-137,205,148,200,70,209,134,37,222,232,204,228,188,200,209,200,200,99,221,
-25,150,84,121,34,70,209,107,36,227,66,20,160,92,136,51,18,99,145,38,164,49,
-235,35,8,217,201,40,108,201,18,128,68,26,201,51,188,2,80,12,67,190,40,168,
-38,68,190,46,153,5,50,12,207,160,86,129,26,83,4,208,34,225,4,88,192,
+221,78,52,39,254,156,84,140,72,217,154,36,149,24,66,166,78,104,138,153,57,
+183,48,65,34,125,183,218,12,228,184,198,65,12,141,16,202,134,136,194,34,26,
+87,30,164,140,144,230,140,141,169,250,58,42,96,121,14,39,49,232,89,17,184,
+144,193,4,136,125,204,241,32,6,173,149,13,2,209,146,68,251,16,22,178,16,
+155,96,30,93,130,38,145,119,51,162,72,219,197,246,75,67,72,125,201,212,136,
+136,125,212,17,35,106,125,172,151,35,106,125,212,17,96,30,141,149,209,96,
+23,36,236,56,153,4,225,144,187,105,47,51,238,96,137,137,51,110,160,93,8,
+119,185,13,153,34,96,208,165,36,83,56,128,68,24,38,5,45,13,39,91,70,4,145,
+65,80,178,117,160,97,4,241,22,83,0,148,238,204,241,117,187,60,60,157,36,98,
+232,152,64,90,200,70,117,13,168,22,129,253,7,70,9,144,191,183,245,223,93,
+245,223,186,47,138,248,144,253,0,126,176,95,91,246,2,250,191,176,15,216,39,
+235,122,134,149,13,68,240,159,171,234,26,84,53,19,194,58,134,149,13,68,240,
+103,5,36,20,205,41,197,13,49,155,70,4,145,56,92,229,144,13,77,26,50,21,13,
+32,211,41,197,13,50,11,129,204,13,36,161,25,142,72,105,98,234,52,102,136,
+26,55,48,111,117,134,196,52,108,5,198,183,24,165,91,157,17,146,239,24,157,
+34,8,136,89,65,48,55,236,136,9,129,164,4,144,210,0,78,144,192,25,23,210,
+132,103,246,71,244,161,25,253,142,190,200,94,122,13,229,184,223,99,246,4,
+47,150,227,125,145,7,229,183,236,137,229,183,236,126,192,61,33,216,73,72,6,
+33,26,6,16,168,107,233,50,161,163,37,201,245,31,127,247,95,82,149,130,83,
+234,26,50,93,44,162,230,133,161,164,82,12,215,68,157,16,36,67,73,212,136,
+136,73,146,83,33,46,65,46,110,241,153,57,122,113,67,76,121,18,125,193,1,19,
+152,147,238,8,8,154,110,242,100,230,174,110,242,36,233,122,113,67,76,185,
+187,212,152,165,233,197,13,51,164,73,250,147,17,125,69,175,184,32,34,185,
+18,125,45,22,190,224,128,138,228,73,250,147,19,60,230,204,232,145,39,214,
+57,179,58,164,73,250,147,16,252,9,144,242,36,250,48,76,139,145,39,234,76,
+71,243,169,25,34,68,159,78,234,70,77,145,39,234,76,76,242,27,73,146,74,145,
+39,214,33,180,153,36,217,18,126,164,197,47,16,78,104,228,169,18,125,145,4,
+230,142,82,145,39,234,76,76,242,22,180,72,130,115,71,39,200,147,235,16,181,
+162,68,19,154,57,30,68,159,102,134,18,38,36,251,52,48,153,115,73,215,20,
+178,36,228,98,79,212,152,153,228,45,104,145,4,230,142,79,49,39,214,33,107,
+68,136,39,52,114,105,137,63,82,98,151,136,39,52,114,81,137,62,200,130,115,
+71,38,152,147,245,38,38,121,13,164,201,37,24,147,235,16,218,76,146,89,137,
+63,82,98,63,157,72,201,6,36,250,119,82,50,73,137,63,82,98,31,129,131,24,
+147,232,193,133,24,147,245,38,33,248,19,33,204,73,244,96,153,22,98,79,212,
+152,153,231,54,103,65,137,62,177,205,153,220,98,79,212,152,139,234,45,125,
+193,1,21,152,147,233,104,181,247,4,4,78,98,79,179,67,9,41,187,171,112,128,
+178,118,104,97,59,41,197,13,52,166,238,173,194,2,201,209,130,100,236,167,
+20,52,204,155,187,52,48,157,148,226,134,153,147,119,70,9,147,178,156,80,
+211,13,174,176,253,73,136,175,4,100,69,205,221,124,72,36,73,14,107,102,238,
+146,239,115,72,217,160,11,60,221,210,162,228,28,124,247,73,19,69,73,164,52,
+168,106,39,136,249,164,48,38,138,147,72,105,80,212,79,3,235,65,214,167,204,
+67,117,80,46,132,79,152,11,234,160,93,8,105,80,50,156,73,56,161,145,155,
+186,183,8,11,39,104,247,146,61,16,36,69,205,221,163,222,72,244,64,145,35,
+55,117,110,16,22,78,173,214,36,122,32,72,139,155,186,183,88,145,232,129,34,
+38,84,12,167,20,52,197,147,214,137,154,68,4,68,115,196,143,88,4,66,176,19,
+17,218,183,8,11,39,68,230,60,17,34,132,112,71,162,112,201,208,76,194,56,35,
+208,77,133,139,153,209,28,17,232,156,50,46,36,29,4,78,197,6,60,205,18,14,
+130,33,138,133,204,145,27,0,243,149,209,233,0,35,146,78,97,10,74,146,56,90,
+193,41,245,13,25,47,215,20,232,104,201,126,184,167,163,100,116,22,102,147,
+214,129,16,146,116,102,89,45,2,33,100,116,22,103,137,42,72,200,132,125,36,
+113,189,207,34,92,134,152,78,104,129,51,162,93,4,98,12,36,17,53,24,70,206,
+70,16,22,178,68,129,67,70,65,1,107,40,30,245,226,143,139,158,72,207,29,68,
+186,70,209,132,136,2,178,53,18,235,226,233,186,120,121,58,226,184,224,151,
+93,102,245,241,115,201,25,224,245,2,232,78,184,174,155,186,183,8,11,39,101,
+56,161,166,68,221,217,78,40,105,150,39,54,83,141,5,55,68,114,36,198,98,77,
+68,109,24,72,128,43,35,4,230,149,6,164,64,21,145,22,138,38,0,172,133,168,
+23,66,17,68,196,152,137,116,151,153,27,36,5,100,66,37,210,197,217,35,80,
+137,118,68,2,200,56,190,36,169,27,62,146,243,35,100,135,54,70,44,72,76,144,
+146,32,23,1,144,168,105,58,248,185,228,140,208,73,56,100,42,26,78,190,46,
+121,35,60,24,81,32,38,73,152,147,235,172,222,190,46,121,35,60,117,160,97,
+37,131,18,125,117,155,215,197,207,36,103,142,140,146,20,80,249,186,46,49,
+39,215,197,211,116,240,242,117,197,75,226,233,186,120,121,12,178,52,211,57,
+64,178,70,101,124,80,217,162,141,36,132,7,144,196,144,128,242,72,141,19,
+134,79,82,40,23,156,199,185,164,108,210,70,137,195,39,169,20,72,100,19,134,
+79,82,40,23,156,199,185,164,108,210,50,9,195,39,169,20,33,18,233,80,212,76,
+133,68,186,208,117,170,120,35,34,116,171,112,38,135,130,50,39,80,217,144,
+149,2,209,234,69,4,244,98,232,167,179,195,201,210,70,46,138,251,44,54,96,
+191,73,24,186,46,236,72,82,68,141,17,58,72,197,209,87,98,6,152,157,36,98,
+232,167,164,168,23,210,70,46,137,67,18,1,68,16,36,66,136,19,17,208,39,54,
+104,109,8,129,144,52,49,137,19,140,133,5,23,51,12,139,36,200,33,184,132,92,
+136,114,161,160,90,240,50,186,40,45,26,41,161,205,18,10,36,53,72,108,166,6,
+136,142,40,218,75,26,36,157,34,211,74,200,152,142,73,157,18,44,207,23,88,
+115,142,13,60,60,142,40,234,8,146,174,64,203,99,161,100,37,145,51,148,75,4,
+164,81,57,178,153,8,218,48,196,187,221,25,156,151,153,26,57,25,12,123,163,
+50,202,143,36,72,218,45,100,156,104,66,148,11,145,20,134,61,100,97,27,57,
+37,13,153,34,80,8,131,89,38,119,128,74,1,136,119,197,21,4,200,151,197,211,
+32,166,65,153,244,10,208,35,74,96,154,4,92,32,139,24,
 };
 
 /* to convert a heap stridx to a token number, subtract
  * DUK_STRIDX_START_RESERVED and add DUK_TOK_START_RESERVED.
  */
 
-/* native functions: 129 */
-const duk_c_function duk_builtin_native_functions[] = {
-	(duk_c_function) duk_builtin_array_constructor,
-	(duk_c_function) duk_builtin_array_constructor_is_array,
-	(duk_c_function) duk_builtin_array_prototype_concat,
-	(duk_c_function) duk_builtin_array_prototype_indexof_shared,
-	(duk_c_function) duk_builtin_array_prototype_iter_shared,
-	(duk_c_function) duk_builtin_array_prototype_join_shared,
-	(duk_c_function) duk_builtin_array_prototype_pop,
-	(duk_c_function) duk_builtin_array_prototype_push,
-	(duk_c_function) duk_builtin_array_prototype_reduce_shared,
-	(duk_c_function) duk_builtin_array_prototype_reverse,
-	(duk_c_function) duk_builtin_array_prototype_shift,
-	(duk_c_function) duk_builtin_array_prototype_slice,
-	(duk_c_function) duk_builtin_array_prototype_sort,
-	(duk_c_function) duk_builtin_array_prototype_splice,
-	(duk_c_function) duk_builtin_array_prototype_to_string,
-	(duk_c_function) duk_builtin_array_prototype_unshift,
-	(duk_c_function) duk_builtin_boolean_constructor,
-	(duk_c_function) duk_builtin_boolean_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_buffer_constructor,
-	(duk_c_function) duk_builtin_buffer_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_date_constructor,
-	(duk_c_function) duk_builtin_date_constructor_now,
-	(duk_c_function) duk_builtin_date_constructor_parse,
-	(duk_c_function) duk_builtin_date_constructor_utc,
-	(duk_c_function) duk_builtin_date_prototype_get_shared,
-	(duk_c_function) duk_builtin_date_prototype_get_timezone_offset,
-	(duk_c_function) duk_builtin_date_prototype_set_shared,
-	(duk_c_function) duk_builtin_date_prototype_set_time,
-	(duk_c_function) duk_builtin_date_prototype_to_json,
-	(duk_c_function) duk_builtin_date_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_date_prototype_value_of,
-	(duk_c_function) duk_builtin_duk_object_addr,
-	(duk_c_function) duk_builtin_duk_object_dec,
-	(duk_c_function) duk_builtin_duk_object_enc,
-	(duk_c_function) duk_builtin_duk_object_gc,
-	(duk_c_function) duk_builtin_duk_object_get_finalizer,
-	(duk_c_function) duk_builtin_duk_object_jsonc_dec,
-	(duk_c_function) duk_builtin_duk_object_jsonc_enc,
-	(duk_c_function) duk_builtin_duk_object_jsonx_dec,
-	(duk_c_function) duk_builtin_duk_object_jsonx_enc,
-	(duk_c_function) duk_builtin_duk_object_refc,
-	(duk_c_function) duk_builtin_duk_object_set_finalizer,
-	(duk_c_function) duk_builtin_error_constructor_shared,
-	(duk_c_function) duk_builtin_error_prototype_filename_getter,
-	(duk_c_function) duk_builtin_error_prototype_linenumber_getter,
-	(duk_c_function) duk_builtin_error_prototype_nop_setter,
-	(duk_c_function) duk_builtin_error_prototype_stack_getter,
-	(duk_c_function) duk_builtin_error_prototype_to_string,
-	(duk_c_function) duk_builtin_function_constructor,
-	(duk_c_function) duk_builtin_function_prototype,
-	(duk_c_function) duk_builtin_function_prototype_apply,
-	(duk_c_function) duk_builtin_function_prototype_bind,
-	(duk_c_function) duk_builtin_function_prototype_call,
-	(duk_c_function) duk_builtin_function_prototype_to_string,
-	(duk_c_function) duk_builtin_global_object_alert,
-	(duk_c_function) duk_builtin_global_object_decode_uri,
-	(duk_c_function) duk_builtin_global_object_decode_uri_component,
-	(duk_c_function) duk_builtin_global_object_encode_uri,
-	(duk_c_function) duk_builtin_global_object_encode_uri_component,
-	(duk_c_function) duk_builtin_global_object_escape,
-	(duk_c_function) duk_builtin_global_object_eval,
-	(duk_c_function) duk_builtin_global_object_is_finite,
-	(duk_c_function) duk_builtin_global_object_is_nan,
-	(duk_c_function) duk_builtin_global_object_parse_float,
-	(duk_c_function) duk_builtin_global_object_parse_int,
-	(duk_c_function) duk_builtin_global_object_print,
-	(duk_c_function) duk_builtin_global_object_unescape,
-	(duk_c_function) duk_builtin_json_object_parse,
-	(duk_c_function) duk_builtin_json_object_stringify,
-	(duk_c_function) duk_builtin_math_object_max,
-	(duk_c_function) duk_builtin_math_object_min,
-	(duk_c_function) duk_builtin_math_object_onearg_shared,
-	(duk_c_function) duk_builtin_math_object_random,
-	(duk_c_function) duk_builtin_math_object_twoarg_shared,
-	(duk_c_function) duk_builtin_number_constructor,
-	(duk_c_function) duk_builtin_number_prototype_to_exponential,
-	(duk_c_function) duk_builtin_number_prototype_to_fixed,
-	(duk_c_function) duk_builtin_number_prototype_to_locale_string,
-	(duk_c_function) duk_builtin_number_prototype_to_precision,
-	(duk_c_function) duk_builtin_number_prototype_to_string,
-	(duk_c_function) duk_builtin_number_prototype_value_of,
-	(duk_c_function) duk_builtin_object_constructor,
-	(duk_c_function) duk_builtin_object_constructor_create,
-	(duk_c_function) duk_builtin_object_constructor_define_properties,
-	(duk_c_function) duk_builtin_object_constructor_define_property,
-	(duk_c_function) duk_builtin_object_constructor_freeze,
-	(duk_c_function) duk_builtin_object_constructor_get_own_property_descriptor,
-	(duk_c_function) duk_builtin_object_constructor_get_own_property_names,
-	(duk_c_function) duk_builtin_object_constructor_get_prototype_of,
-	(duk_c_function) duk_builtin_object_constructor_is_extensible,
-	(duk_c_function) duk_builtin_object_constructor_is_frozen,
-	(duk_c_function) duk_builtin_object_constructor_is_sealed,
-	(duk_c_function) duk_builtin_object_constructor_keys,
-	(duk_c_function) duk_builtin_object_constructor_prevent_extensions,
-	(duk_c_function) duk_builtin_object_constructor_seal,
-	(duk_c_function) duk_builtin_object_prototype_has_own_property,
-	(duk_c_function) duk_builtin_object_prototype_is_prototype_of,
-	(duk_c_function) duk_builtin_object_prototype_property_is_enumerable,
-	(duk_c_function) duk_builtin_object_prototype_to_locale_string,
-	(duk_c_function) duk_builtin_object_prototype_to_string,
-	(duk_c_function) duk_builtin_object_prototype_value_of,
-	(duk_c_function) duk_builtin_pointer_constructor,
-	(duk_c_function) duk_builtin_pointer_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_regexp_constructor,
-	(duk_c_function) duk_builtin_regexp_prototype_exec,
-	(duk_c_function) duk_builtin_regexp_prototype_test,
-	(duk_c_function) duk_builtin_regexp_prototype_to_string,
-	(duk_c_function) duk_builtin_string_constructor,
-	(duk_c_function) duk_builtin_string_constructor_from_char_code,
-	(duk_c_function) duk_builtin_string_prototype_caseconv_shared,
-	(duk_c_function) duk_builtin_string_prototype_char_at,
-	(duk_c_function) duk_builtin_string_prototype_char_code_at,
-	(duk_c_function) duk_builtin_string_prototype_concat,
-	(duk_c_function) duk_builtin_string_prototype_indexof_shared,
-	(duk_c_function) duk_builtin_string_prototype_locale_compare,
-	(duk_c_function) duk_builtin_string_prototype_match,
-	(duk_c_function) duk_builtin_string_prototype_replace,
-	(duk_c_function) duk_builtin_string_prototype_search,
-	(duk_c_function) duk_builtin_string_prototype_slice,
-	(duk_c_function) duk_builtin_string_prototype_split,
-	(duk_c_function) duk_builtin_string_prototype_substr,
-	(duk_c_function) duk_builtin_string_prototype_substring,
-	(duk_c_function) duk_builtin_string_prototype_to_string,
-	(duk_c_function) duk_builtin_string_prototype_trim,
-	(duk_c_function) duk_builtin_thread_constructor,
-	(duk_c_function) duk_builtin_thread_current,
-	(duk_c_function) duk_builtin_thread_resume,
-	(duk_c_function) duk_builtin_thread_yield,
-	(duk_c_function) duk_builtin_type_error_thrower,
+/* native functions: 123 */
+const duk_c_function duk_bi_native_functions[] = {
+	(duk_c_function) duk_bi_array_constructor,
+	(duk_c_function) duk_bi_array_constructor_is_array,
+	(duk_c_function) duk_bi_array_prototype_concat,
+	(duk_c_function) duk_bi_array_prototype_indexof_shared,
+	(duk_c_function) duk_bi_array_prototype_iter_shared,
+	(duk_c_function) duk_bi_array_prototype_join_shared,
+	(duk_c_function) duk_bi_array_prototype_pop,
+	(duk_c_function) duk_bi_array_prototype_push,
+	(duk_c_function) duk_bi_array_prototype_reduce_shared,
+	(duk_c_function) duk_bi_array_prototype_reverse,
+	(duk_c_function) duk_bi_array_prototype_shift,
+	(duk_c_function) duk_bi_array_prototype_slice,
+	(duk_c_function) duk_bi_array_prototype_sort,
+	(duk_c_function) duk_bi_array_prototype_splice,
+	(duk_c_function) duk_bi_array_prototype_to_string,
+	(duk_c_function) duk_bi_array_prototype_unshift,
+	(duk_c_function) duk_bi_boolean_constructor,
+	(duk_c_function) duk_bi_boolean_prototype_tostring_shared,
+	(duk_c_function) duk_bi_buffer_constructor,
+	(duk_c_function) duk_bi_buffer_prototype_tostring_shared,
+	(duk_c_function) duk_bi_date_constructor,
+	(duk_c_function) duk_bi_date_constructor_now,
+	(duk_c_function) duk_bi_date_constructor_parse,
+	(duk_c_function) duk_bi_date_constructor_utc,
+	(duk_c_function) duk_bi_date_prototype_get_shared,
+	(duk_c_function) duk_bi_date_prototype_get_timezone_offset,
+	(duk_c_function) duk_bi_date_prototype_set_shared,
+	(duk_c_function) duk_bi_date_prototype_set_time,
+	(duk_c_function) duk_bi_date_prototype_to_json,
+	(duk_c_function) duk_bi_date_prototype_tostring_shared,
+	(duk_c_function) duk_bi_date_prototype_value_of,
+	(duk_c_function) duk_bi_duk_object_dec,
+	(duk_c_function) duk_bi_duk_object_enc,
+	(duk_c_function) duk_bi_duk_object_fin,
+	(duk_c_function) duk_bi_duk_object_gc,
+	(duk_c_function) duk_bi_duk_object_info,
+	(duk_c_function) duk_bi_error_constructor_shared,
+	(duk_c_function) duk_bi_error_prototype_filename_getter,
+	(duk_c_function) duk_bi_error_prototype_linenumber_getter,
+	(duk_c_function) duk_bi_error_prototype_nop_setter,
+	(duk_c_function) duk_bi_error_prototype_stack_getter,
+	(duk_c_function) duk_bi_error_prototype_to_string,
+	(duk_c_function) duk_bi_function_constructor,
+	(duk_c_function) duk_bi_function_prototype,
+	(duk_c_function) duk_bi_function_prototype_apply,
+	(duk_c_function) duk_bi_function_prototype_bind,
+	(duk_c_function) duk_bi_function_prototype_call,
+	(duk_c_function) duk_bi_function_prototype_to_string,
+	(duk_c_function) duk_bi_global_object_alert,
+	(duk_c_function) duk_bi_global_object_decode_uri,
+	(duk_c_function) duk_bi_global_object_decode_uri_component,
+	(duk_c_function) duk_bi_global_object_encode_uri,
+	(duk_c_function) duk_bi_global_object_encode_uri_component,
+	(duk_c_function) duk_bi_global_object_escape,
+	(duk_c_function) duk_bi_global_object_eval,
+	(duk_c_function) duk_bi_global_object_is_finite,
+	(duk_c_function) duk_bi_global_object_is_nan,
+	(duk_c_function) duk_bi_global_object_parse_float,
+	(duk_c_function) duk_bi_global_object_parse_int,
+	(duk_c_function) duk_bi_global_object_print,
+	(duk_c_function) duk_bi_global_object_unescape,
+	(duk_c_function) duk_bi_json_object_parse,
+	(duk_c_function) duk_bi_json_object_stringify,
+	(duk_c_function) duk_bi_math_object_max,
+	(duk_c_function) duk_bi_math_object_min,
+	(duk_c_function) duk_bi_math_object_onearg_shared,
+	(duk_c_function) duk_bi_math_object_random,
+	(duk_c_function) duk_bi_math_object_twoarg_shared,
+	(duk_c_function) duk_bi_number_constructor,
+	(duk_c_function) duk_bi_number_prototype_to_exponential,
+	(duk_c_function) duk_bi_number_prototype_to_fixed,
+	(duk_c_function) duk_bi_number_prototype_to_locale_string,
+	(duk_c_function) duk_bi_number_prototype_to_precision,
+	(duk_c_function) duk_bi_number_prototype_to_string,
+	(duk_c_function) duk_bi_number_prototype_value_of,
+	(duk_c_function) duk_bi_object_constructor,
+	(duk_c_function) duk_bi_object_constructor_create,
+	(duk_c_function) duk_bi_object_constructor_define_properties,
+	(duk_c_function) duk_bi_object_constructor_define_property,
+	(duk_c_function) duk_bi_object_constructor_freeze,
+	(duk_c_function) duk_bi_object_constructor_get_own_property_descriptor,
+	(duk_c_function) duk_bi_object_constructor_get_own_property_names,
+	(duk_c_function) duk_bi_object_constructor_get_prototype_of,
+	(duk_c_function) duk_bi_object_constructor_is_extensible,
+	(duk_c_function) duk_bi_object_constructor_is_frozen,
+	(duk_c_function) duk_bi_object_constructor_is_sealed,
+	(duk_c_function) duk_bi_object_constructor_keys,
+	(duk_c_function) duk_bi_object_constructor_prevent_extensions,
+	(duk_c_function) duk_bi_object_constructor_seal,
+	(duk_c_function) duk_bi_object_prototype_has_own_property,
+	(duk_c_function) duk_bi_object_prototype_is_prototype_of,
+	(duk_c_function) duk_bi_object_prototype_property_is_enumerable,
+	(duk_c_function) duk_bi_object_prototype_to_locale_string,
+	(duk_c_function) duk_bi_object_prototype_to_string,
+	(duk_c_function) duk_bi_object_prototype_value_of,
+	(duk_c_function) duk_bi_pointer_constructor,
+	(duk_c_function) duk_bi_pointer_prototype_tostring_shared,
+	(duk_c_function) duk_bi_regexp_constructor,
+	(duk_c_function) duk_bi_regexp_prototype_exec,
+	(duk_c_function) duk_bi_regexp_prototype_test,
+	(duk_c_function) duk_bi_regexp_prototype_to_string,
+	(duk_c_function) duk_bi_string_constructor,
+	(duk_c_function) duk_bi_string_constructor_from_char_code,
+	(duk_c_function) duk_bi_string_prototype_caseconv_shared,
+	(duk_c_function) duk_bi_string_prototype_char_at,
+	(duk_c_function) duk_bi_string_prototype_char_code_at,
+	(duk_c_function) duk_bi_string_prototype_concat,
+	(duk_c_function) duk_bi_string_prototype_indexof_shared,
+	(duk_c_function) duk_bi_string_prototype_locale_compare,
+	(duk_c_function) duk_bi_string_prototype_match,
+	(duk_c_function) duk_bi_string_prototype_replace,
+	(duk_c_function) duk_bi_string_prototype_search,
+	(duk_c_function) duk_bi_string_prototype_slice,
+	(duk_c_function) duk_bi_string_prototype_split,
+	(duk_c_function) duk_bi_string_prototype_substr,
+	(duk_c_function) duk_bi_string_prototype_substring,
+	(duk_c_function) duk_bi_string_prototype_to_string,
+	(duk_c_function) duk_bi_string_prototype_trim,
+	(duk_c_function) duk_bi_thread_constructor,
+	(duk_c_function) duk_bi_thread_current,
+	(duk_c_function) duk_bi_thread_resume,
+	(duk_c_function) duk_bi_thread_yield,
+	(duk_c_function) duk_bi_type_error_thrower,
 };
 
 const duk_uint8_t duk_builtins_data[] = {
-105,195,74,136,73,40,105,48,8,252,104,49,2,131,72,0,67,225,65,165,172,31,
-243,6,145,0,114,24,210,148,13,249,35,120,160,51,226,13,76,224,180,177,164,
-168,20,192,4,202,52,149,65,152,0,169,70,146,168,43,0,23,40,210,85,4,96,3,
-37,26,74,160,108,0,108,163,73,84,9,128,14,148,105,42,128,176,1,242,144,56,
-209,0,68,10,26,95,0,31,72,105,18,1,125,1,165,148,3,244,69,7,255,234,171,
-224,0,0,0,0,0,0,124,63,148,32,0,0,0,0,0,0,120,63,149,98,4,140,32,137,136,
-16,49,129,230,64,56,202,6,153,128,195,56,22,104,2,141,40,49,169,5,53,160,
-134,196,12,218,129,27,144,19,120,18,112,2,14,17,81,198,108,0,240,143,244,4,
-63,143,200,253,62,35,240,244,143,179,114,62,142,8,249,57,35,224,232,143,
-115,178,61,144,136,245,65,30,122,27,15,127,255,224,142,225,128,0,161,254,1,
-175,21,130,60,21,144,239,87,35,185,73,14,213,70,59,20,208,235,94,35,169,84,
-142,149,210,58,22,200,231,90,35,153,100,142,85,194,127,248,64,12,223,99,3,
-121,136,13,214,64,55,23,200,219,96,35,105,132,130,139,248,0,7,248,128,8,
-223,53,35,100,201,13,131,67,230,185,153,240,163,254,0,45,64,18,7,248,192,
-42,223,14,3,120,20,32,0,45,48,35,230,144,41,26,32,192,104,3,159,51,194,64,
-206,10,3,52,45,12,192,194,50,195,87,153,65,231,204,144,51,240,0,22,64,25,
-255,255,251,28,16,209,140,8,106,0,2,197,4,53,0,2,98,2,26,128,1,176,193,13,
-64,1,24,65,7,224,0,44,16,131,255,255,241,73,252,0,88,13,135,193,254,64,35,
-200,64,85,27,239,64,110,189,1,126,220,69,243,121,26,110,7,204,151,19,70,67,
-137,168,0,10,245,200,139,199,50,46,221,16,186,117,35,53,217,11,151,116,46,
-30,80,183,109,2,217,180,11,86,208,128,0,173,27,66,0,2,179,123,2,201,225,2,
-151,248,0,7,249,64,143,35,4,223,17,8,0,11,116,68,2,155,248,171,24,31,255,
-255,255,255,255,253,239,235,8,0,32,0,0,0,0,0,0,10,248,0,0,0,0,0,0,31,15,
-234,216,0,0,0,0,0,0,30,15,234,232,0,0,0,0,0,0,30,31,224,7,249,128,143,32,0,
-0,0,0,0,0,0,0,12,223,79,35,121,52,141,213,0,43,19,8,171,75,34,169,56,130,
-159,248,1,170,69,136,168,23,254,83,138,128,63,206,4,121,32,0,0,0,0,0,3,225,
-254,214,248,232,64,26,20,195,161,0,40,82,142,132,1,33,188,58,16,14,133,32,
-232,64,42,20,99,161,0,200,64,142,132,1,129,0,58,16,70,35,248,225,27,163,
-192,81,15,1,66,48,16,0,133,0,192,19,227,1,16,8,79,12,4,64,1,58,48,18,0,196,
-224,192,72,1,19,99,1,112,8,77,12,5,192,1,50,48,19,0,132,192,192,76,0,18,
-227,1,64,8,75,12,5,0,1,42,48,21,0,132,160,192,84,0,18,99,1,96,8,73,12,5,
-128,1,34,50,4,128,217,17,227,69,17,8,71,13,20,68,1,26,52,190,66,16,140,26,
-95,33,0,69,141,63,152,132,34,134,159,204,64,17,35,83,232,33,8,129,169,244,
-16,4,56,209,68,2,16,195,69,16,0,66,141,47,144,4,33,6,151,200,0,16,99,79,
-230,1,40,33,167,243,0,19,240,192,64,6,15,163,69,50,1,21,31,192,0,63,208,24,
-115,4,12,0,32,39,152,71,80,52,99,196,99,188,99,180,128,0,0,0,0,0,0,0,0,207,
-109,4,61,52,145,190,212,1,83,252,0,3,253,33,78,68,10,56,144,20,134,229,197,
-164,23,43,45,32,57,97,104,45,242,240,10,175,224,0,159,234,4,114,40,49,196,
-128,160,10,191,224,0,159,235,4,114,40,41,196,128,160,10,207,224,0,159,236,
-4,114,40,33,196,128,160,10,223,224,0,159,237,4,114,40,25,196,128,160,10,
-239,224,0,159,238,4,114,40,17,196,128,160,10,255,224,0,159,239,4,114,40,9,
-196,128,160,7,255,228,28,32,52,171,138,69,133,95,130,160,27,224,11,42,218,
-221,216,181,129,32,27,160,119,156,253,127,33,23,115,31,155,96,127,65,21,
-178,163,138,251,159,155,32,7,114,147,10,189,229,237,159,154,224,12,22,162,
-42,125,144,132,160,26,160,102,157,191,179,79,80,115,31,154,96,102,157,191,
-179,79,80,123,31,164,104,71,33,157,28,160,0,38,100,114,128,1,25,81,202,0,6,
-100,73,65,141,28,160,0,134,36,114,128,2,152,81,202,0,12,96,71,40,0,57,125,
-28,160,1,5,228,85,226,234,50,241,113,37,32,0,37,180,128,22,145,202,0,18,89,
-71,40,0,81,97,28,160,1,101,116,114,128,6,7,255,224,4,169,67,65,89,17,130,
-255,248,0,7,255,226,10,32,0,0,0,0,0,16,70,32,0,142,96,9,208,0,57,11,19,143,
-144,76,80,65,41,17,4,100,100,18,20,160,68,66,129,9,2,4,4,236,15,147,32,60,
-74,192,233,34,5,151,240,3,154,191,160,52,252,192,203,232,3,254,64,0,22,127,
-192,0,63,230,0,38,248,152,64,0,91,162,96,22,159,192,0,63,232,0,38,251,48,
-64,0,91,172,192,79,255,194,57,65,11,137,191,174,45,153,98,242,229,191,145,
-198,8,190,94,92,183,242,65,167,114,12,188,185,111,228,131,70,29,217,54,105,
-221,156,0,
+105,195,74,88,73,40,105,42,8,252,104,43,2,131,72,0,67,225,65,165,148,31,
+243,6,145,0,114,24,210,136,13,249,35,120,160,51,226,13,76,32,180,177,164,
+144,20,192,4,202,52,146,65,24,0,169,70,146,72,27,0,23,40,210,73,2,96,3,37,
+26,73,32,44,0,108,163,73,36,1,128,14,148,105,36,127,176,1,242,144,56,208,
+244,64,10,26,93,128,31,72,105,18,1,125,1,165,124,3,244,69,7,255,234,170,
+224,0,0,0,0,0,0,124,63,147,32,0,0,0,0,0,0,120,63,148,98,4,140,32,137,136,
+16,49,129,230,64,56,202,6,153,128,195,56,22,104,2,141,40,33,169,3,53,160,
+70,196,4,218,128,27,143,243,120,18,112,2,14,17,49,198,107,248,216,143,211,
+164,63,14,72,251,56,35,232,220,143,147,18,62,12,136,247,51,35,216,208,143,
+83,82,61,15,8,243,59,30,121,24,15,127,255,224,141,225,128,0,161,254,1,174,
+245,34,59,148,16,237,81,35,177,49,14,180,230,58,147,80,233,88,35,161,60,
+142,117,114,57,149,72,229,84,35,145,76,142,53,98,127,248,64,12,219,93,3,
+105,112,13,149,224,54,22,72,215,90,35,89,108,130,139,248,0,7,248,128,8,219,
+47,3,84,177,13,66,227,230,153,105,240,163,254,0,45,0,18,7,248,192,42,219,
+14,3,104,20,32,0,44,240,35,230,112,41,25,160,192,102,3,159,50,194,64,202,
+10,3,36,45,12,128,194,49,195,87,152,193,231,204,80,51,240,0,22,32,25,255,
+255,251,12,16,209,132,8,106,0,2,193,4,53,0,2,96,2,26,128,1,175,193,13,64,1,
+23,193,7,224,0,43,208,131,255,255,241,73,252,0,87,140,199,193,254,64,35,
+136,64,85,27,110,128,108,186,1,118,208,69,211,73,25,237,71,204,86,179,70,
+35,89,168,0,10,229,176,139,134,210,45,219,144,182,111,35,37,193,11,87,20,
+45,28,208,179,103,2,201,156,11,22,112,128,0,172,25,194,0,2,175,117,2,185,
+201,2,151,248,0,7,249,64,142,35,4,219,17,8,0,11,100,68,2,155,248,170,216,
+31,255,255,255,255,255,253,239,234,200,0,32,0,0,0,0,0,0,10,184,0,0,0,0,0,0,
+31,15,234,152,0,0,0,0,0,0,30,15,234,168,0,0,0,0,0,0,30,31,224,7,249,128,
+142,32,0,0,0,0,0,0,0,0,12,219,73,35,105,28,141,148,160,42,17,136,167,69,34,
+153,32,130,159,248,1,169,69,136,164,23,254,81,138,128,63,206,4,113,32,0,0,
+0,0,0,3,225,254,214,216,232,64,26,20,67,161,0,40,80,142,132,1,33,180,58,16,
+14,133,0,232,64,42,19,227,161,0,200,62,142,132,1,128,248,58,16,70,35,216,
+225,27,35,192,79,15,1,58,48,16,0,132,224,192,19,99,1,16,8,77,12,4,64,1,50,
+48,18,0,196,192,192,72,1,18,227,1,112,8,75,12,5,192,1,42,48,19,0,132,160,
+192,76,0,18,99,1,64,8,73,12,5,0,1,34,48,21,0,132,128,192,84,0,17,227,1,96,
+8,71,12,5,128,1,26,50,4,96,217,17,99,69,17,8,69,13,20,68,1,18,52,190,66,16,
+136,26,95,33,0,67,141,63,152,132,33,134,159,204,64,16,163,83,232,33,8,65,
+169,244,16,4,24,209,68,2,16,67,69,16,0,64,141,47,144,4,32,6,151,200,0,15,
+227,79,230,1,39,225,167,243,0,19,208,192,64,6,15,35,69,50,1,21,31,192,0,63,
+208,24,107,4,12,0,32,39,88,71,16,52,99,164,99,156,99,148,128,0,0,0,0,0,0,0,
+0,206,236,68,59,49,145,182,200,1,83,252,0,3,253,33,77,196,10,54,144,20,126,
+229,4,227,215,37,39,30,57,49,56,45,178,144,10,175,224,0,159,234,4,110,40,
+33,180,128,160,10,191,224,0,159,235,4,110,40,25,180,128,160,10,207,224,0,
+159,236,4,110,40,17,180,128,160,10,223,224,0,159,237,4,110,40,9,180,128,
+160,10,239,224,0,159,238,4,110,40,1,180,128,160,10,255,224,0,159,239,4,110,
+39,249,180,128,160,7,255,228,27,32,52,171,138,69,133,95,130,160,26,224,11,
+42,218,221,216,181,129,32,26,160,119,156,253,127,33,23,115,31,154,96,127,
+65,21,178,163,138,251,159,154,32,7,114,147,10,189,229,237,159,153,224,12,
+22,162,42,125,144,132,160,25,160,102,157,191,179,79,80,115,31,153,96,102,
+157,191,179,79,80,123,31,164,100,65,33,141,4,160,0,38,36,18,128,1,24,80,74,
+0,6,96,67,65,125,4,160,0,133,228,18,128,2,151,80,74,0,12,92,65,40,0,57,109,
+4,160,1,5,163,245,226,202,2,241,97,13,32,0,37,116,32,21,144,74,0,18,85,65,
+40,0,81,81,4,160,1,101,52,18,128,6,7,255,224,4,165,61,65,72,249,130,255,
+248,0,7,255,226,9,32,0,0,0,0,0,16,70,32,0,142,96,9,208,0,57,5,17,145,144,
+68,68,65,9,8,240,128,128,120,62,62,60,44,191,128,28,197,229,1,167,134,6,93,
+192,31,242,0,0,179,254,0,1,255,48,1,54,196,194,0,2,217,19,0,180,254,0,1,
+255,64,1,54,216,2,0,2,217,96,2,127,254,17,186,8,92,77,253,113,108,203,23,
+151,45,252,141,176,69,242,242,229,191,146,13,59,144,101,229,203,127,36,26,
+48,238,201,179,78,236,224,0,
 };
+#ifdef DUK_USE_INITJS
+const duk_uint8_t duk_initjs_data[] = {
+40,102,117,110,99,116,105,111,110,40,101,44,116,41,123,34,117,115,101,32,
+115,116,114,105,99,116,34,59,102,117,110,99,116,105,111,110,32,110,40,101,
+44,110,41,123,79,98,106,101,99,116,46,100,101,102,105,110,101,80,114,111,
+112,101,114,116,121,40,116,44,101,44,123,118,97,108,117,101,58,110,44,119,
+114,105,116,97,98,108,101,58,33,48,44,101,110,117,109,101,114,97,98,108,
+101,58,33,49,44,99,111,110,102,105,103,117,114,97,98,108,101,58,33,48,125,
+41,125,79,98,106,101,99,116,46,100,101,102,105,110,101,80,114,111,112,101,
+114,116,121,40,101,44,34,95,95,100,117,107,95,95,34,44,123,118,97,108,117,
+101,58,116,44,119,114,105,116,97,98,108,101,58,33,48,44,101,110,117,109,
+101,114,97,98,108,101,58,33,49,44,99,111,110,102,105,103,117,114,97,98,108,
+101,58,33,48,125,41,44,110,40,34,98,117,105,108,100,34,44,34,34,41,44,110,
+40,34,115,101,116,70,105,110,97,108,105,122,101,114,34,44,102,117,110,99,
+116,105,111,110,40,101,44,116,41,123,68,117,107,116,97,112,101,46,102,105,
+110,40,101,44,116,41,125,41,44,110,40,34,103,101,116,70,105,110,97,108,105,
+122,101,114,34,44,102,117,110,99,116,105,111,110,40,101,41,123,114,101,116,
+117,114,110,32,68,117,107,116,97,112,101,46,102,105,110,40,101,41,125,41,
+44,110,40,34,97,100,100,114,34,44,102,117,110,99,116,105,111,110,40,101,41,
+123,114,101,116,117,114,110,32,116,46,105,110,102,111,40,101,41,91,49,93,
+125,41,44,110,40,34,114,101,102,99,34,44,102,117,110,99,116,105,111,110,40,
+101,41,123,114,101,116,117,114,110,32,116,46,105,110,102,111,40,101,41,91,
+50,93,125,41,125,41,40,116,104,105,115,44,68,117,107,116,97,112,101,41,59,
+0,
+};
+#endif  /* DUK_USE_INITJS */
 #elif defined(DUK_USE_DOUBLE_BE)
 const duk_uint8_t duk_strings_data[] = {
 55,102,120,144,3,63,94,228,54,100,137,186,26,20,164,137,186,50,11,164,109,
@@ -23832,281 +24238,299 @@ const duk_uint8_t duk_strings_data[] = {
 139,70,139,232,190,234,113,161,63,245,223,247,244,90,106,26,95,162,251,169,
 198,132,255,214,255,223,209,105,13,47,209,125,212,227,66,127,235,127,239,
 232,180,208,55,232,190,234,113,161,63,245,255,247,244,90,163,70,66,253,23,
-221,78,52,39,254,156,84,140,72,217,154,36,149,24,67,4,18,39,219,125,160,
-206,75,161,50,115,69,209,144,72,76,156,209,116,141,18,19,39,54,253,25,4,
-132,201,205,191,72,209,12,100,16,200,209,48,196,159,74,134,129,104,201,34,
-201,18,125,42,26,5,163,36,136,140,34,68,133,17,0,49,196,245,36,100,135,52,
-100,109,79,209,209,83,3,200,113,57,143,66,200,141,196,134,8,36,67,238,103,
-137,0,53,108,168,104,22,140,146,39,216,128,181,144,132,219,0,242,236,17,52,
-139,185,157,18,70,222,47,178,90,26,67,238,78,164,68,67,238,160,137,27,83,
-237,100,185,27,83,238,160,139,0,244,108,174,139,0,185,39,97,196,200,39,12,
-133,219,73,121,159,115,4,76,73,155,117,2,232,67,189,200,108,201,19,6,133,
-41,34,153,196,2,32,193,48,41,104,105,58,218,48,36,138,10,133,147,173,3,8,
-39,136,178,152,4,167,118,103,139,173,217,225,228,233,35,23,68,194,2,214,66,
-51,168,109,64,180,15,232,58,48,76,133,253,191,174,250,239,174,253,209,124,
-87,196,135,232,3,245,130,250,223,176,23,213,253,128,126,193,63,91,212,52,
-168,106,39,132,253,95,80,210,161,168,158,17,212,52,168,106,39,131,56,41,32,
-166,105,78,40,105,140,218,48,36,137,194,231,44,128,106,104,209,144,168,105,
-6,153,78,40,105,144,92,14,96,105,37,8,204,114,67,75,23,81,163,52,64,209,
-185,131,123,172,54,33,163,96,46,53,184,197,42,220,232,140,151,120,196,233,
-16,68,66,202,9,129,191,100,64,76,13,32,36,134,144,2,116,134,0,200,190,148,
-35,63,178,63,165,8,207,236,117,246,66,243,208,111,45,198,251,31,176,33,124,
-183,27,236,136,63,45,191,100,79,45,191,99,246,1,233,14,194,74,64,49,8,208,
-48,133,67,95,73,149,13,25,46,79,168,251,255,186,250,148,172,18,159,80,209,
-146,233,101,23,52,45,13,34,144,102,186,36,232,129,34,26,78,164,68,66,76,
-146,153,9,114,9,115,119,140,201,203,211,138,26,99,200,147,238,8,8,156,196,
-159,112,64,68,211,119,147,39,53,115,119,145,39,75,211,138,26,101,205,222,
-164,197,47,78,40,105,157,34,79,212,152,139,234,45,125,193,1,21,200,147,233,
-104,181,247,4,4,87,34,79,212,152,153,231,54,103,68,137,62,177,205,153,213,
-34,79,212,152,135,224,76,135,145,39,209,130,100,92,137,63,82,98,63,157,72,
-201,18,36,250,119,82,50,108,137,63,82,98,103,144,218,76,146,84,137,62,177,
-13,164,201,38,200,147,245,38,41,120,130,115,71,37,72,147,236,136,39,52,114,
-148,137,63,82,98,103,144,181,162,68,19,154,57,62,68,159,88,133,173,18,32,
-156,209,200,242,36,251,52,48,145,49,39,217,161,132,203,154,78,184,165,145,
-39,35,18,126,164,196,207,33,107,68,136,39,52,114,121,137,62,177,11,90,36,
-65,57,163,147,76,73,250,147,20,188,65,57,163,146,140,73,246,68,19,154,57,
-52,196,159,169,49,51,200,109,38,73,40,196,159,88,134,210,100,146,204,73,
-250,147,17,252,234,70,72,49,39,211,186,145,146,76,73,250,147,16,252,12,24,
-196,159,70,12,40,196,159,169,49,15,192,153,14,98,79,163,4,200,179,18,126,
-164,196,207,57,179,58,12,73,245,142,108,206,227,18,126,164,196,95,81,107,
-238,8,8,172,196,159,75,69,175,184,32,34,115,18,125,154,24,73,77,221,91,132,
-5,147,179,67,9,217,78,40,105,165,55,117,110,16,22,78,140,19,39,101,56,161,
-166,100,221,217,161,132,236,167,20,52,204,155,186,48,76,157,148,226,134,
-152,109,117,135,234,76,69,120,35,34,46,110,235,226,65,34,72,115,91,55,116,
-151,123,154,70,205,0,89,230,238,149,23,32,227,231,186,72,154,42,77,33,165,
-67,81,60,71,205,33,129,52,84,154,67,74,134,162,120,31,90,14,181,62,98,27,
-170,129,116,34,124,192,95,85,2,232,67,74,129,148,226,73,197,12,140,221,213,
-184,64,89,59,71,188,145,232,129,34,46,110,237,30,242,71,162,4,137,25,187,
-171,112,128,178,117,110,177,35,209,2,68,92,221,213,186,196,143,68,9,17,50,
-160,101,56,161,166,44,158,180,76,210,32,34,35,158,36,122,192,34,21,128,152,
-142,213,184,64,89,58,39,49,224,137,20,35,130,61,19,134,78,130,102,17,193,
-30,130,108,44,92,206,136,224,143,68,225,145,113,32,232,34,118,40,49,230,
-104,144,116,17,12,84,46,100,136,216,7,156,174,143,72,1,28,146,115,8,82,84,
-145,194,214,9,79,168,104,201,126,184,167,67,70,75,245,197,61,27,35,160,179,
-52,158,180,8,132,147,163,50,201,104,17,11,35,160,179,60,73,82,70,68,35,233,
-35,141,238,121,18,228,52,194,115,68,9,157,18,232,35,16,97,32,137,168,194,
-54,114,48,128,181,146,36,10,26,50,8,11,89,64,247,175,20,124,92,242,70,120,
-234,37,210,54,140,36,64,21,145,168,151,95,23,77,211,195,201,215,21,199,4,
-186,235,55,175,139,158,72,207,7,168,23,66,117,197,116,221,213,184,64,89,59,
-41,197,13,50,38,238,202,113,67,76,177,57,178,156,104,41,186,42,35,104,194,
-68,1,89,24,39,52,168,53,34,0,172,136,180,81,48,5,100,45,64,186,16,138,38,
-36,196,75,164,188,200,217,32,43,34,17,46,150,46,201,26,132,75,178,32,22,65,
-197,241,37,72,217,244,151,153,27,36,57,178,49,98,66,100,132,145,0,184,12,
-133,67,73,215,197,207,36,102,130,73,195,33,80,210,117,241,115,201,25,224,
-194,137,1,50,76,196,159,93,102,245,241,115,201,25,227,173,3,9,44,24,147,
-235,172,222,190,46,121,35,60,116,100,144,162,135,205,209,113,137,62,190,46,
-155,167,135,147,174,42,95,23,77,211,195,200,101,145,166,153,202,5,146,51,
-43,226,134,205,20,105,36,32,60,134,36,132,7,146,68,104,156,50,122,145,64,
-188,230,61,205,35,102,146,52,78,25,61,72,162,67,32,156,50,122,145,64,188,
-230,61,205,35,102,145,144,78,25,61,72,161,8,151,74,134,162,100,42,37,214,
-131,173,83,193,25,19,165,91,129,52,60,17,145,58,134,204,132,168,22,143,82,
-40,39,163,23,69,61,158,30,78,146,49,116,87,217,97,179,5,250,72,197,209,119,
-98,66,146,36,104,137,210,70,46,138,187,16,52,196,233,35,23,69,61,37,64,190,
-146,49,116,74,24,144,10,32,129,34,20,64,152,142,129,57,179,67,104,68,12,
-129,161,140,72,156,100,40,40,185,152,100,89,38,65,13,196,34,228,67,149,13,
-2,215,129,149,209,65,104,209,77,14,104,144,81,33,170,67,101,48,52,68,113,
-70,210,88,209,36,233,22,154,86,68,196,114,76,232,145,102,120,186,195,156,
-112,105,225,228,113,71,80,68,149,114,6,91,29,11,33,44,137,156,162,88,37,34,
-137,205,148,200,70,209,134,37,222,232,204,228,188,200,209,200,200,99,221,
-25,150,84,121,34,70,209,107,36,227,66,20,160,92,136,51,18,99,145,38,164,49,
-235,35,8,217,201,40,108,201,18,128,68,26,201,51,188,2,80,12,67,190,40,168,
-38,68,190,46,153,5,50,12,207,160,86,129,26,83,4,208,34,225,4,88,192,
+221,78,52,39,254,156,84,140,72,217,154,36,149,24,66,166,78,104,138,153,57,
+183,48,65,34,125,183,218,12,228,184,198,65,12,141,16,202,134,136,194,34,26,
+87,30,164,140,144,230,140,141,169,250,58,42,96,121,14,39,49,232,89,17,184,
+144,193,4,136,125,204,241,32,6,173,149,13,2,209,146,68,251,16,22,178,16,
+155,96,30,93,130,38,145,119,51,162,72,219,197,246,75,67,72,125,201,212,136,
+136,125,212,17,35,106,125,172,151,35,106,125,212,17,96,30,141,149,209,96,
+23,36,236,56,153,4,225,144,187,105,47,51,238,96,137,137,51,110,160,93,8,
+119,185,13,153,34,96,208,165,36,83,56,128,68,24,38,5,45,13,39,91,70,4,145,
+65,80,178,117,160,97,4,241,22,83,0,148,238,204,241,117,187,60,60,157,36,98,
+232,152,64,90,200,70,117,13,168,22,129,253,7,70,9,144,191,183,245,223,93,
+245,223,186,47,138,248,144,253,0,126,176,95,91,246,2,250,191,176,15,216,39,
+235,122,134,149,13,68,240,159,171,234,26,84,53,19,194,58,134,149,13,68,240,
+103,5,36,20,205,41,197,13,49,155,70,4,145,56,92,229,144,13,77,26,50,21,13,
+32,211,41,197,13,50,11,129,204,13,36,161,25,142,72,105,98,234,52,102,136,
+26,55,48,111,117,134,196,52,108,5,198,183,24,165,91,157,17,146,239,24,157,
+34,8,136,89,65,48,55,236,136,9,129,164,4,144,210,0,78,144,192,25,23,210,
+132,103,246,71,244,161,25,253,142,190,200,94,122,13,229,184,223,99,246,4,
+47,150,227,125,145,7,229,183,236,137,229,183,236,126,192,61,33,216,73,72,6,
+33,26,6,16,168,107,233,50,161,163,37,201,245,31,127,247,95,82,149,130,83,
+234,26,50,93,44,162,230,133,161,164,82,12,215,68,157,16,36,67,73,212,136,
+136,73,146,83,33,46,65,46,110,241,153,57,122,113,67,76,121,18,125,193,1,19,
+152,147,238,8,8,154,110,242,100,230,174,110,242,36,233,122,113,67,76,185,
+187,212,152,165,233,197,13,51,164,73,250,147,17,125,69,175,184,32,34,185,
+18,125,45,22,190,224,128,138,228,73,250,147,19,60,230,204,232,145,39,214,
+57,179,58,164,73,250,147,16,252,9,144,242,36,250,48,76,139,145,39,234,76,
+71,243,169,25,34,68,159,78,234,70,77,145,39,234,76,76,242,27,73,146,74,145,
+39,214,33,180,153,36,217,18,126,164,197,47,16,78,104,228,169,18,125,145,4,
+230,142,82,145,39,234,76,76,242,22,180,72,130,115,71,39,200,147,235,16,181,
+162,68,19,154,57,30,68,159,102,134,18,38,36,251,52,48,153,115,73,215,20,
+178,36,228,98,79,212,152,153,228,45,104,145,4,230,142,79,49,39,214,33,107,
+68,136,39,52,114,105,137,63,82,98,151,136,39,52,114,81,137,62,200,130,115,
+71,38,152,147,245,38,38,121,13,164,201,37,24,147,235,16,218,76,146,89,137,
+63,82,98,63,157,72,201,6,36,250,119,82,50,73,137,63,82,98,31,129,131,24,
+147,232,193,133,24,147,245,38,33,248,19,33,204,73,244,96,153,22,98,79,212,
+152,153,231,54,103,65,137,62,177,205,153,220,98,79,212,152,139,234,45,125,
+193,1,21,152,147,233,104,181,247,4,4,78,98,79,179,67,9,41,187,171,112,128,
+178,118,104,97,59,41,197,13,52,166,238,173,194,2,201,209,130,100,236,167,
+20,52,204,155,187,52,48,157,148,226,134,153,147,119,70,9,147,178,156,80,
+211,13,174,176,253,73,136,175,4,100,69,205,221,124,72,36,73,14,107,102,238,
+146,239,115,72,217,160,11,60,221,210,162,228,28,124,247,73,19,69,73,164,52,
+168,106,39,136,249,164,48,38,138,147,72,105,80,212,79,3,235,65,214,167,204,
+67,117,80,46,132,79,152,11,234,160,93,8,105,80,50,156,73,56,161,145,155,
+186,183,8,11,39,104,247,146,61,16,36,69,205,221,163,222,72,244,64,145,35,
+55,117,110,16,22,78,173,214,36,122,32,72,139,155,186,183,88,145,232,129,34,
+38,84,12,167,20,52,197,147,214,137,154,68,4,68,115,196,143,88,4,66,176,19,
+17,218,183,8,11,39,68,230,60,17,34,132,112,71,162,112,201,208,76,194,56,35,
+208,77,133,139,153,209,28,17,232,156,50,46,36,29,4,78,197,6,60,205,18,14,
+130,33,138,133,204,145,27,0,243,149,209,233,0,35,146,78,97,10,74,146,56,90,
+193,41,245,13,25,47,215,20,232,104,201,126,184,167,163,100,116,22,102,147,
+214,129,16,146,116,102,89,45,2,33,100,116,22,103,137,42,72,200,132,125,36,
+113,189,207,34,92,134,152,78,104,129,51,162,93,4,98,12,36,17,53,24,70,206,
+70,16,22,178,68,129,67,70,65,1,107,40,30,245,226,143,139,158,72,207,29,68,
+186,70,209,132,136,2,178,53,18,235,226,233,186,120,121,58,226,184,224,151,
+93,102,245,241,115,201,25,224,245,2,232,78,184,174,155,186,183,8,11,39,101,
+56,161,166,68,221,217,78,40,105,150,39,54,83,141,5,55,68,114,36,198,98,77,
+68,109,24,72,128,43,35,4,230,149,6,164,64,21,145,22,138,38,0,172,133,168,
+23,66,17,68,196,152,137,116,151,153,27,36,5,100,66,37,210,197,217,35,80,
+137,118,68,2,200,56,190,36,169,27,62,146,243,35,100,135,54,70,44,72,76,144,
+146,32,23,1,144,168,105,58,248,185,228,140,208,73,56,100,42,26,78,190,46,
+121,35,60,24,81,32,38,73,152,147,235,172,222,190,46,121,35,60,117,160,97,
+37,131,18,125,117,155,215,197,207,36,103,142,140,146,20,80,249,186,46,49,
+39,215,197,211,116,240,242,117,197,75,226,233,186,120,121,12,178,52,211,57,
+64,178,70,101,124,80,217,162,141,36,132,7,144,196,144,128,242,72,141,19,
+134,79,82,40,23,156,199,185,164,108,210,70,137,195,39,169,20,72,100,19,134,
+79,82,40,23,156,199,185,164,108,210,50,9,195,39,169,20,33,18,233,80,212,76,
+133,68,186,208,117,170,120,35,34,116,171,112,38,135,130,50,39,80,217,144,
+149,2,209,234,69,4,244,98,232,167,179,195,201,210,70,46,138,251,44,54,96,
+191,73,24,186,46,236,72,82,68,141,17,58,72,197,209,87,98,6,152,157,36,98,
+232,167,164,168,23,210,70,46,137,67,18,1,68,16,36,66,136,19,17,208,39,54,
+104,109,8,129,144,52,49,137,19,140,133,5,23,51,12,139,36,200,33,184,132,92,
+136,114,161,160,90,240,50,186,40,45,26,41,161,205,18,10,36,53,72,108,166,6,
+136,142,40,218,75,26,36,157,34,211,74,200,152,142,73,157,18,44,207,23,88,
+115,142,13,60,60,142,40,234,8,146,174,64,203,99,161,100,37,145,51,148,75,4,
+164,81,57,178,153,8,218,48,196,187,221,25,156,151,153,26,57,25,12,123,163,
+50,202,143,36,72,218,45,100,156,104,66,148,11,145,20,134,61,100,97,27,57,
+37,13,153,34,80,8,131,89,38,119,128,74,1,136,119,197,21,4,200,151,197,211,
+32,166,65,153,244,10,208,35,74,96,154,4,92,32,139,24,
 };
 
 /* to convert a heap stridx to a token number, subtract
  * DUK_STRIDX_START_RESERVED and add DUK_TOK_START_RESERVED.
  */
 
-/* native functions: 129 */
-const duk_c_function duk_builtin_native_functions[] = {
-	(duk_c_function) duk_builtin_array_constructor,
-	(duk_c_function) duk_builtin_array_constructor_is_array,
-	(duk_c_function) duk_builtin_array_prototype_concat,
-	(duk_c_function) duk_builtin_array_prototype_indexof_shared,
-	(duk_c_function) duk_builtin_array_prototype_iter_shared,
-	(duk_c_function) duk_builtin_array_prototype_join_shared,
-	(duk_c_function) duk_builtin_array_prototype_pop,
-	(duk_c_function) duk_builtin_array_prototype_push,
-	(duk_c_function) duk_builtin_array_prototype_reduce_shared,
-	(duk_c_function) duk_builtin_array_prototype_reverse,
-	(duk_c_function) duk_builtin_array_prototype_shift,
-	(duk_c_function) duk_builtin_array_prototype_slice,
-	(duk_c_function) duk_builtin_array_prototype_sort,
-	(duk_c_function) duk_builtin_array_prototype_splice,
-	(duk_c_function) duk_builtin_array_prototype_to_string,
-	(duk_c_function) duk_builtin_array_prototype_unshift,
-	(duk_c_function) duk_builtin_boolean_constructor,
-	(duk_c_function) duk_builtin_boolean_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_buffer_constructor,
-	(duk_c_function) duk_builtin_buffer_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_date_constructor,
-	(duk_c_function) duk_builtin_date_constructor_now,
-	(duk_c_function) duk_builtin_date_constructor_parse,
-	(duk_c_function) duk_builtin_date_constructor_utc,
-	(duk_c_function) duk_builtin_date_prototype_get_shared,
-	(duk_c_function) duk_builtin_date_prototype_get_timezone_offset,
-	(duk_c_function) duk_builtin_date_prototype_set_shared,
-	(duk_c_function) duk_builtin_date_prototype_set_time,
-	(duk_c_function) duk_builtin_date_prototype_to_json,
-	(duk_c_function) duk_builtin_date_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_date_prototype_value_of,
-	(duk_c_function) duk_builtin_duk_object_addr,
-	(duk_c_function) duk_builtin_duk_object_dec,
-	(duk_c_function) duk_builtin_duk_object_enc,
-	(duk_c_function) duk_builtin_duk_object_gc,
-	(duk_c_function) duk_builtin_duk_object_get_finalizer,
-	(duk_c_function) duk_builtin_duk_object_jsonc_dec,
-	(duk_c_function) duk_builtin_duk_object_jsonc_enc,
-	(duk_c_function) duk_builtin_duk_object_jsonx_dec,
-	(duk_c_function) duk_builtin_duk_object_jsonx_enc,
-	(duk_c_function) duk_builtin_duk_object_refc,
-	(duk_c_function) duk_builtin_duk_object_set_finalizer,
-	(duk_c_function) duk_builtin_error_constructor_shared,
-	(duk_c_function) duk_builtin_error_prototype_filename_getter,
-	(duk_c_function) duk_builtin_error_prototype_linenumber_getter,
-	(duk_c_function) duk_builtin_error_prototype_nop_setter,
-	(duk_c_function) duk_builtin_error_prototype_stack_getter,
-	(duk_c_function) duk_builtin_error_prototype_to_string,
-	(duk_c_function) duk_builtin_function_constructor,
-	(duk_c_function) duk_builtin_function_prototype,
-	(duk_c_function) duk_builtin_function_prototype_apply,
-	(duk_c_function) duk_builtin_function_prototype_bind,
-	(duk_c_function) duk_builtin_function_prototype_call,
-	(duk_c_function) duk_builtin_function_prototype_to_string,
-	(duk_c_function) duk_builtin_global_object_alert,
-	(duk_c_function) duk_builtin_global_object_decode_uri,
-	(duk_c_function) duk_builtin_global_object_decode_uri_component,
-	(duk_c_function) duk_builtin_global_object_encode_uri,
-	(duk_c_function) duk_builtin_global_object_encode_uri_component,
-	(duk_c_function) duk_builtin_global_object_escape,
-	(duk_c_function) duk_builtin_global_object_eval,
-	(duk_c_function) duk_builtin_global_object_is_finite,
-	(duk_c_function) duk_builtin_global_object_is_nan,
-	(duk_c_function) duk_builtin_global_object_parse_float,
-	(duk_c_function) duk_builtin_global_object_parse_int,
-	(duk_c_function) duk_builtin_global_object_print,
-	(duk_c_function) duk_builtin_global_object_unescape,
-	(duk_c_function) duk_builtin_json_object_parse,
-	(duk_c_function) duk_builtin_json_object_stringify,
-	(duk_c_function) duk_builtin_math_object_max,
-	(duk_c_function) duk_builtin_math_object_min,
-	(duk_c_function) duk_builtin_math_object_onearg_shared,
-	(duk_c_function) duk_builtin_math_object_random,
-	(duk_c_function) duk_builtin_math_object_twoarg_shared,
-	(duk_c_function) duk_builtin_number_constructor,
-	(duk_c_function) duk_builtin_number_prototype_to_exponential,
-	(duk_c_function) duk_builtin_number_prototype_to_fixed,
-	(duk_c_function) duk_builtin_number_prototype_to_locale_string,
-	(duk_c_function) duk_builtin_number_prototype_to_precision,
-	(duk_c_function) duk_builtin_number_prototype_to_string,
-	(duk_c_function) duk_builtin_number_prototype_value_of,
-	(duk_c_function) duk_builtin_object_constructor,
-	(duk_c_function) duk_builtin_object_constructor_create,
-	(duk_c_function) duk_builtin_object_constructor_define_properties,
-	(duk_c_function) duk_builtin_object_constructor_define_property,
-	(duk_c_function) duk_builtin_object_constructor_freeze,
-	(duk_c_function) duk_builtin_object_constructor_get_own_property_descriptor,
-	(duk_c_function) duk_builtin_object_constructor_get_own_property_names,
-	(duk_c_function) duk_builtin_object_constructor_get_prototype_of,
-	(duk_c_function) duk_builtin_object_constructor_is_extensible,
-	(duk_c_function) duk_builtin_object_constructor_is_frozen,
-	(duk_c_function) duk_builtin_object_constructor_is_sealed,
-	(duk_c_function) duk_builtin_object_constructor_keys,
-	(duk_c_function) duk_builtin_object_constructor_prevent_extensions,
-	(duk_c_function) duk_builtin_object_constructor_seal,
-	(duk_c_function) duk_builtin_object_prototype_has_own_property,
-	(duk_c_function) duk_builtin_object_prototype_is_prototype_of,
-	(duk_c_function) duk_builtin_object_prototype_property_is_enumerable,
-	(duk_c_function) duk_builtin_object_prototype_to_locale_string,
-	(duk_c_function) duk_builtin_object_prototype_to_string,
-	(duk_c_function) duk_builtin_object_prototype_value_of,
-	(duk_c_function) duk_builtin_pointer_constructor,
-	(duk_c_function) duk_builtin_pointer_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_regexp_constructor,
-	(duk_c_function) duk_builtin_regexp_prototype_exec,
-	(duk_c_function) duk_builtin_regexp_prototype_test,
-	(duk_c_function) duk_builtin_regexp_prototype_to_string,
-	(duk_c_function) duk_builtin_string_constructor,
-	(duk_c_function) duk_builtin_string_constructor_from_char_code,
-	(duk_c_function) duk_builtin_string_prototype_caseconv_shared,
-	(duk_c_function) duk_builtin_string_prototype_char_at,
-	(duk_c_function) duk_builtin_string_prototype_char_code_at,
-	(duk_c_function) duk_builtin_string_prototype_concat,
-	(duk_c_function) duk_builtin_string_prototype_indexof_shared,
-	(duk_c_function) duk_builtin_string_prototype_locale_compare,
-	(duk_c_function) duk_builtin_string_prototype_match,
-	(duk_c_function) duk_builtin_string_prototype_replace,
-	(duk_c_function) duk_builtin_string_prototype_search,
-	(duk_c_function) duk_builtin_string_prototype_slice,
-	(duk_c_function) duk_builtin_string_prototype_split,
-	(duk_c_function) duk_builtin_string_prototype_substr,
-	(duk_c_function) duk_builtin_string_prototype_substring,
-	(duk_c_function) duk_builtin_string_prototype_to_string,
-	(duk_c_function) duk_builtin_string_prototype_trim,
-	(duk_c_function) duk_builtin_thread_constructor,
-	(duk_c_function) duk_builtin_thread_current,
-	(duk_c_function) duk_builtin_thread_resume,
-	(duk_c_function) duk_builtin_thread_yield,
-	(duk_c_function) duk_builtin_type_error_thrower,
+/* native functions: 123 */
+const duk_c_function duk_bi_native_functions[] = {
+	(duk_c_function) duk_bi_array_constructor,
+	(duk_c_function) duk_bi_array_constructor_is_array,
+	(duk_c_function) duk_bi_array_prototype_concat,
+	(duk_c_function) duk_bi_array_prototype_indexof_shared,
+	(duk_c_function) duk_bi_array_prototype_iter_shared,
+	(duk_c_function) duk_bi_array_prototype_join_shared,
+	(duk_c_function) duk_bi_array_prototype_pop,
+	(duk_c_function) duk_bi_array_prototype_push,
+	(duk_c_function) duk_bi_array_prototype_reduce_shared,
+	(duk_c_function) duk_bi_array_prototype_reverse,
+	(duk_c_function) duk_bi_array_prototype_shift,
+	(duk_c_function) duk_bi_array_prototype_slice,
+	(duk_c_function) duk_bi_array_prototype_sort,
+	(duk_c_function) duk_bi_array_prototype_splice,
+	(duk_c_function) duk_bi_array_prototype_to_string,
+	(duk_c_function) duk_bi_array_prototype_unshift,
+	(duk_c_function) duk_bi_boolean_constructor,
+	(duk_c_function) duk_bi_boolean_prototype_tostring_shared,
+	(duk_c_function) duk_bi_buffer_constructor,
+	(duk_c_function) duk_bi_buffer_prototype_tostring_shared,
+	(duk_c_function) duk_bi_date_constructor,
+	(duk_c_function) duk_bi_date_constructor_now,
+	(duk_c_function) duk_bi_date_constructor_parse,
+	(duk_c_function) duk_bi_date_constructor_utc,
+	(duk_c_function) duk_bi_date_prototype_get_shared,
+	(duk_c_function) duk_bi_date_prototype_get_timezone_offset,
+	(duk_c_function) duk_bi_date_prototype_set_shared,
+	(duk_c_function) duk_bi_date_prototype_set_time,
+	(duk_c_function) duk_bi_date_prototype_to_json,
+	(duk_c_function) duk_bi_date_prototype_tostring_shared,
+	(duk_c_function) duk_bi_date_prototype_value_of,
+	(duk_c_function) duk_bi_duk_object_dec,
+	(duk_c_function) duk_bi_duk_object_enc,
+	(duk_c_function) duk_bi_duk_object_fin,
+	(duk_c_function) duk_bi_duk_object_gc,
+	(duk_c_function) duk_bi_duk_object_info,
+	(duk_c_function) duk_bi_error_constructor_shared,
+	(duk_c_function) duk_bi_error_prototype_filename_getter,
+	(duk_c_function) duk_bi_error_prototype_linenumber_getter,
+	(duk_c_function) duk_bi_error_prototype_nop_setter,
+	(duk_c_function) duk_bi_error_prototype_stack_getter,
+	(duk_c_function) duk_bi_error_prototype_to_string,
+	(duk_c_function) duk_bi_function_constructor,
+	(duk_c_function) duk_bi_function_prototype,
+	(duk_c_function) duk_bi_function_prototype_apply,
+	(duk_c_function) duk_bi_function_prototype_bind,
+	(duk_c_function) duk_bi_function_prototype_call,
+	(duk_c_function) duk_bi_function_prototype_to_string,
+	(duk_c_function) duk_bi_global_object_alert,
+	(duk_c_function) duk_bi_global_object_decode_uri,
+	(duk_c_function) duk_bi_global_object_decode_uri_component,
+	(duk_c_function) duk_bi_global_object_encode_uri,
+	(duk_c_function) duk_bi_global_object_encode_uri_component,
+	(duk_c_function) duk_bi_global_object_escape,
+	(duk_c_function) duk_bi_global_object_eval,
+	(duk_c_function) duk_bi_global_object_is_finite,
+	(duk_c_function) duk_bi_global_object_is_nan,
+	(duk_c_function) duk_bi_global_object_parse_float,
+	(duk_c_function) duk_bi_global_object_parse_int,
+	(duk_c_function) duk_bi_global_object_print,
+	(duk_c_function) duk_bi_global_object_unescape,
+	(duk_c_function) duk_bi_json_object_parse,
+	(duk_c_function) duk_bi_json_object_stringify,
+	(duk_c_function) duk_bi_math_object_max,
+	(duk_c_function) duk_bi_math_object_min,
+	(duk_c_function) duk_bi_math_object_onearg_shared,
+	(duk_c_function) duk_bi_math_object_random,
+	(duk_c_function) duk_bi_math_object_twoarg_shared,
+	(duk_c_function) duk_bi_number_constructor,
+	(duk_c_function) duk_bi_number_prototype_to_exponential,
+	(duk_c_function) duk_bi_number_prototype_to_fixed,
+	(duk_c_function) duk_bi_number_prototype_to_locale_string,
+	(duk_c_function) duk_bi_number_prototype_to_precision,
+	(duk_c_function) duk_bi_number_prototype_to_string,
+	(duk_c_function) duk_bi_number_prototype_value_of,
+	(duk_c_function) duk_bi_object_constructor,
+	(duk_c_function) duk_bi_object_constructor_create,
+	(duk_c_function) duk_bi_object_constructor_define_properties,
+	(duk_c_function) duk_bi_object_constructor_define_property,
+	(duk_c_function) duk_bi_object_constructor_freeze,
+	(duk_c_function) duk_bi_object_constructor_get_own_property_descriptor,
+	(duk_c_function) duk_bi_object_constructor_get_own_property_names,
+	(duk_c_function) duk_bi_object_constructor_get_prototype_of,
+	(duk_c_function) duk_bi_object_constructor_is_extensible,
+	(duk_c_function) duk_bi_object_constructor_is_frozen,
+	(duk_c_function) duk_bi_object_constructor_is_sealed,
+	(duk_c_function) duk_bi_object_constructor_keys,
+	(duk_c_function) duk_bi_object_constructor_prevent_extensions,
+	(duk_c_function) duk_bi_object_constructor_seal,
+	(duk_c_function) duk_bi_object_prototype_has_own_property,
+	(duk_c_function) duk_bi_object_prototype_is_prototype_of,
+	(duk_c_function) duk_bi_object_prototype_property_is_enumerable,
+	(duk_c_function) duk_bi_object_prototype_to_locale_string,
+	(duk_c_function) duk_bi_object_prototype_to_string,
+	(duk_c_function) duk_bi_object_prototype_value_of,
+	(duk_c_function) duk_bi_pointer_constructor,
+	(duk_c_function) duk_bi_pointer_prototype_tostring_shared,
+	(duk_c_function) duk_bi_regexp_constructor,
+	(duk_c_function) duk_bi_regexp_prototype_exec,
+	(duk_c_function) duk_bi_regexp_prototype_test,
+	(duk_c_function) duk_bi_regexp_prototype_to_string,
+	(duk_c_function) duk_bi_string_constructor,
+	(duk_c_function) duk_bi_string_constructor_from_char_code,
+	(duk_c_function) duk_bi_string_prototype_caseconv_shared,
+	(duk_c_function) duk_bi_string_prototype_char_at,
+	(duk_c_function) duk_bi_string_prototype_char_code_at,
+	(duk_c_function) duk_bi_string_prototype_concat,
+	(duk_c_function) duk_bi_string_prototype_indexof_shared,
+	(duk_c_function) duk_bi_string_prototype_locale_compare,
+	(duk_c_function) duk_bi_string_prototype_match,
+	(duk_c_function) duk_bi_string_prototype_replace,
+	(duk_c_function) duk_bi_string_prototype_search,
+	(duk_c_function) duk_bi_string_prototype_slice,
+	(duk_c_function) duk_bi_string_prototype_split,
+	(duk_c_function) duk_bi_string_prototype_substr,
+	(duk_c_function) duk_bi_string_prototype_substring,
+	(duk_c_function) duk_bi_string_prototype_to_string,
+	(duk_c_function) duk_bi_string_prototype_trim,
+	(duk_c_function) duk_bi_thread_constructor,
+	(duk_c_function) duk_bi_thread_current,
+	(duk_c_function) duk_bi_thread_resume,
+	(duk_c_function) duk_bi_thread_yield,
+	(duk_c_function) duk_bi_type_error_thrower,
 };
 
 const duk_uint8_t duk_builtins_data[] = {
-105,195,74,136,73,40,105,48,8,252,104,49,2,131,72,0,67,225,65,165,172,31,
-243,6,145,0,114,24,210,148,13,249,35,120,160,51,226,13,76,224,180,177,164,
-168,20,192,4,202,52,149,65,152,0,169,70,146,168,43,0,23,40,210,85,4,96,3,
-37,26,74,160,108,0,108,163,73,84,9,128,14,148,105,42,128,176,1,242,144,56,
-209,0,68,10,26,95,0,31,72,105,18,1,125,1,165,148,3,244,69,7,255,234,171,
-224,63,252,0,0,0,0,0,0,20,32,63,248,0,0,0,0,0,0,21,98,4,140,32,137,136,16,
-49,129,230,64,56,202,6,153,128,195,56,22,104,2,141,40,49,169,5,53,160,134,
-196,12,218,129,27,144,19,120,18,112,2,14,17,81,198,108,0,240,143,244,4,63,
-143,200,253,62,35,240,244,143,179,114,62,142,8,249,57,35,224,232,143,115,
-178,61,144,136,245,65,30,122,27,15,127,255,224,142,225,128,0,161,254,1,175,
-21,130,60,21,144,239,87,35,185,73,14,213,70,59,20,208,235,94,35,169,84,142,
-149,210,58,22,200,231,90,35,153,100,142,85,194,127,248,64,12,223,99,3,121,
-136,13,214,64,55,23,200,219,96,35,105,132,130,139,248,0,7,248,128,8,223,53,
-35,100,201,13,131,67,230,185,153,240,163,254,0,45,64,18,7,248,192,42,223,
-14,3,120,20,32,0,45,48,35,230,144,41,26,32,192,104,3,159,51,194,64,206,10,
-3,52,45,12,192,194,50,195,87,153,65,231,204,144,51,240,0,22,64,25,255,255,
-251,28,16,209,140,8,106,0,2,197,4,53,0,2,98,2,26,128,1,176,193,13,64,1,24,
-65,7,224,0,44,16,131,255,255,241,73,252,0,88,13,135,193,254,64,35,200,64,
-85,27,239,64,110,189,1,126,220,69,243,121,26,110,7,204,151,19,70,67,137,
-168,0,10,245,200,139,199,50,46,221,16,186,117,35,53,217,11,151,116,46,30,
-80,183,109,2,217,180,11,86,208,128,0,173,27,66,0,2,179,123,2,201,225,2,151,
-248,0,7,249,64,143,35,4,223,17,8,0,11,116,68,2,155,248,171,24,15,253,255,
-255,255,255,255,255,235,8,0,0,0,0,0,0,0,0,42,248,15,255,0,0,0,0,0,0,10,216,
-15,254,0,0,0,0,0,0,10,232,31,254,0,0,0,0,0,0,0,7,249,128,143,32,0,0,0,0,0,
-0,0,0,12,223,79,35,121,52,141,213,0,43,19,8,171,75,34,169,56,130,159,248,1,
-170,69,136,168,23,254,83,138,128,63,206,4,121,33,255,224,0,0,0,0,0,2,214,
-248,232,64,26,20,195,161,0,40,82,142,132,1,33,188,58,16,14,133,32,232,64,
-42,20,99,161,0,200,64,142,132,1,129,0,58,16,70,35,248,225,27,163,192,81,15,
-1,66,48,16,0,133,0,192,19,227,1,16,8,79,12,4,64,1,58,48,18,0,196,224,192,
-72,1,19,99,1,112,8,77,12,5,192,1,50,48,19,0,132,192,192,76,0,18,227,1,64,8,
-75,12,5,0,1,42,48,21,0,132,160,192,84,0,18,99,1,96,8,73,12,5,128,1,34,50,4,
-128,217,17,227,69,17,8,71,13,20,68,1,26,52,190,66,16,140,26,95,33,0,69,141,
-63,152,132,34,134,159,204,64,17,35,83,232,33,8,129,169,244,16,4,56,209,68,
-2,16,195,69,16,0,66,141,47,144,4,33,6,151,200,0,16,99,79,230,1,40,33,167,
-243,0,19,240,192,64,6,15,163,69,50,1,21,31,192,0,63,208,24,115,4,12,0,32,
-39,152,71,80,52,99,196,99,188,99,180,128,0,0,0,0,0,0,0,0,207,109,4,61,52,
-145,190,212,1,83,252,0,3,253,33,78,68,10,56,144,20,134,229,197,164,23,43,
-45,32,57,97,104,45,242,240,10,175,224,0,159,234,4,114,40,49,196,128,160,10,
-191,224,0,159,235,4,114,40,41,196,128,160,10,207,224,0,159,236,4,114,40,33,
-196,128,160,10,223,224,0,159,237,4,114,40,25,196,128,160,10,239,224,0,159,
-238,4,114,40,17,196,128,160,10,255,224,0,159,239,4,114,40,9,196,128,160,7,
-255,228,28,32,32,2,223,133,69,138,43,180,155,224,32,1,53,216,221,218,170,
-139,27,160,31,243,23,33,127,125,28,247,155,96,31,251,138,163,178,149,193,
-127,27,32,31,237,229,189,138,147,114,135,26,224,32,4,144,253,170,34,22,140,
-26,160,31,243,80,79,51,63,157,230,154,96,31,251,80,79,51,63,157,230,164,
-104,71,33,157,28,160,0,38,100,114,128,1,25,81,202,0,6,100,73,65,141,28,160,
-0,134,36,114,128,2,152,81,202,0,12,96,71,40,0,57,125,28,160,1,5,228,85,226,
-234,50,241,113,37,32,0,37,180,128,22,145,202,0,18,89,71,40,0,81,97,28,160,
-1,101,116,114,128,6,7,255,224,4,169,67,65,89,17,130,255,248,0,7,255,226,10,
-32,32,70,16,0,0,0,0,0,0,142,96,9,208,0,57,11,19,143,144,76,80,65,41,17,4,
-100,100,18,20,160,68,66,129,9,2,4,4,236,15,147,32,60,74,192,233,34,5,151,
-240,3,154,191,160,52,252,192,203,232,3,254,64,0,22,127,192,0,63,230,0,38,
-248,152,64,0,91,162,96,22,159,192,0,63,232,0,38,251,48,64,0,91,172,192,79,
-255,194,57,65,11,137,191,174,45,153,98,242,229,191,145,198,8,190,94,92,183,
-242,65,167,114,12,188,185,111,228,131,70,29,217,54,105,221,156,0,
+105,195,74,88,73,40,105,42,8,252,104,43,2,131,72,0,67,225,65,165,148,31,
+243,6,145,0,114,24,210,136,13,249,35,120,160,51,226,13,76,32,180,177,164,
+144,20,192,4,202,52,146,65,24,0,169,70,146,72,27,0,23,40,210,73,2,96,3,37,
+26,73,32,44,0,108,163,73,36,1,128,14,148,105,36,127,176,1,242,144,56,208,
+244,64,10,26,93,128,31,72,105,18,1,125,1,165,124,3,244,69,7,255,234,170,
+224,63,252,0,0,0,0,0,0,19,32,63,248,0,0,0,0,0,0,20,98,4,140,32,137,136,16,
+49,129,230,64,56,202,6,153,128,195,56,22,104,2,141,40,33,169,3,53,160,70,
+196,4,218,128,27,143,243,120,18,112,2,14,17,49,198,107,248,216,143,211,164,
+63,14,72,251,56,35,232,220,143,147,18,62,12,136,247,51,35,216,208,143,83,
+82,61,15,8,243,59,30,121,24,15,127,255,224,141,225,128,0,161,254,1,174,245,
+34,59,148,16,237,81,35,177,49,14,180,230,58,147,80,233,88,35,161,60,142,
+117,114,57,149,72,229,84,35,145,76,142,53,98,127,248,64,12,219,93,3,105,
+112,13,149,224,54,22,72,215,90,35,89,108,130,139,248,0,7,248,128,8,219,47,
+3,84,177,13,66,227,230,153,105,240,163,254,0,45,0,18,7,248,192,42,219,14,3,
+104,20,32,0,44,240,35,230,112,41,25,160,192,102,3,159,50,194,64,202,10,3,
+36,45,12,128,194,49,195,87,152,193,231,204,80,51,240,0,22,32,25,255,255,
+251,12,16,209,132,8,106,0,2,193,4,53,0,2,96,2,26,128,1,175,193,13,64,1,23,
+193,7,224,0,43,208,131,255,255,241,73,252,0,87,140,199,193,254,64,35,136,
+64,85,27,110,128,108,186,1,118,208,69,211,73,25,237,71,204,86,179,70,35,89,
+168,0,10,229,176,139,134,210,45,219,144,182,111,35,37,193,11,87,20,45,28,
+208,179,103,2,201,156,11,22,112,128,0,172,25,194,0,2,175,117,2,185,201,2,
+151,248,0,7,249,64,142,35,4,219,17,8,0,11,100,68,2,155,248,170,216,15,253,
+255,255,255,255,255,255,234,200,0,0,0,0,0,0,0,0,42,184,15,255,0,0,0,0,0,0,
+10,152,15,254,0,0,0,0,0,0,10,168,31,254,0,0,0,0,0,0,0,7,249,128,142,32,0,0,
+0,0,0,0,0,0,12,219,73,35,105,28,141,148,160,42,17,136,167,69,34,153,32,130,
+159,248,1,169,69,136,164,23,254,81,138,128,63,206,4,113,33,255,224,0,0,0,0,
+0,2,214,216,232,64,26,20,67,161,0,40,80,142,132,1,33,180,58,16,14,133,0,
+232,64,42,19,227,161,0,200,62,142,132,1,128,248,58,16,70,35,216,225,27,35,
+192,79,15,1,58,48,16,0,132,224,192,19,99,1,16,8,77,12,4,64,1,50,48,18,0,
+196,192,192,72,1,18,227,1,112,8,75,12,5,192,1,42,48,19,0,132,160,192,76,0,
+18,99,1,64,8,73,12,5,0,1,34,48,21,0,132,128,192,84,0,17,227,1,96,8,71,12,5,
+128,1,26,50,4,96,217,17,99,69,17,8,69,13,20,68,1,18,52,190,66,16,136,26,95,
+33,0,67,141,63,152,132,33,134,159,204,64,16,163,83,232,33,8,65,169,244,16,
+4,24,209,68,2,16,67,69,16,0,64,141,47,144,4,32,6,151,200,0,15,227,79,230,1,
+39,225,167,243,0,19,208,192,64,6,15,35,69,50,1,21,31,192,0,63,208,24,107,4,
+12,0,32,39,88,71,16,52,99,164,99,156,99,148,128,0,0,0,0,0,0,0,0,206,236,68,
+59,49,145,182,200,1,83,252,0,3,253,33,77,196,10,54,144,20,126,229,4,227,
+215,37,39,30,57,49,56,45,178,144,10,175,224,0,159,234,4,110,40,33,180,128,
+160,10,191,224,0,159,235,4,110,40,25,180,128,160,10,207,224,0,159,236,4,
+110,40,17,180,128,160,10,223,224,0,159,237,4,110,40,9,180,128,160,10,239,
+224,0,159,238,4,110,40,1,180,128,160,10,255,224,0,159,239,4,110,39,249,180,
+128,160,7,255,228,27,32,32,2,223,133,69,138,43,180,154,224,32,1,53,216,221,
+218,170,139,26,160,31,243,23,33,127,125,28,247,154,96,31,251,138,163,178,
+149,193,127,26,32,31,237,229,189,138,147,114,135,25,224,32,4,144,253,170,
+34,22,140,25,160,31,243,80,79,51,63,157,230,153,96,31,251,80,79,51,63,157,
+230,164,100,65,33,141,4,160,0,38,36,18,128,1,24,80,74,0,6,96,67,65,125,4,
+160,0,133,228,18,128,2,151,80,74,0,12,92,65,40,0,57,109,4,160,1,5,163,245,
+226,202,2,241,97,13,32,0,37,116,32,21,144,74,0,18,85,65,40,0,81,81,4,160,1,
+101,52,18,128,6,7,255,224,4,165,61,65,72,249,130,255,248,0,7,255,226,9,32,
+32,70,16,0,0,0,0,0,0,142,96,9,208,0,57,5,17,145,144,68,68,65,9,8,240,128,
+128,120,62,62,60,44,191,128,28,197,229,1,167,134,6,93,192,31,242,0,0,179,
+254,0,1,255,48,1,54,196,194,0,2,217,19,0,180,254,0,1,255,64,1,54,216,2,0,2,
+217,96,2,127,254,17,186,8,92,77,253,113,108,203,23,151,45,252,141,176,69,
+242,242,229,191,146,13,59,144,101,229,203,127,36,26,48,238,201,179,78,236,
+224,0,
 };
+#ifdef DUK_USE_INITJS
+const duk_uint8_t duk_initjs_data[] = {
+40,102,117,110,99,116,105,111,110,40,101,44,116,41,123,34,117,115,101,32,
+115,116,114,105,99,116,34,59,102,117,110,99,116,105,111,110,32,110,40,101,
+44,110,41,123,79,98,106,101,99,116,46,100,101,102,105,110,101,80,114,111,
+112,101,114,116,121,40,116,44,101,44,123,118,97,108,117,101,58,110,44,119,
+114,105,116,97,98,108,101,58,33,48,44,101,110,117,109,101,114,97,98,108,
+101,58,33,49,44,99,111,110,102,105,103,117,114,97,98,108,101,58,33,48,125,
+41,125,79,98,106,101,99,116,46,100,101,102,105,110,101,80,114,111,112,101,
+114,116,121,40,101,44,34,95,95,100,117,107,95,95,34,44,123,118,97,108,117,
+101,58,116,44,119,114,105,116,97,98,108,101,58,33,48,44,101,110,117,109,
+101,114,97,98,108,101,58,33,49,44,99,111,110,102,105,103,117,114,97,98,108,
+101,58,33,48,125,41,44,110,40,34,98,117,105,108,100,34,44,34,34,41,44,110,
+40,34,115,101,116,70,105,110,97,108,105,122,101,114,34,44,102,117,110,99,
+116,105,111,110,40,101,44,116,41,123,68,117,107,116,97,112,101,46,102,105,
+110,40,101,44,116,41,125,41,44,110,40,34,103,101,116,70,105,110,97,108,105,
+122,101,114,34,44,102,117,110,99,116,105,111,110,40,101,41,123,114,101,116,
+117,114,110,32,68,117,107,116,97,112,101,46,102,105,110,40,101,41,125,41,
+44,110,40,34,97,100,100,114,34,44,102,117,110,99,116,105,111,110,40,101,41,
+123,114,101,116,117,114,110,32,116,46,105,110,102,111,40,101,41,91,49,93,
+125,41,44,110,40,34,114,101,102,99,34,44,102,117,110,99,116,105,111,110,40,
+101,41,123,114,101,116,117,114,110,32,116,46,105,110,102,111,40,101,41,91,
+50,93,125,41,125,41,40,116,104,105,115,44,68,117,107,116,97,112,101,41,59,
+0,
+};
+#endif  /* DUK_USE_INITJS */
 #elif defined(DUK_USE_DOUBLE_ME)
 const duk_uint8_t duk_strings_data[] = {
 55,102,120,144,3,63,94,228,54,100,137,186,26,20,164,137,186,50,11,164,109,
@@ -24117,282 +24541,299 @@ const duk_uint8_t duk_strings_data[] = {
 139,70,139,232,190,234,113,161,63,245,223,247,244,90,106,26,95,162,251,169,
 198,132,255,214,255,223,209,105,13,47,209,125,212,227,66,127,235,127,239,
 232,180,208,55,232,190,234,113,161,63,245,255,247,244,90,163,70,66,253,23,
-221,78,52,39,254,156,84,140,72,217,154,36,149,24,67,4,18,39,219,125,160,
-206,75,161,50,115,69,209,144,72,76,156,209,116,141,18,19,39,54,253,25,4,
-132,201,205,191,72,209,12,100,16,200,209,48,196,159,74,134,129,104,201,34,
-201,18,125,42,26,5,163,36,136,140,34,68,133,17,0,49,196,245,36,100,135,52,
-100,109,79,209,209,83,3,200,113,57,143,66,200,141,196,134,8,36,67,238,103,
-137,0,53,108,168,104,22,140,146,39,216,128,181,144,132,219,0,242,236,17,52,
-139,185,157,18,70,222,47,178,90,26,67,238,78,164,68,67,238,160,137,27,83,
-237,100,185,27,83,238,160,139,0,244,108,174,139,0,185,39,97,196,200,39,12,
-133,219,73,121,159,115,4,76,73,155,117,2,232,67,189,200,108,201,19,6,133,
-41,34,153,196,2,32,193,48,41,104,105,58,218,48,36,138,10,133,147,173,3,8,
-39,136,178,152,4,167,118,103,139,173,217,225,228,233,35,23,68,194,2,214,66,
-51,168,109,64,180,15,232,58,48,76,133,253,191,174,250,239,174,253,209,124,
-87,196,135,232,3,245,130,250,223,176,23,213,253,128,126,193,63,91,212,52,
-168,106,39,132,253,95,80,210,161,168,158,17,212,52,168,106,39,131,56,41,32,
-166,105,78,40,105,140,218,48,36,137,194,231,44,128,106,104,209,144,168,105,
-6,153,78,40,105,144,92,14,96,105,37,8,204,114,67,75,23,81,163,52,64,209,
-185,131,123,172,54,33,163,96,46,53,184,197,42,220,232,140,151,120,196,233,
-16,68,66,202,9,129,191,100,64,76,13,32,36,134,144,2,116,134,0,200,190,148,
-35,63,178,63,165,8,207,236,117,246,66,243,208,111,45,198,251,31,176,33,124,
-183,27,236,136,63,45,191,100,79,45,191,99,246,1,233,14,194,74,64,49,8,208,
-48,133,67,95,73,149,13,25,46,79,168,251,255,186,250,148,172,18,159,80,209,
-146,233,101,23,52,45,13,34,144,102,186,36,232,129,34,26,78,164,68,66,76,
-146,153,9,114,9,115,119,140,201,203,211,138,26,99,200,147,238,8,8,156,196,
-159,112,64,68,211,119,147,39,53,115,119,145,39,75,211,138,26,101,205,222,
-164,197,47,78,40,105,157,34,79,212,152,139,234,45,125,193,1,21,200,147,233,
-104,181,247,4,4,87,34,79,212,152,153,231,54,103,68,137,62,177,205,153,213,
-34,79,212,152,135,224,76,135,145,39,209,130,100,92,137,63,82,98,63,157,72,
-201,18,36,250,119,82,50,108,137,63,82,98,103,144,218,76,146,84,137,62,177,
-13,164,201,38,200,147,245,38,41,120,130,115,71,37,72,147,236,136,39,52,114,
-148,137,63,82,98,103,144,181,162,68,19,154,57,62,68,159,88,133,173,18,32,
-156,209,200,242,36,251,52,48,145,49,39,217,161,132,203,154,78,184,165,145,
-39,35,18,126,164,196,207,33,107,68,136,39,52,114,121,137,62,177,11,90,36,
-65,57,163,147,76,73,250,147,20,188,65,57,163,146,140,73,246,68,19,154,57,
-52,196,159,169,49,51,200,109,38,73,40,196,159,88,134,210,100,146,204,73,
-250,147,17,252,234,70,72,49,39,211,186,145,146,76,73,250,147,16,252,12,24,
-196,159,70,12,40,196,159,169,49,15,192,153,14,98,79,163,4,200,179,18,126,
-164,196,207,57,179,58,12,73,245,142,108,206,227,18,126,164,196,95,81,107,
-238,8,8,172,196,159,75,69,175,184,32,34,115,18,125,154,24,73,77,221,91,132,
-5,147,179,67,9,217,78,40,105,165,55,117,110,16,22,78,140,19,39,101,56,161,
-166,100,221,217,161,132,236,167,20,52,204,155,186,48,76,157,148,226,134,
-152,109,117,135,234,76,69,120,35,34,46,110,235,226,65,34,72,115,91,55,116,
-151,123,154,70,205,0,89,230,238,149,23,32,227,231,186,72,154,42,77,33,165,
-67,81,60,71,205,33,129,52,84,154,67,74,134,162,120,31,90,14,181,62,98,27,
-170,129,116,34,124,192,95,85,2,232,67,74,129,148,226,73,197,12,140,221,213,
-184,64,89,59,71,188,145,232,129,34,46,110,237,30,242,71,162,4,137,25,187,
-171,112,128,178,117,110,177,35,209,2,68,92,221,213,186,196,143,68,9,17,50,
-160,101,56,161,166,44,158,180,76,210,32,34,35,158,36,122,192,34,21,128,152,
-142,213,184,64,89,58,39,49,224,137,20,35,130,61,19,134,78,130,102,17,193,
-30,130,108,44,92,206,136,224,143,68,225,145,113,32,232,34,118,40,49,230,
-104,144,116,17,12,84,46,100,136,216,7,156,174,143,72,1,28,146,115,8,82,84,
-145,194,214,9,79,168,104,201,126,184,167,67,70,75,245,197,61,27,35,160,179,
-52,158,180,8,132,147,163,50,201,104,17,11,35,160,179,60,73,82,70,68,35,233,
-35,141,238,121,18,228,52,194,115,68,9,157,18,232,35,16,97,32,137,168,194,
-54,114,48,128,181,146,36,10,26,50,8,11,89,64,247,175,20,124,92,242,70,120,
-234,37,210,54,140,36,64,21,145,168,151,95,23,77,211,195,201,215,21,199,4,
-186,235,55,175,139,158,72,207,7,168,23,66,117,197,116,221,213,184,64,89,59,
-41,197,13,50,38,238,202,113,67,76,177,57,178,156,104,41,186,42,35,104,194,
-68,1,89,24,39,52,168,53,34,0,172,136,180,81,48,5,100,45,64,186,16,138,38,
-36,196,75,164,188,200,217,32,43,34,17,46,150,46,201,26,132,75,178,32,22,65,
-197,241,37,72,217,244,151,153,27,36,57,178,49,98,66,100,132,145,0,184,12,
-133,67,73,215,197,207,36,102,130,73,195,33,80,210,117,241,115,201,25,224,
-194,137,1,50,76,196,159,93,102,245,241,115,201,25,227,173,3,9,44,24,147,
-235,172,222,190,46,121,35,60,116,100,144,162,135,205,209,113,137,62,190,46,
-155,167,135,147,174,42,95,23,77,211,195,200,101,145,166,153,202,5,146,51,
-43,226,134,205,20,105,36,32,60,134,36,132,7,146,68,104,156,50,122,145,64,
-188,230,61,205,35,102,146,52,78,25,61,72,162,67,32,156,50,122,145,64,188,
-230,61,205,35,102,145,144,78,25,61,72,161,8,151,74,134,162,100,42,37,214,
-131,173,83,193,25,19,165,91,129,52,60,17,145,58,134,204,132,168,22,143,82,
-40,39,163,23,69,61,158,30,78,146,49,116,87,217,97,179,5,250,72,197,209,119,
-98,66,146,36,104,137,210,70,46,138,187,16,52,196,233,35,23,69,61,37,64,190,
-146,49,116,74,24,144,10,32,129,34,20,64,152,142,129,57,179,67,104,68,12,
-129,161,140,72,156,100,40,40,185,152,100,89,38,65,13,196,34,228,67,149,13,
-2,215,129,149,209,65,104,209,77,14,104,144,81,33,170,67,101,48,52,68,113,
-70,210,88,209,36,233,22,154,86,68,196,114,76,232,145,102,120,186,195,156,
-112,105,225,228,113,71,80,68,149,114,6,91,29,11,33,44,137,156,162,88,37,34,
-137,205,148,200,70,209,134,37,222,232,204,228,188,200,209,200,200,99,221,
-25,150,84,121,34,70,209,107,36,227,66,20,160,92,136,51,18,99,145,38,164,49,
-235,35,8,217,201,40,108,201,18,128,68,26,201,51,188,2,80,12,67,190,40,168,
-38,68,190,46,153,5,50,12,207,160,86,129,26,83,4,208,34,225,4,88,192,
+221,78,52,39,254,156,84,140,72,217,154,36,149,24,66,166,78,104,138,153,57,
+183,48,65,34,125,183,218,12,228,184,198,65,12,141,16,202,134,136,194,34,26,
+87,30,164,140,144,230,140,141,169,250,58,42,96,121,14,39,49,232,89,17,184,
+144,193,4,136,125,204,241,32,6,173,149,13,2,209,146,68,251,16,22,178,16,
+155,96,30,93,130,38,145,119,51,162,72,219,197,246,75,67,72,125,201,212,136,
+136,125,212,17,35,106,125,172,151,35,106,125,212,17,96,30,141,149,209,96,
+23,36,236,56,153,4,225,144,187,105,47,51,238,96,137,137,51,110,160,93,8,
+119,185,13,153,34,96,208,165,36,83,56,128,68,24,38,5,45,13,39,91,70,4,145,
+65,80,178,117,160,97,4,241,22,83,0,148,238,204,241,117,187,60,60,157,36,98,
+232,152,64,90,200,70,117,13,168,22,129,253,7,70,9,144,191,183,245,223,93,
+245,223,186,47,138,248,144,253,0,126,176,95,91,246,2,250,191,176,15,216,39,
+235,122,134,149,13,68,240,159,171,234,26,84,53,19,194,58,134,149,13,68,240,
+103,5,36,20,205,41,197,13,49,155,70,4,145,56,92,229,144,13,77,26,50,21,13,
+32,211,41,197,13,50,11,129,204,13,36,161,25,142,72,105,98,234,52,102,136,
+26,55,48,111,117,134,196,52,108,5,198,183,24,165,91,157,17,146,239,24,157,
+34,8,136,89,65,48,55,236,136,9,129,164,4,144,210,0,78,144,192,25,23,210,
+132,103,246,71,244,161,25,253,142,190,200,94,122,13,229,184,223,99,246,4,
+47,150,227,125,145,7,229,183,236,137,229,183,236,126,192,61,33,216,73,72,6,
+33,26,6,16,168,107,233,50,161,163,37,201,245,31,127,247,95,82,149,130,83,
+234,26,50,93,44,162,230,133,161,164,82,12,215,68,157,16,36,67,73,212,136,
+136,73,146,83,33,46,65,46,110,241,153,57,122,113,67,76,121,18,125,193,1,19,
+152,147,238,8,8,154,110,242,100,230,174,110,242,36,233,122,113,67,76,185,
+187,212,152,165,233,197,13,51,164,73,250,147,17,125,69,175,184,32,34,185,
+18,125,45,22,190,224,128,138,228,73,250,147,19,60,230,204,232,145,39,214,
+57,179,58,164,73,250,147,16,252,9,144,242,36,250,48,76,139,145,39,234,76,
+71,243,169,25,34,68,159,78,234,70,77,145,39,234,76,76,242,27,73,146,74,145,
+39,214,33,180,153,36,217,18,126,164,197,47,16,78,104,228,169,18,125,145,4,
+230,142,82,145,39,234,76,76,242,22,180,72,130,115,71,39,200,147,235,16,181,
+162,68,19,154,57,30,68,159,102,134,18,38,36,251,52,48,153,115,73,215,20,
+178,36,228,98,79,212,152,153,228,45,104,145,4,230,142,79,49,39,214,33,107,
+68,136,39,52,114,105,137,63,82,98,151,136,39,52,114,81,137,62,200,130,115,
+71,38,152,147,245,38,38,121,13,164,201,37,24,147,235,16,218,76,146,89,137,
+63,82,98,63,157,72,201,6,36,250,119,82,50,73,137,63,82,98,31,129,131,24,
+147,232,193,133,24,147,245,38,33,248,19,33,204,73,244,96,153,22,98,79,212,
+152,153,231,54,103,65,137,62,177,205,153,220,98,79,212,152,139,234,45,125,
+193,1,21,152,147,233,104,181,247,4,4,78,98,79,179,67,9,41,187,171,112,128,
+178,118,104,97,59,41,197,13,52,166,238,173,194,2,201,209,130,100,236,167,
+20,52,204,155,187,52,48,157,148,226,134,153,147,119,70,9,147,178,156,80,
+211,13,174,176,253,73,136,175,4,100,69,205,221,124,72,36,73,14,107,102,238,
+146,239,115,72,217,160,11,60,221,210,162,228,28,124,247,73,19,69,73,164,52,
+168,106,39,136,249,164,48,38,138,147,72,105,80,212,79,3,235,65,214,167,204,
+67,117,80,46,132,79,152,11,234,160,93,8,105,80,50,156,73,56,161,145,155,
+186,183,8,11,39,104,247,146,61,16,36,69,205,221,163,222,72,244,64,145,35,
+55,117,110,16,22,78,173,214,36,122,32,72,139,155,186,183,88,145,232,129,34,
+38,84,12,167,20,52,197,147,214,137,154,68,4,68,115,196,143,88,4,66,176,19,
+17,218,183,8,11,39,68,230,60,17,34,132,112,71,162,112,201,208,76,194,56,35,
+208,77,133,139,153,209,28,17,232,156,50,46,36,29,4,78,197,6,60,205,18,14,
+130,33,138,133,204,145,27,0,243,149,209,233,0,35,146,78,97,10,74,146,56,90,
+193,41,245,13,25,47,215,20,232,104,201,126,184,167,163,100,116,22,102,147,
+214,129,16,146,116,102,89,45,2,33,100,116,22,103,137,42,72,200,132,125,36,
+113,189,207,34,92,134,152,78,104,129,51,162,93,4,98,12,36,17,53,24,70,206,
+70,16,22,178,68,129,67,70,65,1,107,40,30,245,226,143,139,158,72,207,29,68,
+186,70,209,132,136,2,178,53,18,235,226,233,186,120,121,58,226,184,224,151,
+93,102,245,241,115,201,25,224,245,2,232,78,184,174,155,186,183,8,11,39,101,
+56,161,166,68,221,217,78,40,105,150,39,54,83,141,5,55,68,114,36,198,98,77,
+68,109,24,72,128,43,35,4,230,149,6,164,64,21,145,22,138,38,0,172,133,168,
+23,66,17,68,196,152,137,116,151,153,27,36,5,100,66,37,210,197,217,35,80,
+137,118,68,2,200,56,190,36,169,27,62,146,243,35,100,135,54,70,44,72,76,144,
+146,32,23,1,144,168,105,58,248,185,228,140,208,73,56,100,42,26,78,190,46,
+121,35,60,24,81,32,38,73,152,147,235,172,222,190,46,121,35,60,117,160,97,
+37,131,18,125,117,155,215,197,207,36,103,142,140,146,20,80,249,186,46,49,
+39,215,197,211,116,240,242,117,197,75,226,233,186,120,121,12,178,52,211,57,
+64,178,70,101,124,80,217,162,141,36,132,7,144,196,144,128,242,72,141,19,
+134,79,82,40,23,156,199,185,164,108,210,70,137,195,39,169,20,72,100,19,134,
+79,82,40,23,156,199,185,164,108,210,50,9,195,39,169,20,33,18,233,80,212,76,
+133,68,186,208,117,170,120,35,34,116,171,112,38,135,130,50,39,80,217,144,
+149,2,209,234,69,4,244,98,232,167,179,195,201,210,70,46,138,251,44,54,96,
+191,73,24,186,46,236,72,82,68,141,17,58,72,197,209,87,98,6,152,157,36,98,
+232,167,164,168,23,210,70,46,137,67,18,1,68,16,36,66,136,19,17,208,39,54,
+104,109,8,129,144,52,49,137,19,140,133,5,23,51,12,139,36,200,33,184,132,92,
+136,114,161,160,90,240,50,186,40,45,26,41,161,205,18,10,36,53,72,108,166,6,
+136,142,40,218,75,26,36,157,34,211,74,200,152,142,73,157,18,44,207,23,88,
+115,142,13,60,60,142,40,234,8,146,174,64,203,99,161,100,37,145,51,148,75,4,
+164,81,57,178,153,8,218,48,196,187,221,25,156,151,153,26,57,25,12,123,163,
+50,202,143,36,72,218,45,100,156,104,66,148,11,145,20,134,61,100,97,27,57,
+37,13,153,34,80,8,131,89,38,119,128,74,1,136,119,197,21,4,200,151,197,211,
+32,166,65,153,244,10,208,35,74,96,154,4,92,32,139,24,
 };
 
 /* to convert a heap stridx to a token number, subtract
  * DUK_STRIDX_START_RESERVED and add DUK_TOK_START_RESERVED.
  */
 
-/* native functions: 129 */
-const duk_c_function duk_builtin_native_functions[] = {
-	(duk_c_function) duk_builtin_array_constructor,
-	(duk_c_function) duk_builtin_array_constructor_is_array,
-	(duk_c_function) duk_builtin_array_prototype_concat,
-	(duk_c_function) duk_builtin_array_prototype_indexof_shared,
-	(duk_c_function) duk_builtin_array_prototype_iter_shared,
-	(duk_c_function) duk_builtin_array_prototype_join_shared,
-	(duk_c_function) duk_builtin_array_prototype_pop,
-	(duk_c_function) duk_builtin_array_prototype_push,
-	(duk_c_function) duk_builtin_array_prototype_reduce_shared,
-	(duk_c_function) duk_builtin_array_prototype_reverse,
-	(duk_c_function) duk_builtin_array_prototype_shift,
-	(duk_c_function) duk_builtin_array_prototype_slice,
-	(duk_c_function) duk_builtin_array_prototype_sort,
-	(duk_c_function) duk_builtin_array_prototype_splice,
-	(duk_c_function) duk_builtin_array_prototype_to_string,
-	(duk_c_function) duk_builtin_array_prototype_unshift,
-	(duk_c_function) duk_builtin_boolean_constructor,
-	(duk_c_function) duk_builtin_boolean_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_buffer_constructor,
-	(duk_c_function) duk_builtin_buffer_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_date_constructor,
-	(duk_c_function) duk_builtin_date_constructor_now,
-	(duk_c_function) duk_builtin_date_constructor_parse,
-	(duk_c_function) duk_builtin_date_constructor_utc,
-	(duk_c_function) duk_builtin_date_prototype_get_shared,
-	(duk_c_function) duk_builtin_date_prototype_get_timezone_offset,
-	(duk_c_function) duk_builtin_date_prototype_set_shared,
-	(duk_c_function) duk_builtin_date_prototype_set_time,
-	(duk_c_function) duk_builtin_date_prototype_to_json,
-	(duk_c_function) duk_builtin_date_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_date_prototype_value_of,
-	(duk_c_function) duk_builtin_duk_object_addr,
-	(duk_c_function) duk_builtin_duk_object_dec,
-	(duk_c_function) duk_builtin_duk_object_enc,
-	(duk_c_function) duk_builtin_duk_object_gc,
-	(duk_c_function) duk_builtin_duk_object_get_finalizer,
-	(duk_c_function) duk_builtin_duk_object_jsonc_dec,
-	(duk_c_function) duk_builtin_duk_object_jsonc_enc,
-	(duk_c_function) duk_builtin_duk_object_jsonx_dec,
-	(duk_c_function) duk_builtin_duk_object_jsonx_enc,
-	(duk_c_function) duk_builtin_duk_object_refc,
-	(duk_c_function) duk_builtin_duk_object_set_finalizer,
-	(duk_c_function) duk_builtin_error_constructor_shared,
-	(duk_c_function) duk_builtin_error_prototype_filename_getter,
-	(duk_c_function) duk_builtin_error_prototype_linenumber_getter,
-	(duk_c_function) duk_builtin_error_prototype_nop_setter,
-	(duk_c_function) duk_builtin_error_prototype_stack_getter,
-	(duk_c_function) duk_builtin_error_prototype_to_string,
-	(duk_c_function) duk_builtin_function_constructor,
-	(duk_c_function) duk_builtin_function_prototype,
-	(duk_c_function) duk_builtin_function_prototype_apply,
-	(duk_c_function) duk_builtin_function_prototype_bind,
-	(duk_c_function) duk_builtin_function_prototype_call,
-	(duk_c_function) duk_builtin_function_prototype_to_string,
-	(duk_c_function) duk_builtin_global_object_alert,
-	(duk_c_function) duk_builtin_global_object_decode_uri,
-	(duk_c_function) duk_builtin_global_object_decode_uri_component,
-	(duk_c_function) duk_builtin_global_object_encode_uri,
-	(duk_c_function) duk_builtin_global_object_encode_uri_component,
-	(duk_c_function) duk_builtin_global_object_escape,
-	(duk_c_function) duk_builtin_global_object_eval,
-	(duk_c_function) duk_builtin_global_object_is_finite,
-	(duk_c_function) duk_builtin_global_object_is_nan,
-	(duk_c_function) duk_builtin_global_object_parse_float,
-	(duk_c_function) duk_builtin_global_object_parse_int,
-	(duk_c_function) duk_builtin_global_object_print,
-	(duk_c_function) duk_builtin_global_object_unescape,
-	(duk_c_function) duk_builtin_json_object_parse,
-	(duk_c_function) duk_builtin_json_object_stringify,
-	(duk_c_function) duk_builtin_math_object_max,
-	(duk_c_function) duk_builtin_math_object_min,
-	(duk_c_function) duk_builtin_math_object_onearg_shared,
-	(duk_c_function) duk_builtin_math_object_random,
-	(duk_c_function) duk_builtin_math_object_twoarg_shared,
-	(duk_c_function) duk_builtin_number_constructor,
-	(duk_c_function) duk_builtin_number_prototype_to_exponential,
-	(duk_c_function) duk_builtin_number_prototype_to_fixed,
-	(duk_c_function) duk_builtin_number_prototype_to_locale_string,
-	(duk_c_function) duk_builtin_number_prototype_to_precision,
-	(duk_c_function) duk_builtin_number_prototype_to_string,
-	(duk_c_function) duk_builtin_number_prototype_value_of,
-	(duk_c_function) duk_builtin_object_constructor,
-	(duk_c_function) duk_builtin_object_constructor_create,
-	(duk_c_function) duk_builtin_object_constructor_define_properties,
-	(duk_c_function) duk_builtin_object_constructor_define_property,
-	(duk_c_function) duk_builtin_object_constructor_freeze,
-	(duk_c_function) duk_builtin_object_constructor_get_own_property_descriptor,
-	(duk_c_function) duk_builtin_object_constructor_get_own_property_names,
-	(duk_c_function) duk_builtin_object_constructor_get_prototype_of,
-	(duk_c_function) duk_builtin_object_constructor_is_extensible,
-	(duk_c_function) duk_builtin_object_constructor_is_frozen,
-	(duk_c_function) duk_builtin_object_constructor_is_sealed,
-	(duk_c_function) duk_builtin_object_constructor_keys,
-	(duk_c_function) duk_builtin_object_constructor_prevent_extensions,
-	(duk_c_function) duk_builtin_object_constructor_seal,
-	(duk_c_function) duk_builtin_object_prototype_has_own_property,
-	(duk_c_function) duk_builtin_object_prototype_is_prototype_of,
-	(duk_c_function) duk_builtin_object_prototype_property_is_enumerable,
-	(duk_c_function) duk_builtin_object_prototype_to_locale_string,
-	(duk_c_function) duk_builtin_object_prototype_to_string,
-	(duk_c_function) duk_builtin_object_prototype_value_of,
-	(duk_c_function) duk_builtin_pointer_constructor,
-	(duk_c_function) duk_builtin_pointer_prototype_tostring_shared,
-	(duk_c_function) duk_builtin_regexp_constructor,
-	(duk_c_function) duk_builtin_regexp_prototype_exec,
-	(duk_c_function) duk_builtin_regexp_prototype_test,
-	(duk_c_function) duk_builtin_regexp_prototype_to_string,
-	(duk_c_function) duk_builtin_string_constructor,
-	(duk_c_function) duk_builtin_string_constructor_from_char_code,
-	(duk_c_function) duk_builtin_string_prototype_caseconv_shared,
-	(duk_c_function) duk_builtin_string_prototype_char_at,
-	(duk_c_function) duk_builtin_string_prototype_char_code_at,
-	(duk_c_function) duk_builtin_string_prototype_concat,
-	(duk_c_function) duk_builtin_string_prototype_indexof_shared,
-	(duk_c_function) duk_builtin_string_prototype_locale_compare,
-	(duk_c_function) duk_builtin_string_prototype_match,
-	(duk_c_function) duk_builtin_string_prototype_replace,
-	(duk_c_function) duk_builtin_string_prototype_search,
-	(duk_c_function) duk_builtin_string_prototype_slice,
-	(duk_c_function) duk_builtin_string_prototype_split,
-	(duk_c_function) duk_builtin_string_prototype_substr,
-	(duk_c_function) duk_builtin_string_prototype_substring,
-	(duk_c_function) duk_builtin_string_prototype_to_string,
-	(duk_c_function) duk_builtin_string_prototype_trim,
-	(duk_c_function) duk_builtin_thread_constructor,
-	(duk_c_function) duk_builtin_thread_current,
-	(duk_c_function) duk_builtin_thread_resume,
-	(duk_c_function) duk_builtin_thread_yield,
-	(duk_c_function) duk_builtin_type_error_thrower,
+/* native functions: 123 */
+const duk_c_function duk_bi_native_functions[] = {
+	(duk_c_function) duk_bi_array_constructor,
+	(duk_c_function) duk_bi_array_constructor_is_array,
+	(duk_c_function) duk_bi_array_prototype_concat,
+	(duk_c_function) duk_bi_array_prototype_indexof_shared,
+	(duk_c_function) duk_bi_array_prototype_iter_shared,
+	(duk_c_function) duk_bi_array_prototype_join_shared,
+	(duk_c_function) duk_bi_array_prototype_pop,
+	(duk_c_function) duk_bi_array_prototype_push,
+	(duk_c_function) duk_bi_array_prototype_reduce_shared,
+	(duk_c_function) duk_bi_array_prototype_reverse,
+	(duk_c_function) duk_bi_array_prototype_shift,
+	(duk_c_function) duk_bi_array_prototype_slice,
+	(duk_c_function) duk_bi_array_prototype_sort,
+	(duk_c_function) duk_bi_array_prototype_splice,
+	(duk_c_function) duk_bi_array_prototype_to_string,
+	(duk_c_function) duk_bi_array_prototype_unshift,
+	(duk_c_function) duk_bi_boolean_constructor,
+	(duk_c_function) duk_bi_boolean_prototype_tostring_shared,
+	(duk_c_function) duk_bi_buffer_constructor,
+	(duk_c_function) duk_bi_buffer_prototype_tostring_shared,
+	(duk_c_function) duk_bi_date_constructor,
+	(duk_c_function) duk_bi_date_constructor_now,
+	(duk_c_function) duk_bi_date_constructor_parse,
+	(duk_c_function) duk_bi_date_constructor_utc,
+	(duk_c_function) duk_bi_date_prototype_get_shared,
+	(duk_c_function) duk_bi_date_prototype_get_timezone_offset,
+	(duk_c_function) duk_bi_date_prototype_set_shared,
+	(duk_c_function) duk_bi_date_prototype_set_time,
+	(duk_c_function) duk_bi_date_prototype_to_json,
+	(duk_c_function) duk_bi_date_prototype_tostring_shared,
+	(duk_c_function) duk_bi_date_prototype_value_of,
+	(duk_c_function) duk_bi_duk_object_dec,
+	(duk_c_function) duk_bi_duk_object_enc,
+	(duk_c_function) duk_bi_duk_object_fin,
+	(duk_c_function) duk_bi_duk_object_gc,
+	(duk_c_function) duk_bi_duk_object_info,
+	(duk_c_function) duk_bi_error_constructor_shared,
+	(duk_c_function) duk_bi_error_prototype_filename_getter,
+	(duk_c_function) duk_bi_error_prototype_linenumber_getter,
+	(duk_c_function) duk_bi_error_prototype_nop_setter,
+	(duk_c_function) duk_bi_error_prototype_stack_getter,
+	(duk_c_function) duk_bi_error_prototype_to_string,
+	(duk_c_function) duk_bi_function_constructor,
+	(duk_c_function) duk_bi_function_prototype,
+	(duk_c_function) duk_bi_function_prototype_apply,
+	(duk_c_function) duk_bi_function_prototype_bind,
+	(duk_c_function) duk_bi_function_prototype_call,
+	(duk_c_function) duk_bi_function_prototype_to_string,
+	(duk_c_function) duk_bi_global_object_alert,
+	(duk_c_function) duk_bi_global_object_decode_uri,
+	(duk_c_function) duk_bi_global_object_decode_uri_component,
+	(duk_c_function) duk_bi_global_object_encode_uri,
+	(duk_c_function) duk_bi_global_object_encode_uri_component,
+	(duk_c_function) duk_bi_global_object_escape,
+	(duk_c_function) duk_bi_global_object_eval,
+	(duk_c_function) duk_bi_global_object_is_finite,
+	(duk_c_function) duk_bi_global_object_is_nan,
+	(duk_c_function) duk_bi_global_object_parse_float,
+	(duk_c_function) duk_bi_global_object_parse_int,
+	(duk_c_function) duk_bi_global_object_print,
+	(duk_c_function) duk_bi_global_object_unescape,
+	(duk_c_function) duk_bi_json_object_parse,
+	(duk_c_function) duk_bi_json_object_stringify,
+	(duk_c_function) duk_bi_math_object_max,
+	(duk_c_function) duk_bi_math_object_min,
+	(duk_c_function) duk_bi_math_object_onearg_shared,
+	(duk_c_function) duk_bi_math_object_random,
+	(duk_c_function) duk_bi_math_object_twoarg_shared,
+	(duk_c_function) duk_bi_number_constructor,
+	(duk_c_function) duk_bi_number_prototype_to_exponential,
+	(duk_c_function) duk_bi_number_prototype_to_fixed,
+	(duk_c_function) duk_bi_number_prototype_to_locale_string,
+	(duk_c_function) duk_bi_number_prototype_to_precision,
+	(duk_c_function) duk_bi_number_prototype_to_string,
+	(duk_c_function) duk_bi_number_prototype_value_of,
+	(duk_c_function) duk_bi_object_constructor,
+	(duk_c_function) duk_bi_object_constructor_create,
+	(duk_c_function) duk_bi_object_constructor_define_properties,
+	(duk_c_function) duk_bi_object_constructor_define_property,
+	(duk_c_function) duk_bi_object_constructor_freeze,
+	(duk_c_function) duk_bi_object_constructor_get_own_property_descriptor,
+	(duk_c_function) duk_bi_object_constructor_get_own_property_names,
+	(duk_c_function) duk_bi_object_constructor_get_prototype_of,
+	(duk_c_function) duk_bi_object_constructor_is_extensible,
+	(duk_c_function) duk_bi_object_constructor_is_frozen,
+	(duk_c_function) duk_bi_object_constructor_is_sealed,
+	(duk_c_function) duk_bi_object_constructor_keys,
+	(duk_c_function) duk_bi_object_constructor_prevent_extensions,
+	(duk_c_function) duk_bi_object_constructor_seal,
+	(duk_c_function) duk_bi_object_prototype_has_own_property,
+	(duk_c_function) duk_bi_object_prototype_is_prototype_of,
+	(duk_c_function) duk_bi_object_prototype_property_is_enumerable,
+	(duk_c_function) duk_bi_object_prototype_to_locale_string,
+	(duk_c_function) duk_bi_object_prototype_to_string,
+	(duk_c_function) duk_bi_object_prototype_value_of,
+	(duk_c_function) duk_bi_pointer_constructor,
+	(duk_c_function) duk_bi_pointer_prototype_tostring_shared,
+	(duk_c_function) duk_bi_regexp_constructor,
+	(duk_c_function) duk_bi_regexp_prototype_exec,
+	(duk_c_function) duk_bi_regexp_prototype_test,
+	(duk_c_function) duk_bi_regexp_prototype_to_string,
+	(duk_c_function) duk_bi_string_constructor,
+	(duk_c_function) duk_bi_string_constructor_from_char_code,
+	(duk_c_function) duk_bi_string_prototype_caseconv_shared,
+	(duk_c_function) duk_bi_string_prototype_char_at,
+	(duk_c_function) duk_bi_string_prototype_char_code_at,
+	(duk_c_function) duk_bi_string_prototype_concat,
+	(duk_c_function) duk_bi_string_prototype_indexof_shared,
+	(duk_c_function) duk_bi_string_prototype_locale_compare,
+	(duk_c_function) duk_bi_string_prototype_match,
+	(duk_c_function) duk_bi_string_prototype_replace,
+	(duk_c_function) duk_bi_string_prototype_search,
+	(duk_c_function) duk_bi_string_prototype_slice,
+	(duk_c_function) duk_bi_string_prototype_split,
+	(duk_c_function) duk_bi_string_prototype_substr,
+	(duk_c_function) duk_bi_string_prototype_substring,
+	(duk_c_function) duk_bi_string_prototype_to_string,
+	(duk_c_function) duk_bi_string_prototype_trim,
+	(duk_c_function) duk_bi_thread_constructor,
+	(duk_c_function) duk_bi_thread_current,
+	(duk_c_function) duk_bi_thread_resume,
+	(duk_c_function) duk_bi_thread_yield,
+	(duk_c_function) duk_bi_type_error_thrower,
 };
 
 const duk_uint8_t duk_builtins_data[] = {
-105,195,74,136,73,40,105,48,8,252,104,49,2,131,72,0,67,225,65,165,172,31,
-243,6,145,0,114,24,210,148,13,249,35,120,160,51,226,13,76,224,180,177,164,
-168,20,192,4,202,52,149,65,152,0,169,70,146,168,43,0,23,40,210,85,4,96,3,
-37,26,74,160,108,0,108,163,73,84,9,128,14,148,105,42,128,176,1,242,144,56,
-209,0,68,10,26,95,0,31,72,105,18,1,125,1,165,148,3,244,69,7,255,234,171,
-224,0,0,124,63,128,0,0,0,20,32,0,0,120,63,128,0,0,0,21,98,4,140,32,137,136,
-16,49,129,230,64,56,202,6,153,128,195,56,22,104,2,141,40,49,169,5,53,160,
-134,196,12,218,129,27,144,19,120,18,112,2,14,17,81,198,108,0,240,143,244,4,
-63,143,200,253,62,35,240,244,143,179,114,62,142,8,249,57,35,224,232,143,
-115,178,61,144,136,245,65,30,122,27,15,127,255,224,142,225,128,0,161,254,1,
-175,21,130,60,21,144,239,87,35,185,73,14,213,70,59,20,208,235,94,35,169,84,
-142,149,210,58,22,200,231,90,35,153,100,142,85,194,127,248,64,12,223,99,3,
-121,136,13,214,64,55,23,200,219,96,35,105,132,130,139,248,0,7,248,128,8,
-223,53,35,100,201,13,131,67,230,185,153,240,163,254,0,45,64,18,7,248,192,
-42,223,14,3,120,20,32,0,45,48,35,230,144,41,26,32,192,104,3,159,51,194,64,
-206,10,3,52,45,12,192,194,50,195,87,153,65,231,204,144,51,240,0,22,64,25,
-255,255,251,28,16,209,140,8,106,0,2,197,4,53,0,2,98,2,26,128,1,176,193,13,
-64,1,24,65,7,224,0,44,16,131,255,255,241,73,252,0,88,13,135,193,254,64,35,
-200,64,85,27,239,64,110,189,1,126,220,69,243,121,26,110,7,204,151,19,70,67,
-137,168,0,10,245,200,139,199,50,46,221,16,186,117,35,53,217,11,151,116,46,
-30,80,183,109,2,217,180,11,86,208,128,0,173,27,66,0,2,179,123,2,201,225,2,
-151,248,0,7,249,64,143,35,4,223,17,8,0,11,116,68,2,155,248,171,24,31,255,
-253,239,255,255,255,255,235,8,0,0,0,0,0,32,0,0,10,248,0,0,31,15,224,0,0,0,
-10,216,0,0,30,15,224,0,0,0,10,232,0,0,30,31,224,0,0,0,0,7,249,128,143,32,0,
-0,0,0,0,0,0,0,12,223,79,35,121,52,141,213,0,43,19,8,171,75,34,169,56,130,
-159,248,1,170,69,136,168,23,254,83,138,128,63,206,4,121,32,0,3,225,252,0,0,
-0,2,214,248,232,64,26,20,195,161,0,40,82,142,132,1,33,188,58,16,14,133,32,
-232,64,42,20,99,161,0,200,64,142,132,1,129,0,58,16,70,35,248,225,27,163,
-192,81,15,1,66,48,16,0,133,0,192,19,227,1,16,8,79,12,4,64,1,58,48,18,0,196,
-224,192,72,1,19,99,1,112,8,77,12,5,192,1,50,48,19,0,132,192,192,76,0,18,
-227,1,64,8,75,12,5,0,1,42,48,21,0,132,160,192,84,0,18,99,1,96,8,73,12,5,
-128,1,34,50,4,128,217,17,227,69,17,8,71,13,20,68,1,26,52,190,66,16,140,26,
-95,33,0,69,141,63,152,132,34,134,159,204,64,17,35,83,232,33,8,129,169,244,
-16,4,56,209,68,2,16,195,69,16,0,66,141,47,144,4,33,6,151,200,0,16,99,79,
-230,1,40,33,167,243,0,19,240,192,64,6,15,163,69,50,1,21,31,192,0,63,208,24,
-115,4,12,0,32,39,152,71,80,52,99,196,99,188,99,180,128,0,0,0,0,0,0,0,0,207,
-109,4,61,52,145,190,212,1,83,252,0,3,253,33,78,68,10,56,144,20,134,229,197,
-164,23,43,45,32,57,97,104,45,242,240,10,175,224,0,159,234,4,114,40,49,196,
-128,160,10,191,224,0,159,235,4,114,40,41,196,128,160,10,207,224,0,159,236,
-4,114,40,33,196,128,160,10,223,224,0,159,237,4,114,40,25,196,128,160,10,
-239,224,0,159,238,4,114,40,17,196,128,160,10,255,224,0,159,239,4,114,40,9,
-196,128,160,7,255,228,28,32,5,95,130,160,52,171,138,69,155,224,88,181,129,
-32,11,42,218,221,155,160,33,23,115,31,247,156,253,127,27,96,35,138,251,159,
-255,65,21,178,155,32,61,229,237,159,135,114,147,10,154,224,125,144,132,160,
-12,22,162,42,26,160,79,80,115,31,230,157,191,179,26,96,79,80,123,31,230,
-157,191,179,36,104,71,33,157,28,160,0,38,100,114,128,1,25,81,202,0,6,100,
-73,65,141,28,160,0,134,36,114,128,2,152,81,202,0,12,96,71,40,0,57,125,28,
-160,1,5,228,85,226,234,50,241,113,37,32,0,37,180,128,22,145,202,0,18,89,71,
-40,0,81,97,28,160,1,101,116,114,128,6,7,255,224,4,169,67,65,89,17,130,255,
-248,0,7,255,226,10,32,0,16,70,32,0,0,0,0,0,142,96,9,208,0,57,11,19,143,144,
-76,80,65,41,17,4,100,100,18,20,160,68,66,129,9,2,4,4,236,15,147,32,60,74,
-192,233,34,5,151,240,3,154,191,160,52,252,192,203,232,3,254,64,0,22,127,
-192,0,63,230,0,38,248,152,64,0,91,162,96,22,159,192,0,63,232,0,38,251,48,
-64,0,91,172,192,79,255,194,57,65,11,137,191,174,45,153,98,242,229,191,145,
-198,8,190,94,92,183,242,65,167,114,12,188,185,111,228,131,70,29,217,54,105,
-221,156,0,
+105,195,74,88,73,40,105,42,8,252,104,43,2,131,72,0,67,225,65,165,148,31,
+243,6,145,0,114,24,210,136,13,249,35,120,160,51,226,13,76,32,180,177,164,
+144,20,192,4,202,52,146,65,24,0,169,70,146,72,27,0,23,40,210,73,2,96,3,37,
+26,73,32,44,0,108,163,73,36,1,128,14,148,105,36,127,176,1,242,144,56,208,
+244,64,10,26,93,128,31,72,105,18,1,125,1,165,124,3,244,69,7,255,234,170,
+224,0,0,124,63,128,0,0,0,19,32,0,0,120,63,128,0,0,0,20,98,4,140,32,137,136,
+16,49,129,230,64,56,202,6,153,128,195,56,22,104,2,141,40,33,169,3,53,160,
+70,196,4,218,128,27,143,243,120,18,112,2,14,17,49,198,107,248,216,143,211,
+164,63,14,72,251,56,35,232,220,143,147,18,62,12,136,247,51,35,216,208,143,
+83,82,61,15,8,243,59,30,121,24,15,127,255,224,141,225,128,0,161,254,1,174,
+245,34,59,148,16,237,81,35,177,49,14,180,230,58,147,80,233,88,35,161,60,
+142,117,114,57,149,72,229,84,35,145,76,142,53,98,127,248,64,12,219,93,3,
+105,112,13,149,224,54,22,72,215,90,35,89,108,130,139,248,0,7,248,128,8,219,
+47,3,84,177,13,66,227,230,153,105,240,163,254,0,45,0,18,7,248,192,42,219,
+14,3,104,20,32,0,44,240,35,230,112,41,25,160,192,102,3,159,50,194,64,202,
+10,3,36,45,12,128,194,49,195,87,152,193,231,204,80,51,240,0,22,32,25,255,
+255,251,12,16,209,132,8,106,0,2,193,4,53,0,2,96,2,26,128,1,175,193,13,64,1,
+23,193,7,224,0,43,208,131,255,255,241,73,252,0,87,140,199,193,254,64,35,
+136,64,85,27,110,128,108,186,1,118,208,69,211,73,25,237,71,204,86,179,70,
+35,89,168,0,10,229,176,139,134,210,45,219,144,182,111,35,37,193,11,87,20,
+45,28,208,179,103,2,201,156,11,22,112,128,0,172,25,194,0,2,175,117,2,185,
+201,2,151,248,0,7,249,64,142,35,4,219,17,8,0,11,100,68,2,155,248,170,216,
+31,255,253,239,255,255,255,255,234,200,0,0,0,0,0,32,0,0,10,184,0,0,31,15,
+224,0,0,0,10,152,0,0,30,15,224,0,0,0,10,168,0,0,30,31,224,0,0,0,0,7,249,
+128,142,32,0,0,0,0,0,0,0,0,12,219,73,35,105,28,141,148,160,42,17,136,167,
+69,34,153,32,130,159,248,1,169,69,136,164,23,254,81,138,128,63,206,4,113,
+32,0,3,225,252,0,0,0,2,214,216,232,64,26,20,67,161,0,40,80,142,132,1,33,
+180,58,16,14,133,0,232,64,42,19,227,161,0,200,62,142,132,1,128,248,58,16,
+70,35,216,225,27,35,192,79,15,1,58,48,16,0,132,224,192,19,99,1,16,8,77,12,
+4,64,1,50,48,18,0,196,192,192,72,1,18,227,1,112,8,75,12,5,192,1,42,48,19,0,
+132,160,192,76,0,18,99,1,64,8,73,12,5,0,1,34,48,21,0,132,128,192,84,0,17,
+227,1,96,8,71,12,5,128,1,26,50,4,96,217,17,99,69,17,8,69,13,20,68,1,18,52,
+190,66,16,136,26,95,33,0,67,141,63,152,132,33,134,159,204,64,16,163,83,232,
+33,8,65,169,244,16,4,24,209,68,2,16,67,69,16,0,64,141,47,144,4,32,6,151,
+200,0,15,227,79,230,1,39,225,167,243,0,19,208,192,64,6,15,35,69,50,1,21,31,
+192,0,63,208,24,107,4,12,0,32,39,88,71,16,52,99,164,99,156,99,148,128,0,0,
+0,0,0,0,0,0,206,236,68,59,49,145,182,200,1,83,252,0,3,253,33,77,196,10,54,
+144,20,126,229,4,227,215,37,39,30,57,49,56,45,178,144,10,175,224,0,159,234,
+4,110,40,33,180,128,160,10,191,224,0,159,235,4,110,40,25,180,128,160,10,
+207,224,0,159,236,4,110,40,17,180,128,160,10,223,224,0,159,237,4,110,40,9,
+180,128,160,10,239,224,0,159,238,4,110,40,1,180,128,160,10,255,224,0,159,
+239,4,110,39,249,180,128,160,7,255,228,27,32,5,95,130,160,52,171,138,69,
+154,224,88,181,129,32,11,42,218,221,154,160,33,23,115,31,247,156,253,127,
+26,96,35,138,251,159,255,65,21,178,154,32,61,229,237,159,135,114,147,10,
+153,224,125,144,132,160,12,22,162,42,25,160,79,80,115,31,230,157,191,179,
+25,96,79,80,123,31,230,157,191,179,36,100,65,33,141,4,160,0,38,36,18,128,1,
+24,80,74,0,6,96,67,65,125,4,160,0,133,228,18,128,2,151,80,74,0,12,92,65,40,
+0,57,109,4,160,1,5,163,245,226,202,2,241,97,13,32,0,37,116,32,21,144,74,0,
+18,85,65,40,0,81,81,4,160,1,101,52,18,128,6,7,255,224,4,165,61,65,72,249,
+130,255,248,0,7,255,226,9,32,0,16,70,32,0,0,0,0,0,142,96,9,208,0,57,5,17,
+145,144,68,68,65,9,8,240,128,128,120,62,62,60,44,191,128,28,197,229,1,167,
+134,6,93,192,31,242,0,0,179,254,0,1,255,48,1,54,196,194,0,2,217,19,0,180,
+254,0,1,255,64,1,54,216,2,0,2,217,96,2,127,254,17,186,8,92,77,253,113,108,
+203,23,151,45,252,141,176,69,242,242,229,191,146,13,59,144,101,229,203,127,
+36,26,48,238,201,179,78,236,224,0,
 };
+#ifdef DUK_USE_INITJS
+const duk_uint8_t duk_initjs_data[] = {
+40,102,117,110,99,116,105,111,110,40,101,44,116,41,123,34,117,115,101,32,
+115,116,114,105,99,116,34,59,102,117,110,99,116,105,111,110,32,110,40,101,
+44,110,41,123,79,98,106,101,99,116,46,100,101,102,105,110,101,80,114,111,
+112,101,114,116,121,40,116,44,101,44,123,118,97,108,117,101,58,110,44,119,
+114,105,116,97,98,108,101,58,33,48,44,101,110,117,109,101,114,97,98,108,
+101,58,33,49,44,99,111,110,102,105,103,117,114,97,98,108,101,58,33,48,125,
+41,125,79,98,106,101,99,116,46,100,101,102,105,110,101,80,114,111,112,101,
+114,116,121,40,101,44,34,95,95,100,117,107,95,95,34,44,123,118,97,108,117,
+101,58,116,44,119,114,105,116,97,98,108,101,58,33,48,44,101,110,117,109,
+101,114,97,98,108,101,58,33,49,44,99,111,110,102,105,103,117,114,97,98,108,
+101,58,33,48,125,41,44,110,40,34,98,117,105,108,100,34,44,34,34,41,44,110,
+40,34,115,101,116,70,105,110,97,108,105,122,101,114,34,44,102,117,110,99,
+116,105,111,110,40,101,44,116,41,123,68,117,107,116,97,112,101,46,102,105,
+110,40,101,44,116,41,125,41,44,110,40,34,103,101,116,70,105,110,97,108,105,
+122,101,114,34,44,102,117,110,99,116,105,111,110,40,101,41,123,114,101,116,
+117,114,110,32,68,117,107,116,97,112,101,46,102,105,110,40,101,41,125,41,
+44,110,40,34,97,100,100,114,34,44,102,117,110,99,116,105,111,110,40,101,41,
+123,114,101,116,117,114,110,32,116,46,105,110,102,111,40,101,41,91,49,93,
+125,41,44,110,40,34,114,101,102,99,34,44,102,117,110,99,116,105,111,110,40,
+101,41,123,114,101,116,117,114,110,32,116,46,105,110,102,111,40,101,41,91,
+50,93,125,41,125,41,40,116,104,105,115,44,68,117,107,116,97,112,101,41,59,
+0,
+};
+#endif  /* DUK_USE_INITJS */
 #else
 #error invalid endianness defines
 #endif
@@ -24438,10 +24879,10 @@ void duk_fb_sprintf(duk_fixedbuffer *fb, const char *fmt, ...) {
 		int res = DUK_VSNPRINTF((char *) (fb->buffer + fb->offset), avail, fmt, ap);
 		if (res < 0) {
 			/* error */
-		} else if (res >= avail) {
+		} else if ((duk_uint32_t) res >= avail) {
 			/* (maybe) truncated */
 			fb->offset += avail;
-			if (res > avail) {
+			if ((duk_uint32_t) res > avail) {
 				/* actual chars dropped (not just NUL term) */
 				fb->truncated = 1;
 			}
@@ -24468,17 +24909,17 @@ int duk_fb_is_full(duk_fixedbuffer *fb) {
 
 #ifdef DUK_USE_DEBUG
 
-static void sanitize_snippet(char *buf, int buf_size, duk_hstring *str) {
-	int i;
-	int nchars;
-	int maxchars;
+static void sanitize_snippet(char *buf, duk_size_t buf_size, duk_hstring *str) {
+	duk_size_t i;
+	duk_size_t nchars;
+	duk_size_t maxchars;
 	duk_uint8_t *data;
 
 	DUK_MEMSET(buf, 0, buf_size);
 
-	maxchars = buf_size - 1;
+	maxchars = (duk_size_t) (buf_size - 1);
 	data = DUK_HSTRING_GET_DATA(str);
-	nchars = (str->blen < maxchars ? str->blen : maxchars);
+	nchars = ((duk_size_t) str->blen < maxchars ? (duk_size_t) str->blen : maxchars);
 	for (i = 0; i < nchars; i++) {
 		char c = (char) data[i];
 		if (c < 0x20 || c > 0x7e) {
@@ -24637,10 +25078,10 @@ void duk_debug_dump_heap(duk_heap *heap) {
 	DUK_DPRINT("  alloc_udata: %p", (void *) heap->alloc_udata);
 
 #ifdef DUK_USE_MARK_AND_SWEEP
+#ifdef DUK_USE_VOLUNTARY_GC
 	DUK_DPRINT("  mark-and-sweep trig counter: %d", heap->mark_and_sweep_trigger_counter);
-	DUK_DPRINT("  mark-and-sweep trig limit: %d", heap->mark_and_sweep_trigger_limit);
+#endif
 	DUK_DPRINT("  mark-and-sweep rec depth: %d", heap->mark_and_sweep_recursion_depth);
-	DUK_DPRINT("  mark-and-sweep rec limit: %d", heap->mark_and_sweep_recursion_limit);
 	DUK_DPRINT("  mark-and-sweep base flags: 0x%08x", heap->mark_and_sweep_base_flags);
 #endif
 
@@ -24814,7 +25255,7 @@ static char get_catcher_summary_char(duk_catcher *catcher) {
 }
 
 void duk_debug_dump_hobject(duk_hobject *obj) {
-	int i;
+	duk_uint_fast32_t i;
 	const char *str_empty = "";
 	const char *str_excl = "!";
 
@@ -24954,10 +25395,10 @@ void duk_debug_dump_hobject(duk_hobject *obj) {
 		DUK_DEBUG_SUMMARY_CHAR('[');
 		p = thr->valstack;
 		while (p <= thr->valstack_end) {
-			i = (int) (p - thr->valstack);
+			i = (duk_uint_fast32_t) (p - thr->valstack);
 			if (thr->callstack &&
 			    thr->callstack_top > 0 &&
-			    i == (thr->callstack + thr->callstack_top - 1)->idx_bottom) {
+			    i == (duk_size_t) (thr->callstack + thr->callstack_top - 1)->idx_bottom) {
 				DUK_DEBUG_SUMMARY_CHAR('>');
 			}
 			if (p == thr->valstack_top) {
@@ -25094,7 +25535,7 @@ void duk_debug_dump_hobject(duk_hobject *obj) {
 }
 
 void duk_debug_dump_callstack(duk_hthread *thr) {
-	int i;
+	duk_uint_fast32_t i;
 
 	DUK_DPRINT("=== hthread %p callstack: %d entries ===",
 	           (void *) thr,
@@ -25172,8 +25613,8 @@ void duk_debug_dump_activation(duk_hthread *thr, duk_activation *act) {
 char duk_debug_summary_buf[DUK_DEBUG_SUMMARY_BUF_SIZE];
 int duk_debug_summary_idx;
 
-#define DUK_DEBUG_BUFSIZE  DUK_USE_DEBUG_BUFSIZE
-static char buf[DUK_DEBUG_BUFSIZE];
+#define DUK__DEBUG_BUFSIZE  DUK_USE_DEBUG_BUFSIZE
+static char buf[DUK__DEBUG_BUFSIZE];
 
 static const char *get_level_string(int level) {
 	switch (level) {
@@ -25190,32 +25631,32 @@ static const char *get_level_string(int level) {
 #ifdef DUK_USE_DPRINT_COLORS
 
 /* http://en.wikipedia.org/wiki/ANSI_escape_code */
-#define TERM_REVERSE  "\x1b[7m"
-#define TERM_BRIGHT   "\x1b[1m"
-#define TERM_RESET    "\x1b[0m"
-#define TERM_BLUE     "\x1b[34m"
-#define TERM_RED      "\x1b[31m"
+#define DUK__TERM_REVERSE  "\x1b[7m"
+#define DUK__TERM_BRIGHT   "\x1b[1m"
+#define DUK__TERM_RESET    "\x1b[0m"
+#define DUK__TERM_BLUE     "\x1b[34m"
+#define DUK__TERM_RED      "\x1b[31m"
 
 static const char *get_term_1(int level) {
 	DUK_UNREF(level);
-	return (const char *) TERM_RED;
+	return (const char *) DUK__TERM_RED;
 }
 
 static const char *get_term_2(int level) {
 	switch (level) {
 	case DUK_LEVEL_DEBUG:
-		return (const char *) (TERM_RESET TERM_BRIGHT);
+		return (const char *) (DUK__TERM_RESET DUK__TERM_BRIGHT);
 	case DUK_LEVEL_DDEBUG:
-		return (const char *) (TERM_RESET);
+		return (const char *) (DUK__TERM_RESET);
 	case DUK_LEVEL_DDDEBUG:
-		return (const char *) (TERM_RESET TERM_BLUE);
+		return (const char *) (DUK__TERM_RESET DUK__TERM_BLUE);
 	}
-	return (const char *) TERM_RESET;
+	return (const char *) DUK__TERM_RESET;
 }
 
 static const char *get_term_3(int level) {
 	DUK_UNREF(level);
-	return (const char *) TERM_RESET;
+	return (const char *) DUK__TERM_RESET;
 }
 
 #else
@@ -25241,8 +25682,8 @@ void duk_debug_log(int level, const char *file, int line, const char *func, char
 
 	va_start(ap, fmt);
 
-	DUK_MEMSET((void *) buf, 0, (size_t) DUK_DEBUG_BUFSIZE);
-	duk_debug_vsnprintf(buf, DUK_DEBUG_BUFSIZE - 1, fmt, ap);
+	DUK_MEMSET((void *) buf, 0, (size_t) DUK__DEBUG_BUFSIZE);
+	duk_debug_vsnprintf(buf, DUK__DEBUG_BUFSIZE - 1, fmt, ap);
 
 #ifdef DUK_USE_DPRINT_RDTSC
 	fprintf(stderr, "%s[%s] <%llu> %s:%d (%s):%s %s%s\n",
@@ -25284,8 +25725,8 @@ void duk_debug_log(char *fmt, ...) {
 
 	va_start(ap, fmt);
 
-	DUK_MEMSET((void *) buf, 0, (size_t) DUK_DEBUG_BUFSIZE);
-	duk_debug_vsnprintf(buf, DUK_DEBUG_BUFSIZE - 1, fmt, ap);
+	DUK_MEMSET((void *) buf, 0, (size_t) DUK__DEBUG_BUFSIZE);
+	duk_debug_vsnprintf(buf, DUK__DEBUG_BUFSIZE - 1, fmt, ap);
 
 #ifdef DUK_USE_DPRINT_RDTSC
 	fprintf(stderr, "%s[%s] <%llu> %s:%s (%s):%s %s%s\n",
@@ -25388,16 +25829,16 @@ void duk_debug_log(char *fmt, ...) {
 /* list of conversion specifiers that terminate a format tag;
  * this is unfortunately guesswork.
  */
-#define ALLOWED_STANDARD_CONVERSION_SPECIFIERS  "diouxXeEfFgGaAcsCSpnm"
+#define DUK__ALLOWED_STANDARD_SPECIFIERS  "diouxXeEfFgGaAcsCSpnm"
 
 /* maximum length of standard format tag that we support */
-#define MAX_FORMAT_TAG_LENGTH  32
+#define DUK__MAX_FORMAT_TAG_LENGTH  32
 
 /* heapobj recursion depth when deep printing is selected */
-#define DEEP_DEPTH_LIMIT  8
+#define DUK__DEEP_DEPTH_LIMIT  8
 
 /* maximum recursion depth for loop detection stacks */
-#define LOOP_STACK_DEPTH  256
+#define DUK__LOOP_STACK_DEPTH  256
 
 /* must match bytecode defines now; build autogenerate? */
 static const char *bc_optab[] = {
@@ -25452,7 +25893,7 @@ struct duk_dprint_state {
 	/* loop_stack_index could be perhaps be replaced by 'depth', but it's nice
 	 * to not couple these two mechanisms unnecessarily.
 	 */
-	duk_hobject *loop_stack[LOOP_STACK_DEPTH];
+	duk_hobject *loop_stack[DUK__LOOP_STACK_DEPTH];
 	int loop_stack_index;
 	int loop_stack_limit;
 
@@ -25489,9 +25930,9 @@ static void print_shared_heaphdr(duk_dprint_state *st, duk_heaphdr *h) {
 	}
 
 	if (st->binary) {
-		int i;
+		duk_size_t i;
 		duk_fb_put_byte(fb, (duk_uint8_t) '[');
-		for (i = 0; i < sizeof(*h); i++) {
+		for (i = 0; i < (duk_size_t) sizeof(*h); i++) {
 			duk_fb_sprintf(fb, "%02x", (int) ((unsigned char *)h)[i]);
 		}
 		duk_fb_put_byte(fb, (duk_uint8_t) ']');
@@ -25536,9 +25977,9 @@ static void print_shared_heaphdr_string(duk_dprint_state *st, duk_heaphdr_string
 	}
 
 	if (st->binary) {
-		int i;
+		duk_size_t i;
 		duk_fb_put_byte(fb, (duk_uint8_t) '[');
-		for (i = 0; i < sizeof(*h); i++) {
+		for (i = 0; i < (duk_size_t) sizeof(*h); i++) {
 			duk_fb_sprintf(fb, "%02x", (int) ((unsigned char *)h)[i]);
 		}
 		duk_fb_put_byte(fb, (duk_uint8_t) ']');
@@ -25628,10 +26069,10 @@ static void print_hstring(duk_dprint_state *st, duk_hstring *h, int quotes) {
 #endif
 }
 
-#ifdef _COMMA
-#undef _COMMA
+#ifdef DUK__COMMA
+#undef DUK__COMMA
 #endif
-#define _COMMA()  do { \
+#define DUK__COMMA()  do { \
 		if (first) { \
 			first = 0; \
 		} else { \
@@ -25641,7 +26082,7 @@ static void print_hstring(duk_dprint_state *st, duk_hstring *h, int quotes) {
 
 static void print_hobject(duk_dprint_state *st, duk_hobject *h) {
 	duk_fixedbuffer *fb = st->fb;
-	int i;
+	duk_uint_fast32_t i;
 	duk_tval *tv;
 	duk_hstring *key;
 	int first = 1;
@@ -25678,7 +26119,7 @@ static void print_hobject(duk_dprint_state *st, duk_hobject *h) {
 		return;
 	}
 
-	for (i = 0; i < st->loop_stack_index; i++) {
+	for (i = 0; i < (duk_uint_fast32_t) st->loop_stack_index; i++) {
 		if (st->loop_stack[i] == h) {
 			duk_fb_sprintf(fb, "%sLOOP:%p%s", brace1, (void *) h, brace2);
 			return;
@@ -25703,7 +26144,7 @@ static void print_hobject(duk_dprint_state *st, duk_hobject *h) {
 	duk_fb_put_cstring(fb, brace1);
 
 	if (h->p) {
-		int a_limit;
+		duk_uint32_t a_limit;
 
 		a_limit = h->a_size;
 		if (st->internal) {
@@ -25724,7 +26165,7 @@ static void print_hobject(duk_dprint_state *st, duk_hobject *h) {
 
 		for (i = 0; i < a_limit; i++) {
 			tv = DUK_HOBJECT_A_GET_VALUE_PTR(h, i);
-			_COMMA();
+			DUK__COMMA();
 			print_tval(st, tv);
 		}
 		for (i = 0; i < h->e_used; i++) {
@@ -25738,7 +26179,7 @@ static void print_hobject(duk_dprint_state *st, duk_hobject *h) {
 				/* FIXME: cleanup to use DUK_HSTRING_FLAG_INTERNAL? */
 				continue;
 			}
-			_COMMA();
+			DUK__COMMA();
 			print_hstring(st, key, 0);
 			duk_fb_put_byte(fb, (duk_uint8_t) ':');
 			if (DUK_HOBJECT_E_SLOT_IS_ACCESSOR(h, i)) {
@@ -25756,125 +26197,125 @@ static void print_hobject(duk_dprint_state *st, duk_hobject *h) {
 	}
 	if (st->internal) {
 		if (DUK_HOBJECT_HAS_EXTENSIBLE(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__extensible:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__extensible:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_CONSTRUCTABLE(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__constructable:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__constructable:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_BOUND(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__bound:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__bound:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_COMPILEDFUNCTION(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__compiledfunction:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__compiledfunction:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_NATIVEFUNCTION(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__nativefunction:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__nativefunction:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_THREAD(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__thread:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__thread:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_ARRAY_PART(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__array_part:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__array_part:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_STRICT(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__strict:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__strict:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_NEWENV(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__newenv:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__newenv:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_NAMEBINDING(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__namebinding:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__namebinding:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_CREATEARGS(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__createargs:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__createargs:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_ENVRECCLOSED(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__envrecclosed:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__envrecclosed:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_SPECIAL_ARRAY(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__special_array:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__special_array:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_SPECIAL_STRINGOBJ(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__special_stringobj:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__special_stringobj:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_SPECIAL_ARGUMENTS(h)) {
-			_COMMA(); duk_fb_sprintf(fb, "__special_arguments:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__special_arguments:true");
 		} else {
 			;
 		}
 	}
 	if (st->internal && DUK_HOBJECT_IS_COMPILEDFUNCTION(h)) {
 		duk_hcompiledfunction *f = (duk_hcompiledfunction *) h;
-		_COMMA(); duk_fb_put_cstring(fb, "__data:"); print_hbuffer(st, f->data);
-		_COMMA(); duk_fb_sprintf(fb, "__nregs:%d", f->nregs);
-		_COMMA(); duk_fb_sprintf(fb, "__nargs:%d", f->nargs);
+		DUK__COMMA(); duk_fb_put_cstring(fb, "__data:"); print_hbuffer(st, f->data);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__nregs:%d", f->nregs);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__nargs:%d", f->nargs);
 	} else if (st->internal && DUK_HOBJECT_IS_NATIVEFUNCTION(h)) {
 		duk_hnativefunction *f = (duk_hnativefunction *) h;
 #if 0  /* FIXME: no portable way to print function pointers */
-		_COMMA(); duk_fb_sprintf(fb, "__func:%p", (void *) f->func);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__func:%p", (void *) f->func);
 #endif
-		_COMMA(); duk_fb_sprintf(fb, "__nargs:%d", f->nargs);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__nargs:%d", f->nargs);
 
 	} else if (st->internal && DUK_HOBJECT_IS_THREAD(h)) {
 		duk_hthread *t = (duk_hthread *) h;
-		_COMMA(); duk_fb_sprintf(fb, "__strict:%d", t->strict);
-		_COMMA(); duk_fb_sprintf(fb, "__state:%d", t->state);
-		_COMMA(); duk_fb_sprintf(fb, "__unused1:%d", t->unused1);
-		_COMMA(); duk_fb_sprintf(fb, "__unused2:%d", t->unused2);
-		_COMMA(); duk_fb_sprintf(fb, "__valstack_max:%d", t->valstack_max);
-		_COMMA(); duk_fb_sprintf(fb, "__callstack_max:%d", t->callstack_max);
-		_COMMA(); duk_fb_sprintf(fb, "__catchstack_max:%d", t->catchstack_max);
-		_COMMA(); duk_fb_sprintf(fb, "__valstack:%p", (void *) t->valstack);
-		_COMMA(); duk_fb_sprintf(fb, "__valstack_end:%p/%d", (void *) t->valstack_end, (int) (t->valstack_end - t->valstack));
-		_COMMA(); duk_fb_sprintf(fb, "__valstack_bottom:%p/%d", (void *) t->valstack_bottom, (int) (t->valstack_bottom - t->valstack));
-		_COMMA(); duk_fb_sprintf(fb, "__valstack_top:%p/%d", (void *) t->valstack_top, (int) (t->valstack_top - t->valstack));
-		_COMMA(); duk_fb_sprintf(fb, "__catchstack:%p", (void *) t->catchstack);
-		_COMMA(); duk_fb_sprintf(fb, "__catchstack_size:%d", t->catchstack_size);
-		_COMMA(); duk_fb_sprintf(fb, "__catchstack_top:%d", t->catchstack_top);
-		_COMMA(); duk_fb_sprintf(fb, "__resumer:"); print_hobject(st, (duk_hobject *) t->resumer);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__strict:%d", t->strict);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__state:%d", t->state);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__unused1:%d", t->unused1);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__unused2:%d", t->unused2);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__valstack_max:%d", t->valstack_max);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__callstack_max:%d", t->callstack_max);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__catchstack_max:%d", t->catchstack_max);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__valstack:%p", (void *) t->valstack);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__valstack_end:%p/%d", (void *) t->valstack_end, (int) (t->valstack_end - t->valstack));
+		DUK__COMMA(); duk_fb_sprintf(fb, "__valstack_bottom:%p/%d", (void *) t->valstack_bottom, (int) (t->valstack_bottom - t->valstack));
+		DUK__COMMA(); duk_fb_sprintf(fb, "__valstack_top:%p/%d", (void *) t->valstack_top, (int) (t->valstack_top - t->valstack));
+		DUK__COMMA(); duk_fb_sprintf(fb, "__catchstack:%p", (void *) t->catchstack);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__catchstack_size:%d", t->catchstack_size);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__catchstack_top:%d", t->catchstack_top);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__resumer:"); print_hobject(st, (duk_hobject *) t->resumer);
 		/* XXX: print built-ins array? */
 
 	}
 #ifdef DUK_USE_REFERENCE_COUNTING
 	if (st->internal) {
-		_COMMA(); duk_fb_sprintf(fb, "__refcount:%d", DUK_HEAPHDR_GET_REFCOUNT((duk_heaphdr *) h));
+		DUK__COMMA(); duk_fb_sprintf(fb, "__refcount:%d", DUK_HEAPHDR_GET_REFCOUNT((duk_heaphdr *) h));
 	}
 #endif
 	if (st->internal) {
-		_COMMA(); duk_fb_sprintf(fb, "__class:%d", DUK_HOBJECT_GET_CLASS_NUMBER(h));
+		DUK__COMMA(); duk_fb_sprintf(fb, "__class:%d", DUK_HOBJECT_GET_CLASS_NUMBER(h));
 	}
 
 	/* prototype should be last, for readability */
 	if (st->follow_proto && h->prototype) {
-		_COMMA(); duk_fb_put_cstring(fb, "__prototype:"); print_hobject(st, h->prototype);
+		DUK__COMMA(); duk_fb_put_cstring(fb, "__prototype:"); print_hobject(st, h->prototype);
 	}
 
 	duk_fb_put_cstring(fb, brace2);
@@ -25905,7 +26346,7 @@ static void print_hobject(duk_dprint_state *st, duk_hobject *h) {
 	}
 }
 
-#undef _COMMA
+#undef DUK__COMMA
 
 static void print_hbuffer(duk_dprint_state *st, duk_hbuffer *h) {
 	duk_fixedbuffer *fb = st->fb;
@@ -25993,9 +26434,9 @@ static void print_tval(duk_dprint_state *st, duk_tval *tv) {
 	}
 
 	if (st->binary) {
-		int i;
+		duk_size_t i;
 		duk_fb_put_byte(fb, (duk_uint8_t) '[');
-		for (i = 0; i < sizeof(*tv); i++) {
+		for (i = 0; i < (duk_size_t) sizeof(*tv); i++) {
 			duk_fb_sprintf(fb, "%02x", (int) ((unsigned char *)tv)[i]);
 		}
 		duk_fb_put_byte(fb, (duk_uint8_t) ']');
@@ -26123,7 +26564,7 @@ int duk_debug_vsnprintf(char *str, size_t size, const char *format, va_list ap) 
 		st.depth = 0;
 		st.depth_limit = 1;
 		st.loop_stack_index = 0;
-		st.loop_stack_limit = LOOP_STACK_DEPTH;
+		st.loop_stack_limit = DUK__LOOP_STACK_DEPTH;
 
 		p_begfmt = p - 1;
 		while (p < p_end) {
@@ -26138,7 +26579,7 @@ int duk_debug_vsnprintf(char *str, size_t size, const char *format, va_list ap) 
 			} else if (ch == '!') {
 				got_exclamation = 1;
 			} else if (got_exclamation && ch == 'd') {
-				st.depth_limit = DEEP_DEPTH_LIMIT;
+				st.depth_limit = DUK__DEEP_DEPTH_LIMIT;
 			} else if (got_exclamation && ch == 'p') {
 				st.follow_proto = 1;
 			} else if (got_exclamation && ch == 'i') {
@@ -26173,12 +26614,13 @@ int duk_debug_vsnprintf(char *str, size_t size, const char *format, va_list ap) 
 				int t = va_arg(ap, int);
 				print_opcode(&st, t);
 				break;
-			} else if (!got_exclamation && strchr(ALLOWED_STANDARD_CONVERSION_SPECIFIERS, (int) ch)) {
-				char fmtbuf[MAX_FORMAT_TAG_LENGTH];
-				int fmtlen;
+			} else if (!got_exclamation && strchr(DUK__ALLOWED_STANDARD_SPECIFIERS, (int) ch)) {
+				char fmtbuf[DUK__MAX_FORMAT_TAG_LENGTH];
+				duk_size_t fmtlen;
 
-				fmtlen = p - p_begfmt;
-				if (fmtlen < 0 || fmtlen >= sizeof(fmtbuf)) {
+				DUK_ASSERT(p >= p_begfmt);
+				fmtlen = (duk_size_t) (p - p_begfmt);
+				if (fmtlen >= sizeof(fmtbuf)) {
 					/* format is too large, abort */
 					goto error;
 				}
@@ -26312,15 +26754,29 @@ static void add_traceback(duk_hthread *thr, duk_hthread *thr_callstack, duk_hobj
 	 * entry with a special format: (string, number).  The number contains
 	 * the line and flags.
 	 */
+
+	/* FIXME: optimize: allocate an array part to the necessary size (upwards
+	 * estimate) and fill in the values directly into the array part; finally
+	 * update 'length'.
+	 */
+
+	/* FIXME: using duk_put_prop_index() would cause obscure error cases when Array.prototype
+	 * has write-protected array index named properties.  This was seen as DoubleErrors
+	 * in e.g. some test262 test cases.  Using duk_def_prop_index() is better but currently
+	 * there is no fast path variant for that; the current implementation interns the array
+	 * index as a string.  This can be fixed directly, or perhaps the traceback can be fixed
+	 * altogether to fill in the tracedata directly into the array part.
+	 */
+
 	if (filename) {
 		duk_push_string(ctx, filename);
-		duk_put_prop_index(ctx, -2, arr_idx);
+		duk_def_prop_index(ctx, -2, arr_idx, DUK_PROPDESC_FLAGS_WEC);
 		arr_idx++;
 
 		d = (noblame_fileline ? ((double) DUK_TB_FLAG_NOBLAME_FILELINE) * DUK_DOUBLE_2TO32 : 0.0) +
 		    (double) line;
 		duk_push_number(ctx, d);
-		duk_put_prop_index(ctx, -2, arr_idx);
+		duk_def_prop_index(ctx, -2, arr_idx, DUK_PROPDESC_FLAGS_WEC);
 		arr_idx++;
 	}
 
@@ -26349,7 +26805,7 @@ static void add_traceback(duk_hthread *thr, duk_hthread *thr_callstack, duk_hobj
 
 		/* add function */
 		duk_push_hobject(ctx, thr_callstack->callstack[i].func);  /* -> [... arr func] */
-		duk_put_prop_index(ctx, -2, arr_idx);
+		duk_def_prop_index(ctx, -2, arr_idx, DUK_PROPDESC_FLAGS_WEC);
 		arr_idx++;
 
 		/* add a number containing: pc, activation flags */
@@ -26366,12 +26822,16 @@ static void add_traceback(duk_hthread *thr, duk_hthread *thr_callstack, duk_hobj
 		DUK_ASSERT(pc >= 0 && (double) pc < DUK_DOUBLE_2TO32);  /* assume PC is at most 32 bits and non-negative */
 		d = ((double) thr_callstack->callstack[i].flags) * DUK_DOUBLE_2TO32 + (double) pc;
 		duk_push_number(ctx, d);  /* -> [... arr num] */
-		duk_put_prop_index(ctx, -2, arr_idx);
+		duk_def_prop_index(ctx, -2, arr_idx, DUK_PROPDESC_FLAGS_WEC);
 		arr_idx++;
 	}
 
+	/* FIXME: set with duk_hobject_set_length() when tracedata is filled directly */
+	duk_push_int(ctx, (int) arr_idx);
+	duk_def_prop_stridx(ctx, -2, DUK_STRIDX_LENGTH, DUK_PROPDESC_FLAGS_WC);
+
 	/* [... arr] */
-	duk_put_prop_stridx(ctx, err_index, DUK_STRIDX_TRACEDATA);  /* -> [...] */
+	duk_def_prop_stridx(ctx, err_index, DUK_STRIDX_TRACEDATA, DUK_PROPDESC_FLAGS_WEC);  /* -> [...] */
 }
 #endif  /* DUK_USE_TRACEBACKS */
 
@@ -26559,12 +27019,12 @@ void duk_err_longjmp(duk_hthread *thr) {
 
 #ifdef DUK_USE_VERBOSE_ERRORS
 
-#define BUFSIZE  256  /* size for formatting buffers */
+#define DUK__FMT_BUFSIZE  256  /* size for formatting buffers */
 
 #ifdef DUK_USE_VARIADIC_MACROS
 void duk_err_handle_error(const char *filename, int line, duk_hthread *thr, int code, const char *fmt, ...) {
 	va_list ap;
-	char msg[BUFSIZE];
+	char msg[DUK__FMT_BUFSIZE];
 	va_start(ap, fmt);
 	(void) DUK_VSNPRINTF(msg, sizeof(msg), fmt, ap);
 	msg[sizeof(msg) - 1] = (char) 0;
@@ -26574,8 +27034,8 @@ void duk_err_handle_error(const char *filename, int line, duk_hthread *thr, int 
 
 void duk_err_handle_panic(const char *filename, int line, int code, const char *fmt, ...) {
 	va_list ap;
-	char msg1[BUFSIZE];
-	char msg2[BUFSIZE];
+	char msg1[DUK__FMT_BUFSIZE];
+	char msg2[DUK__FMT_BUFSIZE];
 	const char *tmp;
 	va_start(ap, fmt);
 	(void) DUK_VSNPRINTF(msg1, sizeof(msg1), fmt, ap);
@@ -26598,7 +27058,7 @@ int duk_err_line_stash = 0;
 DUK_NORETURN(static void _handle_error(const char *filename, int line, duk_hthread *thr, int code, const char *fmt, va_list ap));
 
 static void _handle_error(const char *filename, int line, duk_hthread *thr, int code, const char *fmt, va_list ap) {
-	char msg[BUFSIZE];
+	char msg[DUK__FMT_BUFSIZE];
 	(void) DUK_VSNPRINTF(msg, sizeof(msg), fmt, ap);
 	msg[sizeof(msg) - 1] = (char) 0;
 	duk_err_create_and_throw(thr, code, msg, filename, line);
@@ -26607,8 +27067,8 @@ static void _handle_error(const char *filename, int line, duk_hthread *thr, int 
 DUK_NORETURN(static void _handle_panic(const char *filename, int line, int code, const char *fmt, va_list ap));
 
 static void _handle_panic(const char *filename, int line, int code, const char *fmt, va_list ap) {
-	char msg1[BUFSIZE];
-	char msg2[BUFSIZE];
+	char msg1[DUK__FMT_BUFSIZE];
+	char msg2[DUK__FMT_BUFSIZE];
 	(void) DUK_VSNPRINTF(msg1, sizeof(msg1), fmt, ap);
 	msg1[sizeof(msg1) - 1] = (char) 0;
 	(void) DUK_SNPRINTF(msg2, sizeof(msg2), "(%s:%d): %s", filename ? filename : "null", line, msg1);
@@ -27006,6 +27466,9 @@ duk_hbuffer *duk_hbuffer_alloc(duk_heap *heap, size_t size, int dynamic) {
 			h->curr_alloc = ptr;
 			h->usable_size = size;  /* snug */
 		} else {
+			/* FIXME: if safety NUL term IS included, having a NULL ptr
+			 * for the buffer area is inconsistent.
+			 */
 #ifdef DUK_USE_EXPLICIT_NULL_INIT
 			h->curr_alloc = NULL;
 #endif
@@ -27160,10 +27623,10 @@ void duk_hbuffer_insert_bytes(duk_hthread *thr, duk_hbuffer_dynamic *buf, size_t
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(buf != NULL);
 	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(buf));
-	DUK_ASSERT(offset >= 0);  /* unsigned, so always true */
+	DUK_ASSERT_DISABLE(offset >= 0);  /* unsigned, so always true */
 	DUK_ASSERT(offset <= DUK_HBUFFER_GET_SIZE(buf));  /* equality is OK (= append) */
 	DUK_ASSERT(data != NULL);
-	DUK_ASSERT(length >= 0);  /* unsigned, so always true */
+	DUK_ASSERT_DISABLE(length >= 0);  /* unsigned, so always true */
 
 	if (length == 0) {
 		return;
@@ -27258,7 +27721,8 @@ size_t duk_hbuffer_insert_cesu8(duk_hthread *thr, duk_hbuffer_dynamic *buf, size
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(buf != NULL);
 	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(buf));
-	DUK_ASSERT(codepoint >= 0 && codepoint <= 0x10ffff);  /* if not in this range, results are garbage (but no crash) */
+	DUK_ASSERT_DISABLE(codepoint >= 0);
+	DUK_ASSERT(codepoint <= 0x10ffff);  /* if not in this range, results are garbage (but no crash) */
 
 	/* Intentionally no fast path: insertion is not that central */
 
@@ -27363,7 +27827,8 @@ size_t duk_hbuffer_append_cesu8(duk_hthread *thr, duk_hbuffer_dynamic *buf, duk_
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(buf != NULL);
 	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(buf));
-	DUK_ASSERT(codepoint >= 0 && codepoint <= 0x10ffff);  /* if not in this range, results are garbage (but no crash) */
+	DUK_ASSERT_DISABLE(codepoint >= 0);
+	DUK_ASSERT(codepoint <= 0x10ffff);  /* if not in this range, results are garbage (but no crash) */
 
 	if (codepoint < 0x80 && DUK_HBUFFER_DYNAMIC_GET_SPARE_SIZE(buf) > 0) {
 		/* fast path: ASCII and there is spare */
@@ -27409,9 +27874,9 @@ void duk_hbuffer_remove_slice(duk_hthread *thr, duk_hbuffer_dynamic *buf, size_t
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(buf != NULL);
 	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(buf));
-	DUK_ASSERT(offset >= 0);                                       /* always true */
+	DUK_ASSERT_DISABLE(offset >= 0);                               /* always true */
 	DUK_ASSERT(offset <= DUK_HBUFFER_GET_SIZE(buf));               /* allow equality */
-	DUK_ASSERT(length >= 0);                                       /* always true */
+	DUK_ASSERT_DISABLE(length >= 0);                               /* always true */
 	DUK_ASSERT(offset + length <= DUK_HBUFFER_GET_SIZE(buf));      /* allow equality */
 
 	if (length == 0) {
@@ -27446,11 +27911,11 @@ void duk_hbuffer_insert_slice(duk_hthread *thr, duk_hbuffer_dynamic *buf, size_t
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(buf != NULL);
 	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(buf));
-	DUK_ASSERT(dst_offset >= 0);                                   /* always true */
+	DUK_ASSERT_DISABLE(dst_offset >= 0);                           /* always true */
 	DUK_ASSERT(dst_offset <= DUK_HBUFFER_GET_SIZE(buf));           /* allow equality */
-	DUK_ASSERT(src_offset >= 0);                                   /* always true */
+	DUK_ASSERT_DISABLE(src_offset >= 0);                           /* always true */
 	DUK_ASSERT(src_offset <= DUK_HBUFFER_GET_SIZE(buf));           /* allow equality */
-	DUK_ASSERT(length >= 0);                                       /* always true */
+	DUK_ASSERT_DISABLE(length >= 0);                               /* always true */
 	DUK_ASSERT(src_offset + length <= DUK_HBUFFER_GET_SIZE(buf));  /* allow equality */
 
 	if (length == 0) {
@@ -27517,9 +27982,9 @@ void duk_hbuffer_append_slice(duk_hthread *thr, duk_hbuffer_dynamic *buf, size_t
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(buf != NULL);
 	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(buf));
-	DUK_ASSERT(src_offset >= 0);                                   /* always true */
+	DUK_ASSERT_DISABLE(src_offset >= 0);                           /* always true */
 	DUK_ASSERT(src_offset <= DUK_HBUFFER_GET_SIZE(buf));           /* allow equality */
-	DUK_ASSERT(length >= 0);                                       /* always true */
+	DUK_ASSERT_DISABLE(length >= 0);                               /* always true */
 	DUK_ASSERT(src_offset + length <= DUK_HBUFFER_GET_SIZE(buf));  /* allow equality */
 
 	duk_hbuffer_insert_slice(thr,
@@ -27537,12 +28002,12 @@ void duk_hbuffer_append_slice(duk_hthread *thr, duk_hbuffer_dynamic *buf, size_t
 /* include removed: duk_internal.h */
 
 /* constants for built-in string data depacking */
-#define BITPACK_LETTER_LIMIT  26
-#define BITPACK_UNDERSCORE    26
-#define BITPACK_FF            27
-#define BITPACK_SWITCH1       29
-#define BITPACK_SWITCH        30
-#define BITPACK_SEVENBIT      31
+#define DUK__BITPACK_LETTER_LIMIT  26
+#define DUK__BITPACK_UNDERSCORE    26
+#define DUK__BITPACK_FF            27
+#define DUK__BITPACK_SWITCH1       29
+#define DUK__BITPACK_SWITCH        30
+#define DUK__BITPACK_SEVENBIT      31
 
 /*
  *  Free a heap object.
@@ -27749,25 +28214,25 @@ static int init_heap_strings(duk_heap *heap) {
 		mode = 32;		/* 0 = uppercase, 32 = lowercase (= 'a' - 'A') */
 		for (j = 0; j < len; j++) {
 			t = duk_bd_decode(bd, 5);
-			if (t < BITPACK_LETTER_LIMIT) {
+			if (t < DUK__BITPACK_LETTER_LIMIT) {
 				t = t + 'A' + mode;
-			} else if (t == BITPACK_UNDERSCORE) {
+			} else if (t == DUK__BITPACK_UNDERSCORE) {
 				t = (int) '_';
-			} else if (t == BITPACK_FF) {
+			} else if (t == DUK__BITPACK_FF) {
 				/* Internal keys are prefixed with 0xFF in the stringtable
 				 * (which makes them invalid UTF-8 on purpose).
 				 */
 				t = (int) 0xff;
-			} else if (t == BITPACK_SWITCH1) {
+			} else if (t == DUK__BITPACK_SWITCH1) {
 				t = duk_bd_decode(bd, 5);
 				DUK_ASSERT(t >= 0 && t <= 25);
 				t = t + 'A' + (mode ^ 32);
-			} else if (t == BITPACK_SWITCH) {
+			} else if (t == DUK__BITPACK_SWITCH) {
 				mode = mode ^ 32;
 				t = duk_bd_decode(bd, 5);
 				DUK_ASSERT(t >= 0 && t <= 25);
 				t = t + 'A' + mode;
-			} else if (t == BITPACK_SEVENBIT) {
+			} else if (t == DUK__BITPACK_SEVENBIT) {
 				t = duk_bd_decode(bd, 7);
 			}
 			tmp[j] = (duk_uint8_t) t;
@@ -27923,11 +28388,7 @@ duk_heap *duk_heap_alloc(duk_alloc_function alloc_func,
 	res->alloc_udata = alloc_udata;
 	res->fatal_func = fatal_func;
 
-#ifdef DUK_USE_MARK_AND_SWEEP
-	res->mark_and_sweep_recursion_limit = DUK_HEAP_DEFAULT_MARK_AND_SWEEP_RECURSION_LIMIT;
-	res->mark_and_sweep_trigger_limit = DUK_HEAP_DEFAULT_MARK_AND_SWEEP_TRIGGER_LIMIT;
 	/* res->mark_and_sweep_trigger_counter == 0 -> now causes immediate GC; which is OK */
-#endif
 
 	res->call_recursion_depth = 0;
 	res->call_recursion_limit = DUK_HEAP_DEFAULT_CALL_RECURSION_LIMIT;
@@ -28039,9 +28500,9 @@ duk_heap *duk_heap_alloc(duk_alloc_function alloc_func,
 /* include removed: duk_internal.h */
 
 /* constants for duk_hashstring() */
-#define STRING_HASH_SHORTSTRING   4096
-#define STRING_HASH_MEDIUMSTRING  (256 * 1024)
-#define STRING_HASH_BLOCKSIZE     256
+#define DUK__STRHASH_SHORTSTRING   4096
+#define DUK__STRHASH_MEDIUMSTRING  (256 * 1024)
+#define DUK__STRHASH_BLOCKSIZE     256
 
 duk_uint32_t duk_heap_hashstring(duk_heap *heap, duk_uint8_t *str, duk_size_t len) {
 	/*
@@ -28068,26 +28529,26 @@ duk_uint32_t duk_heap_hashstring(duk_heap *heap, duk_uint8_t *str, duk_size_t le
 	/* note: mixing len into seed improves hashing when skipping */
 	duk_uint32_t str_seed = heap->hash_seed ^ len;
 
-	if (len <= STRING_HASH_SHORTSTRING) {
+	if (len <= DUK__STRHASH_SHORTSTRING) {
 		return duk_util_hashbytes(str, len, str_seed);
 	} else {
 		duk_uint32_t hash;
 		duk_size_t off;
 		duk_size_t skip;
 
-		if (len <= STRING_HASH_MEDIUMSTRING) {
-			skip = (duk_size_t) (16 * STRING_HASH_BLOCKSIZE + STRING_HASH_BLOCKSIZE);
+		if (len <= DUK__STRHASH_MEDIUMSTRING) {
+			skip = (duk_size_t) (16 * DUK__STRHASH_BLOCKSIZE + DUK__STRHASH_BLOCKSIZE);
 		} else {
-			skip = (duk_size_t) (256 * STRING_HASH_BLOCKSIZE + STRING_HASH_BLOCKSIZE);
+			skip = (duk_size_t) (256 * DUK__STRHASH_BLOCKSIZE + DUK__STRHASH_BLOCKSIZE);
 		}
 
-		hash = duk_util_hashbytes(str, (duk_size_t) STRING_HASH_SHORTSTRING, str_seed);
-		off = STRING_HASH_SHORTSTRING + (skip * (hash % 256)) / 256;
+		hash = duk_util_hashbytes(str, (duk_size_t) DUK__STRHASH_SHORTSTRING, str_seed);
+		off = DUK__STRHASH_SHORTSTRING + (skip * (hash % 256)) / 256;
 
 		/* FIXME: inefficient loop */
 		while (off < len) {
 			duk_size_t left = len - off;
-			duk_size_t now = (duk_size_t) (left > STRING_HASH_BLOCKSIZE ? STRING_HASH_BLOCKSIZE : left);
+			duk_size_t now = (duk_size_t) (left > DUK__STRHASH_BLOCKSIZE ? DUK__STRHASH_BLOCKSIZE : left);
 			hash ^= duk_util_hashbytes(str + off, now, str_seed);
 			off += skip;
 		}
@@ -28137,7 +28598,7 @@ static void mark_hstring(duk_heap *heap, duk_hstring *h) {
 }
 
 static void mark_hobject(duk_heap *heap, duk_hobject *h) {
-	int i;
+	duk_uint_fast32_t i;
 
 	DUK_DDDPRINT("mark_hobject: %p", (void *) h);
 
@@ -28241,7 +28702,7 @@ static void mark_heaphdr(duk_heap *heap, duk_heaphdr *h) {
 	}
 	DUK_HEAPHDR_SET_REACHABLE(h);
 
-	if (heap->mark_and_sweep_recursion_depth >= heap->mark_and_sweep_recursion_limit) {
+	if (heap->mark_and_sweep_recursion_depth >= DUK_HEAP_MARK_AND_SWEEP_RECURSION_LIMIT) {
 		/* log this with a normal debug level because this should be relatively rare */
 		DUK_DPRINT("mark-and-sweep recursion limit reached, marking as temproot: %p", (void *) h);
 		DUK_HEAP_SET_MARKANDSWEEP_RECLIMIT_REACHED(heap);
@@ -28540,13 +29001,13 @@ static void clear_refzero_list_flags(duk_heap *heap) {
  *  Sweep stringtable
  */
 
-static void sweep_stringtable(duk_heap *heap) {
+static void sweep_stringtable(duk_heap *heap, duk_size_t *out_count_keep) {
 	duk_hstring *h;
-	int i;
+	duk_uint_fast32_t i;
 #ifdef DUK_USE_DEBUG
-	int count_free = 0;
-	int count_keep = 0;
+	duk_size_t count_free = 0;
 #endif
+	duk_size_t count_keep = 0;
 
 	DUK_DDPRINT("sweep_stringtable: %p", (void *) heap);
 
@@ -28556,9 +29017,7 @@ static void sweep_stringtable(duk_heap *heap) {
 			continue;
 		} else if (DUK_HEAPHDR_HAS_REACHABLE((duk_heaphdr *) h)) {
 			DUK_HEAPHDR_CLEAR_REACHABLE((duk_heaphdr *) h);
-#ifdef DUK_USE_DEBUG
 			count_keep++;
-#endif
 			continue;
 		}
 
@@ -28595,24 +29054,26 @@ static void sweep_stringtable(duk_heap *heap) {
 	}
 
 #ifdef DUK_USE_DEBUG
-	DUK_DPRINT("mark-and-sweep sweep stringtable: %d freed, %d kept", count_free, count_keep);
+	DUK_DPRINT("mark-and-sweep sweep stringtable: %d freed, %d kept",
+	           (int) count_free, (int) count_keep);
 #endif
+	*out_count_keep = count_keep;
 }
 
 /*
  *  Sweep heap
  */
 
-static void sweep_heap(duk_heap *heap, int flags) {
+static void sweep_heap(duk_heap *heap, duk_int_t flags, duk_size_t *out_count_keep) {
 	duk_heaphdr *prev;  /* last element that was left in the heap */
 	duk_heaphdr *curr;
 	duk_heaphdr *next;
 #ifdef DUK_USE_DEBUG
-	int count_free = 0;
-	int count_keep = 0;
-	int count_finalize = 0;
-	int count_rescue = 0;
+	duk_size_t count_free = 0;
+	duk_size_t count_finalize = 0;
+	duk_size_t count_rescue = 0;
 #endif
+	duk_size_t count_keep = 0;
 
 	DUK_UNREF(flags);
 	DUK_DDPRINT("sweep_heap: %p", (void *) heap);
@@ -28677,9 +29138,7 @@ static void sweep_heap(duk_heap *heap, int flags) {
 					/*
 					 *  Plain, boring reachable object.
 					 */
-#ifdef DUK_USE_DEBUG
 					count_keep++;
-#endif
 				}
 
 				if (!heap->heap_allocated) {
@@ -28748,8 +29207,9 @@ static void sweep_heap(duk_heap *heap, int flags) {
 
 #ifdef DUK_USE_DEBUG
 	DUK_DPRINT("mark-and-sweep sweep objects (non-string): %d freed, %d kept, %d rescued, %d queued for finalization",
-	            count_free, count_keep, count_rescue, count_finalize);
+	            (int) count_free, (int) count_keep, (int) count_rescue, (int) count_finalize);
 #endif
+	*out_count_keep = count_keep;
 }
 
 /*
@@ -28949,10 +29409,12 @@ static void assert_valid_refcounts(duk_heap *heap) {
 			 * refzero_list and will thus appear here with refcount
 			 * zero.
 			 */
+#if 0  /* this case can no longer occur because refcount is unsigned */
 		} else if (DUK_HEAPHDR_GET_REFCOUNT(hdr) < 0) {
 			DUK_DPRINT("invalid refcount: %d, %p -> %!O",
 			           (hdr != NULL ? DUK_HEAPHDR_GET_REFCOUNT(hdr) : 0), (void *) hdr, hdr);
 			DUK_ASSERT(DUK_HEAPHDR_GET_REFCOUNT(hdr) > 0);
+#endif
 		}
 		hdr = DUK_HEAPHDR_GET_NEXT(hdr);
 	}
@@ -28970,6 +29432,10 @@ static void assert_valid_refcounts(duk_heap *heap) {
  */
 
 int duk_heap_mark_and_sweep(duk_heap *heap, int flags) {
+	duk_size_t count_keep_obj;
+	duk_size_t count_keep_str;
+	duk_size_t tmp;
+
 	/* FIXME: thread selection for mark-and-sweep is currently a hack.
 	 * If we don't have a thread, the entire mark-and-sweep is now
 	 * skipped (although we could just skip finalizations).
@@ -28978,7 +29444,9 @@ int duk_heap_mark_and_sweep(duk_heap *heap, int flags) {
 		DUK_DPRINT("temporary hack: gc skipped because we don't have a temp thread");
 
 		/* reset voluntary gc trigger count */
-		heap->mark_and_sweep_trigger_counter = heap->mark_and_sweep_trigger_limit;
+#ifdef DUK_USE_VOLUNTARY_GC
+		heap->mark_and_sweep_trigger_counter = DUK_HEAP_MARK_AND_SWEEP_TRIGGER_SKIP;
+#endif
 		return DUK_ERR_OK;
 	}
 
@@ -28995,7 +29463,6 @@ int duk_heap_mark_and_sweep(duk_heap *heap, int flags) {
 	DUK_ASSERT(!DUK_HEAP_HAS_MARKANDSWEEP_RUNNING(heap));
 	DUK_ASSERT(!DUK_HEAP_HAS_MARKANDSWEEP_RECLIMIT_REACHED(heap));
 	DUK_ASSERT(heap->mark_and_sweep_recursion_depth == 0);
-	DUK_ASSERT(heap->mark_and_sweep_recursion_limit >= 1);
 	assert_heaphdr_flags(heap);
 #ifdef DUK_USE_REFERENCE_COUNTING
 	/* Note: DUK_HEAP_HAS_REFZERO_FREE_RUNNING(heap) may be true; a refcount
@@ -29051,8 +29518,8 @@ int duk_heap_mark_and_sweep(duk_heap *heap, int flags) {
 #ifdef DUK_USE_REFERENCE_COUNTING
 	finalize_refcounts(heap);
 #endif
-	sweep_heap(heap, flags);
-	sweep_stringtable(heap);
+	sweep_heap(heap, flags, &count_keep_obj);
+	sweep_stringtable(heap, &count_keep_str);
 #ifdef DUK_USE_REFERENCE_COUNTING
 	clear_refzero_list_flags(heap);
 #endif
@@ -29144,7 +29611,6 @@ int duk_heap_mark_and_sweep(duk_heap *heap, int flags) {
 	DUK_ASSERT(!DUK_HEAP_HAS_MARKANDSWEEP_RUNNING(heap));
 	DUK_ASSERT(!DUK_HEAP_HAS_MARKANDSWEEP_RECLIMIT_REACHED(heap));
 	DUK_ASSERT(heap->mark_and_sweep_recursion_depth == 0);
-	DUK_ASSERT(heap->mark_and_sweep_recursion_limit > 1);
 	assert_heaphdr_flags(heap);
 #ifdef DUK_USE_REFERENCE_COUNTING
 	/* Note: DUK_HEAP_HAS_REFZERO_FREE_RUNNING(heap) may be true; a refcount
@@ -29158,15 +29624,21 @@ int duk_heap_mark_and_sweep(duk_heap *heap, int flags) {
 	 *  Reset trigger counter
 	 */
 
-	/* very simplistic now, should be relative to heap size */
-	heap->mark_and_sweep_trigger_counter = heap->mark_and_sweep_trigger_limit;
-
-	DUK_DPRINT("garbage collect (mark-and-sweep) finished (trigger reset to %d)",
-	           heap->mark_and_sweep_trigger_counter);
+#ifdef DUK_USE_VOLUNTARY_GC
+	tmp = (count_keep_obj + count_keep_str) / 256;
+	heap->mark_and_sweep_trigger_counter =
+	    (tmp * DUK_HEAP_MARK_AND_SWEEP_TRIGGER_MULT) +
+	    DUK_HEAP_MARK_AND_SWEEP_TRIGGER_ADD;
+	DUK_DPRINT("garbage collect (mark-and-sweep) finished: %d objects kept, %d strings kept, trigger reset to %d",
+	           (int) count_keep_obj, (int) count_keep_str, (int) heap->mark_and_sweep_trigger_counter);
+#else
+	DUK_DPRINT("garbage collect (mark-and-sweep) finished: %d objects kept, %d strings kept, no voluntary trigger",
+	           (int) count_keep_obj, (int) count_keep_str);
+#endif
 	return DUK_ERR_OK;
 }
 
-#else
+#else  /* DUK_USE_MARK_AND_SWEEP */
 
 /* no mark-and-sweep gc */
 
@@ -29187,14 +29659,14 @@ int duk_heap_mark_and_sweep(duk_heap *heap, int flags) {
  *  inlined in size optimized builds).
  */
 
-#define VOLUNTARY_PERIODIC_GC(heap)  do { \
+#if defined(DUK_USE_MARK_AND_SWEEP) && defined(DUK_USE_VOLUNTARY_GC)
+#define DUK__VOLUNTARY_PERIODIC_GC(heap)  do { \
 		(heap)->mark_and_sweep_trigger_counter--; \
 		if ((heap)->mark_and_sweep_trigger_counter <= 0) { \
 			run_voluntary_gc(heap); \
 		} \
 	} while (0)
 
-#ifdef DUK_USE_MARK_AND_SWEEP
 static void run_voluntary_gc(duk_heap *heap) {
 	if (DUK_HEAP_HAS_MARKANDSWEEP_RUNNING(heap)) {
 		DUK_DDPRINT("mark-and-sweep in progress -> skip voluntary mark-and-sweep now");
@@ -29208,7 +29680,9 @@ static void run_voluntary_gc(duk_heap *heap) {
 		DUK_UNREF(rc);
 	}
 }
-#endif
+#else
+#define DUK__VOLUNTARY_PERIODIC_GC(heap)  /* no voluntary gc */
+#endif  /* DUK_USE_MARK_AND_SWEEP && DUK_USE_VOLUNTARY_GC */
 
 /*
  *  Allocate memory with garbage collection
@@ -29221,17 +29695,13 @@ void *duk_heap_mem_alloc(duk_heap *heap, size_t size) {
 	int i;
 
 	DUK_ASSERT(heap != NULL);
-	DUK_ASSERT(size >= 0);
+	DUK_ASSERT_DISABLE(size >= 0);
 
 	/*
-	 *  Voluntary periodic GC
+	 *  Voluntary periodic GC (if enabled)
 	 */
 
-	/* FIXME: additionally allocated bytes counter; this is especially
-	 * important for mark-and-sweep only mode.
-	 */
-
-	VOLUNTARY_PERIODIC_GC(heap);
+	DUK__VOLUNTARY_PERIODIC_GC(heap);
 
 	/*
 	 *  First attempt
@@ -29313,7 +29783,7 @@ void *duk_heap_mem_alloc_zeroed(duk_heap *heap, size_t size) {
 	void *res;
 
 	DUK_ASSERT(heap != NULL);
-	DUK_ASSERT(size >= 0);
+	DUK_ASSERT_DISABLE(size >= 0);
 
 	res = DUK_ALLOC(heap, size);
 	if (res) {
@@ -29335,13 +29805,13 @@ void *duk_heap_mem_realloc(duk_heap *heap, void *ptr, size_t newsize) {
 
 	DUK_ASSERT(heap != NULL);
 	/* ptr may be NULL */
-	DUK_ASSERT(newsize >= 0);
+	DUK_ASSERT_DISABLE(newsize >= 0);
 
 	/*
-	 *  Voluntary periodic GC
+	 *  Voluntary periodic GC (if enabled)
 	 */
 
-	VOLUNTARY_PERIODIC_GC(heap);
+	DUK__VOLUNTARY_PERIODIC_GC(heap);
 
 	/*
 	 *  First attempt
@@ -29428,13 +29898,13 @@ void *duk_heap_mem_realloc_indirect(duk_heap *heap, duk_mem_getptr cb, void *ud,
 	int i;
 
 	DUK_ASSERT(heap != NULL);
-	DUK_ASSERT(newsize >= 0);
+	DUK_ASSERT_DISABLE(newsize >= 0);
 
 	/*
-	 *  Voluntary periodic GC
+	 *  Voluntary periodic GC (if enabled)
 	 */
 
-	VOLUNTARY_PERIODIC_GC(heap);
+	DUK__VOLUNTARY_PERIODIC_GC(heap);
 
 	/*
 	 *  First attempt
@@ -29542,7 +30012,9 @@ void duk_heap_mem_free(duk_heap *heap, void *ptr) {
 	 * need to put in NULLs at every turn to ensure the object is always in
 	 * consistent state for a mark-and-sweep.
 	 */
+#ifdef DUK_USE_VOLUNTARY_GC
 	heap->mark_and_sweep_trigger_counter--;
+#endif
 }
 #else
 /* saves a few instructions to have this wrapper (see comment on duk_heap_mem_alloc) */
@@ -29569,11 +30041,15 @@ void *duk_heap_mem_alloc_checked(duk_hthread *thr, size_t size) {
 	void *res;
 
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(size >= 0);
+	DUK_ASSERT_DISABLE(size >= 0);
 
 	res = DUK_ALLOC(thr->heap, size);
 	if (!res) {
+#ifdef DUK_USE_VERBOSE_ERRORS
+		DUK_ERROR_RAW(filename, line, thr, DUK_ERR_ALLOC_ERROR, "memory alloc failed");
+#else
 		DUK_ERROR(thr, DUK_ERR_ALLOC_ERROR, "memory alloc failed");
+#endif
 	}
 	return res;
 }
@@ -29586,11 +30062,15 @@ void *duk_heap_mem_alloc_checked_zeroed(duk_hthread *thr, size_t size) {
 	void *res;
 
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(size >= 0);
+	DUK_ASSERT_DISABLE(size >= 0);
 
 	res = DUK_ALLOC(thr->heap, size);
 	if (!res) {
+#ifdef DUK_USE_VERBOSE_ERRORS
+		DUK_ERROR_RAW(filename, line, thr, DUK_ERR_ALLOC_ERROR, "memory alloc failed");
+#else
 		DUK_ERROR(thr, DUK_ERR_ALLOC_ERROR, "memory alloc failed");
+#endif
 	}
 	/* assume memset with zero size is OK */
 	DUK_MEMSET(res, 0, size);
@@ -29606,11 +30086,15 @@ void *duk_heap_mem_realloc_checked(duk_hthread *thr, void *ptr, size_t newsize) 
 
 	DUK_ASSERT(thr != NULL);
 	/* ptr may be NULL */
-	DUK_ASSERT(newsize >= 0);
+	DUK_ASSERT_DISABLE(newsize >= 0);
 
 	res = DUK_REALLOC(thr->heap, ptr, newsize);
 	if (!res) {
+#ifdef DUK_USE_VERBOSE_ERRORS
+		DUK_ERROR_RAW(filename, line, thr, DUK_ERR_ALLOC_ERROR, "memory realloc failed");
+#else
 		DUK_ERROR(thr, DUK_ERR_ALLOC_ERROR, "memory realloc failed");
+#endif
 	}
 	return res;
 }
@@ -29622,11 +30106,15 @@ void *duk_heap_mem_realloc_indirect_checked(duk_hthread *thr, duk_mem_getptr cb,
 #endif
 	void *res;
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(newsize >= 0);
+	DUK_ASSERT_DISABLE(newsize >= 0);
 
 	res = DUK_REALLOC_INDIRECT(thr->heap, cb, ud, newsize);
 	if (!res) {
+#ifdef DUK_USE_VERBOSE_ERRORS
+		DUK_ERROR_RAW(filename, line, thr, DUK_ERR_ALLOC_ERROR, "memory realloc failed");
+#else
 		DUK_ERROR(thr, DUK_ERR_ALLOC_ERROR, "memory realloc failed");
+#endif
 	}
 	return res;
 }
@@ -29744,7 +30232,7 @@ static void queue_refzero(duk_heap *heap, duk_heaphdr *hdr) {
  */
 
 static void refcount_finalize_hobject(duk_hthread *thr, duk_hobject *h) {
-	int i;
+	duk_uint_fast32_t i;
 
 	DUK_ASSERT(h);
 	DUK_ASSERT(DUK_HEAPHDR_GET_TYPE((duk_heaphdr *) h) == DUK_HTYPE_OBJECT);
@@ -29922,7 +30410,7 @@ static void refzero_free_pending(duk_hthread *thr) {
 			duk_hobject_run_finalizer(thr, obj);  /* must never longjmp */
 
 			h1->h_refcount--;  /* remove artificial bump */
-			DUK_ASSERT(h1->h_refcount >= 0);
+			DUK_ASSERT_DISABLE(h1->h_refcount >= 0);  /* refcount is unsigned, so always true */
 
 			if (h1->h_refcount != 0) {
 				DUK_DDDPRINT("-> object refcount after finalization non-zero, object will be rescued");
@@ -29980,7 +30468,10 @@ static void refzero_free_pending(duk_hthread *thr) {
 	 *  a voluntary mark-and-sweep.
 	 */
 
-#ifdef DUK_USE_MARK_AND_SWEEP
+#if defined(DUK_USE_MARK_AND_SWEEP) && defined(DUK_USE_VOLUNTARY_GC)
+	/* 'count' is more or less comparable to normal trigger counter update
+	 * which happens in memory block (re)allocation.
+	 */
 	heap->mark_and_sweep_trigger_counter -= count;
 	if (heap->mark_and_sweep_trigger_counter <= 0) {
 		int rc;
@@ -29990,7 +30481,7 @@ static void refzero_free_pending(duk_hthread *thr) {
 		DUK_UNREF(rc);
 		DUK_DPRINT("refcount triggered mark-and-sweep => rc %d", rc);
 	}
-#endif
+#endif  /* DUK_USE_MARK_AND_SWEEP && DUK_USE_VOLUNTARY_GC */
 }
 
 /*
@@ -30018,7 +30509,7 @@ void duk_heap_tval_incref(duk_tval *tv) {
 		duk_heaphdr *h = DUK_TVAL_GET_HEAPHDR(tv);
 		if (h) {
 			DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
-			DUK_ASSERT(h->h_refcount >= 0);
+			DUK_ASSERT_DISABLE(h->h_refcount >= 0);
 			h->h_refcount++;
 		}
 	}
@@ -30055,7 +30546,7 @@ void duk_heap_heaphdr_incref(duk_heaphdr *h) {
 		return;
 	}
 	DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
-	DUK_ASSERT(h->h_refcount >= 0);
+	DUK_ASSERT_DISABLE(h->h_refcount >= 0);
 
 	h->h_refcount++;
 }
@@ -30443,9 +30934,9 @@ duk_uint32_t duk_heap_strcache_offset_char2byte(duk_hthread *thr, duk_hstring *h
 
 /* include removed: duk_internal.h */
 
-#define HASH_INITIAL(hash,h_size)        DUK_STRTAB_HASH_INITIAL((hash),(h_size))
-#define HASH_PROBE_STEP(hash)            DUK_STRTAB_HASH_PROBE_STEP((hash))
-#define DELETED_MARKER(heap)             DUK_STRTAB_DELETED_MARKER((heap))
+#define DUK__HASH_INITIAL(hash,h_size)        DUK_STRTAB_HASH_INITIAL((hash),(h_size))
+#define DUK__HASH_PROBE_STEP(hash)            DUK_STRTAB_HASH_PROBE_STEP((hash))
+#define DUK__DELETED_MARKER(heap)             DUK_STRTAB_DELETED_MARKER((heap))
 
 /*
  *  Create a hstring and insert into the heap.  The created object
@@ -30514,7 +31005,7 @@ static duk_int_t count_used(duk_heap *heap) {
 
 	n = (duk_uint_fast32_t) heap->st_size;
 	for (i = 0; i < n; i++) {
-		if (heap->st[i] != NULL && heap->st[i] != DELETED_MARKER(heap)) {
+		if (heap->st[i] != NULL && heap->st[i] != DUK__DELETED_MARKER(heap)) {
 			res++;
 		}
 	}
@@ -30531,8 +31022,8 @@ static void insert_hstring(duk_heap *heap, duk_hstring **entries, duk_uint32_t s
 
 	DUK_ASSERT(size > 0);
 
-	i = HASH_INITIAL(DUK_HSTRING_GET_HASH(h), size);
-	step = HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(h)); 
+	i = DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(h), size);
+	step = DUK__HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(h)); 
 	for (;;) {
 		duk_hstring *e;
 		
@@ -30542,7 +31033,7 @@ static void insert_hstring(duk_heap *heap, duk_hstring **entries, duk_uint32_t s
 			entries[i] = h;
 			(*p_used)++;
 			break;
-		} else if (e == DELETED_MARKER(heap)) {
+		} else if (e == DUK__DELETED_MARKER(heap)) {
 			/* st_used remains the same, DELETED is counted as used */
 			DUK_DDDPRINT("insert hit (deleted): %d", i);
 			entries[i] = h;
@@ -30552,7 +31043,7 @@ static void insert_hstring(duk_heap *heap, duk_hstring **entries, duk_uint32_t s
 		i = (i + step) % size;
 
 		/* looping should never happen */
-		DUK_ASSERT(i != HASH_INITIAL(DUK_HSTRING_GET_HASH(h), size));
+		DUK_ASSERT(i != DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(h), size));
 	}
 }
 
@@ -30562,8 +31053,8 @@ static duk_hstring *find_matching_string(duk_heap *heap, duk_hstring **entries, 
 
 	DUK_ASSERT(size > 0);
 
-	i = HASH_INITIAL(strhash, size);
-	step = HASH_PROBE_STEP(strhash);
+	i = DUK__HASH_INITIAL(strhash, size);
+	step = DUK__HASH_PROBE_STEP(strhash);
 	for (;;) {
 		duk_hstring *e;
 
@@ -30571,7 +31062,7 @@ static duk_hstring *find_matching_string(duk_heap *heap, duk_hstring **entries, 
 		if (!e) {
 			return NULL;
 		}
-		if (e != DELETED_MARKER(heap) && DUK_HSTRING_GET_BYTELEN(e) == blen) {
+		if (e != DUK__DELETED_MARKER(heap) && DUK_HSTRING_GET_BYTELEN(e) == blen) {
 			if (DUK_MEMCMP(str, DUK_HSTRING_GET_DATA(e), blen) == 0) {
 				DUK_DDDPRINT("find matching hit: %d (step %d, size %d)", i, step, size);
 				return e;
@@ -30581,7 +31072,7 @@ static duk_hstring *find_matching_string(duk_heap *heap, duk_hstring **entries, 
 		i = (i + step) % size;
 
 		/* looping should never happen */
-		DUK_ASSERT(i != HASH_INITIAL(strhash, size));
+		DUK_ASSERT(i != DUK__HASH_INITIAL(strhash, size));
 	}
 	DUK_UNREACHABLE();
 }
@@ -30592,8 +31083,8 @@ static void remove_matching_hstring(duk_heap *heap, duk_hstring **entries, duk_u
 
 	DUK_ASSERT(size > 0);
 
-	i = HASH_INITIAL(h->hash, size);
-	step = HASH_PROBE_STEP(h->hash);
+	i = DUK__HASH_INITIAL(h->hash, size);
+	step = DUK__HASH_PROBE_STEP(h->hash);
 	for (;;) {
 		duk_hstring *e;
 
@@ -30605,7 +31096,7 @@ static void remove_matching_hstring(duk_heap *heap, duk_hstring **entries, duk_u
 		if (e == h) {
 			/* st_used remains the same, DELETED is counted as used */
 			DUK_DDDPRINT("free matching hit: %d", i);
-			entries[i] = DELETED_MARKER(heap);
+			entries[i] = DUK__DELETED_MARKER(heap);
 			break;
 		}
 
@@ -30613,7 +31104,7 @@ static void remove_matching_hstring(duk_heap *heap, duk_hstring **entries, duk_u
 		i = (i + step) % size;
 
 		/* looping should never happen */
-		DUK_ASSERT(i != HASH_INITIAL(h->hash, size));
+		DUK_ASSERT(i != DUK__HASH_INITIAL(h->hash, size));
 	}
 }
 
@@ -30684,10 +31175,10 @@ static int resize_hash_raw(duk_heap *heap, duk_uint32_t new_size) {
 		duk_hstring *e;
 
 		e = old_entries[i];
-		if (e == NULL || e == DELETED_MARKER(heap)) {
+		if (e == NULL || e == DUK__DELETED_MARKER(heap)) {
 			continue;
 		}
-		/* checking for DELETED_MARKER is not necessary here, but helper does it now */
+		/* checking for DUK__DELETED_MARKER is not necessary here, but helper does it now */
 		insert_hstring(heap, new_entries, new_size, &new_used, e);
 	}
 
@@ -30864,9 +31355,9 @@ void duk_heap_force_stringtable_resize(duk_heap *heap) {
 #endif
 
 /* Undefine local defines */
-#undef HASH_INITIAL
-#undef HASH_PROBE_STEP
-#undef DELETED_MARKER
+#undef DUK__HASH_INITIAL
+#undef DUK__HASH_PROBE_STEP
+#undef DUK__DELETED_MARKER
 
 #line 1 "duk_hobject_alloc.c"
 /*
@@ -31136,11 +31627,11 @@ duk_uint8_t duk_class_number_to_stridx[32] = {
 /* FIXME: identify enumeration target with an object index (not top of stack) */
 
 /* must match exactly the number of internal properties inserted to enumerator */
-#define ENUM_START_INDEX  2
+#define DUK__ENUM_START_INDEX  2
 
 /*
  *  Helper to sort array index keys.  The keys are in the enumeration object
- *  entry part, starting from ENUM_START_INDEX, and the entry part is dense.
+ *  entry part, starting from DUK__ENUM_START_INDEX, and the entry part is dense.
  *
  *  We use insertion sort because it is simple (leading to compact code,)
  *  works nicely in-place, and minimizes operations if data is already sorted
@@ -31170,13 +31661,13 @@ static void sort_array_indices(duk_hobject *h_obj) {
 	DUK_ASSERT(h_obj != NULL);
 	DUK_ASSERT(h_obj->e_used >= 2);  /* control props */
 
-	if (h_obj->e_used <= 1 + ENUM_START_INDEX) {
+	if (h_obj->e_used <= 1 + DUK__ENUM_START_INDEX) {
 		return;
 	}
 
 	keys = DUK_HOBJECT_E_GET_KEY_BASE(h_obj);
 	p_end = keys + h_obj->e_used;
-	keys += ENUM_START_INDEX;
+	keys += DUK__ENUM_START_INDEX;
 
 	DUK_DDDPRINT("keys=%p, p_end=%p (after skipping enum props)",
 	             (void *) keys, (void *) p_end);
@@ -31298,7 +31789,7 @@ void duk_hobject_enumerator_create(duk_context *ctx, int enum_flags) {
 
 	/* initialize index so that we skip internal control keys */
 	duk_push_hstring_stridx(ctx, DUK_STRIDX_INT_NEXT);
-	duk_push_int(ctx, ENUM_START_INDEX);
+	duk_push_int(ctx, DUK__ENUM_START_INDEX);
 	duk_put_prop(ctx, -3);
 
 	curr = target;
@@ -31549,8 +32040,8 @@ int duk_hobject_enumerator_next(duk_context *ctx, int get_value) {
 
 int duk_hobject_get_enumerated_keys(duk_context *ctx, int enum_flags) {
 	duk_hobject *e;
-	int i;
-	int idx;
+	duk_uint32_t i;
+	duk_uint32_t idx;
 
 	DUK_ASSERT(ctx != NULL);
 	DUK_ASSERT(duk_get_hobject(ctx, -1) != NULL);
@@ -31569,7 +32060,7 @@ int duk_hobject_get_enumerated_keys(duk_context *ctx, int enum_flags) {
 	DUK_ASSERT(e != NULL);
 
 	idx = 0;
-	for (i = ENUM_START_INDEX; i < e->e_used; i++) {
+	for (i = DUK__ENUM_START_INDEX; i < e->e_used; i++) {
 		duk_hstring *k;
 
 		k = DUK_HOBJECT_E_GET_KEY(e, i);
@@ -31664,7 +32155,7 @@ void duk_hobject_run_finalizer(duk_hthread *thr, duk_hobject *obj) {
 	rc = duk_safe_call(ctx, _finalize_helper, 0 /*nargs*/, 1 /*nrets*/, DUK_INVALID_INDEX);  /* -> [... obj retval/error] */
 	DUK_ASSERT_TOP(ctx, entry_top + 2);  /* duk_safe_call discipline */
 
-	if (rc != DUK_ERR_EXEC_SUCCESS) {
+	if (rc != DUK_EXEC_SUCCESS) {
 		/* Note: we ask for one return value from duk_safe_call to get this
 		 * error debugging here.
 		 */
@@ -31819,8 +32310,8 @@ void duk_hobject_pc2line_pack(duk_hthread *thr, duk_compiler_instr *instrs, duk_
 				/* 1 1 1 <32 bits>
 				 * Encode in two parts to avoid bitencode 24-bit limitation
 				 */
-				duk_be_encode(be_ctx, (0x07 << 16) + ((curr_line >> 16) & 0xffffU), 19);
-				duk_be_encode(be_ctx, curr_line & 0xffffU, 16);
+				duk_be_encode(be_ctx, (0x07 << 16) + ((next_line >> 16) & 0xffffU), 19);
+				duk_be_encode(be_ctx, next_line & 0xffffU, 16);
 			}
 
 			curr_line = next_line;
@@ -31985,20 +32476,20 @@ duk_uint_fast32_t duk_hobject_pc2line_query(duk_hbuffer_fixed *buf, duk_uint_fas
  *  Local defines
  */
 
-#define NO_ARRAY_INDEX             DUK_HSTRING_NO_ARRAY_INDEX
+#define DUK__NO_ARRAY_INDEX             DUK_HSTRING_NO_ARRAY_INDEX
 
 /* hash probe sequence */
-#define HASH_INITIAL(hash,h_size)  DUK_HOBJECT_HASH_INITIAL((hash),(h_size))
-#define HASH_PROBE_STEP(hash)      DUK_HOBJECT_HASH_PROBE_STEP((hash))
+#define DUK__HASH_INITIAL(hash,h_size)  DUK_HOBJECT_HASH_INITIAL((hash),(h_size))
+#define DUK__HASH_PROBE_STEP(hash)      DUK_HOBJECT_HASH_PROBE_STEP((hash))
 
 /* marker values for hash part */
-#define HASH_UNUSED                DUK_HOBJECT_HASHIDX_UNUSED
-#define HASH_DELETED               DUK_HOBJECT_HASHIDX_DELETED
+#define DUK__HASH_UNUSED                DUK_HOBJECT_HASHIDX_UNUSED
+#define DUK__HASH_DELETED               DUK_HOBJECT_HASHIDX_DELETED
 
 /* assert value that suffices for all local calls, including recursion of
  * other than Duktape calls (getters etc)
  */
-#define VALSTACK_SPACE             10
+#define DUK__VALSTACK_SPACE             10
 
 /*
  *  Local prototypes
@@ -32050,9 +32541,10 @@ static duk_uint32_t get_min_grow_e(duk_uint32_t e_size) {
 
 /* Get minimum array part growth for a certain size. */
 static int get_min_grow_a(int a_size) {
+	/* FIXME: a_size typing */
 	duk_uint32_t res;
 
-	DUK_ASSERT(a_size <= DUK_HOBJECT_MAX_PROPERTIES);
+	DUK_ASSERT((duk_size_t) a_size <= DUK_HOBJECT_MAX_PROPERTIES);
 
 	res = (a_size + DUK_HOBJECT_A_MIN_GROW_ADD) / DUK_HOBJECT_A_MIN_GROW_DIVISOR;
 	DUK_ASSERT(res >= 1);  /* important for callers */
@@ -32061,7 +32553,7 @@ static int get_min_grow_a(int a_size) {
 
 /* Count actually used entry part entries (non-NULL keys). */
 static int count_used_e_keys(duk_hobject *obj) {
-	int i;
+	duk_uint_fast32_t i;
 	int n = 0;
 	duk_hstring **e;
 
@@ -32202,7 +32694,7 @@ static void realloc_props(duk_hthread *thr,
 	duk_tval *new_a;
 	duk_uint32_t *new_h;
 	duk_uint32_t new_e_used;
-	int i;
+	duk_uint_fast32_t i;
 
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(ctx != NULL);
@@ -32212,7 +32704,7 @@ static void realloc_props(duk_hthread *thr,
 	DUK_ASSERT(new_h_size == 0 || new_h_size >= new_e_size);  /* required to guarantee success of rehashing,
 	                                                           * intentionally use unadjusted new_e_size
 	                                                           */	
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/*
 	 *  Pre resize assertions.
@@ -32390,7 +32882,7 @@ static void realloc_props(duk_hthread *thr,
 			if (!duk_check_stack(ctx, 1)) {
 				goto abandon_error;
 			}
-			ASSERT_VALSTACK_SPACE(thr, 1);
+			DUK_ASSERT_VALSTACK_SPACE(thr, 1);
 			key = duk_heap_string_intern_u32(thr->heap, i);
 			if (!key) {
 				goto abandon_error;
@@ -32484,7 +32976,7 @@ static void realloc_props(duk_hthread *thr,
 	 *  Rebuild the hash part always from scratch (guaranteed to finish).
 	 *
 	 *  Any resize of hash part requires rehashing.  In addition, by rehashing
-	 *  get rid of any elements marked deleted (HASH_DELETED) which is critical
+	 *  get rid of any elements marked deleted (DUK__HASH_DELETED) which is critical
 	 *  to ensuring the hash part never fills up.
 	 */
 
@@ -32497,16 +32989,16 @@ static void realloc_props(duk_hthread *thr,
 		DUK_ASSERT(new_e_used <= new_h_size);  /* equality not actually possible */
 		for (i = 0; i < new_e_used; i++) {
 			duk_hstring *key = new_e_k[i];
-			int j;
+			int j;  /* FIXME: typing */
 			int step;
 
 			DUK_ASSERT(key != NULL);
-			j = HASH_INITIAL(DUK_HSTRING_GET_HASH(key), new_h_size);
-			step = HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(key));
+			j = DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(key), new_h_size);
+			step = DUK__HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(key));
 
 			for (;;) {
-				DUK_ASSERT(new_h[j] != HASH_DELETED);  /* should never happen */
-				if (new_h[j] == HASH_UNUSED) {
+				DUK_ASSERT(new_h[j] != DUK__HASH_DELETED);  /* should never happen */
+				if (new_h[j] == DUK__HASH_UNUSED) {
 					DUK_DDDPRINT("rebuild hit %d -> %d", j, i);
 					new_h[j] = i;
 					break;
@@ -32515,7 +33007,7 @@ static void realloc_props(duk_hthread *thr,
 				j = (j + step) % new_h_size;
 
 				/* guaranteed to finish */
-				DUK_ASSERT(j != HASH_INITIAL(DUK_HSTRING_GET_HASH(key), new_h_size));
+				DUK_ASSERT(j != (int) DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(key), new_h_size));  /* FIXME: typing */
 			}
 		}
 	} else {
@@ -32785,20 +33277,21 @@ void duk_hobject_find_existing_entry(duk_hobject *obj, duk_hstring *key, int *e_
 
 		h_base = DUK_HOBJECT_H_GET_BASE(obj);
 		n = obj->h_size;
-		i = HASH_INITIAL(DUK_HSTRING_GET_HASH(key), n);
-		step = HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(key));
+		i = DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(key), n);
+		step = DUK__HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(key));
 
 		for (;;) {
 			duk_uint32_t t;
 
-			DUK_ASSERT(i >= 0 && i < obj->h_size);
+			DUK_ASSERT(i >= 0);
+			DUK_ASSERT((duk_size_t) i < obj->h_size);  /* FIXME: typing */
 			t = h_base[i];
-			DUK_ASSERT(t == HASH_UNUSED || t == HASH_DELETED ||
-			           (t >= 0 && t < obj->e_size));
+			DUK_ASSERT(t == DUK__HASH_UNUSED || t == DUK__HASH_DELETED ||
+			           (t < obj->e_size));  /* t >= 0 always true, unsigned */
 
-			if (t == HASH_UNUSED) {
+			if (t == DUK__HASH_UNUSED) {
 				break;
-			} else if (t == HASH_DELETED) {
+			} else if (t == DUK__HASH_DELETED) {
 				DUK_DDDPRINT("lookup miss (deleted) i=%d, t=%d", i, t);
 			} else {
 				DUK_ASSERT(t < obj->e_size);
@@ -32813,7 +33306,7 @@ void duk_hobject_find_existing_entry(duk_hobject *obj, duk_hstring *key, int *e_
 			i = (i + step) % n;
 
 			/* guaranteed to finish, as hash is never full */
-			DUK_ASSERT(i != HASH_INITIAL(DUK_HSTRING_GET_HASH(key), n));
+			DUK_ASSERT(i != (int) DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(key), n));  /* FIXME: typing */
 		}
 	} else {
 		/* linear scan */
@@ -32910,7 +33403,7 @@ static int alloc_entry_checked(duk_hthread *thr, duk_hobject *obj, duk_hstring *
 #ifdef DUK_USE_ASSERTIONS
 	/* key must not already exist in entry part */
 	{
-		int i;
+		duk_uint_fast32_t i;
 		for (i = 0; i < obj->e_used; i++) {
 			DUK_ASSERT(DUK_HOBJECT_E_GET_KEY(obj, i) != key);
 		}
@@ -32930,16 +33423,18 @@ static int alloc_entry_checked(duk_hthread *thr, duk_hobject *obj, duk_hstring *
 	DUK_HSTRING_INCREF(thr, key);
 
 	if (obj->h_size > 0) {
-		int i = HASH_INITIAL(DUK_HSTRING_GET_HASH(key), obj->h_size);
-		int step = HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(key));
+		int i = DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(key), obj->h_size);
+		int step = DUK__HASH_PROBE_STEP(DUK_HSTRING_GET_HASH(key));
 		duk_uint32_t *h_base = DUK_HOBJECT_H_GET_BASE(obj);
 
 		for (;;) {
 			duk_uint32_t t = h_base[i];
-			if (t == HASH_UNUSED || t == HASH_DELETED) {
+			if (t == DUK__HASH_UNUSED || t == DUK__HASH_DELETED) {
 				DUK_DDDPRINT("alloc_entry_checked() inserted key into hash part, %d -> %d", i, idx);
-				DUK_ASSERT(i >= 0 && i < obj->h_size);
-				DUK_ASSERT(idx >= 0 && idx < obj->e_size);
+				DUK_ASSERT(i >= 0);
+				DUK_ASSERT((duk_size_t) i < obj->h_size);  /* FIXME: typing */
+				DUK_ASSERT_DISABLE(idx >= 0);
+				DUK_ASSERT(idx < obj->e_size);
 				h_base[i] = idx;
 				break;
 			}
@@ -32947,7 +33442,7 @@ static int alloc_entry_checked(duk_hthread *thr, duk_hobject *obj, duk_hstring *
 			i = (i + step) % obj->h_size;
 
 			/* guaranteed to find an empty slot */
-			DUK_ASSERT(i != HASH_INITIAL(DUK_HSTRING_GET_HASH(key), obj->h_size));
+			DUK_ASSERT(i != (int) DUK__HASH_INITIAL(DUK_HSTRING_GET_HASH(key), obj->h_size));  /* FIXME: typing */
 		}
 	}
 
@@ -32955,7 +33450,9 @@ static int alloc_entry_checked(duk_hthread *thr, duk_hobject *obj, duk_hstring *
 	 * needed right now.
 	 */
 
-	DUK_ASSERT(idx >= 0 && idx < obj->e_size && idx < obj->e_used);
+	DUK_ASSERT_DISABLE(idx >= 0);
+	DUK_ASSERT(idx < obj->e_size);
+	DUK_ASSERT(idx < obj->e_used);
 	return idx;
 }
 
@@ -33028,7 +33525,7 @@ static int lookup_arguments_map(duk_hthread *thr,
 	duk_hobject *varenv;
 	int rc;
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	DUK_DDDPRINT("arguments map lookup: thr=%p, obj=%p, key=%p, temp_desc=%p "
 	             "(obj -> %!O, key -> %!O)",
@@ -33080,7 +33577,7 @@ static int check_arguments_map_for_get(duk_hthread *thr, duk_hobject *obj, duk_h
 	duk_hobject *varenv;
 	duk_hstring *varname;
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	if (!lookup_arguments_map(thr, obj, key, temp_desc, &map, &varenv)) {
 		DUK_DDDPRINT("arguments: key not mapped, no special get behavior");
@@ -33118,7 +33615,7 @@ static void check_arguments_map_for_put(duk_hthread *thr, duk_hobject *obj, duk_
 	duk_hobject *varenv;
 	duk_hstring *varname;
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	if (!lookup_arguments_map(thr, obj, key, temp_desc, &map, &varenv)) {
 		DUK_DDDPRINT("arguments: key not mapped, no special put behavior");
@@ -33160,7 +33657,7 @@ static void check_arguments_map_for_delete(duk_hthread *thr, duk_hobject *obj, d
 	duk_context *ctx = (duk_context *) thr;
 	duk_hobject *map;
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	if (!get_own_property_desc(thr, obj, DUK_HTHREAD_STRING_INT_MAP(thr), temp_desc, 1)) {  /* push_value = 1 */
 		DUK_DDDPRINT("arguments: key not mapped, no special delete behavior");
@@ -33232,7 +33729,7 @@ static int get_own_property_desc_raw(duk_hthread *thr, duk_hobject *obj, duk_hst
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(key != NULL);
 	DUK_ASSERT(out_desc != NULL);
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/* FIXME: optimize this filling behavior later */
 	out_desc->flags = 0;
@@ -33246,7 +33743,7 @@ static int get_own_property_desc_raw(duk_hthread *thr, duk_hobject *obj, duk_hst
 	 *  Array part
 	 */
 
-	if (DUK_HOBJECT_HAS_ARRAY_PART(obj) && arr_idx != NO_ARRAY_INDEX) {
+	if (DUK_HOBJECT_HAS_ARRAY_PART(obj) && arr_idx != DUK__NO_ARRAY_INDEX) {
 		if (arr_idx < obj->a_size) {
 			tv = DUK_HOBJECT_A_GET_VALUE_PTR(obj, arr_idx);
 			if (!DUK_TVAL_IS_UNDEFINED_UNUSED(tv)) {
@@ -33308,7 +33805,7 @@ static int get_own_property_desc_raw(duk_hthread *thr, duk_hobject *obj, duk_hst
 	if (DUK_HOBJECT_HAS_SPECIAL_STRINGOBJ(obj)) {
 		DUK_DDDPRINT("string object special property get for key: %!O, arr_idx: %d", key, arr_idx);
 
-		if (arr_idx != NO_ARRAY_INDEX) {
+		if (arr_idx != DUK__NO_ARRAY_INDEX) {
 			duk_hstring *h_val;
 
 			DUK_DDDPRINT("array index exists");
@@ -33379,7 +33876,7 @@ static int get_own_property_desc_raw(duk_hthread *thr, duk_hobject *obj, duk_hst
 	 */
 
 	if (DUK_HOBJECT_HAS_SPECIAL_ARGUMENTS(obj) &&
-	    arr_idx != NO_ARRAY_INDEX &&
+	    arr_idx != DUK__NO_ARRAY_INDEX &&
 	    push_value) {
 		duk_propdesc temp_desc;
 
@@ -33409,7 +33906,7 @@ static int get_own_property_desc(duk_hthread *thr, duk_hobject *obj, duk_hstring
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(key != NULL);
 	DUK_ASSERT(out_desc != NULL);
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	return get_own_property_desc_raw(thr,
 	                                 obj,
@@ -33447,7 +33944,7 @@ static int get_property_desc(duk_hthread *thr, duk_hobject *obj, duk_hstring *ke
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(key != NULL);
 	DUK_ASSERT(out_desc != NULL);
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	arr_idx = DUK_HSTRING_GET_ARRIDX_FAST(key);
 
@@ -33554,7 +34051,8 @@ static duk_tval *shallow_fast_path_array_check_tval(duk_hobject *obj, duk_tval *
 		idx = (duk_uint32_t) d;
 		if ((double) idx == d) {
 			/* Note: idx is not necessarily a valid array index (0xffffffffU is not valid) */
-			DUK_ASSERT(idx >= 0 && idx <= 0xffffffffU);
+			DUK_ASSERT_DISABLE(idx >= 0);
+			DUK_ASSERT(idx <= 0xffffffffU);
 
 			if (idx < obj->a_size) {
 				/* technically required to check, but obj->a_size check covers this */
@@ -33593,7 +34091,7 @@ int duk_hobject_getprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key) {
 	duk_tval tv_key_copy;
 	duk_hobject *curr = NULL;
 	duk_hstring *key = NULL;
-	duk_uint32_t arr_idx = NO_ARRAY_INDEX;
+	duk_uint32_t arr_idx = DUK__NO_ARRAY_INDEX;
 	duk_propdesc desc;
 	duk_uint32_t sanity;
 
@@ -33606,7 +34104,7 @@ int duk_hobject_getprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key) {
 	DUK_ASSERT(tv_obj != NULL);
 	DUK_ASSERT(tv_key != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/*
 	 *  Make a copy of tv_obj, tv_key, and tv_val to avoid any issues of
@@ -33630,7 +34128,7 @@ int duk_hobject_getprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key) {
 	case DUK_TAG_UNDEFINED:
 	case DUK_TAG_NULL: {
 		/* Note: unconditional throw */
-		DUK_DDDPRINT("base object is undefined, null, buffer, or pointer -> reject");
+		DUK_DDDPRINT("base object is undefined or null -> reject");
 		DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid base reference for property read");
 		return 0;
 	}
@@ -33680,7 +34178,7 @@ int duk_hobject_getprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key) {
 			return 1;
 		}
 
-		if (arr_idx != NO_ARRAY_INDEX &&
+		if (arr_idx != DUK__NO_ARRAY_INDEX &&
 		    arr_idx < DUK_HSTRING_GET_CHARLEN(h)) {
 			duk_pop(ctx);  /* [key] -> [] */
 			duk_push_hstring(ctx, h);
@@ -33892,7 +34390,7 @@ int duk_hobject_hasprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key) {
 	DUK_ASSERT(tv_obj != NULL);
 	DUK_ASSERT(tv_key != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/* No need to make a copy of the input duk_tvals here. */
 
@@ -33931,7 +34429,7 @@ int duk_hobject_hasprop_raw(duk_hthread *thr, duk_hobject *obj, duk_hstring *key
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(key != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	return get_property_desc(thr, obj, key, &dummy, 0);  /* push_value = 0 */
 }
@@ -33950,7 +34448,7 @@ static duk_uint32_t get_old_array_length(duk_hthread *thr, duk_hobject *obj, duk
 	duk_tval *tv;
 	duk_uint32_t res;
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/* FIXME: this assumption is actually invalid, because e.g. Array.prototype.push()
 	 * can create an array whose length is above 2**32.
@@ -33961,7 +34459,7 @@ static duk_uint32_t get_old_array_length(duk_hthread *thr, duk_hobject *obj, duk
 	 * valid number value (in unsigned 32-bit range).
 	 */
 
-	rc = get_own_property_desc_raw(thr, obj, DUK_HTHREAD_STRING_LENGTH(thr), NO_ARRAY_INDEX, temp_desc, 0);
+	rc = get_own_property_desc_raw(thr, obj, DUK_HTHREAD_STRING_LENGTH(thr), DUK__NO_ARRAY_INDEX, temp_desc, 0);
 	DUK_UNREF(rc);
 	DUK_ASSERT(rc != 0);  /* arrays MUST have a 'length' property */
 	DUK_ASSERT(temp_desc->e_idx >= 0);
@@ -34034,7 +34532,7 @@ static int handle_put_array_length_smaller(duk_hthread *thr,
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(new_len < old_len);
 	DUK_ASSERT(out_result_len != NULL);
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	if (DUK_HOBJECT_HAS_ARRAY_PART(obj)) {
 		/*
@@ -34090,7 +34588,7 @@ static int handle_put_array_length_smaller(duk_hthread *thr,
 
 			DUK_ASSERT(DUK_HSTRING_HAS_ARRIDX(key));  /* XXX: macro checks for array index flag, which is unnecessary here */
 			arr_idx = DUK_HSTRING_GET_ARRIDX_SLOW(key);
-			DUK_ASSERT(arr_idx != NO_ARRAY_INDEX);
+			DUK_ASSERT(arr_idx != DUK__NO_ARRAY_INDEX);
 			DUK_ASSERT(arr_idx < old_len);  /* consistency requires this */
 
 			if (arr_idx < new_len) {
@@ -34132,7 +34630,7 @@ static int handle_put_array_length_smaller(duk_hthread *thr,
 
 			DUK_ASSERT(DUK_HSTRING_HAS_ARRIDX(key));  /* XXX: macro checks for array index flag, which is unnecessary here */
 			arr_idx = DUK_HSTRING_GET_ARRIDX_SLOW(key);
-			DUK_ASSERT(arr_idx != NO_ARRAY_INDEX);
+			DUK_ASSERT(arr_idx != DUK__NO_ARRAY_INDEX);
 			DUK_ASSERT(arr_idx < old_len);  /* consistency requires this */
 
 			if (arr_idx < target_len) {
@@ -34191,7 +34689,7 @@ static int handle_put_array_length(duk_hthread *thr, duk_hobject *obj) {
 	DUK_ASSERT(ctx != NULL);
 	DUK_ASSERT(obj != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	DUK_ASSERT(duk_is_valid_index(ctx, -1));
 
@@ -34315,7 +34813,7 @@ int duk_hobject_putprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, du
 	DUK_ASSERT(tv_key != NULL);
 	DUK_ASSERT(tv_val != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/*
 	 *  Make a copy of tv_obj, tv_key, and tv_val to avoid any issues of
@@ -34373,7 +34871,7 @@ int duk_hobject_putprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, du
 			goto fail_not_writable;
 		}
 
-		if (arr_idx != NO_ARRAY_INDEX &&
+		if (arr_idx != DUK__NO_ARRAY_INDEX &&
 		    arr_idx < DUK_HSTRING_GET_CHARLEN(h)) {
 			goto fail_not_writable;
 		}
@@ -34623,7 +35121,7 @@ int duk_hobject_putprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, du
 	             key == DUK_HTHREAD_STRING_LENGTH(thr)));
 
 	if (DUK_HOBJECT_HAS_SPECIAL_ARRAY(orig) &&
-	    arr_idx != NO_ARRAY_INDEX) {
+	    arr_idx != DUK__NO_ARRAY_INDEX) {
 		/* automatic length update */
 		duk_uint32_t old_len;
 
@@ -34665,7 +35163,7 @@ int duk_hobject_putprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, du
 	 *  tv_obj, tv_key, and tv_val are copies of the original inputs.
 	 */
 
-	if (arr_idx != NO_ARRAY_INDEX &&
+	if (arr_idx != DUK__NO_ARRAY_INDEX &&
 	    DUK_HOBJECT_HAS_ARRAY_PART(orig)) {
 		if (arr_idx < orig->a_size) {
 			goto no_array_growth;
@@ -34794,7 +35292,7 @@ int duk_hobject_putprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, du
 
 		DUK_DDDPRINT("write successful, pending array length update to: %d", new_array_length);
 
-		rc = get_own_property_desc_raw(thr, orig, DUK_HTHREAD_STRING_LENGTH(thr), NO_ARRAY_INDEX, &desc, 0);
+		rc = get_own_property_desc_raw(thr, orig, DUK_HTHREAD_STRING_LENGTH(thr), DUK__NO_ARRAY_INDEX, &desc, 0);
 		DUK_UNREF(rc);
 		DUK_ASSERT(rc != 0);
 		DUK_ASSERT(desc.e_idx >= 0);
@@ -34828,7 +35326,7 @@ int duk_hobject_putprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, du
 	 *  we end up in step 5.b.i.
 	 */
 
-	if (arr_idx != NO_ARRAY_INDEX &&
+	if (arr_idx != DUK__NO_ARRAY_INDEX &&
 	    DUK_HOBJECT_HAS_SPECIAL_ARGUMENTS(orig)) {
 		/* Note: only numbered indices are relevant, so arr_idx fast reject
 		 * is good (this is valid unless there are more than 4**32-1 arguments).
@@ -34914,7 +35412,7 @@ int duk_hobject_delprop_raw(duk_hthread *thr, duk_hobject *obj, duk_hstring *key
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(key != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	arr_idx = DUK_HSTRING_GET_ARRIDX_FAST(key);
 
@@ -34948,8 +35446,8 @@ int duk_hobject_delprop_raw(duk_hthread *thr, duk_hobject *obj, duk_hstring *key
 
 			DUK_DDDPRINT("removing hash entry at h_idx %d", desc.h_idx);
 			DUK_ASSERT(obj->h_size > 0);
-			DUK_ASSERT(desc.h_idx < obj->h_size);
-			h_base[desc.h_idx] = HASH_DELETED;
+			DUK_ASSERT((duk_size_t) desc.h_idx < obj->h_size);  /* FIXME: h_idx typing */
+			h_base[desc.h_idx] = DUK__HASH_DELETED;
 		} else {
 			DUK_ASSERT(obj->h_size == 0);
 		}
@@ -35005,7 +35503,7 @@ int duk_hobject_delprop_raw(duk_hthread *thr, duk_hobject *obj, duk_hstring *key
 
 	DUK_DDDPRINT("delete successful, check for arguments special behavior");
 
-	if (arr_idx != NO_ARRAY_INDEX && DUK_HOBJECT_HAS_SPECIAL_ARGUMENTS(obj)) {
+	if (arr_idx != DUK__NO_ARRAY_INDEX && DUK_HOBJECT_HAS_SPECIAL_ARGUMENTS(obj)) {
 		/* Note: only numbered indices are relevant, so arr_idx fast reject
 		 * is good (this is valid unless there are more than 4**32-1 arguments).
 		 */
@@ -35036,7 +35534,7 @@ int duk_hobject_delprop_raw(duk_hthread *thr, duk_hobject *obj, duk_hstring *key
 int duk_hobject_delprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, int throw_flag) {
 	duk_context *ctx = (duk_context *) thr;
 	duk_hstring *key = NULL;
-	duk_uint32_t arr_idx = NO_ARRAY_INDEX;
+	duk_uint32_t arr_idx = DUK__NO_ARRAY_INDEX;
 	int rc;
 
 	DUK_DDDPRINT("delprop: thr=%p, obj=%p, key=%p (obj -> %!T, key -> %!T)",
@@ -35048,7 +35546,7 @@ int duk_hobject_delprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, in
 	DUK_ASSERT(tv_obj != NULL);
 	DUK_ASSERT(tv_key != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	if (DUK_TVAL_IS_UNDEFINED(tv_obj) ||
 	    DUK_TVAL_IS_NULL(tv_obj)) {
@@ -35086,7 +35584,7 @@ int duk_hobject_delprop(duk_hthread *thr, duk_tval *tv_obj, duk_tval *tv_key, in
 
 		arr_idx = DUK_HSTRING_GET_ARRIDX_FAST(key);
 
-		if (arr_idx != NO_ARRAY_INDEX &&
+		if (arr_idx != DUK__NO_ARRAY_INDEX &&
 		    arr_idx < DUK_HSTRING_GET_CHARLEN(h)) {
 			goto fail_not_configurable;
 		}
@@ -35140,7 +35638,7 @@ void duk_hobject_define_property_internal(duk_hthread *thr, duk_hobject *obj, du
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(key != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 	DUK_ASSERT(duk_is_valid_index(ctx, -1));  /* contains value */
 
 	arr_idx = DUK_HSTRING_GET_ARRIDX_SLOW(key);
@@ -35179,7 +35677,7 @@ void duk_hobject_define_property_internal(duk_hthread *thr, duk_hobject *obj, du
 	}
 
 	if (DUK_HOBJECT_HAS_ARRAY_PART(obj)) {
-		if (arr_idx != NO_ARRAY_INDEX) {
+		if (arr_idx != DUK__NO_ARRAY_INDEX) {
 			DUK_DDDPRINT("property does not exist, object has array part -> possibly extend array part and write value (assert attributes)");
 			DUK_ASSERT(propflags == DUK_PROPDESC_FLAGS_WEC);
 
@@ -35241,14 +35739,15 @@ void duk_hobject_define_accessor_internal(duk_hthread *thr, duk_hobject *obj, du
 	DUK_ASSERT((propflags & ~DUK_PROPDESC_FLAGS_MASK) == 0);
 	/* setter and/or getter may be NULL */
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/* force the property to 'undefined' to create a slot for it */
 	duk_push_undefined(ctx);
 	duk_hobject_define_property_internal(thr, obj, key, propflags);
 	duk_hobject_find_existing_entry(obj, key, &e_idx, &h_idx);
 	DUK_DDDPRINT("accessor slot: e_idx=%d, h_idx=%d", e_idx, h_idx);
-	DUK_ASSERT(e_idx >= 0 && e_idx < obj->e_used);
+	DUK_ASSERT(e_idx >= 0);
+	DUK_ASSERT(e_idx < (int) obj->e_used);  /* FIXME: e_idx typing */
 
 	/* no need to decref, as previous value is 'undefined' */
 	DUK_HOBJECT_E_SLOT_SET_ACCESSOR(obj, e_idx);
@@ -35315,7 +35814,7 @@ int duk_hobject_object_get_own_property_descriptor(duk_context *ctx) {
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT(key != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	rc = get_own_property_desc(thr, obj, key, &pd, 1);  /* push_value = 1 */
 	if (!rc) {
@@ -35330,14 +35829,21 @@ int duk_hobject_object_get_own_property_descriptor(duk_context *ctx) {
 	/* [obj key value desc] */
 
 	if (DUK_PROPDESC_IS_ACCESSOR(&pd)) {
+		/* If a setter/getter is missing (undefined), the descriptor must
+		 * still have the property present with the value 'undefined'.
+		 */
 		if (pd.get) {
 			duk_push_hobject(ctx, pd.get);
-			duk_put_prop_stridx(ctx, -2, DUK_STRIDX_GET);
+		} else {
+			duk_push_undefined(ctx);
 		}
+		duk_put_prop_stridx(ctx, -2, DUK_STRIDX_GET);
 		if (pd.set) {
 			duk_push_hobject(ctx, pd.set);
-			duk_put_prop_stridx(ctx, -2, DUK_STRIDX_SET);
+		} else {
+			duk_push_undefined(ctx);
 		}
+		duk_put_prop_stridx(ctx, -2, DUK_STRIDX_SET);
 	} else {
 		duk_dup(ctx, -2);  /* [obj key value desc value] */
 		duk_put_prop_stridx(ctx, -2, DUK_STRIDX_VALUE);
@@ -35374,7 +35880,9 @@ static void normalize_property_descriptor(duk_context *ctx) {
 	int target_top;
 
 	DUK_ASSERT(ctx != NULL);
-	DUK_ASSERT(duk_is_object(ctx, -1));
+
+	/* must be an object, otherwise TypeError (E5.1 Section 8.10.5, step 1) */
+	(void) duk_require_hobject(ctx, -1);
 
 	idx_in = duk_require_normalize_index(ctx, -1);
 	duk_push_object(ctx);  /* [... desc_in desc_out] */
@@ -35501,7 +36009,7 @@ int duk_hobject_object_define_property(duk_context *ctx) {
 	DUK_ASSERT(thr->heap != NULL);
 	DUK_ASSERT(ctx != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	obj = duk_require_hobject(ctx, 0);
 	(void) duk_to_string(ctx, 1);
@@ -35658,14 +36166,14 @@ int duk_hobject_object_define_property(duk_context *ctx) {
 		}
 
 		/* steps 3.h and 3.i */
-		if (has_writable || !is_writable) {
+		if (has_writable && !is_writable) {
 			DUK_DDDPRINT("desc writable is false, force it back to true, and flag pending write protect");
 			is_writable = 1;
 			pending_write_protect = 1;
 		}
 
 		/* remaining actual steps are carried out if standard DefineOwnProperty succeeds */
-	} else if (arr_idx != NO_ARRAY_INDEX) {
+	} else if (arr_idx != DUK__NO_ARRAY_INDEX) {
 		/* FIXME: any chance of unifying this with the 'length' key handling? */
 
 		/* E5 Section 15.4.5.1, step 4 */
@@ -35737,7 +36245,7 @@ int duk_hobject_object_define_property(duk_context *ctx) {
 				new_flags |= DUK_PROPDESC_FLAG_CONFIGURABLE;
 			}
 
-			if (arr_idx != NO_ARRAY_INDEX && DUK_HOBJECT_HAS_ARRAY_PART(obj)) {
+			if (arr_idx != DUK__NO_ARRAY_INDEX && DUK_HOBJECT_HAS_ARRAY_PART(obj)) {
 				DUK_DDDPRINT("accessor cannot go to array part, abandon array");
 				abandon_array_checked(thr, obj);
 			}
@@ -35779,7 +36287,7 @@ int duk_hobject_object_define_property(duk_context *ctx) {
 				DUK_TVAL_SET_UNDEFINED_ACTUAL(&tv);  /* default value */
 			}
 
-			if (arr_idx != NO_ARRAY_INDEX && DUK_HOBJECT_HAS_ARRAY_PART(obj)) {
+			if (arr_idx != DUK__NO_ARRAY_INDEX && DUK_HOBJECT_HAS_ARRAY_PART(obj)) {
 				if (new_flags == DUK_PROPDESC_FLAGS_WEC) {
 #if 0
 					DUK_DDDPRINT("new data property attributes match array defaults, attempt to write to array part");
@@ -36193,7 +36701,7 @@ int duk_hobject_object_define_property(duk_context *ctx) {
 			DUK_DDDPRINT("defineProperty successful, pending array length update to: %d", arridx_new_array_length);
 
 			/* Note: reuse 'curr' */
-			rc = get_own_property_desc_raw(thr, obj, DUK_HTHREAD_STRING_LENGTH(thr), NO_ARRAY_INDEX, &curr, 0);
+			rc = get_own_property_desc_raw(thr, obj, DUK_HTHREAD_STRING_LENGTH(thr), DUK__NO_ARRAY_INDEX, &curr, 0);
 			DUK_UNREF(rc);
 			DUK_ASSERT(rc != 0);
 			DUK_ASSERT(curr.e_idx >= 0);
@@ -36247,7 +36755,7 @@ int duk_hobject_object_define_property(duk_context *ctx) {
 				goto fail_array_length_partial;
 			}
 		}
-	} else if (arr_idx != NO_ARRAY_INDEX && DUK_HOBJECT_HAS_SPECIAL_ARGUMENTS(obj)) {
+	} else if (arr_idx != DUK__NO_ARRAY_INDEX && DUK_HOBJECT_HAS_SPECIAL_ARGUMENTS(obj)) {
 		duk_hobject *map;
 		duk_hobject *varenv;
 
@@ -36465,13 +36973,13 @@ int duk_hobject_object_ownprop_helper(duk_context *ctx, int required_desc_flags)
  */
 
 void duk_hobject_object_seal_freeze_helper(duk_hthread *thr, duk_hobject *obj, int freeze) {
-	int i;
+	duk_uint_fast32_t i;
 
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(thr->heap != NULL);
 	DUK_ASSERT(obj != NULL);
 
-	ASSERT_VALSTACK_SPACE(thr, VALSTACK_SPACE);
+	DUK_ASSERT_VALSTACK_SPACE(thr, DUK__VALSTACK_SPACE);
 
 	/*
 	 *  Abandon array part because all properties must become non-configurable.
@@ -36519,7 +37027,7 @@ void duk_hobject_object_seal_freeze_helper(duk_hthread *thr, duk_hobject *obj, i
  */
 
 int duk_hobject_object_is_sealed_frozen_helper(duk_hobject *obj, int is_frozen) {
-	int i;
+	duk_uint_fast32_t i;
 
 	DUK_ASSERT(obj != NULL);
 
@@ -36579,12 +37087,12 @@ int duk_hobject_object_is_sealed_frozen_helper(duk_hobject *obj, int is_frozen) 
 
 /* Undefine local defines */
 
-#undef NO_ARRAY_INDEX
-#undef HASH_INITIAL
-#undef HASH_PROBE_STEP
-#undef HASH_UNUSED
-#undef HASH_DELETED
-#undef VALSTACK_SPACE
+#undef DUK__NO_ARRAY_INDEX
+#undef DUK__HASH_INITIAL
+#undef DUK__HASH_PROBE_STEP
+#undef DUK__HASH_UNUSED
+#undef DUK__HASH_DELETED
+#undef DUK__VALSTACK_SPACE
 
 #line 1 "duk_hthread_alloc.c"
 /*
@@ -36690,33 +37198,33 @@ void *duk_hthread_get_catchstack_ptr(void *ud) {
  *  Encoding constants, must match genbuiltins.py
  */
 
-#define CLASS_BITS                  5
-#define BIDX_BITS                   6
-#define STRIDX_BITS                 9  /* FIXME: try to optimize to 8 */
-#define NATIDX_BITS                 8
-#define NUM_NORMAL_PROPS_BITS       6
-#define NUM_FUNC_PROPS_BITS         6
-#define PROP_FLAGS_BITS             3
-#define STRING_LENGTH_BITS          8
-#define STRING_CHAR_BITS            7
-#define LENGTH_PROP_BITS            3
-#define NARGS_BITS                  3
-#define PROP_TYPE_BITS              3
-#define MAGIC_BITS                  16
+#define DUK__CLASS_BITS                  5
+#define DUK__BIDX_BITS                   6
+#define DUK__STRIDX_BITS                 9  /* FIXME: try to optimize to 8 */
+#define DUK__NATIDX_BITS                 8
+#define DUK__NUM_NORMAL_PROPS_BITS       6
+#define DUK__NUM_FUNC_PROPS_BITS         6
+#define DUK__PROP_FLAGS_BITS             3
+#define DUK__STRING_LENGTH_BITS          8
+#define DUK__STRING_CHAR_BITS            7
+#define DUK__LENGTH_PROP_BITS            3
+#define DUK__NARGS_BITS                  3
+#define DUK__PROP_TYPE_BITS              3
+#define DUK__MAGIC_BITS                  16
 
-#define NARGS_VARARGS_MARKER        0x07
-#define NO_CLASS_MARKER             0x00   /* 0 = DUK_HOBJECT_CLASS_UNUSED */
-#define NO_BIDX_MARKER              0x3f
-#define NO_STRIDX_MARKER            0xff
+#define DUK__NARGS_VARARGS_MARKER        0x07
+#define DUK__NO_CLASS_MARKER             0x00   /* 0 = DUK_HOBJECT_CLASS_UNUSED */
+#define DUK__NO_BIDX_MARKER              0x3f
+#define DUK__NO_STRIDX_MARKER            0xff
 
-#define PROP_TYPE_DOUBLE            0
-#define PROP_TYPE_STRING            1
-#define PROP_TYPE_STRIDX            2
-#define PROP_TYPE_BUILTIN           3
-#define PROP_TYPE_UNDEFINED         4
-#define PROP_TYPE_BOOLEAN_TRUE      5
-#define PROP_TYPE_BOOLEAN_FALSE     6
-#define PROP_TYPE_ACCESSOR          7
+#define DUK__PROP_TYPE_DOUBLE            0
+#define DUK__PROP_TYPE_STRING            1
+#define DUK__PROP_TYPE_STRIDX            2
+#define DUK__PROP_TYPE_BUILTIN           3
+#define DUK__PROP_TYPE_UNDEFINED         4
+#define DUK__PROP_TYPE_BOOLEAN_TRUE      5
+#define DUK__PROP_TYPE_BOOLEAN_FALSE     6
+#define DUK__PROP_TYPE_ACCESSOR          7
 
 /*
  *  Create built-in objects by parsing an init bitstream generated
@@ -36753,8 +37261,8 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 		int class_num;
 		int len = -1;
 
-		class_num = duk_bd_decode(bd, CLASS_BITS);
-		len = duk_bd_decode_flagged(bd, LENGTH_PROP_BITS, (duk_int32_t) -1 /*def_value*/);
+		class_num = duk_bd_decode(bd, DUK__CLASS_BITS);
+		len = duk_bd_decode_flagged(bd, DUK__LENGTH_PROP_BITS, (duk_int32_t) -1 /*def_value*/);
 
 		if (class_num == DUK_HOBJECT_CLASS_FUNCTION) {
 			int natidx;
@@ -36766,12 +37274,12 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 			DUK_DDDPRINT("len=%d", len);
 			DUK_ASSERT(len >= 0);
 
-			natidx = duk_bd_decode(bd, NATIDX_BITS);
-			stridx = duk_bd_decode(bd, STRIDX_BITS);
-			c_func = duk_builtin_native_functions[natidx];
+			natidx = duk_bd_decode(bd, DUK__NATIDX_BITS);
+			stridx = duk_bd_decode(bd, DUK__STRIDX_BITS);
+			c_func = duk_bi_native_functions[natidx];
 
-			c_nargs = duk_bd_decode_flagged(bd, NARGS_BITS, len /*def_value*/);
-			if (c_nargs == NARGS_VARARGS_MARKER) {
+			c_nargs = duk_bd_decode_flagged(bd, DUK__NARGS_BITS, len /*def_value*/);
+			if (c_nargs == DUK__NARGS_VARARGS_MARKER) {
 				c_nargs = DUK_VARARGS;
 			}
 
@@ -36797,11 +37305,13 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 			 * callable Function.
 			 */
 			if (duk_bd_decode_flag(bd)) {
-				DUK_HOBJECT_SET_CONSTRUCTABLE(h);
+				DUK_ASSERT(DUK_HOBJECT_HAS_CONSTRUCTABLE(h));
+			} else {
+				DUK_HOBJECT_CLEAR_CONSTRUCTABLE(h);
 			}
 
 			/* Cast converts magic to 16-bit signed value */
-			magic = (duk_int16_t) duk_bd_decode_flagged(bd, MAGIC_BITS, 0 /*def_value*/);
+			magic = (duk_int16_t) duk_bd_decode_flagged(bd, DUK__MAGIC_BITS, 0 /*def_value*/);
 			((duk_hnativefunction *) h)->magic = magic;
 		} else {
 			/* FIXME: ARRAY_PART for Array prototype? */
@@ -36885,14 +37395,14 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 		DUK_DDDPRINT("initializing built-in object at index %d", i);
 		h = thr->builtins[i];
 
-		t = duk_bd_decode(bd, BIDX_BITS);
-		if (t != NO_BIDX_MARKER) {
+		t = duk_bd_decode(bd, DUK__BIDX_BITS);
+		if (t != DUK__NO_BIDX_MARKER) {
 			DUK_DDDPRINT("set internal prototype: built-in %d", (int) t);
 			DUK_HOBJECT_SET_PROTOTYPE(thr, h, thr->builtins[t]);
 		}
 
-		t = duk_bd_decode(bd, BIDX_BITS);
-		if (t != NO_BIDX_MARKER) {
+		t = duk_bd_decode(bd, DUK__BIDX_BITS);
+		if (t != DUK__NO_BIDX_MARKER) {
 			/* 'prototype' property for all built-in objects (which have it) has attributes:
 			 *  [[Writable]] = false,
 			 *  [[Enumerable]] = false,
@@ -36902,8 +37412,8 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 			duk_def_prop_stridx_builtin(ctx, i, DUK_STRIDX_PROTOTYPE, t, DUK_PROPDESC_FLAGS_NONE);
 		}
 
-		t = duk_bd_decode(bd, BIDX_BITS);
-		if (t != NO_BIDX_MARKER) {
+		t = duk_bd_decode(bd, DUK__BIDX_BITS);
+		if (t != DUK__NO_BIDX_MARKER) {
 			/* 'constructor' property for all built-in objects (which have it) has attributes:
 			 *  [[Writable]] = true,
 			 *  [[Enumerable]] = false,	
@@ -36914,13 +37424,13 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 		}
 
 		/* normal valued properties */
-		num = duk_bd_decode(bd, NUM_NORMAL_PROPS_BITS);
+		num = duk_bd_decode(bd, DUK__NUM_NORMAL_PROPS_BITS);
 		DUK_DDDPRINT("built-in object %d, %d normal valued properties", i, num);
 		for (j = 0; j < num; j++) {
 			int stridx;
 			int prop_flags;
 
-			stridx = duk_bd_decode(bd, STRIDX_BITS);
+			stridx = duk_bd_decode(bd, DUK__STRIDX_BITS);
 
 			/*
 			 *  Property attribute defaults are defined in E5 Section 15 (first
@@ -36930,7 +37440,7 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 			 */
 
 			if (duk_bd_decode_flag(bd)) {
-				prop_flags = duk_bd_decode(bd, PROP_FLAGS_BITS);
+				prop_flags = duk_bd_decode(bd, DUK__PROP_FLAGS_BITS);
 			} else {
 				if (stridx == DUK_STRIDX_LENGTH) {
 					prop_flags = DUK_PROPDESC_FLAGS_NONE;
@@ -36939,13 +37449,13 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 				}
 			}
 
-			t = duk_bd_decode(bd, PROP_TYPE_BITS);
+			t = duk_bd_decode(bd, DUK__PROP_TYPE_BITS);
 
 			DUK_DDDPRINT("built-in %d, normal-valued property %d, stridx %d, flags 0x%02x, type %d",
 			             i, j, stridx, prop_flags, (int) t);
 
 			switch (t) {
-			case PROP_TYPE_DOUBLE: {
+			case DUK__PROP_TYPE_DOUBLE: {
 				duk_double_union du;
 				int k;
 
@@ -36959,51 +37469,51 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 				duk_push_number(ctx, du.d);  /* push operation normalizes NaNs */
 				break;
 			}
-			case PROP_TYPE_STRING: {
+			case DUK__PROP_TYPE_STRING: {
 				int n;
 				int k;
 				char *p;
 
-				n = duk_bd_decode(bd, STRING_LENGTH_BITS);
+				n = duk_bd_decode(bd, DUK__STRING_LENGTH_BITS);
 				p = (char *) duk_push_fixed_buffer(ctx, n);
 				for (k = 0; k < n; k++) {
-					*p++ = duk_bd_decode(bd, STRING_CHAR_BITS);
+					*p++ = duk_bd_decode(bd, DUK__STRING_CHAR_BITS);
 				}
 
 				duk_to_string(ctx, -1);
 				break;
 			}
-			case PROP_TYPE_STRIDX: {
+			case DUK__PROP_TYPE_STRIDX: {
 				int n;
 
-				n = duk_bd_decode(bd, STRIDX_BITS);
+				n = duk_bd_decode(bd, DUK__STRIDX_BITS);
 				DUK_ASSERT(n >= 0 && n < DUK_HEAP_NUM_STRINGS);
 				duk_push_hstring_stridx(ctx, n);
 				break;
 			}
-			case PROP_TYPE_BUILTIN: {
+			case DUK__PROP_TYPE_BUILTIN: {
 				int bidx;
 
-				bidx = duk_bd_decode(bd, BIDX_BITS);
-				DUK_ASSERT(bidx != NO_BIDX_MARKER);
+				bidx = duk_bd_decode(bd, DUK__BIDX_BITS);
+				DUK_ASSERT(bidx != DUK__NO_BIDX_MARKER);
 				duk_dup(ctx, bidx);
 				break;
 			}
-			case PROP_TYPE_UNDEFINED: {
+			case DUK__PROP_TYPE_UNDEFINED: {
 				duk_push_undefined(ctx);
 				break;
 			}
-			case PROP_TYPE_BOOLEAN_TRUE: {
+			case DUK__PROP_TYPE_BOOLEAN_TRUE: {
 				duk_push_true(ctx);
 				break;
 			}
-			case PROP_TYPE_BOOLEAN_FALSE: {
+			case DUK__PROP_TYPE_BOOLEAN_FALSE: {
 				duk_push_false(ctx);
 				break;
 			}
-			case PROP_TYPE_ACCESSOR: {
-				int natidx_getter = duk_bd_decode(bd, NATIDX_BITS);
-				int natidx_setter = duk_bd_decode(bd, NATIDX_BITS);
+			case DUK__PROP_TYPE_ACCESSOR: {
+				int natidx_getter = duk_bd_decode(bd, DUK__NATIDX_BITS);
+				int natidx_setter = duk_bd_decode(bd, DUK__NATIDX_BITS);
 				duk_c_function c_func_getter;
 				duk_c_function c_func_setter;
 
@@ -37013,10 +37523,10 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 				DUK_DDDPRINT("built-in accessor property: objidx=%d, stridx=%d, getteridx=%d, setteridx=%d, flags=0x%04x",
 				             i, stridx, natidx_getter, natidx_setter, prop_flags);
 
-				c_func_getter = duk_builtin_native_functions[natidx_getter];
-				c_func_setter = duk_builtin_native_functions[natidx_setter];
-				duk_push_c_function(ctx, c_func_getter, 0);  /* always 0 args */
-				duk_push_c_function(ctx, c_func_setter, 1);  /* always 1 arg */
+				c_func_getter = duk_bi_native_functions[natidx_getter];
+				c_func_setter = duk_bi_native_functions[natidx_setter];
+				duk_push_c_function_nonconstruct(ctx, c_func_getter, 0);  /* always 0 args */
+				duk_push_c_function_nonconstruct(ctx, c_func_setter, 1);  /* always 1 arg */
 
 				/* FIXME: magic for getter/setter? */
 
@@ -37044,7 +37554,7 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 		}
 
 		/* native function properties */
-		num = duk_bd_decode(bd, NUM_FUNC_PROPS_BITS);
+		num = duk_bd_decode(bd, DUK__NUM_FUNC_PROPS_BITS);
 		DUK_DDDPRINT("built-in object %d, %d function valued properties", i, num);
 		for (j = 0; j < num; j++) {
 			int stridx;
@@ -37055,23 +37565,23 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 			duk_c_function c_func;
 			duk_hnativefunction *h_func;
 
-			stridx = duk_bd_decode(bd, STRIDX_BITS);
-			natidx = duk_bd_decode(bd, NATIDX_BITS);
+			stridx = duk_bd_decode(bd, DUK__STRIDX_BITS);
+			natidx = duk_bd_decode(bd, DUK__NATIDX_BITS);
 
-			c_length = duk_bd_decode(bd, LENGTH_PROP_BITS);
-			c_nargs = duk_bd_decode_flagged(bd, NARGS_BITS, (duk_int32_t) c_length /*def_value*/);
-			if (c_nargs == NARGS_VARARGS_MARKER) {
+			c_length = duk_bd_decode(bd, DUK__LENGTH_PROP_BITS);
+			c_nargs = duk_bd_decode_flagged(bd, DUK__NARGS_BITS, (duk_int32_t) c_length /*def_value*/);
+			if (c_nargs == DUK__NARGS_VARARGS_MARKER) {
 				c_nargs = DUK_VARARGS;
 			}
 
-			c_func = duk_builtin_native_functions[natidx];
+			c_func = duk_bi_native_functions[natidx];
 
 			DUK_DDDPRINT("built-in %d, function-valued property %d, stridx %d, natidx %d, length %d, nargs %d",
 			             i, j, stridx, natidx, c_length, (c_nargs == DUK_VARARGS ? -1 : c_nargs));
 
 			/* [ (builtin objects) ] */
 
-			duk_push_c_function(ctx, c_func, c_nargs);
+			duk_push_c_function_nonconstruct(ctx, c_func, c_nargs);
 			h_func = duk_require_hnativefunction(ctx, -1);
 			DUK_UNREF(h_func);
 
@@ -37083,11 +37593,16 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 			 */
 			DUK_HOBJECT_SET_STRICT((duk_hobject *) h_func);
 
+			/* No built-in functions are constructable except the top
+			 * level ones (Number, etc).
+			 */
+			DUK_ASSERT(!DUK_HOBJECT_HAS_CONSTRUCTABLE((duk_hobject *) h_func));
+
 			/* FIXME: any way to avoid decoding magic bit; there are quite
 			 * many function properties and relatively few with magic values.
 			 */
 			/* Cast converts magic to 16-bit signed value */
-			magic = (duk_int16_t) duk_bd_decode_flagged(bd, MAGIC_BITS, 0);
+			magic = (duk_int16_t) duk_bd_decode_flagged(bd, DUK__MAGIC_BITS, 0);
 			h_func->magic = magic;
 
 			/* [ (builtin objects) func ] */
@@ -37153,7 +37668,26 @@ void duk_hthread_create_builtin_objects(duk_hthread *thr) {
 #endif
 	                " "
 	                DUK_USE_ARCH_STRING);
-	duk_put_prop_stridx(ctx, DUK_BIDX_DUK, DUK_STRIDX_ENV);
+	duk_def_prop_stridx(ctx, DUK_BIDX_DUK, DUK_STRIDX_ENV, DUK_PROPDESC_FLAGS_WC);
+
+	/*
+	 *  InitJS code - Ecmascript code evaluated from a built-in source
+	 *  which provides e.g. backward compatibility.  User can also provide
+	 *  JS code to be evaluated at startup.
+	 */
+
+#ifdef DUK_USE_INITJS
+	/* FIXME: compression */
+	duk_eval_string(ctx, (const char *) duk_initjs_data);  /* initjs data is NUL terminated */
+	duk_pop(ctx);
+#endif  /* DUK_USE_INITJS */
+
+#ifdef DUK_USE_USER_INITJS
+	/* FIXME: compression, at least as an option? */
+	/* FIXME: unused now */
+	duk_eval_string(ctx, (const char *) DUK_USE_USER_INITJS);
+	duk_pop(ctx);
+#endif  /* DUK_USE_USER_INITJS */
 
 	/*
 	 *  Since built-ins are not often extended, compact them.
@@ -37274,12 +37808,12 @@ duk_activation *duk_hthread_get_current_activation(duk_hthread *thr) {
 
 /* check that there is space for at least one new entry */
 void duk_hthread_callstack_grow(duk_hthread *thr) {
-	int old_size;
-	int new_size;
+	duk_size_t old_size;
+	duk_size_t new_size;
 
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->callstack_top >= 0 &&
-	           thr->callstack_size >= thr->callstack_top);
+	DUK_ASSERT_DISABLE(thr->callstack_top >= 0);   /* avoid warning (unsigned) */
+	DUK_ASSERT(thr->callstack_size >= thr->callstack_top);
 
 	if (thr->callstack_top < thr->callstack_size) {
 		return;
@@ -37307,12 +37841,12 @@ void duk_hthread_callstack_grow(duk_hthread *thr) {
 }
 
 void duk_hthread_callstack_shrink_check(duk_hthread *thr) {
-	int new_size;
+	duk_size_t new_size;
 	duk_activation *p;
 
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->callstack_top >= 0 &&
-	           thr->callstack_size >= thr->callstack_top);
+	DUK_ASSERT_DISABLE(thr->callstack_top >= 0);  /* avoid warning (unsigned) */
+	DUK_ASSERT(thr->callstack_size >= thr->callstack_top);
 
 	if (thr->callstack_size - thr->callstack_top < DUK_CALLSTACK_SHRINK_THRESHOLD) {
 		return;
@@ -37341,7 +37875,7 @@ void duk_hthread_callstack_shrink_check(duk_hthread *thr) {
 }
 
 void duk_hthread_callstack_unwind(duk_hthread *thr, int new_top) {
-	int idx;
+	int idx;  /* FIXME: typing of idx and new_top */
 
 	DUK_DDDPRINT("unwind callstack top of thread %p from %d to %d",
 	             (void *) thr,
@@ -37351,7 +37885,7 @@ void duk_hthread_callstack_unwind(duk_hthread *thr, int new_top) {
 	DUK_ASSERT(thr);
 	DUK_ASSERT(thr->heap);
 	DUK_ASSERT(new_top >= 0);
-	DUK_ASSERT(new_top <= thr->callstack_top);  /* cannot grow */
+	DUK_ASSERT((duk_size_t) new_top <= thr->callstack_top);  /* cannot grow */
 
 	/*
 	 *  The loop below must avoid issues with potential callstack
@@ -37373,7 +37907,8 @@ void duk_hthread_callstack_unwind(duk_hthread *thr, int new_top) {
 #endif
 
 		idx--;
-		DUK_ASSERT(idx >= 0 && idx < thr->callstack_size);  /* true, despite side effect resizes */
+		DUK_ASSERT(idx >= 0);
+		DUK_ASSERT((duk_size_t) idx < thr->callstack_size);  /* true, despite side effect resizes */
 
 		p = &thr->callstack[idx];
 		DUK_ASSERT(p->func != NULL);
@@ -37499,12 +38034,12 @@ void duk_hthread_callstack_unwind(duk_hthread *thr, int new_top) {
 }
 
 void duk_hthread_catchstack_grow(duk_hthread *thr) {
-	int old_size;
-	int new_size;
+	duk_size_t old_size;
+	duk_size_t new_size;
 
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->catchstack_top >= 0 &&
-	           thr->catchstack_size >= thr->catchstack_top);
+	DUK_ASSERT_DISABLE(thr->catchstack_top);  /* avoid warning (unsigned) */
+	DUK_ASSERT(thr->catchstack_size >= thr->catchstack_top);
 
 	if (thr->catchstack_top < thr->catchstack_size) {
 		return;
@@ -37532,12 +38067,12 @@ void duk_hthread_catchstack_grow(duk_hthread *thr) {
 }
 
 void duk_hthread_catchstack_shrink_check(duk_hthread *thr) {
-	int new_size;
+	duk_size_t new_size;
 	duk_catcher *p;
 
 	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->catchstack_top >= 0 &&
-	           thr->catchstack_size >= thr->catchstack_top);
+	DUK_ASSERT_DISABLE(thr->catchstack_top >= 0);  /* avoid warning (unsigned) */
+	DUK_ASSERT(thr->catchstack_size >= thr->catchstack_top);
 
 	if (thr->catchstack_size - thr->catchstack_top < DUK_CATCHSTACK_SHRINK_THRESHOLD) {
 		return;
@@ -37566,7 +38101,7 @@ void duk_hthread_catchstack_shrink_check(duk_hthread *thr) {
 }
 
 void duk_hthread_catchstack_unwind(duk_hthread *thr, int new_top) {
-	int idx;
+	int idx;  /* FIXME: typing of 'new_top' and 'idx' */
 
 	DUK_DDDPRINT("unwind catchstack top of thread %p from %d to %d",
 	             (void *) thr,
@@ -37576,7 +38111,7 @@ void duk_hthread_catchstack_unwind(duk_hthread *thr, int new_top) {
 	DUK_ASSERT(thr);
 	DUK_ASSERT(thr->heap);
 	DUK_ASSERT(new_top >= 0);
-	DUK_ASSERT(new_top <= thr->catchstack_top);  /* cannot grow */
+	DUK_ASSERT((duk_size_t) new_top <= thr->catchstack_top);  /* cannot grow */
 
 	/*
 	 *  Since there are no references in the catcher structure,
@@ -37592,7 +38127,8 @@ void duk_hthread_catchstack_unwind(duk_hthread *thr, int new_top) {
 		duk_hobject *env;
 
 		idx--;
-		DUK_ASSERT(idx >= 0 && idx < thr->catchstack_size);
+		DUK_ASSERT(idx >= 0);
+		DUK_ASSERT((duk_size_t) idx < thr->catchstack_size);
 
 		p = &thr->catchstack[idx];
 
@@ -38147,16 +38683,15 @@ static void handle_coerce_effective_this_binding(duk_hthread *thr,
  *
  *  Output stack:
  *
- *    [ retval ]         (DUK_ERR_EXEC_SUCCESS)
- *    [ errobj ]         (DUK_ERR_EXEC_ERROR (normal error), protected call)
- *    [ (unspecified) ]  (DUK_ERR_EXEC_TERM (terminal error), protected call)
- *                       (if error and not a protected call --> longjmp)
+ *    [ retval ]         (DUK_EXEC_SUCCESS)
+ *    [ errobj ]         (DUK_EXEC_ERROR (normal error), protected call)
  *
- *  Even when executing a protected call, if an error happens during error
- *  handling (e.g. we run out of memory while setting up the return stack),
- *  the error is propagated to the previous catchpoint).  If no catchpoint
- *  exists, the fatal error handler is called.  Also, API errors (such as
- *  invalid indices) are thrown directly.
+ *  Even when executing a protected call an error may be thrown in rare cases.
+ *  For instance, if we run out of memory when setting up the return stack
+ *  after a caught error, the out of memory is propagated to the caller.
+ *  Similarly, API errors (such as invalid input stack shape and invalid
+ *  indices) cause an error to propagate out of this function.  If there is
+ *  no catchpoint for this error, the fatal error handler is called.
  *
  *  See 'execution.txt'.
  *
@@ -38179,25 +38714,26 @@ int duk_handle_call(duk_hthread *thr,
                     int call_flags,
                     duk_hobject *errhandler) {  /* borrowed */
 	duk_context *ctx = (duk_context *) thr;
-	int entry_valstack_bottom_index;
-	int entry_callstack_top;
-	int entry_catchstack_top;
+	duk_size_t entry_valstack_bottom_index;
+	duk_size_t entry_callstack_top;
+	duk_size_t entry_catchstack_top;
 	int entry_call_recursion_depth;
 	duk_hthread *entry_curr_thread;
 	duk_uint8_t entry_thread_state;
-	int need_setjmp;
-	duk_jmpbuf *old_jmpbuf_ptr = NULL;
-	duk_hobject *old_errhandler = NULL;
+	volatile int need_setjmp;
+	duk_jmpbuf * volatile old_jmpbuf_ptr = NULL;    /* ptr is volatile (not the target) */
+	duk_hobject * volatile old_errhandler = NULL;   /* ptr is volatile (not the target) */
 	int idx_func;         /* valstack index of 'func' and retval (relative to entry valstack_bottom) */
 	int idx_args;         /* valstack index of start of args (arg1) (relative to entry valstack_bottom) */
 	int nargs;            /* # argument registers target function wants (< 0 => "as is") */
 	int nregs;            /* # total registers target function wants on entry (< 0 => "as is") */
+	unsigned int vs_min_size;  /* FIXME: type */
 	duk_hobject *func;    /* 'func' on stack (borrowed reference) */
 	duk_activation *act;
 	duk_hobject *env;
 	duk_jmpbuf our_jmpbuf;
 	duk_tval tv_tmp;
-	int retval = DUK_ERR_EXEC_ERROR;
+	int retval = DUK_EXEC_ERROR;
 	int rc;
 
 	DUK_ASSERT(thr != NULL);
@@ -38395,7 +38931,7 @@ int duk_handle_call(duk_hthread *thr,
 	/* Note: currently a second setjmp restoration is done at the target;
 	 * this is OK, but could be refactored away.
 	 */
-	retval = DUK_ERR_EXEC_ERROR;
+	retval = DUK_EXEC_ERROR;
 	goto shrink_and_finished;
 
  handle_call:
@@ -38509,12 +39045,15 @@ int duk_handle_call(duk_hthread *thr,
 	 * all args (= 'num_stack_args')
 	 */
 
-	duk_require_valstack_resize((duk_context *) thr,
-	                            (thr->valstack_bottom - thr->valstack) +         /* bottom of current func */
-	                                idx_args +                                   /* bottom of new func */
-	                                (nregs >= 0 ? nregs : num_stack_args) +      /* num entries of new func at entry */
-	                                DUK_VALSTACK_INTERNAL_EXTRA,                 /* + spare => min_new_size */
-	                            1);                                              /* allow_shrink */
+	vs_min_size = (thr->valstack_bottom - thr->valstack) +         /* bottom of current func */
+	              idx_args;                                        /* bottom of new func */
+	vs_min_size += (nregs >= 0 ? nregs : num_stack_args);          /* num entries of new func at entry */
+	if (DUK_HOBJECT_IS_NATIVEFUNCTION(func)) {
+		vs_min_size += DUK_VALSTACK_API_ENTRY_MINIMUM;         /* Duktape/C API guaranteed entries (on top of args) */
+	}
+	vs_min_size += DUK_VALSTACK_INTERNAL_EXTRA,                    /* + spare */
+
+	duk_require_valstack_resize((duk_context *) thr, vs_min_size, 1 /*allow_shrink*/);
 
 	/*
 	 *  Update idx_retval of current activation.
@@ -38768,7 +39307,7 @@ int duk_handle_call(duk_hthread *thr,
 	 *  Shrink checks and return with success.
 	 */
 
-	retval = DUK_ERR_EXEC_SUCCESS;
+	retval = DUK_EXEC_SUCCESS;
 	goto shrink_and_finished;	
 
 	/*
@@ -38845,7 +39384,7 @@ int duk_handle_call(duk_hthread *thr,
 	 *  Shrink checks and return with success.
 	 */
 
-	retval = DUK_ERR_EXEC_SUCCESS;
+	retval = DUK_EXEC_SUCCESS;
 	goto shrink_and_finished;	
 
  shrink_and_finished:
@@ -38900,7 +39439,7 @@ int duk_handle_call(duk_hthread *thr,
  thread_state_error:
 	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid thread state for call (%d)", thr->state);
 	DUK_UNREACHABLE();
-	return DUK_ERR_EXEC_ERROR;  /* never executed */
+	return DUK_EXEC_ERROR;  /* never executed */
 }
 
 /*
@@ -39007,9 +39546,9 @@ int duk_handle_safe_call(duk_hthread *thr,
                          int num_stack_rets,
                          duk_hobject *errhandler) {
 	duk_context *ctx = (duk_context *) thr;
-	int entry_valstack_bottom_index;
-	int entry_callstack_top;
-	int entry_catchstack_top;
+	duk_size_t entry_valstack_bottom_index;
+	duk_size_t entry_callstack_top;
+	duk_size_t entry_catchstack_top;
 	int entry_call_recursion_depth;
 	duk_hthread *entry_curr_thread;
 	duk_uint8_t entry_thread_state;
@@ -39125,7 +39664,7 @@ int duk_handle_safe_call(duk_hthread *thr,
 	DUK_DEBUG_DUMP_HTHREAD(thr);
 #endif
 
-	retval = DUK_ERR_EXEC_ERROR;
+	retval = DUK_EXEC_ERROR;
 	goto shrink_and_finished;
 
 	/*
@@ -39200,8 +39739,8 @@ int duk_handle_safe_call(duk_hthread *thr,
 	/* we're running inside the caller's activation, so no change in call/catch stack or valstack bottom */
 	DUK_ASSERT(thr->callstack_top == entry_callstack_top);
 	DUK_ASSERT(thr->catchstack_top == entry_catchstack_top);
-	DUK_ASSERT(thr->valstack_bottom - thr->valstack == entry_valstack_bottom_index);
 	DUK_ASSERT(thr->valstack_bottom >= thr->valstack);
+	DUK_ASSERT((duk_size_t) (thr->valstack_bottom - thr->valstack) == entry_valstack_bottom_index);
 	DUK_ASSERT(thr->valstack_top >= thr->valstack_bottom);
 	DUK_ASSERT(thr->valstack_end >= thr->valstack_top);
 
@@ -39217,7 +39756,7 @@ int duk_handle_safe_call(duk_hthread *thr,
 	safe_call_adjust_valstack(thr, idx_retbase, num_stack_rets, rc);
 
 	/* Note: no need from callstack / catchstack shrink check */
-	retval = DUK_ERR_EXEC_SUCCESS;
+	retval = DUK_EXEC_SUCCESS;
 	goto finished;
 
  shrink_and_finished:
@@ -39266,7 +39805,7 @@ int duk_handle_safe_call(duk_hthread *thr,
  thread_state_error:
 	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid thread state for safe_call (%d)", thr->state);
 	DUK_UNREACHABLE();
-	return DUK_ERR_EXEC_ERROR;  /* never executed */
+	return DUK_EXEC_ERROR;  /* never executed */
 }
 
 /*
@@ -39323,12 +39862,13 @@ void duk_handle_ecma_call_setup(duk_hthread *thr,
 	 */
 #ifdef DUK_USE_ASSERTIONS
 	if (call_flags & DUK_CALL_FLAG_IS_TAILCALL) {
-		int our_callstack_index;
-		int i;
+		duk_size_t our_callstack_index;
+		duk_size_t i;
 
 		DUK_ASSERT(thr->callstack_top >= 1);
 		our_callstack_index = thr->callstack_top - 1;
-		DUK_ASSERT(our_callstack_index >= 0 && our_callstack_index < thr->callstack_size);
+		DUK_ASSERT_DISABLE(our_callstack_index >= 0);
+		DUK_ASSERT(our_callstack_index < thr->callstack_size);
 		DUK_ASSERT(thr->callstack[our_callstack_index].func != NULL);
 		DUK_ASSERT(DUK_HOBJECT_IS_COMPILEDFUNCTION(thr->callstack[our_callstack_index].func));
 
@@ -39432,7 +39972,7 @@ void duk_handle_ecma_call_setup(duk_hthread *thr,
 		 *  Although the callstack entry is reused, we need to explicitly unwind
 		 *  the current activation (or simulate an unwind).  In particular, the
 		 *  current activation must be closed, otherwise something like
-		 *  test-dev-bug-reduce-judofyr.js results.
+		 *  test-bug-reduce-judofyr.js results.
 		 */
 
 		DUK_DDDPRINT("is tailcall, reusing activation at callstack top, at index %d",
@@ -39689,26 +40229,26 @@ void duk_handle_ecma_call_setup(duk_hthread *thr,
 /* include removed: duk_internal.h */
 
 /* if highest bit of a register number is set, it refers to a constant instead */
-#define CONST_MARKER                 DUK_JS_CONST_MARKER
+#define DUK__CONST_MARKER                 DUK_JS_CONST_MARKER
 
 /* for array and object literals */
-#define MAX_ARRAY_INIT_VALUES        20
-#define MAX_OBJECT_INIT_PAIRS        10
+#define DUK__MAX_ARRAY_INIT_VALUES        20
+#define DUK__MAX_OBJECT_INIT_PAIRS        10
 
 /* FIXME: hack, remove when const lookup is not O(n) */
-#define GETCONST_MAX_CONSTS_CHECK    256
+#define DUK__GETCONST_MAX_CONSTS_CHECK    256
 
 /* these limits are based on bytecode limits */
-#define MAX_CONSTS                   (DUK_BC_BC_MAX + 1)
-#define MAX_FUNCS                    (DUK_BC_BC_MAX + 1)
-#define MAX_TEMPS                    (DUK_BC_BC_MAX + 1)
+#define DUK__MAX_CONSTS                   (DUK_BC_BC_MAX + 1)
+#define DUK__MAX_FUNCS                    (DUK_BC_BC_MAX + 1)
+#define DUK__MAX_TEMPS                    (DUK_BC_BC_MAX + 1)
 
-#define RECURSION_INCREASE(comp_ctx,thr)  do { \
+#define DUK__RECURSION_INCREASE(comp_ctx,thr)  do { \
 		DUK_DDDPRINT("RECURSION INCREASE: %s:%d", DUK_FILE_MACRO, DUK_LINE_MACRO); \
 		recursion_increase((comp_ctx)); \
 	} while(0)
 
-#define RECURSION_DECREASE(comp_ctx,thr)  do { \
+#define DUK__RECURSION_DECREASE(comp_ctx,thr)  do { \
 		DUK_DDDPRINT("RECURSION DECREASE: %s:%d", DUK_FILE_MACRO, DUK_LINE_MACRO); \
 		recursion_decrease((comp_ctx)); \
 	} while(0)
@@ -39717,11 +40257,20 @@ void duk_handle_ecma_call_setup(duk_hthread *thr,
  * overlap (in control flow), some can be eliminated.
  */
 
-#define COMPILE_ENTRY_SLOTS          8
-#define FUNCTION_INIT_REQUIRE_SLOTS  16
-#define FUNCTION_BODY_REQUIRE_SLOTS  16
-#define PARSE_STATEMENTS_SLOTS       16
-#define PARSE_EXPR_SLOTS             16
+#define DUK__COMPILE_ENTRY_SLOTS          8
+#define DUK__FUNCTION_INIT_REQUIRE_SLOTS  16
+#define DUK__FUNCTION_BODY_REQUIRE_SLOTS  16
+#define DUK__PARSE_STATEMENTS_SLOTS       16
+#define DUK__PARSE_EXPR_SLOTS             16
+
+/* Temporary structure used to pass a stack allocated region through
+ * duk_safe_call().
+ */
+typedef struct {
+	int flags;
+	duk_compiler_ctx comp_ctx_alloc;
+	duk_lexer_point lex_pt_alloc;
+} duk_compiler_stkstate;
 
 /*
  *  Prototypes
@@ -39877,140 +40426,140 @@ static int parse_function_like_fnum(duk_compiler_ctx *comp_ctx, int is_decl, int
 /* FIXME: actually single step levels would work just fine, clean up */
 
 /* binding power "levels" (see doc/compiler.txt) */
-#define BP_INVALID                0             /* always terminates led() */
-#define BP_EOF                    2
-#define BP_CLOSING                4             /* token closes expression, e.g. ')', ']' */
-#define BP_FOR_EXPR               BP_CLOSING    /* bp to use when parsing a top level Expression */
-#define BP_COMMA                  6
-#define BP_ASSIGNMENT             8
-#define BP_CONDITIONAL            10
-#define BP_LOR                    12
-#define BP_LAND                   14
-#define BP_BOR                    16
-#define BP_BXOR                   18
-#define BP_BAND                   20
-#define BP_EQUALITY               22
-#define BP_RELATIONAL             24
-#define BP_SHIFT                  26
-#define BP_ADDITIVE               28
-#define BP_MULTIPLICATIVE         30
-#define BP_POSTFIX                32
-#define BP_CALL                   34
-#define BP_MEMBER                 36
+#define DUK__BP_INVALID                0             /* always terminates led() */
+#define DUK__BP_EOF                    2
+#define DUK__BP_CLOSING                4             /* token closes expression, e.g. ')', ']' */
+#define DUK__BP_FOR_EXPR               DUK__BP_CLOSING    /* bp to use when parsing a top level Expression */
+#define DUK__BP_COMMA                  6
+#define DUK__BP_ASSIGNMENT             8
+#define DUK__BP_CONDITIONAL            10
+#define DUK__BP_LOR                    12
+#define DUK__BP_LAND                   14
+#define DUK__BP_BOR                    16
+#define DUK__BP_BXOR                   18
+#define DUK__BP_BAND                   20
+#define DUK__BP_EQUALITY               22
+#define DUK__BP_RELATIONAL             24
+#define DUK__BP_SHIFT                  26
+#define DUK__BP_ADDITIVE               28
+#define DUK__BP_MULTIPLICATIVE         30
+#define DUK__BP_POSTFIX                32
+#define DUK__BP_CALL                   34
+#define DUK__BP_MEMBER                 36
 
-#define TOKEN_LBP_BP_MASK         0x1f
-#define TOKEN_LBP_FLAG_NO_REGEXP  (1 << 5)   /* regexp literal must not follow this token */
-#define TOKEN_LBP_FLAG_TERMINATES (1 << 6)   /* FIXME: terminates expression; e.g. post-increment/-decrement */
-#define TOKEN_LBP_FLAG_UNUSED     (1 << 7)   /* spare */
+#define DUK__TOKEN_LBP_BP_MASK         0x1f
+#define DUK__TOKEN_LBP_FLAG_NO_REGEXP  (1 << 5)   /* regexp literal must not follow this token */
+#define DUK__TOKEN_LBP_FLAG_TERMINATES (1 << 6)   /* FIXME: terminates expression; e.g. post-increment/-decrement */
+#define DUK__TOKEN_LBP_FLAG_UNUSED     (1 << 7)   /* spare */
 
-#define TOKEN_LBP_GET_BP(x)       ((int) (((x) & TOKEN_LBP_BP_MASK) * 2))
+#define DUK__TOKEN_LBP_GET_BP(x)       ((int) (((x) & DUK__TOKEN_LBP_BP_MASK) * 2))
 
-#define MK_LBP(bp)                ((bp) >> 1)    /* bp is assumed to be even */
-#define MK_LBP_FLAGS(bp,flags)    (((bp) >> 1) | (flags))
+#define DUK__MK_LBP(bp)                ((bp) >> 1)    /* bp is assumed to be even */
+#define DUK__MK_LBP_FLAGS(bp,flags)    (((bp) >> 1) | (flags))
 
 static const duk_int8_t token_lbp[] = {
-	MK_LBP(BP_EOF),                                 /* DUK_TOK_EOF */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_LINETERM */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_COMMENT */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_IDENTIFIER */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_BREAK */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_CASE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_CATCH */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_CONTINUE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_DEBUGGER */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_DEFAULT */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_DELETE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_DO */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_ELSE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_FINALLY */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_FOR */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_FUNCTION */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_IF */
-	MK_LBP(BP_RELATIONAL),                          /* DUK_TOK_IN */
-	MK_LBP(BP_RELATIONAL),                          /* DUK_TOK_INSTANCEOF */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_NEW */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_RETURN */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_SWITCH */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_THIS */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_THROW */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_TRY */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_TYPEOF */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_VAR */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_VOID */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_WHILE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_WITH */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_CLASS */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_CONST */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_ENUM */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_EXPORT */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_EXTENDS */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_IMPORT */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_SUPER */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_NULL */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_TRUE */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_FALSE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_GET */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_SET */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_IMPLEMENTS */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_INTERFACE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_LET */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_PACKAGE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_PRIVATE */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_PROTECTED */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_PUBLIC */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_STATIC */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_YIELD */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_LCURLY */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_RCURLY */
-	MK_LBP(BP_MEMBER),                              /* DUK_TOK_LBRACKET */
-	MK_LBP_FLAGS(BP_CLOSING, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_RBRACKET */
-	MK_LBP(BP_CALL),                                /* DUK_TOK_LPAREN */
-	MK_LBP_FLAGS(BP_CLOSING, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_RPAREN */
-	MK_LBP(BP_MEMBER),                              /* DUK_TOK_PERIOD */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_SEMICOLON */
-	MK_LBP(BP_COMMA),                               /* DUK_TOK_COMMA */
-	MK_LBP(BP_RELATIONAL),                          /* DUK_TOK_LT */
-	MK_LBP(BP_RELATIONAL),                          /* DUK_TOK_GT */
-	MK_LBP(BP_RELATIONAL),                          /* DUK_TOK_LE */
-	MK_LBP(BP_RELATIONAL),                          /* DUK_TOK_GE */
-	MK_LBP(BP_EQUALITY),                            /* DUK_TOK_EQ */
-	MK_LBP(BP_EQUALITY),                            /* DUK_TOK_NEQ */
-	MK_LBP(BP_EQUALITY),                            /* DUK_TOK_SEQ */
-	MK_LBP(BP_EQUALITY),                            /* DUK_TOK_SNEQ */
-	MK_LBP(BP_ADDITIVE),                            /* DUK_TOK_ADD */
-	MK_LBP(BP_ADDITIVE),                            /* DUK_TOK_SUB */
-	MK_LBP(BP_MULTIPLICATIVE),                      /* DUK_TOK_MUL */
-	MK_LBP(BP_MULTIPLICATIVE),                      /* DUK_TOK_DIV */
-	MK_LBP(BP_MULTIPLICATIVE),                      /* DUK_TOK_MOD */
-	MK_LBP(BP_POSTFIX),                             /* DUK_TOK_INCREMENT */
-	MK_LBP(BP_POSTFIX),                             /* DUK_TOK_DECREMENT */
-	MK_LBP(BP_SHIFT),                               /* DUK_TOK_ALSHIFT */
-	MK_LBP(BP_SHIFT),                               /* DUK_TOK_ARSHIFT */
-	MK_LBP(BP_SHIFT),                               /* DUK_TOK_RSHIFT */
-	MK_LBP(BP_BAND),                                /* DUK_TOK_BAND */
-	MK_LBP(BP_BOR),                                 /* DUK_TOK_BOR */
-	MK_LBP(BP_BXOR),                                /* DUK_TOK_BXOR */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_LNOT */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_BNOT */
-	MK_LBP(BP_LAND),                                /* DUK_TOK_LAND */
-	MK_LBP(BP_LOR),                                 /* DUK_TOK_LOR */
-	MK_LBP(BP_CONDITIONAL),                         /* DUK_TOK_QUESTION */
-	MK_LBP(BP_INVALID),                             /* DUK_TOK_COLON */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_EQUALSIGN */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_ADD_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_SUB_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_MUL_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_DIV_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_MOD_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_ALSHIFT_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_ARSHIFT_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_RSHIFT_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_BAND_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_BOR_EQ */
-	MK_LBP(BP_ASSIGNMENT),                          /* DUK_TOK_BXOR_EQ */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_NUMBER */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_STRING */
-	MK_LBP_FLAGS(BP_INVALID, TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_REGEXP */
+	DUK__MK_LBP(DUK__BP_EOF),                                 /* DUK_TOK_EOF */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_LINETERM */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_COMMENT */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_IDENTIFIER */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_BREAK */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_CASE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_CATCH */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_CONTINUE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_DEBUGGER */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_DEFAULT */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_DELETE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_DO */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_ELSE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_FINALLY */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_FOR */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_FUNCTION */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_IF */
+	DUK__MK_LBP(DUK__BP_RELATIONAL),                          /* DUK_TOK_IN */
+	DUK__MK_LBP(DUK__BP_RELATIONAL),                          /* DUK_TOK_INSTANCEOF */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_NEW */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_RETURN */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_SWITCH */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_THIS */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_THROW */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_TRY */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_TYPEOF */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_VAR */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_VOID */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_WHILE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_WITH */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_CLASS */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_CONST */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_ENUM */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_EXPORT */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_EXTENDS */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_IMPORT */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_SUPER */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_NULL */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_TRUE */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_FALSE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_GET */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_SET */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_IMPLEMENTS */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_INTERFACE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_LET */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_PACKAGE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_PRIVATE */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_PROTECTED */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_PUBLIC */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_STATIC */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_YIELD */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_LCURLY */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_RCURLY */
+	DUK__MK_LBP(DUK__BP_MEMBER),                              /* DUK_TOK_LBRACKET */
+	DUK__MK_LBP_FLAGS(DUK__BP_CLOSING, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_RBRACKET */
+	DUK__MK_LBP(DUK__BP_CALL),                                /* DUK_TOK_LPAREN */
+	DUK__MK_LBP_FLAGS(DUK__BP_CLOSING, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_RPAREN */
+	DUK__MK_LBP(DUK__BP_MEMBER),                              /* DUK_TOK_PERIOD */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_SEMICOLON */
+	DUK__MK_LBP(DUK__BP_COMMA),                               /* DUK_TOK_COMMA */
+	DUK__MK_LBP(DUK__BP_RELATIONAL),                          /* DUK_TOK_LT */
+	DUK__MK_LBP(DUK__BP_RELATIONAL),                          /* DUK_TOK_GT */
+	DUK__MK_LBP(DUK__BP_RELATIONAL),                          /* DUK_TOK_LE */
+	DUK__MK_LBP(DUK__BP_RELATIONAL),                          /* DUK_TOK_GE */
+	DUK__MK_LBP(DUK__BP_EQUALITY),                            /* DUK_TOK_EQ */
+	DUK__MK_LBP(DUK__BP_EQUALITY),                            /* DUK_TOK_NEQ */
+	DUK__MK_LBP(DUK__BP_EQUALITY),                            /* DUK_TOK_SEQ */
+	DUK__MK_LBP(DUK__BP_EQUALITY),                            /* DUK_TOK_SNEQ */
+	DUK__MK_LBP(DUK__BP_ADDITIVE),                            /* DUK_TOK_ADD */
+	DUK__MK_LBP(DUK__BP_ADDITIVE),                            /* DUK_TOK_SUB */
+	DUK__MK_LBP(DUK__BP_MULTIPLICATIVE),                      /* DUK_TOK_MUL */
+	DUK__MK_LBP(DUK__BP_MULTIPLICATIVE),                      /* DUK_TOK_DIV */
+	DUK__MK_LBP(DUK__BP_MULTIPLICATIVE),                      /* DUK_TOK_MOD */
+	DUK__MK_LBP(DUK__BP_POSTFIX),                             /* DUK_TOK_INCREMENT */
+	DUK__MK_LBP(DUK__BP_POSTFIX),                             /* DUK_TOK_DECREMENT */
+	DUK__MK_LBP(DUK__BP_SHIFT),                               /* DUK_TOK_ALSHIFT */
+	DUK__MK_LBP(DUK__BP_SHIFT),                               /* DUK_TOK_ARSHIFT */
+	DUK__MK_LBP(DUK__BP_SHIFT),                               /* DUK_TOK_RSHIFT */
+	DUK__MK_LBP(DUK__BP_BAND),                                /* DUK_TOK_BAND */
+	DUK__MK_LBP(DUK__BP_BOR),                                 /* DUK_TOK_BOR */
+	DUK__MK_LBP(DUK__BP_BXOR),                                /* DUK_TOK_BXOR */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_LNOT */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_BNOT */
+	DUK__MK_LBP(DUK__BP_LAND),                                /* DUK_TOK_LAND */
+	DUK__MK_LBP(DUK__BP_LOR),                                 /* DUK_TOK_LOR */
+	DUK__MK_LBP(DUK__BP_CONDITIONAL),                         /* DUK_TOK_QUESTION */
+	DUK__MK_LBP(DUK__BP_INVALID),                             /* DUK_TOK_COLON */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_EQUALSIGN */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_ADD_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_SUB_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_MUL_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_DIV_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_MOD_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_ALSHIFT_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_ARSHIFT_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_RSHIFT_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_BAND_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_BOR_EQ */
+	DUK__MK_LBP(DUK__BP_ASSIGNMENT),                          /* DUK_TOK_BXOR_EQ */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_NUMBER */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_STRING */
+	DUK__MK_LBP_FLAGS(DUK__BP_INVALID, DUK__TOKEN_LBP_FLAG_NO_REGEXP),  /* DUK_TOK_REGEXP */
 };
 
 /*
@@ -40069,7 +40618,7 @@ static void advance_helper(duk_compiler_ctx *comp_ctx, int expect) {
 	 */
 
 	regexp = 1;
-	if (token_lbp[comp_ctx->curr_token.t] & TOKEN_LBP_FLAG_NO_REGEXP) {
+	if (token_lbp[comp_ctx->curr_token.t] & DUK__TOKEN_LBP_FLAG_NO_REGEXP) {
 		regexp = 0;
 	}
 	if (comp_ctx->curr_func.reject_regexp_in_adv) {
@@ -40078,8 +40627,8 @@ static void advance_helper(duk_compiler_ctx *comp_ctx, int expect) {
 	}
 
 	if (expect >= 0 && comp_ctx->curr_token.t != expect) {
-		DUK_ERROR(thr, DUK_ERR_SYNTAX_ERROR, "parse error (expected token %d, got %d on line %d)",
-		          expect, comp_ctx->curr_token.t, comp_ctx->curr_token.start_line);
+		DUK_ERROR(thr, DUK_ERR_SYNTAX_ERROR, "parse error (expected token %d, got %d)",
+		          expect, comp_ctx->curr_token.t);
 	}
 
 	/* make current token the previous; need to fiddle with valstack "backing store" */
@@ -40149,7 +40698,7 @@ static void init_function_valstack_slots(duk_compiler_ctx *comp_ctx) {
 	func->h_varmap = NULL;
 #endif
 
-	duk_require_stack(ctx, FUNCTION_INIT_REQUIRE_SLOTS);
+	duk_require_stack(ctx, DUK__FUNCTION_INIT_REQUIRE_SLOTS);
 
 	/* FIXME: getter for dynamic buffer */
 
@@ -40494,7 +41043,8 @@ static void convert_to_function_template(duk_compiler_ctx *comp_ctx) {
 	}
 
 	/* _pc2line */
-	if (1) {  /* FIXME: condition */
+#ifdef DUK_USE_PC2LINE
+	if (1) {
 		/*
 		 *  Size-optimized pc->line mapping.
 		 */
@@ -40503,10 +41053,11 @@ static void convert_to_function_template(duk_compiler_ctx *comp_ctx) {
 		duk_hobject_pc2line_pack(thr, q_instr, (duk_uint_fast32_t) code_count);  /* -> pushes fixed buffer */
 		duk_def_prop_stridx(ctx, -2, DUK_STRIDX_INT_PC2LINE, DUK_PROPDESC_FLAGS_NONE);
 
-		/* FIXME: if assertions enabled, walk through all valid PCs
+		/* XXX: if assertions enabled, walk through all valid PCs
 		 * and check line mapping.
 		 */
 	}
+#endif  /* DUK_USE_PC2LINE */
 
 	/* fileName */
 	if (comp_ctx->h_filename) {
@@ -40569,20 +41120,20 @@ static void convert_to_function_template(duk_compiler_ctx *comp_ctx) {
  *  makes sense if the slot in question (A, B, C) is used in the standard
  *  register/constant meaning.  If slot A is used in a non-standard way the
  *  caller simply needs to ensure that the raw value fits into A so as to not
- *  trigger shuffling.  The flag EMIT_FLAG_NO_SHUFFLE_A can be set to ensure
+ *  trigger shuffling.  The flag DUK__EMIT_FLAG_NO_SHUFFLE_A can be set to ensure
  *  compilation fails if the value does not fit into A.  For slots B and C
  *  the raw slot size is 9 bits but one bit is reserved for the reg/const
  *  indicator.  To use the full 9-bit range for a raw value, shuffling is
- *  disabled with the EMIT_FLAG_NO_SHUFFLE_{B,C} flag.  Shuffling is only
+ *  disabled with the DUK__EMIT_FLAG_NO_SHUFFLE_{B,C} flag.  Shuffling is only
  *  done for A, B, and C slots, not the larger BC or ABC slots.
  */
 
 /* Code emission flags, passed in the 'opcode' field */
-#define EMIT_FLAG_NO_SHUFFLE_A  (1 << 8)
-#define EMIT_FLAG_NO_SHUFFLE_B  (1 << 9)
-#define EMIT_FLAG_NO_SHUFFLE_C  (1 << 10)
+#define DUK__EMIT_FLAG_NO_SHUFFLE_A  (1 << 8)
+#define DUK__EMIT_FLAG_NO_SHUFFLE_B  (1 << 9)
+#define DUK__EMIT_FLAG_NO_SHUFFLE_C  (1 << 10)
 
-/* FIXME: clarify on when and where CONST_MARKER is allowed */
+/* FIXME: clarify on when and where DUK__CONST_MARKER is allowed */
 /* FIXME: opcode specific assertions on when consts are allowed */
 
 /* FIXME: macro smaller than call? */
@@ -40642,9 +41193,9 @@ static void emit_a_b_c(duk_compiler_ctx *comp_ctx, int op_flags, int a, int b, i
 
 	DUK_ASSERT((op_flags & 0xff) >= DUK_BC_OP_MIN && (op_flags & 0xff) <= DUK_BC_OP_MAX);
 
-	if (b & CONST_MARKER) {
-		DUK_ASSERT((op_flags & EMIT_FLAG_NO_SHUFFLE_B) == 0);
-		b = b & ~CONST_MARKER;
+	if (b & DUK__CONST_MARKER) {
+		DUK_ASSERT((op_flags & DUK__EMIT_FLAG_NO_SHUFFLE_B) == 0);
+		b = b & ~DUK__CONST_MARKER;
 		if (b < 0x100) {
 			ins |= DUK_ENC_OP_A_B_C(0, 0, 0x100, 0);  /* const flag for B */
 		} else if (b <= DUK_BC_BC_MAX) {
@@ -40656,7 +41207,7 @@ static void emit_a_b_c(duk_compiler_ctx *comp_ctx, int op_flags, int a, int b, i
 			goto error_outofregs;
 		}
 	} else {
-		if (op_flags & EMIT_FLAG_NO_SHUFFLE_B) {
+		if (op_flags & DUK__EMIT_FLAG_NO_SHUFFLE_B) {
 			if (b >= DUK_BC_B_MAX) {
 				goto error_outofregs;
 			}
@@ -40672,9 +41223,9 @@ static void emit_a_b_c(duk_compiler_ctx *comp_ctx, int op_flags, int a, int b, i
 		}
 	}
 
-	if (c & CONST_MARKER) {
-		DUK_ASSERT((op_flags & EMIT_FLAG_NO_SHUFFLE_C) == 0);
-		c = c & ~CONST_MARKER;
+	if (c & DUK__CONST_MARKER) {
+		DUK_ASSERT((op_flags & DUK__EMIT_FLAG_NO_SHUFFLE_C) == 0);
+		c = c & ~DUK__CONST_MARKER;
 		if (c < 0x100) {
 			ins |= DUK_ENC_OP_A_B_C(0, 0, 0, 0x100);  /* const flag for C */
 		} else if (c <= DUK_BC_BC_MAX) {
@@ -40686,7 +41237,7 @@ static void emit_a_b_c(duk_compiler_ctx *comp_ctx, int op_flags, int a, int b, i
 			goto error_outofregs;
 		}
 	} else {
-		if (op_flags & EMIT_FLAG_NO_SHUFFLE_C) {
+		if (op_flags & DUK__EMIT_FLAG_NO_SHUFFLE_C) {
 			if (c >= DUK_BC_C_MAX) {
 				goto error_outofregs;
 			}
@@ -40705,7 +41256,7 @@ static void emit_a_b_c(duk_compiler_ctx *comp_ctx, int op_flags, int a, int b, i
 	if (a <= DUK_BC_A_MAX) {
 		ins |= DUK_ENC_OP_A_B_C(op_flags & 0xff, a, b, c);
 		emit(comp_ctx, ins);
-	} else if (op_flags & EMIT_FLAG_NO_SHUFFLE_A) {
+	} else if (op_flags & DUK__EMIT_FLAG_NO_SHUFFLE_A) {
 		goto error_outofregs;
 	} else if (a <= DUK_BC_BC_MAX) {
 		comp_ctx->curr_func.needs_shuffle = 1;
@@ -40736,12 +41287,12 @@ static void emit_a_bc(duk_compiler_ctx *comp_ctx, int op, int a, int bc) {
 	duk_instr ins;
 	duk_int_t tmp;
 
-	/* allow caller to give a const number with the CONST_MARKER */
-	bc = bc & (~CONST_MARKER);
+	/* allow caller to give a const number with the DUK__CONST_MARKER */
+	bc = bc & (~DUK__CONST_MARKER);
 
 	DUK_ASSERT(op >= DUK_BC_OP_MIN && op <= DUK_BC_OP_MAX);
 	DUK_ASSERT(bc >= DUK_BC_BC_MIN && bc <= DUK_BC_BC_MAX);
-	DUK_ASSERT((bc & CONST_MARKER) == 0);
+	DUK_ASSERT((bc & DUK__CONST_MARKER) == 0);
 
 	/* FIXME: no check for 'bc' range now, inconsistent with emit_a_b_c */
 
@@ -40768,7 +41319,7 @@ static void emit_abc(duk_compiler_ctx *comp_ctx, int op, int abc) {
 
 	DUK_ASSERT(op >= DUK_BC_OP_MIN && op <= DUK_BC_OP_MAX);
 	DUK_ASSERT(abc >= DUK_BC_ABC_MIN && abc <= DUK_BC_ABC_MAX);
-	DUK_ASSERT((abc & CONST_MARKER) == 0);
+	DUK_ASSERT((abc & DUK__CONST_MARKER) == 0);
 
 	ins = DUK_ENC_OP_ABC(op, abc);
 	DUK_DDDPRINT("emit: 0x%08x line=%d pc=%d op=%d (%!C) abc=%d (%!I)",
@@ -40979,24 +41530,24 @@ static void peephole_optimize_bytecode(duk_compiler_ctx *comp_ctx) {
  *  Intermediate value helpers
  */
 
-#define ISREG(comp_ctx,x)              (((x) & CONST_MARKER) == 0)
-#define ISCONST(comp_ctx,x)            (((x) & CONST_MARKER) != 0)
-#define ISTEMP(comp_ctx,x)             (ISREG((comp_ctx), (x)) && (x) >= ((comp_ctx)->curr_func.temp_first))
-#define GETTEMP(comp_ctx)              ((comp_ctx)->curr_func.temp_next)
-#define SETTEMP(comp_ctx,x)            ((comp_ctx)->curr_func.temp_next = (x))  /* dangerous: must only lower (temp_max not updated) */
-#define SETTEMP_CHECKMAX(comp_ctx,x)   settemp_checkmax((comp_ctx),(x))
-#define ALLOCTEMP(comp_ctx)            alloctemp((comp_ctx))
-#define ALLOCTEMPS(comp_ctx,count)     alloctemps((comp_ctx),(count))
+#define DUK__ISREG(comp_ctx,x)              (((x) & DUK__CONST_MARKER) == 0)
+#define DUK__ISCONST(comp_ctx,x)            (((x) & DUK__CONST_MARKER) != 0)
+#define DUK__ISTEMP(comp_ctx,x)             (DUK__ISREG((comp_ctx), (x)) && (x) >= ((comp_ctx)->curr_func.temp_first))
+#define DUK__GETTEMP(comp_ctx)              ((comp_ctx)->curr_func.temp_next)
+#define DUK__SETTEMP(comp_ctx,x)            ((comp_ctx)->curr_func.temp_next = (x))  /* dangerous: must only lower (temp_max not updated) */
+#define DUK__SETTEMP_CHECKMAX(comp_ctx,x)   settemp_checkmax((comp_ctx),(x))
+#define DUK__ALLOCTEMP(comp_ctx)            alloctemp((comp_ctx))
+#define DUK__ALLOCTEMPS(comp_ctx,count)     alloctemps((comp_ctx),(count))
 
 /* Flags for intermediate value coercions.  A flag for using a forced reg
  * is not needed, the forced_reg argument suffices and generates better
  * code (it is checked as it is used).
  */
-#define IVAL_FLAG_ALLOW_CONST          (1 << 0)  /* allow a constant to be returned */
-#define IVAL_FLAG_REQUIRE_TEMP         (1 << 1)  /* require a (mutable) temporary as a result */
-#define IVAL_FLAG_REQUIRE_SHORT        (1 << 2)  /* require a short (8-bit) reg/const which fits into bytecode B/C slot */
+#define DUK__IVAL_FLAG_ALLOW_CONST          (1 << 0)  /* allow a constant to be returned */
+#define DUK__IVAL_FLAG_REQUIRE_TEMP         (1 << 1)  /* require a (mutable) temporary as a result */
+#define DUK__IVAL_FLAG_REQUIRE_SHORT        (1 << 2)  /* require a short (8-bit) reg/const which fits into bytecode B/C slot */
 
-/* FIXME: some code might benefit from SETTEMP_IFTEMP(ctx,x) */
+/* FIXME: some code might benefit from DUK__SETTEMP_IFTEMP(ctx,x) */
 
 static void copy_ispec(duk_compiler_ctx *comp_ctx, duk_ispec *src, duk_ispec *dst) {
 	duk_context *ctx = (duk_context *) comp_ctx->thr;
@@ -41047,7 +41598,7 @@ static int alloctemps(duk_compiler_ctx *comp_ctx, int num) {
 	res = comp_ctx->curr_func.temp_next;
 	comp_ctx->curr_func.temp_next += num;
 
-	if (comp_ctx->curr_func.temp_next > MAX_TEMPS) {  /* == MAX_TEMPS is OK */
+	if (comp_ctx->curr_func.temp_next > DUK__MAX_TEMPS) {  /* == DUK__MAX_TEMPS is OK */
 		DUK_ERROR(comp_ctx->thr, DUK_ERR_INTERNAL_ERROR, "out of temps");
 	}
 
@@ -41087,7 +41638,7 @@ static int getconst(duk_compiler_ctx *comp_ctx) {
 	 * constants at least somewhat reasonably.  Otherwise checking whether
 	 * we already have the constant would grow very slow (as it is O(N^2)).
 	 */
-	n_check = (n > GETCONST_MAX_CONSTS_CHECK ? GETCONST_MAX_CONSTS_CHECK : n);
+	n_check = (n > DUK__GETCONST_MAX_CONSTS_CHECK ? DUK__GETCONST_MAX_CONSTS_CHECK : n);
 	for (i = 0; i < n_check; i++) {
 		duk_tval *tv2 = DUK_HOBJECT_A_GET_VALUE_PTR(f->h_consts, i);
 
@@ -41097,17 +41648,17 @@ static int getconst(duk_compiler_ctx *comp_ctx) {
 		if (duk_js_samevalue(tv1, tv2)) {
 			DUK_DDDPRINT("reused existing constant for %!T -> const index %d", tv1, i);
 			duk_pop(ctx);
-			return i | CONST_MARKER;
+			return i | DUK__CONST_MARKER;
 		}
 	}
 
-	if (n >= MAX_CONSTS) {
+	if (n >= DUK__MAX_CONSTS) {
 		DUK_ERROR(comp_ctx->thr, DUK_ERR_INTERNAL_ERROR, "out of consts");
 	}
 
 	DUK_DDDPRINT("allocating new constant for %!T -> const index %d", tv1, n);
 	(void) duk_put_prop_index(ctx, f->consts_idx, n);  /* invalidates tv1, tv2 */
-	return n | CONST_MARKER;
+	return n | DUK__CONST_MARKER;
 }
 
 /* Get the value represented by an duk_ispec to a register or constant.
@@ -41138,9 +41689,9 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 	             x->t, x->regconst, duk_get_tval(ctx, x->valstack_idx),
 	             forced_reg,
 	             (int) flags,
-	             (flags & IVAL_FLAG_ALLOW_CONST) ? 1 : 0,
-	             (flags & IVAL_FLAG_REQUIRE_TEMP) ? 1 : 0,
-	             (flags & IVAL_FLAG_REQUIRE_SHORT) ? 1 : 0);
+	             (flags & DUK__IVAL_FLAG_ALLOW_CONST) ? 1 : 0,
+	             (flags & DUK__IVAL_FLAG_REQUIRE_TEMP) ? 1 : 0,
+	             (flags & DUK__IVAL_FLAG_REQUIRE_SHORT) ? 1 : 0);
 
 	switch (x->t) {
 	case DUK_ISPEC_VALUE: {
@@ -41155,17 +41706,17 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 			 * values can occur during compilation as a result of e.g.
 			 * the 'void' operator.
 			 */
-			int dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+			int dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 			emit_extraop_bc(comp_ctx, DUK_EXTRAOP_LDUNDEF, dest);
 			return dest; 
 		}
 		case DUK_TAG_NULL: {
-			int dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+			int dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 			emit_extraop_bc(comp_ctx, DUK_EXTRAOP_LDNULL, dest);
 			return dest;
 		}
 		case DUK_TAG_BOOLEAN: {
-			int dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+			int dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 			emit_extraop_bc(comp_ctx,
 			                (DUK_TVAL_GET_BOOLEAN(tv) ? DUK_EXTRAOP_LDTRUE : DUK_EXTRAOP_LDFALSE),
 			                dest);
@@ -41195,11 +41746,11 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 			duk_dup(ctx, x->valstack_idx);
 			constidx = getconst(comp_ctx);
 
-			if (flags & IVAL_FLAG_ALLOW_CONST) {
+			if (flags & DUK__IVAL_FLAG_ALLOW_CONST) {
 				return constidx;
 			}
 
-			dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+			dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 			emit_a_bc(comp_ctx, DUK_OP_LDCONST, dest, constidx);
 			return dest;
 		}
@@ -41221,7 +41772,7 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 			DUK_ASSERT(DUK_TVAL_IS_NUMBER(tv));
 			dval = DUK_TVAL_GET_NUMBER(tv);
 
-			if (!(flags & IVAL_FLAG_ALLOW_CONST)) {
+			if (!(flags & DUK__IVAL_FLAG_ALLOW_CONST)) {
 				/* A number can be loaded either through a constant, using
 				 * LDINT, or using LDINT+LDINTX.  LDINT is always a size win,
 				 * LDINT+LDINTX is not if the constant is used multiple times.
@@ -41229,7 +41780,7 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 				 */
 
 				if (is_whole_get_i32(dval, &ival)) {
-					dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+					dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 					emit_loadint(comp_ctx, dest, ival);
 					return dest;
 				}
@@ -41238,10 +41789,10 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 			duk_dup(ctx, x->valstack_idx);
 			constidx = getconst(comp_ctx);
 
-			if (flags & IVAL_FLAG_ALLOW_CONST) {
+			if (flags & DUK__IVAL_FLAG_ALLOW_CONST) {
 				return constidx;
 			} else {
-				dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+				dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 				emit_a_bc(comp_ctx, DUK_OP_LDCONST, dest, constidx);
 				return dest;
 			}
@@ -41249,8 +41800,8 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 		}  /* end switch */
 	}
 	case DUK_ISPEC_REGCONST: {
-		if ((x->regconst & CONST_MARKER) && !(flags & IVAL_FLAG_ALLOW_CONST)) {
-			int dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+		if ((x->regconst & DUK__CONST_MARKER) && !(flags & DUK__IVAL_FLAG_ALLOW_CONST)) {
+			int dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 			emit_a_bc(comp_ctx, DUK_OP_LDCONST, dest, x->regconst);
 			return dest;
 		} else {
@@ -41260,8 +41811,8 @@ static int ispec_toregconst_raw(duk_compiler_ctx *comp_ctx,
 				}
 				return forced_reg;
 			} else {
-				if ((flags & IVAL_FLAG_REQUIRE_TEMP) && !ISTEMP(comp_ctx, x->regconst)) {
-					int dest = ALLOCTEMP(comp_ctx);
+				if ((flags & DUK__IVAL_FLAG_REQUIRE_TEMP) && !DUK__ISTEMP(comp_ctx, x->regconst)) {
+					int dest = DUK__ALLOCTEMP(comp_ctx);
 					emit_a_bc(comp_ctx, DUK_OP_LDREG, dest, x->regconst);
 					return dest;
 				} else {
@@ -41361,20 +41912,20 @@ static void ivalue_toplain_raw(duk_compiler_ctx *comp_ctx, duk_ivalue *x, int fo
 			}
 		}
 
-		arg1 = ispec_toregconst_raw(comp_ctx, &x->x1, -1, IVAL_FLAG_ALLOW_CONST | IVAL_FLAG_REQUIRE_SHORT /*flags*/);
-		arg2 = ispec_toregconst_raw(comp_ctx, &x->x2, -1, IVAL_FLAG_ALLOW_CONST | IVAL_FLAG_REQUIRE_SHORT /*flags*/);
+		arg1 = ispec_toregconst_raw(comp_ctx, &x->x1, -1, DUK__IVAL_FLAG_ALLOW_CONST | DUK__IVAL_FLAG_REQUIRE_SHORT /*flags*/);
+		arg2 = ispec_toregconst_raw(comp_ctx, &x->x2, -1, DUK__IVAL_FLAG_ALLOW_CONST | DUK__IVAL_FLAG_REQUIRE_SHORT /*flags*/);
 
 		/* If forced reg, use it as destination.  Otherwise try to
 		 * use either coerced ispec if it is a temporary.
 		 */
 		if (forced_reg >= 0) {
 			dest = forced_reg;
-		} else if (ISTEMP(comp_ctx, arg1)) {
+		} else if (DUK__ISTEMP(comp_ctx, arg1)) {
 			dest = arg1;
-		} else if (ISTEMP(comp_ctx, arg2)) {
+		} else if (DUK__ISTEMP(comp_ctx, arg2)) {
 			dest = arg2;
 		} else {
-			dest = ALLOCTEMP(comp_ctx);
+			dest = DUK__ALLOCTEMP(comp_ctx);
 		}
 
 		emit_a_b_c(comp_ctx, x->op, dest, arg1, arg2);
@@ -41391,17 +41942,17 @@ static void ivalue_toplain_raw(duk_compiler_ctx *comp_ctx, duk_ivalue *x, int fo
 		int dest;
 
 		/* need a short reg/const, does not have to be a mutable temp */
-		arg1 = ispec_toregconst_raw(comp_ctx, &x->x1, -1, IVAL_FLAG_ALLOW_CONST | IVAL_FLAG_REQUIRE_SHORT /*flags*/);
-		arg2 = ispec_toregconst_raw(comp_ctx, &x->x2, -1, IVAL_FLAG_ALLOW_CONST | IVAL_FLAG_REQUIRE_SHORT /*flags*/);
+		arg1 = ispec_toregconst_raw(comp_ctx, &x->x1, -1, DUK__IVAL_FLAG_ALLOW_CONST | DUK__IVAL_FLAG_REQUIRE_SHORT /*flags*/);
+		arg2 = ispec_toregconst_raw(comp_ctx, &x->x2, -1, DUK__IVAL_FLAG_ALLOW_CONST | DUK__IVAL_FLAG_REQUIRE_SHORT /*flags*/);
 
 		if (forced_reg >= 0) {
 			dest = forced_reg;
-		} else if (ISTEMP(comp_ctx, arg1)) {
+		} else if (DUK__ISTEMP(comp_ctx, arg1)) {
 			dest = arg1;
-		} else if (ISTEMP(comp_ctx, arg2)) {
+		} else if (DUK__ISTEMP(comp_ctx, arg2)) {
 			dest = arg2;
 		} else {
-			dest = ALLOCTEMP(comp_ctx);
+			dest = DUK__ALLOCTEMP(comp_ctx);
 		}
 
 		emit_a_b_c(comp_ctx, DUK_OP_GETPROP, dest, arg1, arg2);
@@ -41425,7 +41976,7 @@ static void ivalue_toplain_raw(duk_compiler_ctx *comp_ctx, duk_ivalue *x, int fo
 			x->x1.t = DUK_ISPEC_REGCONST;
 			x->x1.regconst = reg_varbind;
 		} else {
-			dest = (forced_reg >= 0 ? forced_reg : ALLOCTEMP(comp_ctx));
+			dest = (forced_reg >= 0 ? forced_reg : DUK__ALLOCTEMP(comp_ctx));
 			emit_a_bc(comp_ctx, DUK_OP_GETVAR, dest, reg_varname);
 			x->t = DUK_IVAL_PLAIN;
 			x->x1.t = DUK_ISPEC_REGCONST;
@@ -41451,9 +42002,9 @@ static void ivalue_toplain(duk_compiler_ctx *comp_ctx, duk_ivalue *x) {
 /* evaluate to final form (e.g. coerce GETPROP to code), throw away temp */
 static void ivalue_toplain_ignore(duk_compiler_ctx *comp_ctx, duk_ivalue *x) {
 	int temp;
-	temp = GETTEMP(comp_ctx);
+	temp = DUK__GETTEMP(comp_ctx);
 	ivalue_toplain_raw(comp_ctx, x, -1);  /* no forced reg */
-	SETTEMP(comp_ctx, temp);
+	DUK__SETTEMP(comp_ctx, temp);
 }
 
 /* Coerce an duk_ivalue to a register or constant; result register may
@@ -41479,9 +42030,9 @@ static int ivalue_toregconst_raw(duk_compiler_ctx *comp_ctx,
 	             x->x2.t, x->x2.regconst, duk_get_tval(ctx, x->x2.valstack_idx),
 	             forced_reg,
 	             (int) flags,
-	             (flags & IVAL_FLAG_ALLOW_CONST) ? 1 : 0,
-	             (flags & IVAL_FLAG_REQUIRE_TEMP) ? 1 : 0,
-	             (flags & IVAL_FLAG_REQUIRE_SHORT) ? 1 : 0);
+	             (flags & DUK__IVAL_FLAG_ALLOW_CONST) ? 1 : 0,
+	             (flags & DUK__IVAL_FLAG_REQUIRE_TEMP) ? 1 : 0,
+	             (flags & DUK__IVAL_FLAG_REQUIRE_SHORT) ? 1 : 0);
 
 	/* first coerce to a plain value */
 	ivalue_toplain_raw(comp_ctx, x, forced_reg);
@@ -41501,7 +42052,7 @@ static int ivalue_toreg(duk_compiler_ctx *comp_ctx, duk_ivalue *x) {
 
 #if 0  /* unused */
 static int ivalue_totempreg(duk_compiler_ctx *comp_ctx, duk_ivalue *x) {
-	return ivalue_toregconst_raw(comp_ctx, x, -1, IVAL_FLAG_REQUIRE_TEMP /*flags*/);
+	return ivalue_toregconst_raw(comp_ctx, x, -1, DUK__IVAL_FLAG_REQUIRE_TEMP /*flags*/);
 }
 #endif
 
@@ -41510,7 +42061,7 @@ static int ivalue_toforcedreg(duk_compiler_ctx *comp_ctx, duk_ivalue *x, int for
 }
 
 static int ivalue_toregconst(duk_compiler_ctx *comp_ctx, duk_ivalue *x) {
-	return ivalue_toregconst_raw(comp_ctx, x, -1, IVAL_FLAG_ALLOW_CONST /*flags*/);
+	return ivalue_toregconst_raw(comp_ctx, x, -1, DUK__IVAL_FLAG_ALLOW_CONST /*flags*/);
 }
 
 /* The issues below can be solved with better flags */
@@ -41810,9 +42361,9 @@ static void reset_labels_to_length(duk_compiler_ctx *comp_ctx, int len) {
  */
 
 /* object literal key tracking flags */
-#define OBJ_LIT_KEY_PLAIN  (1 << 0)  /* key encountered as a plain property */
-#define OBJ_LIT_KEY_GET    (1 << 1)  /* key encountered as a getter */
-#define OBJ_LIT_KEY_SET    (1 << 2)  /* key encountered as a setter */
+#define DUK__OBJ_LIT_KEY_PLAIN  (1 << 0)  /* key encountered as a plain property */
+#define DUK__OBJ_LIT_KEY_GET    (1 << 1)  /* key encountered as a getter */
+#define DUK__OBJ_LIT_KEY_SET    (1 << 2)  /* key encountered as a setter */
 
 static void nud_array_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	duk_hthread *thr = comp_ctx->thr;
@@ -41829,11 +42380,11 @@ static void nud_array_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	/* DUK_TOK_LBRACKET already eaten, current token is right after that */
 	DUK_ASSERT(comp_ctx->prev_token.t == DUK_TOK_LBRACKET);
 
-	max_init_values = MAX_ARRAY_INIT_VALUES;  /* XXX: depend on available temps? */
+	max_init_values = DUK__MAX_ARRAY_INIT_VALUES;  /* XXX: depend on available temps? */
 
-	reg_obj = ALLOCTEMP(comp_ctx);
+	reg_obj = DUK__ALLOCTEMP(comp_ctx);
 	emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_NEWARR, reg_obj, 0);  /* XXX: patch initial size afterwards? */
- 	temp_start = GETTEMP(comp_ctx);
+ 	temp_start = DUK__GETTEMP(comp_ctx);
 
 	/*
 	 *  Emit initializers in sets of maximum max_init_values.
@@ -41854,7 +42405,7 @@ static void nud_array_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 
 	for (;;) {
 		num_values = 0;
-		SETTEMP(comp_ctx, temp_start);
+		DUK__SETTEMP(comp_ctx, temp_start);
 
 		if (comp_ctx->curr_token.t == DUK_TOK_RBRACKET) {
 			break;
@@ -41890,14 +42441,14 @@ static void nud_array_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 			/* initial index */
 			if (num_values == 0) {
 				start_idx = curr_idx;
-				reg_temp = ALLOCTEMP(comp_ctx);
+				reg_temp = DUK__ALLOCTEMP(comp_ctx);
 				emit_loadint(comp_ctx, reg_temp, start_idx);
 			}
 
-			reg_temp = ALLOCTEMP(comp_ctx);   /* alloc temp just in case, to update max temp */
-			SETTEMP(comp_ctx, reg_temp);      /* hope that the sub-expression writes to reg_temp */
-			expr_toforcedreg(comp_ctx, res, BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);
-			SETTEMP(comp_ctx, reg_temp + 1);
+			reg_temp = DUK__ALLOCTEMP(comp_ctx);   /* alloc temp just in case, to update max temp */
+			DUK__SETTEMP(comp_ctx, reg_temp);      /* hope that the sub-expression writes to reg_temp */
+			expr_toforcedreg(comp_ctx, res, DUK__BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);
+			DUK__SETTEMP(comp_ctx, reg_temp + 1);
 
 			num_values++;
 			curr_idx++;
@@ -41914,14 +42465,14 @@ static void nud_array_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 			 * is not allowed.
 			 */	
 			emit_a_b_c(comp_ctx,
-			           DUK_OP_MPUTARR | EMIT_FLAG_NO_SHUFFLE_B | EMIT_FLAG_NO_SHUFFLE_C,
+			           DUK_OP_MPUTARR | DUK__EMIT_FLAG_NO_SHUFFLE_B | DUK__EMIT_FLAG_NO_SHUFFLE_C,
 			           reg_obj,
 			           temp_start,
 			           num_values);
 			init_idx = start_idx + num_values;
 #if 0  /* these are not necessary, as they're done at the top of the loop */
 			num_values = 0;
-			SETTEMP(comp_ctx, temp_start);
+			DUK__SETTEMP(comp_ctx, temp_start);
 #endif
 		}	
 	}
@@ -41935,12 +42486,12 @@ static void nud_array_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	if (curr_idx > init_idx) {
 		/* yes, must set array length explicitly */
 		DUK_DDDPRINT("array literal has trailing elisions which affect its length");
-		reg_temp = ALLOCTEMP(comp_ctx);
+		reg_temp = DUK__ALLOCTEMP(comp_ctx);
 		emit_loadint(comp_ctx, reg_temp, curr_idx);
 		emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_SETALEN, reg_obj, reg_temp);
 	}
 
-	SETTEMP(comp_ctx, temp_start);
+	DUK__SETTEMP(comp_ctx, temp_start);
 
 	res->t = DUK_IVAL_PLAIN;
 	res->x1.t = DUK_ISPEC_REGCONST;
@@ -41974,19 +42525,19 @@ static int nud_object_literal_key_check(duk_compiler_ctx *comp_ctx, int new_key_
 	key_flags = duk_to_int(ctx, -1);
 	duk_pop(ctx);           /* [ ... key_obj key ] */
 
-	if (new_key_flags & OBJ_LIT_KEY_PLAIN) {
-		if ((key_flags & OBJ_LIT_KEY_PLAIN) && comp_ctx->curr_func.is_strict) {
+	if (new_key_flags & DUK__OBJ_LIT_KEY_PLAIN) {
+		if ((key_flags & DUK__OBJ_LIT_KEY_PLAIN) && comp_ctx->curr_func.is_strict) {
 			/* step 4.a */
 			DUK_DDDPRINT("duplicate key: plain key appears twice in strict mode");
 			return 1;
 		}
-		if (key_flags & (OBJ_LIT_KEY_GET | OBJ_LIT_KEY_SET)) {
+		if (key_flags & (DUK__OBJ_LIT_KEY_GET | DUK__OBJ_LIT_KEY_SET)) {
 			/* step 4.c */
 			DUK_DDDPRINT("duplicate key: plain key encountered after setter/getter");
 			return 1;
 		}
 	} else {
-		if (key_flags & OBJ_LIT_KEY_PLAIN) {
+		if (key_flags & DUK__OBJ_LIT_KEY_PLAIN) {
 			/* step 4.b */
 			DUK_DDDPRINT("duplicate key: getter/setter encountered after plain key");
 			return 1;
@@ -42018,14 +42569,15 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	int reg_key;            /* temp reg for key literal */
 	int reg_temp;           /* temp reg */
 	int first;		/* first value: comma must not precede the value */
+	int is_set, is_get;     /* temps */
 
 	DUK_ASSERT(comp_ctx->prev_token.t == DUK_TOK_LCURLY);
 
-	max_init_pairs = MAX_OBJECT_INIT_PAIRS;  /* XXX: depend on available temps? */
+	max_init_pairs = DUK__MAX_OBJECT_INIT_PAIRS;  /* XXX: depend on available temps? */
 
-	reg_obj = ALLOCTEMP(comp_ctx);
+	reg_obj = DUK__ALLOCTEMP(comp_ctx);
 	emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_NEWOBJ, reg_obj, 0);  /* XXX: patch initial size afterwards? */
-	temp_start = GETTEMP(comp_ctx);
+	temp_start = DUK__GETTEMP(comp_ctx);
 
 	/* temp object for tracking / detecting duplicate keys */
 	duk_push_object(ctx);
@@ -42040,7 +42592,7 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	first = 1;
 	for (;;) {
 		num_pairs = 0;
-		SETTEMP(comp_ctx, temp_start);
+		DUK__SETTEMP(comp_ctx, temp_start);
 
 		if (comp_ctx->curr_token.t == DUK_TOK_RCURLY) {
 			break;
@@ -42099,10 +42651,18 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 			/* advance to get one step of lookup */		
 			advance(comp_ctx);
 
-			if ((comp_ctx->prev_token.t == DUK_TOK_GET || comp_ctx->prev_token.t == DUK_TOK_SET) &&
-			     comp_ctx->curr_token.t != DUK_TOK_COLON) {
+			/* NOTE: "get" and "set" are not officially ReservedWords and the lexer
+			 * currently treats them always like ordinary identifiers (DUK_TOK_GET
+			 * and DUK_TOK_SET are unused).  They need to be detected based on the
+			 * identifier string content.
+			 */
+
+			is_get = (comp_ctx->prev_token.t == DUK_TOK_IDENTIFIER &&
+			          comp_ctx->prev_token.str1 == DUK_HTHREAD_STRING_GET(thr));
+			is_set = (comp_ctx->prev_token.t == DUK_TOK_IDENTIFIER &&
+			          comp_ctx->prev_token.str1 == DUK_HTHREAD_STRING_SET(thr));
+			if ((is_get || is_set) && comp_ctx->curr_token.t != DUK_TOK_COLON) {
 				/* getter/setter */
-				int is_getter = (comp_ctx->prev_token.t == DUK_TOK_GET);
 				int fnum;
 				int reg_temp;
 
@@ -42120,7 +42680,7 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 
 				DUK_ASSERT(duk_is_string(ctx, -1));
 				if (nud_object_literal_key_check(comp_ctx,
-				                                 (is_getter ? OBJ_LIT_KEY_GET : OBJ_LIT_KEY_SET))) {
+				                                 (is_get ? DUK__OBJ_LIT_KEY_GET : DUK__OBJ_LIT_KEY_SET))) {
 					goto syntax_error;
 				}
 				reg_key = getconst(comp_ctx);
@@ -42130,28 +42690,28 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 					 * is not allowed.
 					 */
 					emit_a_b_c(comp_ctx,
-					           DUK_OP_MPUTOBJ | EMIT_FLAG_NO_SHUFFLE_B | EMIT_FLAG_NO_SHUFFLE_C,
+					           DUK_OP_MPUTOBJ | DUK__EMIT_FLAG_NO_SHUFFLE_B | DUK__EMIT_FLAG_NO_SHUFFLE_C,
 					           reg_obj,
 					           temp_start,
 					           num_pairs);
 					num_pairs = 0;
-					SETTEMP(comp_ctx, temp_start);
+					DUK__SETTEMP(comp_ctx, temp_start);
 				}
 
 				/* curr_token = get/set name */
 				fnum = parse_function_like_fnum(comp_ctx, 0 /*is_decl*/, 1 /*is_setget*/);
 
-				DUK_ASSERT(GETTEMP(comp_ctx) == temp_start);
-				reg_temp = ALLOCTEMP(comp_ctx);
+				DUK_ASSERT(DUK__GETTEMP(comp_ctx) == temp_start);
+				reg_temp = DUK__ALLOCTEMP(comp_ctx);
 				emit_a_bc(comp_ctx, DUK_OP_LDCONST, reg_temp, reg_key);
-				reg_temp = ALLOCTEMP(comp_ctx);
+				reg_temp = DUK__ALLOCTEMP(comp_ctx);
 				emit_a_bc(comp_ctx, DUK_OP_CLOSURE, reg_temp, fnum);
 				emit_extraop_b_c(comp_ctx,
-				                 (is_getter ? DUK_EXTRAOP_INITGET : DUK_EXTRAOP_INITSET),
+				                 (is_get ? DUK_EXTRAOP_INITGET : DUK_EXTRAOP_INITSET),
 				                 reg_obj,
 				                 temp_start);   /* temp_start+0 = key, temp_start+1 = closure */
 
-				SETTEMP(comp_ctx, temp_start);
+				DUK__SETTEMP(comp_ctx, temp_start);
 			} else {
 				/* normal key/value */
 				if (comp_ctx->prev_token.t_nores == DUK_TOK_IDENTIFIER ||
@@ -42167,19 +42727,19 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 				}
 
 				DUK_ASSERT(duk_is_string(ctx, -1));
-				if (nud_object_literal_key_check(comp_ctx, OBJ_LIT_KEY_PLAIN)) {
+				if (nud_object_literal_key_check(comp_ctx, DUK__OBJ_LIT_KEY_PLAIN)) {
 					goto syntax_error;
 				}
 				reg_key = getconst(comp_ctx);
 
-				reg_temp = ALLOCTEMP(comp_ctx);
+				reg_temp = DUK__ALLOCTEMP(comp_ctx);
 				emit_a_bc(comp_ctx, DUK_OP_LDCONST, reg_temp, reg_key);
 				advance_expect(comp_ctx, DUK_TOK_COLON);
 
-				reg_temp = ALLOCTEMP(comp_ctx);  /* alloc temp just in case, to update max temp */
-				SETTEMP(comp_ctx, reg_temp);
-				expr_toforcedreg(comp_ctx, res, BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);
-				SETTEMP(comp_ctx, reg_temp + 1);
+				reg_temp = DUK__ALLOCTEMP(comp_ctx);  /* alloc temp just in case, to update max temp */
+				DUK__SETTEMP(comp_ctx, reg_temp);
+				expr_toforcedreg(comp_ctx, res, DUK__BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);
+				DUK__SETTEMP(comp_ctx, reg_temp + 1);
 
 				num_pairs++;
 			}
@@ -42190,13 +42750,13 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 			 * is not allowed.
 			 */	
 			emit_a_b_c(comp_ctx,
-			           DUK_OP_MPUTOBJ | EMIT_FLAG_NO_SHUFFLE_B | EMIT_FLAG_NO_SHUFFLE_C,
+			           DUK_OP_MPUTOBJ | DUK__EMIT_FLAG_NO_SHUFFLE_B | DUK__EMIT_FLAG_NO_SHUFFLE_C,
 			           reg_obj,
 			           temp_start,
 			           num_pairs);
 #if 0  /* these are not necessary, as they're done at the top of the loop */
 			num_pairs = 0;
-			SETTEMP(comp_ctx, temp_start);
+			DUK__SETTEMP(comp_ctx, temp_start);
 #endif
 		}
 	}
@@ -42204,7 +42764,7 @@ static void nud_object_literal(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	DUK_ASSERT(comp_ctx->curr_token.t == DUK_TOK_RCURLY);
 	advance(comp_ctx);
 
-	SETTEMP(comp_ctx, temp_start);
+	DUK__SETTEMP(comp_ctx, temp_start);
 
 	res->t = DUK_IVAL_PLAIN;
 	res->x1.t = DUK_ISPEC_REGCONST;
@@ -42246,13 +42806,13 @@ static int parse_arguments(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		 * This is not the cleanest possible approach.
 		 */
 
-		tr = ALLOCTEMP(comp_ctx);  /* bump up "allocated" reg count, just in case */
-		SETTEMP(comp_ctx, tr);
+		tr = DUK__ALLOCTEMP(comp_ctx);  /* bump up "allocated" reg count, just in case */
+		DUK__SETTEMP(comp_ctx, tr);
 
 		/* binding power must be high enough to NOT allow comma expressions directly */
-		expr_toforcedreg(comp_ctx, res, BP_COMMA /*rbp_flags*/, tr);  /* always allow 'in', coerce to 'tr' just in case */
+		expr_toforcedreg(comp_ctx, res, DUK__BP_COMMA /*rbp_flags*/, tr);  /* always allow 'in', coerce to 'tr' just in case */
 
-		SETTEMP(comp_ctx, tr + 1);
+		DUK__SETTEMP(comp_ctx, tr + 1);
 		nargs++;
 
 		DUK_DDDPRINT("argument #%d written into reg %d", nargs, tr);
@@ -42287,7 +42847,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	 *  Note: the token in the switch below has already been eaten.
 	 */
 
-	temp_at_entry = GETTEMP(comp_ctx);
+	temp_at_entry = DUK__GETTEMP(comp_ctx);
 
 	comp_ctx->curr_func.nud_count++;
 
@@ -42304,7 +42864,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 
 	case DUK_TOK_THIS: {
 		int reg_temp;
-		reg_temp = ALLOCTEMP(comp_ctx);
+		reg_temp = DUK__ALLOCTEMP(comp_ctx);
 		emit_extraop_b(comp_ctx, DUK_EXTRAOP_LDTHIS, reg_temp);
 		res->t = DUK_IVAL_PLAIN;
 		res->x1.t = DUK_ISPEC_REGCONST;
@@ -42350,7 +42910,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 
 		DUK_DDDPRINT("emitting regexp op, str1=%!O, str2=%!O", tk->str1, tk->str2);
 
-		reg_temp = ALLOCTEMP(comp_ctx);
+		reg_temp = DUK__ALLOCTEMP(comp_ctx);
 		duk_push_hstring(ctx, tk->str1);
 		duk_push_hstring(ctx, tk->str2);
 
@@ -42394,7 +42954,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		prev_allow_in = comp_ctx->curr_func.allow_in;
 		comp_ctx->curr_func.allow_in = 1; /* reset 'allow_in' for parenthesized expression */
 
-		expr(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);  /* Expression, terminates at a ')' */
+		expr(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);  /* Expression, terminates at a ')' */
 
 		advance_expect(comp_ctx, DUK_TOK_RPAREN);
 		comp_ctx->curr_func.allow_in = prev_allow_in;
@@ -42424,9 +42984,9 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 
 		DUK_DDDPRINT("begin parsing new expression");
 
-		reg_target = ALLOCTEMP(comp_ctx);
-		expr_toforcedreg(comp_ctx, res, BP_CALL /*rbp_flags*/, reg_target /*forced_reg*/);
-		SETTEMP(comp_ctx, reg_target + 1);
+		reg_target = DUK__ALLOCTEMP(comp_ctx);
+		expr_toforcedreg(comp_ctx, res, DUK__BP_CALL /*rbp_flags*/, reg_target /*forced_reg*/);
+		DUK__SETTEMP(comp_ctx, reg_target + 1);
 
 		if (comp_ctx->curr_token.t == DUK_TOK_LPAREN) {
 			/* 'new' MemberExpression Arguments */
@@ -42444,7 +43004,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		 * not allowed.
 		 */
 		emit_a_b_c(comp_ctx,
-		           DUK_OP_NEW | EMIT_FLAG_NO_SHUFFLE_B | EMIT_FLAG_NO_SHUFFLE_C,
+		           DUK_OP_NEW | DUK__EMIT_FLAG_NO_SHUFFLE_B | DUK__EMIT_FLAG_NO_SHUFFLE_C,
 		           reg_target /*target*/,
 		           reg_target /*start*/,
 		           nargs /*num_args*/);
@@ -42469,7 +43029,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		int reg_temp;
 		int fnum;
 
-		reg_temp = ALLOCTEMP(comp_ctx);
+		reg_temp = DUK__ALLOCTEMP(comp_ctx);
 
 		/* curr_token follows 'function' */
 		fnum = parse_function_like_fnum(comp_ctx, 0 /*is_decl*/, 0 /*is_setget*/);
@@ -42491,7 +43051,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		 * a reference (which is only known at runtime) seemingly at compile time
 		 * (= SyntaxError throwing).
 		 */
-		expr(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 		if (res->t == DUK_IVAL_VAR) {
 			/* not allowed in strict mode, regardless of whether resolves;
 			 * in non-strict mode DELVAR handles both non-resolving and
@@ -42506,8 +43066,8 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 				DUK_ERROR(thr, DUK_ERR_SYNTAX_ERROR, "cannot delete identifier");
 			}
 
-			SETTEMP(comp_ctx, temp_at_entry);
-			reg_temp = ALLOCTEMP(comp_ctx);
+			DUK__SETTEMP(comp_ctx, temp_at_entry);
+			reg_temp = DUK__ALLOCTEMP(comp_ctx);
 
 			duk_dup(ctx, res->x1.valstack_idx);
 			if (lookup_lhs(comp_ctx, &reg_varbind, &reg_varname)) {
@@ -42526,10 +43086,10 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 			int reg_obj;
 			int reg_key;
 
-			SETTEMP(comp_ctx, temp_at_entry);
-			reg_temp = ALLOCTEMP(comp_ctx);
+			DUK__SETTEMP(comp_ctx, temp_at_entry);
+			reg_temp = DUK__ALLOCTEMP(comp_ctx);
 			reg_obj = ispec_toregconst_raw(comp_ctx, &res->x1, -1 /*forced_reg*/, 0 /*flags*/);  /* don't allow const */
-			reg_key = ispec_toregconst_raw(comp_ctx, &res->x2, -1 /*forced_reg*/, IVAL_FLAG_ALLOW_CONST /*flags*/);
+			reg_key = ispec_toregconst_raw(comp_ctx, &res->x2, -1 /*forced_reg*/, DUK__IVAL_FLAG_ALLOW_CONST /*flags*/);
 			emit_a_b_c(comp_ctx, DUK_OP_DELPROP, reg_temp, reg_obj, reg_key);
 
 			res->t = DUK_IVAL_PLAIN;
@@ -42543,7 +43103,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		return;
 	}
 	case DUK_TOK_VOID: {
-		expr_toplain_ignore(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr_toplain_ignore(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 		duk_push_undefined(ctx);
 		goto plain_value;
 	}
@@ -42553,7 +43113,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		 * will never be unresolvable so special handling is only required
 		 * when an identifier is a "slow path" one.
 		 */
-		expr(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 
 		if (res->t == DUK_IVAL_VAR) {
 			int reg_varbind;
@@ -42564,7 +43124,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 			if (!lookup_lhs(comp_ctx, &reg_varbind, &reg_varname)) {
 				DUK_DDDPRINT("typeof for an identifier name which could not be resolved "
 				             "at compile time, need to use special run-time handling");
-				tr = ALLOCTEMP(comp_ctx);
+				tr = DUK__ALLOCTEMP(comp_ctx);
 				emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_TYPEOFID, tr, reg_varname);
 
 				res->t = DUK_IVAL_PLAIN;
@@ -42587,7 +43147,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	}
 	case DUK_TOK_ADD: {
 		/* unary plus */
-		expr(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 		if (res->t == DUK_IVAL_PLAIN && res->x1.t == DUK_ISPEC_VALUE &&
 		    duk_is_number(ctx, res->x1.valstack_idx)) {
 			/* unary plus of a number is identity */
@@ -42600,7 +43160,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	}
 	case DUK_TOK_SUB: {
 		/* unary minus */
-		expr(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 		if (res->t == DUK_IVAL_PLAIN && res->x1.t == DUK_ISPEC_VALUE &&
 		    duk_is_number(ctx, res->x1.valstack_idx)) {
 			/* this optimization is important to handle negative literals (which are not directly
@@ -42620,12 +43180,12 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		return;
 	}
 	case DUK_TOK_BNOT: {
-		expr(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 		args = (DUK_OP_BNOT << 8) + 0;
 		goto unary;
 	}
 	case DUK_TOK_LNOT: {
-		expr(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 		args = (DUK_OP_LNOT << 8) + 0;
 		goto unary;
 	}
@@ -42642,7 +43202,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		 */
 
 		int tr;
-		tr = ivalue_toregconst_raw(comp_ctx, res, -1 /*forced_reg*/, IVAL_FLAG_REQUIRE_TEMP /*flags*/);
+		tr = ivalue_toregconst_raw(comp_ctx, res, -1 /*forced_reg*/, DUK__IVAL_FLAG_REQUIRE_TEMP /*flags*/);
 		emit_a_b(comp_ctx, args >> 8, tr, tr);
 		res->t = DUK_IVAL_PLAIN;
 		res->x1.t = DUK_ISPEC_REGCONST;
@@ -42654,7 +43214,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	{
 		/* FIXME: refactor into unary2: above? */
 		int tr;
-		tr = ivalue_toregconst_raw(comp_ctx, res, -1 /*forced_reg*/, IVAL_FLAG_REQUIRE_TEMP /*flags*/);
+		tr = ivalue_toregconst_raw(comp_ctx, res, -1 /*forced_reg*/, DUK__IVAL_FLAG_REQUIRE_TEMP /*flags*/);
 		emit_extraop_b_c(comp_ctx, args >> 8, tr, tr);
 		res->t = DUK_IVAL_PLAIN;
 		res->x1.t = DUK_ISPEC_REGCONST;
@@ -42668,9 +43228,9 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		int reg_res;
 		int args_op = args >> 8;
 
-		reg_res = ALLOCTEMP(comp_ctx);
+		reg_res = DUK__ALLOCTEMP(comp_ctx);
 
-		expr(comp_ctx, res, BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
+		expr(comp_ctx, res, DUK__BP_MULTIPLICATIVE /*rbp_flags*/);  /* UnaryExpression */
 		if (res->t == DUK_IVAL_VAR) {
 			duk_hstring *h_varname;
 			int reg_varbind;
@@ -42699,7 +43259,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 			int reg_obj;  /* allocate to reg only (not const) */
 			int reg_key;
 			reg_obj = ispec_toregconst_raw(comp_ctx, &res->x1, -1 /*forced_reg*/, 0 /*flags*/);  /* don't allow const */
-			reg_key = ispec_toregconst_raw(comp_ctx, &res->x2, -1 /*forced_reg*/, IVAL_FLAG_ALLOW_CONST /*flags*/);
+			reg_key = ispec_toregconst_raw(comp_ctx, &res->x2, -1 /*forced_reg*/, DUK__IVAL_FLAG_ALLOW_CONST /*flags*/);
 			emit_a_b_c(comp_ctx, DUK_OP_GETPROP, reg_res, reg_obj, reg_key);
 			emit_a_b(comp_ctx, args_op, reg_res, reg_res);
 			emit_a_b_c(comp_ctx, DUK_OP_PUTPROP, reg_obj, reg_key, reg_res);
@@ -42715,7 +43275,7 @@ static void expr_nud(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		res->t = DUK_IVAL_PLAIN;
 		res->x1.t = DUK_ISPEC_REGCONST;
 		res->x1.regconst = reg_res;
-		SETTEMP(comp_ctx, reg_res + 1);
+		DUK__SETTEMP(comp_ctx, reg_res + 1);
 		return;
 	}
 
@@ -42795,7 +43355,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 
 		ivalue_toplain(comp_ctx, left);
 
-		expr_toplain(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);  /* Expression, ']' terminates */
+		expr_toplain(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);  /* Expression, ']' terminates */
 
 		advance_expect(comp_ctx, DUK_TOK_RBRACKET);
 
@@ -42811,7 +43371,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 	}
 	case DUK_TOK_LPAREN: {
 		/* function call */
-		int reg_cs = ALLOCTEMPS(comp_ctx, 2);
+		int reg_cs = DUK__ALLOCTEMPS(comp_ctx, 2);
 		int nargs;
 		int call_flags = 0;
 
@@ -42857,12 +43417,12 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 			duk_dup(ctx, left->x1.valstack_idx);
 			if (lookup_lhs(comp_ctx, &reg_varbind, &reg_varname)) {
 				emit_a_b(comp_ctx,
-				         DUK_OP_CSREG | EMIT_FLAG_NO_SHUFFLE_A,
+				         DUK_OP_CSREG | DUK__EMIT_FLAG_NO_SHUFFLE_A,
 				         reg_cs + 0,
 				         reg_varbind);
 			} else {
 				emit_a_b(comp_ctx,
-				         DUK_OP_CSVAR | EMIT_FLAG_NO_SHUFFLE_A,
+				         DUK_OP_CSVAR | DUK__EMIT_FLAG_NO_SHUFFLE_A,
 				         reg_cs + 0,
 				         reg_varname);
 			}
@@ -42872,7 +43432,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 			ispec_toforcedreg(comp_ctx, &left->x1, reg_cs + 0);  /* base */
 			ispec_toforcedreg(comp_ctx, &left->x2, reg_cs + 1);  /* key */
 			emit_a_b_c(comp_ctx,
-			           DUK_OP_CSPROP | EMIT_FLAG_NO_SHUFFLE_A,
+			           DUK_OP_CSPROP | DUK__EMIT_FLAG_NO_SHUFFLE_A,
 			           reg_cs + 0,
 			           reg_cs + 0,
 			           reg_cs + 1);  /* in-place setup */
@@ -42881,12 +43441,12 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 
 			ivalue_toforcedreg(comp_ctx, left, reg_cs + 0);
 			emit_a_b(comp_ctx,
-			         DUK_OP_CSREG | EMIT_FLAG_NO_SHUFFLE_A,
+			         DUK_OP_CSREG | DUK__EMIT_FLAG_NO_SHUFFLE_A,
 			         reg_cs + 0,
 			         reg_cs + 0);  /* in-place setup */
 		}
 
-		SETTEMP(comp_ctx, reg_cs + 2);
+		DUK__SETTEMP(comp_ctx, reg_cs + 2);
 		nargs = parse_arguments(comp_ctx, res);  /* parse args starting from "next temp" */
 
 		/* FIXME: opcode inconsistency with NEW now, which uses explicit result reg */
@@ -42898,11 +43458,11 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 		 */
 
 		emit_a_b_c(comp_ctx,
-		           DUK_OP_CALL | EMIT_FLAG_NO_SHUFFLE_A | EMIT_FLAG_NO_SHUFFLE_B | EMIT_FLAG_NO_SHUFFLE_C,
+		           DUK_OP_CALL | DUK__EMIT_FLAG_NO_SHUFFLE_A | DUK__EMIT_FLAG_NO_SHUFFLE_B | DUK__EMIT_FLAG_NO_SHUFFLE_C,
 		           call_flags /*flags*/,
 		           reg_cs /*basereg*/,
 		           nargs /*numargs*/);
-		SETTEMP(comp_ctx, reg_cs + 1);    /* result in csreg */
+		DUK__SETTEMP(comp_ctx, reg_cs + 1);    /* result in csreg */
 
 		res->t = DUK_IVAL_PLAIN;
 		res->x1.t = DUK_ISPEC_REGCONST;
@@ -42924,26 +43484,26 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 	/* MULTIPLICATIVE EXPRESSION */
 
 	case DUK_TOK_MUL: {
-		args = (DUK_OP_MUL << 8) + BP_MULTIPLICATIVE;  /* UnaryExpression */
+		args = (DUK_OP_MUL << 8) + DUK__BP_MULTIPLICATIVE;  /* UnaryExpression */
 		goto binary;
 	}
 	case DUK_TOK_DIV: {
-		args = (DUK_OP_DIV << 8) + BP_MULTIPLICATIVE;  /* UnaryExpression */
+		args = (DUK_OP_DIV << 8) + DUK__BP_MULTIPLICATIVE;  /* UnaryExpression */
 		goto binary;
 	}
 	case DUK_TOK_MOD: {
-		args = (DUK_OP_MOD << 8) + BP_MULTIPLICATIVE;  /* UnaryExpression */
+		args = (DUK_OP_MOD << 8) + DUK__BP_MULTIPLICATIVE;  /* UnaryExpression */
 		goto binary;
 	}
 
 	/* ADDITIVE EXPRESSION */
 
 	case DUK_TOK_ADD: {
-		args = (DUK_OP_ADD << 8) + BP_ADDITIVE;  /* MultiplicativeExpression */
+		args = (DUK_OP_ADD << 8) + DUK__BP_ADDITIVE;  /* MultiplicativeExpression */
 		goto binary;
 	}
 	case DUK_TOK_SUB: {
-		args = (DUK_OP_SUB << 8) + BP_ADDITIVE;  /* MultiplicativeExpression */
+		args = (DUK_OP_SUB << 8) + DUK__BP_ADDITIVE;  /* MultiplicativeExpression */
 		goto binary;
 	}
 
@@ -42951,17 +43511,17 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 
 	case DUK_TOK_ALSHIFT: {
 		/* << */
-		args = (DUK_OP_BASL << 8) + BP_SHIFT;
+		args = (DUK_OP_BASL << 8) + DUK__BP_SHIFT;
 		goto binary;
 	}
 	case DUK_TOK_ARSHIFT: {
 		/* >> */
-		args = (DUK_OP_BASR << 8) + BP_SHIFT;
+		args = (DUK_OP_BASR << 8) + DUK__BP_SHIFT;
 		goto binary;
 	}
 	case DUK_TOK_RSHIFT: {
 		/* >>> */
-		args = (DUK_OP_BLSR << 8) + BP_SHIFT;
+		args = (DUK_OP_BLSR << 8) + DUK__BP_SHIFT;
 		goto binary;
 	}
 
@@ -42969,61 +43529,61 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 
 	case DUK_TOK_LT: {
 		/* < */
-		args = (DUK_OP_LT << 8) + BP_RELATIONAL;
+		args = (DUK_OP_LT << 8) + DUK__BP_RELATIONAL;
 		goto binary;
 	}
 	case DUK_TOK_GT: {
-		args = (DUK_OP_GT << 8) + BP_RELATIONAL;
+		args = (DUK_OP_GT << 8) + DUK__BP_RELATIONAL;
 		goto binary;
 	}
 	case DUK_TOK_LE: {
-		args = (DUK_OP_LE << 8) + BP_RELATIONAL;
+		args = (DUK_OP_LE << 8) + DUK__BP_RELATIONAL;
 		goto binary;
 	}
 	case DUK_TOK_GE: {
-		args = (DUK_OP_GE << 8) + BP_RELATIONAL;
+		args = (DUK_OP_GE << 8) + DUK__BP_RELATIONAL;
 		goto binary;
 	}
 	case DUK_TOK_INSTANCEOF: {
-		args = (DUK_OP_INSTOF << 8) + BP_RELATIONAL;
+		args = (DUK_OP_INSTOF << 8) + DUK__BP_RELATIONAL;
 		goto binary;
 	}
 	case DUK_TOK_IN: {
-		args = (DUK_OP_IN << 8) + BP_RELATIONAL;
+		args = (DUK_OP_IN << 8) + DUK__BP_RELATIONAL;
 		goto binary;
 	}
 
 	/* EQUALITY EXPRESSION */
 
 	case DUK_TOK_EQ: {
-		args = (DUK_OP_EQ << 8) + BP_EQUALITY;
+		args = (DUK_OP_EQ << 8) + DUK__BP_EQUALITY;
 		goto binary;
 	}
 	case DUK_TOK_NEQ: {
-		args = (DUK_OP_NEQ << 8) + BP_EQUALITY;
+		args = (DUK_OP_NEQ << 8) + DUK__BP_EQUALITY;
 		goto binary;
 	}
 	case DUK_TOK_SEQ: {
-		args = (DUK_OP_SEQ << 8) + BP_EQUALITY;
+		args = (DUK_OP_SEQ << 8) + DUK__BP_EQUALITY;
 		goto binary;
 	}
 	case DUK_TOK_SNEQ: {
-		args = (DUK_OP_SNEQ << 8) + BP_EQUALITY;
+		args = (DUK_OP_SNEQ << 8) + DUK__BP_EQUALITY;
 		goto binary;
 	}
 
 	/* BITWISE EXPRESSIONS */
 
 	case DUK_TOK_BAND: {
-		args = (DUK_OP_BAND << 8) + BP_BAND;
+		args = (DUK_OP_BAND << 8) + DUK__BP_BAND;
 		goto binary;
 	}
 	case DUK_TOK_BXOR: {
-		args = (DUK_OP_BXOR << 8) + BP_BXOR;
+		args = (DUK_OP_BXOR << 8) + DUK__BP_BXOR;
 		goto binary;
 	}
 	case DUK_TOK_BOR: {
-		args = (DUK_OP_BOR << 8) + BP_BOR;
+		args = (DUK_OP_BOR << 8) + DUK__BP_BOR;
 		goto binary;
 	}
 
@@ -43031,12 +43591,12 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 
 	case DUK_TOK_LAND: {
 		/* syntactically left-associative but parsed as right-associative */
-		args = (1 << 8) + BP_LAND - 1;
+		args = (1 << 8) + DUK__BP_LAND - 1;
 		goto binary_logical;
 	}
 	case DUK_TOK_LOR: {
 		/* syntactically left-associative but parsed as right-associative */
-		args = (0 << 8) + BP_LOR - 1;
+		args = (0 << 8) + DUK__BP_LOR - 1;
 		goto binary_logical;
 	}
 
@@ -43050,18 +43610,18 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 		int pc_jump1;
 		int pc_jump2;
 
-		reg_temp = ALLOCTEMP(comp_ctx);
+		reg_temp = DUK__ALLOCTEMP(comp_ctx);
 		ivalue_toforcedreg(comp_ctx, left, reg_temp);
 		emit_if_true_skip(comp_ctx, reg_temp);
 		pc_jump1 = emit_jump_empty(comp_ctx);  /* jump to false */
-		expr_toforcedreg(comp_ctx, res, BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);  /* AssignmentExpression */
+		expr_toforcedreg(comp_ctx, res, DUK__BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);  /* AssignmentExpression */
 		advance_expect(comp_ctx, DUK_TOK_COLON);
 		pc_jump2 = emit_jump_empty(comp_ctx);  /* jump to end */
 		patch_jump_here(comp_ctx, pc_jump1);
-		expr_toforcedreg(comp_ctx, res, BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);  /* AssignmentExpression */
+		expr_toforcedreg(comp_ctx, res, DUK__BP_COMMA /*rbp_flags*/, reg_temp /*forced_reg*/);  /* AssignmentExpression */
 		patch_jump_here(comp_ctx, pc_jump2);
 
-		SETTEMP(comp_ctx, reg_temp + 1);
+		DUK__SETTEMP(comp_ctx, reg_temp + 1);
 		res->t = DUK_IVAL_PLAIN;
 		res->x1.t = DUK_ISPEC_REGCONST;
 		res->x1.regconst = reg_temp;
@@ -43080,64 +43640,64 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 		 *  Right associativiness is reflected in the BP for recursion,
 		 *  "-1" ensures assignment operations are allowed.
 		 *
-		 *  FIXME: just use BP_COMMA (i.e. no need for 2-step bp levels)?
+		 *  FIXME: just use DUK__BP_COMMA (i.e. no need for 2-step bp levels)?
 		 */
-		args = (DUK_OP_INVALID << 8) + BP_ASSIGNMENT - 1;   /* DUK_OP_INVALID marks a 'plain' assignment */
+		args = (DUK_OP_INVALID << 8) + DUK__BP_ASSIGNMENT - 1;   /* DUK_OP_INVALID marks a 'plain' assignment */
 		goto assign;
 	}
 	case DUK_TOK_ADD_EQ: {
 		/* right associative */
-		args = (DUK_OP_ADD << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_ADD << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_SUB_EQ: {
 		/* right associative */
-		args = (DUK_OP_SUB << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_SUB << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_MUL_EQ: {
 		/* right associative */
-		args = (DUK_OP_MUL << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_MUL << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_DIV_EQ: {
 		/* right associative */
-		args = (DUK_OP_DIV << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_DIV << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_MOD_EQ: {
 		/* right associative */
-		args = (DUK_OP_MOD << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_MOD << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_ALSHIFT_EQ: {
 		/* right associative */
-		args = (DUK_OP_BASL << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_BASL << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_ARSHIFT_EQ: {
 		/* right associative */
-		args = (DUK_OP_BASR << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_BASR << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_RSHIFT_EQ: {
 		/* right associative */
-		args = (DUK_OP_BLSR << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_BLSR << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_BAND_EQ: {
 		/* right associative */
-		args = (DUK_OP_BAND << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_BAND << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_BOR_EQ: {
 		/* right associative */
-		args = (DUK_OP_BOR << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_BOR << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 	case DUK_TOK_BXOR_EQ: {
 		/* right associative */
-		args = (DUK_OP_BXOR << 8) + BP_ASSIGNMENT - 1;
+		args = (DUK_OP_BXOR << 8) + DUK__BP_ASSIGNMENT - 1;
 		goto assign;
 	}
 
@@ -43147,7 +43707,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 		/* right associative */
 
 		ivalue_toplain_ignore(comp_ctx, left);  /* need side effects, not value */
-		expr_toplain(comp_ctx, res, BP_COMMA - 1 /*rbp_flags*/);
+		expr_toplain(comp_ctx, res, DUK__BP_COMMA - 1 /*rbp_flags*/);
 
 		/* return 'res' (of right part) as our result */
 		return;
@@ -43227,7 +43787,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 
 		/* FIXME: unoptimal use of temps, resetting */
 
-		reg_temp = ALLOCTEMP(comp_ctx);
+		reg_temp = DUK__ALLOCTEMP(comp_ctx);
 
 		ivalue_toforcedreg(comp_ctx, left, reg_temp);
 		emit_a_b(comp_ctx, DUK_OP_IF, args_truthval, reg_temp);  /* skip jump conditionally */
@@ -43293,7 +43853,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 			if (args_op == DUK_OP_INVALID) {
 				reg_res = res->x1.regconst;
 			} else {
-				reg_temp = ALLOCTEMP(comp_ctx);
+				reg_temp = DUK__ALLOCTEMP(comp_ctx);
 				if (reg_varbind >= 0) {
 					emit_a_b_c(comp_ctx, args_op, reg_temp, reg_varbind, res->x1.regconst);
 				} else {
@@ -43313,8 +43873,8 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 				 * just use 9 bits for reg_res (and support constants) and 17
 				 * instead of 18 bits for the varname const index.
 				 */
-				if (ISCONST(comp_ctx, reg_res)) {
-					reg_temp = ALLOCTEMP(comp_ctx);
+				if (DUK__ISCONST(comp_ctx, reg_res)) {
+					reg_temp = DUK__ALLOCTEMP(comp_ctx);
 					emit_a_bc(comp_ctx, DUK_OP_LDCONST, reg_temp, reg_res);
 					reg_res = reg_temp;
 				}
@@ -43339,12 +43899,12 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 			 */
 
 			reg_obj = ispec_toregconst_raw(comp_ctx, &left->x1, -1 /*forced_reg*/, 0 /*flags*/);  /* don't allow const */
-			reg_key = ispec_toregconst_raw(comp_ctx, &left->x2, -1 /*forced_reg*/, IVAL_FLAG_ALLOW_CONST /*flags*/);
+			reg_key = ispec_toregconst_raw(comp_ctx, &left->x2, -1 /*forced_reg*/, DUK__IVAL_FLAG_ALLOW_CONST /*flags*/);
 	
 			if (args_op == DUK_OP_INVALID) {
 				reg_res = res->x1.regconst;
 			} else {
-				reg_temp = ALLOCTEMP(comp_ctx);
+				reg_temp = DUK__ALLOCTEMP(comp_ctx);
 				emit_a_b_c(comp_ctx, DUK_OP_GETPROP, reg_temp, reg_obj, reg_key);
 				emit_a_b_c(comp_ctx, args_op, reg_temp, reg_temp, res->x1.regconst);
 				reg_res = reg_temp;
@@ -43404,7 +43964,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 		int reg_res;
 		int args_op = args >> 8;
 
-		reg_res = ALLOCTEMP(comp_ctx);
+		reg_res = DUK__ALLOCTEMP(comp_ctx);
 
 		if (left->t == DUK_IVAL_VAR) {
 			duk_hstring *h_varname;
@@ -43424,7 +43984,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 				emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_TONUM, reg_res, reg_res);
 				emit_a_b(comp_ctx, args_op, reg_varbind, reg_res);
 			} else {
-				int reg_temp = ALLOCTEMP(comp_ctx);
+				int reg_temp = DUK__ALLOCTEMP(comp_ctx);
 				emit_a_bc(comp_ctx, DUK_OP_GETVAR, reg_res, reg_varname);
 				emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_TONUM, reg_res, reg_res);
 				emit_a_b(comp_ctx, args_op, reg_temp, reg_res);
@@ -43436,9 +43996,9 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 		} else if (left->t == DUK_IVAL_PROP) {
 			int reg_obj;  /* allocate to reg only (not const) */
 			int reg_key;
-			int reg_temp = ALLOCTEMP(comp_ctx);
+			int reg_temp = DUK__ALLOCTEMP(comp_ctx);
 			reg_obj = ispec_toregconst_raw(comp_ctx, &left->x1, -1 /*forced_reg*/, 0 /*flags*/);  /* don't allow const */
-			reg_key = ispec_toregconst_raw(comp_ctx, &left->x2, -1 /*forced_reg*/, IVAL_FLAG_ALLOW_CONST /*flags*/);
+			reg_key = ispec_toregconst_raw(comp_ctx, &left->x2, -1 /*forced_reg*/, DUK__IVAL_FLAG_ALLOW_CONST /*flags*/);
 			emit_a_b_c(comp_ctx, DUK_OP_GETPROP, reg_res, reg_obj, reg_key);
 			emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_TONUM, reg_res, reg_res);
 			emit_a_b(comp_ctx, args_op, reg_temp, reg_res);
@@ -43456,7 +44016,7 @@ static void expr_led(duk_compiler_ctx *comp_ctx, duk_ivalue *left, duk_ivalue *r
 		res->t = DUK_IVAL_PLAIN;
 		res->x1.t = DUK_ISPEC_REGCONST;
 		res->x1.regconst = reg_res;
-		SETTEMP(comp_ctx, reg_res + 1);
+		DUK__SETTEMP(comp_ctx, reg_res + 1);
 		return;
 	}
 
@@ -43495,7 +44055,7 @@ static int expr_lbp(duk_compiler_ctx *comp_ctx) {
 		return 0;
 	}
 
-	return TOKEN_LBP_GET_BP(token_lbp[tok]);  /* format is bit packed */
+	return DUK__TOKEN_LBP_GET_BP(token_lbp[tok]);  /* format is bit packed */
 }
 
 /*
@@ -43507,9 +44067,9 @@ static int expr_lbp(duk_compiler_ctx *comp_ctx) {
  *  statement).
  */
 
-#define EXPR_RBP_MASK           0xff
-#define EXPR_FLAG_REJECT_IN     (1 << 8)
-#define EXPR_FLAG_ALLOW_EMPTY   (1 << 9)
+#define DUK__EXPR_RBP_MASK           0xff
+#define DUK__EXPR_FLAG_REJECT_IN     (1 << 8)
+#define DUK__EXPR_FLAG_ALLOW_EMPTY   (1 << 9)
 
 /* main expression parser function */
 static void expr(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int rbp_flags) {
@@ -43519,12 +44079,12 @@ static void expr(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int rbp_flags) {
 	duk_ivalue *tmp = &tmp_alloc;
 	int rbp;
 
-	RECURSION_INCREASE(comp_ctx, thr);
+	DUK__RECURSION_INCREASE(comp_ctx, thr);
 
-	duk_require_stack(ctx, PARSE_EXPR_SLOTS);
+	duk_require_stack(ctx, DUK__PARSE_EXPR_SLOTS);
 
 	/* filter out flags from exprtop rbp_flags here to save space */
-	rbp = rbp_flags & EXPR_RBP_MASK;
+	rbp = rbp_flags & DUK__EXPR_RBP_MASK;
 
 	DUK_DDDPRINT("expr(), rbp_flags=%d, rbp=%d, allow_in=%d, paren_level=%d",
 	             rbp_flags, rbp, comp_ctx->curr_func.allow_in, comp_ctx->curr_func.paren_level);
@@ -43547,7 +44107,7 @@ static void expr(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int rbp_flags) {
 	if (comp_ctx->curr_token.t == DUK_TOK_SEMICOLON || comp_ctx->curr_token.t == DUK_TOK_RPAREN) {
 		/* FIXME: incorrect hack for testing */
 		DUK_DDDPRINT("empty expression");
-		if (!(rbp_flags & EXPR_FLAG_ALLOW_EMPTY)) {
+		if (!(rbp_flags & DUK__EXPR_FLAG_ALLOW_EMPTY)) {
 			DUK_ERROR(thr, DUK_ERR_SYNTAX_ERROR, "empty expression not allowed");
 		}
 		res->t = DUK_IVAL_PLAIN;
@@ -43570,7 +44130,7 @@ static void expr(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int rbp_flags) {
 
 	duk_pop_2(ctx);
 
-	RECURSION_DECREASE(comp_ctx, thr);
+	DUK__RECURSION_DECREASE(comp_ctx, thr);
 }
 
 static void exprtop(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int rbp_flags) {
@@ -43583,11 +44143,11 @@ static void exprtop(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int rbp_flags) 
 	comp_ctx->curr_func.led_count = 0;
 	comp_ctx->curr_func.paren_level = 0;
 	comp_ctx->curr_func.expr_lhs = 1;
-	comp_ctx->curr_func.allow_in = (rbp_flags & EXPR_FLAG_REJECT_IN ? 0 : 1);
+	comp_ctx->curr_func.allow_in = (rbp_flags & DUK__EXPR_FLAG_REJECT_IN ? 0 : 1);
 
 	expr(comp_ctx, res, rbp_flags);
 
-	if (!(rbp_flags & EXPR_FLAG_ALLOW_EMPTY) && expr_is_empty(comp_ctx)) {
+	if (!(rbp_flags & DUK__EXPR_FLAG_ALLOW_EMPTY) && expr_is_empty(comp_ctx)) {
 		DUK_ERROR(thr, DUK_ERR_SYNTAX_ERROR, "empty expression not allowed");
 	}
 }
@@ -43673,27 +44233,27 @@ static void exprtop_toplain_ignore(duk_compiler_ctx *comp_ctx, duk_ivalue *res, 
  *  the token after the terminator).
  */
 
-#ifdef HAS_VAL
-#undef HAS_VAL
+#ifdef DUK__HAS_VAL
+#undef DUK__HAS_VAL
 #endif
-#ifdef HAS_TERM
-#undef HAS_TERM
+#ifdef DUK__HAS_TERM
+#undef DUK__HAS_TERM
 #endif
-#ifdef ALLOW_AUTO_SEMI_ALWAYS
-#undef ALLOW_AUTO_SEMI_ALWAYS
+#ifdef DUK__ALLOW_AUTO_SEMI_ALWAYS
+#undef DUK__ALLOW_AUTO_SEMI_ALWAYS
 #endif
-#ifdef STILL_PROLOGUE
-#undef STILL_PROLOGUE
+#ifdef DUK__STILL_PROLOGUE
+#undef DUK__STILL_PROLOGUE
 #endif
-#ifdef IS_TERMINAL
-#undef IS_TERMINAL
+#ifdef DUK__IS_TERMINAL
+#undef DUK__IS_TERMINAL
 #endif
 
-#define HAS_VAL                  (1 << 0)  /* stmt has non-empty value */
-#define HAS_TERM                 (1 << 1)  /* stmt has explicit/implicit semicolon terminator */
-#define ALLOW_AUTO_SEMI_ALWAYS   (1 << 2)  /* allow automatic semicolon even without lineterm (compatibility) */
-#define STILL_PROLOGUE           (1 << 3)  /* statement does not terminate directive prologue */
-#define IS_TERMINAL              (1 << 4)  /* statement is guaranteed to be terminal (control doesn't flow to next statement) */
+#define DUK__HAS_VAL                  (1 << 0)  /* stmt has non-empty value */
+#define DUK__HAS_TERM                 (1 << 1)  /* stmt has explicit/implicit semicolon terminator */
+#define DUK__ALLOW_AUTO_SEMI_ALWAYS   (1 << 2)  /* allow automatic semicolon even without lineterm (compatibility) */
+#define DUK__STILL_PROLOGUE           (1 << 3)  /* statement does not terminate directive prologue */
+#define DUK__IS_TERMINAL              (1 << 4)  /* statement is guaranteed to be terminal (control doesn't flow to next statement) */
 
 /* Parse a single variable declaration (e.g. "i" or "i=10").  A leading 'var'
  * has already been eaten.  These is no return value in 'res', it is used only
@@ -43701,7 +44261,7 @@ static void exprtop_toplain_ignore(duk_compiler_ctx *comp_ctx, duk_ivalue *res, 
  *
  * When called from 'for-in' statement parser, the initializer expression must
  * not allow the 'in' token.  The caller supply additional expression parsing
- * flags (like EXPR_FLAG_REJECT_IN) in 'expr_flags'.
+ * flags (like DUK__EXPR_FLAG_REJECT_IN) in 'expr_flags'.
  *
  * Finally, out_reg_varname and out_reg_varbind are updated to reflect where
  * the identifier is bound:
@@ -43760,7 +44320,7 @@ static void parse_variable_declaration(duk_compiler_ctx *comp_ctx, duk_ivalue *r
 		DUK_DDDPRINT("vardecl, assign to '%!O' -> reg_varbind=%d, reg_varname=%d",
 		             h_varname, reg_varbind, reg_varname);
 
-		exprtop(comp_ctx, res, BP_COMMA | expr_flags /*rbp_flags*/);  /* AssignmentExpression */
+		exprtop(comp_ctx, res, DUK__BP_COMMA | expr_flags /*rbp_flags*/);  /* AssignmentExpression */
 
 		if (reg_varbind >= 0) {
 			ivalue_toforcedreg(comp_ctx, res, reg_varbind);
@@ -43814,9 +44374,9 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 	 * Variants 1 and 2 "release" these temps.
 	 */
 
-	reg_temps = ALLOCTEMPS(comp_ctx, 2);
+	reg_temps = DUK__ALLOCTEMPS(comp_ctx, 2);
 
-	temp_reset = GETTEMP(comp_ctx);
+	temp_reset = DUK__GETTEMP(comp_ctx);
 
 	/*
 	 *  For/for-in main variants are:
@@ -43851,8 +44411,8 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 		int reg_varbind;  /* variable binding register if register-bound (otherwise < 0) */
 
 		advance(comp_ctx);  /* eat 'var' */
-		parse_variable_declaration(comp_ctx, res, EXPR_FLAG_REJECT_IN, &reg_varname, &reg_varbind);
-		SETTEMP(comp_ctx, temp_reset);
+		parse_variable_declaration(comp_ctx, res, DUK__EXPR_FLAG_REJECT_IN, &reg_varname, &reg_varbind);
+		DUK__SETTEMP(comp_ctx, temp_reset);
 
 		if (comp_ctx->curr_token.t == DUK_TOK_IN) {
 			/*
@@ -43881,7 +44441,7 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 				DUK_DDDPRINT("variant 2 has another variable initializer");
 
 				advance(comp_ctx);  /* eat comma */
-				parse_variable_declaration(comp_ctx, res, EXPR_FLAG_REJECT_IN, &reg_varname, &reg_varbind);
+				parse_variable_declaration(comp_ctx, res, DUK__EXPR_FLAG_REJECT_IN, &reg_varname, &reg_varbind);
 			}
 			goto parse_1_or_2;
 		}
@@ -43896,7 +44456,7 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 		 * so any loop variables (e.g. enumerator) must be *preallocated* ... */
 
 		/* don't coerce yet to a plain value (variant 3 needs special handling) */
-		exprtop(comp_ctx, res, BP_FOR_EXPR | EXPR_FLAG_REJECT_IN | EXPR_FLAG_ALLOW_EMPTY /*rbp_flags*/);  /* Expression */
+		exprtop(comp_ctx, res, DUK__BP_FOR_EXPR | DUK__EXPR_FLAG_REJECT_IN | DUK__EXPR_FLAG_ALLOW_EMPTY /*rbp_flags*/);  /* Expression */
 		if (comp_ctx->curr_token.t == DUK_TOK_IN) {
 			/*
 			 *  Variant 3
@@ -43925,7 +44485,7 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 				int reg_obj;
 				int reg_key;
 				reg_obj = ispec_toregconst_raw(comp_ctx, &res->x1, -1 /*forced_reg*/, 0 /*flags*/);  /* don't allow const */
-				reg_key = ispec_toregconst_raw(comp_ctx, &res->x2, -1 /*forced_reg*/, IVAL_FLAG_ALLOW_CONST /*flags*/);
+				reg_key = ispec_toregconst_raw(comp_ctx, &res->x2, -1 /*forced_reg*/, DUK__IVAL_FLAG_ALLOW_CONST /*flags*/);
 				emit_a_b_c(comp_ctx, DUK_OP_PUTPROP, reg_obj, reg_key, reg_temps + 0);
 			} else {
 				ivalue_toplain_ignore(comp_ctx, res);  /* just in case */
@@ -43961,12 +44521,12 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 
 		/* "release" preallocated temps since we won't need them */
 		temp_reset = reg_temps + 0;
-		SETTEMP(comp_ctx, temp_reset);
+		DUK__SETTEMP(comp_ctx, temp_reset);
 
 		advance_expect(comp_ctx, DUK_TOK_SEMICOLON);
 
 		pc_l1 = get_current_pc(comp_ctx);
-		exprtop(comp_ctx, res, BP_FOR_EXPR | EXPR_FLAG_ALLOW_EMPTY /*rbp_flags*/);  /* Expression_opt */
+		exprtop(comp_ctx, res, DUK__BP_FOR_EXPR | DUK__EXPR_FLAG_ALLOW_EMPTY /*rbp_flags*/);  /* Expression_opt */
 		if (expr_is_empty(comp_ctx)) {
 			/* no need to coerce */
 			pc_jumpto_l3 = emit_jump_empty(comp_ctx);  /* to body */
@@ -43977,12 +44537,12 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 			pc_jumpto_l3 = emit_jump_empty(comp_ctx);  /* to body */
 			pc_jumpto_l4 = emit_jump_empty(comp_ctx);  /* to exit */
 		}
-		SETTEMP(comp_ctx, temp_reset);
+		DUK__SETTEMP(comp_ctx, temp_reset);
 
 		advance_expect(comp_ctx, DUK_TOK_SEMICOLON);
 
 		pc_l2 = get_current_pc(comp_ctx);
-		exprtop(comp_ctx, res, BP_FOR_EXPR | EXPR_FLAG_ALLOW_EMPTY /*rbp_flags*/);  /* Expression_opt */
+		exprtop(comp_ctx, res, DUK__BP_FOR_EXPR | DUK__EXPR_FLAG_ALLOW_EMPTY /*rbp_flags*/);  /* Expression_opt */
 		if (expr_is_empty(comp_ctx)) {
 			/* no need to coerce */
 			expr_c_empty = 1;
@@ -43992,7 +44552,7 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 			expr_c_empty = 0;
 			emit_jump(comp_ctx, pc_l1);
 		}
-		SETTEMP(comp_ctx, temp_reset);
+		DUK__SETTEMP(comp_ctx, temp_reset);
 
 		advance_expect(comp_ctx, DUK_TOK_RPAREN);
 
@@ -44014,8 +44574,12 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 
 		patch_jump(comp_ctx, pc_jumpto_l3, pc_l3);
 		patch_jump(comp_ctx, pc_jumpto_l4, pc_l4);
-		patch_jump(comp_ctx, pc_label_site + 1, pc_l4);  /* break jump */
-		patch_jump(comp_ctx, pc_label_site + 2, pc_l2);  /* continue jump */
+		patch_jump(comp_ctx,
+		           pc_label_site + 1,
+		           pc_l4);                         /* break jump */
+		patch_jump(comp_ctx,
+		           pc_label_site + 2,
+		           expr_c_empty ? pc_l1 : pc_l2);  /* continue jump */
 	}
 	goto finished;
 
@@ -44045,7 +44609,7 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 
 		DUK_DDDPRINT("shared code for parsing variants 3 and 4, pc_v34_lhs=%d", pc_v34_lhs);
 
-		SETTEMP(comp_ctx, temp_reset);
+		DUK__SETTEMP(comp_ctx, temp_reset);
 
 		/* First we need to insert a jump in the middle of previously
 		 * emitted code to get the control flow right.  No jumps can
@@ -44073,10 +44637,10 @@ static void parse_for_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int
 	 	 */
 
 		pc_l2 = get_current_pc(comp_ctx);
-		reg_target = exprtop_toreg(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);  /* Expression */
+		reg_target = exprtop_toreg(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);  /* Expression */
 		emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_INITENUM, reg_temps + 1, reg_target);
 		pc_jumpto_l4 = emit_jump_empty(comp_ctx);
-		SETTEMP(comp_ctx, temp_reset);
+		DUK__SETTEMP(comp_ctx, temp_reset);
 
 		advance_expect(comp_ctx, DUK_TOK_RPAREN);
 
@@ -44158,21 +44722,28 @@ static void parse_switch_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, 
 
 	advance(comp_ctx);
 	advance_expect(comp_ctx, DUK_TOK_LPAREN);
-	reg_switch = exprtop_toregconst(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+	reg_switch = exprtop_toregconst(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 	advance_expect(comp_ctx, DUK_TOK_RPAREN);
 	advance_expect(comp_ctx, DUK_TOK_LCURLY);
 
 	DUK_DDDPRINT("switch value in register %d", reg_switch);
 
-	temp_at_loop = GETTEMP(comp_ctx);
+	temp_at_loop = DUK__GETTEMP(comp_ctx);
 
 	for (;;) {
+		int num_stmts;
+		int tok;
+
 		/* sufficient for keeping temp reg numbers in check */
-		SETTEMP(comp_ctx, temp_at_loop);
+		DUK__SETTEMP(comp_ctx, temp_at_loop);
 
 		if (comp_ctx->curr_token.t == DUK_TOK_RCURLY) {
 			break;
 		}
+
+		/*
+		 *  Parse a case or default clause.
+		 */
 
 		if (comp_ctx->curr_token.t == DUK_TOK_CASE) {
 			/*
@@ -44187,10 +44758,10 @@ static void parse_switch_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, 
 			                                          */
 
 			advance(comp_ctx);
-			reg_case = exprtop_toregconst(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+			reg_case = exprtop_toregconst(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 			advance_expect(comp_ctx, DUK_TOK_COLON);
 
-			reg_temp = ALLOCTEMP(comp_ctx);
+			reg_temp = DUK__ALLOCTEMP(comp_ctx);
 			emit_a_b_c(comp_ctx, DUK_OP_SEQ, reg_temp, reg_switch, reg_case);
 			emit_if_true_skip(comp_ctx, reg_temp);
 
@@ -44212,49 +44783,55 @@ static void parse_switch_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, 
 			/* default clause matches next statement list (if any) */
 			pc_default = -2;
 		} else {
-			/*
-			 *  Else must be a statement list, possible terminators are
-			 *  'case', 'default', and '}'.
-			 */
-
-			int num_stmts = 0;
-			int tok;
-
-			if (pc_default == -2) {
-				pc_default = get_current_pc(comp_ctx);
-			}
-
-			/* Note: this is correct even for default clause statements:
-			 * they participate in 'fall-through' behavior even if the
-			 * default clause is in the middle.
-			 */
-			patch_jump_here(comp_ctx, pc_prevstmt);  /* chain jumps for 'fall-through'
-			                                          * after a case matches.
-			                                          */
-
-			for (;;) {
-				tok = comp_ctx->curr_token.t;
-				if (tok == DUK_TOK_CASE || tok == DUK_TOK_DEFAULT ||
-				    tok == DUK_TOK_RCURLY) {
-					break;
-				}
-				num_stmts++;
-				parse_statement(comp_ctx, res, 0 /*allow_source_elem*/);
-			}
-
-			/* fall-through jump to next code of next case (backpatched) */
-			pc_prevstmt = emit_jump_empty(comp_ctx);
-
-			/* FIXME: would be nice to omit this jump when the jump is not
-			 * reachable, at least in the obvious cases (such as the case
-			 * ending with a 'break'.
-			 *
-			 * Perhaps parse_statement() could provide some info on whether
-			 * the statement is a "dead end"?
-			 *
-			 * If implemented, just set pc_prevstmt to -1 when not needed.
-			 */
+			/* Code is not accepted before the first case/default clause */
+			goto syntax_error;
 		}
+
+		/*
+		 *  Parse code after the clause.  Possible terminators are
+		 *  'case', 'default', and '}'.
+		 *
+		 *  Note that there may be no code at all, not even an empty statement,
+		 *  between case clauses.  This must be handled just like an empty statement
+		 *  (omitting seemingly pointless JUMPs), to avoid situations like
+		 *  test-bug-case-fallthrough.js.
+		 */
+
+		num_stmts = 0;
+		if (pc_default == -2) {
+			pc_default = get_current_pc(comp_ctx);
+		}
+
+		/* Note: this is correct even for default clause statements:
+		 * they participate in 'fall-through' behavior even if the
+		 * default clause is in the middle.
+		 */
+		patch_jump_here(comp_ctx, pc_prevstmt);  /* chain jumps for 'fall-through'
+		                                          * after a case matches.
+		                                          */
+
+		for (;;) {
+			tok = comp_ctx->curr_token.t;
+			if (tok == DUK_TOK_CASE || tok == DUK_TOK_DEFAULT ||
+			    tok == DUK_TOK_RCURLY) {
+				break;
+			}
+			num_stmts++;
+			parse_statement(comp_ctx, res, 0 /*allow_source_elem*/);
+		}
+
+		/* fall-through jump to next code of next case (backpatched) */
+		pc_prevstmt = emit_jump_empty(comp_ctx);
+
+		/* FIXME: would be nice to omit this jump when the jump is not
+		 * reachable, at least in the obvious cases (such as the case
+		 * ending with a 'break'.
+		 *
+		 * Perhaps parse_statement() could provide some info on whether
+		 * the statement is a "dead end"?
+		 *
+		 * If implemented, just set pc_prevstmt to -1 when not needed.
+		 */
 	}
 
 	DUK_ASSERT(comp_ctx->curr_token.t == DUK_TOK_RCURLY);
@@ -44300,15 +44877,15 @@ static void parse_if_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 
 	DUK_DDDPRINT("begin parsing if statement");
 
-	temp_reset = GETTEMP(comp_ctx);
+	temp_reset = DUK__GETTEMP(comp_ctx);
 
 	advance(comp_ctx);  /* eat 'if' */
 	advance_expect(comp_ctx, DUK_TOK_LPAREN);
 
-	reg_cond = exprtop_toregconst(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+	reg_cond = exprtop_toregconst(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 	emit_if_true_skip(comp_ctx, reg_cond);
 	pc_jump_false = emit_jump_empty(comp_ctx);  /* jump to end or else part */
-	SETTEMP(comp_ctx, temp_reset);
+	DUK__SETTEMP(comp_ctx, temp_reset);
 
 	advance_expect(comp_ctx, DUK_TOK_RPAREN);
 
@@ -44355,7 +44932,7 @@ static void parse_do_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int 
 	advance_expect(comp_ctx, DUK_TOK_WHILE);
 	advance_expect(comp_ctx, DUK_TOK_LPAREN);
 
-	reg_cond = exprtop_toregconst(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+	reg_cond = exprtop_toregconst(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 	emit_if_false_skip(comp_ctx, reg_cond);
 	emit_jump(comp_ctx, pc_start);
 	/* no need to reset temps, as we're finished emitting code */
@@ -44375,7 +44952,7 @@ static void parse_while_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, i
 
 	DUK_DDDPRINT("begin parsing while statement");
 
-	temp_reset = GETTEMP(comp_ctx);
+	temp_reset = DUK__GETTEMP(comp_ctx);
 
 	advance(comp_ctx);  /* eat 'while' */
 
@@ -44384,10 +44961,10 @@ static void parse_while_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, i
 	pc_start = get_current_pc(comp_ctx);
 	patch_jump_here(comp_ctx, pc_label_site + 2);  /* continue jump */
 
-	reg_cond = exprtop_toregconst(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+	reg_cond = exprtop_toregconst(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 	emit_if_true_skip(comp_ctx, reg_cond);
 	pc_jump_false = emit_jump_empty(comp_ctx);
-	SETTEMP(comp_ctx, temp_reset);
+	DUK__SETTEMP(comp_ctx, temp_reset);
 
 	advance_expect(comp_ctx, DUK_TOK_RPAREN);
 
@@ -44489,7 +45066,7 @@ static void parse_return_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res) 
 		DUK_DDDPRINT("return with a value");
 
 		pc_before_expr = get_current_pc(comp_ctx);
-		reg_val = exprtop_toregconst(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+		reg_val = exprtop_toregconst(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 		pc_after_expr = get_current_pc(comp_ctx);
 
 		/* Tail call check: if last opcode emitted was CALL, and
@@ -44538,13 +45115,13 @@ static void parse_throw_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	    comp_ctx->curr_token.lineterm ||                /* automatic semi will be inserted */
 	    comp_ctx->curr_token.allow_auto_semi) {         /* automatic semi will be inserted */
 		DUK_DDDPRINT("empty throw value -> undefined");
-		reg_val = ALLOCTEMP(comp_ctx);
+		reg_val = DUK__ALLOCTEMP(comp_ctx);
 		emit_extraop_bc(comp_ctx, DUK_EXTRAOP_LDUNDEF, reg_val);
 	} else {
 		DUK_DDDPRINT("throw with a value");
 
 		/* FIXME: currently must be a register, not a const */
-		reg_val = exprtop_toreg(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+		reg_val = exprtop_toreg(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 	}
 
 	emit_extraop_b_c(comp_ctx, DUK_EXTRAOP_THROW, reg_val, 0);
@@ -44581,7 +45158,7 @@ static void parse_try_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 
 	advance(comp_ctx);  /* eat 'try' */
 
-	reg_catch = ALLOCTEMPS(comp_ctx, 2);
+	reg_catch = DUK__ALLOCTEMPS(comp_ctx, 2);
 
 	pc_trycatch = get_current_pc(comp_ctx);
 	emit_invalid(comp_ctx);  /* TRYCATCH, cannot emit know (not enough info) */
@@ -44609,7 +45186,7 @@ static void parse_try_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 		 *  within the catch clause work correctly.  This restriction should
 		 *  be fixable (at least in common cases) later.
 		 *
-		 *  See: test-dev-bug-catch-binding-2.js.
+		 *  See: test-bug-catch-binding-2.js.
 		 *
 		 *  FIXME: improve to get fast path access to most catch clauses.
 		 */
@@ -44763,12 +45340,16 @@ static void parse_with_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res) {
 	int reg_target;
 	int trycatch_flags;
 
+	if (comp_ctx->curr_func.is_strict) {
+		DUK_ERROR(comp_ctx->thr, DUK_ERR_SYNTAX_ERROR, "with stmt in strict mode");
+	}
+
 	advance(comp_ctx);  /* eat 'with' */
 
-	reg_catch = ALLOCTEMPS(comp_ctx, 2);
+	reg_catch = DUK__ALLOCTEMPS(comp_ctx, 2);
 
 	advance_expect(comp_ctx, DUK_TOK_LPAREN);
-	reg_target = exprtop_toregconst(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+	reg_target = exprtop_toregconst(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 	advance_expect(comp_ctx, DUK_TOK_RPAREN);
 
 	pc_trycatch = get_current_pc(comp_ctx);
@@ -44818,9 +45399,9 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	int label_id = -1;
 	int tok;
 
-	RECURSION_INCREASE(comp_ctx, thr);
+	DUK__RECURSION_INCREASE(comp_ctx, thr);
 
-	temp_at_entry = GETTEMP(comp_ctx);
+	temp_at_entry = DUK__GETTEMP(comp_ctx);
 	pc_at_entry = get_current_pc(comp_ctx);
 	labels_len_at_entry = duk_get_length(ctx, comp_ctx->curr_func.labelnames_idx);
 	stmt_id = comp_ctx->curr_func.stmt_next++;
@@ -44876,10 +45457,21 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 		 *  the top level (in "source elements").  An ExpressionStatement
 		 *  is explicitly not allowed to begin with a "function" keyword
 		 *  (E5 Section 12.4).  Hence any non-error semantics for such
-		 *  non-top-level statements are non-standard.
+		 *  non-top-level statements are non-standard.  Duktape semantics
+		 *  for function statements are modelled after V8, see
+		 *  test-dev-func-decl-outside-top.js.
 		 */
 
-		if (allow_source_elem) {
+#if defined(DUK_USE_FUNC_STMT)
+		/* Lenient: allow function declarations outside top level in
+		 * non-strict mode but reject them in strict mode.
+		 */
+		if (allow_source_elem || !comp_ctx->curr_func.is_strict)
+#else
+		/* Strict: never allow function declarations outside top level. */
+		if (allow_source_elem)
+#endif
+		{
 			/* FunctionDeclaration: not strictly a statement but handled as such */
 			int fnum;
 
@@ -44911,24 +45503,8 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 			stmt_flags = 0;
 			break;
 		} else {
-			/* FIXME: add support for non-standard function statements and/or
-			 * non-top-level function expressions.
-			 */
-
-			if (1) {
-				/* Standard behavior */
-				DUK_ERROR(thr, DUK_ERR_SYNTAX_ERROR, "function declaration not allowed outside of top level");
-			} else if (0) {
-				/* Non-standard: interpret as a function expression inside an ExpressionStatement */
-				DUK_DDDPRINT("function expression (inside an expression statement; non-standard)");
-				stmt_flags = (HAS_VAL);  /* FIXME -- e.g. HAS_TERM? */
-			} else if (0) {
-				/* Non-standard: interpret as a function statement */
-				DUK_DDDPRINT("function statement (non-standard)");
-				stmt_flags = 0;  /* FIXME */
-			}
+			DUK_ERROR(thr, DUK_ERR_SYNTAX_ERROR, "function declaration outside top level");
 		}
-		DUK_ERROR(thr, DUK_ERR_UNIMPLEMENTED_ERROR, "non-standard function expression/statement unimplemented");
 		break;
 	}
 	case DUK_TOK_LCURLY: {
@@ -44942,13 +45518,13 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	case DUK_TOK_VAR: {
 		DUK_DDDPRINT("variable declaration statement");
 		parse_var_statement(comp_ctx, res);
-		stmt_flags = HAS_TERM;
+		stmt_flags = DUK__HAS_TERM;
 		break;
 	}
 	case DUK_TOK_SEMICOLON: {
 		/* empty statement with an explicit semicolon */
 		DUK_DDDPRINT("empty statement");
-		stmt_flags = HAS_TERM;
+		stmt_flags = DUK__HAS_TERM;
 		break;
 	}
 	case DUK_TOK_IF: {
@@ -44961,7 +45537,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 		/*
 		 *  Do-while statement is mostly trivial, but there is special
 		 *  handling for automatic semicolon handling (triggered by the
-		 *  ALLOW_AUTO_SEMI_ALWAYS) flag related to a bug filed at:
+		 *  DUK__ALLOW_AUTO_SEMI_ALWAYS) flag related to a bug filed at:
 		 *
 		 *    https://bugs.ecmascript.org/show_bug.cgi?id=8
 		 *
@@ -44973,7 +45549,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 		                   label_id,
 		                   DUK_LABEL_FLAG_ALLOW_BREAK | DUK_LABEL_FLAG_ALLOW_CONTINUE);
 		parse_do_statement(comp_ctx, res, pc_at_entry);
-		stmt_flags = HAS_TERM | ALLOW_AUTO_SEMI_ALWAYS;  /* ALLOW_AUTO_SEMI_ALWAYS workaround */
+		stmt_flags = DUK__HAS_TERM | DUK__ALLOW_AUTO_SEMI_ALWAYS;  /* DUK__ALLOW_AUTO_SEMI_ALWAYS workaround */
 		break;
 	}
 	case DUK_TOK_WHILE: {
@@ -45007,13 +45583,13 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	case DUK_TOK_BREAK: {
 		DUK_DDDPRINT("break/continue statement");
 		parse_break_or_continue_statement(comp_ctx, res);
-		stmt_flags = HAS_TERM | IS_TERMINAL;
+		stmt_flags = DUK__HAS_TERM | DUK__IS_TERMINAL;
 		break;
 	}
 	case DUK_TOK_RETURN: {
 		DUK_DDDPRINT("return statement");
 		parse_return_statement(comp_ctx, res);
-		stmt_flags = HAS_TERM | IS_TERMINAL;
+		stmt_flags = DUK__HAS_TERM | DUK__IS_TERMINAL;
 		break;
 	}
 	case DUK_TOK_WITH: {
@@ -45041,7 +45617,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	case DUK_TOK_THROW: {
 		DUK_DDDPRINT("throw statement");
 		parse_throw_statement(comp_ctx, res);
-		stmt_flags = HAS_TERM | IS_TERMINAL;
+		stmt_flags = DUK__HAS_TERM | DUK__IS_TERMINAL;
 		break;
 	}
 	case DUK_TOK_TRY: {
@@ -45053,7 +45629,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	case DUK_TOK_DEBUGGER: {
 		DUK_DDDPRINT("debugger statement: ignored");
 		advance(comp_ctx);
-		stmt_flags = HAS_TERM;
+		stmt_flags = DUK__HAS_TERM;
 		break;
 	}
 	default: {
@@ -45093,7 +45669,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 		int single_token;
 
 		DUK_DDDPRINT("expression statement");
-		exprtop(comp_ctx, res, BP_FOR_EXPR /*rbp_flags*/);
+		exprtop(comp_ctx, res, DUK__BP_FOR_EXPR /*rbp_flags*/);
 
 		single_token = (comp_ctx->curr_func.nud_count == 1 &&  /* one token */
 		                comp_ctx->curr_func.led_count == 0);   /* no operators */
@@ -45152,7 +45728,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 			h_dir = comp_ctx->prev_token.str1;
 			DUK_ASSERT(h_dir != NULL);
 
-			stmt_flags |= STILL_PROLOGUE;
+			stmt_flags |= DUK__STILL_PROLOGUE;
 
 			/* Note: escaped characters differentiate directives */
 
@@ -45180,7 +45756,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 			             "prologue terminated if still active");
                 }
 
-		stmt_flags |= HAS_VAL | HAS_TERM;
+		stmt_flags |= DUK__HAS_VAL | DUK__HAS_TERM;
 	}
 	}  /* end switch (tok) */
 
@@ -45204,7 +45780,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	 * but have no stmt value?  Any such statements?
 	 */
 
-	if (stmt_flags & HAS_VAL) {
+	if (stmt_flags & DUK__HAS_VAL) {
 		int reg_stmt_value = comp_ctx->curr_func.reg_stmt_value;
 		if (reg_stmt_value >= 0) {
 			ivalue_toforcedreg(comp_ctx, res, reg_stmt_value);
@@ -45221,14 +45797,14 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	 *  token after a possible statement terminator.
 	 */
 
-	if (stmt_flags & HAS_TERM) {
+	if (stmt_flags & DUK__HAS_TERM) {
 		if (comp_ctx->curr_token.t == DUK_TOK_SEMICOLON) {
 			DUK_DDDPRINT("explicit semicolon terminates statement");
 			advance(comp_ctx);
 		} else {
 			if (comp_ctx->curr_token.allow_auto_semi) {
 				DUK_DDDPRINT("automatic semicolon terminates statement");
-			} else if (stmt_flags & ALLOW_AUTO_SEMI_ALWAYS) {
+			} else if (stmt_flags & DUK__ALLOW_AUTO_SEMI_ALWAYS) {
 				/* FIXME: make this lenience dependent on flags or strictness? */
 				DUK_DDDPRINT("automatic semicolon terminates statement (allowed for compatibility "
 				             "even though no lineterm present before next token)");
@@ -45244,7 +45820,7 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 	 *  Directive prologue tracking.
 	 */
 
-	if (stmt_flags & STILL_PROLOGUE) {
+	if (stmt_flags & DUK__STILL_PROLOGUE) {
 		DUK_DDDPRINT("setting in_directive_prologue");
 		comp_ctx->curr_func.in_directive_prologue = 1;
 	}
@@ -45260,18 +45836,18 @@ static void parse_statement(duk_compiler_ctx *comp_ctx, duk_ivalue *res, int all
 		emit_abc(comp_ctx, DUK_OP_ENDLABEL, label_id);
 	}
 
-	SETTEMP(comp_ctx, temp_at_entry);
+	DUK__SETTEMP(comp_ctx, temp_at_entry);
 
 	reset_labels_to_length(comp_ctx, labels_len_at_entry);
 
 	/* FIXME: return indication of "terminalness" (e.g. a 'throw' is terminal) */
 
-	RECURSION_DECREASE(comp_ctx, thr);
+	DUK__RECURSION_DECREASE(comp_ctx, thr);
 }
 
-#undef HAS_VAL
-#undef HAS_TERM
-#undef ALLOW_AUTO_SEMI_ALWAYS
+#undef DUK__HAS_VAL
+#undef DUK__HAS_TERM
+#undef DUK__ALLOW_AUTO_SEMI_ALWAYS
 
 /*
  *  Parse a statement list.
@@ -45292,7 +45868,7 @@ static void parse_statements(duk_compiler_ctx *comp_ctx, int allow_source_elem, 
 
 	/* Setup state.  Initial ivalue is 'undefined'. */
 
-	duk_require_stack(ctx, PARSE_STATEMENTS_SLOTS);
+	duk_require_stack(ctx, DUK__PARSE_STATEMENTS_SLOTS);
 
 	/* FIXME: 'res' setup can be moved to function body level; in fact, two 'res'
 	 * intermediate values suffice for parsing of each function.  Nesting is needed
@@ -45451,17 +46027,17 @@ static void init_varmap_and_prologue_for_pass2(duk_compiler_ctx *comp_ctx, int *
 	}
 
 	/* use temp_next for tracking register allocations */
-	SETTEMP_CHECKMAX(comp_ctx, num_args);
+	DUK__SETTEMP_CHECKMAX(comp_ctx, num_args);
 
 	/*
 	 *  After arguments, allocate special registers (like shuffling temps)
 	 */
 
 	if (out_stmt_value_reg) {
-		*out_stmt_value_reg = ALLOCTEMP(comp_ctx);
+		*out_stmt_value_reg = DUK__ALLOCTEMP(comp_ctx);
 	}
 	if (comp_ctx->curr_func.needs_shuffle) {
-		int shuffle_base = ALLOCTEMPS(comp_ctx, 3);
+		int shuffle_base = DUK__ALLOCTEMPS(comp_ctx, 3);
 		comp_ctx->curr_func.shuffle1 = shuffle_base;
 		comp_ctx->curr_func.shuffle2 = shuffle_base + 1;
 		comp_ctx->curr_func.shuffle3 = shuffle_base + 2;
@@ -45509,7 +46085,7 @@ static void init_varmap_and_prologue_for_pass2(duk_compiler_ctx *comp_ctx, int *
 				emit_a_bc(comp_ctx, DUK_OP_CLOSURE, reg_bind, fnum);
 			} else {
 				/* function: always register bound */
-				reg_bind = ALLOCTEMP(comp_ctx);
+				reg_bind = DUK__ALLOCTEMP(comp_ctx);
 				emit_a_bc(comp_ctx, DUK_OP_CLOSURE, reg_bind, fnum);
 				duk_push_int(ctx, reg_bind);
 			}
@@ -45522,7 +46098,7 @@ static void init_varmap_and_prologue_for_pass2(duk_compiler_ctx *comp_ctx, int *
 			 * update the binding value.
 			 */
 
-			int reg_temp = ALLOCTEMP(comp_ctx);
+			int reg_temp = DUK__ALLOCTEMP(comp_ctx);
 			duk_dup_top(ctx);
 			reg_name = getconst(comp_ctx);
 			duk_push_null(ctx);
@@ -45539,7 +46115,7 @@ static void init_varmap_and_prologue_for_pass2(duk_compiler_ctx *comp_ctx, int *
 
 			emit_a_b_c(comp_ctx, DUK_OP_DECLVAR, declvar_flags /*flags*/, reg_name /*name*/, reg_temp /*value*/);
 
-			SETTEMP(comp_ctx, reg_temp);  /* forget temp */
+			DUK__SETTEMP(comp_ctx, reg_temp);  /* forget temp */
 		}
 
 		DUK_DDDPRINT("function declaration to varmap: %!T -> %!T", duk_get_tval(ctx, -2), duk_get_tval(ctx, -1));
@@ -45601,7 +46177,7 @@ static void init_varmap_and_prologue_for_pass2(duk_compiler_ctx *comp_ctx, int *
 
 			/* FIXME: spilling */
 			if (comp_ctx->curr_func.is_function) {
-				int reg_bind = ALLOCTEMP(comp_ctx);
+				int reg_bind = DUK__ALLOCTEMP(comp_ctx);
 				/* no need to init reg, it will be undefined on entry */
 				duk_push_int(ctx, reg_bind);
 			} else {
@@ -45690,9 +46266,9 @@ static void parse_function_body(duk_compiler_ctx *comp_ctx, int expect_eof, int 
 	DUK_ASSERT(comp_ctx != NULL);
 	DUK_ASSERT(func != NULL);
 
-	RECURSION_INCREASE(comp_ctx, thr);
+	DUK__RECURSION_INCREASE(comp_ctx, thr);
 
-	duk_require_stack(ctx, FUNCTION_BODY_REQUIRE_SLOTS);
+	duk_require_stack(ctx, DUK__FUNCTION_BODY_REQUIRE_SLOTS);
 
 	/*
 	 *  Store lexer position for a later rewind
@@ -45710,7 +46286,7 @@ static void parse_function_body(duk_compiler_ctx *comp_ctx, int expect_eof, int 
 
 	/* FIXME: this is pointless here because pass 1 is throw-away */
 	if (implicit_return_value) {
-		reg_stmt_value = ALLOCTEMP(comp_ctx);
+		reg_stmt_value = DUK__ALLOCTEMP(comp_ctx);
 
 		/* If an implicit return value is needed by caller, it must be
 		 * initialized to 'undefined' because we don't know whether any
@@ -45783,7 +46359,7 @@ static void parse_function_body(duk_compiler_ctx *comp_ctx, int expect_eof, int 
 	                                 (implicit_return_value ? &reg_stmt_value : NULL));
 	func->reg_stmt_value = reg_stmt_value;
 
-	temp_first = GETTEMP(comp_ctx);
+	temp_first = DUK__GETTEMP(comp_ctx);
 
 	func->temp_first = temp_first;
 	func->temp_next = temp_first;
@@ -45874,7 +46450,7 @@ static void parse_function_body(duk_compiler_ctx *comp_ctx, int expect_eof, int 
 	 *  function template.
 	 */
 
-	RECURSION_DECREASE(comp_ctx, thr);
+	DUK__RECURSION_DECREASE(comp_ctx, thr);
 	return;
 
  error_funcname:
@@ -46072,7 +46648,7 @@ static int parse_function_like_fnum(duk_compiler_ctx *comp_ctx, int is_decl, int
 	/* FIXME: append primitive */
 	n_funcs = duk_get_length(ctx, old_func.funcs_idx);
 
-	if (n_funcs >= MAX_FUNCS) {
+	if (n_funcs >= DUK__MAX_FUNCS) {
 		DUK_ERROR(comp_ctx->thr, DUK_ERR_INTERNAL_ERROR, "out of funcs");
 	}
 
@@ -46114,40 +46690,48 @@ static int parse_function_like_fnum(duk_compiler_ctx *comp_ctx, int is_decl, int
 
 /* FIXME: source code property */
 
-void duk_js_compile(duk_hthread *thr, int flags) {
-	duk_context *ctx = (duk_context *) thr;
+static int duk_js_compile_raw(duk_context *ctx) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_sourcecode;
 	duk_hstring *h_filename;
-	duk_compiler_ctx comp_ctx_alloc;
-	duk_compiler_ctx *comp_ctx = &comp_ctx_alloc;
-	duk_lexer_point lex_pt_alloc;
-	duk_lexer_point *lex_pt = &lex_pt_alloc;
-	duk_compiler_func *func = &comp_ctx_alloc.curr_func;
+	duk_compiler_stkstate *comp_stk;
+	duk_compiler_ctx *comp_ctx;
+	duk_lexer_point *lex_pt;
+	duk_compiler_func *func;
 	int entry_top;
 	int is_strict;
 	int is_eval;
 	int is_funcexpr;
+	int flags;
 
 	DUK_ASSERT(thr != NULL);
-
-	is_eval = (flags & DUK_JS_COMPILE_FLAG_EVAL ? 1 : 0);
-	is_strict = (flags & DUK_JS_COMPILE_FLAG_STRICT ? 1 : 0);
-	is_funcexpr = (flags & DUK_JS_COMPILE_FLAG_FUNCEXPR ? 1 : 0);
 
 	/*
 	 *  Arguments check
 	 */
 
 	entry_top = duk_get_top(ctx);
-	h_sourcecode = duk_require_hstring(ctx, -2);
-	h_filename = duk_get_hstring(ctx, -1);  /* may be undefined */
-	DUK_ASSERT(entry_top >= 2);
+	DUK_ASSERT(entry_top >= 3);
+
+	comp_stk = (void *) duk_require_pointer(ctx, -1);
+	comp_ctx = &comp_stk->comp_ctx_alloc;
+	lex_pt = &comp_stk->lex_pt_alloc;
+	DUK_ASSERT(comp_ctx != NULL);
+	DUK_ASSERT(lex_pt != NULL);
+
+	flags = comp_stk->flags;
+	is_eval = (flags & DUK_JS_COMPILE_FLAG_EVAL ? 1 : 0);
+	is_strict = (flags & DUK_JS_COMPILE_FLAG_STRICT ? 1 : 0);
+	is_funcexpr = (flags & DUK_JS_COMPILE_FLAG_FUNCEXPR ? 1 : 0);
+
+	h_sourcecode = duk_require_hstring(ctx, -3);
+	h_filename = duk_get_hstring(ctx, -2);  /* may be undefined */
 
 	/*
 	 *  Init compiler and lexer contexts
 	 */
 
-	DUK_MEMSET(comp_ctx, 0, sizeof(*comp_ctx));
+	func = &comp_ctx->curr_func;
 #ifdef DUK_USE_EXPLICIT_NULL_INIT
 	comp_ctx->thr = NULL;
 	comp_ctx->h_filename = NULL;
@@ -46157,7 +46741,7 @@ void duk_js_compile(duk_hthread *thr, int flags) {
 	comp_ctx->curr_token.str2 = NULL;
 #endif
 
-	duk_require_stack(ctx, COMPILE_ENTRY_SLOTS);
+	duk_require_stack(ctx, DUK__COMPILE_ENTRY_SLOTS);
 
 	duk_push_dynamic_buffer(ctx, 0);       /* entry_top + 0 */
 	duk_push_undefined(ctx);               /* entry_top + 1 */
@@ -46183,10 +46767,8 @@ void duk_js_compile(duk_hthread *thr, int flags) {
 	comp_ctx->lex.buf = (duk_hbuffer_dynamic *) duk_get_hbuffer(ctx, entry_top + 0);
 	DUK_ASSERT(comp_ctx->lex.buf != NULL);
 	DUK_ASSERT(DUK_HBUFFER_HAS_DYNAMIC(comp_ctx->lex.buf));
+	comp_ctx->lex.token_limit = DUK_COMPILER_TOKEN_LIMIT;
 
-#if 0  /* not needed */
-	DUK_MEMSET(lex_pt, 0, sizeof(*lex_pt));
-#endif
 	lex_pt->offset = 0;
 	lex_pt->line = 1;
 	DUK_LEXER_SETPOINT(&comp_ctx->lex, lex_pt);    /* fills window */
@@ -46242,20 +46824,47 @@ void duk_js_compile(duk_hthread *thr, int flags) {
 	convert_to_function_template(comp_ctx);
 
 	/*
-	 *  Mangle stack for result
+	 *  Wrapping duk_safe_call() will mangle the stack, just return stack top
 	 */
 
 	/* [ ... sourcecode filename (temps) func ] */
 
-	DUK_ASSERT(entry_top - 2 >= 0);
-	duk_replace(ctx, entry_top - 2);  /* replace sourcecode with func */
-	duk_set_top(ctx, entry_top - 1);
-
-	/* [ ... func ] */
-
-	DUK_ASSERT_TOP(ctx, entry_top - 1);
+	return 1;
 }
 
+void duk_js_compile(duk_hthread *thr, int flags) {
+	duk_context *ctx = (duk_context *) thr;
+	duk_compiler_stkstate comp_stk;
+
+	/* XXX: this illustrates that a C catchpoint implemented using duk_safe_call()
+	 * is a bit heavy at the moment.  The wrapper compiles to ~180 bytes on x64.
+	 * Alternatives would be nice.
+	 */
+
+	DUK_MEMSET(&comp_stk, 0, sizeof(comp_stk));
+	comp_stk.flags = flags;
+	duk_push_pointer(ctx, (void *) &comp_stk);
+
+	if (duk_safe_call(ctx, duk_js_compile_raw, 3 /*nargs*/, 1 /*nret*/, DUK_INVALID_INDEX) != DUK_EXEC_SUCCESS) {
+		/* This now adds a line number to -any- error thrown during compilation.
+		 * Usually compilation errors are SyntaxErrors but they could also be
+		 * out-of-memory errors and the like.
+		 */
+
+		DUK_DDDPRINT("compile error, before adding line info: %!T", duk_get_tval(ctx, -1));
+		if (duk_is_object(ctx, -1)) {
+			if (duk_get_prop_stridx(ctx, -1, DUK_STRIDX_MESSAGE)) {
+				duk_push_sprintf(ctx, " (line %d)", (int) comp_stk.comp_ctx_alloc.curr_token.start_line);
+				duk_concat(ctx, 2);
+				duk_put_prop_stridx(ctx, -2, DUK_STRIDX_MESSAGE);
+			} else {
+				duk_pop(ctx);
+			}
+		}
+		DUK_DDDPRINT("compile error, after adding line info: %!T", duk_get_tval(ctx, -1));
+		duk_throw(ctx);
+	}
+}
 #line 1 "duk_js_executor.c"
 /*
  *  Ecmascript bytecode executor.
@@ -46715,9 +47324,9 @@ static void _vm_logical_not(duk_hthread *thr, duk_tval *tv_x, int idx_z) {
 /* FIXME: duk_api operations for cross-thread reg manipulation? */
 /* FIXME: post-condition: value stack must be correct; for ecmascript functions, clamped to 'nregs' */
 
-#define LONGJMP_RESTART   0  /* state updated, restart bytecode execution */
-#define LONGJMP_FINISHED  1  /* exit bytecode executor with return value */
-#define LONGJMP_RETHROW   2  /* exit bytecode executor by rethrowing an error to caller */
+#define DUK__LONGJMP_RESTART   0  /* state updated, restart bytecode execution */
+#define DUK__LONGJMP_FINISHED  1  /* exit bytecode executor with return value */
+#define DUK__LONGJMP_RETHROW   2  /* exit bytecode executor by rethrowing an error to caller */
 
 /* only called when act_idx points to an Ecmascript function */
 static void reconfig_valstack(duk_hthread *thr, int act_idx, int retval_count) {
@@ -46924,13 +47533,14 @@ static void handle_yield(duk_hthread *thr, duk_hthread *resumer, int act_idx) {
 
 static int handle_longjmp(duk_hthread *thr,
                           duk_hthread *entry_thread,
-                          int entry_callstack_top) {
+                          duk_size_t entry_callstack_top) {
 	duk_tval tv_tmp;
-	int entry_callstack_index;
-	int retval = LONGJMP_RESTART;
+	duk_size_t entry_callstack_index;
+	int retval = DUK__LONGJMP_RESTART;
 
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(entry_thread != NULL);
+	DUK_ASSERT(entry_callstack_top > 0);  /* guarantees entry_callstack_top - 1 >= 0 */
 
 	entry_callstack_index = entry_callstack_top - 1;
 
@@ -46969,13 +47579,13 @@ static int handle_longjmp(duk_hthread *thr,
 		int act_idx;
 		duk_hthread *resumee;
 
-		/* duk_builtin_duk_object_yield() and duk_builtin_duk_object_resume() ensure all of these are met */
+		/* duk_bi_duk_object_yield() and duk_bi_duk_object_resume() ensure all of these are met */
 
 		DUK_ASSERT(thr->state == DUK_HTHREAD_STATE_RUNNING);                                                         /* unchanged by Duktape.Thread.resume() */
 		DUK_ASSERT(thr->callstack_top >= 2);                                                                         /* Ecmascript activation + Duktape.Thread.resume() activation */
 		DUK_ASSERT((thr->callstack + thr->callstack_top - 1)->func != NULL &&
 		           DUK_HOBJECT_IS_NATIVEFUNCTION((thr->callstack + thr->callstack_top - 1)->func) &&
-		           ((duk_hnativefunction *) (thr->callstack + thr->callstack_top - 1)->func)->func == duk_builtin_thread_resume);
+		           ((duk_hnativefunction *) (thr->callstack + thr->callstack_top - 1)->func)->func == duk_bi_thread_resume);
 		DUK_ASSERT((thr->callstack + thr->callstack_top - 2)->func != NULL &&
 		           DUK_HOBJECT_IS_COMPILEDFUNCTION((thr->callstack + thr->callstack_top - 2)->func));                /* an Ecmascript function */
 		DUK_ASSERT((thr->callstack + thr->callstack_top - 2)->idx_retval >= 0);                                      /* waiting for a value */
@@ -46995,7 +47605,7 @@ static int handle_longjmp(duk_hthread *thr,
 		DUK_ASSERT(resumee->state != DUK_HTHREAD_STATE_YIELDED ||
 		           ((resumee->callstack + resumee->callstack_top - 1)->func != NULL &&
 		            DUK_HOBJECT_IS_NATIVEFUNCTION((resumee->callstack + resumee->callstack_top - 1)->func) &&
-		            ((duk_hnativefunction *) (resumee->callstack + resumee->callstack_top - 1)->func)->func == duk_builtin_thread_yield));
+		            ((duk_hnativefunction *) (resumee->callstack + resumee->callstack_top - 1)->func)->func == duk_bi_thread_yield));
 		DUK_ASSERT(resumee->state != DUK_HTHREAD_STATE_YIELDED ||
 		           ((resumee->callstack + resumee->callstack_top - 2)->func != NULL &&
 		            DUK_HOBJECT_IS_COMPILEDFUNCTION((resumee->callstack + resumee->callstack_top - 2)->func)));      /* an Ecmascript function */
@@ -47060,7 +47670,7 @@ static int handle_longjmp(duk_hthread *thr,
 			thr = resumee;  /* not needed, as we exit right away */
 #endif
 			DUK_DDPRINT("-> resume with a value, restart execution in resumee");	
-			retval = LONGJMP_RESTART;
+			retval = DUK__LONGJMP_RESTART;
 			goto wipe_and_return;
 		} else {
 			int call_flags;
@@ -47087,7 +47697,7 @@ static int handle_longjmp(duk_hthread *thr,
 			thr = resumee;  /* not needed, as we exit right away */
 #endif
 			DUK_DDPRINT("-> resume with a value, restart execution in resumee");	
-			retval = LONGJMP_RESTART;
+			retval = DUK__LONGJMP_RESTART;
 			goto wipe_and_return;
 		}
 		DUK_UNREACHABLE();
@@ -47107,14 +47717,14 @@ static int handle_longjmp(duk_hthread *thr,
 
 		duk_hthread *resumer;
 
-		/* duk_builtin_duk_object_yield() and duk_builtin_duk_object_resume() ensure all of these are met */
+		/* duk_bi_duk_object_yield() and duk_bi_duk_object_resume() ensure all of these are met */
 
 		DUK_ASSERT(thr != entry_thread);                                                                             /* Duktape.Thread.yield() should prevent */
 		DUK_ASSERT(thr->state == DUK_HTHREAD_STATE_RUNNING);                                                         /* unchanged from Duktape.Thread.yield() */
 		DUK_ASSERT(thr->callstack_top >= 2);                                                                         /* Ecmascript activation + Duktape.Thread.yield() activation */
 		DUK_ASSERT((thr->callstack + thr->callstack_top - 1)->func != NULL &&
 		           DUK_HOBJECT_IS_NATIVEFUNCTION((thr->callstack + thr->callstack_top - 1)->func) &&
-		           ((duk_hnativefunction *) (thr->callstack + thr->callstack_top - 1)->func)->func == duk_builtin_thread_yield);
+		           ((duk_hnativefunction *) (thr->callstack + thr->callstack_top - 1)->func)->func == duk_bi_thread_yield);
 		DUK_ASSERT((thr->callstack + thr->callstack_top - 2)->func != NULL &&
 		           DUK_HOBJECT_IS_COMPILEDFUNCTION((thr->callstack + thr->callstack_top - 2)->func));                /* an Ecmascript function */
 		DUK_ASSERT((thr->callstack + thr->callstack_top - 2)->idx_retval >= 0);                                      /* waiting for a value */
@@ -47126,7 +47736,7 @@ static int handle_longjmp(duk_hthread *thr,
 		DUK_ASSERT(resumer->callstack_top >= 2);                                                                     /* Ecmascript activation + Duktape.Thread.resume() activation */
 		DUK_ASSERT((resumer->callstack + resumer->callstack_top - 1)->func != NULL &&
 		           DUK_HOBJECT_IS_NATIVEFUNCTION((resumer->callstack + resumer->callstack_top - 1)->func) &&
-		           ((duk_hnativefunction *) (resumer->callstack + resumer->callstack_top - 1)->func)->func == duk_builtin_thread_resume);
+		           ((duk_hnativefunction *) (resumer->callstack + resumer->callstack_top - 1)->func)->func == duk_bi_thread_resume);
 		DUK_ASSERT((resumer->callstack + resumer->callstack_top - 2)->func != NULL &&
 		           DUK_HOBJECT_IS_COMPILEDFUNCTION((resumer->callstack + resumer->callstack_top - 2)->func));        /* an Ecmascript function */
 		DUK_ASSERT((resumer->callstack + resumer->callstack_top - 2)->idx_retval >= 0);                              /* waiting for a value */
@@ -47156,7 +47766,7 @@ static int handle_longjmp(duk_hthread *thr,
 #endif
 
 			DUK_DDPRINT("-> yield a value, restart execution in resumer");
-			retval = LONGJMP_RESTART;
+			retval = DUK__LONGJMP_RESTART;
 			goto wipe_and_return;
 		}
 		DUK_UNREACHABLE();
@@ -47184,7 +47794,7 @@ static int handle_longjmp(duk_hthread *thr,
 		duk_tval *tv1;
 		duk_hthread *resumer;
 		duk_catcher *cat;
-		int orig_callstack_index;
+		duk_size_t orig_callstack_index;
 
 		DUK_ASSERT(thr != NULL);
 		DUK_ASSERT(thr->callstack_top >= 1);
@@ -47194,6 +47804,7 @@ static int handle_longjmp(duk_hthread *thr,
 		/* FIXME: does not work if thr->catchstack is allocated but lowest pointer */
 
 		cat = thr->catchstack + thr->catchstack_top - 1;  /* may be < thr->catchstack initially */
+		DUK_ASSERT(thr->callstack_top > 0);  /* ensures callstack_top - 1 >= 0 */
 		orig_callstack_index = thr->callstack_top - 1;
 
 		while (cat >= thr->catchstack) {
@@ -47208,7 +47819,7 @@ static int handle_longjmp(duk_hthread *thr,
 				                        1); /* is_finally */
 
 				DUK_DDPRINT("-> return caught by a finally (in the same function), restart execution");
-				retval = LONGJMP_RESTART;
+				retval = DUK__LONGJMP_RESTART;
 				goto wipe_and_return;
 			}
 			cat--;
@@ -47228,7 +47839,7 @@ static int handle_longjmp(duk_hthread *thr,
 			/* [ ... retval ] */
 
 			DUK_DDPRINT("-> return propagated up to entry level, exit bytecode executor");
-			retval = LONGJMP_FINISHED;
+			retval = DUK__LONGJMP_FINISHED;
 			goto wipe_and_return;
 		}
 
@@ -47257,7 +47868,7 @@ static int handle_longjmp(duk_hthread *thr,
 			reconfig_valstack(thr, thr->callstack_top - 1, 1);    /* new top, i.e. callee */
 
 			DUK_DDPRINT("-> return not caught, restart execution in caller");
-			retval = LONGJMP_RESTART;
+			retval = DUK__LONGJMP_RESTART;
 			goto wipe_and_return;
 		}
 	
@@ -47267,7 +47878,7 @@ static int handle_longjmp(duk_hthread *thr,
 		DUK_ASSERT(thr->resumer->callstack_top >= 2);  /* Ecmascript activation + Duktape.Thread.resume() activation */
 		DUK_ASSERT((thr->resumer->callstack + thr->resumer->callstack_top - 1)->func != NULL &&
 		           DUK_HOBJECT_IS_NATIVEFUNCTION((thr->resumer->callstack + thr->resumer->callstack_top - 1)->func) &&
-		           ((duk_hnativefunction *) (thr->resumer->callstack + thr->resumer->callstack_top - 1)->func)->func == duk_builtin_thread_resume);  /* Duktape.Thread.resume() */
+		           ((duk_hnativefunction *) (thr->resumer->callstack + thr->resumer->callstack_top - 1)->func)->func == duk_bi_thread_resume);  /* Duktape.Thread.resume() */
 		DUK_ASSERT((thr->resumer->callstack + thr->resumer->callstack_top - 2)->func != NULL &&
 		           DUK_HOBJECT_IS_COMPILEDFUNCTION((thr->resumer->callstack + thr->resumer->callstack_top - 2)->func));  /* an Ecmascript function */
 		DUK_ASSERT((thr->resumer->callstack + thr->resumer->callstack_top - 2)->idx_retval >= 0);                        /* waiting for a value */
@@ -47289,7 +47900,7 @@ static int handle_longjmp(duk_hthread *thr,
 #endif
 
 		DUK_DDPRINT("-> return not caught, thread terminated; handle like yield, restart execution in resumer");
-		retval = LONGJMP_RESTART;
+		retval = DUK__LONGJMP_RESTART;
 		goto wipe_and_return;
 	}
 
@@ -47306,17 +47917,17 @@ static int handle_longjmp(duk_hthread *thr,
 		 */
 
 		duk_catcher *cat;
-		int orig_callstack_index;
-		int lj_label;
+		duk_size_t orig_callstack_index;
+		duk_uint_t lj_label;
 
 		cat = thr->catchstack + thr->catchstack_top - 1;
 		orig_callstack_index = cat->callstack_index;
 
 		DUK_ASSERT(DUK_TVAL_IS_NUMBER(&thr->heap->lj.value1));
-		lj_label = DUK_TVAL_GET_NUMBER(&thr->heap->lj.value1);
+		lj_label = (duk_uint_t) DUK_TVAL_GET_NUMBER(&thr->heap->lj.value1);
 
 		DUK_DDDPRINT("handling break/continue with label=%d, callstack index=%d",
-		             lj_label, cat->callstack_index);
+		             (int) lj_label, (int) cat->callstack_index);
 
 		while (cat >= thr->catchstack) {
 			if (cat->callstack_index != orig_callstack_index) {
@@ -47334,11 +47945,11 @@ static int handle_longjmp(duk_hthread *thr,
 				                        1); /* is_finally */
 
 				DUK_DDPRINT("-> break/continue caught by a finally (in the same function), restart execution");
-				retval = LONGJMP_RESTART;
+				retval = DUK__LONGJMP_RESTART;
 				goto wipe_and_return;
 			}
 			if (DUK_CAT_GET_TYPE(cat) == DUK_CAT_TYPE_LABEL &&
-			    DUK_CAT_GET_LABEL(cat) == lj_label) {
+			    (duk_uint_t) DUK_CAT_GET_LABEL(cat) == lj_label) {
 				/* found label */
 				handle_label(thr,
 				             cat - thr->catchstack);
@@ -47346,7 +47957,7 @@ static int handle_longjmp(duk_hthread *thr,
 				/* FIXME: reset valstack to 'nregs' (or assert it) */
 
 				DUK_DDPRINT("-> break/continue caught by a label catcher (in the same function), restart execution");	
-				retval = LONGJMP_RESTART;
+				retval = DUK__LONGJMP_RESTART;
 				goto wipe_and_return;
 			}
 			cat--;
@@ -47396,7 +48007,7 @@ static int handle_longjmp(duk_hthread *thr,
 				                        0); /* is_finally */
 
 				DUK_DDPRINT("-> throw caught by a 'catch' clause, restart execution");
-				retval = LONGJMP_RESTART;
+				retval = DUK__LONGJMP_RESTART;
 				goto wipe_and_return;
 			}
 
@@ -47411,7 +48022,7 @@ static int handle_longjmp(duk_hthread *thr,
 				/* FIXME: reset valstack to 'nregs' (or assert it) */
 
 				DUK_DDPRINT("-> throw caught by a 'finally' clause, restart execution");
-				retval = LONGJMP_RESTART;
+				retval = DUK__LONGJMP_RESTART;
 				goto wipe_and_return;
 			}
 
@@ -47428,7 +48039,7 @@ static int handle_longjmp(duk_hthread *thr,
 
 #endif
 			DUK_DPRINT("-> throw propagated up to entry level, rethrow and exit bytecode executor");
-			retval = LONGJMP_RETHROW;
+			retval = DUK__LONGJMP_RETHROW;
 			goto just_return;
 			/* Note: MUST NOT wipe_and_return here, as heap->lj must remain intact */
 		}
@@ -47444,7 +48055,7 @@ static int handle_longjmp(duk_hthread *thr,
 		DUK_ASSERT(thr->resumer->callstack_top >= 2);  /* Ecmascript activation + Duktape.Thread.resume() activation */
 		DUK_ASSERT((thr->resumer->callstack + thr->resumer->callstack_top - 1)->func != NULL &&
 		           DUK_HOBJECT_IS_NATIVEFUNCTION((thr->resumer->callstack + thr->resumer->callstack_top - 1)->func) &&
-		           ((duk_hnativefunction *) (thr->resumer->callstack + thr->resumer->callstack_top - 1)->func)->func == duk_builtin_thread_resume);  /* Duktape.Thread.resume() */
+		           ((duk_hnativefunction *) (thr->resumer->callstack + thr->resumer->callstack_top - 1)->func)->func == duk_bi_thread_resume);  /* Duktape.Thread.resume() */
 		DUK_ASSERT((thr->resumer->callstack + thr->resumer->callstack_top - 2)->func != NULL &&
 		           DUK_HOBJECT_IS_COMPILEDFUNCTION((thr->resumer->callstack + thr->resumer->callstack_top - 2)->func));  /* an Ecmascript function */
 
@@ -47550,7 +48161,7 @@ static void duk_executor_interrupt(duk_hthread *thr) {
 	ctr = DUK_HEAP_INTCTR_DEFAULT;
 
 #if 0
-	/* FIXME: cumulative instruction count */
+	/* FIXME: cumulative instruction count example */
 	static int step_count = 0;
 	step_count += thr->heap->interrupt_init;
 	if (step_count >= 1000000) {
@@ -47624,21 +48235,19 @@ static void duk_executor_interrupt(duk_hthread *thr) {
 #define DUK__REGCONST(x)    ((x) < DUK_BC_REGLIMIT ? DUK__REG((x)) : DUK__CONST((x) - DUK_BC_REGLIMIT))
 #define DUK__REGCONSTP(x)   ((x) < DUK_BC_REGLIMIT ? DUK__REGP((x)) : DUK__CONSTP((x) - DUK_BC_REGLIMIT))
 
-#undef _COMPACT_ERRORS  /* FIXME: make this configurable */
-                       
-#ifdef _COMPACT_ERRORS
-#define INTERNAL_ERROR(msg)  do { \
-		goto internal_error; \
+#ifdef DUK_USE_VERBOSE_EXECUTOR_ERRORS
+#define DUK__INTERNAL_ERROR(msg)  do { \
+		DUK_ERROR(thr, DUK_ERR_INTERNAL_ERROR, (msg)); \
 	} while (0)
 #else
-#define INTERNAL_ERROR(msg)  do { \
-		DUK_ERROR(thr, DUK_ERR_INTERNAL_ERROR, (msg)); \
+#define DUK__INTERNAL_ERROR(msg)  do { \
+		goto internal_error; \
 	} while (0)
 #endif
 
 void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 	/* entry level info */
-	int entry_callstack_top;
+	duk_size_t entry_callstack_top;
 	int entry_call_recursion_depth;
 	duk_jmpbuf *entry_jmpbuf_ptr;
 
@@ -47741,13 +48350,13 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 		lj_ret = handle_longjmp(thr, entry_thread, entry_callstack_top);
 
-		if (lj_ret == LONGJMP_RESTART) {
+		if (lj_ret == DUK__LONGJMP_RESTART) {
 			/*
 			 *  Restart bytecode execution, possibly with a changed thread.
 			 */
 			thr = thr->heap->curr_thread;
 			goto reset_setjmp_catchpoint;
-		} else if (lj_ret == LONGJMP_RETHROW) {
+		} else if (lj_ret == DUK__LONGJMP_RETHROW) {
 			/*
 			 *  Rethrow error to calling state.
 			 */
@@ -47764,7 +48373,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			/*
 			 *  Return from bytecode executor with a return value.
 			 */
-			DUK_ASSERT(lj_ret == LONGJMP_FINISHED);
+			DUK_ASSERT(lj_ret == DUK__LONGJMP_FINISHED);
 
 			/* FIXME: return assertions for valstack, callstack, catchstack */
 
@@ -47866,10 +48475,6 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 	for (;;) {
 		DUK_ASSERT(thr->callstack_top >= 1);
-		DUK_ASSERT(act == thr->callstack + thr->callstack_top - 1);  /* pointer stability */
-		DUK_ASSERT(bcode + act->pc >= DUK_HCOMPILEDFUNCTION_GET_CODE_BASE(fun));
-		DUK_ASSERT(bcode + act->pc < DUK_HCOMPILEDFUNCTION_GET_CODE_END(fun));
-
 		DUK_ASSERT(thr->valstack_top - thr->valstack_bottom >= fun->nregs);  /* FIXME == nregs? */
 		DUK_ASSERT((int) (thr->valstack_top - thr->valstack) == valstack_top_base);
 
@@ -47902,6 +48507,8 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 		 */
 
 		act = thr->callstack + thr->callstack_top - 1;
+		DUK_ASSERT(bcode + act->pc >= DUK_HCOMPILEDFUNCTION_GET_CODE_BASE(fun));
+		DUK_ASSERT(bcode + act->pc < DUK_HCOMPILEDFUNCTION_GET_CODE_END(fun));
 
 		DUK_DDDPRINT("executing bytecode: pc=%d ins=0x%08x, op=%d, valstack_top=%d/%d  -->  %!I",
 		             act->pc, bcode[act->pc], DUK_DEC_OP(bcode[act->pc]),
@@ -47976,7 +48583,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			t = DUK_DEC_A(ins); tv1 = DUK__REGP(t);
 			if (!DUK_TVAL_IS_NUMBER(tv1)) {
-				INTERNAL_ERROR("LDINTX target not a number");
+				DUK__INTERNAL_ERROR("LDINTX target not a number");
 			}
 			val = DUK_TVAL_GET_NUMBER(tv1) * ((double) (1 << DUK_BC_LDINTX_SHIFT)) +
 			      (double) DUK_DEC_BC(ins);
@@ -47999,7 +48606,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			t = DUK_DEC_A(ins); tv1 = DUK__REGP(t);
 			if (!DUK_TVAL_IS_OBJECT(tv1)) {
-				INTERNAL_ERROR("MPUTOBJ target not an object");
+				DUK__INTERNAL_ERROR("MPUTOBJ target not an object");
 			}
 			obj = DUK_TVAL_GET_OBJECT(tv1);
 
@@ -48009,21 +48616,20 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			if (idx < 0 || idx + count * 2 > duk_get_top(ctx)) {
 				/* FIXME: improve check; check against nregs, not against top */
-				INTERNAL_ERROR("MPUTOBJ out of bounds");
+				DUK__INTERNAL_ERROR("MPUTOBJ out of bounds");
 			}
 
 			duk_push_hobject(ctx, obj);
 
 			while (count > 0) {
 				/* FIXME: faster initialization (direct access or better primitives) */
-				/* FIXME: strictness for put? */
 
 				duk_push_tval(ctx, DUK__REGP(idx));
 				if (!duk_is_string(ctx, -1)) {
-					INTERNAL_ERROR("MPUTOBJ key not a string");
+					DUK__INTERNAL_ERROR("MPUTOBJ key not a string");
 				}
 				duk_push_tval(ctx, DUK__REGP(idx + 1));  /* -> [... obj key value] */
-				duk_put_prop(ctx, -3);  /* -> [... obj] */
+				duk_def_prop(ctx, -3, DUK_PROPDESC_FLAGS_WEC);  /* -> [... obj] */
 
 				count--;
 				idx += 2;
@@ -48049,7 +48655,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			t = DUK_DEC_A(ins); tv1 = DUK__REGP(t);
 			if (!DUK_TVAL_IS_OBJECT(tv1)) {
-				INTERNAL_ERROR("MPUTARR target not an object");
+				DUK__INTERNAL_ERROR("MPUTARR target not an object");
 			}
 			obj = DUK_TVAL_GET_OBJECT(tv1);
 
@@ -48059,12 +48665,12 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			if (idx < 0 || idx + count + 1 > duk_get_top(ctx)) {
 				/* FIXME: improve check; check against nregs, not against top */
-				INTERNAL_ERROR("MPUTARR out of bounds");
+				DUK__INTERNAL_ERROR("MPUTARR out of bounds");
 			}
 
 			tv1 = DUK__REGP(idx);
 			if (!DUK_TVAL_IS_NUMBER(tv1)) {
-				INTERNAL_ERROR("MPUTARR start index not a number");
+				DUK__INTERNAL_ERROR("MPUTARR start index not a number");
 			}
 			arr_idx = (duk_uint32_t) DUK_TVAL_GET_NUMBER(tv1);
 			idx++;
@@ -48072,20 +48678,36 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			duk_push_hobject(ctx, obj);
 
 			while (count > 0) {
-				/* FIXME: faster initialization (direct access or better primitives);
-				 * this is particularly bad now because array 'length' special behavior
-				 * is invoked on every put.  It would be better to ignore array semantics
-				 * and only update 'length' at the end.
+				/* duk_def_prop() will define an own property without any array
+				 * special behaviors.  We'll need to set the array length explicitly
+				 * in the end.  For arrays with elisions, the compiler will emit an
+				 * explicit SETALEN which will update the length.
 				 */
-				/* FIXME: strictness for put? */
 
-				duk_push_tval(ctx, DUK__REGP(idx));  /* -> [... obj value] */
-				duk_put_prop_index(ctx, -2, arr_idx);  /* -> [... obj] */
+				/* FIXME: duk_def_prop() will currently coerce its argument to a string,
+				 * causing every array index to be interned, avoiding interning is quite
+				 * important to handle large array literals efficiently.
+				 *
+				 * FIXME: further, because we're dealing with 'own' properties of a fresh
+				 * array, the array initializer should just ensure that the array has a
+				 * large enough array part and write the values directly into array part,
+				 * and finally set 'length' manually in the end (as already happens now).
+				 */
+
+				duk_push_number(ctx, (double) arr_idx);           /* FIXME: duk_push_uint */
+				duk_push_tval(ctx, DUK__REGP(idx));               /* -> [... obj key value] */
+				duk_def_prop(ctx, -3, DUK_PROPDESC_FLAGS_WEC);    /* -> [... obj] */
 
 				count--;
 				idx++;
 				arr_idx++;
 			}
+
+			/* XXX: E5.1 Section 11.1.4 coerces the final length through
+			 * ToUint32() which is odd but happens now as a side effect of
+			 * 'arr_idx' type.
+			 */
+			duk_hobject_set_length(thr, obj, arr_idx);
 
 			duk_pop(ctx);  /* [... obj] -> [...] */
 			break;
@@ -48143,7 +48765,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			/* The compiler should never emit DUK_OP_REGEXP if there is no
 			 * regexp support.
 			 */
-			INTERNAL_ERROR("no regexp support");
+			DUK__INTERNAL_ERROR("no regexp support");
 #endif
 
 			break;
@@ -48187,7 +48809,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			tv1 = DUK__CONSTP(bc);
 			if (!DUK_TVAL_IS_STRING(tv1)) {
 				DUK_DDDPRINT("GETVAR not a string: %!T", tv1);
-				INTERNAL_ERROR("GETVAR name not a string");
+				DUK__INTERNAL_ERROR("GETVAR name not a string");
 			}
 			name = DUK_TVAL_GET_STRING(tv1);
 			DUK_DDDPRINT("GETVAR: '%!O'", name);
@@ -48206,7 +48828,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			tv1 = DUK__CONSTP(bc);
 			if (!DUK_TVAL_IS_STRING(tv1)) {
-				INTERNAL_ERROR("PUTVAR name not a string");
+				DUK__INTERNAL_ERROR("PUTVAR name not a string");
 			}
 			name = DUK_TVAL_GET_STRING(tv1);
 
@@ -48233,7 +48855,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			tv1 = DUK__REGCONSTP(b);
 			if (!DUK_TVAL_IS_STRING(tv1)) {
-				INTERNAL_ERROR("DECLVAR name not a string");
+				DUK__INTERNAL_ERROR("DECLVAR name not a string");
 			}
 			name = DUK_TVAL_GET_STRING(tv1);
 
@@ -48277,7 +48899,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			tv1 = DUK__REGCONSTP(b);
 			if (!DUK_TVAL_IS_STRING(tv1)) {
-				INTERNAL_ERROR("DELVAR name not a string");
+				DUK__INTERNAL_ERROR("DELVAR name not a string");
 			}
 			name = DUK_TVAL_GET_STRING(tv1);
 			DUK_DDDPRINT("DELVAR '%!O'", name);
@@ -48306,7 +48928,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 
 			tv1 = DUK__REGCONSTP(b);
 			if (!DUK_TVAL_IS_STRING(tv1)) {
-				INTERNAL_ERROR("CSVAR name not a string");
+				DUK__INTERNAL_ERROR("CSVAR name not a string");
 			}
 			name = DUK_TVAL_GET_STRING(tv1);
 			(void) duk_js_getvar_activation(thr, act, name, 1 /*throw*/);  /* -> [... val this] */
@@ -48333,7 +48955,8 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			DUK_DDDPRINT("CLOSURE to target register %d, fnum %d (count %d)",
 			             a, bc, DUK_HCOMPILEDFUNCTION_GET_FUNCS_COUNT(fun));
 
-			DUK_ASSERT(bc >= 0 && bc < DUK_HCOMPILEDFUNCTION_GET_FUNCS_COUNT(fun));
+			DUK_ASSERT(bc >= 0);
+			DUK_ASSERT(bc < (int) DUK_HCOMPILEDFUNCTION_GET_FUNCS_COUNT(fun));
 			fun_temp = DUK_HCOMPILEDFUNCTION_GET_FUNCS_BASE(fun)[bc];
 			DUK_ASSERT(fun_temp != NULL);
 			DUK_ASSERT(DUK_HOBJECT_IS_COMPILEDFUNCTION(fun_temp));
@@ -48724,7 +49347,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			/* FIXME: fast return not implemented, always do a slow return now */
 			if (a & DUK_BC_RETURN_FLAG_FAST && 0 /*FIXME*/) {
 				/* fast return: no TCF catchers (but may have e.g. labels) */
-				INTERNAL_ERROR("FIXME: fast return unimplemented");
+				DUK__INTERNAL_ERROR("FIXME: fast return unimplemented");
 			} else {
 				/* slow return */
 
@@ -48836,7 +49459,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 				call_flags = 0;  /* not protected, respect reclimit, not constructor */
 
 				if (DUK_HOBJECT_IS_NATIVEFUNCTION(obj_func) &&
-				    ((duk_hnativefunction *) obj_func)->func == duk_builtin_global_object_eval) {
+				    ((duk_hnativefunction *) obj_func)->func == duk_bi_global_object_eval) {
 					if (flag_evalcall) {
 						DUK_DDDPRINT("call target is eval, call identifier was 'eval' -> direct eval");
 						call_flags |= DUK_CALL_FLAG_DIRECT_EVAL;
@@ -48911,7 +49534,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			cat = &thr->catchstack[thr->catchstack_top - 1];
 			DUK_UNREF(cat);
 			DUK_ASSERT(DUK_CAT_GET_TYPE(cat) == DUK_CAT_TYPE_LABEL);
-			DUK_ASSERT(DUK_CAT_GET_LABEL(cat) == abc);
+			DUK_ASSERT((int) DUK_CAT_GET_LABEL(cat) == abc);  /* FIXME: typing */
 
 			duk_hthread_catchstack_unwind(thr, thr->catchstack_top - 1);
 			/* no need to unwind callstack */
@@ -49536,7 +50159,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			}
 
 			default: {
-				INTERNAL_ERROR("invalid extra opcode");
+				DUK__INTERNAL_ERROR("invalid extra opcode");
 			}
 
 			}  /* end switch */
@@ -49578,7 +50201,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			}
 
 			default: {
-				INTERNAL_ERROR("invalid debug opcode");
+				DUK__INTERNAL_ERROR("invalid debug opcode");
 			}
 
 			}  /* end switch */
@@ -49595,7 +50218,7 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 			/* this should never be possible, because the switch-case is
 			 * comprehensive
 			 */
-			INTERNAL_ERROR("invalid opcode");
+			DUK__INTERNAL_ERROR("invalid opcode");
 			break;
 		}
 
@@ -49603,11 +50226,13 @@ void duk_js_execute_bytecode(duk_hthread *entry_thread) {
 	}
 	DUK_UNREACHABLE();
 
-#ifdef _COMPACT_ERRORS  /*FIXME*/
+#ifndef DUK_USE_VERBOSE_EXECUTOR_ERRORS
  internal_error:
 	DUK_ERROR(thr, DUK_ERR_INTERNAL_ERROR, "internal error in bytecode executor");
 #endif
 }
+
+#undef DUK__INTERNAL_ERROR
 
 #line 1 "duk_js_ops.c"
 /*
@@ -49846,7 +50471,7 @@ double duk_js_tonumber(duk_hthread *thr, duk_tval *tv) {
  *  ToInteger()  (E5 Section 9.4)
  */
 
-/* exposed, used by e.g. duk_builtin_date.c */
+/* exposed, used by e.g. duk_bi_date.c */
 double duk_js_tointeger_number(double x) {
 	int c = DUK_FPCLASSIFY(x);
 
@@ -50424,8 +51049,8 @@ int duk_js_compare_helper(duk_hthread *thr, duk_tval *tv_x, duk_tval *tv_y, int 
 		duk_to_primitive(ctx, -2, DUK_HINT_NUMBER);
 		duk_to_primitive(ctx, -1, DUK_HINT_NUMBER);
 	} else {
-		duk_to_primitive(ctx, -2, DUK_HINT_NUMBER);
 		duk_to_primitive(ctx, -1, DUK_HINT_NUMBER);
+		duk_to_primitive(ctx, -2, DUK_HINT_NUMBER);
 	}
 
 	/* Note: reuse variables */
@@ -50630,7 +51255,7 @@ int duk_js_instanceof(duk_hthread *thr, duk_tval *tv_x, duk_tval *tv_y) {
 			 *
 			 *  XXX: add a separate flag, DUK_HOBJECT_FLAG_ALLOW_INSTANCEOF?
 			 */
-			DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "instanceof rval does not support [[HasInstance]]");
+			DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid instanceof rval");
 		}
 
 		if (!DUK_HOBJECT_HAS_BOUND(func)) {
@@ -52700,31 +53325,31 @@ int duk_js_declvar_activation(duk_hthread *thr,
  *  Various defines and file specific helper macros
  */
 
-#define MAX_REGEXP_DECIMAL_ESCAPE_DIGITS  9
-#define MAX_REGEXP_QUANTIFIER_DIGITS      9   /* FIXME: does not allow e.g. 2**31-1, but one more would allow overflows of u32 */
+#define DUK__MAX_RE_DECESC_DIGITS     9
+#define DUK__MAX_RE_QUANT_DIGITS      9   /* FIXME: does not allow e.g. 2**31-1, but one more would allow overflows of u32 */
 
-#define LOOKUP(lex_ctx,index)    ((lex_ctx)->window[(index)])
-#define ADVANCE(lex_ctx,count)   advance_chars((lex_ctx), (count))
-#define INITBUFFER(lex_ctx)      initbuffer((lex_ctx))
-#define APPENDBUFFER(lex_ctx,x)  appendbuffer((lex_ctx), (int) (x))
+#define DUK__LOOKUP(lex_ctx,index)    ((lex_ctx)->window[(index)])
+#define DUK__ADVANCE(lex_ctx,count)   advance_chars((lex_ctx), (count))
+#define DUK__INITBUFFER(lex_ctx)      initbuffer((lex_ctx))
+#define DUK__APPENDBUFFER(lex_ctx,x)  appendbuffer((lex_ctx), (int) (x))
 
 /* whether to use macros or helper function depends on call count */
-#define ISDIGIT(x)          ((x) >= '0' && (x) <= '9')
-#define ISHEXDIGIT(x)       is_hex_digit((x))
-#define ISOCTDIGIT(x)       ((x) >= '0' && (x) <= '7')
-#define ISDIGIT03(x)        ((x) >= '0' && (x) <= '3')
-#define ISDIGIT47(x)        ((x) >= '4' && (x) <= '7')
+#define DUK__ISDIGIT(x)          ((x) >= '0' && (x) <= '9')
+#define DUK__ISHEXDIGIT(x)       is_hex_digit((x))
+#define DUK__ISOCTDIGIT(x)       ((x) >= '0' && (x) <= '7')
+#define DUK__ISDIGIT03(x)        ((x) >= '0' && (x) <= '3')
+#define DUK__ISDIGIT47(x)        ((x) >= '4' && (x) <= '7')
 
 /* lookup shorthands (note: assume context variable is named 'lex_ctx') */
-#define L0()  LOOKUP(lex_ctx, 0)
-#define L1()  LOOKUP(lex_ctx, 1)
-#define L2()  LOOKUP(lex_ctx, 2)
-#define L3()  LOOKUP(lex_ctx, 3)
-#define L4()  LOOKUP(lex_ctx, 4)
-#define L5()  LOOKUP(lex_ctx, 5)
+#define DUK__L0()  DUK__LOOKUP(lex_ctx, 0)
+#define DUK__L1()  DUK__LOOKUP(lex_ctx, 1)
+#define DUK__L2()  DUK__LOOKUP(lex_ctx, 2)
+#define DUK__L3()  DUK__LOOKUP(lex_ctx, 3)
+#define DUK__L4()  DUK__LOOKUP(lex_ctx, 4)
+#define DUK__L5()  DUK__LOOKUP(lex_ctx, 5)
 
 /* packed advance/token number macro used by multiple functions */
-#define ADVTOK(adv,tok)  (((adv) << 8) + (tok))
+#define DUK__ADVTOK(adv,tok)  (((adv) << 8) + (tok))
 
 /*
  *  Read a character from the window leading edge and update the line counter.
@@ -53050,8 +53675,8 @@ static int decode_unicode_escape_from_window(duk_lexer_ctx *lex_ctx, int lookup_
  */
 static void eat_whitespace(duk_lexer_ctx *lex_ctx) {
 	/* guaranteed to finish, as EOF (-1) is not a whitespace */
-	while (duk_unicode_is_whitespace(LOOKUP(lex_ctx, 0))) {
-		ADVANCE(lex_ctx, 1);
+	while (duk_unicode_is_whitespace(DUK__LOOKUP(lex_ctx, 0))) {
+		DUK__ADVANCE(lex_ctx, 1);
 	}
 }
 
@@ -53129,6 +53754,12 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 	int advtok = 0;         /* (advance << 8) + token_type, updated at function end,
 	                         * init is unnecessary but suppresses "may be used uninitialized warnings
 	                         */
+
+	if (++lex_ctx->token_count >= lex_ctx->token_limit) {
+		DUK_ERROR(lex_ctx->thr, DUK_ERR_RANGE_ERROR, "token limit");
+		return;  /* unreachable */
+	}
+
 	eat_whitespace(lex_ctx);
 
 	out_token->t = DUK_TOK_EOF;
@@ -53170,8 +53801,8 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 	 *  to bypass the if-else chain.
 	 */
 
-	x = L0();
-	y = L1();
+	x = DUK__L0();
+	y = DUK__L1();
 
 	if (x == '/') {
 		if (y == '/') {
@@ -53180,15 +53811,15 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 			 *  code point).
 			 */
 
-			/* ADVANCE(lex_ctx, 2) would be correct here, but it unnecessary */
+			/* DUK__ADVANCE(lex_ctx, 2) would be correct here, but it unnecessary */
 			for (;;) {
-				x = L0();
+				x = DUK__L0();
 				if (x < 0 || duk_unicode_is_line_terminator(x)) {
 					break;
 				}
-				ADVANCE(lex_ctx, 1);
+				DUK__ADVANCE(lex_ctx, 1);
 			}
-			advtok = ADVTOK(0, DUK_TOK_COMMENT);
+			advtok = DUK__ADVTOK(0, DUK_TOK_COMMENT);
 		} else if (y == '*') {
 			/*
 			 *  E5 Section 7.4.  If the multi-line comment contains a newline,
@@ -53197,20 +53828,20 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 			 */
 
 			duk_uint8_t last_asterisk = 0;
-			advtok = ADVTOK(0, DUK_TOK_COMMENT);
-			ADVANCE(lex_ctx, 2);
+			advtok = DUK__ADVTOK(0, DUK_TOK_COMMENT);
+			DUK__ADVANCE(lex_ctx, 2);
 			for (;;) {
-				x = L0();
+				x = DUK__L0();
 				if (x < 0) {
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 					          "eof while parsing multiline comment");
 				}
-				ADVANCE(lex_ctx, 1);
+				DUK__ADVANCE(lex_ctx, 1);
 				if (last_asterisk && x == '/') {
 					break;
 				}
 				if (duk_unicode_is_line_terminator(x)) {
-					advtok = ADVTOK(0, DUK_TOK_LINETERM);
+					advtok = DUK__ADVTOK(0, DUK_TOK_LINETERM);
 				}
 				last_asterisk = (x == (int) '*');
 			}
@@ -53281,18 +53912,18 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 
 			duk_uint8_t state = 0;  /* 0=base, 1=esc, 2=class, 3=class+esc */
 
-			INITBUFFER(lex_ctx);
+			DUK__INITBUFFER(lex_ctx);
 			for (;;) {
-				ADVANCE(lex_ctx, 1);	/* skip opening slash on first loop */
-				x = L0();
+				DUK__ADVANCE(lex_ctx, 1);	/* skip opening slash on first loop */
+				x = DUK__L0();
 				if (x < 0 || duk_unicode_is_line_terminator(x)) {
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 					          "eof or line terminator while parsing regexp");
 				}
-				x = L0();	/* re-read to avoid spill / fetch */
+				x = DUK__L0();	/* re-read to avoid spill / fetch */
 				if (state == 0) {
 					if (x == '/') {
-						ADVANCE(lex_ctx, 1);	/* eat closing slash */
+						DUK__ADVANCE(lex_ctx, 1);	/* eat closing slash */
 						break;
 					} else if (x == '\\') {
 						state = 1;
@@ -53310,156 +53941,156 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 				} else { /* state == 3 */
 					state = 2;
 				}
-				APPENDBUFFER(lex_ctx, x);
+				DUK__APPENDBUFFER(lex_ctx, x);
 			}
 			internbuffer(lex_ctx, lex_ctx->slot1_idx);
 			out_token->str1 = duk_get_hstring((duk_context *) lex_ctx->thr, lex_ctx->slot1_idx);
 
 			/* second, parse flags */
 
-			INITBUFFER(lex_ctx);
+			DUK__INITBUFFER(lex_ctx);
 			for (;;) {
-				x = L0();
+				x = DUK__L0();
 				if (!duk_unicode_is_identifier_part(x)) {
 					break;
 				}
-				x = L0();	/* re-read to avoid spill / fetch */
-				APPENDBUFFER(lex_ctx, x);
-				ADVANCE(lex_ctx, 1);
+				x = DUK__L0();	/* re-read to avoid spill / fetch */
+				DUK__APPENDBUFFER(lex_ctx, x);
+				DUK__ADVANCE(lex_ctx, 1);
 			}
 			internbuffer(lex_ctx, lex_ctx->slot2_idx);
 			out_token->str2 = duk_get_hstring((duk_context *) lex_ctx->thr, lex_ctx->slot2_idx);
 
-			INITBUFFER(lex_ctx);	/* free some memory */
+			DUK__INITBUFFER(lex_ctx);	/* free some memory */
 
 			/* validation of the regexp is caller's responsibility */
 
-			advtok = ADVTOK(0, DUK_TOK_REGEXP);
+			advtok = DUK__ADVTOK(0, DUK_TOK_REGEXP);
 #else
 			DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "regexp support disabled");
 #endif
 		} else if (y == '=') {
 			/* "/=" and not in regexp mode */
-			advtok = ADVTOK(2, DUK_TOK_DIV_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_DIV_EQ);
 		} else {
 			/* "/" and not in regexp mode */
-			advtok = ADVTOK(1, DUK_TOK_DIV);
+			advtok = DUK__ADVTOK(1, DUK_TOK_DIV);
 		}
 	} else if (x == '{') {
-		advtok = ADVTOK(1, DUK_TOK_LCURLY);
+		advtok = DUK__ADVTOK(1, DUK_TOK_LCURLY);
 	} else if (x == '}') {
-		advtok = ADVTOK(1, DUK_TOK_RCURLY);
+		advtok = DUK__ADVTOK(1, DUK_TOK_RCURLY);
 	} else if (x == '(') {
-		advtok = ADVTOK(1, DUK_TOK_LPAREN);
+		advtok = DUK__ADVTOK(1, DUK_TOK_LPAREN);
 	} else if (x == ')') {
-		advtok = ADVTOK(1, DUK_TOK_RPAREN);
+		advtok = DUK__ADVTOK(1, DUK_TOK_RPAREN);
 	} else if (x == '[') {
-		advtok = ADVTOK(1, DUK_TOK_LBRACKET);
+		advtok = DUK__ADVTOK(1, DUK_TOK_LBRACKET);
 	} else if (x == ']') {
-		advtok = ADVTOK(1, DUK_TOK_RBRACKET);
-	} else if (x == '.' && !ISDIGIT(y)) {
+		advtok = DUK__ADVTOK(1, DUK_TOK_RBRACKET);
+	} else if (x == '.' && !DUK__ISDIGIT(y)) {
 		/* Note: period followed by a digit can only start DecimalLiteral (captured below) */
-		advtok = ADVTOK(1, DUK_TOK_PERIOD);
+		advtok = DUK__ADVTOK(1, DUK_TOK_PERIOD);
 	} else if (x == ';') {
-		advtok = ADVTOK(1, DUK_TOK_SEMICOLON);
+		advtok = DUK__ADVTOK(1, DUK_TOK_SEMICOLON);
 	} else if (x == ',') {
-		advtok = ADVTOK(1, DUK_TOK_COMMA);
+		advtok = DUK__ADVTOK(1, DUK_TOK_COMMA);
 	} else if (x == '<') {
-		if (y == '<' && L2() == '=') {
-			advtok = ADVTOK(3, DUK_TOK_ALSHIFT_EQ);
+		if (y == '<' && DUK__L2() == '=') {
+			advtok = DUK__ADVTOK(3, DUK_TOK_ALSHIFT_EQ);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_LE);
+			advtok = DUK__ADVTOK(2, DUK_TOK_LE);
 		} else if (y == '<') {
-			advtok = ADVTOK(2, DUK_TOK_ALSHIFT);
+			advtok = DUK__ADVTOK(2, DUK_TOK_ALSHIFT);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_LT);
+			advtok = DUK__ADVTOK(1, DUK_TOK_LT);
 		}
 	} else if (x == '>') {
-		if (y == '>' && L2() == '>' && L3() == '=') {
-			advtok = ADVTOK(4, DUK_TOK_RSHIFT_EQ);
-		} else if (y == '>' && L2() == '>') {
-			advtok = ADVTOK(3, DUK_TOK_RSHIFT);
-		} else if (y == '>' && L2() == '=') {
-			advtok = ADVTOK(3, DUK_TOK_ARSHIFT_EQ);
+		if (y == '>' && DUK__L2() == '>' && DUK__L3() == '=') {
+			advtok = DUK__ADVTOK(4, DUK_TOK_RSHIFT_EQ);
+		} else if (y == '>' && DUK__L2() == '>') {
+			advtok = DUK__ADVTOK(3, DUK_TOK_RSHIFT);
+		} else if (y == '>' && DUK__L2() == '=') {
+			advtok = DUK__ADVTOK(3, DUK_TOK_ARSHIFT_EQ);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_GE);
+			advtok = DUK__ADVTOK(2, DUK_TOK_GE);
 		} else if (y == '>') {
-			advtok = ADVTOK(2, DUK_TOK_ARSHIFT);
+			advtok = DUK__ADVTOK(2, DUK_TOK_ARSHIFT);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_GT);
+			advtok = DUK__ADVTOK(1, DUK_TOK_GT);
 		}
 	} else if (x == '=') {
-		if (y == '=' && L2() == '=') {
-			advtok = ADVTOK(3, DUK_TOK_SEQ);
+		if (y == '=' && DUK__L2() == '=') {
+			advtok = DUK__ADVTOK(3, DUK_TOK_SEQ);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_EQUALSIGN);
+			advtok = DUK__ADVTOK(1, DUK_TOK_EQUALSIGN);
 		}
 	} else if (x == '!') {
-		if (y == '=' && L2() == '=') {
-			advtok = ADVTOK(3, DUK_TOK_SNEQ);
+		if (y == '=' && DUK__L2() == '=') {
+			advtok = DUK__ADVTOK(3, DUK_TOK_SNEQ);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_NEQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_NEQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_LNOT);
+			advtok = DUK__ADVTOK(1, DUK_TOK_LNOT);
 		}
 	} else if (x == '+') {
 		if (y == '+') {
-			advtok = ADVTOK(2, DUK_TOK_INCREMENT);
+			advtok = DUK__ADVTOK(2, DUK_TOK_INCREMENT);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_ADD_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_ADD_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_ADD);
+			advtok = DUK__ADVTOK(1, DUK_TOK_ADD);
 		}
 	} else if (x == '-') {
 		if (y == '-') {
-			advtok = ADVTOK(2, DUK_TOK_DECREMENT);
+			advtok = DUK__ADVTOK(2, DUK_TOK_DECREMENT);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_SUB_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_SUB_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_SUB);
+			advtok = DUK__ADVTOK(1, DUK_TOK_SUB);
 		}
 	} else if (x == '*') {
 		if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_MUL_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_MUL_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_MUL);
+			advtok = DUK__ADVTOK(1, DUK_TOK_MUL);
 		}
 	} else if (x == '%') {
 		if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_MOD_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_MOD_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_MOD);
+			advtok = DUK__ADVTOK(1, DUK_TOK_MOD);
 		}
 	} else if (x == '&') {
 		if (y == '&') {
-			advtok = ADVTOK(2, DUK_TOK_LAND);
+			advtok = DUK__ADVTOK(2, DUK_TOK_LAND);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_BAND_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_BAND_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_BAND);
+			advtok = DUK__ADVTOK(1, DUK_TOK_BAND);
 		}
 	} else if (x == '|') {
 		if (y == '|') {
-			advtok = ADVTOK(2, DUK_TOK_LOR);
+			advtok = DUK__ADVTOK(2, DUK_TOK_LOR);
 		} else if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_BOR_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_BOR_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_BOR);
+			advtok = DUK__ADVTOK(1, DUK_TOK_BOR);
 		}
 	} else if (x == '^') {
 		if (y == '=') {
-			advtok = ADVTOK(2, DUK_TOK_BXOR_EQ);
+			advtok = DUK__ADVTOK(2, DUK_TOK_BXOR_EQ);
 		} else {
-			advtok = ADVTOK(1, DUK_TOK_BXOR);
+			advtok = DUK__ADVTOK(1, DUK_TOK_BXOR);
 		}
 	} else if (x == '~') {
-		advtok = ADVTOK(1, DUK_TOK_BNOT);
+		advtok = DUK__ADVTOK(1, DUK_TOK_BNOT);
 	} else if (x == '?') {
-		advtok = ADVTOK(1, DUK_TOK_QUESTION);
+		advtok = DUK__ADVTOK(1, DUK_TOK_QUESTION);
 	} else if (x == ':') {
-		advtok = ADVTOK(1, DUK_TOK_COLON);
+		advtok = DUK__ADVTOK(1, DUK_TOK_COLON);
 	} else if (duk_unicode_is_line_terminator(x)) {
 		if (x == 0x000d && y == 0x000a) {
 			/*
@@ -53467,9 +54098,10 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 			 *  line numbers.  Here we also detect it as a single line terminator
 			 *  token.
 			 */
-			advtok = ADVTOK(2, DUK_TOK_LINETERM);
+			advtok = DUK__ADVTOK(2, DUK_TOK_LINETERM);
+		} else {
+			advtok = DUK__ADVTOK(1, DUK_TOK_LINETERM);
 		}
-		advtok = ADVTOK(1, DUK_TOK_LINETERM);
 	} else if (duk_unicode_is_identifier_start(x) || x == '\\') {
 		/*
 		 *  Parse an identifier and then check whether it is:
@@ -53489,7 +54121,9 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 		 *  '\' character -- no other token can begin with a '\'.
 		 *
 		 *  Note that "get" and "set" are not reserved words in E5
-		 *  specification, but we treat them as such.
+		 *  specification so they are recognized as plain identifiers
+		 *  (the tokens DUK_TOK_GET and DUK_TOK_SET are actually not
+		 *  used now).  The compiler needs to work around this.
 		 *
 		 *  Strictly speaking, following Ecmascript longest match
 		 *  specification, an invalid escape for the first character
@@ -53504,12 +54138,12 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 		int first = 1;
 		duk_hstring *str;
 
-		INITBUFFER(lex_ctx);
+		DUK__INITBUFFER(lex_ctx);
 		for (;;) {
 			/* re-lookup first char on first loop */
-			if (L0() == '\\') {
+			if (DUK__L0() == '\\') {
 				int ch;
-				if (L1() != 'u') {
+				if (DUK__L1() != 'u') {
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 					          "invalid unicode escape while parsing identifier");
 				}
@@ -53523,8 +54157,8 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 					          "invalid unicode escaped character while parsing identifier");
 				}
-				APPENDBUFFER(lex_ctx, ch);
-				ADVANCE(lex_ctx, 6);
+				DUK__APPENDBUFFER(lex_ctx, ch);
+				DUK__ADVANCE(lex_ctx, 6);
 
 				/* Track number of escapes: necessary for proper keyword
 				 * detection.
@@ -53536,11 +54170,11 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 				 * the first character (if unescaped) has already been checked
 				 * in the if condition, this is OK.
 				 */
-				if (!duk_unicode_is_identifier_part(L0())) {
+				if (!duk_unicode_is_identifier_part(DUK__L0())) {
 					break;
 				}
-				APPENDBUFFER(lex_ctx, L0());
-				ADVANCE(lex_ctx, 1);
+				DUK__APPENDBUFFER(lex_ctx, DUK__L0());
+				DUK__ADVANCE(lex_ctx, 1);
 			}
 			first = 0;
 		}
@@ -53549,10 +54183,9 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 		out_token->str1 = duk_get_hstring((duk_context *) lex_ctx->thr, lex_ctx->slot1_idx);
 		str = out_token->str1;
 		DUK_ASSERT(str != NULL);
-
 		out_token->t_nores = DUK_TOK_IDENTIFIER;
 
-		INITBUFFER(lex_ctx);	/* free some memory */
+		DUK__INITBUFFER(lex_ctx);	/* free some memory */
 
 		/*
 		 *  Interned identifier is compared against reserved words, which are
@@ -53562,21 +54195,26 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 		 *  keywords; e.g. "\u0069f = 1;" is a valid statement (assigns to
 		 *  identifier named "if").  This is not necessarily compliant,
 		 *  see test-dec-escaped-char-in-keyword.js.
+		 *
+		 *  Note: "get" and "set" are awkward.  They are not officially
+		 *  ReservedWords (and indeed e.g. "var set = 1;" is valid), and
+		 *  must come out as DUK_TOK_IDENTIFIER.  The compiler needs to
+		 *  work around this a bit.
 		 */
 
 		i_end = (strict_mode ? DUK_STRIDX_END_RESERVED : DUK_STRIDX_START_STRICT_RESERVED);
 
-		advtok = ADVTOK(0, DUK_TOK_IDENTIFIER);
+		advtok = DUK__ADVTOK(0, DUK_TOK_IDENTIFIER);
 		if (out_token->num_escapes == 0) {
 			for (i = DUK_STRIDX_START_RESERVED; i < i_end; i++) {
 				DUK_ASSERT(i >= 0 && i < DUK_HEAP_NUM_STRINGS);
 				if (lex_ctx->thr->strs[i] == str) {
-					advtok = ADVTOK(0, DUK_STRIDX_TO_TOK(i));
+					advtok = DUK__ADVTOK(0, DUK_STRIDX_TO_TOK(i));
 					break;
 				}
 			}
 		}
-	} else if (ISDIGIT(x) || (x == '.')) {
+	} else if (DUK__ISDIGIT(x) || (x == '.')) {
 		/* Note: decimal number may start with a period, but must be followed by a digit */
 
 		/*
@@ -53611,15 +54249,15 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 		                 */
 		int s2n_flags;
 
-		INITBUFFER(lex_ctx);
+		DUK__INITBUFFER(lex_ctx);
 		if (x == '0' && (y == 'x' || y == 'X')) {
-			APPENDBUFFER(lex_ctx, x);
-			APPENDBUFFER(lex_ctx, y);
-			ADVANCE(lex_ctx, 2);
+			DUK__APPENDBUFFER(lex_ctx, x);
+			DUK__APPENDBUFFER(lex_ctx, y);
+			DUK__ADVANCE(lex_ctx, 2);
 			int_only = 1;
 			allow_hex = 1;
 #ifdef DUK_USE_OCTAL_SUPPORT
-		} else if (!strict_mode && x == '0' && ISDIGIT(y)) {
+		} else if (!strict_mode && x == '0' && DUK__ISDIGIT(y)) {
 			/* Note: if DecimalLiteral starts with a '0', it can only be
 			 * followed by a period or an exponent indicator which starts
 			 * with 'e' or 'E'.  Hence the if-check above ensures that
@@ -53627,23 +54265,23 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 			 * alternative at this point (even if y is, say, '9').
 			 */
 	
-			APPENDBUFFER(lex_ctx, x);
-			ADVANCE(lex_ctx, 1);
+			DUK__APPENDBUFFER(lex_ctx, x);
+			DUK__ADVANCE(lex_ctx, 1);
 			int_only = 1;
 #endif
 		}
 
 		st = 0;
 		for (;;) {
-			x = L0();	/* re-lookup curr char on first round */
-			if (ISDIGIT(x)) {
+			x = DUK__L0();	/* re-lookup curr char on first round */
+			if (DUK__ISDIGIT(x)) {
 				/* Note: intentionally allow leading zeroes here, as the
 				 * actual parser will check for them.
 				 */
 				if (st == 2) {
 					st = 3;
 				}
-			} else if (allow_hex && ISHEXDIGIT(x)) {
+			} else if (allow_hex && DUK__ISHEXDIGIT(x)) {
 				/* Note: 'e' and 'E' are also accepted here. */
 				;
 			} else if (x == '.') {
@@ -53667,8 +54305,8 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 			} else {
 				break;
 			}
-			APPENDBUFFER(lex_ctx, x);
-			ADVANCE(lex_ctx, 1);
+			DUK__APPENDBUFFER(lex_ctx, x);
+			DUK__ADVANCE(lex_ctx, 1);
 		}
 
 		/* FIXME: better coercion */
@@ -53691,41 +54329,41 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 		}
 		duk_replace((duk_context *) lex_ctx->thr, lex_ctx->slot1_idx);  /* FIXME: or pop? */
 
-		INITBUFFER(lex_ctx);	/* free some memory */
+		DUK__INITBUFFER(lex_ctx);	/* free some memory */
 
 		/* Section 7.8.3 (note): NumericLiteral must be followed by something other than
 		 * IdentifierStart or DecimalDigit.
 		 */
 
-		if (ISDIGIT(L0()) || duk_unicode_is_identifier_start(L0())) {
+		if (DUK__ISDIGIT(DUK__L0()) || duk_unicode_is_identifier_start(DUK__L0())) {
 			DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "invalid numeric literal");
 		}
 
 		out_token->num = val;
-		advtok = ADVTOK(0, DUK_TOK_NUMBER);
+		advtok = DUK__ADVTOK(0, DUK_TOK_NUMBER);
 	} else if (x == '"' || x == '\'') {
 		int quote = x;	/* duk_uint8_t type yields larger code */
 		int adv;
 
-		INITBUFFER(lex_ctx);
+		DUK__INITBUFFER(lex_ctx);
 		for (;;) {
-			ADVANCE(lex_ctx, 1);	/* eat opening quote on first loop */
-			x = L0();
+			DUK__ADVANCE(lex_ctx, 1);	/* eat opening quote on first loop */
+			x = DUK__L0();
 			if (x < 0 || duk_unicode_is_line_terminator(x)) {
 				DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 				          "eof or line terminator while parsing string literal");
 			}
 			if (x == quote) {
-				ADVANCE(lex_ctx, 1);	/* eat closing quote */
+				DUK__ADVANCE(lex_ctx, 1);	/* eat closing quote */
 				break;
 			}
 			if (x == '\\') {
-				/* L0        -> '\' char
-				 * L1 ... L5 -> more lookup
+				/* DUK__L0        -> '\' char
+				 * DUK__L1 ... DUK__L5 -> more lookup
 				 */
 
-				x = L1();
-				y = L2();
+				x = DUK__L1();
+				y = DUK__L2();
 
 				/* How much to advance before next loop; note that next loop
 				 * will advance by 1 anyway, so -1 from the total escape
@@ -53745,30 +54383,30 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 						adv = 3 - 1;
 					}
 				} else if (x == '\'') {
-					APPENDBUFFER(lex_ctx, 0x0027);
+					DUK__APPENDBUFFER(lex_ctx, 0x0027);
 				} else if (x == '"') {
-					APPENDBUFFER(lex_ctx, 0x0022);
+					DUK__APPENDBUFFER(lex_ctx, 0x0022);
 				} else if (x == '\\') {
-					APPENDBUFFER(lex_ctx, 0x005c);
+					DUK__APPENDBUFFER(lex_ctx, 0x005c);
 				} else if (x == 'b') {
-					APPENDBUFFER(lex_ctx, 0x0008);
+					DUK__APPENDBUFFER(lex_ctx, 0x0008);
 				} else if (x == 'f') {
-					APPENDBUFFER(lex_ctx, 0x000c);
+					DUK__APPENDBUFFER(lex_ctx, 0x000c);
 				} else if (x == 'n') {
-					APPENDBUFFER(lex_ctx, 0x000a);
+					DUK__APPENDBUFFER(lex_ctx, 0x000a);
 				} else if (x == 'r') {
-					APPENDBUFFER(lex_ctx, 0x000d);
+					DUK__APPENDBUFFER(lex_ctx, 0x000d);
 				} else if (x == 't') {
-					APPENDBUFFER(lex_ctx, 0x0009);
+					DUK__APPENDBUFFER(lex_ctx, 0x0009);
 				} else if (x == 'v') {
-					APPENDBUFFER(lex_ctx, 0x000b);
+					DUK__APPENDBUFFER(lex_ctx, 0x000b);
 				} else if (x == 'x') {
 					adv = 4 - 1;
-					APPENDBUFFER(lex_ctx, decode_hex_escape_from_window(lex_ctx, 2));
+					DUK__APPENDBUFFER(lex_ctx, decode_hex_escape_from_window(lex_ctx, 2));
 				} else if (x == 'u') {
 					adv = 6 - 1;
-					APPENDBUFFER(lex_ctx, decode_unicode_escape_from_window(lex_ctx, 2));
-				} else if (ISDIGIT(x)) {
+					DUK__APPENDBUFFER(lex_ctx, decode_unicode_escape_from_window(lex_ctx, 2));
+				} else if (DUK__ISDIGIT(x)) {
 					int ch = 0;  /* initialized to avoid warnings of unused var */
 
 					/*
@@ -53784,7 +54422,7 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 					 *  Any other productions starting with a decimal digit are invalid.
 					 */
 
-					if (x == '0' && !ISDIGIT(y)) {
+					if (x == '0' && !DUK__ISDIGIT(y)) {
 						/* Zero escape (also allowed in non-strict mode) */
 						ch = 0;
 						/* adv = 2 - 1 default OK */
@@ -53793,14 +54431,14 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 						/* No other escape beginning with a digit in strict mode */
 						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 						          "invalid escape while parsing string literal");
-					} else if (ISDIGIT03(x) && ISOCTDIGIT(y) && ISOCTDIGIT(L3())) {
+					} else if (DUK__ISDIGIT03(x) && DUK__ISOCTDIGIT(y) && DUK__ISOCTDIGIT(DUK__L3())) {
 						/* Three digit octal escape, digits validated. */
 						adv = 4 - 1;
 						ch = (hexval(lex_ctx, x) << 6) +
 						     (hexval(lex_ctx, y) << 3) +
-						     hexval(lex_ctx, L3());
-					} else if (((ISDIGIT03(x) && !ISDIGIT(L3())) || ISDIGIT47(x)) &&
-					           ISOCTDIGIT(y)) {
+						     hexval(lex_ctx, DUK__L3());
+					} else if (((DUK__ISDIGIT03(x) && !DUK__ISDIGIT(DUK__L3())) || DUK__ISDIGIT47(x)) &&
+					           DUK__ISOCTDIGIT(y)) {
 						/* Two digit octal escape, digits validated.
 						 * 
 						 * The if-condition is a bit tricky.  We could catch e.g.
@@ -53811,7 +54449,7 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 						adv = 3 - 1;
 						ch = (hexval(lex_ctx, x) << 3) +
 						     hexval(lex_ctx, y);
-					} else if (ISDIGIT(x) && !ISDIGIT(y)) {
+					} else if (DUK__ISDIGIT(x) && !DUK__ISDIGIT(y)) {
 						/* One digit octal escape, digit validated. */
 						/* adv = 2 default OK */
 						ch = hexval(lex_ctx, x);
@@ -53823,12 +54461,12 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 						          "invalid escape while parsing string literal");
 					}
 
-					APPENDBUFFER(lex_ctx, ch);
+					DUK__APPENDBUFFER(lex_ctx, ch);
 				} else {
 					/* escaped NonEscapeCharacter */
-					APPENDBUFFER(lex_ctx, x);
+					DUK__APPENDBUFFER(lex_ctx, x);
 				}
-				ADVANCE(lex_ctx, adv);
+				DUK__ADVANCE(lex_ctx, adv);
 
 				/* Track number of escapes; count not really needed but directive
 				 * prologues need to detect whether there were any escapes or line
@@ -53837,18 +54475,18 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 				out_token->num_escapes++;
 			} else {
 				/* part of string */
-				APPENDBUFFER(lex_ctx, x);
+				DUK__APPENDBUFFER(lex_ctx, x);
 			}
 		}
 
 		internbuffer(lex_ctx, lex_ctx->slot1_idx);
 		out_token->str1 = duk_get_hstring((duk_context *) lex_ctx->thr, lex_ctx->slot1_idx);
 
-		INITBUFFER(lex_ctx);	/* free some memory */
+		DUK__INITBUFFER(lex_ctx);	/* free some memory */
 
-		advtok = ADVTOK(0, DUK_TOK_STRING);
+		advtok = DUK__ADVTOK(0, DUK_TOK_STRING);
 	} else if (x < 0) {
-		advtok = ADVTOK(0, DUK_TOK_EOF);
+		advtok = DUK__ADVTOK(0, DUK_TOK_EOF);
 	} else {
 		DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "error parsing token");
 	}
@@ -53857,7 +54495,7 @@ static void parse_input_element_raw(duk_lexer_ctx *lex_ctx,
 	 *  Shared exit path
 	 */
 
-	ADVANCE(lex_ctx, advtok >> 8);
+	DUK__ADVANCE(lex_ctx, advtok >> 8);
 	out_token->t = advtok & 0xff;
 	if (out_token->t_nores < 0) {
 		out_token->t_nores = out_token->t;
@@ -53925,7 +54563,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
  *  Terminal constructions (such as quantifiers) are parsed directly here.
  *
  *  0xffffffffU is used as a marker for "infinity" in quantifiers.  Further,
- *  MAX_REGEXP_QUANTIFIER_DIGITS limits the maximum number of digits that
+ *  DUK__MAX_RE_QUANT_DIGITS limits the maximum number of digits that
  *  will be accepted for a quantifier.
  */
 
@@ -53933,34 +54571,39 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 	int advtok = 0;  /* init is unnecessary but suppresses "may be used uninitialized" warnings */
 	int x, y;
 
+	if (++lex_ctx->token_count >= lex_ctx->token_limit) {
+		DUK_ERROR(lex_ctx->thr, DUK_ERR_RANGE_ERROR, "token limit");
+		return;  /* unreachable */
+	}
+
 	DUK_MEMSET(out_token, 0, sizeof(*out_token));
 
-	x = L0();
-	y = L1();
+	x = DUK__L0();
+	y = DUK__L1();
 
 	DUK_DDDPRINT("parsing regexp token, L0=%d, L1=%d", x, y);
 
 	switch (x) {
 	case '|': {
-		advtok = ADVTOK(1, DUK_RETOK_DISJUNCTION);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_DISJUNCTION);
 		break;
 	}
 	case '^': {
-		advtok = ADVTOK(1, DUK_RETOK_ASSERT_START);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_ASSERT_START);
 		break;
 	}
 	case '$': {
-		advtok = ADVTOK(1, DUK_RETOK_ASSERT_END);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_ASSERT_END);
 		break;
 	}
 	case '?': {
 		out_token->qmin = 0;
 		out_token->qmax = 1;	
 		if (y == '?') {
-			advtok = ADVTOK(2, DUK_RETOK_QUANTIFIER);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_QUANTIFIER);
 			out_token->greedy = 0;
 		} else {
-			advtok = ADVTOK(1, DUK_RETOK_QUANTIFIER);
+			advtok = DUK__ADVTOK(1, DUK_RETOK_QUANTIFIER);
 			out_token->greedy = 1;
 		}
 		break;
@@ -53969,10 +54612,10 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 		out_token->qmin = 0;
 		out_token->qmax = DUK_RE_QUANTIFIER_INFINITE;
 		if (y == '?') {
-			advtok = ADVTOK(2, DUK_RETOK_QUANTIFIER);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_QUANTIFIER);
 			out_token->greedy = 0;
 		} else {
-			advtok = ADVTOK(1, DUK_RETOK_QUANTIFIER);
+			advtok = DUK__ADVTOK(1, DUK_RETOK_QUANTIFIER);
 			out_token->greedy = 1;
 		}
 		break;
@@ -53981,10 +54624,10 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 		out_token->qmin = 1;
 		out_token->qmax = DUK_RE_QUANTIFIER_INFINITE;
 		if (y == '?') {
-			advtok = ADVTOK(2, DUK_RETOK_QUANTIFIER);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_QUANTIFIER);
 			out_token->greedy = 0;
 		} else {
-			advtok = ADVTOK(1, DUK_RETOK_QUANTIFIER);
+			advtok = DUK__ADVTOK(1, DUK_RETOK_QUANTIFIER);
 			out_token->greedy = 1;
 		}
 		break;
@@ -53995,10 +54638,10 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 		duk_uint32_t val2 = DUK_RE_QUANTIFIER_INFINITE;
 		int digits = 0;
 		for (;;) {
-			ADVANCE(lex_ctx, 1);	/* eat '{' on entry */
-			x = L0();
-			if (ISDIGIT(x)) {
-				if (digits >= MAX_REGEXP_QUANTIFIER_DIGITS) {
+			DUK__ADVANCE(lex_ctx, 1);	/* eat '{' on entry */
+			x = DUK__L0();
+			if (DUK__ISDIGIT(x)) {
+				if (digits >= DUK__MAX_RE_QUANT_DIGITS) {
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 					          "invalid regexp quantifier (too many digits)");
 				}
@@ -54009,7 +54652,7 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 					          "invalid regexp quantifier (double comma)");
 				}
-				if (L1() == '}') {
+				if (DUK__L1() == '}') {
 					/* form: { DecimalDigits , }, val1 = min count */
 					if (digits == 0) {
 						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
@@ -54017,7 +54660,7 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 					}
 					out_token->qmin = val1;
 					out_token->qmax = DUK_RE_QUANTIFIER_INFINITE;
-					ADVANCE(lex_ctx, 2);
+					DUK__ADVANCE(lex_ctx, 2);
 					break;
 				}
 				val2 = val1;
@@ -54037,24 +54680,24 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 					out_token->qmin = val1;
 					out_token->qmax = val1;
 				}
-				ADVANCE(lex_ctx, 1);
+				DUK__ADVANCE(lex_ctx, 1);
 				break;
 			} else {
 				DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 				          "invalid regexp quantifier (unknown char)");
 			}
 		}
-		if (L0() == '?') {
+		if (DUK__L0() == '?') {
 			out_token->greedy = 0;
-			ADVANCE(lex_ctx, 1);
+			DUK__ADVANCE(lex_ctx, 1);
 		} else {
 			out_token->greedy = 1;
 		}
-		advtok = ADVTOK(0, DUK_RETOK_QUANTIFIER);
+		advtok = DUK__ADVTOK(0, DUK_RETOK_QUANTIFIER);
 		break;
 	}
 	case '.': {
-		advtok = ADVTOK(1, DUK_RETOK_ATOM_PERIOD);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_ATOM_PERIOD);
 		break;
 	}
 	case '\\': {
@@ -54066,11 +54709,11 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 		 * See: test-regexp-identity-escape-dollar.js.
 		 */
 
-		advtok = ADVTOK(2, DUK_RETOK_ATOM_CHAR);	/* default: char escape (two chars) */
+		advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_CHAR);	/* default: char escape (two chars) */
 		if (y == 'b') {
-			advtok = ADVTOK(2, DUK_RETOK_ASSERT_WORD_BOUNDARY);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ASSERT_WORD_BOUNDARY);
 		} else if (y == 'B') {
-			advtok = ADVTOK(2, DUK_RETOK_ASSERT_NOT_WORD_BOUNDARY);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ASSERT_NOT_WORD_BOUNDARY);
 		} else if (y == 'f') {
 			out_token->num = 0x000c;
 		} else if (y == 'n') {
@@ -54082,68 +54725,69 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 		} else if (y == 'v') {
 			out_token->num = 0x000b;
 		} else if (y == 'c') {
-			x = L2();
+			x = DUK__L2();
 			if ((x >= 'a' && x <= 'z') ||
 			    (x >= 'A' && x <= 'Z')) {
 				out_token->num = (x % 32);
-				advtok = ADVTOK(3, DUK_RETOK_ATOM_CHAR);
+				advtok = DUK__ADVTOK(3, DUK_RETOK_ATOM_CHAR);
 			} else {
 				DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 				          "invalid regexp control escape");
 			}
 		} else if (y == 'x') {
 			out_token->num = decode_hex_escape_from_window(lex_ctx, 2);
-			advtok = ADVTOK(4, DUK_RETOK_ATOM_CHAR);
+			advtok = DUK__ADVTOK(4, DUK_RETOK_ATOM_CHAR);
 		} else if (y == 'u') {
 			out_token->num = decode_unicode_escape_from_window(lex_ctx, 2);
-			advtok = ADVTOK(6, DUK_RETOK_ATOM_CHAR);
+			advtok = DUK__ADVTOK(6, DUK_RETOK_ATOM_CHAR);
 		} else if (y == 'd') {
-			advtok = ADVTOK(2, DUK_RETOK_ATOM_DIGIT);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_DIGIT);
 		} else if (y == 'D') {
-			advtok = ADVTOK(2, DUK_RETOK_ATOM_NOT_DIGIT);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_NOT_DIGIT);
 		} else if (y == 's') {
-			advtok = ADVTOK(2, DUK_RETOK_ATOM_WHITE);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_WHITE);
 		} else if (y == 'S') {
-			advtok = ADVTOK(2, DUK_RETOK_ATOM_NOT_WHITE);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_NOT_WHITE);
 		} else if (y == 'w') {
-			advtok = ADVTOK(2, DUK_RETOK_ATOM_WORD_CHAR);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_WORD_CHAR);
 		} else if (y == 'W') {
-			advtok = ADVTOK(2, DUK_RETOK_ATOM_NOT_WORD_CHAR);
-		} else if (ISDIGIT(y)) {
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_NOT_WORD_CHAR);
+		} else if (DUK__ISDIGIT(y)) {
 			/* E5 Section 15.10.2.11 */
 			if (y == '0') {
-				if (ISDIGIT(L2())) {
+				if (DUK__ISDIGIT(DUK__L2())) {
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 					          "invalid regexp escape");
 				}
 				out_token->num = 0x0000;
-				advtok = ADVTOK(2, DUK_RETOK_ATOM_CHAR);
+				advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_CHAR);
 			} else {
 				/* FIXME: shared parsing? */
 				duk_uint32_t val = 0;
 				int i;
 				for (i = 0; ; i++) {
-					if (i >= MAX_REGEXP_DECIMAL_ESCAPE_DIGITS) {
+					if (i >= DUK__MAX_RE_DECESC_DIGITS) {
 						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
 						          "invalid regexp escape (decimal escape too long)");
 					}
-					ADVANCE(lex_ctx, 1);	/* eat backslash on entry */
-					x = L0();
-					if (!ISDIGIT(x)) {
+					DUK__ADVANCE(lex_ctx, 1);	/* eat backslash on entry */
+					x = DUK__L0();
+					if (!DUK__ISDIGIT(x)) {
 						break;
 					}
 					val = val * 10 + hexval(lex_ctx, x);
 				}
-				/* L0() cannot be a digit, because the loop doesn't terminate if it is */
-				advtok = ADVTOK(0, DUK_RETOK_ATOM_BACKREFERENCE);
+				/* DUK__L0() cannot be a digit, because the loop doesn't terminate if it is */
+				advtok = DUK__ADVTOK(0, DUK_RETOK_ATOM_BACKREFERENCE);
 				out_token->num = val;
 			}
-		} else if (!duk_unicode_is_identifier_part(y) ||
+		} else if ((y >= 0 && !duk_unicode_is_identifier_part(y)) ||
 		           y == DUK_UNICODE_CP_ZWNJ ||
 		           y == DUK_UNICODE_CP_ZWJ ||
 		           y == '$') {
 			/* IdentityEscape, with dollar added as a valid additional
 			 * non-standard escape (see test-regexp-identity-escape-dollar.js).
+			 * Careful not to match end-of-buffer (<0) here.
 			 */
 			out_token->num = y;
 		} else {
@@ -54156,24 +54800,24 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 		/* FIXME: naming is inconsistent: ATOM_END_GROUP ends an ASSERT_START_LOOKAHEAD */
 
 		if (y == '?') {
-			if (L2() == '=') {
+			if (DUK__L2() == '=') {
 				/* (?= */
-				advtok = ADVTOK(3, DUK_RETOK_ASSERT_START_POS_LOOKAHEAD);
-			} else if (L2() == '!') {
+				advtok = DUK__ADVTOK(3, DUK_RETOK_ASSERT_START_POS_LOOKAHEAD);
+			} else if (DUK__L2() == '!') {
 				/* (?! */
-				advtok = ADVTOK(3, DUK_RETOK_ASSERT_START_NEG_LOOKAHEAD);
-			} else if (L2() == ':') {
+				advtok = DUK__ADVTOK(3, DUK_RETOK_ASSERT_START_NEG_LOOKAHEAD);
+			} else if (DUK__L2() == ':') {
 				/* (?: */
-				advtok = ADVTOK(3, DUK_RETOK_ATOM_START_NONCAPTURE_GROUP);
+				advtok = DUK__ADVTOK(3, DUK_RETOK_ATOM_START_NONCAPTURE_GROUP);
 			}
 		} else {
 			/* ( */
-			advtok = ADVTOK(1, DUK_RETOK_ATOM_START_CAPTURE_GROUP);
+			advtok = DUK__ADVTOK(1, DUK_RETOK_ATOM_START_CAPTURE_GROUP);
 		}
 		break;
 	}
 	case ')': {
-		advtok = ADVTOK(1, DUK_RETOK_ATOM_END_GROUP);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_ATOM_END_GROUP);
 		break;
 	}
 	case '[': {
@@ -54182,9 +54826,9 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 		 *  only the start token ('[' or '[^') is parsed here.  The regexp
 		 *  compiler parses the ranges itself.
 		 */
-		advtok = ADVTOK(1, DUK_RETOK_ATOM_START_CHARCLASS);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_ATOM_START_CHARCLASS);
 		if (y == '^') {
-			advtok = ADVTOK(2, DUK_RETOK_ATOM_START_CHARCLASS_INVERTED);
+			advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_START_CHARCLASS_INVERTED);
 		}
 		break;
 	}
@@ -54199,12 +54843,12 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 	}
 	case -1: {
 		/* EOF */
-		advtok = ADVTOK(0, DUK_TOK_EOF);
+		advtok = DUK__ADVTOK(0, DUK_TOK_EOF);
 		break;
 	}
 	default: {
 		/* PatternCharacter, all excluded characters are matched by cases above */
-		advtok = ADVTOK(1, DUK_RETOK_ATOM_CHAR);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_ATOM_CHAR);
 		out_token->num = x;
 		break;
 	}
@@ -54214,7 +54858,7 @@ void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token *out_token) {
 	 *  Shared exit path
 	 */
 
-	ADVANCE(lex_ctx, advtok >> 8);
+	DUK__ADVANCE(lex_ctx, advtok >> 8);
 	out_token->t = advtok & 0xff;
 }
 
@@ -54265,8 +54909,8 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 	for (;;) {
 		int x;
 
-		x = L0();
-		ADVANCE(lex_ctx, 1);
+		x = DUK__L0();
+		DUK__ADVANCE(lex_ctx, 1);
 
 		ch = -1;  /* not strictly necessary, but avoids "uninitialized variable" warnings */
 
@@ -54280,7 +54924,7 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 			}
 			break;
 		} else if (x == '-') {
-			if (start >= 0 && !dash && L0() != ']') {
+			if (start >= 0 && !dash && DUK__L0() != ']') {
 				/* '-' as a range indicator */
 				dash = 1;
 				continue;
@@ -54297,8 +54941,8 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 			 *  range for it.
 			 */
 
-			x = L0();
-			ADVANCE(lex_ctx, 1);
+			x = DUK__L0();
+			DUK__ADVANCE(lex_ctx, 1);
 
 			if (x == 'b') {
 				/* Note: '\b' in char class is different than outside (assertion),
@@ -54317,8 +54961,8 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 			} else if (x == 'v') {
 				ch = 0x000b;
 			} else if (x == 'c') {
-				x = L0();
-				ADVANCE(lex_ctx, 1);
+				x = DUK__L0();
+				DUK__ADVANCE(lex_ctx, 1);
 				if ((x >= 'a' && x <= 'z') ||
 				    (x >= 'A' && x <= 'Z')) {
 					ch = (x % 32);
@@ -54331,10 +54975,10 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 				}
 			} else if (x == 'x') {
 				ch = decode_hex_escape_from_window(lex_ctx, 0);
-				ADVANCE(lex_ctx, 2);
+				DUK__ADVANCE(lex_ctx, 2);
 			} else if (x == 'u') {
 				ch = decode_unicode_escape_from_window(lex_ctx, 0);
-				ADVANCE(lex_ctx, 4);
+				DUK__ADVANCE(lex_ctx, 4);
 			} else if (x == 'd') {
 				emit_u16_direct_ranges(lex_ctx,
 				                       gen_range,
@@ -54377,9 +55021,9 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 				                       duk_unicode_re_ranges_not_wordchar,
 				                       sizeof(duk_unicode_re_ranges_not_wordchar) / sizeof(duk_uint16_t));
 				ch = -1;
-			} else if (ISDIGIT(x)) {
+			} else if (DUK__ISDIGIT(x)) {
 				/* DecimalEscape, only \0 is allowed, no leading zeroes are allowed */
-				if (x == 0 && !ISDIGIT(L0())) {
+				if (x == 0 && !DUK__ISDIGIT(DUK__L0())) {
 					ch = 0x0000;
 				} else {
 					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
@@ -54456,10 +55100,10 @@ void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range_callback gen
 
 /* include removed: duk_internal.h */
 
-#define IEEE_DOUBLE_EXP_BIAS  1023
-#define IEEE_DOUBLE_EXP_MIN   (-1022)   /* biased exp == 0 -> denormal, exp -1022 */
+#define DUK__IEEE_DOUBLE_EXP_BIAS  1023
+#define DUK__IEEE_DOUBLE_EXP_MIN   (-1022)   /* biased exp == 0 -> denormal, exp -1022 */
 
-#define DIGITCHAR(x)  duk_lc_digits[(x)]
+#define DUK__DIGITCHAR(x)  duk_lc_digits[(x)]
 
 /*
  *  Tables generated with src/gennumdigits.py.
@@ -54503,7 +55147,7 @@ static const duk_exp_limits str2num_exp_limits[] = {
 /*
  *  Limited functionality bigint implementation.
  *
- *  Restricted to non-negative numbers with less than 32 * BI_MAX_PARTS bits,
+ *  Restricted to non-negative numbers with less than 32 * DUK__BI_MAX_PARTS bits,
  *  with the caller responsible for ensuring this is never exceeded.  No memory
  *  allocation (except stack) is needed for bigint computation.  Operations
  *  have been tailored for number conversion needs.
@@ -54515,24 +55159,24 @@ static const duk_exp_limits str2num_exp_limits[] = {
 /* This upper value has been experimentally determined; debug build will check
  * bigint size with assertions.
  */
-#define BI_MAX_PARTS  37  /* 37x32 = 1184 bits */
+#define DUK__BI_MAX_PARTS  37  /* 37x32 = 1184 bits */
 
 #ifdef DUK_USE_DDDEBUG
-#define BI_PRINT(name,x)  bi_print((name),(x))
+#define DUK__BI_PRINT(name,x)  bi_print((name),(x))
 #else
-#define BI_PRINT(name,x)
+#define DUK__BI_PRINT(name,x)
 #endif
 
 /* Current size is about 152 bytes. */
 typedef struct {
 	duk_small_int_t n;
-	duk_uint32_t v[BI_MAX_PARTS];  /* low to high */
+	duk_uint32_t v[DUK__BI_MAX_PARTS];  /* low to high */
 } duk_bigint;
 
 #ifdef DUK_USE_DDDEBUG
 static void bi_print(const char *name, duk_bigint *x) {
 	/* Overestimate required size; debug code so not critical to be tight. */
-	char buf[BI_MAX_PARTS * 9 + 64];
+	char buf[DUK__BI_MAX_PARTS * 9 + 64];
 	char *p = buf;
 	duk_small_int_t i;
 
@@ -54552,7 +55196,7 @@ static void bi_print(const char *name, duk_bigint *x) {
 #ifdef DUK_USE_ASSERTIONS
 static duk_small_int_t bi_is_valid(duk_bigint *x) {
 	return (duk_small_int_t) 
-	       ( ((x->n >= 0) && (x->n <= BI_MAX_PARTS)) /* is valid size */ &&
+	       ( ((x->n >= 0) && (x->n <= DUK__BI_MAX_PARTS)) /* is valid size */ &&
 	         ((x->n == 0) || (x->v[x->n - 1] != 0)) /* is normalized */ );
 }
 #endif
@@ -54651,7 +55295,7 @@ static void bi_add(duk_bigint *x, duk_bigint *y, duk_bigint *z) {
 	ny = y->n; nz = z->n;
 	tmp = 0U;
 	for (i = 0; i < ny; i++) {
-		DUK_ASSERT(i < BI_MAX_PARTS);
+		DUK_ASSERT(i < DUK__BI_MAX_PARTS);
 		tmp += y->v[i];
 		if (i < nz) {
 			tmp += z->v[i];
@@ -54660,11 +55304,11 @@ static void bi_add(duk_bigint *x, duk_bigint *y, duk_bigint *z) {
 		tmp = tmp >> 32;
 	}
 	if (tmp != 0U) {
-		DUK_ASSERT(i < BI_MAX_PARTS);
+		DUK_ASSERT(i < DUK__BI_MAX_PARTS);
 		x->v[i++] = (duk_uint32_t) tmp;
 	}
 	x->n = i;
-	DUK_ASSERT(x->n <= BI_MAX_PARTS);
+	DUK_ASSERT(x->n <= DUK__BI_MAX_PARTS);
 
 	/* no need to normalize */
 	DUK_ASSERT(bi_is_valid(x));
@@ -54689,7 +55333,7 @@ static void bi_add(duk_bigint *x, duk_bigint *y, duk_bigint *z) {
 		/* Carry is detected based on wrapping which relies on exact 32-bit
 		 * types.
 		 */
-		DUK_ASSERT(i < BI_MAX_PARTS);
+		DUK_ASSERT(i < DUK__BI_MAX_PARTS);
 		tmp1 = y->v[i];
 		tmp2 = tmp1;
 		if (i < nz) {
@@ -54710,12 +55354,12 @@ static void bi_add(duk_bigint *x, duk_bigint *y, duk_bigint *z) {
 		x->v[i] = tmp2;
 	}
 	if (carry) {
-		DUK_ASSERT(i < BI_MAX_PARTS);
+		DUK_ASSERT(i < DUK__BI_MAX_PARTS);
 		DUK_ASSERT(carry == 1U);
 		x->v[i++] = carry;
 	}
 	x->n = i;
-	DUK_ASSERT(x->n <= BI_MAX_PARTS);
+	DUK_ASSERT(x->n <= DUK__BI_MAX_PARTS);
 
 	/* no need to normalize */
 	DUK_ASSERT(bi_is_valid(x));
@@ -54846,7 +55490,7 @@ static void bi_mul(duk_bigint *x, duk_bigint *y, duk_bigint *z) {
 	DUK_ASSERT(bi_is_valid(z));
 
 	nx = y->n + z->n;  /* max possible */
-	DUK_ASSERT(nx <= BI_MAX_PARTS);
+	DUK_ASSERT(nx <= DUK__BI_MAX_PARTS);
 
 	if (nx == 0) {
 		/* Both inputs are zero; cases where only one is zero can go
@@ -54870,7 +55514,7 @@ static void bi_mul(duk_bigint *x, duk_bigint *y, duk_bigint *z) {
 		}
 		if (tmp > 0) {
 			DUK_ASSERT(i + j < nx);
-			DUK_ASSERT(i + j < BI_MAX_PARTS);
+			DUK_ASSERT(i + j < DUK__BI_MAX_PARTS);
 			DUK_ASSERT(x->v[i+j] == 0U);
 			x->v[i+j] = (duk_uint32_t) tmp;
 		}
@@ -54941,7 +55585,7 @@ static void bi_mul(duk_bigint *x, duk_bigint *y, duk_bigint *z) {
 		}
 		if (f > 0U) {
 			DUK_ASSERT(i + j < nx);
-			DUK_ASSERT(i + j < BI_MAX_PARTS);
+			DUK_ASSERT(i + j < DUK__BI_MAX_PARTS);
 			DUK_ASSERT(x->v[i+j] == 0U);
 			x->v[i+j] = (duk_uint32_t) f;
 		}
@@ -55033,7 +55677,7 @@ static void bi_exp_small(duk_bigint *x, duk_small_int_t b, duk_small_int_t y, du
 	for (;;) {
 		/* Loop structure ensures that we don't compute t1^2 unnecessarily
 		 * on the final round, as that might create a bignum exceeding the
-		 * current BI_MAX_PARTS limit.
+		 * current DUK__BI_MAX_PARTS limit.
 		 */
 		if (y & 0x01) {
 			bi_mul_copy(x, t1, t2);
@@ -55045,7 +55689,7 @@ static void bi_exp_small(duk_bigint *x, duk_small_int_t b, duk_small_int_t y, du
 		bi_mul_copy(t1, t1, t2);
 	}
 
-	BI_PRINT("exp_small result", x);
+	DUK__BI_PRINT("exp_small result", x);
 }
 
 /*
@@ -55070,14 +55714,14 @@ static void bi_exp_small(duk_bigint *x, duk_small_int_t b, duk_small_int_t y, du
  */
 
 /* Maximum number of digits generated. */
-#define MAX_OUTPUT_DIGITS          1040  /* (Number.MAX_VALUE).toString(2).length == 1024, + spare */
+#define DUK__MAX_OUTPUT_DIGITS          1040  /* (Number.MAX_VALUE).toString(2).length == 1024, + spare */
 
 /* Maximum number of characters in formatted value. */
-#define MAX_FORMATTED_LENGTH       1040  /* (-Number.MAX_VALUE).toString(2).length == 1025, + spare */
+#define DUK__MAX_FORMATTED_LENGTH       1040  /* (-Number.MAX_VALUE).toString(2).length == 1025, + spare */
 
 /* Number and (minimum) size of bigints in the nc_ctx structure. */
-#define NUMCONV_CTX_NUM_BIGINTS    7
-#define NUMCONV_CTX_BIGINTS_SIZE   (sizeof(duk_bigint) * NUMCONV_CTX_NUM_BIGINTS)
+#define DUK__NUMCONV_CTX_NUM_BIGINTS    7
+#define DUK__NUMCONV_CTX_BIGINTS_SIZE   (sizeof(duk_bigint) * DUK__NUMCONV_CTX_NUM_BIGINTS)
 
 typedef struct {
 	/* Currently about 7*152 = 1064 bytes.  The space for these
@@ -55100,7 +55744,7 @@ typedef struct {
 	duk_small_int_t unequal_gaps;  /* m+ != m- (very rarely) */
 
 	/* Buffer used for generated digits, values are in the range [0,B-1]. */
-	duk_uint8_t digits[MAX_OUTPUT_DIGITS];
+	duk_uint8_t digits[DUK__MAX_OUTPUT_DIGITS];
 	duk_small_int_t count;  /* digit count */
 } duk_numconv_stringify_ctx;
 
@@ -55108,9 +55752,9 @@ typedef struct {
  * 'idx' is preincremented, i.e. '1' on first call, because it
  * is more convenient for the caller.
  */
-#define DRAGON4_OUTPUT_PREINC(nc_ctx,preinc_idx,x)  do { \
+#define DUK__DRAGON4_OUTPUT_PREINC(nc_ctx,preinc_idx,x)  do { \
 		DUK_ASSERT((preinc_idx) - 1 >= 0); \
-		DUK_ASSERT((preinc_idx) - 1 < MAX_OUTPUT_DIGITS); \
+		DUK_ASSERT((preinc_idx) - 1 < DUK__MAX_OUTPUT_DIGITS); \
 		((nc_ctx)->digits[(preinc_idx) - 1]) = (duk_uint8_t) (x); \
 	} while(0)
 
@@ -55134,7 +55778,7 @@ static duk_size_t dragon4_format_uint32(duk_uint8_t *buf, duk_uint32_t x, duk_sm
 		x = t;
 
 		DUK_ASSERT(dig >= 0 && dig < 36);
-		*(--p) = DIGITCHAR(dig);
+		*(--p) = DUK__DIGITCHAR(dig);
 
 		if (x == 0) {
 			break;
@@ -55243,7 +55887,7 @@ static void dragon4_prepare(duk_numconv_stringify_ctx *nc_ctx) {
 		/* When doing string-to-number, lowest_mantissa is always 0 so
 		 * the exponent check, while incorrect, won't matter.
 		 */
-		if (nc_ctx->e > IEEE_DOUBLE_EXP_MIN /*not minimum exponent*/ &&
+		if (nc_ctx->e > DUK__IEEE_DOUBLE_EXP_MIN /*not minimum exponent*/ &&
 		    lowest_mantissa /* lowest mantissa for this exponent*/) {
 			/* r <- (* f b 2)                                [if b==2 -> (* f 4)]
 			 * s <- (* (expt b (- 1 e)) 2) == b^(1-e) * 2    [if b==2 -> b^(2-e)]
@@ -55316,17 +55960,17 @@ static void dragon4_scale(duk_numconv_stringify_ctx *nc_ctx) {
 
 	DUK_DDDPRINT("scale: B=%d, low_ok=%d, high_ok=%d",
 	             (int) nc_ctx->B, (int) nc_ctx->low_ok, (int) nc_ctx->high_ok);
-	BI_PRINT("r(init)", &nc_ctx->r);
-	BI_PRINT("s(init)", &nc_ctx->s);
-	BI_PRINT("mp(init)", &nc_ctx->mp);
-	BI_PRINT("mm(init)", &nc_ctx->mm);
+	DUK__BI_PRINT("r(init)", &nc_ctx->r);
+	DUK__BI_PRINT("s(init)", &nc_ctx->s);
+	DUK__BI_PRINT("mp(init)", &nc_ctx->mp);
+	DUK__BI_PRINT("mm(init)", &nc_ctx->mm);
 
 	for (;;) {
 		DUK_DDDPRINT("scale loop (inc k), k=%d", (int) k);
-		BI_PRINT("r", &nc_ctx->r);
-		BI_PRINT("s", &nc_ctx->s);
-		BI_PRINT("m+", &nc_ctx->mp);
-		BI_PRINT("m-", &nc_ctx->mm);
+		DUK__BI_PRINT("r", &nc_ctx->r);
+		DUK__BI_PRINT("s", &nc_ctx->s);
+		DUK__BI_PRINT("m+", &nc_ctx->mp);
+		DUK__BI_PRINT("m-", &nc_ctx->mm);
 
 		bi_add(&nc_ctx->t1, &nc_ctx->r, &nc_ctx->mp);  /* t1 = (+ r m+) */
 		if (bi_compare(&nc_ctx->t1, &nc_ctx->s) >= (nc_ctx->high_ok ? 0 : 1)) {
@@ -55352,10 +55996,10 @@ static void dragon4_scale(duk_numconv_stringify_ctx *nc_ctx) {
 
 	for (;;) {
 		DUK_DDDPRINT("scale loop (dec k), k=%d", (int) k);
-		BI_PRINT("r", &nc_ctx->r);
-		BI_PRINT("s", &nc_ctx->s);
-		BI_PRINT("m+", &nc_ctx->mp);
-		BI_PRINT("m-", &nc_ctx->mm);
+		DUK__BI_PRINT("r", &nc_ctx->r);
+		DUK__BI_PRINT("s", &nc_ctx->s);
+		DUK__BI_PRINT("m+", &nc_ctx->mp);
+		DUK__BI_PRINT("m-", &nc_ctx->mm);
 
 		bi_add(&nc_ctx->t1, &nc_ctx->r, &nc_ctx->mp);  /* t1 = (+ r m+) */
 		bi_mul_small(&nc_ctx->t2, &nc_ctx->t1, nc_ctx->B);   /* t2 = (* (+ r m+) B) */
@@ -55388,10 +56032,10 @@ static void dragon4_scale(duk_numconv_stringify_ctx *nc_ctx) {
 	nc_ctx->k = k;
 
 	DUK_DDDPRINT("final k: %d", (int) k);
-	BI_PRINT("r(final)", &nc_ctx->r);
-	BI_PRINT("s(final)", &nc_ctx->s);
-	BI_PRINT("mp(final)", &nc_ctx->mp);
-	BI_PRINT("mm(final)", &nc_ctx->mm);
+	DUK__BI_PRINT("r(final)", &nc_ctx->r);
+	DUK__BI_PRINT("s(final)", &nc_ctx->s);
+	DUK__BI_PRINT("mp(final)", &nc_ctx->mp);
+	DUK__BI_PRINT("mm(final)", &nc_ctx->mm);
 }
 
 static void dragon4_generate(duk_numconv_stringify_ctx *nc_ctx) {
@@ -55421,10 +56065,10 @@ static void dragon4_generate(duk_numconv_stringify_ctx *nc_ctx) {
 		DUK_DDDPRINT("generate loop, count=%d, k=%d, B=%d, low_ok=%d, high_ok=%d",
 		             (int) count, (int) nc_ctx->k, (int) nc_ctx->B,
 		             (int) nc_ctx->low_ok, (int) nc_ctx->high_ok);
-		BI_PRINT("r", &nc_ctx->r);
-		BI_PRINT("s", &nc_ctx->s);
-		BI_PRINT("m+", &nc_ctx->mp);
-		BI_PRINT("m-", &nc_ctx->mm);
+		DUK__BI_PRINT("r", &nc_ctx->r);
+		DUK__BI_PRINT("s", &nc_ctx->s);
+		DUK__BI_PRINT("m+", &nc_ctx->mp);
+		DUK__BI_PRINT("m-", &nc_ctx->mm);
 
 		/* (quotient-remainder (* r B) s) using a dummy subtraction loop */
 		bi_mul_small(&nc_ctx->t1, &nc_ctx->r, nc_ctx->B);       /* t1 <- (* r B) */
@@ -55439,12 +56083,12 @@ static void dragon4_generate(duk_numconv_stringify_ctx *nc_ctx) {
 		bi_copy(&nc_ctx->r, &nc_ctx->t1);  /* r <- (remainder (* r B) s) */
 		                                   /* d <- (quotient (* r B) s)   (in range 0...B-1) */
 		DUK_DDDPRINT("-> d(quot)=%d", (int) d);
-		BI_PRINT("r(rem)", &nc_ctx->r);
+		DUK__BI_PRINT("r(rem)", &nc_ctx->r);
 
 		bi_mul_small_copy(&nc_ctx->mp, nc_ctx->B, &nc_ctx->t2); /* m+ <- (* m+ B) */
 		bi_mul_small_copy(&nc_ctx->mm, nc_ctx->B, &nc_ctx->t2); /* m- <- (* m- B) */
-		BI_PRINT("mp(upd)", &nc_ctx->mp);
-		BI_PRINT("mm(upd)", &nc_ctx->mm);
+		DUK__BI_PRINT("mp(upd)", &nc_ctx->mp);
+		DUK__BI_PRINT("mm(upd)", &nc_ctx->mm);
 
 		/* Terminating conditions.  For fixed width output, we just ignore the
 		 * terminating conditions (and pretend that tc1 == tc2 == false).  The
@@ -55466,7 +56110,7 @@ static void dragon4_generate(duk_numconv_stringify_ctx *nc_ctx) {
 			tc2 = 0;
 		}
 
-		/* Count is incremented before DRAGON4_OUTPUT_PREINC() call
+		/* Count is incremented before DUK__DRAGON4_OUTPUT_PREINC() call
 		 * on purpose, which is taken into account by the macro.
 		 */
 		count++;
@@ -55478,18 +56122,18 @@ static void dragon4_generate(duk_numconv_stringify_ctx *nc_ctx) {
 				if (bi_compare(&nc_ctx->t1, &nc_ctx->s) < 0) {  /* (< (* r 2) s) */
 					DUK_DDDPRINT("tc1=true, tc2=true, 2r > s: output d --> %d (k=%d)",
 					             (int) d, (int) nc_ctx->k);
-					DRAGON4_OUTPUT_PREINC(nc_ctx, count, d);
+					DUK__DRAGON4_OUTPUT_PREINC(nc_ctx, count, d);
 				} else {
 					DUK_DDDPRINT("tc1=true, tc2=true, 2r <= s: output d+1 --> %d (k=%d)",
 					             (int) (d + 1), (int) nc_ctx->k);
-					DRAGON4_OUTPUT_PREINC(nc_ctx, count, d + 1);
+					DUK__DRAGON4_OUTPUT_PREINC(nc_ctx, count, d + 1);
 				}
 				break;
 			} else {
 				/* tc1 = true, tc2 = false */
 				DUK_DDDPRINT("tc1=true, tc2=false: output d --> %d (k=%d)",
 				             (int) d, (int) nc_ctx->k);
-				DRAGON4_OUTPUT_PREINC(nc_ctx, count, d);
+				DUK__DRAGON4_OUTPUT_PREINC(nc_ctx, count, d);
 				break;
 			}
 		} else {
@@ -55497,13 +56141,13 @@ static void dragon4_generate(duk_numconv_stringify_ctx *nc_ctx) {
 				/* tc1 = false, tc2 = true */
 				DUK_DDDPRINT("tc1=false, tc2=true: output d+1 --> %d (k=%d)",
 				             (int) (d + 1), (int) nc_ctx->k);
-				DRAGON4_OUTPUT_PREINC(nc_ctx, count, d + 1);
+				DUK__DRAGON4_OUTPUT_PREINC(nc_ctx, count, d + 1);
 				break;
 			} else {
 				/* tc1 = false, tc2 = false */
 				DUK_DDDPRINT("tc1=false, tc2=false: output d --> %d (k=%d)",
 				             (int) d, (int) nc_ctx->k);
-				DRAGON4_OUTPUT_PREINC(nc_ctx, count, d);
+				DUK__DRAGON4_OUTPUT_PREINC(nc_ctx, count, d);
 
 				/* r <- r    (updated above: r <- (remainder (* r B) s)
 				 * s <- s
@@ -55551,7 +56195,7 @@ static void dragon4_generate(duk_numconv_stringify_ctx *nc_ctx) {
 			if (t < 0 || t > 36) {
 				buf[i] = (duk_uint8_t) '?';
 			} else {
-				buf[i] = (duk_uint8_t) DIGITCHAR(t);
+				buf[i] = (duk_uint8_t) DUK__DIGITCHAR(t);
 			}
 		}
 		DUK_DDDPRINT("-> generated digits; k=%d, digits='%s'",
@@ -55638,7 +56282,7 @@ static duk_small_int_t dragon4_fixed_format_round(duk_numconv_stringify_ctx *nc_
 	return ret;
 }
 
-#define NO_EXP  (65536)  /* arbitrary marker, outside valid exp range */
+#define DUK__NO_EXP  (65536)  /* arbitrary marker, outside valid exp range */
 
 static void dragon4_convert_and_push(duk_numconv_stringify_ctx *nc_ctx,
                                      duk_context *ctx,
@@ -55677,7 +56321,7 @@ static void dragon4_convert_and_push(duk_numconv_stringify_ctx *nc_ctx,
 	 *  allocating even more stack.
 	 */
 
-	DUK_ASSERT(NUMCONV_CTX_BIGINTS_SIZE >= MAX_FORMATTED_LENGTH);
+	DUK_ASSERT(DUK__NUMCONV_CTX_BIGINTS_SIZE >= DUK__MAX_FORMATTED_LENGTH);
 	DUK_ASSERT(nc_ctx->count >= 1);
 
 	k = nc_ctx->k;
@@ -55691,7 +56335,7 @@ static void dragon4_convert_and_push(duk_numconv_stringify_ctx *nc_ctx,
 	 * match the other API calls (toString(), toPrecision, etc).
 	 */
 
-	exp = NO_EXP;
+	exp = DUK__NO_EXP;
 	if (!nc_ctx->abs_pos /* toFixed() */) {
 		if ((flags & DUK_N2S_FLAG_FORCE_EXP) ||             /* exponential notation forced */
 		    ((flags & DUK_N2S_FLAG_NO_ZERO_PAD) &&          /* fixed precision and zero padding would be required */
@@ -55742,7 +56386,7 @@ static void dragon4_convert_and_push(duk_numconv_stringify_ctx *nc_ctx,
 		} else {
 			dig = nc_ctx->digits[k - pos];
 			DUK_ASSERT(dig >= 0 && dig < nc_ctx->B);
-			*q++ = (duk_uint8_t) DIGITCHAR(dig);
+			*q++ = (duk_uint8_t) DUK__DIGITCHAR(dig);
 		} 
 
 		pos--;
@@ -55750,7 +56394,7 @@ static void dragon4_convert_and_push(duk_numconv_stringify_ctx *nc_ctx,
 	DUK_ASSERT(pos <= 1);
 
 	/* Exponent */
-	if (exp != NO_EXP) {
+	if (exp != DUK__NO_EXP) {
 		/*
 		 *  Exponent notation for non-base-10 numbers isn't specified in Ecmascript
 		 *  specification, as it never explicitly turns up: non-decimal numbers can
@@ -55818,12 +56462,12 @@ static void dragon4_double_to_ctx(duk_numconv_stringify_ctx *nc_ctx, duk_double_
 
 	if (exp == 0) {
 		/* denormal */
-		exp = IEEE_DOUBLE_EXP_MIN - 52;
+		exp = DUK__IEEE_DOUBLE_EXP_MIN - 52;
 		bi_normalize(&nc_ctx->f);
 	} else {
 		/* normal: implicit leading 1-bit */
 		nc_ctx->f.v[1] |= 0x00100000UL;
-		exp = exp - IEEE_DOUBLE_EXP_BIAS - 52;
+		exp = exp - DUK__IEEE_DOUBLE_EXP_BIAS - 52;
 		DUK_ASSERT(bi_is_valid(&nc_ctx->f));  /* true, because v[1] has at least one bit set */
 	}
 
@@ -55900,7 +56544,7 @@ void dragon4_ctx_to_double(duk_numconv_stringify_ctx *nc_ctx, duk_double_t *x) {
 	} else if (exp >= -1022) {
 		/* normal */
 		bitstart = 1;  /* skip leading digit */
-		exp += IEEE_DOUBLE_EXP_BIAS;
+		exp += DUK__IEEE_DOUBLE_EXP_BIAS;
 		DUK_ASSERT(exp >= 1 && exp <= 2046);
 	} else {
 		/* denormal or zero */
@@ -56038,7 +56682,7 @@ void duk_numconv_stringify(duk_context *ctx, duk_small_int_t radix, duk_small_in
 		duk_uint8_t *buf = (duk_uint8_t *) (&nc_ctx->f);
 		duk_uint8_t *p = buf;
 
-		DUK_ASSERT(NUMCONV_CTX_BIGINTS_SIZE >= 32 + 1);  /* max size: radix=2 + sign */
+		DUK_ASSERT(DUK__NUMCONV_CTX_BIGINTS_SIZE >= 32 + 1);  /* max size: radix=2 + sign */
 		if (neg && uval != 0) {
 			/* no negative sign for zero */
 			*p++ = (duk_uint8_t) '-';
@@ -56111,7 +56755,7 @@ void duk_numconv_stringify(duk_context *ctx, duk_small_int_t radix, duk_small_in
 	}
 
 	dragon4_double_to_ctx(nc_ctx, x);   /* -> sets 'f' and 'e' */
-	BI_PRINT("f", &nc_ctx->f);
+	DUK__BI_PRINT("f", &nc_ctx->f);
 	DUK_DDDPRINT("e=%d", (int) nc_ctx->e);
 
 	/*
@@ -56121,18 +56765,18 @@ void duk_numconv_stringify(duk_context *ctx, duk_small_int_t radix, duk_small_in
 	dragon4_prepare(nc_ctx);  /* setup many variables in nc_ctx */
 
 	DUK_DDDPRINT("after prepare:");
-	BI_PRINT("r", &nc_ctx->r);
-	BI_PRINT("s", &nc_ctx->s);
-	BI_PRINT("mp", &nc_ctx->mp);
-	BI_PRINT("mm", &nc_ctx->mm);
+	DUK__BI_PRINT("r", &nc_ctx->r);
+	DUK__BI_PRINT("s", &nc_ctx->s);
+	DUK__BI_PRINT("mp", &nc_ctx->mp);
+	DUK__BI_PRINT("mm", &nc_ctx->mm);
 
 	dragon4_scale(nc_ctx);
 
 	DUK_DDDPRINT("after scale; k=%d", (int) nc_ctx->k);
-	BI_PRINT("r", &nc_ctx->r);
-	BI_PRINT("s", &nc_ctx->s);
-	BI_PRINT("mp", &nc_ctx->mp);
-	BI_PRINT("mm", &nc_ctx->mm);
+	DUK__BI_PRINT("r", &nc_ctx->r);
+	DUK__BI_PRINT("s", &nc_ctx->s);
+	DUK__BI_PRINT("mp", &nc_ctx->mp);
+	DUK__BI_PRINT("mm", &nc_ctx->mm);
 
 	dragon4_generate(nc_ctx);
 
@@ -56221,7 +56865,7 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
 	             duk_get_tval(ctx, -1), (int) radix, (unsigned int) flags);
 
 	DUK_ASSERT(radix >= 2 && radix <= 36);
-	DUK_ASSERT(radix - 2 < sizeof(str2num_digits_for_radix));
+	DUK_ASSERT(radix - 2 < (duk_small_int_t) sizeof(str2num_digits_for_radix));
 
 	/*
 	 *  Preliminaries: trim, sign, Infinity check
@@ -56378,7 +57022,7 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
 		             (void *) p, (ch >= 0x20 && ch <= 0x7e) ? ch : '?', (int) ch,
 		             (int) exp, (int) exp_adj, (int) dig_whole, (int) dig_frac,
 		             (int) dig_exp, (int) dig_lzero, (int) dig_prec);
-		BI_PRINT("f", &nc_ctx->f);
+		DUK__BI_PRINT("f", &nc_ctx->f);
 
 		/* Most common cases first. */
 		if (ch >= (duk_small_int_t) '0' && ch <= (duk_small_int_t) '9') {
@@ -56602,7 +57246,7 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
 		 */
 		DUK_DDDPRINT("dig_prec=%d, pad significand with zero", (int) dig_prec);
 		bi_mul_small_copy(&nc_ctx->f, radix, &nc_ctx->t1);
-		BI_PRINT("f", &nc_ctx->f);
+		DUK__BI_PRINT("f", &nc_ctx->f);
 		exp--;
 		dig_prec++;
 	}
@@ -56645,7 +57289,7 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
 	nc_ctx->abs_pos = 0;
 	nc_ctx->req_digits = 53 + 1;
 
-	BI_PRINT("f", &nc_ctx->f);
+	DUK__BI_PRINT("f", &nc_ctx->f);
 	DUK_DDDPRINT("e=%d", (int) nc_ctx->e);
 
 	/*
@@ -56656,18 +57300,18 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
 	dragon4_prepare(nc_ctx);  /* setup many variables in nc_ctx */
 
 	DUK_DDDPRINT("after prepare:");
-	BI_PRINT("r", &nc_ctx->r);
-	BI_PRINT("s", &nc_ctx->s);
-	BI_PRINT("mp", &nc_ctx->mp);
-	BI_PRINT("mm", &nc_ctx->mm);
+	DUK__BI_PRINT("r", &nc_ctx->r);
+	DUK__BI_PRINT("s", &nc_ctx->s);
+	DUK__BI_PRINT("mp", &nc_ctx->mp);
+	DUK__BI_PRINT("mm", &nc_ctx->mm);
 
 	dragon4_scale(nc_ctx);
 
 	DUK_DDDPRINT("after scale; k=%d", (int) nc_ctx->k);
-	BI_PRINT("r", &nc_ctx->r);
-	BI_PRINT("s", &nc_ctx->s);
-	BI_PRINT("mp", &nc_ctx->mp);
-	BI_PRINT("mm", &nc_ctx->mm);
+	DUK__BI_PRINT("r", &nc_ctx->r);
+	DUK__BI_PRINT("s", &nc_ctx->s);
+	DUK__BI_PRINT("mp", &nc_ctx->mp);
+	DUK__BI_PRINT("mm", &nc_ctx->mm);
 
 	dragon4_generate(nc_ctx);
 
@@ -56718,11 +57362,11 @@ void duk_numconv_parse(duk_context *ctx, duk_small_int_t radix, duk_small_uint_t
  *  Helper macros
  */
 
-#ifdef DUK_BUFLEN
-#undef DUK_BUFLEN
+#ifdef DUK__BUFLEN
+#undef DUK__BUFLEN
 #endif
 
-#define DUK_BUFLEN(re_ctx)   DUK_HBUFFER_GET_SIZE((duk_hbuffer *) re_ctx->buf)
+#define DUK__BUFLEN(re_ctx)   DUK_HBUFFER_GET_SIZE((duk_hbuffer *) re_ctx->buf)
 
 /*
  *  Encoding helpers
@@ -56813,7 +57457,7 @@ static duk_uint32_t insert_jump_offset(duk_re_compiler_ctx *re_ctx, duk_uint32_t
 }
 
 static duk_uint32_t append_jump_offset(duk_re_compiler_ctx *re_ctx, duk_int32_t skip) {
-	return insert_jump_offset(re_ctx, DUK_BUFLEN(re_ctx), skip);
+	return insert_jump_offset(re_ctx, DUK__BUFLEN(re_ctx), skip);
 }
 
 /*
@@ -56941,7 +57585,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 	duk_int32_t atom_char_length = 0;   /* negative -> complex atom */
 	duk_int32_t unpatched_disjunction_split = -1;
 	duk_int32_t unpatched_disjunction_jump = -1;
-	duk_uint32_t entry_offset = DUK_BUFLEN(re_ctx);
+	duk_uint32_t entry_offset = DUK__BUFLEN(re_ctx);
 	duk_int32_t res = 0;	/* -1 if disjunction is complex, char length if simple */
 
 	if (re_ctx->recursion_depth >= re_ctx->recursion_limit) {
@@ -56984,7 +57628,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 				offset = unpatched_disjunction_jump;
 				offset += insert_jump_offset(re_ctx,
 				                             offset,
-				                             DUK_BUFLEN(re_ctx) - offset);
+				                             DUK__BUFLEN(re_ctx) - offset);
 				/* offset is now target of the pending split (right after jump) */
 				insert_jump_offset(re_ctx,
 				                   unpatched_disjunction_split,
@@ -56999,7 +57643,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 
 			/* add a new pending match jump for latest finished alternative */
 			append_u32(re_ctx, DUK_REOP_JUMP);
-			unpatched_disjunction_jump = DUK_BUFLEN(re_ctx);
+			unpatched_disjunction_jump = DUK__BUFLEN(re_ctx);
 
 			/* 'taint' result as complex */
 			res = -1;
@@ -57041,7 +57685,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 				}
 
 				append_u32(re_ctx, DUK_REOP_MATCH);   /* complete 'sub atom' */
-				atom_code_length = DUK_BUFLEN(re_ctx) - atom_start_offset;
+				atom_code_length = DUK__BUFLEN(re_ctx) - atom_start_offset;
 
 				offset = atom_start_offset;
 				if (re_ctx->curr_token.greedy) {
@@ -57080,7 +57724,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 					          "quantifier expansion requires too many atom copies");
 				}
 
-				atom_code_length = DUK_BUFLEN(re_ctx) - atom_start_offset;
+				atom_code_length = DUK__BUFLEN(re_ctx) - atom_start_offset;
 
 				/* insert the required matches (qmin) by copying the atom */
 				tmp_qmin = re_ctx->curr_token.qmin;
@@ -57129,7 +57773,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 					 *      ...
 					 *   LSEQ:
 					 */
-					duk_uint32_t offset = DUK_BUFLEN(re_ctx);
+					duk_uint32_t offset = DUK__BUFLEN(re_ctx);
 					while (tmp_qmax > 0) {
 						insert_slice(re_ctx, offset, atom_start_offset, atom_code_length);
 						if (re_ctx->curr_token.greedy) {
@@ -57139,7 +57783,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 						}
 						insert_jump_offset(re_ctx,
 						                   offset + 1,   /* +1 for opcode */
-						                   DUK_BUFLEN(re_ctx) - (offset + 1));
+						                   DUK__BUFLEN(re_ctx) - (offset + 1));
 						tmp_qmax--;
 					}
 				}
@@ -57174,14 +57818,14 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 			duk_uint32_t opcode = (re_ctx->curr_token.t == DUK_RETOK_ASSERT_START_POS_LOOKAHEAD) ?
 			                      DUK_REOP_LOOKPOS : DUK_REOP_LOOKNEG;
 
-			offset = DUK_BUFLEN(re_ctx);
+			offset = DUK__BUFLEN(re_ctx);
 			(void) parse_disjunction(re_ctx, 0);
 			append_u32(re_ctx, DUK_REOP_MATCH);
 
 			(void) insert_u32(re_ctx, offset, opcode);
 			(void) insert_jump_offset(re_ctx,
 			                          offset + 1,   /* +1 for opcode */
-			                          DUK_BUFLEN(re_ctx) - (offset + 1));
+			                          DUK__BUFLEN(re_ctx) - (offset + 1));
 
 			/* 'taint' result as complex -- this is conservative,
 			 * as lookaheads do not backtrack.
@@ -57191,7 +57835,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 		}
 		case DUK_RETOK_ATOM_PERIOD: {
 			new_atom_char_length = 1;
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			append_u32(re_ctx, DUK_REOP_PERIOD);
 			break;
 		}
@@ -57203,7 +57847,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 			duk_uint32_t ch;
 
 			new_atom_char_length = 1;
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			append_u32(re_ctx, DUK_REOP_CHAR);
 			ch = re_ctx->curr_token.num;
 			if (re_ctx->re_flags & DUK_RE_FLAG_IGNORE_CASE) {
@@ -57215,7 +57859,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 		case DUK_RETOK_ATOM_DIGIT:
 		case DUK_RETOK_ATOM_NOT_DIGIT: {
 			new_atom_char_length = 1;
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			append_u32(re_ctx,
 			           (re_ctx->curr_token.t == DUK_RETOK_ATOM_DIGIT) ?
 			           DUK_REOP_RANGES : DUK_REOP_INVRANGES);
@@ -57226,7 +57870,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 		case DUK_RETOK_ATOM_WHITE:
 		case DUK_RETOK_ATOM_NOT_WHITE: {
 			new_atom_char_length = 1;
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			append_u32(re_ctx,
 			           (re_ctx->curr_token.t == DUK_RETOK_ATOM_WHITE) ?
 			           DUK_REOP_RANGES : DUK_REOP_INVRANGES);
@@ -57237,7 +57881,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 		case DUK_RETOK_ATOM_WORD_CHAR:
 		case DUK_RETOK_ATOM_NOT_WORD_CHAR: {
 			new_atom_char_length = 1;
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			append_u32(re_ctx,
 			           (re_ctx->curr_token.t == DUK_RETOK_ATOM_WORD_CHAR) ?
 			           DUK_REOP_RANGES : DUK_REOP_INVRANGES);
@@ -57251,7 +57895,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 				re_ctx->highest_backref = backref;
 			}
 			new_atom_char_length = -1;   /* mark as complex */
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			append_u32(re_ctx, DUK_REOP_BACKREFERENCE);
 			append_u32(re_ctx, backref);
 			break;
@@ -57260,7 +57904,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 			duk_uint32_t cap;
 
 			new_atom_char_length = -1;   /* mark as complex (capture handling) */
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			cap = ++re_ctx->captures;
 			append_u32(re_ctx, DUK_REOP_SAVE);
 			append_u32(re_ctx, cap * 2);
@@ -57271,7 +57915,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 		}
 		case DUK_RETOK_ATOM_START_NONCAPTURE_GROUP: {
 			new_atom_char_length = parse_disjunction(re_ctx, 0);
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			break;
 		}
 		case DUK_RETOK_ATOM_START_CHARCLASS:
@@ -57306,11 +57950,11 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 
 			/* insert ranges instruction, range count patched in later */
 			new_atom_char_length = 1;
-			new_atom_start_offset = DUK_BUFLEN(re_ctx);
+			new_atom_start_offset = DUK__BUFLEN(re_ctx);
 			append_u32(re_ctx,
 			           (re_ctx->curr_token.t == DUK_RETOK_ATOM_START_CHARCLASS) ?
 			           DUK_REOP_RANGES : DUK_REOP_INVRANGES);
-			offset = DUK_BUFLEN(re_ctx);    /* patch in range count later */
+			offset = DUK__BUFLEN(re_ctx);    /* patch in range count later */
 
 			/* parse ranges until character class ends */
 			re_ctx->nranges = 0;    /* note: ctx-wide temporary */
@@ -57365,7 +58009,7 @@ static duk_int32_t parse_disjunction(duk_re_compiler_ctx *re_ctx, int expect_eof
 		offset = unpatched_disjunction_jump;
 		offset += insert_jump_offset(re_ctx,
 		                             offset,
-		                             DUK_BUFLEN(re_ctx) - offset);
+		                             DUK__BUFLEN(re_ctx) - offset);
 		/* offset is now target of the pending split (right after jump) */
 		insert_jump_offset(re_ctx,
 		                   unpatched_disjunction_split,
@@ -57550,6 +58194,7 @@ void duk_regexp_compile(duk_hthread *thr) {
 	re_ctx.lex.thr = thr;
 	re_ctx.lex.input = DUK_HSTRING_GET_DATA(h_pattern);
 	re_ctx.lex.input_length = DUK_HSTRING_GET_BYTELEN(h_pattern);
+	re_ctx.lex.token_limit = DUK_RE_COMPILE_TOKEN_LIMIT;
 	re_ctx.buf = h_buffer;
 	re_ctx.recursion_limit = DUK_RE_COMPILE_RECURSION_LIMIT;
 	re_ctx.re_flags = parse_regexp_flags(thr, h_flags);
@@ -57683,7 +58328,7 @@ void duk_regexp_create_instance(duk_hthread *thr) {
 	/* [ ... regexp_object ] */
 }
 
-#undef DUK_BUFLEN
+#undef DUK__BUFLEN
 
 #else  /* DUK_USE_REGEXP_SUPPORT */
 
@@ -58430,7 +59075,8 @@ static void regexp_match_helper(duk_hthread *thr, duk_small_int_t force_global) 
 
 	for (;;) {
 		/* char offset in [0, h_input->clen] (both ends inclusive), checked before entry */
-		DUK_ASSERT(char_offset >= 0 && char_offset <= DUK_HSTRING_GET_CHARLEN(h_input));
+		DUK_ASSERT_DISABLE(char_offset >= 0);
+		DUK_ASSERT(char_offset <= DUK_HSTRING_GET_CHARLEN(h_input));
 
 		/* Note: ctx.steps is intentionally not reset, it applies to the entire unanchored match */
 		DUK_ASSERT(re_ctx.recursion_depth == 0);
@@ -58727,13 +59373,13 @@ typedef union {
 	unsigned char c[8];
 } duk_test_union;
 
-#define DUK_UNION_CMP_TRUE(a,b)  do { \
+#define DUK__UNION_CMP_TRUE(a,b)  do { \
 		if (DUK_MEMCMP((void *) (a), (void *) (b), sizeof(duk_test_union)) != 0) { \
 			DUK_PANIC(DUK_ERR_INTERNAL_ERROR, "self test failed: double union compares false (expected true)"); \
 		} \
 	} while (0)
 
-#define DUK_UNION_CMP_FALSE(a,b)  do { \
+#define DUK__UNION_CMP_FALSE(a,b)  do { \
 		if (DUK_MEMCMP((void *) (a), (void *) (b), sizeof(duk_test_union)) == 0) { \
 			DUK_PANIC(DUK_ERR_INTERNAL_ERROR, "self test failed: double union compares true (expected false)"); \
 		} \
@@ -58777,19 +59423,19 @@ static void duk_selftest_double_aliasing(void) {
 	a.c[0] = 0x11; a.c[1] = 0x22; a.c[2] = 0x33; a.c[3] = 0x44;
 	a.c[4] = 0x00; a.c[5] = 0x00; a.c[6] = 0xf1; a.c[7] = 0xff;
 	b = a;
-	DUK_UNION_CMP_TRUE(&a, &b);
+	DUK__UNION_CMP_TRUE(&a, &b);
 
 	/* big endian */
 	a.c[0] = 0xff; a.c[1] = 0xf1; a.c[2] = 0x00; a.c[3] = 0x00;
 	a.c[4] = 0x44; a.c[5] = 0x33; a.c[6] = 0x22; a.c[7] = 0x11;
 	b = a;
-	DUK_UNION_CMP_TRUE(&a, &b);
+	DUK__UNION_CMP_TRUE(&a, &b);
 
 	/* middle endian */
 	a.c[0] = 0x00; a.c[1] = 0x00; a.c[2] = 0xf1; a.c[3] = 0xff;
 	a.c[4] = 0x11; a.c[5] = 0x22; a.c[6] = 0x33; a.c[7] = 0x44;
 	b = a;
-	DUK_UNION_CMP_TRUE(&a, &b);
+	DUK__UNION_CMP_TRUE(&a, &b);
 }
 
 /*
@@ -58801,7 +59447,7 @@ static void duk_selftest_double_zero_sign(void) {
 
 	a.d = 0.0;
 	b.d = -a.d;
-	DUK_UNION_CMP_FALSE(&a, &b);
+	DUK__UNION_CMP_FALSE(&a, &b);
 }
 
 /*
@@ -58815,7 +59461,7 @@ void duk_selftest_run_tests(void) {
 	duk_selftest_double_zero_sign();
 }
 
-#undef DUK_UNION_CMP
+#undef DUK__UNION_CMP
 
 #endif  /* DUK_USE_SELF_TESTS */
 #line 1 "duk_unicode_support.c"
@@ -59150,11 +59796,10 @@ duk_small_int_t duk_unicode_is_whitespace(duk_codepoint_t cp) {
 	 *    00A0;NO-BREAK SPACE;Zs;0;CS;<noBreak> 0020;;;;N;NON-BREAKING SPACE;;;;
 	 *    FEFF;ZERO WIDTH NO-BREAK SPACE;Cf;0;BN;;;;;N;BYTE ORDER MARK;;;;
 	 *
-	 *  It also specifies any Unicode category 'Z' characters as white
+	 *  It also specifies any Unicode category 'Zs' characters as white
 	 *  space.  These can be extracted with the "src/extract_chars.py" script.
-	 *
-	 *  Current result (built as WhiteSpace-Z.txt).
-	 *
+	 *  Current result:
+	 *  
 	 *    RAW OUTPUT:
 	 *    ===========
 	 *    0020;SPACE;Zs;0;WS;;;;;N;;;;;
@@ -59172,12 +59817,10 @@ duk_small_int_t duk_unicode_is_whitespace(duk_codepoint_t cp) {
 	 *    2008;PUNCTUATION SPACE;Zs;0;WS;<compat> 0020;;;;N;;;;;
 	 *    2009;THIN SPACE;Zs;0;WS;<compat> 0020;;;;N;;;;;
 	 *    200A;HAIR SPACE;Zs;0;WS;<compat> 0020;;;;N;;;;;
-	 *    2028;LINE SEPARATOR;Zl;0;WS;;;;;N;;;;;
-	 *    2029;PARAGRAPH SEPARATOR;Zp;0;B;;;;;N;;;;;
 	 *    202F;NARROW NO-BREAK SPACE;Zs;0;CS;<noBreak> 0020;;;;N;;;;;
 	 *    205F;MEDIUM MATHEMATICAL SPACE;Zs;0;WS;<compat> 0020;;;;N;;;;;
 	 *    3000;IDEOGRAPHIC SPACE;Zs;0;WS;<wide> 0020;;;;N;;;;;
-	 *    
+	 *  
 	 *    RANGES:
 	 *    =======
 	 *    0x0020
@@ -59185,7 +59828,6 @@ duk_small_int_t duk_unicode_is_whitespace(duk_codepoint_t cp) {
 	 *    0x1680
 	 *    0x180e
 	 *    0x2000 ... 0x200a
-	 *    0x2028 ... 0x2029
 	 *    0x202f
 	 *    0x205f
 	 *    0x3000
@@ -59207,8 +59849,7 @@ duk_small_int_t duk_unicode_is_whitespace(duk_codepoint_t cp) {
 			return 1;
 		}
 	} else if (hi == 0x0020UL) {
-		if (lo <= 0x0aU || lo == 0x28U || lo == 0x29U ||
-		    lo == 0x2fU || lo == 0x5fU) {
+		if (lo <= 0x0aU || lo == 0x2fU || lo == 0x5fU) {
 			return 1;
 		}
 	} else if (cp == 0x1680L || cp == 0x180eL || cp == 0x3000L ||
@@ -59667,7 +60308,11 @@ static duk_codepoint_t case_transform_helper(duk_hthread *thr,
 	}
 	return cp;
 
+ /* unused now, not needed until Turkish/Azeri */
+#if 0
  nochar:
+#endif
+
 	return -1;
 }
 
@@ -60244,8 +60889,8 @@ void duk_be_finish(duk_bitencoder_ctx *ctx) {
 /* include removed: duk_internal.h */
 
 /* 'magic' constants for Murmurhash2 */
-#define MAGIC_M  ((duk_uint32_t) 0x5bd1e995UL)
-#define MAGIC_R  24
+#define DUK__MAGIC_M  ((duk_uint32_t) 0x5bd1e995UL)
+#define DUK__MAGIC_R  24
 
 duk_uint32_t duk_util_hashbytes(duk_uint8_t *data, duk_size_t len, duk_uint32_t seed) {
 	duk_uint32_t h = seed ^ len;
@@ -60265,10 +60910,10 @@ duk_uint32_t duk_util_hashbytes(duk_uint8_t *data, duk_size_t len, duk_uint32_t 
 		                 (((duk_uint32_t) data[3]) << 24);
 #endif
 
-		k *= MAGIC_M;
-		k ^= k >> MAGIC_R;
-		k *= MAGIC_M;
-		h *= MAGIC_M;
+		k *= DUK__MAGIC_M;
+		k ^= k >> DUK__MAGIC_R;
+		k *= DUK__MAGIC_M;
+		h *= DUK__MAGIC_M;
 		h ^= k;
 		data += 4;
 		len -= 4;
@@ -60278,11 +60923,11 @@ duk_uint32_t duk_util_hashbytes(duk_uint8_t *data, duk_size_t len, duk_uint32_t 
 		case 3:	h ^= data[2] << 16;
 		case 2:	h ^= data[1] << 8;
 		case 1:	h ^= data[0];
-			h *= MAGIC_M;
+			h *= DUK__MAGIC_M;
         }
 
 	h ^= h >> 13;
-	h *= MAGIC_M;
+	h *= DUK__MAGIC_M;
 	h ^= h >> 15;
 
 	return h;
@@ -60305,7 +60950,7 @@ duk_uint32_t duk_util_hashbytes(duk_uint8_t *data, duk_size_t len, duk_uint32_t 
 /* include removed: duk_internal.h */
 
 /* hash size ratio goal, must match genhashsizes.py */
-#define HASH_SIZE_RATIO   1177  /* floor(1.15 * (1 << 10)) */
+#define DUK__HASH_SIZE_RATIO   1177  /* floor(1.15 * (1 << 10)) */
 
 /* prediction corrections for prime list (see genhashsizes.py) */
 static const duk_int8_t hash_size_corrections[] = {
@@ -60342,10 +60987,10 @@ duk_uint32_t duk_util_get_hash_prime(duk_uint32_t size) {
 
 		/* prediction: portable variant using doubles if 64-bit values not available */
 #ifdef DUK_USE_64BIT_OPS
-		curr = (duk_uint32_t) ((((duk_uint64_t) curr) * ((duk_uint64_t) HASH_SIZE_RATIO)) >> 10);
+		curr = (duk_uint32_t) ((((duk_uint64_t) curr) * ((duk_uint64_t) DUK__HASH_SIZE_RATIO)) >> 10);
 #else
 		/* 32-bit x 11-bit = 43-bit, fits accurately into a double */
-		curr = (duk_uint32_t) floor(((double) curr) * ((double) HASH_SIZE_RATIO) / 1024.0);
+		curr = (duk_uint32_t) floor(((double) curr) * ((double) DUK__HASH_SIZE_RATIO) / 1024.0);
 #endif
 
 		/* correction */
@@ -60391,12 +61036,12 @@ duk_uint8_t duk_uc_nybbles[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
 
 /* include removed: duk_internal.h */
 
-#define UPDATE_RND(rnd) do { \
+#define DUK__UPDATE_RND(rnd) do { \
 		(rnd) += ((rnd) * (rnd)) | 0x05; \
 		(rnd) = ((rnd) & 0xffffffffU);       /* if duk_uint32_t is exactly 32 bits, this is a NOP */ \
 	} while (0)
 
-#define RND_BIT(rnd)  ((rnd) >> 31)  /* only use the highest bit */
+#define DUK__RND_BIT(rnd)  ((rnd) >> 31)  /* only use the highest bit */
 
 duk_uint32_t duk_util_tinyrandom_get_bits(duk_hthread *thr, duk_small_int_t n) {
 	duk_small_int_t i;
@@ -60406,9 +61051,9 @@ duk_uint32_t duk_util_tinyrandom_get_bits(duk_hthread *thr, duk_small_int_t n) {
 	rnd = thr->heap->rnd_state;
 
 	for (i = 0; i < n; i++) {
-		UPDATE_RND(rnd);
+		DUK__UPDATE_RND(rnd);
 		res <<= 1;
-		res += RND_BIT(rnd);
+		res += DUK__RND_BIT(rnd);
 	}
 
 	thr->heap->rnd_state = rnd;
@@ -60432,8 +61077,8 @@ duk_double_t duk_util_tinyrandom_get_double(duk_hthread *thr) {
 	t = 0.0;
 
 	do {
-		UPDATE_RND(rnd);
-		t += RND_BIT(rnd);
+		DUK__UPDATE_RND(rnd);
+		t += DUK__RND_BIT(rnd);
 		t /= 2.0;
 	} while(--n);
 
