@@ -68,7 +68,7 @@ TARGET = TarotClub # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = icon.rc
+    RC_FILE = desktop/icon.rc
     LIBS +=  libws2_32
     DEFINES += USE_WINDOWS_OS
 }
