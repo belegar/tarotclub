@@ -9,14 +9,6 @@
 #include "JsonReader.h"
 #include "JsonWriter.h"
 
-extern "C" void my_panic_handler(int code, const char *msg)
-{
-    /* Your panic handling.  Must not return. */
-    volatile int i = 0;
-    i++;
-    while(1);
-}
-
 JsonTest::JsonTest()
 {
 
@@ -27,9 +19,15 @@ void JsonTest::ParseFile()
 {
     JsonReader json;
 
-    std::string path = Util::ExecutablePath() + "/../../testu/test.json";
+    std::string path = Util::ExecutablePath() + "/../../prj/testu/test.json";
 
-    json.Open(path);
+    if (!json.Open(path))
+    {
+        std::stringstream ss;
+        ss << "Cannot open file " << path;
+        QFAIL(ss.str().c_str());
+    }
+
     std::string value;
     // key is at the root of the document
     if (!json.GetValue("", "version", value))

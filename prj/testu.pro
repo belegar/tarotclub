@@ -109,14 +109,20 @@ SOURCES += Log.cpp \
 # JSEngine and JSON files
 # ------------------------------------------------------------------------------
 
-#HEADERS += duktape.h \
- #   JsonWriter.h \
- #   JsonReader.h
-#    JSEngine.h
+HEADERS += duktape.h \
+    JsonWriter.h \
+    JsonReader.h \
+    JSEngine.h \
+    IScriptEngine.h \
+    JSValue.h \
+    JsonValue.h
 
-#SOURCES += duktape.c \
- #   JsonWriter.cpp \
-  #  JsonReader.cpp
+SOURCES += duktape.c \
+    JsonWriter.cpp \
+    JsonReader.cpp \
+    JSEngine.cpp \
+    JSValue.cpp \
+    JsonValue.cpp
 
 # ------------------------------------------------------------------------------
 # TarotClub core files
@@ -125,14 +131,14 @@ HEADERS += TarotDeck.h \
     Deck.h \
     Card.h \
     Player.h \
-    defines.h
-#    ServerConfig.h
+    defines.h \
+    ServerConfig.h
 
 SOURCES += TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
-    Player.cpp
-#    ServerConfig.cpp
+    Player.cpp \
+    ServerConfig.cpp
 
 # ------------------------------------------------------------------------------
 # Unit test files
@@ -144,7 +150,7 @@ HEADERS +=  tst_tarot_base.h \
 
 SOURCES +=  tst_utilities.cpp \
             tst_tarot_base.cpp \
-            tst_main.cpp
-   #         tst_jsengine.cpp
+            tst_main.cpp \
+            tst_jsengine.cpp
 
 # End of project file
