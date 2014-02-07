@@ -55,7 +55,7 @@ INCLUDEPATH += $$BASE_DIR/src/json
 # Compiler definitions
 # ------------------------------------------------------------------------------
 QT += xml svg help qml
-RESOURCES = $$BASE_DIR/src/data/data.qrc
+RESOURCES = $$BASE_DIR/assets/data.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
