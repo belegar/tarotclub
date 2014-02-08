@@ -36,6 +36,14 @@ TcpSocket::TcpSocket()
     memset (&mAddr, 0, sizeof(mAddr));
 }
 /*****************************************************************************/
+TcpSocket::TcpSocket(int sock)
+    : mHost("127.0.0.1")
+    , mPort(0U)
+    , mSock(sock)
+{
+    memset (&mAddr, 0, sizeof(mAddr));
+}
+/*****************************************************************************/
 TcpSocket::~TcpSocket()
 {
 

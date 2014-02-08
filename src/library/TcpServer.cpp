@@ -86,6 +86,11 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
 void TcpServer::Stop()
 {
     Close();
+    Join();
+}
+/*****************************************************************************/
+void TcpServer::Join()
+{
     mThread.join();
     mInitialized = false;
 }
@@ -279,7 +284,7 @@ bool TcpServer::IncommingData(int in_sock)
         ret = true;
 
         // Send the received data
-        mEventHandler.ReadData(buffer);
+        mEventHandler.ReadData(in_sock, buffer);
     }
     else if (rc < 0)
     {
