@@ -43,6 +43,8 @@ public:
     static std::string HomePath();
     static bool FolderExists(const std::string &foldername);
     static bool Mkdir(const char *path);
+    static std::vector<std::string> Split(const std::string &theString, const std::string  &delimiter);
+    static std::string Join(const std::vector<std::string> &tokens, const std::string &delimiter);
 };
 
 #endif // UTIL_H
