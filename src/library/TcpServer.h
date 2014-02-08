@@ -40,7 +40,7 @@ public:
     {
     public:
         virtual void NewConnection(int socket) = 0;
-        virtual void ReadData(const std::string &data) = 0;
+        virtual void ReadData(int socket, const std::string &data) = 0;
         virtual void ClientClosed(int socket) = 0;
     };
 
@@ -50,6 +50,7 @@ public:
 
     bool Start(std::uint16_t port, std::int32_t maxConnections);
     void Stop();
+    void Join();
 
 private:
     std::thread mThread;

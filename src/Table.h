@@ -48,13 +48,15 @@ public:
 
     // Getters
     ServerOptions &GetOptions();
+    std::uint16_t GetTcpPort();
 
     // Setters
     void SaveConfiguration(const ServerOptions &opt);
+    void SetTcpPort(std::uint16_t port);
 
     // TcpServer class events
     virtual void NewConnection(int socket);
-    virtual void ReadData(const std::string &data);
+    virtual void ReadData(int socket, const std::string &data);
     virtual void ClientClosed(int socket);
 
 private:
