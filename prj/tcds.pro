@@ -1,4 +1,4 @@
-# TarotClubServer project file
+# TarotClub dedicated server project file
 #
 # TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
 # Copyright (C) 2003-2999 - Anthony Rabine
@@ -18,30 +18,48 @@
 # along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# directories for temp files
-UI_DIR  = ./ui
+# ------------------------------------------------------------------------------
+# Directories for generated files and base directory
+# ------------------------------------------------------------------------------
 UI_HEADERS_DIR = ./include
 UI_SOURCES_DIR = ./src
 OBJECTS_DIR = ./obj
 DESTDIR = ./bin
+BASE_DIR = $${PWD}/..
 
+# ------------------------------------------------------------------------------
 # The search path to find supplied files
-VPATH += $${PWD}/../src
-VPATH += $${PWD}/../src/library
-VPATH += $${PWD}/../src/server
-VPATH += $${PWD}/../lib
-VPATH += $${PWD}/../ai
-VPATH += $${PWD}/../ai/tarotlib
+# ------------------------------------------------------------------------------
+VPATH += $$BASE_DIR/src
+VPATH += $$BASE_DIR/src/library
+VPATH += $$BASE_DIR/src/tcds
+VPATH += $$BASE_DIR/src/jsengine
+VPATH += $$BASE_DIR/src/json
+VPATH += $$BASE_DIR/lib
+VPATH += $$BASE_DIR/ai
+VPATH += $$BASE_DIR/ai/tarotlib
 
+# ------------------------------------------------------------------------------
 # Where to find header files
-INCLUDEPATH += $${PWD}/../src
-INCLUDEPATH += $${PWD}/../src/library
-INCLUDEPATH += $${PWD}/../src/server
+# ------------------------------------------------------------------------------
+INCLUDEPATH += $$BASE_DIR/src
+INCLUDEPATH += $$BASE_DIR/src/library
+INCLUDEPATH += $$BASE_DIR/src/tcds
+INCLUDEPATH += $$BASE_DIR/src/jsengine
+INCLUDEPATH += $$BASE_DIR/src/json
 
+# ------------------------------------------------------------------------------
+# Compiler definitions
+# ------------------------------------------------------------------------------
 QT += xml qml
 CONFIG += qt console warn_on
 QMAKE_CXXFLAGS += -std=c++11
-TARGET = tcds
+QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
+
+# ------------------------------------------------------------------------------
+# Targer definitions
+# ------------------------------------------------------------------------------
+TARGET = tcds # name of the output executable
 
 # Specific OS stuff
 win32 {
@@ -49,15 +67,22 @@ win32 {
     LIBS +=  libws2_32
     DEFINES += USE_WINDOWS_OS
 }
+
 unix {
     DEFINES += USE_UNIX_OS
 }
 
-# -------------------------------------------------------------
+debug {
+    DEFINES += TAROT_DEBUG
+    DEFINES += DUK_OPT_DEBUG
+}
+
+# ------------------------------------------------------------------------------
 # Library files
-# -------------------------------------------------------------
+# ------------------------------------------------------------------------------
 HEADERS += Log.h \
     Observer.h \
+    Util.h \
     ThreadQueue.h \
     ByteStreamReader.h \
     ByteStreamWriter.h \
@@ -65,17 +90,38 @@ HEADERS += Log.h \
     TcpSocket.h \
     TcpServer.h \
     TcpClient.h \
-    UniqueId.h
+    UniqueId.h \
+    Common.h
 
 SOURCES += Log.cpp \
+    Util.cpp \
     ByteArray.cpp \
     ByteStreamReader.cpp \
     ByteStreamWriter.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
-    UniqueId.cpp
+    UniqueId.cpp \
+    Common.cpp
 
+# ------------------------------------------------------------------------------
+# JSEngine and JSON files
+# ------------------------------------------------------------------------------
+
+HEADERS += duktape.h \
+    JsonWriter.h \
+    JsonReader.h \
+    JSEngine.h \
+    IScriptEngine.h \
+    JSValue.h \
+    JsonValue.h
+
+SOURCES += duktape.c \
+    JsonWriter.cpp \
+    JsonReader.cpp \
+    JSEngine.cpp \
+    JSValue.cpp \
+    JsonValue.cpp
 
 # -------------------------------------------------------------
 # TarotClub core files
@@ -122,3 +168,5 @@ HEADERS += Lobby.h
 
 SOURCES += main.cpp \
     Lobby.cpp \
+
+# End of project file
