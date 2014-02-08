@@ -47,13 +47,15 @@ void Table::NewConnection(int socket)
     mController.ExecuteRequest(Protocol::BuildAddPlayer(uuid));
 }
 /*****************************************************************************/
-void Table::ReadData(const std::string &data)
+void Table::ReadData(int socket, const std::string &data)
 {
+    (void)socket; // not used for now FIXME can be used later to test if the socket exists
     mController.ExecuteRequest(data);
 }
 /*****************************************************************************/
 void Table::ClientClosed(int socket)
 {
+    (void)socket;
     // FIXME: manage client disconnection
     // FIXME: if a player has quit during a game, replace it by a bot
     //SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
@@ -122,6 +124,11 @@ void Table::SaveConfiguration(const ServerOptions &opt)
     serverConfig.Save();
 }
 /*****************************************************************************/
+void Table::SetTcpPort(std::uint16_t port)
+{
+    mTcpPort = port;
+}
+/*****************************************************************************/
 void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle)
 {
     // TODO: add support for 3 and 5 players game
@@ -171,6 +178,11 @@ void Table::Stop()
 ServerOptions &Table::GetOptions()
 {
     return serverConfig.GetOptions();
+}
+/*****************************************************************************/
+std::uint16_t Table::GetTcpPort()
+{
+    return mTcpPort;
 }
 /*****************************************************************************/
 void Table::ConnectBots()
