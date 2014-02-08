@@ -29,6 +29,7 @@ class Lobby : public TcpServer::IEvent
 
 public:
     Lobby();
+    ~Lobby();
 
     void Initialize();
     void WaitForEnd();
@@ -48,7 +49,7 @@ private:
 
     // TcpServer class events
     virtual void NewConnection(int socket);
-    virtual void ReadData(const std::string &data);
+    virtual void ReadData(int socket, const std::string &data);
     virtual void ClientClosed(int socket);
 
     TcpServer mTcpServer;
