@@ -31,6 +31,9 @@
  */
 int main(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+
     std::cout << "TarotClub server " << TAROT_VERSION << " is ready." << std::endl;
 
     Lobby lobby;
