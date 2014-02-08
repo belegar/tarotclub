@@ -34,7 +34,6 @@ BASE_DIR = $${PWD}/..
 VPATH += $$BASE_DIR/src
 VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/desktop
-VPATH += $$BASE_DIR/src/server
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/lib
@@ -47,7 +46,6 @@ VPATH += $$BASE_DIR/ai/tarotlib
 INCLUDEPATH += $$BASE_DIR/src
 INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/desktop
-INCLUDEPATH += $$BASE_DIR/src/server
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 
@@ -68,10 +66,11 @@ TARGET = TarotClub # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = icon.rc
+    RC_FILE = desktop/icon.rc
     LIBS +=  libws2_32
     DEFINES += USE_WINDOWS_OS
 }
+
 unix {
     DEFINES += USE_UNIX_OS
 }
