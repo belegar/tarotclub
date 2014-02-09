@@ -28,78 +28,14 @@
 
 #include <QWizard>
 #include <QTcpSocket>
-#include <ui_JoinWizardPage1.h>
-#include <ui_JoinWizardPage2.h>
+#include "ui_LobbyUI.h"
 
 /*****************************************************************************/
-class JoinWizardPage1 : public QWizardPage
-{
-    Q_OBJECT
-
-private:
-    Ui::Page1 ui;
-public:
-    JoinWizardPage1(QWidget *parent = 0);
-
-    void initializePage();
-
-    QString GetIp()
-    {
-        return ui.ipAddress->text();
-    }
-    int GetPort()
-    {
-        return ui.portNumber->value();
-    }
-};
-/*****************************************************************************/
-class JoinWizardPage2 : public QWizardPage
-{
-    Q_OBJECT
-
-private:
-    Ui::Page2 ui;
-
-signals:
-    void sigRoomSelected(const QString &room);
-    void sigTableSelected(const QString &room, const QString &table);
-
-public:
-    JoinWizardPage2(QWidget *parent = 0);
-
-    void initializePage();
-    void setInfos(QString &txt)
-    {
-        ui.infos->setText(txt);
-    }
-    void SetSaloons(const QStringList &list)
-    {
-        ui.saloonList->clear();
-        ui.saloonList->addItems(list);
-    }
-
-    void SetTables(const QStringList &list)
-    {
-        ui.tableList->clear();
-        ui.tableList->addItems(list);
-    }
-
-    bool isComplete() const;
-    void Ready();
-
-public slots:
-    void slotRoomSelected(QListWidgetItem *item);
-    void slotTableSelected(QListWidgetItem *item);
-};
-/*****************************************************************************/
-class JoinWizard : public QWizard
+class LobbyWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    enum { Page_Server, Page_Lobby };
-
-    JoinWizard(QWidget *parent);
 
     struct Connection
     {
@@ -108,12 +44,17 @@ public:
         bool isValid;
     };
 
+    LobbyWindow(QWidget *parent);
+
     Connection GetTableConnection();
 
 public slots:
-    void slotPageChanged(int id);
-    void slotRoomClicked(const QString &room);
-    void slotTableClicked(const QString &room, const QString &table);
+    void slotRoomSelected(QListWidgetItem *item);
+    void slotTableSelected(QListWidgetItem *item);
+
+    void slotConnect();
+    void slotJoin();
+    void slotClose();
 
     // socket
     void socketReadData();
@@ -123,8 +64,7 @@ public slots:
     void socketError(QAbstractSocket::SocketError code);
 
 private:
-    JoinWizardPage1 *page1;
-    JoinWizardPage2 *page2;
+    Ui::LobbyUI  ui;
 
     QTcpSocket  socket;
     Connection  selectedTable;
