@@ -135,10 +135,10 @@ void TarotClub::Initialize()
  */
 void TarotClub::slotQuitTarotClub()
 {
-    table.Stop();
-
     // Close ourself
     mClient.Close();
+
+    table.Stop();   
 }
 /*****************************************************************************/
 void TarotClub::slotNewNumberedDeal()
@@ -189,11 +189,13 @@ void TarotClub::slotNewQuickGame()
 /*****************************************************************************/
 void TarotClub::slotJoinNetworkGame()
 {
-    table.Stop();
-    if (joinWizard->exec() == QDialog::Accepted)
+    // Close ourself
+    mClient.Close();
+
+    if (lobbyWindow->exec() == QDialog::Accepted)
     {
         // connect to table
-        JoinWizard::Connection cn = joinWizard->GetTableConnection();
+        LobbyWindow::Connection cn = lobbyWindow->GetTableConnection();
 
         if (cn.isValid)
         {
@@ -205,7 +207,9 @@ void TarotClub::slotJoinNetworkGame()
 /*****************************************************************************/
 void TarotClub::slotQuickJoinNetworkGame()
 {
-    table.Stop();
+    // Close ourself
+    mClient.Close();
+
     if (quickJoinWindow->exec() == QDialog::Accepted)
     {
         QString ip = uiQuickJoin.ipAddress->text();

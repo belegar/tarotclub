@@ -64,9 +64,9 @@ void MainWindow::SetupDialogs()
     optionsWindow->setAttribute(Qt::WA_ShowModal, true);
     optionsWindow->hide();
 
-    // Join a new network game wizard
-    joinWizard = new JoinWizard(this);
-    joinWizard->hide();
+    // Connect to a dedicated server
+    lobbyWindow = new LobbyWindow(this);
+    lobbyWindow->hide();
 
     // Deal editor
     editorWindow = new EditorWindow(this);
