@@ -86,6 +86,9 @@ void Lobby::ReadData(int socket, const std::string &data)
     // This slot is called when the client sent data to the server. The
     // server looks if it was a get request and sends a very simple ASCII
 
+    // Remove trailing \n
+    data.back();
+
     std::vector<std::string> tokens = Util::Split(data, ":");
     std::stringstream ss;
 
