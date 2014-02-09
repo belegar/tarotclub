@@ -112,7 +112,7 @@ bool Canvas::Initialize(ClientOptions &opt)
 
 #ifdef QT_DEBUG
     // Debug, the binary is inside the build directory
-    path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
+    path = qApp->applicationDirPath() + "/../../assets/cards/default/";
     Q_UNUSED(opt);
 #else
     // Release
