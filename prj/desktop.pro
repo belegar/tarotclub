@@ -197,7 +197,7 @@ HEADERS += AboutWindow.h \
     Canvas.h \
     TextBox.h \
     ClientConfig.h \
-    JoinWizard.h \
+    LobbyWindow.h \
     GfxCard.h \
     MenuItem.h \
     TarotClub.h \
@@ -214,9 +214,8 @@ FORMS += AboutUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
     WinUI.ui \
-    JoinWizardPage1.ui \
-    JoinWizardPage2.ui \
-    QuickJoin.ui
+    QuickJoin.ui \
+    LobbyUI.ui
 
 SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
@@ -233,7 +232,7 @@ SOURCES += AboutWindow.cpp \
     ClientConfig.cpp \
     main.cpp \
     TarotClub.cpp \
-    JoinWizard.cpp \
+    LobbyWindow.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
     PlayerBox.cpp \
