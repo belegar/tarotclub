@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>441</width>
-    <height>379</height>
+    <width>392</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,12 +23,65 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="btnDefaut">
+       <property name="text">
+        <string>Default</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnOk">
+       <property name="text">
+        <string>&amp;Ok</string>
+       </property>
+       <property name="shortcut">
+        <string>Alt+O</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnAnnuler">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidget_2">
+    <widget class="QTabWidget" name="optionsUI">
      <property name="currentIndex">
       <number>1</number>
      </property>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="identityTab">
       <attribute name="title">
        <string>Identity</string>
       </attribute>
@@ -118,7 +171,7 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="../data/data.qrc">
+                   <iconset resource="../../assets/data.qrc">
                     <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
                   </property>
                   <property name="autoDefault">
@@ -144,7 +197,7 @@
               <item>
                <widget class="QGroupBox" name="groupBox_7">
                 <property name="title">
-                 <string>Genre</string>
+                 <string>Gender</string>
                 </property>
                 <layout class="QGridLayout" name="_8">
                  <property name="leftMargin">
@@ -311,47 +364,38 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="prefTab">
       <attribute name="title">
        <string>Preferences</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
+       <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_10">
          <property name="title">
           <string>General</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QCheckBox" name="afficheAvatars">
-            <property name="text">
-             <string>Show avatars on the board</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="_13">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <widget class="QLabel" name="TextLabel1_3">
               <property name="text">
                <string>TCP/IP port:</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item>
              <widget class="QSpinBox" name="portReseau">
@@ -362,23 +406,8 @@
             </item>
            </layout>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="_14">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
              <widget class="QLabel" name="label_4">
               <property name="sizePolicy">
@@ -391,6 +420,19 @@
                <string>Language</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item>
              <widget class="QComboBox" name="langList">
@@ -420,7 +462,7 @@
             </item>
            </layout>
           </item>
-          <item>
+          <item row="2" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QLabel" name="label">
@@ -454,7 +496,48 @@
             </item>
            </layout>
           </item>
-          <item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="afficheAvatars">
+            <property name="text">
+             <string>Show avatars on the board</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label2">
+              <property name="text">
+               <string>Delay before trick flush:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="slider2">
+              <property name="maximum">
+               <number>5000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="pageStep">
+               <number>100</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="temps2">
+              <property name="text">
+               <string>0.0 seconds</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="5" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="TextLabel1">
@@ -494,66 +577,46 @@
             </item>
            </layout>
           </item>
-          <item>
+          <item row="6" column="0">
            <widget class="QCheckBox" name="clic">
             <property name="text">
              <string>Activate automatic trick flushing</string>
             </property>
            </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item row="7" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
-             <widget class="QLabel" name="label2">
+             <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>Delay before trick flush:</string>
+               <string>Cards order in hand (drag and drop to change position):</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSlider" name="slider2">
-              <property name="maximum">
-               <number>5000</number>
-              </property>
-              <property name="singleStep">
-               <number>100</number>
-              </property>
-              <property name="pageStep">
-               <number>100</number>
-              </property>
+             <spacer name="horizontalSpacer_6">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="temps2">
-              <property name="text">
-               <string>0.0 seconds</string>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
               </property>
-             </widget>
+             </spacer>
             </item>
            </layout>
           </item>
-          <item>
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>56</height>
-             </size>
-            </property>
-           </spacer>
+          <item row="8" column="0">
+           <layout class="QHBoxLayout" name="iconsLayout"/>
           </item>
          </layout>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_5">
+     <widget class="QWidget" name="OpponentsTab">
       <attribute name="title">
        <string>Opponents</string>
       </attribute>
@@ -679,7 +742,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../data/data.qrc">
+               <iconset resource="../../assets/data.qrc">
                 <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
              </widget>
@@ -874,7 +937,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../data/data.qrc">
+               <iconset resource="../../assets/data.qrc">
                 <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
               <property name="autoDefault">
@@ -965,7 +1028,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../data/data.qrc">
+               <iconset resource="../../assets/data.qrc">
                 <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
              </widget>
@@ -1057,59 +1120,6 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QPushButton" name="btnDefaut">
-       <property name="text">
-        <string>Default</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnOk">
-       <property name="text">
-        <string>&amp;Ok</string>
-       </property>
-       <property name="shortcut">
-        <string>Alt+O</string>
-       </property>
-       <property name="autoDefault">
-        <bool>true</bool>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnAnnuler">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-       <property name="autoDefault">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -1119,7 +1129,7 @@
   <tabstop>btnAnnuler</tabstop>
  </tabstops>
  <resources>
-  <include location="../data/data.qrc"/>
+  <include location="../../assets/data.qrc"/>
  </resources>
  <connections>
   <connection>

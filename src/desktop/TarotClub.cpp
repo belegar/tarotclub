@@ -395,7 +395,7 @@ void TarotClub::slotAcceptHandle()
  */
 void TarotClub::ShowSouthCards()
 {
-    mClient.GetMyDeck().Sort();
+    mClient.GetMyDeck().Sort(clientConfig.GetOptions().cardsOrder);
     tapis->DrawSouthCards(mClient.GetMyDeck());
 }
 /*****************************************************************************/

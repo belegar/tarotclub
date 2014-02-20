@@ -112,7 +112,7 @@ bool Canvas::Initialize(ClientOptions &opt)
 
 #ifdef QT_DEBUG
     // Debug, the binary is inside the build directory
-    path = qApp->applicationDirPath() + "/../../src/data/cards/default/";
+    path = qApp->applicationDirPath() + "/../../assets/cards/default/";
     Q_UNUSED(opt);
 #else
     // Release
@@ -220,9 +220,9 @@ void Canvas::AddGfxCard(const QString &filename)
     scene.addItem(item);
 }
 /*****************************************************************************/
-void Canvas::SetBackground(const QString &code)
+void Canvas::SetBackground(const std::string &code)
 {
-    QColor color(code);
+    QColor color(code.c_str());
     if (color.isValid())
     {
         scene.setBackgroundBrush(color);

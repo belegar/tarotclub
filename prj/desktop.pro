@@ -78,7 +78,7 @@ unix {
 
 debug {
     DEFINES += TAROT_DEBUG
-    DEFINES += DUK_OPT_DEBUG
+#    DEFINES += DUK_OPT_DEBUG
 }
 
 # ------------------------------------------------------------------------------
@@ -149,6 +149,7 @@ SOURCES += duktape.c \
 # TarotClub core files
 # ------------------------------------------------------------------------------
 HEADERS += ServerConfig.h \
+    ClientConfig.h \
     DealFile.h \
     TarotDeck.h \
     Deck.h \
@@ -167,6 +168,7 @@ HEADERS += ServerConfig.h \
     Table.h
 
 SOURCES += ServerConfig.cpp \
+    ClientConfig.cpp \
     DealFile.cpp \
     TarotDeck.cpp \
     Deck.cpp \
@@ -197,7 +199,6 @@ HEADERS += AboutWindow.h \
     DebugDock.h \
     Canvas.h \
     TextBox.h \
-    ClientConfig.h \
     JoinWizard.h \
     GfxCard.h \
     MenuItem.h \
@@ -231,7 +232,6 @@ SOURCES += AboutWindow.cpp \
     DebugDock.cpp \
     Canvas.cpp \
     TextBox.cpp \
-    ClientConfig.cpp \
     main.cpp \
     TarotClub.cpp \
     JoinWizard.cpp \

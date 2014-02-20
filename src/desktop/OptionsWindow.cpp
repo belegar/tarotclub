@@ -25,10 +25,211 @@
 
 #include "OptionsWindow.h"
 #include <QDir>
-#include <QMessageBox>
-#include <QColorDialog>
 #include <QString>
+#include <QtWidgets>
 
+static const QPoint labelPos[5] = {
+    {10, 2},
+    {60, 2},
+    {110, 2},
+    {160, 2},
+    {210, 2}
+};
+
+static const QString iconName[5] = {
+    ":/icons/trump.svg",
+    ":/icons/heart.svg",
+    ":/icons/spade.svg",
+    ":/icons/diamond.svg",
+    ":/icons/club.svg"
+};
+
+static const Card::Suit suitList[5] = {
+    Card::TRUMPS,
+    Card::HEARTS,
+    Card::SPADES,
+    Card::DIAMONDS,
+    Card::CLUBS
+};
+
+static const QSize labelSize(40, 40);
+
+/*****************************************************************************/
+DragWidget::DragWidget(QWidget *parent)
+    : QFrame(parent)
+{
+    setMinimumSize(260, 44);
+    setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
+    setAcceptDrops(true);
+
+    for (int i = 0; i < 5; i++)
+    {
+        mIcons[i].label = new QLabel(this);
+        mIcons[i].label->setPixmap(QPixmap(iconName[i]));
+        mIcons[i].label->move(labelPos[i]);
+        mIcons[i].label->resize(labelSize);
+        mIcons[i].label->setScaledContents(true);
+        mIcons[i].label->show();
+
+        mIcons[i].icon = iconName[i];
+        mIcons[i].suit = suitList[i];
+    }
+}
+/*****************************************************************************/
+std::string DragWidget::GetOrder()
+{
+    std::string order;
+    for (int i = 0; i < 5; i++)
+    {
+        order += Card::ToString(mIcons[i].suit);
+    }
+    return order;
+}
+/*****************************************************************************/
+void DragWidget::SetOrder(const std::string &order)
+{
+
+}
+/*****************************************************************************/
+void DragWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasFormat("application/x-dnditemdata"))
+    {
+        if (event->source() == this)
+        {
+            event->setDropAction(Qt::MoveAction);
+            event->accept();
+        }
+        else
+        {
+            event->acceptProposedAction();
+        }
+    }
+    else
+    {
+        event->ignore();
+    }
+}
+/*****************************************************************************/
+void DragWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+    if (event->mimeData()->hasFormat("application/x-dnditemdata"))
+    {
+        if (event->source() == this)
+        {
+            event->setDropAction(Qt::MoveAction);
+            event->accept();
+        }
+        else
+        {
+            event->acceptProposedAction();
+        }
+    }
+    else
+    {
+        event->ignore();
+    }
+}
+/*****************************************************************************/
+void DragWidget::dropEvent(QDropEvent *event)
+{
+    if (event->mimeData()->hasFormat("application/x-dnditemdata"))
+    {
+        // Look for the selected suit
+        int destination = DetectLabel(event->pos().x());
+        if ((destination >= 0) && (destination < 5))
+        {
+            QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
+            QDataStream dataStream(&itemData, QIODevice::ReadOnly);
+
+            int source = -1;
+            dataStream >> source;
+
+            if ((source >= 0) && (source < 5))
+            {
+                // Swap icons
+                DragIcon temp = mIcons[destination];
+                mIcons[destination].icon = mIcons[source].icon;
+                mIcons[destination].suit = mIcons[source].suit;
+
+                mIcons[source].icon = temp.icon;
+                mIcons[source].suit = temp.suit;
+
+                // update Pixmap
+                mIcons[source].label->setPixmap(mIcons[source].icon);
+                mIcons[destination].label->setPixmap(mIcons[destination].icon);
+
+                if (event->source() == this)
+                {
+                    event->setDropAction(Qt::MoveAction);
+                    event->accept();
+                }
+                else
+                {
+                    event->acceptProposedAction();
+                }
+            }
+            else
+            {
+                event->ignore();
+            }
+        }
+        else
+        {
+            event->ignore();
+        }
+    }
+    else
+    {
+        event->ignore();
+    }
+}
+/*****************************************************************************/
+void DragWidget::mousePressEvent(QMouseEvent *event)
+{
+    QLabel *child = static_cast<QLabel*>(childAt(event->pos()));
+    if (!child)
+    {
+        return;
+    }
+
+    QPixmap pixmap = child->pixmap()->scaled(40, 40);
+
+    // Look for the selected suit
+    int selected = DetectLabel(child->pos().x());
+    if (selected < 0)
+    {
+        return;
+    }
+
+    QByteArray itemData;
+    QDataStream dataStream(&itemData, QIODevice::WriteOnly);
+    dataStream << selected;
+
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData("application/x-dnditemdata", itemData);
+
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(mimeData);
+    drag->setPixmap(pixmap);
+    drag->setHotSpot(event->pos() - child->pos());
+
+    (void)drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
+}
+/*****************************************************************************/
+int DragWidget::DetectLabel(int x)
+{
+    int selected = -1;
+    for (int i = 4; i >= 0; i--)
+    {
+        if ((x >= labelPos[i].x()) &&
+            (x < (labelPos[i].x() + labelSize.width())))
+        {
+            selected = i;
+        }
+    }
+    return selected;
+}
 /*****************************************************************************/
 OptionsWindow::OptionsWindow(QWidget *parent)
     : QDialog(parent)
@@ -61,6 +262,8 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     ui.niveauNord->addItems(listeNiveaux);
     ui.niveauOuest->addItems(listeNiveaux);
 
+    dragWidget = new DragWidget();
+    ui.iconsLayout->addWidget(dragWidget);
 }
 /*****************************************************************************/
 void OptionsWindow::SetClientOptions(ClientOptions &cfg)
@@ -124,7 +327,7 @@ void OptionsWindow::slotBtnOk()
         QMessageBox::information(this, tr("Information"),
                                  tr("You must restart TarotClub to enable the new language.") + "\n\n");
     }
-    clientOptions.backgroundColor = colorName;
+    clientOptions.backgroundColor = colorName.toStdString();
     clientOptions.delayBeforeCleaning = ui.slider2->value();
 
     if (ui.clic->isChecked())
@@ -135,6 +338,7 @@ void OptionsWindow::slotBtnOk()
     {
         clientOptions.enableDelayBeforeCleaning = false;
     }
+    clientOptions.cardsOrder = dragWidget->GetOrder();
 
     // Server stuff
     serverOptions.timer = ui.slider1->value();
@@ -298,7 +502,7 @@ void OptionsWindow::refresh()
     {
         ui.pixSud->setPixmap(im);
     }
-    QColor color(clientOptions.backgroundColor);
+    QColor color(clientOptions.backgroundColor.c_str());
     if (color.isValid())
     {
         colorName = color.name();
@@ -319,6 +523,7 @@ void OptionsWindow::refresh()
         // Force refresh
         slotClickOptionChanged(Qt::Unchecked);
     }
+    dragWidget->SetOrder(clientOptions.cardsOrder);
 
     // server stuff
     ui.slider1->setValue(serverOptions.timer);

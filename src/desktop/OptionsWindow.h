@@ -28,6 +28,7 @@
 
 // Includes Qt
 #include <QDialog>
+#include <QFrame>
 
 // Includes locales
 #include <ui_OptionsUI.h>
@@ -35,21 +36,42 @@
 #include "defines.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
+#include "Card.h"
+
+class QDragEnterEvent;
+class QDropEvent;
+/*****************************************************************************/
+class DragWidget : public QFrame
+{
+public:
+    DragWidget(QWidget *parent = 0);
+
+    std::string GetOrder();
+    void SetOrder(const std::string &order);
+
+protected:
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dropEvent(QDropEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+
+private:
+    int DetectLabel(int x);
+
+    struct DragIcon
+    {
+        QLabel *label;
+        QString icon;
+        Card::Suit suit;
+    };
+
+    DragIcon mIcons[5];
+};
 
 /*****************************************************************************/
 class OptionsWindow : public QDialog
 {
     Q_OBJECT
-
-private:
-    Ui::OptionsUI  ui;
-    ClientOptions    clientOptions;
-    ServerOptions    serverOptions;
-    int     indexLangue; // Detect any language change to inform that a reboot is needed
-    QString colorName;
-
-    QString choixAvatar(QString defaultAvatar);
-    void    refresh();
 
 public:
     OptionsWindow(QWidget *parent = 0);
@@ -76,6 +98,18 @@ public slots:
     void slotBtnPixNord();
     void slotBtnPixOuest();
     void slotColorPicker();
+
+private:
+    Ui::OptionsUI  ui;
+    ClientOptions    clientOptions;
+    ServerOptions    serverOptions;
+    int     indexLangue; // Detect any language change to inform that a reboot is needed
+    QString colorName;
+    DragWidget *dragWidget;
+
+    QString choixAvatar(QString defaultAvatar);
+    void    refresh();
+
 };
 
 #endif // _OPTIONSWINDOW_H

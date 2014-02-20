@@ -25,17 +25,14 @@
 #ifndef _CLIENTCONFIG_H
 #define _CLIENTCONFIG_H
 
-// Qt includes
-#include <QString>
-#include <QFile>
-#include <QStringList>
+// Standard library
+#include <cstdint>
+#include <vector>
+#include <string>
 
 // Game includes
 #include "defines.h"
 #include "Identity.h"
-
-#define CLIENT_XML_VERSION    "1.5"
-#define CLIENT_CONFIG_FILE    "tarotclub.xml"
 
 // default values
 #define AVATARS_DEF         true
@@ -43,13 +40,14 @@
 
 typedef struct
 {
-    QString         deckFilePath;
+    std::string     deckFilePath;
     bool            showAvatars;
-    int             language;
-    QString         backgroundColor;
+    std::uint8_t    language;
+    std::string     backgroundColor;
     Identity        identity;
-    unsigned int    delayBeforeCleaning;  // in milliseconds
+    std::uint16_t   delayBeforeCleaning;  // in milliseconds
     bool            enableDelayBeforeCleaning;
+    std::string     cardsOrder;
 } ClientOptions;
 
 
@@ -63,15 +61,15 @@ public:
     bool     Save();
 
     ClientOptions &GetOptions();
-    QString GetLocale();
+    std::string GetLocale();
 
     void        SetOptions(ClientOptions &newOptions);
     static void SetDefault(ClientOptions &opt);
 
 private:
-    ClientOptions options;
-    bool loaded;
-    QStringList lang;
+    ClientOptions mOptions;
+    bool mLoaded;
+    std::vector<std::string> mLang;
 };
 
 #endif // _CLIENTCONFIG_H
