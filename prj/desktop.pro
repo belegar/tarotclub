@@ -34,7 +34,6 @@ BASE_DIR = $${PWD}/..
 VPATH += $$BASE_DIR/src
 VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/desktop
-VPATH += $$BASE_DIR/src/server
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/lib
@@ -47,7 +46,6 @@ VPATH += $$BASE_DIR/ai/tarotlib
 INCLUDEPATH += $$BASE_DIR/src
 INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/desktop
-INCLUDEPATH += $$BASE_DIR/src/server
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 
@@ -72,6 +70,7 @@ win32 {
     LIBS +=  libws2_32
     DEFINES += USE_WINDOWS_OS
 }
+
 unix {
     DEFINES += USE_UNIX_OS
 }
@@ -199,7 +198,7 @@ HEADERS += AboutWindow.h \
     DebugDock.h \
     Canvas.h \
     TextBox.h \
-    JoinWizard.h \
+    LobbyWindow.h \
     GfxCard.h \
     MenuItem.h \
     TarotClub.h \
@@ -216,9 +215,8 @@ FORMS += AboutUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
     WinUI.ui \
-    JoinWizardPage1.ui \
-    JoinWizardPage2.ui \
-    QuickJoin.ui
+    QuickJoin.ui \
+    LobbyUI.ui
 
 SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
@@ -234,7 +232,7 @@ SOURCES += AboutWindow.cpp \
     TextBox.cpp \
     main.cpp \
     TarotClub.cpp \
-    JoinWizard.cpp \
+    LobbyWindow.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
     PlayerBox.cpp \

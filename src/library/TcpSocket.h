@@ -71,6 +71,7 @@ class TcpSocket
 {
 public:
     TcpSocket();
+    TcpSocket(int sock);
     virtual ~TcpSocket();
 
     // Getters

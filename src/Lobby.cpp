@@ -18,6 +18,9 @@
 
 #include "Lobby.h"
 #include "Log.h"
+#include "Util.h"
+#include <sstream>
+#include <vector>
 
 /*****************************************************************************/
 Lobby::Lobby()
@@ -30,9 +33,16 @@ Lobby::Lobby()
     {
         for (int i = 0; i < SERVER_MAX_TABLES; i++)
         {
-            saloons[j].tables[i].name = "Table " + QString().setNum(i + 1);
+            std::stringstream ss;
+            ss << (i + 1);
+            saloons[j].tables[i].name = "Table " + ss.str();
         }
     }
+}
+/*****************************************************************************/
+Lobby::~Lobby()
+{
+    mTcpServer.Close();
 }
 /*****************************************************************************/
 void Lobby::Initialize()
@@ -41,118 +51,119 @@ void Lobby::Initialize()
 
     Game::Shuffle sh;
     sh.type = Game::RANDOM_DEAL;
-    int tcpPort = DEFAULT_PORT;
+    int tcpPort = DEFAULT_TCP_PORT;
 
     for (int j = 0; j < SERVER_MAX_SALOONS; j++)
     {
         for (int i = 0; i < SERVER_MAX_TABLES; i++)
         {
-            saloons[j].tables[i].table.LoadConfiguration(tcpPort);
-            saloons[j].tables[i].table.CreateGame(Game::ONE_DEAL);
+            saloons[j].tables[i].table.SetTcpPort(tcpPort);
+            saloons[j].tables[i].table.CreateGame(Game::ONE_DEAL, 4U, sh);
 
             // Start all threads
-            saloons[j].tables[i].thread.start();
+            saloons[j].tables[i].table.Initialize();
 
             // Each table has a unique port
             tcpPort++;
         }
     }
 
-    mTcpServer.listen(QHostAddress::Any, 4242);
-    if (!mTcpServer.isListening())
-    {
-        cerr << "Failed to bind to port 4242";
-        qApp->quit();
-    }
-    connect(&mTcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    mTcpServer.Start(4242, 20U);
 }
 /*****************************************************************************/
 void Lobby::WaitForEnd()
 {
-    mTcpServer.
+    mTcpServer.Join();
 }
 /*****************************************************************************/
 void Lobby::ClientClosed(int socket)
 {
-
+    (void)socket;
 }
 /*****************************************************************************/
-void Lobby::ReadData(const std::string &data)
+void Lobby::ReadData(int socket, const std::string &data)
 {
     // This slot is called when the client sent data to the server. The
     // server looks if it was a get request and sends a very simple ASCII
-    QTcpSocket *s = qobject_cast<QTcpSocket *>(sender());
-    if (s->canReadLine())
+
+    // Remove trailing \n
+    data.back();
+
+    std::vector<std::string> tokens = Util::Split(data, ":");
+    std::stringstream ss;
+
+    if (tokens[0] == "GET")
     {
-        QString line = s->readLine();
-        // remove new line character
-        line.remove('\n');
-        QStringList tokens = line.split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
-        QTextStream os(s);
-        if (tokens[0] == "GET")
+        if (tokens[1] == "INFOS")
         {
-            if (tokens[1] == "INFOS")
+            std::vector<std::string> list;
+
+            for (int i = 0; i < SERVER_MAX_SALOONS; i++)
             {
-                QStringList list;
-
-                for (int i = 0; i < SERVER_MAX_SALOONS; i++)
-                {
-                    list += saloons[i].name;
-                }
-
-                os << "SALOON:";
-                os << list.join(',');
-                os << "\n";
-                os.flush();
+                list.push_back(saloons[i].name);
             }
-            else if (tokens[1] == "TABLES")
-            {
-                QStringList list;
 
-                for (int i = 0; i < SERVER_MAX_SALOONS; i++)
+            ss << "SALOON:";
+            ss << Util::Join(list, ",");
+            ss << "\n";
+        }
+        else if (tokens[1] == "TABLES")
+        {
+            std::vector<std::string> list;
+
+            for (int i = 0; i < SERVER_MAX_SALOONS; i++)
+            {
+                if (saloons[i].name == tokens[2])
                 {
-                    if (saloons[i].name == tokens[2])
+                    for (int j = 0; j < SERVER_MAX_TABLES; j++)
                     {
-                        for (int j = 0; j < SERVER_MAX_TABLES; j++)
-                        {
-                            list += saloons[i].tables[j].name;
-                        }
+                        list.push_back(saloons[i].tables[j].name);
                     }
                 }
-
-                os << "TABLES:";
-                os << list.join(',');
-                os << "\n";
-                os.flush();
             }
-            else if (tokens[1] == "PORT")
-            {
-                QStringList param = tokens[2].split(',', QString::SkipEmptyParts, Qt::CaseSensitive);
 
-                for (int i = 0; i < SERVER_MAX_SALOONS; i++)
+            ss << "TABLES:";
+            ss << Util::Join(list, ",");
+            ss << "\n";
+        }
+        else if (tokens[1] == "PORT")
+        {
+            std::vector<std::string> param = Util::Split(tokens[2], ",");
+
+            for (int i = 0; i < SERVER_MAX_SALOONS; i++)
+            {
+                if (saloons[i].name == param[0])
                 {
-                    if (saloons[i].name == param[0])
+                    for (int j = 0; j < SERVER_MAX_TABLES; j++)
                     {
-                        for (int j = 0; j < SERVER_MAX_TABLES; j++)
+                        if (saloons[i].tables[j].name == param[1])
                         {
-                            if (saloons[i].tables[j].name == param[1])
-                            {
-                                os << "PORT:";
-                                os << QString().setNum(saloons[i].tables[j].table.GetServer().GetTcpPort());
-                                os << "\n";
-                                os.flush();
-                            }
+                            ss << "PORT:";
+                            ss << saloons[i].tables[j].table.GetTcpPort();
+                            ss << "\n";
                         }
                     }
                 }
             }
         }
     }
+    TcpSocket sock(socket);
+
+    // If there is something to reply, do it
+    if (ss.str().size() > 0)
+    {
+        sock.Send(ss.str());
+    }
+    else
+    {
+        // Or reply an error
+        sock.Send("ERROR");
+    }
 }
 /*****************************************************************************/
 void Lobby::NewConnection(int socket)
 {
-
+    (void)socket;
 }
 
 //=============================================================================

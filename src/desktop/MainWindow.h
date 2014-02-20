@@ -44,7 +44,7 @@
 #include "InfosDock.h"
 #include "ChatDock.h"
 #include "DebugDock.h"
-#include "JoinWizard.h"
+#include "LobbyWindow.h"
 #include "ui_QuickJoin.h"
 
 /*****************************************************************************/
@@ -83,7 +83,7 @@ protected:
     ResultWindow *resultWindow;
     OptionsWindow *optionsWindow;
     EditorWindow *editorWindow;
-    JoinWizard *joinWizard;
+    LobbyWindow *lobbyWindow;
     HelpWindow *helpWindow;
     QDialog *quickJoinWindow;
     Ui::quickJoin uiQuickJoin;

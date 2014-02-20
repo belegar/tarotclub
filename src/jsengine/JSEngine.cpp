@@ -5,6 +5,8 @@
 /*****************************************************************************/
 extern "C" void my_panic_handler(int code, const char *msg)
 {
+    (void)code;
+    (void)msg;
     /* Your panic handling.  Must not return. */
     volatile int i = 0;
     i++;
