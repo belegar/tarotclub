@@ -313,8 +313,13 @@ void Client::Close()
 {
     mConnected = false;
     mTcpClient.Close();
-    mQueue.Push(EXIT);
-    mThread.join();
+
+    if (mInitialized)
+    {
+        mQueue.Push(EXIT);
+        mThread.join();
+        mInitialized = false;
+    }
 }
 /*****************************************************************************/
 void Client::EntryPoint(void *pthis)

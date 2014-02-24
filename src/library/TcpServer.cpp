@@ -91,8 +91,11 @@ void TcpServer::Stop()
 /*****************************************************************************/
 void TcpServer::Join()
 {
-    mThread.join();
-    mInitialized = false;
+    if (mInitialized)
+    {
+        mThread.join();
+        mInitialized = false;
+    }
 }
 /*****************************************************************************/
 void TcpServer::Run()
