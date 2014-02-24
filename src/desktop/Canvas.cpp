@@ -134,14 +134,14 @@ bool Canvas::Initialize(ClientOptions &opt)
         }
         else if (i == 2)
         {
-            varImg = "trefle";
+            varImg = "carreau";
         }
         else
         {
-            varImg = "carreau";
+            varImg = "trefle";
         }
 
-        // de l'as au roi (14 cartes)
+        // from 1 to the king (14)
         for (j = 0; j < 14; j++)
         {
             //  n = i * 14 + j;
