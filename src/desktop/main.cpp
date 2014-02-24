@@ -42,7 +42,7 @@ QString GetLocale()
     ClientConfig conf;
 
     conf.Load();
-    return conf.GetLocale();
+    return conf.GetLocale().c_str();
 }
 /*****************************************************************************/
 /**

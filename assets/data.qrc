@@ -4,7 +4,6 @@
         <file>images/next.png</file>
         <file>images/previous.png</file>
         <file>images/splash.png</file>
-        <file>images/avatars/vide.png</file>
         <file>images/podium.svg</file>
         <file>images/avatars/bender.png</file>
         <file>images/avatars/amy.png</file>
@@ -22,5 +21,6 @@
         <file>icons/heart.svg</file>
         <file>icons/spade.svg</file>
         <file>icons/trump.svg</file>
+        <file>images/avatars/empty.png</file>
     </qresource>
 </RCC>

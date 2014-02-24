@@ -220,9 +220,9 @@ void Canvas::AddGfxCard(const QString &filename)
     scene.addItem(item);
 }
 /*****************************************************************************/
-void Canvas::SetBackground(const QString &code)
+void Canvas::SetBackground(const std::string &code)
 {
-    QColor color(code);
+    QColor color(code.c_str());
     if (color.isValid())
     {
         scene.setBackgroundBrush(color);

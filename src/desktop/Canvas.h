@@ -94,7 +94,7 @@ public:
     void SetCursorType(CursorType t);
     void SetAvatar(Place p, const QString &file);
     void SetFilter(quint8 f);
-    void SetBackground(const QString &code);
+    void SetBackground(const std::string &code);
     void SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace);
 
 signals:
