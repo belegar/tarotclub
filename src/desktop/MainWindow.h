@@ -69,8 +69,6 @@ protected:
     QAction *netGameServerAct;
     QAction *netGameClientAct;
     QAction *netQuickJoinAct;
-    //----misc
-    QAction *previousTrickAct;
 
     // Menu Paramètres
     QAction *dealEditorAct;

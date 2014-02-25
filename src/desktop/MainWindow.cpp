@@ -153,12 +153,6 @@ void MainWindow::SetupMenus()
     netGameClientAct->setShortcut(tr("Ctrl+J"));
     netGameClientAct->setStatusTip(tr("Join a game server created using TarotClubServer"));
 
-    //----- Misc
-    previousTrickAct = new QAction(tr("&Previous trick"), this);
-    previousTrickAct->setShortcut(tr("Ctrl+P"));
-    previousTrickAct->setStatusTip(tr("Show the previous trick played"));
-    previousTrickAct->setEnabled(false);
-
     QAction *exitAct = new QAction(tr("&Quit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Quit the game"));
@@ -174,8 +168,6 @@ void MainWindow::SetupMenus()
     gameMenu->addAction(netGameServerAct);
     gameMenu->addAction(netQuickJoinAct);
     gameMenu->addAction(netGameClientAct);
-    gameMenu->addSeparator();
-    gameMenu->addAction(previousTrickAct);
     gameMenu->addSeparator();
     gameMenu->addAction(exitAct);
 
