@@ -23,6 +23,9 @@
  *=============================================================================
  */
 
+#include <chrono>
+#include <random>
+
 #include "TarotEngine.h"
 #include "DealFile.h"
 #include "Identity.h"
@@ -34,7 +37,7 @@ TarotEngine::TarotEngine(IEvent &handler)
     : mEventHandler(handler)
 {
     shuffle.type = Game::RANDOM_DEAL;
-    shuffle.seed = 0;
+    shuffle.seed = 0U;
     for (std::uint32_t i = 0U; i < 5U; i++)
     {
         players[i].SetPlace(i);
@@ -507,8 +510,7 @@ void TarotEngine::CreateDeal()
             shuffle.type = Game::RANDOM_DEAL;
         }
     }
-
-    if (shuffle.type != Game::CUSTOM_DEAL)
+    else
     {
         for (int i = 0; i < 78; i++)
         {
@@ -517,7 +519,7 @@ void TarotEngine::CreateDeal()
 
         if (shuffle.type == Game::RANDOM_DEAL)
         {
-            shuffle.seed = qrand() % RAND_MAX;
+            shuffle.seed =  std::chrono::system_clock::now().time_since_epoch().count();
         }
         currentTrick.Shuffle(shuffle.seed);
     }
