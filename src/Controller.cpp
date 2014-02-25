@@ -42,9 +42,10 @@ void Controller::RegisterListener(Observer<Controller::Signal> &observer)
     mSubject.Attach(observer);
 }
 /*****************************************************************************/
-void Controller::NewServerGame(Game::Mode mode)
+void Controller::NewServerGame(Game::Mode mode, Game::Shuffle shuffle)
 {
     // Init everything
+    engine.SetShuffle(shuffle);
     engine.NewGame(mode);
 }
 /*****************************************************************************/
@@ -173,10 +174,12 @@ bool Controller::DoAction(const ByteArray &data)
     {
         std::uint8_t gameMode;
         std::uint8_t nbPlayers;
+        Game::Shuffle shuffle;
 
         in >> gameMode;
         in >> nbPlayers;
-        NewServerGame((Game::Mode)gameMode);
+        in >> shuffle;
+        NewServerGame((Game::Mode)gameMode, shuffle);
         break;
     }
 

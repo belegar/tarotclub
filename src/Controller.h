@@ -83,7 +83,7 @@ private:
     void Run();
     static void EntryPoint(void * pthis);
 
-    void NewServerGame(Game::Mode mode);
+    void NewServerGame(Game::Mode mode, Game::Shuffle shuffle);
 
     // From TarotEngine
     void RequestBid(Contract c, Place p);
