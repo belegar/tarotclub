@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Bot.h
  *=============================================================================
- * Modélise un robot joueur. Interface vers les scripts d'IA
+ * Bot class player. Uses a Script Engine to execute IA scripts
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
