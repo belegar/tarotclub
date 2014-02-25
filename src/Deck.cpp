@@ -24,18 +24,6 @@
  */
 
 #include "Deck.h"
-// Standard includes
-#ifndef QT_NO_DEBUG
-#include <iostream>
-#include <fstream>
-#endif // QT_NO_DEBUG
-
-#include <QtAlgorithms>
-
-#include <cstdlib>
-#include <ctime>
-using namespace std;
-
 
 /*****************************************************************************/
 Deck::Deck()
