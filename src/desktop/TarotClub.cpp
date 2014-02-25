@@ -61,9 +61,6 @@ TarotClub::TarotClub()
     connect(netGameServerAct, SIGNAL(triggered()), this, SLOT(slotCreateNetworkGame()));
     connect(netQuickJoinAct, SIGNAL(triggered()), this, SLOT(slotQuickJoinNetworkGame()));
 
-    //   connect(pliPrecAct, SIGNAL(triggered()), this, SLOT(slotAffichePliPrecedent()));
-
-
     // Client events. This connection list allow to call Qt GUI from another thread (Client class thread)
     connect(this, &TarotClub::sigReceiveCards, this, &TarotClub::slotReceiveCards, Qt::QueuedConnection);
     connect(this, &TarotClub::sigAssignedPlace, this, &TarotClub::slotAssignedPlace, Qt::QueuedConnection);
@@ -189,9 +186,7 @@ void TarotClub::slotNewQuickGame()
 /*****************************************************************************/
 void TarotClub::slotJoinNetworkGame()
 {
-    // Close ourself
-    mClient.Close();
-
+    lobbyWindow->Initialize();
     if (lobbyWindow->exec() == QDialog::Accepted)
     {
         // connect to table
@@ -199,24 +194,19 @@ void TarotClub::slotJoinNetworkGame()
 
         if (cn.isValid)
         {
-            // Connect us to the server
-            mClient.ConnectToHost(cn.ip.toStdString(), cn.port);
+            LaunchRemoteGame(cn.ip.toStdString(), cn.port);
         }
     }
 }
 /*****************************************************************************/
 void TarotClub::slotQuickJoinNetworkGame()
 {
-    // Close ourself
-    mClient.Close();
-
     if (quickJoinWindow->exec() == QDialog::Accepted)
     {
         QString ip = uiQuickJoin.ipAddress->text();
         quint16 port = uiQuickJoin.tcpPort->value();
 
-        // Connect us to the server
-        mClient.ConnectToHost(ip.toStdString(), port);
+        LaunchRemoteGame(ip.toStdString(), port);
     }
 }
 /*****************************************************************************/
@@ -241,6 +231,19 @@ bool TarotClub::HasLocalConnection()
     {
         return false;
     }
+}
+/*****************************************************************************/
+void TarotClub::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
+{
+    // Close ourself from any previous connection
+    mClient.Close();
+    mClient.Initialize();
+
+    InitScreen();
+
+    // Connect us to the server
+    mClient.ConnectToHost(ip, port);
+    mConnectionType = REMOTE;
 }
 /*****************************************************************************/
 void TarotClub::LaunchLocalGame(Game::Mode mode, const Game::Shuffle &sh)

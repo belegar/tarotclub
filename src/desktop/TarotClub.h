@@ -82,6 +82,7 @@ private:
     void ShowSouthCards();
     void HideTrick();
     void LaunchLocalGame(Game::Mode, const Game::Shuffle &sh);
+    void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
     void InitScreen();
     void showVictoryWindow();
     bool HasLocalConnection();
