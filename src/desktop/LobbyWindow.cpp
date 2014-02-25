@@ -52,9 +52,8 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
     connect(ui.joinButton, &QPushButton::clicked, this, &LobbyWindow::slotJoin);
     connect(ui.closeButton, &QPushButton::clicked, this, &LobbyWindow::slotClose);
 
-    selectedTable.isValid = false;
+    Initialize();
 }
-
 /*****************************************************************************/
 void LobbyWindow::slotRoomSelected(QListWidgetItem *item)
 {
@@ -96,6 +95,15 @@ void LobbyWindow::slotClose()
 {
     socket.close();
     this->reject();
+}
+/*****************************************************************************/
+void LobbyWindow::Initialize()
+{
+    selectedTable.isValid = false;
+    QString txt = trUtf8("Not connected.");
+    ui.infoLabel->setText(txt);
+    ui.tableList->clear();
+    ui.roomList->clear();
 }
 /*****************************************************************************/
 void LobbyWindow::socketReadData()

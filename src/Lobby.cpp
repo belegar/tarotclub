@@ -51,7 +51,7 @@ void Lobby::Initialize()
 
     Game::Shuffle sh;
     sh.type = Game::RANDOM_DEAL;
-    int tcpPort = DEFAULT_TCP_PORT;
+    int tcpPort = 33000; // FIXME: make this as an option
 
     for (int j = 0; j < SERVER_MAX_SALOONS; j++)
     {
@@ -65,6 +65,7 @@ void Lobby::Initialize()
         }
     }
 
+    // Lobby TCP server
     mTcpServer.Start(4242, 20U);
 }
 /*****************************************************************************/

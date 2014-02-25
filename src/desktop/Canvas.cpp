@@ -474,6 +474,7 @@ void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
 
         playerBox.value(rel)->SetPlayerName(i.value().name.data());
         playerBox.value(rel)->SetAvatar(QString(i.value().avatar.data()));
+        playerBox.value(rel)->EnableAvatar(true);
     }
 }
 /*****************************************************************************/
@@ -597,8 +598,12 @@ void Canvas::InitBoard()
         i.next();
         i.value()->HighlightPlayer(false);
         i.value()->SelectPlayer(false);
+        i.value()->EnableAvatar(false);
         i.value()->SetBidText("");
     }
+
+    HidePopup();
+    HideBidsChoice();
 }
 /*****************************************************************************/
 void Canvas::ResetCards()

@@ -46,6 +46,7 @@ public:
 
     LobbyWindow(QWidget *parent);
 
+    void Initialize();
     Connection GetTableConnection();
 
 public slots:
