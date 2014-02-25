@@ -23,14 +23,14 @@
  *=============================================================================
  */
 
-#include <cstdlib>
+#include <chrono>
 #include "Game.h"
 #include "defines.h"
 
 /*****************************************************************************/
 Game::Game()
 {
-    std::srand(time(0));
+    mSeed = std::chrono::system_clock::now().time_since_epoch().count();
 
     Initialize(4);
 }
@@ -42,8 +42,12 @@ void Game::Initialize(int players)
     trickCounter = 0;
     numberOfPlayers = players;
 
-    std::uint32_t random = std::rand() % 4;
-    dealer = random;
+    // Choose the first player
+    std::default_random_engine generator(mSeed);
+    std::uniform_int_distribution<std::uint32_t> distribution(0, players-1);
+
+    dealer = distribution(generator);
+
     contract = Contract::PASS;
     slamAnnounced = false;
     attackHandle.declared = false;

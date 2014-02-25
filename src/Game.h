@@ -25,8 +25,11 @@
 #ifndef _GAME_H
 #define _GAME_H
 
-#include "defines.h"
+
 #include <cstdint>
+#include <random>
+
+#include "defines.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
 
@@ -140,6 +143,7 @@ private:
     Place NextPlayer(Place j);
 
     std::uint32_t   mPosition;          // Current position, [1..numberOfPlayers]
+    unsigned mSeed;
 };
 
 #endif // _GAME_H
