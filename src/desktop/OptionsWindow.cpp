@@ -37,19 +37,19 @@ static const QPoint labelPos[5] = {
 };
 
 static const QString iconName[5] = {
-    ":/icons/trump.svg",
-    ":/icons/heart.svg",
     ":/icons/spade.svg",
+    ":/icons/heart.svg",
     ":/icons/diamond.svg",
-    ":/icons/club.svg"
+    ":/icons/club.svg",
+    ":/icons/trump.svg"
 };
 
 static const Card::Suit suitList[5] = {
-    Card::TRUMPS,
-    Card::HEARTS,
     Card::SPADES,
+    Card::HEARTS,
     Card::DIAMONDS,
-    Card::CLUBS
+    Card::CLUBS,
+    Card::TRUMPS
 };
 
 static const QSize labelSize(40, 40);
@@ -88,7 +88,19 @@ std::string DragWidget::GetOrder()
 /*****************************************************************************/
 void DragWidget::SetOrder(const std::string &order)
 {
+    if (order.size() >= 5)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            std::string letter; letter.push_back(order[i]);
+            Card::Suit suit = Card::ToSuit(letter);
+            mIcons[i].icon = iconName[suit];
+            mIcons[i].suit = suit;
 
+            // update Pixmap
+            mIcons[i].label->setPixmap(mIcons[i].icon);
+        }
+    }
 }
 /*****************************************************************************/
 void DragWidget::dragEnterEvent(QDragEnterEvent *event)
