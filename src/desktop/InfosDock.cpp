@@ -69,7 +69,7 @@ void InfosDock::Clear()
     }
 }
 /*****************************************************************************/
-void InfosDock::SetDealNumber(int n)
+void InfosDock::SetDealNumber(std::uint32_t n)
 {
     if (n < 0)
     {

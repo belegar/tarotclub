@@ -50,7 +50,7 @@ public:
     void Clear();
     void SetContract(Contract contract);
     void SetTaker(QString &name, Place place);
-    void SetDealNumber(int n);
+    void SetDealNumber(std::uint32_t n);
     void PrintStats(Deck::Statistics &stats);
     void AddRound(Game &info, Place p, const QString &txt);
     void SelectWinner(Game &info, Place p);
