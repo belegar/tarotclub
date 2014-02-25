@@ -102,7 +102,7 @@ void TcpServer::Run()
 {
     int rc;
     bool end_server = false;
-    struct timeval timeout;
+ //   struct timeval timeout;
     fd_set working_set;
 
     for (;;)
@@ -115,11 +115,12 @@ void TcpServer::Run()
         FD_SET(GetSocket(), &mMasterSet);
 
         /*************************************************************/
-        /* Initialize the timeval struct to 3 minutes.  If no        */
-        /* activity after 3 minutes this program will end.           */
+        /* Initialize the timeval struct to N minutes.  If no        */
+        /* activity after N minutes this program will end.           */
+        /* 0 means unlimited (== no timeout)                         */
         /*************************************************************/
-        timeout.tv_sec  = 3 * 60;
-        timeout.tv_usec = 0;
+     //   timeout.tv_sec  = 0; //10 * 60;
+     //   timeout.tv_usec = 0;
 
         /*************************************************************/
         /* Loop waiting for incoming connects or for incoming data   */
@@ -136,7 +137,7 @@ void TcpServer::Run()
             /* Call select() and wait 5 minutes for it to complete.   */
             /**********************************************************/
             printf("Waiting on select()...\n");
-            rc = select(mMaxSd + 1, &working_set, NULL, NULL, &timeout);
+            rc = select(mMaxSd + 1, &working_set, NULL, NULL, NULL); // &timeout);
 
             if (rc < 0)
             {
@@ -150,6 +151,7 @@ void TcpServer::Run()
                 /**********************************************************/
                 /* The time out expired.                                  */
                 /**********************************************************/
+                end_server = true;
                 //TODO: call a listener / signal this event
             }
             else
