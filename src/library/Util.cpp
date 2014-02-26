@@ -33,6 +33,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #endif
 
 #include "Util.h"
