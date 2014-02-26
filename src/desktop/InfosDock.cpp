@@ -71,7 +71,7 @@ void InfosDock::Clear()
 /*****************************************************************************/
 void InfosDock::SetDealNumber(std::uint32_t n)
 {
-    if (n < 0)
+    if (n == 0U)
     {
         ui.donneVar->setText("");
     }

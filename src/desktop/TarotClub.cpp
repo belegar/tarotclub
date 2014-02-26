@@ -642,7 +642,7 @@ void TarotClub::slotStartDeal(Place taker, Contract c, Game::Shuffle sh)
     else
     {
         // Numbered deal
-        infosDock->SetDealNumber(-1);
+        infosDock->SetDealNumber(0U);
     }
     tapis->SetFilter(Canvas::BLOCK_ALL);
     tapis->InitBoard();
