@@ -5,9 +5,18 @@ REM ----------------------------------------
 REM Leave the tools directory
 cd ..
 
-REM Start the opponent executables
-start build-desktop/Bender/TarotClub.exe
-start build-desktop/Leela/TarotClub.exe
-start build-desktop/Zoidberg/TarotClub.exe
+REM Start the opponent 
+
+cd build-desktop/Bender
+start TarotClub.exe
+cd ../..
+
+cd build-desktop/Leela
+start TarotClub.exe
+cd ../..
+
+cd build-desktop/Zoidberg
+start TarotClub.exe
+cd ../..
 
 REM End of the script
