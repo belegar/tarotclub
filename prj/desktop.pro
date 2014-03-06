@@ -21,12 +21,16 @@
 # ------------------------------------------------------------------------------
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
-UI_DIR = ./ui
-UI_HEADERS_DIR = ./include
-UI_SOURCES_DIR = ./src
-OBJECTS_DIR = ./obj
-DESTDIR = ./bin
 BASE_DIR = $${PWD}/..
+release:    DESTDIR = $$BASE_DIR/build-desktop/release
+debug:      DESTDIR = $$BASE_DIR/build-desktop/debug
+
+UI_DIR          = $$DESTDIR/ui
+UI_HEADERS_DIR  = $$DESTDIR/include
+UI_SOURCES_DIR  = $$DESTDIR/src
+OBJECTS_DIR     = $$DESTDIR/obj
+RCC_DIR         = $$DESTDIR/rcc
+MOC_DIR         = $$DESTDIR/moc
 
 # ------------------------------------------------------------------------------
 # The search path to find supplied files
