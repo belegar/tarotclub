@@ -17,6 +17,6 @@ cd ../..
 
 cd build-desktop/Zoidberg
 start TarotClub.exe
-cd ../..
+cd ../../tools
 
 REM End of the script
