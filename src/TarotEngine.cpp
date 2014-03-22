@@ -92,11 +92,11 @@ void TarotEngine::SetHandle(Deck &handle, Place p)
     Team handleOwner;
     Handle type;
 
-    if (handle.size() == 10)
+    if (handle.Size() == 10)
     {
         type = SIMPLE_HANDLE;
     }
-    else if (handle.size() == 13)
+    else if (handle.Size() == 13)
     {
         type = DOUBLE_HANDLE;
     }
@@ -125,8 +125,8 @@ void TarotEngine::SetHandle(Deck &handle, Place p)
 void TarotEngine::SetCard(Card *c, Place p)
 {
     c->SetOwner(p);
-    currentTrick.append(c);
-    players[p.Value()].GetDeck().removeAll(c);
+    currentTrick.Append(c);
+    players[p.Value()].GetDeck().Remove(c);
     cntSyncCard = 0;
     gameState.sequence = Game::SYNC_CARD;
 }
@@ -401,7 +401,7 @@ void TarotEngine::GameSateMachine()
 
         // The current trick winner will begin the next trick
         gameState.currentPlayer = deal.SetTrick(currentTrick, gameState);
-        currentTrick.clear();
+        currentTrick.Clear();
         cntSyncTrick = 0;
         gameState.sequence = Game::SYNC_TRICK;
         mEventHandler.EndOfTrick(gameState.currentPlayer);
@@ -489,7 +489,7 @@ void TarotEngine::BidSequence()
 /*****************************************************************************/
 void TarotEngine::CreateDeal()
 {
-    currentTrick.clear();
+    currentTrick.Clear();
 
     if (shuffle.type == Game::CUSTOM_DEAL)
     {
@@ -497,11 +497,11 @@ void TarotEngine::CreateDeal()
         if (editor.LoadFile(shuffle.file) == true)
         {
             // SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3,
-            currentTrick.append(editor.southDeck);
-            currentTrick.append(editor.eastDeck);
-            currentTrick.append(editor.northDeck);
-            currentTrick.append(editor.westDeck);
-            currentTrick.append(editor.dogDeck);
+            currentTrick.Append(editor.GetSouthDeck());
+            currentTrick.Append(editor.GetEastDeck());
+            currentTrick.Append(editor.GetNorthDeck());
+            currentTrick.Append(editor.GetWestDeck());
+            currentTrick.Append(editor.GetDogDeck());
         }
         else
         {
@@ -514,7 +514,7 @@ void TarotEngine::CreateDeal()
     {
         for (int i = 0; i < 78; i++)
         {
-            currentTrick.append(TarotDeck::GetCard(i));
+            currentTrick.Append(TarotDeck::GetCard(i));
         }
 
         if (shuffle.type == Game::RANDOM_DEAL)
@@ -527,8 +527,8 @@ void TarotEngine::CreateDeal()
     int n = gameState.GetNumberOfCards();
     for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
     {
-        players[i].GetDeck().clear();
-        players[i].GetDeck().append(currentTrick.mid(i * n, n));
+        players[i].GetDeck().Clear();
+        players[i].GetDeck().Append(currentTrick.Mid(i * n, n));
 
         std::stringstream message;
         Place p(i);
@@ -538,14 +538,14 @@ void TarotEngine::CreateDeal()
 
     // Remaining cards go to the dog
     Deck dog;
-    dog.append(currentTrick.mid(gameState.numberOfPlayers * n));
+    dog.Append(currentTrick.Mid(gameState.numberOfPlayers * n));
 
     std::stringstream message;
     message << "Dog deck: " << dog.GetCardList();
     TLogInfo(message.str());
 
     deal.SetDog(dog, NO_TEAM);
-    currentTrick.clear();
+    currentTrick.Clear();
 }
 
 

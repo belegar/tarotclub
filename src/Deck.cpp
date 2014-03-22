@@ -23,7 +23,10 @@
  *=============================================================================
  */
 
+#include <algorithm>
+#include <random>
 #include "Deck.h"
+
 
 /*****************************************************************************/
 Deck::Deck()
@@ -31,49 +34,123 @@ Deck::Deck()
     owner = NO_TEAM;
 }
 /*****************************************************************************/
+void Deck::Append(const Deck &deck)
+{
+    for (Deck::ConstIterator i = deck.Begin(); i != deck.End(); ++i)
+    {
+        Append((*i));
+    }
+}
+/*****************************************************************************/
+/**
+ * @brief Deck::Mid
+ * Creates a temporary deck contains all the cards from pos to the end of the
+ * deck.
+ *
+ * @param pos position to start from
+ * @return the new deck
+ */
+Deck Deck::Mid(std::uint32_t from_pos)
+{
+    return Mid(from_pos, Size() - 1);
+}
+/*****************************************************************************/
+/**
+ * @brief Deck::Mid
+ * @param from_pos
+ * @param to_pos
+ * @return
+ */
+Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t to_pos)
+{
+    Deck deck;
+    std::uint32_t counter = 0U;
+
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    {
+        if ((counter >= from_pos) &&
+            (counter <= to_pos))
+        {
+            deck.Append((*i));
+        }
+        counter++;
+    }
+    return deck;
+}
+/*****************************************************************************/
+void Deck::Remove(Card *c)
+{
+    mDeck.remove(c);
+}
+/*****************************************************************************/
+/**
+ * @brief Deck::Count
+ *
+ * Counts the number of the same cards in the deck
+ *
+ * @param c
+ * @return
+ */
+std::uint32_t Deck::Count(Card *c)
+{
+    std::uint32_t counter = 0U;
+
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    {
+        if (c == (*i))
+        {
+            counter++;
+        }
+    }
+    return counter;
+}
+/*****************************************************************************/
 std::string Deck::GetCardList() const
 {
     std::string list;
 
-    for (int i = 0; i < size(); i++)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        list += at(i)->GetName();
-        if (i < (size() - 1))
+        if (i != Begin())
         {
             list += ";";
         }
+        list += (*i)->GetName();
     }
     return list;
 }
 /*****************************************************************************/
 void Deck::Shuffle(int seed)
 {
-    for (int i = size(); i > 0; --i)
-    {
-        // pseudorandom number generation algorithm
-        // taken from KDE game KPat, thanks !
-        seed = 214013 * seed + 2531011;
-        int rand = (seed >> 16) & 0x7fff;
-        int z = rand % i;
-        swap(z, i - 1);
-    }
+    std::default_random_engine generator(seed);
+
+    // Since the STL random does not work on lists, we have to copy the data
+    // into a vector, shuffle the vector, and copy it back into a list.
+    std::vector<Card *> myVector(Size());
+    std::copy(Begin(), End(), myVector.begin());
+
+    // Actually shuffle the cards
+    std::shuffle(myVector.begin(), myVector.end(), generator);
+
+    // Copy back the intermediate working vector into the Deck
+    mDeck.assign(myVector.begin(), myVector.end());
 }
 /*****************************************************************************/
 Card *Deck::GetCardByName(const std::string &i_name)
 {
-    for (int i = 0; i < this->size(); i++)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        if (this->at(i)->GetName() == i_name)
+        if ((*i)->GetName() == i_name)
         {
-            return this->at(i);
+            return (*i);
         }
     }
     return NULL;
 }
 /*****************************************************************************/
 bool Deck::HasCard(Card *c)
-{
-    if (this->indexOf(c) == -1)
+{ 
+    if (std::count(Begin(), End(), c) == 0)
     {
         return false;
     }
@@ -85,10 +162,10 @@ bool Deck::HasCard(Card *c)
 /*****************************************************************************/
 bool Deck::HasOneOfTrump()
 {
-    for (int i = 0; i < this->count(); i++)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
-                (this->at(i)->GetValue() == 1))
+        if (((*i)->GetSuit() == Card::TRUMPS) &&
+            ((*i)->GetValue() == 1))
         {
             return true;
         }
@@ -98,10 +175,10 @@ bool Deck::HasOneOfTrump()
 /*****************************************************************************/
 bool Deck::HasFool()
 {
-    for (int i = 0; i < this->count(); i++)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
-                (this->at(i)->GetValue() == 0))
+        if (((*i)->GetSuit() == Card::TRUMPS) &&
+            ((*i)->GetValue() == 0))
         {
             return true;
         }
@@ -122,13 +199,13 @@ Card *Deck::HighestTrump()
     Card *c = NULL;
     int value = 0;
 
-    for (int i = 0; i < this->count(); i++)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        if ((this->at(i)->GetSuit() == Card::TRUMPS) &&
-                (this->at(i)->GetValue() > value))
+        if (((*i)->GetSuit() == Card::TRUMPS) &&
+            ((*i)->GetValue() > value))
         {
-            value = this->at(i)->GetValue();
-            c = this->at(i);
+            value = (*i)->GetValue();
+            c = (*i);
         }
     }
     return c;
@@ -139,13 +216,13 @@ Card *Deck::HighestSuit()
     Card *c = NULL;
     int value = 0;
 
-    for (int i = 0; i < this->count(); i++)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        if ((this->at(i)->GetSuit() != Card::TRUMPS) &&
-                (this->at(i)->GetValue() > value))
+        if (((*i)->GetSuit() != Card::TRUMPS) &&
+            ((*i)->GetValue() > value))
         {
-            value = this->at(i)->GetValue();
-            c = this->at(i);
+            value = (*i)->GetValue();
+            c = (*i);
         }
     }
     return c;
@@ -175,18 +252,18 @@ void Deck::Sort(const std::string &order)
         }
 
         // Depending of the sorting contents, give a weight to each card
-        for (int i = 0; i < this->count(); i++)
+        for (Deck::ConstIterator i = Begin(); i != End(); ++i)
         {
-            Card *c = this->at(i);
+            Card *c = (*i);
 
             std::uint16_t id = weight[c->GetSuit()] + c->GetValue();
             c->SetId(id);
         }
     }
 
-    if (this->size() != 0)
+    if (Size() != 0)
     {
-        qSort(this->begin(), this->end(), LessThanCards);
+        mDeck.sort(&Deck::LessThanCards);
     }
 }
 /*****************************************************************************/
@@ -207,7 +284,7 @@ int Deck::SetCards(const std::string &cards)
     int pos = 0;
 
     // Clear this deck before setting new cards
-    this->clear();
+    Clear();
 
     do
     {
@@ -230,7 +307,7 @@ int Deck::SetCards(const std::string &cards)
         if (c != NULL)
         {
             count++;
-            this->append(c);
+            mDeck.push_back(c);
         }
     }
     while (found != std::string::npos);
@@ -275,15 +352,15 @@ void Deck::Statistics::Reset()
 /*****************************************************************************/
 void Deck::AnalyzeTrumps(Statistics &stats)
 {
-    int i, val;
+    int val;
     Card *c;
 
-    stats.nbCards = this->size();
+    stats.nbCards = Size();
 
     // looking for trumps
-    for (i = 0; i < this->count(); i++)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        c = this->at(i);
+        c = (*i);
         if (c->GetSuit() == Card::TRUMPS)
         {
             stats.trumps++;
@@ -349,9 +426,9 @@ void Deck::AnalyzeSuits(Statistics &stats)
         }
         count = 0;
 
-        for (k = 0; k < this->count(); k++)
+        for (Deck::ConstIterator k = Begin(); k != End(); ++k)
         {
-            c = this->at(k);
+            c = (*k);
             if (c->GetSuit() == suit)
             {
                 count++;

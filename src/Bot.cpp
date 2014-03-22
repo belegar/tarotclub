@@ -45,7 +45,7 @@ Bot::~Bot()
 /*****************************************************************************/
 void Bot::Message(const string &message)
 {
-    Q_UNUSED(message);
+    (void)(message);
     // A bot cannot reply (yet :)
 }
 /*****************************************************************************/
@@ -61,7 +61,7 @@ void Bot::AssignedPlace()
 /*****************************************************************************/
 void Bot::PlayersList(std::map<Place, Identity> &players)
 {
-    Q_UNUSED(players);
+    (void)(players);
 }
 /*****************************************************************************/
 void Bot::ReceiveCards()
@@ -73,7 +73,7 @@ void Bot::ReceiveCards()
 /*****************************************************************************/
 void Bot::SelectPlayer(Place p)
 {
-    Q_UNUSED(p);
+    (void)(p);
 }
 /*****************************************************************************/
 void Bot::RequestBid(Contract highestBid)
@@ -122,15 +122,15 @@ void Bot::RequestBid(Contract highestBid)
 /*****************************************************************************/
 void Bot::ShowBid(Place place, bool slam, Contract contract)
 {
-    Q_UNUSED(place);
-    Q_UNUSED(contract);
-    Q_UNUSED(slam);
+    (void)(place);
+    (void)(contract);
+    (void)(slam);
     mClient.SendSyncBid();
 }
 /*****************************************************************************/
 void Bot::StartDeal(Place taker, Contract contract, const Game::Shuffle &sh)
 {
-    Q_UNUSED(sh);
+    (void)(sh);
 
     // FIXME: pass the game type to the script
     JSEngine::StringList args;
@@ -183,9 +183,9 @@ void Bot::BuildDiscard()
 
     if (count == 6)
     {
-        for (int i=0; i<6; i++)
+        for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
         {
-            Card *c = discard.at(i);
+            Card *c = (*i);
 
             // Look if the card belongs to the dog or the player's deck
             if (mClient.GetDogDeck().HasCard(c) || mClient.GetMyDeck().HasCard(c))
@@ -198,7 +198,7 @@ void Bot::BuildDiscard()
                 }
 
                 // Look if this card is unique
-                if (discard.count(c) != 1)
+                if (discard.Count(c) != 1)
                 {
                     valid = false;
                 }
@@ -279,7 +279,7 @@ void Bot::PlayCard()
         c = mClient.Play();
     }
 
-    mClient.GetMyDeck().removeAll(c);
+    mClient.GetMyDeck().Remove(c);
     mClient.SendCard(c);
 }
 /*****************************************************************************/
@@ -296,7 +296,7 @@ void Bot::ShowCard(Place p, const std::string &name)
 /*****************************************************************************/
 void Bot::WaitTrick(Place winner)
 {
-    Q_UNUSED(winner);
+    (void)(winner);
     // FIXME Call script and pass the winner
 
     mClient.SendSyncTrick();

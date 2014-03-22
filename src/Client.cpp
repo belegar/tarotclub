@@ -81,15 +81,13 @@ Identity &Client::GetMyIdentity()
 /*****************************************************************************/
 bool Client::TestHandle()
 {
+    bool ret = true;
     mPlayer.GetDeck().AnalyzeTrumps(stats);
-    if ((handleDeck.HasFool() == true) && (stats.trumps > handleDeck.size()))
+    if ((handleDeck.HasFool() == true) && (stats.trumps > handleDeck.Size()))
     {
-        return false;
+        ret = false;
     }
-    else
-    {
-        return true;
-    }
+    return ret;
 }
 /*****************************************************************************/
 Game &Client::GetGameInfo()
@@ -118,10 +116,14 @@ void Client::SetDiscard(Deck &discard)
     mPlayer.GetDeck() += dogDeck;
 
     // remove cards from the client's deck
-    for (int i = 0; i < discard.size(); i++)
+    for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
     {
-        Card *c = discard.at(i);
-        if (mPlayer.GetDeck().removeAll(c) != 1)
+        Card *c = (*i);
+        if (mPlayer.GetDeck().HasCard(c))
+        {
+            mPlayer.GetDeck().Remove(c);
+        }
+        else
         {
             TLogError("Wrong number of cards");
         }
@@ -223,27 +225,27 @@ Deck Client::BuildDogDeck()
 
     bool ok = false;
     i = 0;
+    Deck::ConstIterator iter = discard.Begin();
 
-    // We're looking for trumps or kings in the deck and we replace
+    // We're looking for trumps or kings in the dog and we replace
     // them by other valid cards
     while (ok == false)
     {
-        c = discard.at(i);
+        c = (*iter);
         if ((c->GetSuit() == Card::TRUMPS) ||
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
             // looking for valid card
-            int k = mPlayer.GetDeck().size();
-            for (int j = 0; j < k; j++)
+            for (Deck::ConstIterator j = mPlayer.GetDeck().Begin(); j != mPlayer.GetDeck().End(); ++j)
             {
-                cdeck = mPlayer.GetDeck().at(j);
+                cdeck = (*j);
                 if ((cdeck->GetSuit() != Card::TRUMPS) && (cdeck->GetValue() < 14))
                 {
                     // Swap cards
-                    mPlayer.GetDeck().removeAll(cdeck);
-                    mPlayer.GetDeck().append(c);
-                    discard.removeAll(c);
-                    discard.append(cdeck);
+                    mPlayer.GetDeck().Remove(cdeck);
+                    mPlayer.GetDeck().Append(c);
+                    discard.Remove(c);
+                    discard.Append(cdeck);
                     break;
                 }
             }
@@ -252,6 +254,7 @@ Deck Client::BuildDogDeck()
         else
         {
             i++;
+            ++iter;
         }
 
         if (i == 6)
@@ -269,9 +272,9 @@ Card *Client::Play()
 {
     Card *c = NULL;
 
-    for (int i = 0; i < mPlayer.GetDeck().size(); i++)
+    for (Deck::ConstIterator i = mPlayer.GetDeck().Begin(); i != mPlayer.GetDeck().End(); ++i)
     {
-        c = mPlayer.GetDeck().at(i);
+        c = (*i);
         if (IsValid(c) == true)
         {
             break;
@@ -516,7 +519,7 @@ bool Client::DoAction(const ByteArray &data)
             info.NewDeal();
             info.taker = taker;
             info.contract = (Contract)contrat;
-            currentTrick.clear();
+            currentTrick.Clear();
             info.sequence = Game::SYNC_START;
             mEventHandler.StartDeal(taker, (Contract)contrat, sh);
             break;
@@ -549,7 +552,7 @@ bool Client::DoAction(const ByteArray &data)
             in >> name;
 
             info.Next();
-            currentTrick.append(TarotDeck::GetCard(name));
+            currentTrick.Append(TarotDeck::GetCard(name));
             info.sequence = Game::SYNC_CARD;
             mEventHandler.ShowCard(player, name);
             break;
@@ -698,7 +701,7 @@ void Client::SendSyncBid()
 void Client::SendSyncTrick()
 {
     info.sequence = Game::IDLE;
-    currentTrick.clear();
+    currentTrick.Clear();
 
     ByteArray packet = Protocol::BuildClientSyncTrick(mPlayer.GetUuid());
     mTcpClient.Send(packet.ToSring());

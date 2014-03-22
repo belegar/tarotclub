@@ -25,7 +25,6 @@
 #ifndef DEALFILE_H
 #define DEALFILE_H
 
-#include <QtCore>
 #include <string>
 #include "Deck.h"
 
@@ -38,15 +37,17 @@ public:
     bool LoadFile(const std::string &fileName);
     void SaveFile(const std::string &fileName);
 
-    Deck  southDeck;
-    Deck  northDeck;
-    Deck  westDeck;
-    Deck  eastDeck;
-    Deck  dogDeck;
+    Deck &GetDogDeck();
+    Deck &GetWestDeck();
+    Deck &GetEastDeck();
+    Deck &GetSouthDeck();
+    Deck &GetNorthDeck();
 
 private:
-    bool FillDeck(Deck &deck, QXmlStreamReader &xml);
+    bool FillDeck(Deck &deck, const std::string &cards, int nbCards);
 
+    Deck    mPlayers[5]; //!< five players max in Tarot
+    Deck    mDogDeck;
 };
 
 #endif // DEALFILE_H

@@ -26,8 +26,7 @@
 #ifndef _DECK_H
 #define _DECK_H
 
-// Qt includes
-#include <QList>
+#include <list>
 
 // Game includes
 #include "Card.h"
@@ -37,36 +36,35 @@
 #include "ByteStreamWriter.h"
 
 /*****************************************************************************/
-class Deck : public QList<Card *>
+class Deck
 {
 public:
     class Statistics
     {
-
     public:
         Statistics() {}
 
-        int   nbCards;
+        std::uint32_t   nbCards;
 
-        int   trumps;  // nombres d'atouts , en comptant les bouts et l'excuse
-        int   oudlers;   // 0, 1, 2 ou 3
-        int   majorTrumps; // atouts >= 15
+        std::uint32_t   trumps;  // nombres d'atouts , en comptant les bouts et l'excuse
+        std::uint32_t   oudlers;   // 0, 1, 2 ou 3
+        std::uint32_t   majorTrumps; // atouts >= 15
 
-        int   kings;
-        int   queens;
-        int   knights;
-        int   jacks;
+        std::uint32_t   kings;
+        std::uint32_t   queens;
+        std::uint32_t   knights;
+        std::uint32_t   jacks;
 
-        int   weddings;   // nombre de mariages dans la main
-        int   longSuits;
-        int   cuts;     // aucune carte dans une couleur
-        int   singletons; // une seule carte dans une couleur
-        int   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+        std::uint32_t   weddings;   // nombre de mariages dans la main
+        std::uint32_t   longSuits;
+        std::uint32_t   cuts;     // aucune carte dans une couleur
+        std::uint32_t   singletons; // une seule carte dans une couleur
+        std::uint32_t   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
 
-        int   clubs;
-        int   spades;
-        int   hearts;
-        int   diamonds;
+        std::uint32_t   clubs;
+        std::uint32_t   spades;
+        std::uint32_t   hearts;
+        std::uint32_t   diamonds;
 
         bool  littleTrump;
         bool  bigTrump;
@@ -78,6 +76,38 @@ public:
     };
 
     Deck();
+
+    // STL-compatible iterator types
+    typedef std::list<Card *>::iterator Iterator;
+    typedef std::list<Card *>::const_iterator ConstIterator;
+
+    // STL-compatible begin/end functions for iterating over the deck cards
+    inline Iterator Begin()
+    {
+        return mDeck.begin();
+    }
+    inline ConstIterator Begin() const
+    {
+        return mDeck.begin();
+    }
+    inline Iterator End()
+    {
+        return mDeck.end();
+    }
+    inline ConstIterator End() const
+    {
+        return mDeck.end();
+    }
+
+    // Raw deck management
+    inline std::uint32_t Size() { return mDeck.size(); }
+    inline void Clear() { mDeck.clear(); }
+    inline void Append(Card *c) { mDeck.push_back(c); }
+    void Append(const Deck &deck);
+    Deck Mid(std::uint32_t from_pos);
+    Deck Mid(std::uint32_t from_pos, std::uint32_t to_pos);
+    void Remove(Card *c);
+    std::uint32_t Count(Card *c);
 
     // Helpers
     void AnalyzeTrumps(Statistics &stats);
@@ -106,12 +136,32 @@ public:
         return out;
     }
 
-    friend ByteStreamReader &operator>>(ByteStreamReader &s, Deck &l)
+    friend ByteStreamReader &operator>>(ByteStreamReader &s, Deck &deck)
     {
         std::string cards;
         s >> cards;
-        l.SetCards(cards);
+        deck.SetCards(cards);
         return s;
+    }
+
+    Deck operator = (const Deck &l)
+    {
+        mDeck = l.mDeck;
+        return *this;
+    }
+
+    Deck operator += (const Deck &l)
+    {
+        this->Append(l);
+        return *this;
+    }
+
+    Deck operator + (Deck &l) const
+    {
+        Deck d;
+        d.Append(*this);
+        d.Append(l);
+        return d;
     }
 
 private:
@@ -122,6 +172,7 @@ private:
      * information, tricks won for example
      */
     Team owner;
+    std::list<Card *> mDeck; //!< Container to store the cards
 };
 
 #endif // _DECK_H

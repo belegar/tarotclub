@@ -23,12 +23,15 @@
  *=============================================================================
  */
 
-#include <QtCore>
+#include <sstream>
+#include "JsonReader.h"
+#include "JsonWriter.h"
 #include "DealFile.h"
 #include "defines.h"
 #include "TarotDeck.h"
+#include "Log.h"
 
-#define DEAL_XML_VERSION  "1.0"
+static const std::string DEAL_FILE_VERSION  = "2.0";
 
 /*****************************************************************************/
 DealFile::DealFile()
@@ -36,185 +39,137 @@ DealFile::DealFile()
 
 }
 /*****************************************************************************/
+Deck &DealFile::GetNorthDeck()
+{
+    return mPlayers[Place::NORTH];
+}
+/*****************************************************************************/
+Deck &DealFile::GetSouthDeck()
+{
+    return mPlayers[Place::SOUTH];
+}
+/*****************************************************************************/
+Deck &DealFile::GetEastDeck()
+{
+    return mPlayers[Place::EAST];
+}
+/*****************************************************************************/
+Deck &DealFile::GetWestDeck()
+{
+    return mPlayers[Place::WEST];
+}
+/*****************************************************************************/
+Deck &DealFile::GetDogDeck()
+{
+    return mDogDeck;
+}
+/*****************************************************************************/
 bool DealFile::LoadFile(const std::string &fileName)
 {
     bool ret = true;
-    QFile f(fileName.data());
+    JsonReader json;
 
-    if (f.open(QIODevice::ReadOnly) == true)
+    ret = json.Open(fileName);
+    if (ret)
     {
-        QXmlStreamReader xml(&f);
-        dogDeck.clear();
-        southDeck.clear();
-        northDeck.clear();
-        westDeck.clear();
-        eastDeck.clear();
-
-        while (!xml.atEnd() && ret)
+        mDogDeck.Clear();
+        for (int i = 0; i < 5; i++)
         {
-            QXmlStreamReader::TokenType token = xml.readNext();
+            mPlayers[i].Clear();
+        }
 
-            // If token is just StartDocument, we'll go to next
-            if (token == QXmlStreamReader::StartDocument)
+        std::string stringval;
+        if (json.GetValue("", "version", stringval))
+        {
+            if (stringval == DEAL_FILE_VERSION)
             {
-                continue;
-            }
-            // If token is StartElement, we'll see if we can read it
-            if (token == QXmlStreamReader::StartElement)
-            {
-                if (xml.name() == "custom_deal")
+                if (json.GetValue("", "Dog", stringval))
                 {
-                    // Let's get the attributes
-                    QXmlStreamAttributes attributes = xml.attributes();
-                    // Let's check the version number
-                    if (attributes.hasAttribute("version"))
+                    ret = FillDeck(mDogDeck, stringval, 6);
+                }
+                else
+                {
+                    TLogError("Cannot get dog deck");
+                    ret = false;
+                }
+
+                for (std::uint32_t i = 0; i < 5; i++)
+                {
+                    if (ret)
                     {
-                        if (attributes.value("version").toString() != QString(DEAL_XML_VERSION))
+                        Place player(i);
+                        if (json.GetValue("", player.ToString(), stringval))
                         {
+                            ret = FillDeck(mPlayers[i], stringval, 18);
+                        }
+                        else
+                        {
+                            TLogError("Cannot get dog deck");
                             ret = false;
                         }
                     }
                     else
                     {
+                        TLogError("Cannot parse deck string");
                         ret = false;
-                    }
-                }
-
-                // Section "Dog"
-                if (xml.name() == "dog")
-                {
-                    if (FillDeck(dogDeck, xml) == false)
-                    {
-                        ret = false;
-                    }
-                }
-                else if (xml.name() == "south")
-                {
-                    if (FillDeck(southDeck, xml) == false)
-                    {
-                        ret = false;
-                    }
-                }
-                else if (xml.name() == "north")
-                {
-                    if (FillDeck(northDeck, xml) == false)
-                    {
-                        ret = false;
-                    }
-                }
-                else if (xml.name() == "west")
-                {
-                    if (FillDeck(westDeck, xml) == false)
-                    {
-                        ret = false;
-                    }
-                }
-                else if (xml.name() == "east")
-                {
-                    if (FillDeck(eastDeck, xml) == false)
-                    {
-                        ret = false;
+                        break;
                     }
                 }
             }
+            else
+            {
+                TLogError("Wrong deal file version");
+                ret = false;
+            }
         }
-        if (xml.hasError())
+        else
         {
+            TLogError("Wrong deal file version");
             ret = false;
         }
+    }
+    json.Close();
 
-        f.close();
+    return ret;
+}
+/*****************************************************************************/
+bool DealFile::FillDeck(Deck &deck, const std::string &cards, int nbCards)
+{
+    bool ret = false;
+
+    if (deck.SetCards(cards) == nbCards)
+    {
+        ret = true;
     }
     else
     {
+        TLogError("Wrong card list");
         ret = false;
     }
 
     return ret;
 }
 /*****************************************************************************/
-bool DealFile::FillDeck(Deck &deck, QXmlStreamReader &xml)
-{
-    QString val;
-
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement &&
-             xml.name() != "card"))
-    {
-        QXmlStreamReader::TokenType token = xml.readNext();
-        if (token == QXmlStreamReader::StartElement)
-        {
-            if (xml.name() == "card")
-            {
-                val = xml.readElementText();
-                deck.append(TarotDeck::GetCard(val.toStdString()));
-            }
-        }
-    }
-    return true;
-}
-/*****************************************************************************/
 void DealFile::SaveFile(const std::string &fileName)
 {
-    // Open a file where to stream out the XML
-    QFile f(fileName.data());
-    if (!f.open(QIODevice::WriteOnly))
+    JsonWriter json;
+
+    json.CreateValuePair("version", DEAL_FILE_VERSION);
+    json.CreateValuePair("generator", "Generated by TarotClub " TAROT_VERSION);
+    json.CreateValuePair("Dog", mDogDeck.GetCardList());
+
+    for (std::uint32_t i = 0; i < 5; i++)
     {
-        return;
+        Place player(i);
+        json.CreateValuePair(player.ToString(), mPlayers[i].GetCardList());
     }
 
-    QXmlStreamWriter stream(&f);
-    stream.setAutoFormatting(true);
-    stream.writeStartDocument();
-
-    stream.writeComment(QString("Generated by ") + QString("TarotClub ") + QString(TAROT_VERSION));
-
-    stream.writeStartElement("custom_deal");
-    stream.writeAttribute("version", QString(DEAL_XML_VERSION));
-
-    // Dog cards
-    stream.writeStartElement("dog");
-    for (int i = 0; i < dogDeck.count(); i++)
+    if (!json.SaveToFile(fileName))
     {
-        stream.writeTextElement("card", dogDeck.at(i)->GetName().data());
+        TLogError("Saving custom deal file failed.");
     }
-    stream.writeEndElement(); // dog
-
-    // South cards
-    stream.writeStartElement("south");
-    for (int i = 0; i < southDeck.count(); i++)
-    {
-        stream.writeTextElement("card", southDeck.at(i)->GetName().data());
-    }
-    stream.writeEndElement(); // south
-
-    // West cards
-    stream.writeStartElement("west");
-    for (int i = 0; i < westDeck.count(); i++)
-    {
-        stream.writeTextElement("card", westDeck.at(i)->GetName().data());
-    }
-    stream.writeEndElement(); // west
-
-    // North cards
-    stream.writeStartElement("north");
-    for (int i = 0; i < northDeck.count(); i++)
-    {
-        stream.writeTextElement("card", northDeck.at(i)->GetName().data());
-    }
-    stream.writeEndElement(); // north
-
-    // East cards
-    stream.writeStartElement("east");
-    for (int i = 0; i < eastDeck.count(); i++)
-    {
-        stream.writeTextElement("card", eastDeck.at(i)->GetName().data());
-    }
-    stream.writeEndElement(); // east
-
-    stream.writeEndElement(); // custom_deal
-    stream.writeEndDocument();
-    f.close();
 }
+
 
 //=============================================================================
 // End of file DealFile.cpp

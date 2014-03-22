@@ -74,10 +74,9 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     int  maxPreviousTrump = 0;      // maximum value of the previous trump played
 
     Card *c = NULL;
-    int i;
 
     // The player is the first of the trick, he can play all the cards
-    if (trick.size() == 0)
+    if (trick.Size() == 0)
     {
         return true;
     }
@@ -89,25 +88,25 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     }
 
     // We retreive the requested suit by looking at the first card played
-    c = trick.at(0);
+    c = *(trick.Begin());
 
     if (c->IsFool())
     {
         // The first card is a Excuse...
-        if (trick.size() == 1)
+        if (trick.Size() == 1)
         {
             // ...the player can play everything he wants
             return true;
         }
         // The requested suit is the second card
-        c = trick.at(1);
+        c = *(++trick.Begin());
     }
     suit = c->GetSuit();
 
     // Some indications about previous played cards
-    for (i = 0; i < trick.size(); i++)
+    for (Deck::ConstIterator i = trick.Begin(); i != trick.End(); ++i)
     {
-        c = trick.at(i);
+        c = *(i);
         if (c->GetSuit() == Card::TRUMPS)
         {
             previousTrump = true;
@@ -119,9 +118,9 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     }
 
     // Some indications on the player cards in hand
-    for (i = 0; i < mDeck.count(); i++)
+    for (Deck::ConstIterator i = mDeck.Begin(); i != mDeck.End(); ++i)
     {
-        c = mDeck.at(i);
+        c = *(i);
         if (c->GetSuit() == Card::TRUMPS)
         {
             hasTrump = true;

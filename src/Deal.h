@@ -26,9 +26,11 @@
 #ifndef _DEAL_H
 #define _DEAL_H
 
-// Game includes
+// Standard includes
 #include <map>
-#include <QList>
+#include <list>
+
+// Game includes
 #include "Card.h"
 #include "Deck.h"
 #include "defines.h"
@@ -53,7 +55,7 @@ public:
     Deck GetTrick(int turn);
     int  GetTotalPoints(Place p);
     Score  &GetScore();
-    QList<Place> GetPodium();
+    std::map<int, Place> GetPodium();
     Deck &GetDog();
 
     // Setters

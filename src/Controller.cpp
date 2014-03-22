@@ -217,7 +217,7 @@ bool Controller::DoAction(const ByteArray &data)
         std::string message;
         in >> message;
 
-        std::string name = engine.GetPlayer(engine.GetPlayerPlace(uuid))->GetIdentity().name;
+        std::string name = engine.GetPlayer(engine.GetPlayerPlace(uuid)).GetIdentity().name;
         message = name + "> " + message;
 
         SendPacket(Protocol::BuildServerChatMessage(message));
