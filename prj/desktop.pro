@@ -160,7 +160,6 @@ HEADERS += ServerConfig.h \
     Player.h \
     Client.h \
     Bot.h \
-    defines.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \
