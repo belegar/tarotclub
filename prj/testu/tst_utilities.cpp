@@ -141,5 +141,7 @@ void Utilities::TestUtilFunctions()
     std::cout << Util::HomePath() << std::endl;
 
     Util::Mkdir("c:/test_mkdir/sub/directory/");
+
+    std::cout << "Current date-time: " << Util::CurrentDateTime("%Y-%m-%d.%X");
 }
 
