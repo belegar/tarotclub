@@ -39,7 +39,15 @@
 #include "Util.h"
 
 /*****************************************************************************/
-// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+/**
+ * @brief Util::CurrentDateTime
+ *
+ * Gets current date/time, format is given in parameters
+ * Example: "%Y-%m-%d.%X" generates the following output: 2014-03-21.18:20:49
+ *
+ * @param format
+ * @return
+ */
 std::string Util::CurrentDateTime(const std::string &format)
 {
     std::stringstream datetime;
@@ -55,7 +63,7 @@ std::string Util::CurrentDateTime(const std::string &format)
 
     datetime << buffer;
 /*
- * This code if the C++0x11 way of formating date, but GCC does not support it yet :(
+ * This code is the C++0x11 way of formating date, but GCC does not support it yet :(
     std::stringstream datetime;
     std::time_t t = std::time(nullptr);
     std::tm tm = *std::localtime(&t);
