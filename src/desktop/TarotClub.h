@@ -28,7 +28,7 @@
 
 // Game includes
 #include "Client.h"
-#include "defines.h"
+#include "Common.h"
 #include "Table.h"
 #include "MainWindow.h"
 #include "ClientConfig.h"

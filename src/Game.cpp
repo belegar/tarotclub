@@ -25,7 +25,6 @@
 
 #include <chrono>
 #include "Game.h"
-#include "defines.h"
 
 /*****************************************************************************/
 Game::Game()

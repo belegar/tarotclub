@@ -29,7 +29,7 @@
 #include <cstdint>
 #include <random>
 
-#include "defines.h"
+#include "Common.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
 

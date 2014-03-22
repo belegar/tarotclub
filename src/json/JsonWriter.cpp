@@ -45,6 +45,12 @@ std::string JsonArray::ToString()
     return text;
 }
 /*****************************************************************************/
+void JsonArray::CreateValue(const JsonValue &value)
+{
+     JsonValue *val = new JsonValue(value);
+     mArray.push_back(val);
+}
+/*****************************************************************************/
 JsonObject *JsonArray::CreateObject()
 {
     JsonObject *obj = new JsonObject(1);

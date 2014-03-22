@@ -27,7 +27,7 @@
 #define _CARD_H
 
 // Game includes
-#include "defines.h"
+#include "Common.h"
 #include <string>
 #include <cstdint>
 

@@ -47,29 +47,52 @@ void Deck::Append(const Deck &deck)
  * Creates a temporary deck contains all the cards from pos to the end of the
  * deck.
  *
- * @param pos position to start from
+ * @param from_pos Starting position
  * @return the new deck
  */
 Deck Deck::Mid(std::uint32_t from_pos)
 {
-    return Mid(from_pos, Size() - 1);
+    // Protection regarding the starting position
+    if (from_pos >= Size())
+    {
+        from_pos = 0U;
+    }
+    return Mid(from_pos, Size() - from_pos);
 }
 /*****************************************************************************/
 /**
  * @brief Deck::Mid
- * @param from_pos
- * @param to_pos
- * @return
+ *
+ * Creates a temporary deck contains "size" cards from a starting position
+ *
+ * @param from_pos Starting position
+ * @param size The number of elements to get
+ * @return the new deck
  */
-Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t to_pos)
+Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t size)
 {
     Deck deck;
     std::uint32_t counter = 0U;
 
+    // Protection regarding the starting position
+    if (from_pos >= Size())
+    {
+        from_pos = 0U;
+    }
+
+    // Protection regarding the number of elements
+    if (size > Size())
+    {
+        size = Size() - from_pos;
+    }
+
+    // Calculate the last position
+    std::uint32_t to_pos = from_pos + size;
+
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if ((counter >= from_pos) &&
-            (counter <= to_pos))
+            (counter < to_pos))
         {
             deck.Append((*i));
         }

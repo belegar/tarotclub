@@ -25,7 +25,7 @@
 
 #include <QString>
 #include "AboutWindow.h"
-#include "defines.h"
+#include "Common.h"
 
 /*****************************************************************************/
 AboutWindow::AboutWindow(QWidget *parent)

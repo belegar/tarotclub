@@ -33,7 +33,7 @@
 // Includes locales
 #include <ui_OptionsUI.h>
 #include <ui_AvatarsUI.h>
-#include "defines.h"
+#include "Common.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
 #include "Card.h"

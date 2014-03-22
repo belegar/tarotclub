@@ -28,7 +28,7 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
-#include "defines.h"
+#include "Common.h"
 #include "Card.h"
 #include <ui_DealEditorUI.h>
 

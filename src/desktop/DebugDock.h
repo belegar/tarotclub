@@ -33,7 +33,7 @@
 #include <QPushButton>
 
 // Includes locales
-#include "defines.h"
+#include "Common.h"
 #include "Identity.h"
 #include "Log.h"
 

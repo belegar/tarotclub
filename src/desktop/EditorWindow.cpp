@@ -185,41 +185,37 @@ void EditorWindow::slotSaveDeal()
     }
 
     DealFile editor;
-    editor.dogDeck.clear();
-    editor.eastDeck.clear();
-    editor.northDeck.clear();
-    editor.southDeck.clear();
-    editor.westDeck.clear();
+    editor.Clear();
 
     // Chien
     for (int i = 0; i < ui.mainCardList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.mainCardList->item(i);
-        editor.dogDeck.append(((CardListItem *)el)->GetCard());
+        editor.GetDogDeck().Append(((CardListItem *)el)->GetCard());
     }
     // East
     for (int i = 0; i < ui.eastList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.eastList->item(i);
-        editor.eastDeck.append(((CardListItem *)el)->GetCard());
+        editor.GetEastDeck().Append(((CardListItem *)el)->GetCard());
     }
     // West
     for (int i = 0; i < ui.westList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.westList->item(i);
-        editor.westDeck.append(((CardListItem *)el)->GetCard());
+        editor.GetWestDeck().Append(((CardListItem *)el)->GetCard());
     }
     // South
     for (int i = 0; i < ui.southList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.southList->item(i);
-        editor.southDeck.append(((CardListItem *)el)->GetCard());
+        editor.GetSouthDeck().Append(((CardListItem *)el)->GetCard());
     }
     // North
     for (int i = 0; i < ui.northList->count(); i++)
     {
         CardListItem *el = (CardListItem *)ui.northList->item(i);
-        editor.northDeck.append(((CardListItem *)el)->GetCard());
+        editor.GetNorthDeck().Append(((CardListItem *)el)->GetCard());
     }
 
     editor.SaveFile(fileName.toStdString());

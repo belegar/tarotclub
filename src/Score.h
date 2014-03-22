@@ -26,7 +26,7 @@
 #define _SCORE_H
 
 #include <string>
-#include "defines.h"
+#include "Common.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
 

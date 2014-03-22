@@ -30,7 +30,7 @@
 
 // Game includes
 #include "Card.h"
-#include "defines.h"
+#include "Common.h"
 #include "TarotDeck.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
@@ -100,21 +100,21 @@ public:
     }
 
     // Raw deck management
-    inline std::uint32_t Size() { return mDeck.size(); }
+    inline std::uint32_t Size() const { return mDeck.size(); }
     inline void Clear() { mDeck.clear(); }
     inline void Append(Card *c) { mDeck.push_back(c); }
     void Append(const Deck &deck);
     Deck Mid(std::uint32_t from_pos);
-    Deck Mid(std::uint32_t from_pos, std::uint32_t to_pos);
+    Deck Mid(std::uint32_t from_pos, std::uint32_t size);
     void Remove(Card *c);
     std::uint32_t Count(Card *c);
+    bool HasCard(Card *c);
 
     // Helpers
     void AnalyzeTrumps(Statistics &stats);
     void AnalyzeSuits(Statistics &stats);
     void Shuffle(int seed);
     void Sort(const std::string &order = "TCHDS");
-    bool HasCard(Card *c);
     bool HasOneOfTrump();
     bool HasFool();
     Card *HighestTrump();

@@ -30,7 +30,7 @@
 #include <QDialog>
 
 // Local includes
-#include "defines.h"
+#include "Common.h"
 #include "Game.h"
 #include "Score.h"
 #include <ui_ResultUI.h>

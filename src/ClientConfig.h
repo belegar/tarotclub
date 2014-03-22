@@ -31,7 +31,7 @@
 #include <string>
 
 // Game includes
-#include "defines.h"
+#include "Common.h"
 #include "Identity.h"
 
 // default values

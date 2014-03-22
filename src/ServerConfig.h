@@ -26,7 +26,7 @@
 #define SERVER_CONFIG_H
 
 // Game includes
-#include "defines.h"
+#include "Common.h"
 #include "Identity.h"
 
 #define SERVER_MAX_TABLES     10

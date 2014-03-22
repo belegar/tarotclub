@@ -26,7 +26,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "defines.h"
+#include "Common.h"
 #include "Deck.h"
 #include "Identity.h"
 #include "Game.h"

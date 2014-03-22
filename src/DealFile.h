@@ -37,6 +37,8 @@ public:
     bool LoadFile(const std::string &fileName);
     void SaveFile(const std::string &fileName);
 
+    void Clear();
+
     Deck &GetDogDeck();
     Deck &GetWestDeck();
     Deck &GetEastDeck();

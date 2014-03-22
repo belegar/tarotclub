@@ -25,7 +25,6 @@
 
 #include "Client.h"
 #include "Identity.h"
-#include "defines.h"
 #include "Log.h"
 
 /*****************************************************************************/

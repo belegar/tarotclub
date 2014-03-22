@@ -27,7 +27,7 @@
 #include "JsonReader.h"
 #include "JsonWriter.h"
 #include "DealFile.h"
-#include "defines.h"
+#include "Common.h"
 #include "TarotDeck.h"
 #include "Log.h"
 
@@ -168,6 +168,16 @@ void DealFile::SaveFile(const std::string &fileName)
     {
         TLogError("Saving custom deal file failed.");
     }
+}
+/*****************************************************************************/
+void DealFile::Clear()
+{
+    for (std::uint32_t i = 0; i < 5; i++)
+    {
+        mPlayers[5].Clear();
+    }
+
+    mDogDeck.Clear();
 }
 
 

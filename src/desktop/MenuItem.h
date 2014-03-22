@@ -30,7 +30,7 @@
 #include <QGraphicsSvgItem>
 #include <QtGui>
 #include "TextBox.h"
-#include "defines.h"
+#include "Common.h"
 #include "CustomTypes.h"
 
 /*****************************************************************************/

@@ -30,7 +30,7 @@
 #include "Deal.h"
 #include "Player.h"
 #include "TarotDeck.h"
-#include "defines.h"
+#include "Common.h"
 #include "Game.h"
 #include "ServerConfig.h"
 #include "Observer.h"

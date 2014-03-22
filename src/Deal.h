@@ -33,7 +33,7 @@
 // Game includes
 #include "Card.h"
 #include "Deck.h"
-#include "defines.h"
+#include "Common.h"
 #include "Game.h"
 #include "Score.h"
 #include "Player.h"

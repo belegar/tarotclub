@@ -32,7 +32,7 @@
 #include <ui_InfosDockUI.h>
 
 // Includes locales
-#include "defines.h"
+#include "Common.h"
 #include "Game.h"
 #include "Deck.h"
 

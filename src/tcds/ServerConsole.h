@@ -20,7 +20,7 @@
 #define _SERVERCONSOLE_H
 
 #include <QThread>
-#include "../defines.h"
+#include "Common.h"
 #include <iostream>
 using namespace std;
 
