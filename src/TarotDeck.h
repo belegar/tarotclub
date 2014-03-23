@@ -32,14 +32,14 @@
 class TarotDeck
 {
 public:
-    TarotDeck();
-
     static void Initialize();
     static Card *GetCard(int index);
     static Card *GetCard(const std::string &name);
     static int GetIndex(const std::string &name);
 
 private:
+    TarotDeck(); // Forbid any instance
+
     static Card mCards[78];
 };
 
