@@ -105,13 +105,29 @@ void Table::SendToSocket(const ByteArray &packet)
     mUsersMutex.unlock();
 }
 /*****************************************************************************/
-void Table::SetBots(const Identity &ident[3], std::uint16_t delay)
+/**
+ * @brief Table::SetBotParameters
+ * @param ident Identity of each bot. Size must be 3
+ * @param delay delay between players
+ */
+void Table::SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay)
 {
-    // Apply configuration
-    for (std::uint32_t i = 0U; i < 3U; i++)
+    if (ident.size() == 3U)
     {
-        mBots[i].SetIdentity(ident[i]);
-        mBots[i].SetTimeBeforeSend(delay);
+        for (std::uint32_t i = 0U; i < 3U; i++)
+        {
+            Place place(i);
+            if (ident.count(place) > 0U)
+            {
+                Identity bot = ident[i];
+                mBots[i].SetIdentity(bot);
+                mBots[i].SetTimeBeforeSend(delay);
+            }
+            else
+            {
+                TLogError("Bad bot parameters!");
+            }
+        }
     }
 }
 /*****************************************************************************/
@@ -166,11 +182,6 @@ void Table::Stop()
     mController.Stop();
 }
 /*****************************************************************************/
-ServerOptions &Table::GetOptions()
-{
-    return serverConfig.GetOptions();
-}
-/*****************************************************************************/
 std::uint16_t Table::GetTcpPort()
 {
     return mTcpPort;
@@ -183,7 +194,7 @@ void Table::ConnectBots()
     std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     for (i = 0; i < 3; i++)
     {
-        mBots[i].ConnectToHost("127.0.0.1", GetOptions().tcp_port);
+        mBots[i].ConnectToHost("127.0.0.1", mTcpPort);
         std::this_thread::sleep_for(std::chrono::milliseconds(50U));
     }
 }

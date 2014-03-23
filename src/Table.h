@@ -39,7 +39,7 @@ public:
     Table();
 
     // Helpers
-    void SetBots(const Identity &ident[], std::uint16_t delay);
+    void SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay);
     void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
     void StartDeal();
     void Initialize();
@@ -47,7 +47,6 @@ public:
     void ConnectBots();
 
     // Getters
-    ServerOptions &GetOptions();
     std::uint16_t GetTcpPort();
 
     // Setters
