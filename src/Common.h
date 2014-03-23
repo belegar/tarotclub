@@ -50,25 +50,6 @@
 /*****************************************************************************/
 enum Team       { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };
 enum Handle     { SIMPLE_HANDLE = 0, DOUBLE_HANDLE = 1, TRIPLE_HANDLE = 2 };
-
-/*****************************************************************************/
-namespace Config
-{
-
-#ifdef TAROT_DEBUG
-const std::string HomePath  = "./";
-#else
-const std::string HomePath  = Util::HomePath() + "/.tarotclub/";
-#endif
-const std::string GamePath  = HomePath + "/games/";
-const std::string LogPath   = HomePath + "/logs/";
-
-//
-const std::string ScriptPath = HomePath + "/ai";
-
-
-} // namespace config
-
 /*****************************************************************************/
 class Place
 {

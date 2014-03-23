@@ -23,10 +23,15 @@
  *=============================================================================
  */
 
+// C++ / STL
 #include <iostream>
 #include <vector>
 #include <fstream>
+
+// TarotClub
 #include "Log.h"
+#include "System.h"
+#include "Util.h"
 
 std::mutex Log::mMutex;
 Subject<std::string> Log::mSubject;
@@ -66,7 +71,7 @@ void Log::Save(const std::string &line)
     mMutex.lock();
     // One log file per day should be enough!
 
-    fileName = Config::LogPath + "/log_" + Util::CurrentDateTime("%Y-%m-%d") + ".csv";
+    fileName = System::LogPath() + "/log_" + Util::CurrentDateTime("%Y-%m-%d") + ".csv";
 
     f.open(fileName, std::ios_base::out | std::ios_base::binary  | std::ios_base::app);
 

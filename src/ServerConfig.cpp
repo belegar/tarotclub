@@ -28,6 +28,7 @@
 #include "JsonWriter.h"
 #include "ServerConfig.h"
 #include "Log.h"
+#include "System.h"
 
 static const std::string SERVER_CONFIG_VERSION  = "2.0";
 static const std::string SERVER_CONFIG_FILE     = "tcsc.json"; // tcs = TarotClub Server Configuration
@@ -54,7 +55,7 @@ bool ServerConfig::Load()
 
     JsonReader json;
 
-    ret = json.Open(Config::HomePath + SERVER_CONFIG_FILE);
+    ret = json.Open(System::HomePath() + SERVER_CONFIG_FILE);
     if (ret)
     {
         std::string value;
@@ -159,7 +160,7 @@ bool ServerConfig::Save()
         obj->CreateValuePair("quote", options.bots[i].quote);
     }
 
-    if (!json.SaveToFile(Config::HomePath + SERVER_CONFIG_FILE))
+    if (!json.SaveToFile(System::HomePath() + SERVER_CONFIG_FILE))
     {
         ret = false;
         TLogError("Saving server's configuration failed.");

@@ -28,7 +28,6 @@
 
 #include <fstream>
 #include <mutex>
-#include "Common.h"
 #include "Observer.h"
 
 /*****************************************************************************/

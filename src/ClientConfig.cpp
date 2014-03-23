@@ -28,6 +28,7 @@
 #include "JsonWriter.h"
 #include "ClientConfig.h"
 #include "Log.h"
+#include "System.h"
 
 static const std::string CLIENT_CONFIG_VERSION  = "2.0";
 static const std::string CLIENT_CONFIG_FILE     = "tarotclub.json";
@@ -74,7 +75,7 @@ bool ClientConfig::Load()
     bool ret = true;
     JsonReader json;
 
-    ret = json.Open(Config::HomePath + CLIENT_CONFIG_FILE);
+    ret = json.Open(System::HomePath() + CLIENT_CONFIG_FILE);
     if (ret)
     {
         std::string stringval;
@@ -212,7 +213,7 @@ bool ClientConfig::Save()
     obj->CreateValuePair("gender", text);
     obj->CreateValuePair("quote", mOptions.identity.quote);
 
-    if (!json.SaveToFile(Config::HomePath + CLIENT_CONFIG_FILE))
+    if (!json.SaveToFile(System::HomePath() + CLIENT_CONFIG_FILE))
     {
         ret = false;
         TLogError("Saving client's configuration failed.");
