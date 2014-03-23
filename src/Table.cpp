@@ -105,23 +105,14 @@ void Table::SendToSocket(const ByteArray &packet)
     mUsersMutex.unlock();
 }
 /*****************************************************************************/
-void Table::LoadConfiguration()
+void Table::SetBots(const Identity &ident[3], std::uint16_t delay)
 {
-    serverConfig.Load();
-
     // Apply configuration
     for (std::uint32_t i = 0U; i < 3U; i++)
     {
-        mBots[i].SetIdentity(serverConfig.GetOptions().bots[i+1]);
-        mBots[i].SetTimeBeforeSend(serverConfig.GetOptions().timer);
+        mBots[i].SetIdentity(ident[i]);
+        mBots[i].SetTimeBeforeSend(delay);
     }
-    mTcpPort = serverConfig.GetOptions().tcp_port;
-}
-/*****************************************************************************/
-void Table::SaveConfiguration(const ServerOptions &opt)
-{
-    serverConfig.SetOptions(opt);
-    serverConfig.Save();
 }
 /*****************************************************************************/
 void Table::SetTcpPort(std::uint16_t port)
