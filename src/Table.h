@@ -39,7 +39,7 @@ public:
     Table();
 
     // Helpers
-    void LoadConfiguration();
+    void SetBots(const Identity &ident[], std::uint16_t delay);
     void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
     void StartDeal();
     void Initialize();
@@ -97,7 +97,6 @@ private:
     ControllerListener mControllerListener;
     int             mTcpPort;
     Controller      mController;
-    ServerConfig    serverConfig;
     Bot             mBots[3];
     UniqueId        mIdManager;
     TcpServer       mTcpServer;
