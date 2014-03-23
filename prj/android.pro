@@ -89,6 +89,7 @@ OTHER_FILES += beginner.js \
 # Android specific
 # ------------------------------------------------------------------------------
 OTHER_FILES += android/AndroidManifest.xml
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 # ------------------------------------------------------------------------------
 # Library files
@@ -104,7 +105,8 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    Common.h
+    Common.h \
+    System.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -115,7 +117,8 @@ SOURCES += Log.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
-    Common.cpp
+    Common.cpp \
+    System.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -146,7 +149,6 @@ HEADERS += DealFile.h \
     Player.h \
     Client.h \
     Bot.h \
-    defines.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \
@@ -154,6 +156,8 @@ HEADERS += DealFile.h \
     Score.h \
     Protocol.h \
     Controller.h \
+    ClientConfig.h \
+    ServerConfig.h \
     Table.h
 
 SOURCES += DealFile.cpp \
@@ -168,6 +172,8 @@ SOURCES += DealFile.cpp \
     Game.cpp \
     Protocol.cpp \
     Controller.cpp \
+    ClientConfig.cpp \
+    ServerConfig.cpp \
     Table.cpp \
     Score.cpp
 
@@ -193,5 +199,3 @@ SOURCES += Canvas.cpp \
     PopupItem.cpp
 
 # End of project file
-
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

@@ -503,12 +503,12 @@ void Canvas::DrawSouthCards(const Deck &cards)
 
     // Try the fixed step, cards are centered
     qreal step = 40.0;
-    qreal width = (step * (cards.size() - 1)) + card_width + 20 + 2 * BORDER_WIDTH;
+    qreal width = (step * (cards.Size() - 1)) + card_width + 20 + 2 * BORDER_WIDTH;
 
     if (width > border.width())
     {
         // dynamic step
-        step = (max_width - card_width - 20 - 2 * BORDER_WIDTH) / (cards.size() - 1);
+        step = (max_width - card_width - 20 - 2 * BORDER_WIDTH) / (cards.Size() - 1);
     }
     else
     {
@@ -516,11 +516,12 @@ void Canvas::DrawSouthCards(const Deck &cards)
         x = (border.width() - width) / 2;
     }
 
-    for (int i = 0; i < cards.size(); i++)
+    qreal z = 0.0;
+    for (Deck::ConstIterator i = cards.Begin(); i != cards.End(); ++i)
     {
-        cgfx = GetGfxCard(TarotDeck::GetIndex(cards.at(i)->GetName()));
+        cgfx = GetGfxCard(TarotDeck::GetIndex((*i)->GetName()));
         cgfx->setPos(x, y);
-        cgfx->setZValue(i);
+        cgfx->setZValue(z++);
         cgfx->show();
         x = x + step;
     }

@@ -30,7 +30,7 @@
 
 // Game includes
 #include "Client.h"
-#include "defines.h"
+#include "Common.h"
 #include "Table.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
@@ -66,6 +66,8 @@ public:
 
 private:
     Table           table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
+    ClientConfig    clientConfig;
+    ServerConfig    mServerConfig;
     Client          mClient; // The human player
     bool            firstTurn;
     QMap<Place, Identity> players;

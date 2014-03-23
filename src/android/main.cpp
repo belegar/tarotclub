@@ -32,6 +32,7 @@
 // Specific game includes
 #include "TarotClub.h"
 #include "Log.h"
+#include "System.h"
 
 /*****************************************************************************/
 /**
@@ -41,8 +42,10 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
+    System::Initialize(); // Initialize TarotClub context
+
     TarotClub tarot;
-    tarot.Initialize(); // Init internal stuff before showing the interface
+    tarot.Initialize(); // Init GUI internal stuff before showing the interface
 
     tarot.showFullScreen();
 

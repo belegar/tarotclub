@@ -124,7 +124,7 @@ MenuItem::MenuItem()
     setRect(0, 0, 260, 130);
 
     // This menu manages N buttons
-    for (int i = 0; i < (sizeof(buttonList)/sizeof(MenuItem::MenuButton)); i++)
+    for (std::uint32_t i = 0U; i < (sizeof(buttonList)/sizeof(MenuItem::MenuButton)); i++)
     {
         TextBox *tb = new TextBox(buttonList[i].coord);
         tb->setParentItem(this);

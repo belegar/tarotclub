@@ -35,7 +35,7 @@
 #include <QFlags>
 
 // Game includes
-#include "defines.h"
+#include "Common.h"
 #include "Deck.h"
 #include "TextBox.h"
 #include "PlayerBox.h"
