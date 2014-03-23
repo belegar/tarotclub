@@ -149,11 +149,11 @@ int my_mkdir(const char *path)
  * @param[in] path the full path of the directory to create.
  * @return zero on success, otherwise -1.
  */
-bool Util::Mkdir(const char *path)
+bool Util::Mkdir(const std::string &fullPath)
 {
     std::string current_level = "";
     std::string level;
-    std::stringstream ss(path);
+    std::stringstream ss(fullPath);
 
     // split path using slash as a separator
     while (std::getline(ss, level, '/'))
