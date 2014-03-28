@@ -37,9 +37,9 @@
 // Game includes
 #include "Common.h"
 #include "Deck.h"
+#include "Identity.h"
 #include "TextBox.h"
 #include "PlayerBox.h"
-#include "ClientConfig.h"
 #include "GfxCard.h"
 #include "MenuItem.h"
 #include "PopupItem.h"
@@ -47,7 +47,6 @@
 /*****************************************************************************/
 class Canvas : public QGraphicsView
 {
-
     Q_OBJECT
 
 public:
@@ -67,7 +66,7 @@ public:
     Canvas(QWidget *parent);
 
     // Helpers
-    bool Initialize(ClientOptions &opt);
+    bool Initialize();
     void ShowTaker(Place taker, Place myPlace);
     void ShowSelection(Place p, Place myPlace);
     void DrawCard(GfxCard *c, Place p, Place myPlace);

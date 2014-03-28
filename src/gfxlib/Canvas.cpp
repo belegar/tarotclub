@@ -23,13 +23,17 @@
  *=============================================================================
  */
 
+// Qt includes
 #include "Canvas.h"
 #include <QtCore>
 #include <QResizeEvent>
 #include <QMouseEvent>
+
+// Game includes
 #include "Common.h"
 #include "TarotDeck.h"
 #include "Log.h"
+#include "System.h"
 
 static const QRectF border(10, 10, 925, 700);
 
@@ -44,9 +48,9 @@ static const qreal SCALE_FACTOR = 1.5f;
 static const QPointF coordPlayerBox[5] =
 {
     QPointF(300, 280),  // SOUTH
-    QPointF(570, 100),   // EAST
+    QPointF(570, 100),  // EAST
     QPointF(300, 20),   // NORTH
-    QPointF(30, 100),  // WEST
+    QPointF(30, 100),   // WEST
     QPointF(0, 0)       // NORTH-WEST
 };
 
@@ -105,15 +109,12 @@ Canvas::Canvas(QWidget *parent)
     menuItem.DisplayMenu(MenuItem::MAIN_MENU);
 }
 /*****************************************************************************/
-bool Canvas::Initialize(ClientOptions &opt)
+bool Canvas::Initialize()
 {
     int i, j;
     QString varImg;
     QString image;
-    QString path;
-
-    path = ":cards/default/";
-    Q_UNUSED(opt);
+    QString path(System::DeckPath().c_str());
 
     cardsPics.clear();
 
