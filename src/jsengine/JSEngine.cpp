@@ -24,6 +24,7 @@
  */
 
 #include "JSEngine.h"
+#include <fstream>
 
 /*****************************************************************************/
 extern "C" void my_panic_handler(int code, const char *msg)
@@ -38,7 +39,7 @@ extern "C" void my_panic_handler(int code, const char *msg)
 /*****************************************************************************/
 JSEngine::JSEngine()
     : mCtx(NULL)
-    , mValid(false)
+    , mValidContext(false)
 {
 
 }
@@ -53,16 +54,26 @@ void JSEngine::Initialize()
      mCtx = duk_create_heap_default();
      if (mCtx != NULL)
      {
-         mValid = true;
+         mValidContext = true;
      }
 }
 /*****************************************************************************/
 bool JSEngine::Evaluate(const std::string &fileName)
 {
-    if (!mValid)
+    if (!mValidContext)
     {
         return false;
     }
+
+    // Test if the file exists, try to open it!
+    std::ifstream is;
+    is.open(fileName, std::ios_base::in);
+    if (!is.is_open())
+    {
+        // file does not exists
+        return false;
+    }
+    is.close();
 
     // Push argument into the stack: file name to evaluate
     duk_push_lstring(mCtx, fileName.c_str(), fileName.size());
@@ -83,7 +94,7 @@ JSValue JSEngine::Call(const std::string &function, const IScriptEngine::StringL
 {
     JSValue retval; // default is invalid value
 
-    if (!mValid)
+    if (!mValidContext)
     {
         return retval;
     }
@@ -143,7 +154,7 @@ void JSEngine::Close()
     {
         duk_destroy_heap(mCtx);
     }
-    mValid = false;
+    mValidContext = false;
 }
 /*****************************************************************************/
 int JSEngine::WrappedScriptEval(duk_context *ctx)

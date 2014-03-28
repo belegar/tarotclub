@@ -46,7 +46,7 @@ public:
 
 private:
     duk_context *mCtx;
-    bool mValid;
+    bool mValidContext;
 
     static int WrappedScriptEval(duk_context *ctx);
     static int WrappedScriptCall(duk_context *ctx);
