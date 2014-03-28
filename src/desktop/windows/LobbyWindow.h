@@ -26,7 +26,6 @@
 #ifndef JOINWIZARD_H
 #define JOINWIZARD_H
 
-#include <QWizard>
 #include <QTcpSocket>
 #include "ui_LobbyUI.h"
 
