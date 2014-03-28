@@ -1,30 +1,30 @@
 /*=============================================================================
- * TarotClub - TarotClub.h
+ * TarotWidget - TarotWidget.h
  *=============================================================================
- * Graphical TarotClub client class, contains an embedded server.
+ * Graphical TarotWidget client class, contains an embedded server.
  *=============================================================================
- * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * TarotWidget ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
- * anthony@tarotclub.fr
+ * anthony@TarotWidget.fr
  *
- * TarotClub is free software: you can redistribute it and/or modify
+ * TarotWidget is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * TarotClub is distributed in the hope that it will be useful,
+ * TarotWidget is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ * along with TarotWidget.  If not, see <http://www.gnu.org/licenses/>.
  *
  *=============================================================================
  */
 
-#ifndef _TAROTCLUB_H
-#define _TAROTCLUB_H
+#ifndef TAROT_WIDGET_H_
+#define TAROT_WIDGET_H_
 
 #include <QWidget>
 
@@ -44,7 +44,7 @@
  * joueur 2 : ordi NORD (ou NORD-EST)
  * joueur 3 : ordi OUEST
  */
-class TarotClub : public QWidget, public Client::IEvent
+class TarotWidget : public QWidget, public Client::IEvent
 {
     Q_OBJECT
 
@@ -56,13 +56,20 @@ public:
         REMOTE
     };
 
-    TarotClub();
+    TarotWidget(QWidget *parent);
 
     /**
      * @brief Initialize
      * First time initialization
      */
     void Initialize();
+
+public slots:
+    // Menus interaction
+    void slotNewTournamentGame();
+    void slotNewQuickGame();
+    void slotCreateNetworkGame();
+    void slotCleanBeforeExit();
 
 private:
     Table           table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
@@ -75,7 +82,7 @@ private:
     Deck            discard;
     std::list<std::string> mMessages;
     ConnectionType  mConnectionType;
-    Canvas *tapis;      // QCanvasView
+    Canvas          *mCanvas;
 
     // Helpers
     void ApplyOptions();
@@ -84,7 +91,7 @@ private:
     void LaunchLocalGame(Game::Mode, const Game::Shuffle &sh);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
     void InitScreen();
-    void showVictoryWindow();
+    void ShowVictoryWindow();
     bool HasLocalConnection();
 
     // Client events
@@ -160,12 +167,6 @@ private slots:
     void slotEndOfDeal();
     void slotEndOfGame();
 
-    // Menus
-    void slotNewTournamentGame();
-    void slotNewQuickGame();
-    void slotCreateNetworkGame();
-    void slotQuitTarotClub();
-
     // Board events
     void slotAcceptHandle();
     void slotAcceptDiscard();
@@ -176,8 +177,8 @@ private slots:
     void slotSendChatMessage(const QString &message);
 };
 
-#endif // _TAROTCLUB_H
+#endif // TAROT_WIDGET_H_
 
 //=============================================================================
-// End of file TarotClub.h
+// End of file TarotWidget.h
 //=============================================================================
