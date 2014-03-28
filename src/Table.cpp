@@ -116,7 +116,7 @@ void Table::SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t del
     {
         for (std::uint32_t i = 0U; i < 3U; i++)
         {
-            Place place(i);
+            Place place(i + 1U);
             if (ident.count(place) > 0U)
             {
                 Identity bot = ident[i];
