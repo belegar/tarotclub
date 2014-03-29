@@ -3,10 +3,10 @@
 
 ; Customize the Qt dir installation and version
 [Code]
-#define QT_DIR 	      "C:\Qt\Qt5.1.0\5.1.0\mingw48_32\bin"
-#define VERSION       "2.2.0"
-#define RELEASE_DIR   "build-TarotClub-Desktop_Qt_5_1_0_MinGW_32bit-Release"
-#define SERVER_DIR    "build-TarotClubd-Desktop_Qt_5_1_0_MinGW_32bit-Release"
+#define QT_DIR 	      "C:\Qt\Qt5.2.0\5.2.0\mingw48_32\bin"
+#define VERSION       "2.3.0-alpha.3"
+#define RELEASE_DIR   "build-desktop\release"
+#define SERVER_DIR    "build-server\Release"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -39,7 +39,7 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 
 [Files]
 Source: ..\{#RELEASE_DIR}\bin\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
-Source: ..\{#SERVER_DIR}\bin\TarotClubd.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\{#SERVER_DIR}\bin\tcds.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\src\data\cards\default\*; DestDir: {app}\default; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\doc\tarotclub.qch; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\doc\tarotclub.qhc; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -47,13 +47,11 @@ Source: ..\ai\beginner.js; DestDir: {app}\ai; Flags: ignoreversion recursesubdir
 Source: ..\ai\tarotlib\*; DestDir: {app}\ai\tarotlib; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\prj\tarotclub_en.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\prj\tarotclub_fr.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ..\lib\tarotclub.xsl; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Miscellaneous information text files
 Source: ..\COPYING; DestDir: {app}; Flags: ignoreversion
-Source: ..\COPYING-FR; DestDir: {app}; Flags: ignoreversion
 Source: ..\HISTORY; DestDir: {app}; Flags: ignoreversion
-Source: ..\README; DestDir: {app}; Flags: ignoreversion
+Source: ..\README.md; DestDir: {app}; Flags: ignoreversion
 
 ; Fonts used in SVG files
 Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {app}; Flags: ignoreversion
@@ -63,35 +61,33 @@ Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {fonts}; FontInstall: Kanzlei; F
 Source: {#QT_DIR}\icudt51.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\icuin51.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\icuuc51.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\libgcc_s_dw2-1.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\libstdc++-6.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\libwinpthread-1.dll; DestDir: {app}; Flags: ignoreversion
+;Source: {#QT_DIR}\libgcc_s_dw2-1.dll; DestDir: {app}; Flags: ignoreversion
+;Source: {#QT_DIR}\libstdc++-6.dll; DestDir: {app}; Flags: ignoreversion
+;Source: {#QT_DIR}\libwinpthread-1.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5CLucene.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Core.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Gui.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Help.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Network.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\Qt5Script.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\Qt5Sql.dll; DestDir: {app}; Flags: ignoreversion
+;Source: {#QT_DIR}\Qt5Sql.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Svg.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Widgets.dll; DestDir: {app}; Flags: ignoreversion
-Source: {#QT_DIR}\Qt5Xml.dll; DestDir: {app}; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: {group}\TarotClub; Filename: {app}\TarotClub.exe; WorkingDir: {app}
-Name: {group}\TarotClubServer; Filename: {app}\TarotClubd.exe; WorkingDir: {app}
+Name: {group}\TarotClubServer; Filename: {app}\tcds.exe; WorkingDir: {app}
 Name: {group}\{cm:ProgramOnTheWeb,TarotClub}; Filename: http://www.tarotclub.fr
 Name: {group}\{cm:UninstallProgram,TarotClub}; Filename: {uninstallexe}
 Name: {commondesktop}\TarotClub; Filename: {app}\TarotClub.exe; Tasks: desktopicon; WorkingDir: {app}
-Name: {commondesktop}\TarotClubServer; Filename: {app}\TarotClubd.exe; Tasks: desktopicon; WorkingDir: {app}
+Name: {commondesktop}\TarotClubServer; Filename: {app}\tcds.exe; Tasks: desktopicon; WorkingDir: {app}
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClub; Filename: {app}\TarotClub.exe; Tasks: quicklaunchicon; WorkingDir: {app}
-Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClubServer; Filename: {app}\TarotClubd.exe; Tasks: quicklaunchicon; WorkingDir: {app}
+Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClubServer; Filename: {app}\tcds.exe; Tasks: quicklaunchicon; WorkingDir: {app}
 
 [Run]
 Filename: {app}\TarotClub.exe; Description: {cm:LaunchProgram,TarotClub}; Flags: nowait postinstall skipifsilent
-Filename: {app}\TarotClubd.exe; Description: {cm:LaunchProgram,TarotClubServer}; Flags: nowait postinstall skipifsilent
+Filename: {app}\tcds.exe; Description: {cm:LaunchProgram,TarotClubServer}; Flags: nowait postinstall skipifsilent
 
 
 
