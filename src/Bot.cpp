@@ -27,6 +27,7 @@
 #include "Bot.h"
 #include "Log.h"
 #include "Util.h"
+#include "System.h"
 
 using namespace std;
 
@@ -335,27 +336,22 @@ void Bot::ConnectToHost(const string &hostName, std::uint16_t port)
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()
 {
+    bool retCode = true;
     JSEngine::StringList scriptFiles;
     std::string appRoot;
 
-#ifdef TAROT_DEBUG
-    // Debug, the binary is inside the build directory
-    appRoot = Util::ExecutablePath() + "/../../ai";
-#else
-    // Release
-    appRoot = Util::ExecutablePath() + "/ai";
-#endif
+    appRoot = System::ScriptPath();
 
     // TarotClub Javascript library files
     // Beware, the order is important, for global objects creation
-    scriptFiles.push_back("/tarotlib/system.js");
-    scriptFiles.push_back("/tarotlib/util.js");
-    scriptFiles.push_back("/tarotlib/card.js");
-    scriptFiles.push_back("/tarotlib/deck.js");
-    scriptFiles.push_back("/tarotlib/player.js");
-    scriptFiles.push_back("/tarotlib/bot.js");
-    scriptFiles.push_back("/tarotlib/game.js");
-    scriptFiles.push_back("/beginner.js");
+    scriptFiles.push_back("tarotlib/system.js");
+    scriptFiles.push_back("tarotlib/util.js");
+    scriptFiles.push_back("tarotlib/card.js");
+    scriptFiles.push_back("tarotlib/deck.js");
+    scriptFiles.push_back("tarotlib/player.js");
+    scriptFiles.push_back("tarotlib/bot.js");
+    scriptFiles.push_back("tarotlib/game.js");
+    scriptFiles.push_back("beginner.js");
 
     botEngine.Initialize();
     // FIXME: register print function TLogInfo
@@ -369,10 +365,11 @@ bool Bot::InitializeScriptContext()
             std::stringstream message;
             message << "Script error: could not open program file: " << fileName;
             TLogError(message.str());
+            retCode = false;
         }
     }
 
-    return true;
+    return retCode;
 }
 
 //=============================================================================
