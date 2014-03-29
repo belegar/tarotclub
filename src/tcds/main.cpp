@@ -24,6 +24,7 @@
  */
 
 #include "Lobby.h"
+#include "System.h"
 
 /*****************************************************************************/
 /**
@@ -33,6 +34,8 @@ int main(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
+
+    System::Initialize();
 
     std::cout << "TarotClub server " << TAROT_VERSION << " is ready." << std::endl;
 

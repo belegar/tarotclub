@@ -21,11 +21,16 @@
 # ------------------------------------------------------------------------------
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
-UI_HEADERS_DIR = ./include
-UI_SOURCES_DIR = ./src
-OBJECTS_DIR = ./obj
-DESTDIR = ./bin
 BASE_DIR = $${PWD}/..
+release:    DESTDIR = $$BASE_DIR/build-server/release
+debug:      DESTDIR = $$BASE_DIR/build-server/debug
+
+UI_DIR          = $$DESTDIR/ui
+UI_HEADERS_DIR  = $$DESTDIR/include
+UI_SOURCES_DIR  = $$DESTDIR/src
+OBJECTS_DIR     = $$DESTDIR/obj
+RCC_DIR         = $$DESTDIR/rcc
+MOC_DIR         = $$DESTDIR/moc
 
 # ------------------------------------------------------------------------------
 # The search path to find supplied files
@@ -51,10 +56,12 @@ INCLUDEPATH += $$BASE_DIR/src/json
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += xml qml
 CONFIG += qt console warn_on
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
+
+# Let's make everything's static so that we don't need any DLL
+QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
 
 # ------------------------------------------------------------------------------
 # Targer definitions
@@ -63,7 +70,7 @@ TARGET = tcds # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = server.rc
+    RC_FILE = tcds/icon.rc
     LIBS +=  libws2_32
     DEFINES += USE_WINDOWS_OS
 }
@@ -90,8 +97,7 @@ HEADERS += Log.h \
     TcpSocket.h \
     TcpServer.h \
     TcpClient.h \
-    UniqueId.h \
-    Common.h
+    UniqueId.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -101,8 +107,7 @@ SOURCES += Log.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
-    UniqueId.cpp \
-    Common.cpp
+    UniqueId.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -134,7 +139,7 @@ HEADERS += ServerConfig.h \
     Player.h \
     Client.h \
     Bot.h \
-    defines.h \
+    Common.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \
@@ -142,7 +147,8 @@ HEADERS += ServerConfig.h \
     Score.h \
     Protocol.h \
     Controller.h \
-    Table.h
+    Table.h \
+    System.h
 
 SOURCES += ServerConfig.cpp \
     DealFile.cpp \
@@ -152,14 +158,15 @@ SOURCES += ServerConfig.cpp \
     Player.cpp \
     Client.cpp \
     Bot.cpp \
+    Common.cpp \
     TarotEngine.cpp \
     Deal.cpp \
     Game.cpp \
     Protocol.cpp \
     Controller.cpp \
     Table.cpp \
-    Score.cpp
-
+    Score.cpp \
+    System.cpp
 
 # -------------------------------------------------------------
 # Server files
