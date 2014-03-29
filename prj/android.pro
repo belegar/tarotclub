@@ -36,6 +36,7 @@ VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/android
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
+VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
@@ -48,6 +49,7 @@ INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/android
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
+INCLUDEPATH += $$BASE_DIR/src/gfxlib
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -178,24 +180,29 @@ SOURCES += DealFile.cpp \
     Score.cpp
 
 # ------------------------------------------------------------------------------
-# Desktop client files
+# Gfx library files
 # ------------------------------------------------------------------------------
 HEADERS += Canvas.h \
     TextBox.h \
     GfxCard.h \
     MenuItem.h \
-    TarotClub.h \
+    TarotWidget.h \
     PlayerBox.h \
     CustomTypes.h \
     PopupItem.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
-    main.cpp \
-    TarotClub.cpp \
+    TarotWidget.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
     PlayerBox.cpp \
     PopupItem.cpp
+
+
+# ------------------------------------------------------------------------------
+# Android client files
+# ------------------------------------------------------------------------------
+SOURCES += main.cpp
 
 # End of project file

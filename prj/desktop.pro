@@ -38,8 +38,12 @@ MOC_DIR         = $$DESTDIR/moc
 VPATH += $$BASE_DIR/src
 VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/desktop
+VPATH += $$BASE_DIR/src/desktop/windows
+VPATH += $$BASE_DIR/src/desktop/docks
+VPATH += $$BASE_DIR/src/desktop/forms
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
+VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
@@ -50,14 +54,18 @@ VPATH += $$BASE_DIR/ai/tarotlib
 INCLUDEPATH += $$BASE_DIR/src
 INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/desktop
+INCLUDEPATH += $$BASE_DIR/src/desktop/windows
+INCLUDEPATH += $$BASE_DIR/src/desktop/docks
+INCLUDEPATH += $$BASE_DIR/src/desktop/forms
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
+INCLUDEPATH += $$BASE_DIR/src/gfxlib
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += xml svg help qml
-RESOURCES = $$BASE_DIR/assets/data.qrc
+QT += svg help network
+RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
@@ -116,7 +124,8 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    Common.h
+    Common.h \
+    System.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -127,7 +136,8 @@ SOURCES += Log.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
-    Common.cpp
+    Common.cpp \
+    System.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -187,6 +197,26 @@ SOURCES += ServerConfig.cpp \
     Score.cpp
 
 # ------------------------------------------------------------------------------
+# Gfx library files
+# ------------------------------------------------------------------------------
+HEADERS += Canvas.h \
+    TextBox.h \
+    GfxCard.h \
+    MenuItem.h \
+    TarotWidget.h \
+    PlayerBox.h \
+    CustomTypes.h \
+    PopupItem.h
+
+SOURCES += Canvas.cpp \
+    TextBox.cpp \
+    TarotWidget.cpp \
+    GfxCard.cpp \
+    MenuItem.cpp \
+    PlayerBox.cpp \
+    PopupItem.cpp
+
+# ------------------------------------------------------------------------------
 # Desktop client files
 # ------------------------------------------------------------------------------
 HEADERS += AboutWindow.h \
@@ -199,15 +229,7 @@ HEADERS += AboutWindow.h \
     InfosDock.h \
     ChatDock.h \
     DebugDock.h \
-    Canvas.h \
-    TextBox.h \
-    LobbyWindow.h \
-    GfxCard.h \
-    MenuItem.h \
-    TarotClub.h \
-    PlayerBox.h \
-    CustomTypes.h \
-    PopupItem.h
+    LobbyWindow.h
 
 FORMS += AboutUI.ui \
     AvatarsUI.ui \
@@ -230,15 +252,9 @@ SOURCES += AboutWindow.cpp \
     ScoresDock.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
-    DebugDock.cpp \
-    Canvas.cpp \
-    TextBox.cpp \
+    DebugDock.cpp \    
     main.cpp \
-    TarotClub.cpp \
-    LobbyWindow.cpp \
-    GfxCard.cpp \
-    MenuItem.cpp \
-    PlayerBox.cpp \
-    PopupItem.cpp
+    LobbyWindow.cpp
+
 
 # End of project file
