@@ -87,7 +87,7 @@ TarotWidget::TarotWidget(QWidget* parent = 0)
  */
 void TarotWidget::Initialize()
 {
-    clientConfig.Load();
+    mClientConfig.Load();
     mServerConfig.Load();
 
     ApplyOptions();
@@ -189,10 +189,13 @@ void TarotWidget::InitScreen()
 /*****************************************************************************/
 void TarotWidget::ApplyOptions()
 {
-    ClientOptions &options = clientConfig.GetOptions();
+    mClientConfig.Save();
+    mServerConfig.Save();
+
+    ClientOptions options = mClientConfig.GetOptions();
     mClient.SetMyIdentity(options.identity);
 
-    ServerOptions &srvOpt = mServerConfig.GetOptions();
+    ServerOptions srvOpt = mServerConfig.GetOptions();
     table.SetBotParameters(srvOpt.bots, srvOpt.timer);
 
     mCanvas->ShowAvatars(options.showAvatars);
@@ -298,7 +301,7 @@ void TarotWidget::slotAcceptHandle()
  */
 void TarotWidget::ShowSouthCards()
 {
-    mClient.GetMyDeck().Sort(clientConfig.GetOptions().cardsOrder);
+    mClient.GetMyDeck().Sort(mClientConfig.GetOptions().cardsOrder);
     mCanvas->DrawSouthCards(mClient.GetMyDeck());
 }
 /*****************************************************************************/
@@ -663,9 +666,9 @@ void TarotWidget::slotWaitTrick(Place winner)
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
     // launch timer to clean cards, if needed
-    if (clientConfig.GetOptions().enableDelayBeforeCleaning == true)
+    if (mClientConfig.GetOptions().enableDelayBeforeCleaning == true)
     {
-        QTimer::singleShot(clientConfig.GetOptions().delayBeforeCleaning, this, SLOT(slotClickTapis()));
+        QTimer::singleShot(mClientConfig.GetOptions().delayBeforeCleaning, this, SLOT(slotClickTapis()));
     }
 }
 /*****************************************************************************/

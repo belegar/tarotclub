@@ -58,22 +58,29 @@ public:
 
     TarotWidget(QWidget *parent);
 
-    /**
-     * @brief Initialize
-     * First time initialization
-     */
     void Initialize();
+    void LaunchLocalGame(Game::Mode, const Game::Shuffle &sh);
+    void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
+
+
+    // Configuration management
+    ClientOptions GetClientOptions() { return mClientConfig.GetOptions(); }
+    void SetClientOptions(const ClientOptions &opt) { mClientConfig.SetOptions(opt); }
+    ServerOptions GetServerOptions() { return mServerConfig.GetOptions(); }
+    void SetServerOptions(const ServerOptions &opt) { mServerConfig.SetOptions(opt); }
+    void ApplyOptions();
 
 public slots:
-    // Menus interaction
+    // These slots are made available to link them to any external widget
     void slotNewTournamentGame();
     void slotNewQuickGame();
     void slotCreateNetworkGame();
     void slotCleanBeforeExit();
+    void slotSendChatMessage(const QString &message);
 
 private:
     Table           table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
-    ClientConfig    clientConfig;
+    ClientConfig    mClientConfig;
     ServerConfig    mServerConfig;
     Client          mClient; // The human player
     bool            firstTurn;
@@ -85,11 +92,8 @@ private:
     Canvas          *mCanvas;
 
     // Helpers
-    void ApplyOptions();
     void ShowSouthCards();
     void HideTrick();
-    void LaunchLocalGame(Game::Mode, const Game::Shuffle &sh);
-    void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
     void InitScreen();
     void ShowVictoryWindow();
     bool HasLocalConnection();
@@ -174,7 +178,6 @@ private slots:
     void slotClickCard(GfxCard *c);
     void slotClickTapis();
     void slotMoveCursor(GfxCard *c);
-    void slotSendChatMessage(const QString &message);
 };
 
 #endif // TAROT_WIDGET_H_
