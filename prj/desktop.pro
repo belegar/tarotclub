@@ -70,6 +70,8 @@ CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
 
+# Let's make everything's static so that we don't need any DLL
+QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
 
 # ------------------------------------------------------------------------------
 # Targer definitions
