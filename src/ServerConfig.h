@@ -59,10 +59,10 @@ public:
 
     // Setters
     void        SetOptions(const ServerOptions &newOptions);
-    static void SetDefault(ServerOptions &opt);
+    static ServerOptions GetDefault();
 
 private:
-    ServerOptions options;
+    ServerOptions mOptions;
 
 };
 
