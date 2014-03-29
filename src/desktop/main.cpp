@@ -31,10 +31,11 @@
 #include <QTranslator>
 
 // Specific game includes
-#include "TarotClub.h"
+#include "MainWindow.h"
 #include "DebugDock.h"
 #include "ClientConfig.h"
 #include "Log.h"
+#include "System.h"
 
 /*****************************************************************************/
 QString GetLocale()
@@ -56,6 +57,8 @@ int main(int argc, char **argv)
     QSplashScreen splash(pixmap);
     splash.show();
 
+    System::Initialize();
+
     QTranslator translator;
     QString locale = GetLocale();
 
@@ -66,7 +69,7 @@ int main(int argc, char **argv)
     }
     app.installTranslator(&translator);
 
-    TarotClub tarot;
+    MainWindow tarot;
     tarot.Initialize(); // Init internal stuff before showing the interface
 
     tarot.resize(1280, 770);
