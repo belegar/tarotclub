@@ -19,6 +19,7 @@ Thanks for your help and your support.
 ## Features
 
 TarotClub provides a collection of software:
+
   * A desktop client/server executable made with Qt. It should work on any decent operating system supporting Qt.
   * A dedicated server without any GUI, written in raw C++0x11. It should compile with any decent compiler supporting C++0x11
   * A test engine to run automatic unit tests
@@ -26,6 +27,7 @@ TarotClub provides a collection of software:
 The dedicated server should be used to setup a game server. It provides several game rooms that are available for everybody 
   
 Current features are:
+
   * Quick or tournament game modes
   * Join or host network games
   * Play against the computer AI scripts written in JavaScript
@@ -40,6 +42,7 @@ Current features are:
 ## Status
 
 The current desktop version is stable and fully featured. Currently work in progress is focusing on:
+
   * API improvements
   * Dedicated server development
   
