@@ -40,10 +40,10 @@ ClientConfig::ClientConfig()
     mLang.push_back("fr");
     mLang.push_back("en");
     mLoaded = false;
-    SetDefault(mOptions);
+    mOptions = GetDefault();
 }
 /*****************************************************************************/
-ClientOptions &ClientConfig::GetOptions()
+ClientOptions ClientConfig::GetOptions()
 {
     if (!mLoaded)
     {
@@ -65,7 +65,7 @@ std::string ClientConfig::GetLocale()
     return mLang[mOptions.language];
 }
 /*****************************************************************************/
-void ClientConfig::SetOptions(ClientOptions &newOptions)
+void ClientConfig::SetOptions(const ClientOptions &newOptions)
 {
     mOptions = newOptions;
 }
@@ -173,7 +173,7 @@ bool ClientConfig::Load()
     if (!ret)
     {
         // Overwrite old file with default value
-        SetDefault(mOptions);
+        mOptions = GetDefault();
         ret = Save();
     }
 
@@ -221,8 +221,10 @@ bool ClientConfig::Save()
     return ret;
 }
 /*****************************************************************************/
-void ClientConfig::SetDefault(ClientOptions &opt)
+ClientOptions ClientConfig::GetDefault()
 {
+    ClientOptions opt;
+
     opt.showAvatars = AVATARS_DEF;
     opt.backgroundColor = "#008000";
     opt.language = 0;
@@ -235,6 +237,8 @@ void ClientConfig::SetDefault(ClientOptions &opt)
     opt.identity.avatar = ":/images/avatars/inconnu.png";
     opt.identity.quote = "L'inventeur de l'escalier habitait sûrement au premier étage.";
     opt.identity.gender = Identity::MALE;
+
+    return opt;
 }
 
 //=============================================================================

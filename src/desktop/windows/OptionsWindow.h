@@ -81,8 +81,8 @@ public:
     ServerOptions &GetServerOptions();
 
     // Setters
-    void SetClientOptions(ClientOptions &opt);
-    void SetServerOptions(ServerOptions &opt);
+    void SetClientOptions(const ClientOptions &opt);
+    void SetServerOptions(const ServerOptions &opt);
 
 public slots:
     void slotBtnOk();

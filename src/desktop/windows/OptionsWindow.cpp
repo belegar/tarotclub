@@ -278,15 +278,15 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     ui.iconsLayout->addWidget(dragWidget);
 }
 /*****************************************************************************/
-void OptionsWindow::SetClientOptions(ClientOptions &cfg)
+void OptionsWindow::SetClientOptions(const ClientOptions &opt)
 {
-    clientOptions = cfg;
+    clientOptions = opt;
     refresh();
 }
 /*****************************************************************************/
-void OptionsWindow::SetServerOptions(ServerOptions &cfg)
+void OptionsWindow::SetServerOptions(const ServerOptions &opt)
 {
-    serverOptions = cfg;
+    serverOptions = opt;
     refresh();
 }
 /*****************************************************************************/
@@ -365,8 +365,8 @@ void OptionsWindow::slotBtnOk()
 /*****************************************************************************/
 void OptionsWindow::slotBtnDefaut()
 {
-    ClientConfig::SetDefault(clientOptions);
-    ServerConfig::SetDefault(serverOptions);
+    clientOptions = ClientConfig::GetDefault();
+    serverOptions = ServerConfig::GetDefault();
     refresh();
 }
 /*****************************************************************************/

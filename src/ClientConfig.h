@@ -60,11 +60,13 @@ public:
     bool     Load();
     bool     Save();
 
-    ClientOptions &GetOptions();
-    std::string GetLocale();
+    // Getters
+    ClientOptions   GetOptions();
+    std::string     GetLocale();
+    static ClientOptions GetDefault();
 
-    void        SetOptions(ClientOptions &newOptions);
-    static void SetDefault(ClientOptions &opt);
+    // Setters
+    void SetOptions(const ClientOptions &newOptions);
 
 private:
     ClientOptions mOptions;
