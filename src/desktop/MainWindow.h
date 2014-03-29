@@ -26,14 +26,14 @@
 #ifndef _MAINWINDOW_H
 #define _MAINWINDOW_H
 
-// Includes Qt
+// Qt includes
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
 
-// Includes locales
+// Game includes
 #include "Common.h"
-#include "Canvas.h"
+#include "TarotWidget.h"
 #include "TextBox.h"
 #include "AboutWindow.h"
 #include "ResultWindow.h"
@@ -52,7 +52,23 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-protected:
+public:
+    MainWindow(QWidget *parent = 0);
+
+    void Initialize();
+
+private slots:
+    void slotDealEditor();
+    void slotNewNumberedDeal();
+    void slotNewCustomDeal();
+    void slotJoinNetworkGame();
+    void slotQuickJoinNetworkGame();
+    void slotShowOptions();
+
+private:
+    void SetupDialogs();
+    void SetupMenus();
+    void SetupDocks();
 
     // Menus
     QMenu *gameMenu;
@@ -74,7 +90,7 @@ protected:
     QAction *dealEditorAct;
     QAction *optionsAct;
 
-    Canvas *tapis;      // QCanvasView
+    TarotWidget *tarotWidget;
 
     // Modal windows
     AboutWindow *about;
@@ -91,17 +107,6 @@ protected:
     InfosDock *infosDock;
     ChatDock *chatDock;
     DebugDock *debugDock;
-
-public:
-    MainWindow(QWidget *parent = 0);
-
-public slots:
-    void slotDealEditor();
-
-private:
-    void SetupDialogs();
-    void SetupMenus();
-    void SetupDocks();
 };
 
 #endif // _MAINWINDOW_H

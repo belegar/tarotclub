@@ -23,12 +23,18 @@
  *=============================================================================
  */
 
-#include "MainWindow.h"
+// Qt includes
 #include <QStatusBar>
 #include <QMenuBar>
 #include <QDateTime>
 #include <QDir>
 #include "Util.h"
+
+// Game includes
+#include "MainWindow.h"
+#include "ui_NumberedDealUI.h"
+#include "ui_WinUI.h"
+
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
@@ -39,9 +45,101 @@ MainWindow::MainWindow(QWidget *parent)
     SetupMenus();
 
     setWindowTitle(QString(TAROT_TITRE) + " " + QString(TAROT_VERSION));
-    tapis = new Canvas(this);
-    setCentralWidget(tapis);
-    tapis->show();
+    tarotWidget = new TarotWidget(this);
+    tarotWidget->show();
+    setCentralWidget(tarotWidget);
+
+    // Game menu to TarotWidget
+    connect(newQuickGameAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewQuickGame);
+    connect(newTournamentAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewTournamentGame);
+    connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
+
+    // Game menu to specific desktop version
+    connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
+    connect(newCustomDealAct, &QAction::triggered, this, &MainWindow::slotNewCustomDeal);
+    connect(netGameClientAct, &QAction::triggered, this, &MainWindow::slotJoinNetworkGame);
+    connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
+    connect(optionsAct, &QAction::triggered, this, &MainWindow::slotShowOptions);
+
+    // Network chat
+    connect(chatDock, &ChatDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendChatMessage);
+
+    // Exit catching to terminate the game properly
+    connect(qApp, &QApplication::aboutToQuit, tarotWidget, &TarotWidget::slotCleanBeforeExit);
+}
+/*****************************************************************************/
+void MainWindow::slotNewNumberedDeal()
+{
+    QDialog *widget = new QDialog;
+    Ui::NumberedDeal ui;
+    ui.setupUi(widget);
+
+    if (widget->exec() == QDialog::Accepted)
+    {
+        Game::Shuffle sh;
+        sh.type = Game::NUMBERED_DEAL;
+        sh.seed = ui.dealNumber->value();
+
+        tarotWidget->LaunchLocalGame(Game::ONE_DEAL, sh);
+    }
+}
+/*****************************************************************************/
+void MainWindow::slotNewCustomDeal()
+{
+    QString fileName = QFileDialog::getOpenFileName(this);
+
+    if (fileName.size() != 0)
+    {
+        Game::Shuffle sh;
+        sh.type = Game::CUSTOM_DEAL;
+        sh.file = fileName.toStdString();
+
+        tarotWidget->LaunchLocalGame(Game::ONE_DEAL, sh);
+    }
+}
+/*****************************************************************************/
+void MainWindow::slotJoinNetworkGame()
+{
+    lobbyWindow->Initialize();
+    if (lobbyWindow->exec() == QDialog::Accepted)
+    {
+        // connect to table
+        LobbyWindow::Connection cn = lobbyWindow->GetTableConnection();
+
+        if (cn.isValid)
+        {
+            tarotWidget->LaunchRemoteGame(cn.ip.toStdString(), cn.port);
+        }
+    }
+}
+/*****************************************************************************/
+void MainWindow::slotQuickJoinNetworkGame()
+{
+    if (quickJoinWindow->exec() == QDialog::Accepted)
+    {
+        QString ip = uiQuickJoin.ipAddress->text();
+        quint16 port = uiQuickJoin.tcpPort->value();
+
+        tarotWidget->LaunchRemoteGame(ip.toStdString(), port);
+    }
+}
+/*****************************************************************************/
+void MainWindow::slotShowOptions()
+{
+    optionsWindow->SetClientOptions(tarotWidget->GetClientOptions());
+    optionsWindow->SetServerOptions(tarotWidget->GetServerOptions());
+
+    if (optionsWindow->exec() == QDialog::Accepted)
+    {
+        tarotWidget->SetClientOptions(optionsWindow->GetClientOptions());
+        tarotWidget->SetServerOptions(optionsWindow->GetServerOptions());
+        tarotWidget->ApplyOptions();
+    }
+}
+/*****************************************************************************/
+void MainWindow::Initialize()
+{
+    tarotWidget->Initialize();
 }
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
@@ -156,7 +254,7 @@ void MainWindow::SetupMenus()
     QAction *exitAct = new QAction(tr("&Quit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Quit the game"));
-    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(exitAct, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     // Add action to the main menu
     gameMenu = menuBar()->addMenu(tr("Game"));
@@ -181,7 +279,7 @@ void MainWindow::SetupMenus()
     dealEditorAct = new QAction(tr("Deal e&ditor"), this);
     dealEditorAct->setShortcut(tr("Ctrl+D"));
     dealEditorAct->setStatusTip(tr("Create a pre-defined deal by choosing the cards of each player"));
-    connect(dealEditorAct, SIGNAL(triggered()), this, SLOT(slotDealEditor()));
+    connect(dealEditorAct, &QAction::triggered, this, &MainWindow::slotDealEditor);
 
     paramsMenu = menuBar()->addMenu(tr("Parameters"));
     paramsMenu->addAction(optionsAct);
@@ -201,12 +299,12 @@ void MainWindow::SetupMenus()
     QAction *aboutAct = new QAction(tr("&About..."), this);
     aboutAct->setShortcut(tr("Ctrl+A"));
     aboutAct->setStatusTip(tr("About TarotClub"));
-    connect(aboutAct, SIGNAL(triggered()), about, SLOT(show()));
+    connect(aboutAct, &QAction::triggered, about, &AboutWindow::show);
 
     QAction *helpAct = new QAction(tr("&Help and manual"), this);
     helpAct->setShortcut(tr("Ctrl+H"));
     helpAct->setStatusTip(tr("Show game help and Tarot rules"));
-    connect(helpAct, SIGNAL(triggered()), helpWindow, SLOT(show()));
+    connect(helpAct, &QAction::triggered, helpWindow, &HelpWindow::show);
 
     // Add actions to the Help menu
     helpMenu = menuBar()->addMenu(tr("Help"));
