@@ -30,7 +30,7 @@
 #include <QTranslator>
 
 // Specific game includes
-#include "TarotClub.h"
+#include "TarotWidget.h"
 #include "Log.h"
 #include "System.h"
 
@@ -44,8 +44,11 @@ int main(int argc, char **argv)
 
     System::Initialize(); // Initialize TarotClub context
 
-    TarotClub tarot;
+    TarotWidget tarot;
     tarot.Initialize(); // Init GUI internal stuff before showing the interface
+
+    // Exit catching to terminate the game properly
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotQuitTarotClub()));
 
     tarot.showFullScreen();
 
