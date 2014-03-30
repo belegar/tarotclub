@@ -152,6 +152,7 @@ bool Canvas::Initialize()
             }
             else
             {
+                TLogError("Cannot find image file: " + image.toStdString());
                 return false;
             }
         }
