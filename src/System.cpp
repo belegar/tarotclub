@@ -44,6 +44,7 @@ void System::Initialize()
     mDeckPath = Util::ExecutablePath() + "/../../assets/cards/default/";
 #else
     mHomePath  = Util::HomePath() + "/.tarotclub/";
+    mDeckPath = Util::ExecutablePath() + "/default/";
 #endif
 #endif
 
