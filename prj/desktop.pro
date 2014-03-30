@@ -64,7 +64,7 @@ INCLUDEPATH += $$BASE_DIR/src/gfxlib
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += svg help network
+QT += svg network
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
@@ -89,8 +89,12 @@ unix {
     DEFINES += USE_UNIX_OS
 }
 
-debug {
+CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
+}
+
+debug {
+#    DEFINES += TAROT_DEBUG
 #    DEFINES += DUK_OPT_DEBUG
 }
 
@@ -221,42 +225,38 @@ SOURCES += Canvas.cpp \
 # ------------------------------------------------------------------------------
 # Desktop client files
 # ------------------------------------------------------------------------------
-HEADERS += AboutWindow.h \
-    MainWindow.h \
-    OptionsWindow.h \
-    EditorWindow.h \
-    ResultWindow.h \
-    HelpWindow.h \
-    ScoresDock.h \
-    InfosDock.h \
-    ChatDock.h \
-    DebugDock.h \
-    LobbyWindow.h
-
 FORMS += AboutUI.ui \
     AvatarsUI.ui \
     InfosDockUI.ui \
     OptionsUI.ui \
     ResultUI.ui \
-    HelpUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
     WinUI.ui \
     QuickJoin.ui \
     LobbyUI.ui
 
+HEADERS += AboutWindow.h \
+    MainWindow.h \
+    OptionsWindow.h \
+    EditorWindow.h \
+    ResultWindow.h \
+    ScoresDock.h \
+    InfosDock.h \
+    ChatDock.h \
+    DebugDock.h \
+    LobbyWindow.h
+
 SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
     EditorWindow.cpp \
     ResultWindow.cpp \
-    HelpWindow.cpp \
     ScoresDock.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
     DebugDock.cpp \    
-    main.cpp \
-    LobbyWindow.cpp
-
+    LobbyWindow.cpp \
+    main.cpp
 
 # End of project file
