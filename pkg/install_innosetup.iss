@@ -6,7 +6,7 @@
 #define QT_DIR 	      "C:\Qt\Qt5.2.0\5.2.0\mingw48_32\bin"
 #define VERSION       "2.3.0-alpha.3"
 #define RELEASE_DIR   "build-desktop\release"
-#define SERVER_DIR    "build-server\Release"
+#define SERVER_DIR    "build-server\release"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -21,7 +21,7 @@ AppSupportURL=http://www.tarotclub.fr
 AppUpdatesURL=http://www.tarotclub.fr
 DefaultDirName={pf}\TarotClub
 DefaultGroupName=TarotClub
-LicenseFile=..\COPYING-FR
+LicenseFile=..\COPYING
 OutputDir=.
 OutputBaseFilename=TarotClub-{#VERSION}-Setup
 Compression=lzma
@@ -38,15 +38,19 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: ..\{#RELEASE_DIR}\bin\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
-Source: ..\{#SERVER_DIR}\bin\tcds.exe; DestDir: {app}; Flags: ignoreversion
-Source: ..\src\data\cards\default\*; DestDir: {app}\default; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ..\doc\tarotclub.qch; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ..\doc\tarotclub.qhc; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ..\ai\beginner.js; DestDir: {app}\ai; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ..\ai\tarotlib\*; DestDir: {app}\ai\tarotlib; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ..\prj\tarotclub_en.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ..\prj\tarotclub_fr.qm; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\{#RELEASE_DIR}\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\{#SERVER_DIR}\tcds.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\assets\cards\default\*; DestDir: {app}\default; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\assets\ai\beginner.js; DestDir: {app}\ai; Flags: ignoreversion
+Source: ..\assets\ai\tarotlib\*; DestDir: {app}\ai\tarotlib; Flags: ignoreversion
+Source: ..\prj\desktop\tarotclub_en.qm; DestDir: {app}; Flags: ignoreversion
+Source: ..\prj\desktop\tarotclub_fr.qm; DestDir: {app}; Flags: ignoreversion
+
+; Documentation files
+Source: ..\doc\images\*; DestDir: {app}\doc\images; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\doc\index.html; DestDir: {app}\doc; Flags: ignoreversion
+Source: ..\doc\rules_en.html; DestDir: {app}\doc; Flags: ignoreversion
+Source: ..\doc\rules_fr.html; DestDir: {app}\doc; Flags: ignoreversion
 
 ; Miscellaneous information text files
 Source: ..\COPYING; DestDir: {app}; Flags: ignoreversion
@@ -54,22 +58,22 @@ Source: ..\HISTORY; DestDir: {app}; Flags: ignoreversion
 Source: ..\README.md; DestDir: {app}; Flags: ignoreversion
 
 ; Fonts used in SVG files
-Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {app}; Flags: ignoreversion
-Source: ..\src\data\fonts\kanzlei.ttf; DestDir: {fonts}; FontInstall: Kanzlei; Flags: onlyifdoesntexist uninsneveruninstall
+Source: ..\assets\fonts\kanzlei.ttf; DestDir: {app}; Flags: ignoreversion
+Source: ..\assets\fonts\kanzlei.ttf; DestDir: {fonts}; FontInstall: Kanzlei; Flags: onlyifdoesntexist uninsneveruninstall
 
 ; Qt DLL files
 Source: {#QT_DIR}\icudt51.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\icuin51.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\icuuc51.dll; DestDir: {app}; Flags: ignoreversion
-;Source: {#QT_DIR}\libgcc_s_dw2-1.dll; DestDir: {app}; Flags: ignoreversion
-;Source: {#QT_DIR}\libstdc++-6.dll; DestDir: {app}; Flags: ignoreversion
-;Source: {#QT_DIR}\libwinpthread-1.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libgcc_s_dw2-1.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libstdc++-6.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\libwinpthread-1.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5CLucene.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Core.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Gui.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Help.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Network.dll; DestDir: {app}; Flags: ignoreversion
-;Source: {#QT_DIR}\Qt5Sql.dll; DestDir: {app}; Flags: ignoreversion
+Source: {#QT_DIR}\Qt5Sql.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Svg.dll; DestDir: {app}; Flags: ignoreversion
 Source: {#QT_DIR}\Qt5Widgets.dll; DestDir: {app}; Flags: ignoreversion
 
@@ -87,7 +91,7 @@ Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\TarotClubServer; Fi
 
 [Run]
 Filename: {app}\TarotClub.exe; Description: {cm:LaunchProgram,TarotClub}; Flags: nowait postinstall skipifsilent
-Filename: {app}\tcds.exe; Description: {cm:LaunchProgram,TarotClubServer}; Flags: nowait postinstall skipifsilent
+
 
 
 
