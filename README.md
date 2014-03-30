@@ -36,7 +36,7 @@ Current features are:
   * Deal editor
   * Game options including players and network parameters
   * Full Tarot cards images in vector format (SVG)
-  * Dedicated server with multi game rooms, independent executable
+  * Dedicated server with multi game rooms, independent executable, no external libraries developed in a pure portable C++0x11 code
   * Advanced logging system with game events and memorized played deal reports
   
 ## Status
