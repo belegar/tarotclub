@@ -28,13 +28,13 @@
 #include <QMenuBar>
 #include <QDateTime>
 #include <QDir>
-#include "Util.h"
+#include <QDesktopServices>
 
 // Game includes
 #include "MainWindow.h"
 #include "ui_NumberedDealUI.h"
 #include "ui_WinUI.h"
-
+#include "Util.h"
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
@@ -147,10 +147,6 @@ void MainWindow::SetupDialogs()
     // About Window
     about = new AboutWindow(this);
     about->hide();
-
-    // Help Window
-    helpWindow = new HelpWindow(this);
-    helpWindow->hide();
 
     // Scores
     resultWindow = new ResultWindow(this);
@@ -304,13 +300,18 @@ void MainWindow::SetupMenus()
     QAction *helpAct = new QAction(tr("&Help and manual"), this);
     helpAct->setShortcut(tr("Ctrl+H"));
     helpAct->setStatusTip(tr("Show game help and Tarot rules"));
-    connect(helpAct, &QAction::triggered, helpWindow, &HelpWindow::show);
+    connect(helpAct, &QAction::triggered, this, &MainWindow::slotLaunchHelp);
 
     // Add actions to the Help menu
     helpMenu = menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(helpAct);
-
+}
+/*****************************************************************************/
+void MainWindow::slotLaunchHelp()
+{
+    QString path = QString(Util::ExecutablePath().c_str()) + "/doc/index.html";
+    QDesktopServices::openUrl(QUrl("file:///" + path, QUrl::TolerantMode));
 }
 /*****************************************************************************/
 void MainWindow::slotDealEditor()

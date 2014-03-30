@@ -39,7 +39,6 @@
 #include "ResultWindow.h"
 #include "OptionsWindow.h"
 #include "EditorWindow.h"
-#include "HelpWindow.h"
 #include "ScoresDock.h"
 #include "InfosDock.h"
 #include "ChatDock.h"
@@ -64,6 +63,7 @@ private slots:
     void slotJoinNetworkGame();
     void slotQuickJoinNetworkGame();
     void slotShowOptions();
+    void slotLaunchHelp();
 
 private:
     void SetupDialogs();
@@ -98,7 +98,6 @@ private:
     OptionsWindow *optionsWindow;
     EditorWindow *editorWindow;
     LobbyWindow *lobbyWindow;
-    HelpWindow *helpWindow;
     QDialog *quickJoinWindow;
     Ui::quickJoin uiQuickJoin;
 
