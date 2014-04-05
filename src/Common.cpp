@@ -128,11 +128,24 @@ Contract::Contract()
 
 }
 /*****************************************************************************/
+Contract::Contract(std::uint32_t c)
+{
+    if (c > GUARD_AGAINST)
+    {
+        TLogError("Invalid contract value");
+        mContract = PASS;
+    }
+    else
+    {
+        mContract = static_cast<std::uint8_t>(c);
+    }
+}
+/*****************************************************************************/
 Contract::Contract(int c)
 {
     if (c > GUARD_AGAINST)
     {
-        TLogError("Invalid Place value");
+        TLogError("Invalid contract value");
         mContract = PASS;
     }
     else
