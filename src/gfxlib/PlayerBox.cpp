@@ -56,7 +56,7 @@ PlayerBox::PlayerBox(const QRectF &cardSize)
     // bid box is under the player's name
     bid.setParentItem(this);
     bid.setPos(SPACE_BETWEEN_ITEMS, avatar.boundingRect().height() + name.boundingRect().height() + 3 * SPACE_BETWEEN_ITEMS);
-    bid.SetColor(Qt::white);
+    bid.SetTextColor(Qt::white);
     bid.show();
     SetBackgroundColor(Qt::red, BID_BOX);
 
