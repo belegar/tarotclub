@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef POPUPITEM_H
-#define POPUPITEM_H
+#ifndef POPUP_ITEM_H_
+#define POPUP_ITEM_H_
 
 #include <QGraphicsRectItem>
 #include <QRectF>
@@ -51,7 +51,7 @@ private:
 
 };
 
-#endif // POPUPITEM_H
+#endif // POPUP_ITEM_H_
 
 //=============================================================================
 // End of file PopupItem.h
