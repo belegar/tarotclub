@@ -33,7 +33,7 @@ TextBox::TextBox(const QPointF &pos)
 {
     hide();
     font.setBold(true);
-    color = Qt::black;
+    mTextColor = Qt::black;
 }
 /*****************************************************************************/
 void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -43,7 +43,6 @@ void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 
     // Paint with specified color and pen
     painter->setRenderHint(QPainter::Antialiasing);
-
     painter->setPen(pen());
     painter->setBrush(brush());
     painter->drawRoundRect(rect(), (int)(25 * rect().height()
@@ -51,9 +50,12 @@ void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 
     // Text inside the box
     painter->save();
-    painter->setPen(color);
-    painter->setFont(font);
-    painter->drawText(rect(), Qt::AlignCenter, text);
+    if (text.size() > 0)
+    {
+        painter->setPen(mTextColor);
+        painter->setFont(font);
+        painter->drawText(rect(), Qt::AlignCenter, text);
+    }
     painter->restore();
 }
 

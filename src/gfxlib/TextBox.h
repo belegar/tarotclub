@@ -56,15 +56,15 @@ public:
         font = f;
     }
 
-    void SetColor(Qt::GlobalColor c)
+    void SetTextColor(Qt::GlobalColor c)
     {
-        color = c;
+        mTextColor = c;
     }
 
 private:
     QString text;
     QFont font;
-    Qt::GlobalColor color;
+    Qt::GlobalColor mTextColor;
 };
 
 
