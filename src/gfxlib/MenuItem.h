@@ -23,82 +23,51 @@
  *=============================================================================
  */
 
-#ifndef BIDSFORM_H
-#define BIDSFORM_H
+#ifndef MENU_ITEM_H_
+#define MENU_ITEM_H_
 
+// Qt includes
 #include <QGraphicsRectItem>
 #include <QGraphicsSvgItem>
 #include <QtGui>
+
+// Game includes
 #include "TextBox.h"
 #include "Common.h"
+#include "CheckBoxItem.h"
 #include "CustomTypes.h"
-
-/*****************************************************************************/
-class CheckBoxItem : public QGraphicsItem
-{
-public:
-    CheckBoxItem(QGraphicsItem *parent = 0);
-
-    enum { Type = UserType + CHECK_BOX_TYPE_ITEM };
-    int type() const;
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-    QRectF boundingRect() const;
-
-    void Click(const QPointF &pos);
-    bool GetStatus()
-    {
-        return status;
-    }
-
-private:
-    bool status;
-    QGraphicsSvgItem tick;
-    QGraphicsSimpleTextItem text;
-    QGraphicsRectItem square;
-};
+#include "ButtonItem.h"
 
 /*****************************************************************************/
 class MenuItem : public QGraphicsRectItem
 {
 public:
-    MenuItem();
+    MenuItem(IButtonEvent &event);
 
     /**
      * @brief The MenuWidget enum gather all the widgets managed by this menu
      *
      * Just add a new enum line to manage this widget
      */
-    enum MenuWidget
-    {
-        NO_ENTRY = -1,   //!< Only required entry, do not delete
+    static const std::uint8_t PASS_BUTTON              = 0U;
+    static const std::uint8_t TAKE_BUTTON              = 1U;
+    static const std::uint8_t GUARD_BUTTON             = 2U;
+    static const std::uint8_t GUARD_WITHOUT_BUTTON     = 3U;
+    static const std::uint8_t GUARD_AGAINST_BUTTON     = 4U;
+    static const std::uint8_t DECLARE_HANDLE_BUTTON    = 5U;
+    static const std::uint8_t ACCEPT_DISCARD_BUTTON    = 6U;
+    static const std::uint8_t START_SINGLE_PLAYER      = 7U;
 
-        // Add the widgets below
-        PASS_BUTTON = 0,
-        TAKE_BUTTON = 1,
-        GUARD_BUTTON = 2,
-        GUARD_WITHOUT_BUTTON = 3,
-        GUARD_AGAINST_BUTTON = 4,
-        DECLARE_HANDLE_BUTTON = 5,
-        ACCEPT_DISCARD_BUTTON = 6,
-        START_SINGLE_PLAYER = 7
-    };
+    static const std::uint8_t NO_MENU       = 0U;
+    static const std::uint8_t BIDS_MENU     = 1U;
+    static const std::uint8_t HANDLE_MENU   = 2U;
+    static const std::uint8_t DISCARD_MENU  = 3U;
+    static const std::uint8_t MAIN_MENU     = 4U;
 
-    enum MenuName
+    struct Button
     {
-        NO_MENU,
-        BIDS_MENU,
-        HANDLE_MENU,
-        DISCARD_MENU,
-        MAIN_MENU
-    };
-
-    struct MenuButton
-    {
-        QString text;
-        QPointF coord;
-        int widget;
-        MenuName menu;
+        QString text;       //!< Text printed on this button
+        std::uint8_t menu;  //!< In which menu the button belongs to
     };
 
     enum { Type = UserType + MENU_TYPE_ITEM };
@@ -108,24 +77,22 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     // Helpers
-    const MenuButton *Refresh(const QPointF &pos, bool clicked);
-    void DisplayMenu(MenuName menu);
+    void DisplayMenu(std::uint8_t menu);
     void DisplayMenu(Contract minContract);
 
     // Getters
     bool GetSlamOption();
 
 private:
-    QColor color;
-    QBrush brushSelected;
-    QBrush brushNormal;
+    QPointF GetButtonPosition(std::uint32_t pos);
 
-    QMap<const MenuButton *, TextBox *> buttons;
+    QColor color;
+    QMap<const MenuItem::Button *, ButtonItem *> buttons;
     CheckBoxItem checkBox;
 };
 
-#endif // BIDSFORM_H
+#endif // MENU_ITEM_H_
 
 //=============================================================================
-// End of file BidsForm.h
+// End of file MenuItem.h
 //=============================================================================

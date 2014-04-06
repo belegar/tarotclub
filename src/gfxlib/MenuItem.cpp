@@ -23,13 +23,16 @@
  *=============================================================================
  */
 
-#include "MenuItem.h"
+// Qt includes
 #include <QBrush>
 #include <QPainter>
 #include <QtGlobal>
-#include "Common.h"
 
-static const int SPACE = 10;
+// Game includes
+#include "Common.h"
+#include "MenuItem.h"
+
+static const std::uint32_t SPACE = 10;
 
 // Declare here all the buttons managed by the menu
 /**
@@ -40,104 +43,34 @@ static const int SPACE = 10;
  *  MenuName menu;
  */
 
-static const MenuItem::MenuButton buttonList[] =
+static const MenuItem::Button buttonList[] =
 {
-    { QObject::tr("Pass"),           QPointF(10, 10),                                    MenuItem::PASS_BUTTON, MenuItem::BIDS_MENU },
-    { QObject::tr("Take"),           QPointF(TEXT_BOX_WIDTH + 20, 10),                   MenuItem::TAKE_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr("Guard"),          QPointF(10, TEXT_BOX_HEIGHT + 20),                  MenuItem::GUARD_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr("Guard without"),  QPointF(TEXT_BOX_WIDTH + 20, TEXT_BOX_HEIGHT + 20), MenuItem::GUARD_WITHOUT_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr("Guard against"),  QPointF(10, 2 * TEXT_BOX_HEIGHT + 30),              MenuItem::GUARD_AGAINST_BUTTON, MenuItem::BIDS_MENU  },
-    { QObject::tr("Handle"),         QPointF(10, 10),                                    MenuItem::DECLARE_HANDLE_BUTTON, MenuItem::HANDLE_MENU  },
-    { QObject::tr("Accept"),         QPointF(10, 10),                                    MenuItem::ACCEPT_DISCARD_BUTTON, MenuItem::DISCARD_MENU  },
-    { QObject::tr("Start"),          QPointF(10, 10),                                    MenuItem::START_SINGLE_PLAYER, MenuItem::MAIN_MENU  }
+    { QObject::tr("Pass"),             MenuItem::BIDS_MENU },
+    { QObject::tr("Take"),             MenuItem::BIDS_MENU },
+    { QObject::tr("Guard"),            MenuItem::BIDS_MENU },
+    { QObject::tr("Guard without"),    MenuItem::BIDS_MENU },
+    { QObject::tr("Guard against"),    MenuItem::BIDS_MENU },
+    { QObject::tr("Handle"),           MenuItem::HANDLE_MENU },
+    { QObject::tr("Accept"),           MenuItem::DISCARD_MENU },
+    { QObject::tr("Start"),            MenuItem::MAIN_MENU }
 };
 
 /*****************************************************************************/
-CheckBoxItem::CheckBoxItem(QGraphicsItem *parent)
-    :  QGraphicsItem(parent)
-    , status(false)
-    , tick(":images/tick.svg", this)
-    , text(this)
-    , square(this)
-{
-    tick.setPos(0, 0);
-    tick.setScale(0.1);
-    tick.hide();
-
-    square.setRect(0, 10, 15, 15);
-    QPen pen = square.pen();
-    pen.setWidth(2);
-    square.setPen(pen);
-
-    text.setText("Slam");
-    QFont font = text.font();
-    font.setBold(true);
-    text.setFont(font);
-    text.setPos(SPACE + square.boundingRect().width(), 10);
-}
-/*****************************************************************************/
-int CheckBoxItem::type() const
-{
-    // Enable the use of qgraphicsitem_cast with this item.
-    return Type;
-}
-/*****************************************************************************/
-void CheckBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(painter)
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
-
-}
-/*****************************************************************************/
-QRectF CheckBoxItem::boundingRect() const
-{
-    qreal width = square.boundingRect().width() + text.boundingRect().width() + SPACE;
-    qreal height = qMax(square.boundingRect().height(), text.boundingRect().height()) + 10;
-
-    QRectF size(0, 0, width, height);
-    return size;
-}
-/*****************************************************************************/
-void CheckBoxItem::Click(const QPointF &pos)
-{
-    if (contains(mapFromParent(pos)))
-    {
-        if (status)
-        {
-            status = false;
-            tick.hide();
-        }
-        else
-        {
-            status = true;
-            tick.show();
-        }
-    }
-}
-/*****************************************************************************/
-MenuItem::MenuItem()
+MenuItem::MenuItem(IButtonEvent &event)
     : color(149, 149, 149, 127)
-    , brushSelected(QColor("#404040"))
-    , brushNormal(QColor("#808080"))
+    , checkBox(this, SPACE)
 {
     setRect(0, 0, 260, 130);
 
     // This menu manages N buttons
-    for (std::uint32_t i = 0U; i < (sizeof(buttonList)/sizeof(MenuItem::MenuButton)); i++)
+    for (std::uint8_t i = 0U; i < (sizeof(buttonList)/sizeof(MenuItem::Button)); i++)
     {
-        TextBox *tb = new TextBox(buttonList[i].coord);
-        tb->setParentItem(this);
-        tb->hide();
-        tb->SetText(buttonList[i].text);
-        tb->setBrush(brushNormal);
-        tb->setPen(QPen(Qt::white));
-
-        buttons.insert(&buttonList[i], tb);
+        ButtonItem *button = new ButtonItem(event, i, buttonList[i].menu);
+        button->setParentItem(this);
+        button->hide();
+        button->SetText(buttonList[i].text);
+        buttons.insert(&buttonList[i], button);
     }
-
-    checkBox.setParentItem(this);
-    checkBox.setPos(TEXT_BOX_WIDTH + 50, 2 * TEXT_BOX_HEIGHT + 30);
     checkBox.hide();
 }
 /*****************************************************************************/
@@ -160,11 +93,13 @@ void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
                                          / rect().width()), 25);
 }
 /*****************************************************************************/
+#if 0
+
 const MenuItem::MenuButton *MenuItem::Refresh(const QPointF &pos, bool clicked)
 {
     const MenuItem::MenuButton *button = NULL;
 
-    QMapIterator<const MenuButton *, TextBox *> i(buttons);
+    QMapIterator<const MenuButton *, ButtonItem *> i(buttons);
     while (i.hasNext())
     {
         i.next();
@@ -188,19 +123,24 @@ const MenuItem::MenuButton *MenuItem::Refresh(const QPointF &pos, bool clicked)
     {
         checkBox.Click(mapFromParent(pos));
     }
-
     return button;
 }
+#endif
+
 /*****************************************************************************/
-void MenuItem::DisplayMenu(MenuItem::MenuName menu)
+void MenuItem::DisplayMenu(std::uint8_t menu)
 {
-    QMapIterator<const MenuButton *, TextBox *> i(buttons);
+    QMapIterator<const MenuItem::Button *, ButtonItem *> i(buttons);
+    std::uint32_t pos = 0U;
+
     while (i.hasNext())
     {
         i.next();
         if (i.key()->menu == menu)
         {
+            i.value()->setPos(GetButtonPosition(pos));
             i.value()->show();
+            pos++;
         }
         else
         {
@@ -212,27 +152,65 @@ void MenuItem::DisplayMenu(MenuItem::MenuName menu)
 /*****************************************************************************/
 void MenuItem::DisplayMenu(Contract minContract)
 {
-    QMapIterator<const MenuButton *, TextBox *> i(buttons);
+    QMapIterator<const MenuItem::Button *, ButtonItem *> i(buttons);
+    std::uint32_t pos = 0U;
+
     while (i.hasNext())
     {
         i.next();
         if (i.key()->menu == BIDS_MENU)
         {
+            i.value()->setPos(GetButtonPosition(pos));
             i.value()->show();
-            if (i.key()->widget != Contract::PASS)
+            std::uint32_t id = i.value()->GetId();
+            if (id != PASS_BUTTON)
             {
-                if (minContract >= i.key()->widget)
+                if (minContract >= Contract(id))
                 {
                     i.value()->hide();
                 }
             }
+            pos++;
         }
         else
         {
             i.value()->hide();
         }
     }
+    checkBox.setPos(GetButtonPosition(pos));
     checkBox.show();
+}
+/*****************************************************************************/
+/**
+ * @brief MenuItem::MoveButton
+ *
+ * Example: box size is 100 (width) x 30 (hight), SPACE pixels betwen buttons
+ *
+ * line   |        colum 1                 |              column 2
+ * -------|--------------------------------|------------------------------------------
+ *    0   |   0 (10, 10)                   |   1 (10 + 100 + SPACE, 10)
+ *    1   |   2 (10, 10 + 30 + SPACE)      |   3 (10 + 100 + SPACE, 10 + 30 + SPACE)
+ *    2   |   4 (10, 10 + 2 *(30 + SPACE)) |   5 (10 + 100 + SPACE, 10 + 2 *(30 + SPACE))
+ *
+ * @param pos, from 0, top left position
+ */
+QPointF MenuItem::GetButtonPosition(std::uint32_t pos)
+{
+    QPointF coord;
+    // Start at the upper-left corner
+    std::uint32_t line = (pos / 2);
+    coord.setY(10U + line * (TEXT_BOX_HEIGHT + SPACE));
+    std::uint32_t x = 10U;
+
+    // odd position: move x coordinate
+    if (pos & 1)
+    {
+        // Second column
+        x = x + TEXT_BOX_WIDTH + SPACE;
+    }
+
+    coord.setX(x);
+    return coord;
 }
 /*****************************************************************************/
 bool MenuItem::GetSlamOption()
