@@ -3,7 +3,6 @@
 #include <QCoreApplication>
 #include <cstdint>
 
-#include "defines.h"
 #include "tst_jsengine.h"
 #include "Util.h"
 #include "JsonReader.h"

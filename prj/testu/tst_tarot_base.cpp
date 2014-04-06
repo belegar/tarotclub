@@ -101,7 +101,7 @@ void TarotBase::TestConfig()
     ServerOptions options;
     ServerConfig conf;
 
-    conf.SetDefault(options);
+    options = ServerConfig::GetDefault();
     conf.SetOptions(options);
     conf.Save();
 }

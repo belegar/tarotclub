@@ -7,8 +7,8 @@
 #include "ByteArray.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
-#include "defines.h"
 #include "tst_utilities.h"
+#include "Util.h"
 
 std::uint32_t Obs::gCounter = 0U;
 

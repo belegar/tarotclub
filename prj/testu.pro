@@ -72,11 +72,10 @@ unix {
     DEFINES += USE_UNIX_OS
 }
 
-debug {
+CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
     DEFINES += DUK_OPT_DEBUG
 }
-
 
 # ------------------------------------------------------------------------------
 # Library files
@@ -91,8 +90,7 @@ HEADERS += Log.h \
     TcpSocket.h \
     TcpServer.h \
     TcpClient.h \
-    UniqueId.h \
-    Common.h
+    UniqueId.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -102,13 +100,11 @@ SOURCES += Log.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
-    UniqueId.cpp \
-    Common.cpp
+    UniqueId.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
 # ------------------------------------------------------------------------------
-
 HEADERS += duktape.h \
     JsonWriter.h \
     JsonReader.h \
@@ -131,14 +127,17 @@ HEADERS += TarotDeck.h \
     Deck.h \
     Card.h \
     Player.h \
-    defines.h \
-    ServerConfig.h
+    ServerConfig.h \
+    Common.h \
+    System.h
 
 SOURCES += TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
     Player.cpp \
-    ServerConfig.cpp
+    ServerConfig.cpp \
+    Common.cpp \
+    System.cpp
 
 # ------------------------------------------------------------------------------
 # Unit test files
