@@ -91,10 +91,6 @@ unix {
 
 CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
-}
-
-debug {
-#    DEFINES += TAROT_DEBUG
 #    DEFINES += DUK_OPT_DEBUG
 }
 
@@ -212,7 +208,10 @@ HEADERS += Canvas.h \
     TarotWidget.h \
     PlayerBox.h \
     CustomTypes.h \
-    PopupItem.h
+    PopupItem.h \
+    CheckBoxItem.h \
+    ButtonItem.h \
+    IButtonEvent.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
@@ -220,7 +219,9 @@ SOURCES += Canvas.cpp \
     GfxCard.cpp \
     MenuItem.cpp \
     PlayerBox.cpp \
-    PopupItem.cpp
+    PopupItem.cpp \
+    CheckBoxItem.cpp \
+    ButtonItem.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files
