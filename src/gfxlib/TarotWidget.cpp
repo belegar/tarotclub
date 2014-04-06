@@ -96,6 +96,8 @@ void TarotWidget::Initialize()
     mClient.Initialize();
     deal.Initialize();
     mCanvas->Initialize();
+    mCanvas->SetFilter(Canvas::MENU);
+    mCanvas->DisplayMainMenu(true);
 }
 /*****************************************************************************/
 /**
@@ -322,6 +324,8 @@ void TarotWidget::slotClickTapis()
         HideTrick();
         mClient.SendSyncTrick();
     }
+    // Forbid any further clicks
+    mCanvas->SetFilter(Canvas::BLOCK_ALL);
 }
 /*****************************************************************************/
 /**
@@ -542,6 +546,7 @@ void TarotWidget::slotShowDog()
         cards.append((*i));
     }
     mCanvas->DrawCardsInPopup(cards);
+    mCanvas->SetFilter(Canvas::BOARD);
 }
 /*****************************************************************************/
 void TarotWidget::slotShowHandle()
@@ -553,6 +558,7 @@ void TarotWidget::slotShowHandle()
         cards.append((*i));
     }
     mCanvas->DrawCardsInPopup(cards);
+    mCanvas->SetFilter(Canvas::BOARD);
 }
 /*****************************************************************************/
 void TarotWidget::slotDealAgain()
@@ -663,7 +669,7 @@ void TarotWidget::slotEndOfDeal()
 void TarotWidget::slotWaitTrick(Place winner)
 {
     (void)winner;
-    mCanvas->SetFilter(Canvas::BLOCK_ALL);
+    mCanvas->SetFilter(Canvas::BOARD);
 
     // launch timer to clean cards, if needed
     if (mClientConfig.GetOptions().enableDelayBeforeCleaning == true)
