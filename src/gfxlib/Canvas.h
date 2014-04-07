@@ -43,18 +43,21 @@
 #include "GfxCard.h"
 #include "MenuItem.h"
 #include "PopupItem.h"
+#include "IButtonEvent.h"
+#include "ICardEvent.h"
 
 /*****************************************************************************/
-class Canvas : public QGraphicsView
+class Canvas : public QGraphicsView, public IButtonEvent, public ICardEvent
 {
     Q_OBJECT
 
 public:
     enum Filter
     {
-        BLOCK_ALL = 0x00,
-        MENU = 0x01,
-        CARDS = 0x02
+        BLOCK_ALL   = 0x00,
+        MENU        = 0x01,
+        CARDS       = 0x02,
+        BOARD       = 0x04
     };
 
     enum CursorType
@@ -69,7 +72,7 @@ public:
     bool Initialize();
     void ShowTaker(Place taker, Place myPlace);
     void ShowSelection(Place p, Place myPlace);
-    void DrawCard(GfxCard *c, Place p, Place myPlace);
+    void DrawCard(std::uint8_t index, Place p, Place myPlace);
     void DrawSouthCards(const Deck &cards);
     void DrawCardsInPopup(const QList<Card *> &cards);
     void HidePopup();
@@ -80,13 +83,13 @@ public:
     void InitBoard();
     void ResetCards();
     Place SwapPlace(Place my_place, Place absolute);
-    void AddGfxCard(const QString &filename);
     void DisplayDiscardMenu(bool visible);
     void DisplayHandleMenu(bool visible);
+    void DisplayMainMenu(bool visible);
+    void ShowCard(std::uint8_t index, bool visible);
+    void ToggleCardSelection(std::uint8_t index);
 
     // Getters
-    GfxCard *GetGfxCard(int i);
-    Card *GetObjectCard(GfxCard *gc);
     bool GetSlamOption();
 
     // Setters
@@ -96,18 +99,28 @@ public:
     void SetBackground(const std::string &code);
     void SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace);
 
+    // From IButtonEvent
+    void ButtonClicked(std::uint8_t id, std::uint8_t menu);
+
+    // From ICardEvent
+    void CardClicked(std::uint8_t card, bool selected);
+    void CardHoverEnter(std::uint8_t card);
+    void CardHoverLeave(std::uint8_t card);
+
 signals:
     void sigViewportClicked();
-    void sigClickCard(GfxCard *);
-    void sigMoveCursor(GfxCard *);
+    void sigClickCard(std::uint8_t index, bool selected);
+    void sigCursorOverCard(std::uint8_t index);
     void sigContract(Contract c);
     void sigAcceptDiscard();
     void sigAcceptHandle();
     void sigStartGame();
 
 protected:
+
     void  mousePressEvent(QMouseEvent *e);
-    void  mouseMoveEvent(QMouseEvent *e);
+/*    void  mouseMoveEvent(QMouseEvent *e);
+    */
     void  resizeEvent(QResizeEvent *event);
 
 private:

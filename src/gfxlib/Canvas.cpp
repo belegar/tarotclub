@@ -86,6 +86,7 @@ void BorderLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
     , cardsPics(0)
+    , menuItem(this)
 {
     setScene(&scene);
 
@@ -101,91 +102,34 @@ Canvas::Canvas(QWidget *parent)
 
     popupItem.hide();
     scene.addItem(&popupItem);
-
-    // call mouseEvent as soon as the mouse is moving, without any click buttons
-    viewport()->setMouseTracking(true);
-
-    mFilter = MENU;
-    menuItem.DisplayMenu(MenuItem::MAIN_MENU);
 }
 /*****************************************************************************/
 bool Canvas::Initialize()
 {
-    int i, j;
-    QString varImg;
+    bool ret = true;
     QString image;
     QString path(System::DeckPath().c_str());
 
     cardsPics.clear();
 
-    //----- 4 couleurs
-    for (i = 0; i < 4; i++)
+    for (std::uint8_t i = 0U; i < 78U; i++)
     {
-        if (i == 0)
-        {
-            varImg = "pique";
-        }
-        else if (i == 1)
-        {
-            varImg = "coeur";
-        }
-        else if (i == 2)
-        {
-            varImg = "carreau";
-        }
-        else
-        {
-            varImg = "trefle";
-        }
-
-        // from 1 to the king (14)
-        for (j = 0; j < 14; j++)
-        {
-            //  n = i * 14 + j;
-            image = path + varImg + QString("-") + QString().sprintf("%02d.svg", j + 1);
-
-            // Test if file exists
-            QFile fileTest(image);
-            if (fileTest.exists())
-            {
-                AddGfxCard(image);
-            }
-            else
-            {
-                TLogError("Cannot find image file: " + image.toStdString());
-                return false;
-            }
-        }
-    }
-
-    //----- L'excuse
-    image = path + "excuse.svg";
-
-    // Test if file exists
-    QFile fileTest(image);
-    if (fileTest.exists())
-    {
-        AddGfxCard(image);
-    }
-    else
-    {
-        return false;
-    }
-
-    //----- 21 atouts
-    for (i = 57; i < 78; i++)
-    {
-        image = path + "atout-" + QString().sprintf("%02d.svg", i - 56);
+        image = path + TarotDeck::GetCard(i)->GetName().c_str() + ".svg";
 
         // Test if file exists
         QFile fileTest(image);
         if (fileTest.exists())
         {
-            AddGfxCard(image);
+            GfxCard *item = new GfxCard(image, this, i);
+            item->hide();
+            item->setScale(SCALE_FACTOR);
+            cardsPics.append(item);
+            scene.addItem(item);
         }
         else
         {
-            return false;
+            TLogError("Cannot find image file: " + image.toStdString());
+            ret = false;
         }
     }
 
@@ -206,16 +150,7 @@ bool Canvas::Initialize()
     // Give canvas element sizes to the popup to allow dynamic resizing
     popupItem.SetSizes(border, cardSize);
 
-    return true;
-}
-/*****************************************************************************/
-void Canvas::AddGfxCard(const QString &filename)
-{
-    GfxCard *item = new GfxCard(filename);
-    item->hide();
-    item->setScale(SCALE_FACTOR);
-    cardsPics.append(item);
-    scene.addItem(item);
+    return ret;
 }
 /*****************************************************************************/
 void Canvas::SetBackground(const std::string &code)
@@ -227,23 +162,20 @@ void Canvas::SetBackground(const std::string &code)
     }
 }
 /*****************************************************************************/
-GfxCard *Canvas::GetGfxCard(int i)
+void Canvas::ShowCard(std::uint8_t index, bool visible)
 {
-    return cardsPics.at(i);
+    if (index < cardsPics.size())
+    {
+        cardsPics.at(index)->setVisible(visible);
+    }
 }
 /*****************************************************************************/
-Card *Canvas::GetObjectCard(GfxCard *gc)
+void Canvas::ToggleCardSelection(std::uint8_t index)
 {
-    Card *c = NULL;
-    for (int i = 0; i < cardsPics.size(); i++)
+    if (index < cardsPics.size())
     {
-        if (cardsPics.at(i) == gc)
-        {
-            c = TarotDeck::GetCard(i);
-            break;
-        }
+        cardsPics.at(index)->ToggleSelection();
     }
-    return (c);
 }
 /*****************************************************************************/
 bool Canvas::GetSlamOption()
@@ -275,6 +207,18 @@ void Canvas::DisplayHandleMenu(bool visible)
     }
 }
 /*****************************************************************************/
+void Canvas::DisplayMainMenu(bool visible)
+{
+    if (visible)
+    {
+        menuItem.DisplayMenu(MenuItem::MAIN_MENU);
+    }
+    else
+    {
+        menuItem.DisplayMenu(MenuItem::NO_MENU);
+    }
+}
+/*****************************************************************************/
 void Canvas::resizeEvent(QResizeEvent *event)
 {
     // ------------------------------------------------------------
@@ -296,124 +240,57 @@ void Canvas::resizeEvent(QResizeEvent *event)
 /*****************************************************************************/
 void Canvas::mousePressEvent(QMouseEvent *e)
 {
-    QList<QGraphicsItem *> list;
-
-    emit sigViewportClicked();
-
-#ifdef QT_DEBUG
-    if (e->button() == Qt::RightButton)
+    if (TestFilter(BOARD))
     {
-        std::stringstream message;
-        message << "x=" << e->pos().x() << ", y=" << e->pos().y();
-        TLogInfo(message.str());
+        // We catch the event for us and forbid any sub item to receive it
+        emit sigViewportClicked();
     }
-#endif
-
-    if (mFilter == BLOCK_ALL)
+    else if (mFilter != BLOCK_ALL)
     {
-        return;
-    }
-
-    if (e->button() == Qt::LeftButton)
-    {
-        if (TestFilter(MENU))
-        {
-            const MenuItem::MenuButton *ret = menuItem.Refresh(mapToScene(e->pos()), true);
-            if (ret != NULL)
-            {
-                if (ret->menu == MenuItem::BIDS_MENU)
-                {
-                    Contract contract;
-                    if (ret->widget == MenuItem::TAKE_BUTTON)
-                    {
-                        contract = Contract::TAKE;
-                    }
-                    else if (ret->widget == MenuItem::GUARD_BUTTON)
-                    {
-                        contract = Contract::GUARD;
-                    }
-                    else if (ret->widget == MenuItem::GUARD_WITHOUT_BUTTON)
-                    {
-                        contract = Contract::GUARD_WITHOUT;
-                    }
-                    else if (ret->widget == MenuItem::GUARD_AGAINST_BUTTON)
-                    {
-                        contract = Contract::GUARD_AGAINST;
-                    }
-                    else
-                    {
-                        contract = Contract::PASS;
-                    }
-                    emit sigContract(contract);
-                }
-                else if (ret->menu == MenuItem::HANDLE_MENU)
-                {
-                    emit sigAcceptHandle();
-                }
-                else if (ret->menu == MenuItem::DISCARD_MENU)
-                {
-                    emit sigAcceptDiscard();
-                }
-                else if (ret->menu == MenuItem::MAIN_MENU)
-                {
-                    emit sigStartGame();
-                }
-            }
-        }
-
-        if (TestFilter(CARDS))
-        {
-            list = scene.items(mapToScene(e->pos()));
-            if (!list.isEmpty())
-            {
-                if (list.first()->type() == GfxCard::Type)
-                {
-                    GfxCard *c = (GfxCard *)list.first();
-                    emit sigClickCard(c);
-                }
-            }
-        }
+        // Broadcast the event for all the canvas items
+        QGraphicsView::mousePressEvent( e );
     }
 }
 /*****************************************************************************/
-/*
- * Emit a signal each time the cursor goes over a card
- */
-void Canvas::mouseMoveEvent(QMouseEvent *e)
+void Canvas::ButtonClicked(std::uint8_t id, std::uint8_t menu)
 {
-    QList<QGraphicsItem *> list;
-
     if (mFilter == BLOCK_ALL)
     {
         return;
     }
 
-    if (TestFilter(MENU))
+    if (menu == MenuItem::BIDS_MENU)
     {
-        (void)menuItem.Refresh(mapToScene(e->pos()), false);
+        emit sigContract(Contract(id));
     }
-
-    if (TestFilter(CARDS))
+    else if (menu == MenuItem::HANDLE_MENU)
     {
-        list = scene.items(mapToScene(e->pos()));
-        if (!list.isEmpty())
-        {
-            // If it is a card, return the object, otherwise NULL
-            if (list.first()->type() == GfxCard::Type)
-            {
-                GfxCard *c = (GfxCard *)list.first();
-                emit sigMoveCursor(c);
-            }
-            else
-            {
-                SetCursorType(ARROW);
-            }
-        }
-        else
-        {
-            SetCursorType(ARROW);
-        }
+        emit sigAcceptHandle();
     }
+    else if (menu == MenuItem::DISCARD_MENU)
+    {
+        emit sigAcceptDiscard();
+    }
+    else if (menu == MenuItem::MAIN_MENU)
+    {
+        emit sigStartGame();
+    }
+}
+/*****************************************************************************/
+void Canvas::CardClicked(std::uint8_t card, bool selected)
+{
+    emit sigClickCard(card, selected);
+}
+/*****************************************************************************/
+void Canvas::CardHoverEnter(std::uint8_t card)
+{
+    emit sigCursorOverCard(card);
+}
+/*****************************************************************************/
+void Canvas::CardHoverLeave(std::uint8_t card)
+{
+    (void)card;
+    SetCursorType(ARROW);
 }
 /*****************************************************************************/
 /**
@@ -486,10 +363,14 @@ void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
  * @arg[in] c The graphics card to show
  * @arg[in] p = NORTH, WEST, SOUTH, EAST
  */
-void Canvas::DrawCard(GfxCard *c, Place p, Place myPlace)
+void Canvas::DrawCard(std::uint8_t index, Place p, Place myPlace)
 {
-    Place rel = SwapPlace(myPlace, p);  // relative place
-    playerBox.value(rel)->DrawCard(c);
+    if (index < cardsPics.size())
+    {
+        GfxCard *c = cardsPics.at(index);
+        Place rel = SwapPlace(myPlace, p);  // relative place
+        playerBox.value(rel)->DrawCard(c);
+    }
 }
 /*****************************************************************************/
 void Canvas::DrawSouthCards(const Deck &cards)
@@ -521,7 +402,7 @@ void Canvas::DrawSouthCards(const Deck &cards)
     qreal z = 0.0;
     for (Deck::ConstIterator i = cards.Begin(); i != cards.End(); ++i)
     {
-        cgfx = GetGfxCard(TarotDeck::GetIndex((*i)->GetName()));
+        cgfx = cardsPics.at(TarotDeck::GetIndex((*i)->GetName()));
         cgfx->setPos(x, y);
         cgfx->setZValue(z++);
         cgfx->show();
@@ -535,7 +416,7 @@ void Canvas::DrawCardsInPopup(const QList<Card *> &cards)
 
     for (int i = 0; i < cards.size(); i++)
     {
-        items.append(GetGfxCard(TarotDeck::GetIndex(cards.at(i)->GetName())));
+        items.append(cardsPics.at(TarotDeck::GetIndex(cards.at(i)->GetName())));
     }
 
     popupItem.DrawItems(items);
@@ -615,7 +496,7 @@ void Canvas::ResetCards()
     {
         cardsPics.at(i)->hide();
         cardsPics.at(i)->setParentItem(0); // top level item
-        cardsPics.at(i)->SetStatus(GfxCard::NORMAL);
+        cardsPics.at(i)->SetSelected(false);
     }
 }
 /*****************************************************************************/
