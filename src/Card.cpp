@@ -26,7 +26,7 @@
 #include "Card.h"
 #include <sstream>
 #include <map>
-
+#include <iomanip>
 
 const std::uint8_t Card::SPADES    = 0U;
 const std::uint8_t Card::HEARTS    = 1U;
@@ -39,7 +39,7 @@ std::string Card::GetName()
 {
     std::stringstream name;
 
-    name << mValue << "-" << Card::ToString(mSuit);
+    name << std::setfill('0') << std::setw(2) << mValue << "-" << Card::ToString(mSuit);
     return name.str();
 }
 /*****************************************************************************/
