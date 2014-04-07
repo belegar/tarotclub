@@ -90,9 +90,9 @@ void TarotDeck::Initialize()
     }
 }
 /*****************************************************************************/
-Card *TarotDeck::GetCard(int index)
+Card *TarotDeck::GetCard(std::uint8_t index)
 {
-    if ((index < 0) || (index > 77))
+    if (index > 77U)
     {
         return NULL;
     }
@@ -105,7 +105,7 @@ Card *TarotDeck::GetCard(int index)
 Card *TarotDeck::GetCard(const std::string &name)
 {
     Card *c = NULL;
-    for (int i = 0; i < 78; i++)
+    for (uint8_t i = 0U; i < 78U; i++)
     {
         if (name == mCards[i].GetName())
         {
@@ -115,10 +115,10 @@ Card *TarotDeck::GetCard(const std::string &name)
     return c;
 }
 /*****************************************************************************/
-int TarotDeck::GetIndex(const std::string &name)
+std::uint8_t TarotDeck::GetIndex(const std::string &name)
 {
-    int index = 0;
-    for (int i = 0; i < 78; i++)
+    uint8_t index = 0U;
+    for (uint8_t i = 0U; i < 78U; i++)
     {
         if (name == mCards[i].GetName())
         {

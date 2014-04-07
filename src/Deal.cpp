@@ -114,7 +114,12 @@ Place Deal::SetTrick(Deck &trick, Game &info)
 
         if (tricks[turn].HasFool())
         {
-            cFool = tricks[turn].GetCardByName("0-T");
+            cFool = tricks[turn].GetCardByName("00-T");
+            if (cFool == NULL)
+            {
+                TLogError("Card pointer cannot be NULL");
+            }
+
             if (info.IsDealFinished() == true)
             {
                 // Special case of the fool: if played at last turn with a slam realized, it wins the trick

@@ -33,9 +33,9 @@ class TarotDeck
 {
 public:
     static void Initialize();
-    static Card *GetCard(int index);
+    static Card *GetCard(std::uint8_t index);
     static Card *GetCard(const std::string &name);
-    static int GetIndex(const std::string &name);
+    static std::uint8_t GetIndex(const std::string &name);
 
 private:
     TarotDeck(); // Forbid any instance
