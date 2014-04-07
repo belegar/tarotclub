@@ -26,6 +26,16 @@
 #include "GfxCard.h"
 
 /*****************************************************************************/
+GfxCard::GfxCard(const QString &fileName, ICardEvent *event, std::uint8_t id, QGraphicsItem *parent)
+    : QGraphicsSvgItem(fileName, parent)
+    , mSelected(false)
+    , mEvent(event)
+    , mId(id)
+{
+    setAcceptHoverEvents(true);
+    setAcceptTouchEvents(true);
+}
+/*****************************************************************************/
 void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
@@ -39,39 +49,60 @@ void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                                          / rect().width()), 15);
 }
 /*****************************************************************************/
-GfxCard::GfxCard(const QString &fileName, QGraphicsItem *parent) : QGraphicsSvgItem(fileName, parent)
-
-{
-    status = NORMAL;
-}
-/*****************************************************************************/
 int GfxCard::type() const
 {
     // Enable the use of qgraphicsitem_cast with this item.
     return Type;
 }
 /*****************************************************************************/
-GfxCard::Status GfxCard::GetStatus()
+bool GfxCard::IsSelected()
 {
-    return status;
+    return mSelected;
 }
 /*****************************************************************************/
-void GfxCard::SetStatus(GfxCard::Status s)
+void GfxCard::SetSelected(bool s)
 {
-    status = s;
+    mSelected = s;
 }
 /*****************************************************************************/
-void GfxCard::ToggleStatus()
+void GfxCard::ToggleSelection()
 {
-    if (status == NORMAL)
+    if (!mSelected)
     {
-        status = SELECTED;
+        mSelected = true;
         this->moveBy(0.0, -20.0);
     }
     else
     {
-        status = NORMAL;
+        mSelected = false;
         this->moveBy(0.0, 20.0);
+    }
+}
+/*****************************************************************************/
+void GfxCard::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    (void)event;
+    if (mEvent != NULL)
+    {
+        mEvent->CardHoverEnter(mId);
+    }
+}
+/*****************************************************************************/
+void GfxCard::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    (void)event;
+    if (mEvent != NULL)
+    {
+        mEvent->CardHoverLeave(mId);
+    }
+}
+/*****************************************************************************/
+void GfxCard::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    (void)event;
+    if (mEvent != NULL)
+    {
+        mEvent->CardClicked(mId, mSelected);
     }
 }
 

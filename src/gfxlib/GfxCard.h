@@ -28,6 +28,7 @@
 
 #include <QtSvg>
 #include "CustomTypes.h"
+#include "ICardEvent.h"
 
 /*****************************************************************************/
 /**
@@ -43,22 +44,25 @@ public:
 class GfxCard : public QGraphicsSvgItem
 {
 public:
-    enum Status
-    {
-        NORMAL,
-        SELECTED
-    };
+    GfxCard(const QString &fileName, ICardEvent *event, std::uint8_t id, QGraphicsItem *parent = 0);
 
-    GfxCard(const QString &fileName, QGraphicsItem *parent = 0);
-
+    // Reimplemented methods
     enum { Type = UserType + CARD_TYPE_ITEM };
     int type() const;
-    Status GetStatus();
-    void SetStatus(Status s);
-    void ToggleStatus();
+
+    bool IsSelected();
+    void SetSelected(bool s);
+    void ToggleSelection();
+
+protected:
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 private:
-    Status status;
+    bool mSelected;
+    ICardEvent *mEvent;
+    std::uint8_t mId;
 };
 
 #endif // GFXCARD_H
