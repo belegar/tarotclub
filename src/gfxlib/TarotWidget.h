@@ -175,9 +175,9 @@ private slots:
     void slotAcceptHandle();
     void slotAcceptDiscard();
     void slotSetEnchere(Contract cont);
-    void slotClickCard(GfxCard *c);
+    void slotClickCard(std::uint8_t index, bool selected);
     void slotClickTapis();
-    void slotMoveCursor(GfxCard *c);
+    void slotMoveCursor(std::uint8_t index);
 };
 
 #endif // TAROT_WIDGET_H_
