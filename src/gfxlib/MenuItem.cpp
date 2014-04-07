@@ -52,11 +52,11 @@ static const MenuItem::Button buttonList[] =
     { QObject::tr("Guard against"),    MenuItem::BIDS_MENU },
     { QObject::tr("Handle"),           MenuItem::HANDLE_MENU },
     { QObject::tr("Accept"),           MenuItem::DISCARD_MENU },
-    { QObject::tr("Start"),            MenuItem::MAIN_MENU }
+    { QObject::tr("Quick start"),      MenuItem::MAIN_MENU }
 };
 
 /*****************************************************************************/
-MenuItem::MenuItem(IButtonEvent &event)
+MenuItem::MenuItem(IButtonEvent *event)
     : color(149, 149, 149, 127)
     , checkBox(this, SPACE)
 {
@@ -92,41 +92,6 @@ void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     painter->drawRoundRect(rect(), (int)(25 * rect().height()
                                          / rect().width()), 25);
 }
-/*****************************************************************************/
-#if 0
-
-const MenuItem::MenuButton *MenuItem::Refresh(const QPointF &pos, bool clicked)
-{
-    const MenuItem::MenuButton *button = NULL;
-
-    QMapIterator<const MenuButton *, ButtonItem *> i(buttons);
-    while (i.hasNext())
-    {
-        i.next();
-
-        if (i.value()->isVisible())
-        {
-            if (i.value()->contains(mapFromParent(pos)))
-            {
-                i.value()->setBrush(brushSelected);
-                button = i.key();
-            }
-            else
-            {
-                i.value()->setBrush(brushNormal);
-            }
-        }
-    }
-
-    // Manage the checkbox
-    if (clicked)
-    {
-        checkBox.Click(mapFromParent(pos));
-    }
-    return button;
-}
-#endif
-
 /*****************************************************************************/
 void MenuItem::DisplayMenu(std::uint8_t menu)
 {

@@ -42,7 +42,7 @@
 class MenuItem : public QGraphicsRectItem
 {
 public:
-    MenuItem(IButtonEvent &event);
+    MenuItem(IButtonEvent *event);
 
     /**
      * @brief The MenuWidget enum gather all the widgets managed by this menu
