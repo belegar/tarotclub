@@ -25,11 +25,11 @@
 
 #include "ButtonItem.h"
 
-ButtonItem::ButtonItem(IButtonEvent &event, std::uint8_t id, std::uint8_t menu)
+ButtonItem::ButtonItem(IButtonEvent *event, std::uint8_t id, std::uint8_t menu)
     : TextBox(QPointF())
     , mBrushSelected(QColor("#404040"))
     , mBrushNormal(QColor("#808080"))
-    , mEvent(&event)
+    , mEvent(event)
     , mId(id)
     , mMenu(menu)
 {
@@ -56,7 +56,7 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     (void)event;
     if (mEvent != NULL)
     {
-        mEvent->Clicked(mId, mMenu);
+        mEvent->ButtonClicked(mId, mMenu);
     }
 }
 

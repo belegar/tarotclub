@@ -32,7 +32,7 @@
 class ButtonItem : public TextBox
 {
 public:
-    ButtonItem(IButtonEvent &event, std::uint8_t id, std::uint8_t menu);
+    ButtonItem(IButtonEvent *event, std::uint8_t id, std::uint8_t menu);
 
     void HighLight(bool state);
 

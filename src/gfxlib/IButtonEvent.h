@@ -35,11 +35,11 @@ public:
     virtual ~IButtonEvent() {}
 
     /**
-     * @brief Clicked
+     * @brief ButtonClicked
      * @param id
      * @param menu
      */
-    virtual void Clicked(std::uint8_t id, std::uint8_t menu) = 0;
+    virtual void ButtonClicked(std::uint8_t id, std::uint8_t menu) = 0;
 };
 
 #endif // I_BUTTON_EVENT_H
