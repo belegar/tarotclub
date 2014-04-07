@@ -126,8 +126,8 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    Common.h \
     System.h
+
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -138,7 +138,6 @@ SOURCES += Log.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
-    Common.cpp \
     System.cpp
 
 # ------------------------------------------------------------------------------
@@ -179,7 +178,8 @@ HEADERS += ServerConfig.h \
     Score.h \
     Protocol.h \
     Controller.h \
-    Table.h
+    Table.h \
+    Common.h
 
 SOURCES += ServerConfig.cpp \
     ClientConfig.cpp \
@@ -196,7 +196,8 @@ SOURCES += ServerConfig.cpp \
     Protocol.cpp \
     Controller.cpp \
     Table.cpp \
-    Score.cpp
+    Score.cpp \
+    Common.cpp
 
 # ------------------------------------------------------------------------------
 # Gfx library files
@@ -211,7 +212,8 @@ HEADERS += Canvas.h \
     PopupItem.h \
     CheckBoxItem.h \
     ButtonItem.h \
-    IButtonEvent.h
+    IButtonEvent.h \
+    ICardEvent.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
