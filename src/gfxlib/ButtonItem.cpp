@@ -62,7 +62,14 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void ButtonItem::HighLight(bool state)
 {
-    (void)state;
+    if (state)
+    {
+        setBrush(mBrushSelected);
+    }
+    else
+    {
+        setBrush(mBrushNormal);
+    }
 }
 
 //=============================================================================
