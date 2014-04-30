@@ -45,8 +45,8 @@ VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/lib
-VPATH += $$BASE_DIR/ai
-VPATH += $$BASE_DIR/ai/tarotlib
+VPATH += $$BASE_DIR/assets/ai
+VPATH += $$BASE_DIR/assets/ai/tarotlib
 
 # ------------------------------------------------------------------------------
 # Where to find header files
