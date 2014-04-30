@@ -70,6 +70,9 @@ private:
     void SetupMenus();
     void SetupDocks();
 
+    ClientConfig    mClientConfig;
+    ServerConfig    mServerConfig;
+
     // Menus
     QMenu *gameMenu;
     QMenu *paramsMenu;

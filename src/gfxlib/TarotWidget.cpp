@@ -87,11 +87,6 @@ TarotWidget::TarotWidget(QWidget* parent = 0)
  */
 void TarotWidget::Initialize()
 {
-    mClientConfig.Load();
-    mServerConfig.Load();
-
-    ApplyOptions();
-
     table.Initialize();
     mClient.Initialize();
     deal.Initialize();
@@ -189,15 +184,12 @@ void TarotWidget::InitScreen()
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 }
 /*****************************************************************************/
-void TarotWidget::ApplyOptions()
+void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt)
 {
-    mClientConfig.Save();
-    mServerConfig.Save();
-
-    ClientOptions options = mClientConfig.GetOptions();
+    ClientOptions options = i_clientOpt;
     mClient.SetMyIdentity(options.identity);
 
-    ServerOptions srvOpt = mServerConfig.GetOptions();
+    ServerOptions srvOpt = i_servOpt;
     table.SetBotParameters(srvOpt.bots, srvOpt.timer);
 
     mCanvas->ShowAvatars(options.showAvatars);
@@ -299,7 +291,7 @@ void TarotWidget::slotAcceptHandle()
  */
 void TarotWidget::ShowSouthCards()
 {
-    mClient.GetMyDeck().Sort(mClientConfig.GetOptions().cardsOrder);
+    mClient.GetMyDeck().Sort(mClientOptions.cardsOrder);
     mCanvas->DrawSouthCards(mClient.GetMyDeck());
 }
 /*****************************************************************************/
@@ -329,7 +321,7 @@ void TarotWidget::slotClickTapis()
  *
  * This function is called every time the mouse cursor moves
  *
- * @param gc
+ * @param index is the card index under the mouse cursor
  */
 void TarotWidget::slotMoveCursor(std::uint8_t index)
 {
@@ -569,14 +561,8 @@ void TarotWidget::slotDealAgain()
 /*****************************************************************************/
 void TarotWidget::slotBuildDiscard()
 {
-    Card *c;
-
     // We add the dog to the player's deck
-    for (Deck::ConstIterator i = mClient.GetDogDeck().Begin(); i != mClient.GetDogDeck().End(); ++i)
-    {
-        c = (*i);
-        mClient.GetMyDeck().Append(c);
-    }
+    mClient.GetMyDeck().Append(mClient.GetDogDeck());
     discard.Clear();
     mCanvas->SetFilter(Canvas::CARDS | Canvas::MENU);
 
@@ -671,9 +657,9 @@ void TarotWidget::slotWaitTrick(Place winner)
     mCanvas->SetFilter(Canvas::BOARD);
 
     // launch timer to clean cards, if needed
-    if (mClientConfig.GetOptions().enableDelayBeforeCleaning == true)
+    if (mClientOptions.enableDelayBeforeCleaning == true)
     {
-        QTimer::singleShot(mClientConfig.GetOptions().delayBeforeCleaning, this, SLOT(slotClickTapis()));
+        QTimer::singleShot(mClientOptions.delayBeforeCleaning, this, SLOT(slotClickTapis()));
     }
 }
 /*****************************************************************************/

@@ -64,11 +64,7 @@ public:
 
 
     // Configuration management
-    ClientOptions GetClientOptions() { return mClientConfig.GetOptions(); }
-    void SetClientOptions(const ClientOptions &opt) { mClientConfig.SetOptions(opt); }
-    ServerOptions GetServerOptions() { return mServerConfig.GetOptions(); }
-    void SetServerOptions(const ServerOptions &opt) { mServerConfig.SetOptions(opt); }
-    void ApplyOptions();
+    void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
 
 public slots:
     // These slots are made available to link them to any external widget
@@ -80,8 +76,8 @@ public slots:
 
 private:
     Table           table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
-    ClientConfig    mClientConfig;
-    ServerConfig    mServerConfig;
+    ClientOptions   mClientOptions;
+    ServerOptions   mServerOptions;
     Client          mClient; // The human player
     bool            firstTurn;
     QMap<Place, Identity> players;

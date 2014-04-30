@@ -126,20 +126,26 @@ void MainWindow::slotQuickJoinNetworkGame()
 /*****************************************************************************/
 void MainWindow::slotShowOptions()
 {
-    optionsWindow->SetClientOptions(tarotWidget->GetClientOptions());
-    optionsWindow->SetServerOptions(tarotWidget->GetServerOptions());
+    optionsWindow->SetClientOptions(mClientConfig.GetOptions());
+    optionsWindow->SetServerOptions(mServerConfig.GetOptions());
 
     if (optionsWindow->exec() == QDialog::Accepted)
     {
-        tarotWidget->SetClientOptions(optionsWindow->GetClientOptions());
-        tarotWidget->SetServerOptions(optionsWindow->GetServerOptions());
-        tarotWidget->ApplyOptions();
+        mClientConfig.Save();
+        mServerConfig.Save();
+        tarotWidget->ApplyOptions(optionsWindow->GetClientOptions(),
+                                  optionsWindow->GetServerOptions());
     }
 }
 /*****************************************************************************/
 void MainWindow::Initialize()
 {
+    mClientConfig.Load();
+    mServerConfig.Load();
+
     tarotWidget->Initialize();
+    tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
+                              mServerConfig.GetOptions());
 }
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
