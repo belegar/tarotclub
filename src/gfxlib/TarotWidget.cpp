@@ -186,14 +186,15 @@ void TarotWidget::InitScreen()
 /*****************************************************************************/
 void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt)
 {
-    ClientOptions options = i_clientOpt;
-    mClient.SetMyIdentity(options.identity);
+    // Save option structures locally
+    mClientOptions = i_clientOpt;
+    mServerOptions = i_servOpt;
 
-    ServerOptions srvOpt = i_servOpt;
-    table.SetBotParameters(srvOpt.bots, srvOpt.timer);
-
-    mCanvas->ShowAvatars(options.showAvatars);
-    mCanvas->SetBackground(options.backgroundColor);
+    // Initialize all the objects with the user preferences
+    mClient.SetMyIdentity(mClientOptions.identity);
+    table.SetBotParameters(mServerOptions.bots, mServerOptions.timer);
+    mCanvas->ShowAvatars(mClientOptions.showAvatars);
+    mCanvas->SetBackground(mClientOptions.backgroundColor);
 }
 /*****************************************************************************/
 void TarotWidget::ShowVictoryWindow()
