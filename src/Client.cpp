@@ -111,9 +111,6 @@ void Client::SetMyIdentity(const Identity &ident)
 /*****************************************************************************/
 void Client::SetDiscard(Deck &discard)
 {
-    // Add the dog to the payer's deck
-    mPlayer.GetDeck() += dogDeck;
-
     // remove cards from the client's deck
     for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
     {
@@ -216,19 +213,14 @@ void Client::UpdateStatistics()
 /*****************************************************************************/
 Deck Client::BuildDogDeck()
 {
-    int i;
     Card *c, *cdeck;
     Deck discard = dogDeck;
 
     TLogInfo("Auto discard before: " + discard.GetCardList());
 
-    bool ok = false;
-    i = 0;
-    Deck::ConstIterator iter = discard.Begin();
-
     // We're looking for trumps or kings in the dog and we replace
     // them by other valid cards
-    while (ok == false)
+    for (Deck::ConstIterator iter = dogDeck.Begin(); iter != dogDeck.End(); ++iter)
     {
         c = (*iter);
         if ((c->GetSuit() == Card::TRUMPS) ||
@@ -240,30 +232,17 @@ Deck Client::BuildDogDeck()
                 cdeck = (*j);
                 if ((cdeck->GetSuit() != Card::TRUMPS) && (cdeck->GetValue() < 14))
                 {
-                    // Swap cards
+                    // Swap cards between the player and the discard
                     mPlayer.GetDeck().Remove(cdeck);
                     mPlayer.GetDeck().Append(c);
                     discard.Remove(c);
                     discard.Append(cdeck);
-                    break;
                 }
             }
-            i = 0;
-        }
-        else
-        {
-            i++;
-            ++iter;
-        }
-
-        if (i == 6)
-        {
-            ok = true;
         }
     }
 
     TLogInfo("Auto discard after: " + discard.GetCardList());
-
     return discard;
 }
 /*****************************************************************************/
