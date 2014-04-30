@@ -119,7 +119,7 @@ void Table::SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t del
             Place place(i + 1U);
             if (ident.count(place) > 0U)
             {
-                Identity bot = ident[i];
+                Identity bot = ident[place];
                 mBots[i].SetIdentity(bot);
                 mBots[i].SetTimeBeforeSend(delay);
             }
