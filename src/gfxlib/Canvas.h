@@ -124,18 +124,19 @@ protected:
     void  resizeEvent(QResizeEvent *event);
 
 private:
-    quint8 mFilter;
+    void DrawCardShadows();
+    bool TestFilter(quint8 mask);
 
+    quint8 mFilter;
+    bool mShowAvatars;
     QVector<GfxCard *> cardsPics;
     QGraphicsScene scene;
 
-    // Graphiques
     QMap<Place, PlayerBox *> playerBox;
     MenuItem    menuItem;
     PopupItem   popupItem;
 
-    void DrawCardShadows();
-    bool TestFilter(quint8 mask);
+
 };
 
 #endif // CANVAS_H

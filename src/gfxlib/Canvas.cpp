@@ -85,11 +85,13 @@ void BorderLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 /*****************************************************************************/
 Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
+    , mShowAvatars(true)
     , cardsPics(0)
     , menuItem(this)
 {
     setScene(&scene);
 
+    // Ok, we lose the pointer but we don't care as it is only decorative
     BorderLine *line = new BorderLine();
     scene.addItem(line);
 
@@ -353,7 +355,6 @@ void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
 
         playerBox.value(rel)->SetPlayerName(i.value().name.data());
         playerBox.value(rel)->SetAvatar(QString(i.value().avatar.data()));
-        playerBox.value(rel)->EnableAvatar(true);
     }
 }
 /*****************************************************************************/
@@ -466,6 +467,7 @@ void Canvas::HideBidsChoice()
 /*****************************************************************************/
 void Canvas::ShowAvatars(bool b)
 {
+    mShowAvatars = b;
     QMapIterator<Place, PlayerBox *> i(playerBox);
     while (i.hasNext())
     {
@@ -482,7 +484,7 @@ void Canvas::InitBoard()
         i.next();
         i.value()->HighlightPlayer(false);
         i.value()->SelectPlayer(false);
-        i.value()->EnableAvatar(false);
+        i.value()->EnableAvatar(mShowAvatars);
         i.value()->SetBidText("");
     }
 
