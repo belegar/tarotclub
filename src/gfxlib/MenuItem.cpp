@@ -105,6 +105,7 @@ void MenuItem::DisplayMenu(std::uint8_t menu)
         {
             i.value()->setPos(GetButtonPosition(pos));
             i.value()->show();
+            i.value()->HighLight(false);
             pos++;
         }
         else
@@ -127,6 +128,7 @@ void MenuItem::DisplayMenu(Contract minContract)
         {
             i.value()->setPos(GetButtonPosition(pos));
             i.value()->show();
+            i.value()->HighLight(false);
             std::uint32_t id = i.value()->GetId();
             if (id != PASS_BUTTON)
             {
