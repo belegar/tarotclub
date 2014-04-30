@@ -49,7 +49,7 @@ var p = Card.prototype;
 
     p.getName = function()
 	{
-		return (this.value + "-" + this.suit);
+        return (("00" + this.value).slice(-2) + "-" + this.suit);
 	};
 	
 	// debug code only
