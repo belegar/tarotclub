@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - PopupItem.cpp
+ * TarotClub - MessageBoxItem.cpp
  *=============================================================================
- * Central item to show cards (dog, handle) on the middle of the screen
+ * Central item to show formatted text information
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,23 +23,22 @@
  *=============================================================================
  */
 
-#include "PopupItem.h"
+#include "MessageBoxItem.h"
 #include <QBrush>
 #include <QPainter>
 #include <QtGlobal>
 #include <QPointF>
 
-static const qreal STEP_X = 40.0f;
 
 /*****************************************************************************/
-PopupItem::PopupItem()
+MessageBoxItem::MessageBoxItem()
 {
     setBrush(QColor("#808080"));
     setPen(QPen(Qt::white));
     setZValue(3.0);
 }
 /*****************************************************************************/
-void PopupItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void MessageBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -53,43 +52,7 @@ void PopupItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                                          / rect().width()), 25);
 }
 /*****************************************************************************/
-void PopupItem::DrawItems(const QList<QGraphicsItem *> &items)
-{
-    qreal width = STEP_X * (items.size() - 1) + mCardSize.width() + 20; // add 10 px on each sides
-    qreal height = mCardSize.height() + 20; // add 10 px on top/bottom
-    qreal x = mBorder.x() + ((mBorder.width() - width) / 2);
-    qreal y = mBorder.y() + ((mBorder.height() - height) / 2);
-
-    setRect(x, y, width, height);
-
-    qreal cardPosX = x + 10.0f;
-    qreal cardPosY = y + 10.0f;
-    mItems = items;
-
-    for (int i = 0; i < items.size(); i++)
-    {
-        items.at(i)->setPos(cardPosX + i * STEP_X, cardPosY);
-        items.at(i)->setZValue(4 + i);
-        items.at(i)->show();
-    }
-    update();
-}
-/*****************************************************************************/
-void PopupItem::HideAll()
-{
-    for (int i = 0; i < mItems.size(); i++)
-    {
-        mItems.at(i)->hide();
-    }
-    hide();
-}
-/*****************************************************************************/
-void PopupItem::SetSizes(const QRectF &border, const QRectF &card)
-{
-    mBorder = border;
-    mCardSize = card;
-}
 
 //=============================================================================
-// End of file PopupItem.cpp
+// End of file MessageBoxItem.cpp
 //=============================================================================

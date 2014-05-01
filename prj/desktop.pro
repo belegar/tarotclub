@@ -212,6 +212,7 @@ HEADERS += Canvas.h \
     PopupItem.h \
     CheckBoxItem.h \
     ButtonItem.h \
+    MessageBoxItem.h \
     IButtonEvent.h \
     ICardEvent.h
 
@@ -223,7 +224,8 @@ SOURCES += Canvas.cpp \
     PlayerBox.cpp \
     PopupItem.cpp \
     CheckBoxItem.cpp \
-    ButtonItem.cpp
+    ButtonItem.cpp \
+    MessageBoxItem.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files
