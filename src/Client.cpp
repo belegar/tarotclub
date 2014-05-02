@@ -81,6 +81,7 @@ Identity &Client::GetMyIdentity()
 bool Client::TestHandle()
 {
     bool ret = true;
+    stats.Reset();
     mPlayer.GetDeck().AnalyzeTrumps(stats);
     if ((handleDeck.HasFool() == true) && (stats.trumps > handleDeck.Size()))
     {
