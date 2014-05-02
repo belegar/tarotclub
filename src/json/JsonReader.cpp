@@ -29,6 +29,7 @@
 JsonReader::JsonReader()
 {
     mCtx = NULL;
+    mValid = false;
 }
 /*****************************************************************************/
 JsonReader::~JsonReader()
@@ -58,7 +59,7 @@ bool JsonReader::Open(const std::string &fileName)
 
         duk_push_lstring(mCtx, contents.str().c_str(), contents.str().size());
 
-        int rc = duk_safe_call(mCtx, JsonReader::WrappedJsonDecode, 1 /*nargs*/, 1 /*nret*/, DUK_INVALID_INDEX);
+        int rc = duk_safe_call(mCtx, JsonReader::WrappedJsonDecode, 1 /*nargs*/, 1 /*nrets*/);
         if (rc != DUK_EXEC_SUCCESS)
         {
             PrintError();
@@ -128,7 +129,7 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &ke
     duk_push_lstring(mCtx, obj.c_str(), obj.size());
     duk_push_lstring(mCtx, key.c_str(), key.size());
 
-    int rc = duk_safe_call(mCtx, JsonReader::WrappedJsonGetValue, 2 /*nargs*/, 1 /*nret*/, DUK_INVALID_INDEX);
+    int rc = duk_safe_call(mCtx, JsonReader::WrappedJsonGetValue, 2 /*nargs*/, 1 /*nrets*/);
     if (rc != DUK_EXEC_SUCCESS)
     {
         PrintError();
@@ -169,9 +170,11 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &ke
  */
 void JsonReader::Close()
 {
-    if (mCtx)
+    if (mCtx != NULL)
     {
         duk_destroy_heap(mCtx);
+        mCtx = NULL;
+
     }
     mValid = false;
 }

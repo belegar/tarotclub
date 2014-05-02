@@ -27,16 +27,6 @@
 #include <fstream>
 
 /*****************************************************************************/
-extern "C" void my_panic_handler(int code, const char *msg)
-{
-    (void)code;
-    (void)msg;
-    /* Your panic handling.  Must not return. */
-    volatile int i = 0;
-    i++;
-    while(1);
-}
-/*****************************************************************************/
 JSEngine::JSEngine()
     : mCtx(NULL)
     , mValidContext(false)
@@ -78,7 +68,7 @@ bool JSEngine::Evaluate(const std::string &fileName)
     // Push argument into the stack: file name to evaluate
     duk_push_lstring(mCtx, fileName.c_str(), fileName.size());
 
-    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEval, 1 /*nargs*/, 0 /*nret*/, DUK_INVALID_INDEX);
+    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEval, 1 /*nargs*/, 0 /*nrets*/);
     if (rc != DUK_EXEC_SUCCESS)
     {
         PrintError();
@@ -115,7 +105,7 @@ JSValue JSEngine::Call(const std::string &function, const IScriptEngine::StringL
             duk_push_string(mCtx, args[i].c_str());
         }
 
-        int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptCall, 1 /*nargs*/, 1 /*nret*/, DUK_INVALID_INDEX);
+        int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptCall, 1 /*nargs*/, 1 /*nrets*/);
         if (rc != DUK_EXEC_SUCCESS)
         {
             PrintError();
@@ -150,9 +140,10 @@ JSValue JSEngine::Call(const std::string &function, const IScriptEngine::StringL
 /*****************************************************************************/
 void JSEngine::Close()
 {
-    if (mCtx)
+    if (mCtx != NULL)
     {
         duk_destroy_heap(mCtx);
+        mCtx = NULL;
     }
     mValidContext = false;
 }
