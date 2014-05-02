@@ -93,7 +93,8 @@ bool DealFile::LoadFile(const std::string &fileName)
                     ret = false;
                 }
 
-                for (std::uint32_t i = 0; i < 5; i++)
+                // FIXME: Manage 3 and 5 players games
+                for (std::uint32_t i = 0U; i < 4U; i++)
                 {
                     if (ret)
                     {
