@@ -58,6 +58,8 @@ public:
     static const std::string STR_EAST;
     static const std::string STR_NORTH;
     static const std::string STR_WEST;
+    static const std::string STR_FIFTH;
+    static const std::string STR_NOWHERE;
 
     static const std::uint8_t SOUTH;
     static const std::uint8_t EAST;

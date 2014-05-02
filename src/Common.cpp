@@ -27,10 +27,12 @@
 #include "Log.h"
 
 /*****************************************************************************/
-const std::string Place::STR_SOUTH  = "South";
-const std::string Place::STR_EAST   = "East";
-const std::string Place::STR_NORTH  = "North";
-const std::string Place::STR_WEST   = "West";
+const std::string Place::STR_SOUTH      = "South";
+const std::string Place::STR_EAST       = "East";
+const std::string Place::STR_NORTH      = "North";
+const std::string Place::STR_WEST       = "West";
+const std::string Place::STR_FIFTH      = "Fifth";
+const std::string Place::STR_NOWHERE    = "Nowhere";
 
 const std::uint8_t Place::SOUTH     = 0;
 const std::uint8_t Place::EAST      = 1;
@@ -118,6 +120,8 @@ std::vector<std::string> Place::Initialize()
     stringList.push_back(STR_EAST);
     stringList.push_back(STR_NORTH);
     stringList.push_back(STR_WEST);
+    stringList.push_back(STR_FIFTH);
+    stringList.push_back(STR_NOWHERE);
 
     return stringList;
 }
