@@ -506,7 +506,7 @@ void TarotEngine::CreateDeal()
         else
         {
             // Fall back to default mode
-            // FIXME: load a problem into the logging mechanism
+            TLogError("Cannot load custom deal file");
             shuffle.type = Game::RANDOM_DEAL;
         }
     }
