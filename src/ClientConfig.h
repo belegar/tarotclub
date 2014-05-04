@@ -46,7 +46,7 @@ typedef struct
     std::string     backgroundColor;
     Identity        identity;
     std::uint16_t   delayBeforeCleaning;  // in milliseconds
-    bool            enableDelayBeforeCleaning;
+    bool            clickToClean;
     std::string     cardsOrder;
 } ClientOptions;
 

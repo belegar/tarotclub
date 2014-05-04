@@ -119,7 +119,7 @@ bool ClientConfig::Load()
 
                 if (json.GetValue("", "click_to_clean", boolval))
                 {
-                    mOptions.enableDelayBeforeCleaning = boolval;
+                    mOptions.clickToClean = boolval;
                 }
 
                 if (json.GetValue("", "cards_order", stringval))
@@ -194,7 +194,7 @@ bool ClientConfig::Save()
     json.CreateValuePair("background_color", mOptions.backgroundColor);
     json.CreateValuePair("language", mOptions.language);
     json.CreateValuePair("delay_before_cleaning", mOptions.delayBeforeCleaning);
-    json.CreateValuePair("click_to_clean", mOptions.enableDelayBeforeCleaning);
+    json.CreateValuePair("click_to_clean", mOptions.clickToClean);
     json.CreateValuePair("cards_order", mOptions.cardsOrder);
 
     JsonObject *obj = json.CreateObjectPair("identity");
@@ -231,7 +231,7 @@ ClientOptions ClientConfig::GetDefault()
     opt.deckFilePath = "default";
     opt.cardsOrder = "TCHDS";
     opt.delayBeforeCleaning = CLIENT_TIMER_DEF;
-    opt.enableDelayBeforeCleaning = true;
+    opt.clickToClean = true;
 
     opt.identity.name = "Moi";
     opt.identity.avatar = ":/images/avatars/inconnu.png";
