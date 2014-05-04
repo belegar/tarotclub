@@ -54,7 +54,7 @@ TarotWidget::TarotWidget(QWidget* parent = 0)
     qRegisterMetaType<std::string>("std::string");
 
     // Board click events
-    connect(mCanvas, &Canvas::sigViewportClicked, this, &TarotWidget::slotClickTapis);
+    connect(mCanvas, &Canvas::sigViewportClicked, this, &TarotWidget::slotClickBoard);
     connect(mCanvas, &Canvas::sigClickCard, this, &TarotWidget::slotClickCard);
     connect(mCanvas, &Canvas::sigCursorOverCard, this, &TarotWidget::slotMoveCursor);
     connect(mCanvas, &Canvas::sigContract, this, &TarotWidget::slotSetEnchere);
@@ -296,7 +296,7 @@ void TarotWidget::ShowSouthCards()
     mCanvas->DrawSouthCards(mClient.GetMyDeck());
 }
 /*****************************************************************************/
-void TarotWidget::slotClickTapis()
+void TarotWidget::slotClickBoard()
 {
     if (mClient.GetGameInfo().sequence == Game::SHOW_DOG)
     {
@@ -660,7 +660,7 @@ void TarotWidget::slotWaitTrick(Place winner)
     // launch timer to clean cards, if needed
     if (mClientOptions.enableDelayBeforeCleaning == true)
     {
-        QTimer::singleShot(mClientOptions.delayBeforeCleaning, this, SLOT(slotClickTapis()));
+        QTimer::singleShot(mClientOptions.delayBeforeCleaning, this, SLOT(slotClickBoard()));
     }
 }
 /*****************************************************************************/

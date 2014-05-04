@@ -172,7 +172,7 @@ private slots:
     void slotAcceptDiscard();
     void slotSetEnchere(Contract cont);
     void slotClickCard(std::uint8_t index, bool selected);
-    void slotClickTapis();
+    void slotClickBoard();
     void slotMoveCursor(std::uint8_t index);
 };
 
