@@ -152,6 +152,18 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &ke
                 retval = JsonValue(value);
             }
         }
+        if (type == JsonValue::BOOLEAN)
+        {
+            if (duk_check_type(mCtx, -1, DUK_TYPE_BOOLEAN))
+            {
+                bool value = false;
+                if (duk_get_boolean(mCtx, -1) > 0)
+                {
+                    value = true;
+                }
+                retval = JsonValue(value);
+            }
+        }
 
         // Context garbage collector: remove elements except the decoded Json object
         while (duk_get_top(mCtx) > 1)
