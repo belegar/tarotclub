@@ -131,10 +131,13 @@ void MainWindow::slotShowOptions()
 
     if (optionsWindow->exec() == QDialog::Accepted)
     {
+        mClientConfig.SetOptions(optionsWindow->GetClientOptions());
+        mServerConfig.SetOptions(optionsWindow->GetServerOptions());
+
         mClientConfig.Save();
         mServerConfig.Save();
-        tarotWidget->ApplyOptions(optionsWindow->GetClientOptions(),
-                                  optionsWindow->GetServerOptions());
+        tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
+                                  mServerConfig.GetOptions());
     }
 }
 /*****************************************************************************/
