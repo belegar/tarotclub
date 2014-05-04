@@ -344,11 +344,11 @@ void OptionsWindow::slotBtnOk()
 
     if (ui.clic->isChecked())
     {
-        clientOptions.enableDelayBeforeCleaning = true;
+        clientOptions.clickToClean = true;
     }
     else
     {
-        clientOptions.enableDelayBeforeCleaning = false;
+        clientOptions.clickToClean = false;
     }
     clientOptions.cardsOrder = dragWidget->GetOrder();
 
@@ -523,7 +523,7 @@ void OptionsWindow::refresh()
     }
     ui.slider2->setValue(clientOptions.delayBeforeCleaning);
 
-    if (clientOptions.enableDelayBeforeCleaning == true)
+    if (clientOptions.clickToClean == true)
     {
         ui.clic->setChecked(true);
         // Force refresh
