@@ -517,8 +517,12 @@ bool Client::DoAction(const ByteArray &data)
             {
                 handleDeck.SetOwner(DEFENSE);
             }
-            info.sequence = Game::SHOW_HANDLE;
-            mEventHandler.ShowHandle();
+            // Don't display the handle if we are the owner because we are in an other sequence (play card)
+            if (p != mPlayer.GetPlace())
+            {
+                info.sequence = Game::SHOW_HANDLE;
+                mEventHandler.ShowHandle();
+            }
             break;
         }
 
