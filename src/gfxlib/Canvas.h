@@ -43,8 +43,11 @@
 #include "GfxCard.h"
 #include "MenuItem.h"
 #include "PopupItem.h"
+#include "MessageBoxItem.h"
 #include "IButtonEvent.h"
 #include "ICardEvent.h"
+#include "Score.h"
+#include "Game.h"
 
 /*****************************************************************************/
 class Canvas : public QGraphicsView, public IButtonEvent, public ICardEvent
@@ -98,6 +101,7 @@ public:
     void SetFilter(quint8 f);
     void SetBackground(const std::string &code);
     void SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace);
+    void SetResult(Score &score, Game &info);
 
     // From IButtonEvent
     void ButtonClicked(std::uint8_t id, std::uint8_t menu);
@@ -135,8 +139,7 @@ private:
     QMap<Place, PlayerBox *> playerBox;
     MenuItem    menuItem;
     PopupItem   popupItem;
-
-
+    MessageBoxItem mMsgBoxItem;
 };
 
 #endif // CANVAS_H

@@ -27,6 +27,7 @@
 #define MESSAGE_BOX_ITEM_H_
 
 #include <QGraphicsRectItem>
+#include <QGraphicsTextItem>
 #include <QRectF>
 
 /*****************************************************************************/
@@ -37,8 +38,12 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-private:
+    void SetText(const QString &text);
+    void SetBorder(const QRectF &border) { mBorder = border; }
 
+private:
+    QGraphicsTextItem mText;
+    QRectF mBorder;
 };
 
 #endif // MESSAGE_BOX_ITEM_H_

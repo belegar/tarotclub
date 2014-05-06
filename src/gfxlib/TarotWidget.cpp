@@ -93,6 +93,8 @@ void TarotWidget::Initialize()
     mCanvas->Initialize();
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
+
+    mCanvas->SetResult(mClient.GetScore(), mClient.GetGameInfo());
 }
 /*****************************************************************************/
 /**
@@ -617,8 +619,7 @@ void TarotWidget::slotEndOfDeal()
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
     mCanvas->InitBoard();
     mCanvas->ResetCards();
-
- //   resultWindow->SetResult(mClient.GetScore(), mClient.GetGameInfo());
+    mCanvas->SetResult(mClient.GetScore(), mClient.GetGameInfo());
 
     /*
      * FIXME:
@@ -658,7 +659,7 @@ void TarotWidget::slotWaitTrick(Place winner)
     mCanvas->SetFilter(Canvas::BOARD);
 
     // launch timer to clean cards, if needed
-    if (mClientOptions.enableDelayBeforeCleaning == true)
+    if (mClientOptions.clickToClean == true)
     {
         QTimer::singleShot(mClientOptions.delayBeforeCleaning, this, SLOT(slotClickBoard()));
     }

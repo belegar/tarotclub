@@ -33,6 +33,9 @@
 /*****************************************************************************/
 MessageBoxItem::MessageBoxItem()
 {
+    mText.setParentItem(this);
+    mText.setZValue(4.0);
+
     setBrush(QColor("#808080"));
     setPen(QPen(Qt::white));
     setZValue(3.0);
@@ -52,6 +55,21 @@ void MessageBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
                                          / rect().width()), 25);
 }
 /*****************************************************************************/
+void MessageBoxItem::SetText(const QString &text)
+{
+    qreal width = 500;
+    qreal height = 300;
+
+    qreal x = mBorder.x() + ((mBorder.width() - width) / 2);
+    qreal y = mBorder.y() + ((mBorder.height() - height) / 2);
+
+    mText.setPos(x + 10, y + 10);
+    mText.setTextWidth(width - 20);
+    setRect(x, y, width, height);
+
+    mText.setHtml(text);
+}
+
 
 //=============================================================================
 // End of file MessageBoxItem.cpp

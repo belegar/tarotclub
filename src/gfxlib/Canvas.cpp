@@ -54,6 +54,10 @@ static const QPointF coordPlayerBox[5] =
     QPointF(0, 0)       // NORTH-WEST
 };
 
+#define STR_WIN      QObject::tr("Contract succeded by ")
+#define STR_LOSE     QObject::tr("Contract failed by ")
+#define STR_POINTS   QObject::tr(" points")
+
 /*****************************************************************************/
 class BorderLine : public QGraphicsItem
 {
@@ -104,6 +108,9 @@ Canvas::Canvas(QWidget *parent)
 
     popupItem.hide();
     scene.addItem(&popupItem);
+
+    mMsgBoxItem.hide();
+    scene.addItem(&mMsgBoxItem);
 }
 /*****************************************************************************/
 bool Canvas::Initialize()
@@ -151,6 +158,7 @@ bool Canvas::Initialize()
 
     // Give canvas element sizes to the popup to allow dynamic resizing
     popupItem.SetSizes(border, cardSize);
+    mMsgBoxItem.SetBorder(border);
 
     return ret;
 }
@@ -516,6 +524,55 @@ bool Canvas::TestFilter(quint8 mask)
         ret = true;
     }
     return ret;
+}
+/*****************************************************************************/
+void Canvas::SetResult(Score &score, Game &info)
+{
+    QString result_str;
+
+    if (score.Winner() == ATTACK)
+    {
+        result_str = QString("<h2><center><font color=\"darkgreen\">") + STR_WIN;
+    }
+    else
+    {
+        result_str = QString("<font color=\"darkred\">") + STR_LOSE;
+    }
+
+    result_str += QString().setNum(abs(score.difference)) + STR_POINTS + QString("</font></center></h2><hr />");
+
+    // Deal caracteristics
+    result_str += "<table>";
+    result_str += QString("<tr><td colspan=\"2\"><b>Summary</b><td /></tr>");
+    result_str += QString("<tr><td>Taker:</td><td>") + QString(info.taker.ToString().data()) + QString("</td></tr>");
+    result_str += QString("<tr><td>Contract:</td><td>") + QString(info.contract.ToString().data()) + QString("</td>");
+    result_str += QString("<tr><td>Number of oudlers:</td><td>") + QString().setNum(score.GetNumberOfOudlers()) + QString("</td></tr>");
+    result_str += QString("<tr><td>Points:</td><td>") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
+    result_str += QString("<tr><td>Points to do: </td><td>") + QString().setNum((int)score.pointsToDo) + QString("</td></tr>");
+
+
+    result_str += "</table><hr />";
+    /*
+
+        ui.lblTaker->setText();
+        ui.lblContrat->setText(info.contract.ToString().data());
+        ui.lblNbBouts->setNum(score.GetNumberOfOudlers());
+        ui.lblPoints->setNum((int)score.pointsAttack);
+        ui.lblPointsToDo->setNum((int)score.pointsToDo);
+    */
+/*
+    ui.lblGains->setNum(abs(score.difference));
+    ui.lblPetit->setNum(score.littleEndianPoints);
+    ui.lblMultiple->setNum(score.multiplier);
+    ui.lblPoignee->setNum(score.handlePoints);
+    ui.lblChelem->setNum(score.slamPoints);
+    ui.lblTotalDefense->setText(QString().setNum(score.GetDefenseScore()) + STR_POINTS);
+    ui.lblTotalAttaque->setText(QString().setNum(score.GetAttackScore()) + STR_POINTS);
+
+    */
+
+    mMsgBoxItem.SetText(result_str);
+    mMsgBoxItem.show();
 }
 
 //=============================================================================
