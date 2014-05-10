@@ -157,11 +157,6 @@ void MainWindow::SetupDialogs()
     about = new AboutWindow(this);
     about->hide();
 
-    // Scores
-    resultWindow = new ResultWindow(this);
-    resultWindow->setAttribute(Qt::WA_ShowModal, true);
-    resultWindow->hide();
-
     // Options
     optionsWindow = new OptionsWindow(this);
     optionsWindow->setAttribute(Qt::WA_ShowModal, true);

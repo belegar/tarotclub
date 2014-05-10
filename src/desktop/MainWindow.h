@@ -36,7 +36,6 @@
 #include "TarotWidget.h"
 #include "TextBox.h"
 #include "AboutWindow.h"
-#include "ResultWindow.h"
 #include "OptionsWindow.h"
 #include "EditorWindow.h"
 #include "ScoresDock.h"
@@ -97,7 +96,6 @@ private:
 
     // Modal windows
     AboutWindow *about;
-    ResultWindow *resultWindow;
     OptionsWindow *optionsWindow;
     EditorWindow *editorWindow;
     LobbyWindow *lobbyWindow;

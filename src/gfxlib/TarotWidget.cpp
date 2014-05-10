@@ -93,8 +93,6 @@ void TarotWidget::Initialize()
     mCanvas->Initialize();
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
-
-    mCanvas->SetResult(mClient.GetScore(), mClient.GetGameInfo());
 }
 /*****************************************************************************/
 /**

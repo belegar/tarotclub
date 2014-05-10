@@ -541,35 +541,33 @@ void Canvas::SetResult(Score &score, Game &info)
 
     result_str += QString().setNum(abs(score.difference)) + STR_POINTS + QString("</font></center></h2><hr />");
 
+    result_str += "<table><tr>";
+
     // Deal caracteristics
-    result_str += "<table>";
+    result_str += "<td><table>";
     result_str += QString("<tr><td colspan=\"2\"><b>Summary</b><td /></tr>");
     result_str += QString("<tr><td>Taker:</td><td>") + QString(info.taker.ToString().data()) + QString("</td></tr>");
     result_str += QString("<tr><td>Contract:</td><td>") + QString(info.contract.ToString().data()) + QString("</td>");
     result_str += QString("<tr><td>Number of oudlers:</td><td>") + QString().setNum(score.GetNumberOfOudlers()) + QString("</td></tr>");
     result_str += QString("<tr><td>Points:</td><td>") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
     result_str += QString("<tr><td>Points to do: </td><td>") + QString().setNum((int)score.pointsToDo) + QString("</td></tr>");
+    result_str += "</table></td>";
+
+    result_str += "<td><table>";
+    result_str += QString("<tr><td colspan=\"2\"><b>Calculation</b><td /></tr>");
+    result_str += QString("<tr><td>Contract:</td><td>25</td></tr>");
+    result_str += QString("<tr><td>Earn / loss:</td><td>") + QString().setNum(abs(score.difference)) + QString("</td>");
+    result_str += QString("<tr><td>Little endian bonus:</td><td>") + QString().setNum(score.littleEndianPoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>Contract multiplier:</td><td>") + QString().setNum(score.multiplier) + QString("</td></tr>");
+    result_str += QString("<tr><td>Handle: </td><td>") + QString().setNum(score.handlePoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>Slam: </td><td>") + QString().setNum(score.slamPoints) + QString("</td></tr>");
+    result_str += "</table></td>";
+
+    result_str += "</tr></table><hr />";
 
 
-    result_str += "</table><hr />";
-    /*
-
-        ui.lblTaker->setText();
-        ui.lblContrat->setText(info.contract.ToString().data());
-        ui.lblNbBouts->setNum(score.GetNumberOfOudlers());
-        ui.lblPoints->setNum((int)score.pointsAttack);
-        ui.lblPointsToDo->setNum((int)score.pointsToDo);
-    */
-/*
-    ui.lblGains->setNum(abs(score.difference));
-    ui.lblPetit->setNum(score.littleEndianPoints);
-    ui.lblMultiple->setNum(score.multiplier);
-    ui.lblPoignee->setNum(score.handlePoints);
-    ui.lblChelem->setNum(score.slamPoints);
-    ui.lblTotalDefense->setText(QString().setNum(score.GetDefenseScore()) + STR_POINTS);
-    ui.lblTotalAttaque->setText(QString().setNum(score.GetAttackScore()) + STR_POINTS);
-
-    */
+    result_str += "Total defense: " + QString().setNum(score.GetDefenseScore()) + STR_POINTS + "<br />";
+    result_str += "Total attack: "  + QString().setNum(score.GetAttackScore()) + STR_POINTS + "<br />";
 
     mMsgBoxItem.SetText(result_str);
     mMsgBoxItem.show();

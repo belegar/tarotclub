@@ -233,7 +233,6 @@ FORMS += AboutUI.ui \
     AvatarsUI.ui \
     InfosDockUI.ui \
     OptionsUI.ui \
-    ResultUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
     WinUI.ui \
@@ -244,7 +243,6 @@ HEADERS += AboutWindow.h \
     MainWindow.h \
     OptionsWindow.h \
     EditorWindow.h \
-    ResultWindow.h \
     ScoresDock.h \
     InfosDock.h \
     ChatDock.h \
@@ -255,7 +253,6 @@ SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
     OptionsWindow.cpp \
     EditorWindow.cpp \
-    ResultWindow.cpp \
     ScoresDock.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
