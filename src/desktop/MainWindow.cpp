@@ -149,6 +149,8 @@ void MainWindow::Initialize()
     tarotWidget->Initialize();
     tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
                               mServerConfig.GetOptions());
+
+    debugDock->Initialize();
 }
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
