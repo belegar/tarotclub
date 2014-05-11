@@ -25,13 +25,6 @@
 
 #include "Player.h"
 
-#ifndef QT_NO_DEBUG
-#include <iostream>
-#include <fstream>
-using namespace std;
-#endif // QT_NO_DEBUG
-
-
 /*****************************************************************************/
 Player::Player()
     : mUuid(0U)
