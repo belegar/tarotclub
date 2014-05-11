@@ -5,12 +5,10 @@
 #   - A Debian package (i386 or amd64)
 
 # The script needs at least one argument, $# is the number of parameters
-if [ $# -ne 2 ]; then
-  echo "Please specify an architecture (i386 or amd64) and a Qt version. Eg: make_packages.sh amd64 5_1_0"
+if [ $# -ne 1 ]; then
+  echo "Please specify an architecture (i386 or amd64). Eg: make_packages.sh amd64"
   exit 1
 fi
-
-QT_VERSION=$2
 
 # Argument is  or amd64
 if [ $1 == "i386" ] || [ $1 == "amd64" ]; then
@@ -21,21 +19,14 @@ else
   exit 1
 fi
 
-# Edit TarotClub version
-
+# Various directory paths
 TAROT_ROOT=$(pwd)/../..
-
-if [ ${ARCH} == "i386" ]; then
-  RELEASE_ROOT=build-TarotClub-Desktop_Qt_${QT_VERSION}_GCC_32bit-Release
-else
-  RELEASE_ROOT=build-TarotClub-Desktop_Qt_${QT_VERSION}_GCC_64bit-Release
-fi
-
+RELEASE_ROOT=build-desktop/release
 TEMP_DIR=tarotclub
 
 # version is in defines.h file in the following format:
 # #define TAROT_VERSION   "2.1.0-alpha.2" or "2.1.0"
-VERSION=$(grep -Po '([-0-9]*\.[0-9]*\.[0-9]*(-[A-Za-z]*\.[0-9]*)?)' ${TAROT_ROOT}/src/defines.h)
+VERSION=$(grep -Po '([-0-9]*\.[0-9]*\.[0-9]*(-[A-Za-z]*\.[0-9]*)?)' ${TAROT_ROOT}/src/Common.h)
 
 ####################  TARBALL PACKAGE ###########################
 
@@ -50,26 +41,22 @@ mkdir -p ${TEMP_DIR}/ai/tarotlib
 cd ${TEMP_DIR}
 
 # copy files
-cp -r ${TAROT_ROOT}/src/data/cards/default/ .
-cp ${TAROT_ROOT}/${RELEASE_ROOT}/bin/TarotClub .
-cp ${TAROT_ROOT}/src/data/fonts/kanzlei.ttf .
 cp ${TAROT_ROOT}/COPYING .
-cp ${TAROT_ROOT}/COPYING-FR .
 cp ${TAROT_ROOT}/HISTORY .
-cp ${TAROT_ROOT}/README .
-cp ${TAROT_ROOT}/doc/tarotclub.qch .
-cp ${TAROT_ROOT}/doc/tarotclub.qhc .
-cp ${TAROT_ROOT}/ai/tarotlib/system.js ./ai/tarotlib
-cp ${TAROT_ROOT}/ai/tarotlib/util.js ./ai/tarotlib
-cp ${TAROT_ROOT}/ai/tarotlib/card.js ./ai/tarotlib
-cp ${TAROT_ROOT}/ai/tarotlib/deck.js ./ai/tarotlib
-cp ${TAROT_ROOT}/ai/tarotlib/player.js ./ai/tarotlib
-cp ${TAROT_ROOT}/ai/tarotlib/game.js ./ai/tarotlib
-cp ${TAROT_ROOT}/ai/beginner.js ./ai
-cp ${TAROT_ROOT}/lib/icon256x256.png .
-cp ${TAROT_ROOT}/lib/tarotclub.xsl .
-cp ${TAROT_ROOT}/prj/tarotclub_en.qm .
-cp ${TAROT_ROOT}/prj/tarotclub_fr.qm .
+cp ${TAROT_ROOT}/README.md .
+cp ${TAROT_ROOT}/${RELEASE_ROOT}/TarotClub .
+cp -r ${TAROT_ROOT}/assets/cards/default/ .
+cp ${TAROT_ROOT}/assets/fonts/kanzlei.ttf .
+cp ${TAROT_ROOT}/assets/ai/tarotlib/system.js ./ai/tarotlib
+cp ${TAROT_ROOT}/assets/ai/tarotlib/util.js ./ai/tarotlib
+cp ${TAROT_ROOT}/assets/ai/tarotlib/card.js ./ai/tarotlib
+cp ${TAROT_ROOT}/assets/ai/tarotlib/deck.js ./ai/tarotlib
+cp ${TAROT_ROOT}/assets/ai/tarotlib/player.js ./ai/tarotlib
+cp ${TAROT_ROOT}/assets/ai/tarotlib/game.js ./ai/tarotlib
+cp ${TAROT_ROOT}/assets/ai/beginner.js ./ai
+cp ${TAROT_ROOT}/assets/icons/icon256x256.png .
+cp ${TAROT_ROOT}/prj/desktop/tarotclub_en.qm .
+cp ${TAROT_ROOT}/prj/desktop/tarotclub_fr.qm .
 
 # copy install script
 cp ${TAROT_ROOT}/pkg/ubuntu/install.sh .
@@ -92,7 +79,7 @@ CONTROL_FILE+="Version: ${VERSION}\n"
 CONTROL_FILE+="Section: games\n"
 CONTROL_FILE+="Priority: extra\n"
 CONTROL_FILE+="Architecture: ${ARCH}\n"
-CONTROL_FILE+="Depends: libqt5webkit5 (>= 5.0.0), libqt5svg5 (>= 5.0.0), libqt5script5 (>= 5.0.0), libqt5gui5 (>= 5.0.0), libqt5core5 (>= 5.0.0), libqt5concurrent5 (>= 5.0.0), libqt5network5 (>= 5.0.0), libqt5widgets5 (>= 5.0.0), libqt5xml5 (>= 5.0.0), libqt5scripttools5 (>= 5.0.0), libqt5v8-5 (>= 5.0.0), libqt5clucene5 (>= 5.0.0), libqt5sql5-sqlite (>= 5.0.0), libqt5help5 (>= 5.0.0)\n"
+CONTROL_FILE+="Depends: qt5-default (>= 5.2.0)\n"
 CONTROL_FILE+="Installed-Size: 8312\n"
 CONTROL_FILE+="Maintainer: Anthony Rabine <anthony.rabine@tarotclub.fr>\n"
 CONTROL_FILE+="Homepage: http://www.tarotclub.fr\n"
