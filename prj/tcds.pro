@@ -22,8 +22,14 @@
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
 BASE_DIR = $${PWD}/..
-release:    DESTDIR = $$BASE_DIR/build-server/release
+
+CONFIG(debug, debug|release) {
 debug:      DESTDIR = $$BASE_DIR/build-server/debug
+}
+
+CONFIG(release, debug|release) {
+release:    DESTDIR = $$BASE_DIR/build-server/release
+}
 
 UI_DIR          = $$DESTDIR/ui
 UI_HEADERS_DIR  = $$DESTDIR/include
@@ -58,10 +64,10 @@ INCLUDEPATH += $$BASE_DIR/src/json
 # ------------------------------------------------------------------------------
 CONFIG += qt console warn_on
 QMAKE_CXXFLAGS += -std=c++11
-QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
 
-# Let's make everything's static so that we don't need any DLL
-QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
+# Mainly for Duktape, the only source code in C
+QMAKE_CFLAGS_DEBUG      += -O0 -pedantic -std=c99 -fstrict-aliasing -ggdb
+QMAKE_CFLAGS_RELEASE    += -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame-pointer
 
 # ------------------------------------------------------------------------------
 # Targer definitions
@@ -73,6 +79,8 @@ win32 {
     RC_FILE = tcds/icon.rc
     LIBS +=  libws2_32
     DEFINES += USE_WINDOWS_OS
+    # Let's make everything's static so that we don't need any DLL
+    QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
 }
 
 unix {
