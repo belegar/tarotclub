@@ -35,19 +35,8 @@
 /*****************************************************************************/
 std::string System::mHomePath;
 std::string System::mDeckPath;
-#ifdef TAROT_DEBUG
 std::string System::mScriptPath;
-#endif
 
-/*****************************************************************************/
-std::string System::ScriptPath()
-{
-#ifdef TAROT_DEBUG
-    return mScriptPath;
-#else
-    return mHomePath + "/ai";
-#endif
-}
 /*****************************************************************************/
 void System::Initialize()
 {
@@ -68,6 +57,7 @@ void System::Initialize()
     mDeckPath = Util::ExecutablePath() + "/../../assets/cards/default/";
 #else
     mHomePath  = Util::HomePath() + "/.tarotclub/";
+    mScriptPath = Util::ExecutablePath() + "/ai/";
     mDeckPath = Util::ExecutablePath() + "/default/";
 #endif
 #endif

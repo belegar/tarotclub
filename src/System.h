@@ -40,7 +40,7 @@ public:
      * @return The path
      */
     static std::string DeckPath()   { return mDeckPath; }
-    static std::string ScriptPath();
+    static std::string ScriptPath() { return mScriptPath; }
 
     static void Initialize();
 
@@ -49,10 +49,7 @@ private:
 
     static std::string mHomePath;
     static std::string mDeckPath;
-
-#ifdef TAROT_DEBUG
     static std::string mScriptPath;
-#endif
 };
 
 #endif // SYSTEM_H_
