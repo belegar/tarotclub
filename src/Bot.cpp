@@ -29,8 +29,6 @@
 #include "Util.h"
 #include "System.h"
 
-using namespace std;
-
 /*****************************************************************************/
 Bot::Bot()
     : mClient(*this)
@@ -44,7 +42,7 @@ Bot::~Bot()
 
 }
 /*****************************************************************************/
-void Bot::Message(const string &message)
+void Bot::Message(const std::string &message)
 {
     (void)(message);
     // A bot cannot reply (yet :)
@@ -57,7 +55,7 @@ void Bot::AssignedPlace()
     JSEngine::StringList args;
     args.push_back(mClient.GetPlace().ToString());
     args.push_back(""); // FIXME replace by the game mode, string format
-    botEngine.Call("EnterGame", args);
+    mBotEngine.Call("EnterGame", args);
 }
 /*****************************************************************************/
 void Bot::PlayersList(std::map<Place, Identity> &players)
@@ -69,7 +67,7 @@ void Bot::ReceiveCards()
 {
     JSEngine::StringList args;
     args.push_back(mClient.GetMyDeck().GetCardList());
-    botEngine.Call("ReceiveCards", args);
+    mBotEngine.Call("ReceiveCards", args);
 }
 /*****************************************************************************/
 void Bot::SelectPlayer(Place p)
@@ -83,7 +81,7 @@ void Bot::RequestBid(Contract highestBid)
     JSEngine::StringList args;
 
     args.push_back(highestBid.ToString());
-    JSValue result = botEngine.Call("AnnounceBid", args);
+    JSValue result = mBotEngine.Call("AnnounceBid", args);
 
     if (!result.IsValid())
     {
@@ -97,7 +95,7 @@ void Bot::RequestBid(Contract highestBid)
     {
         // Ask to the bot if a slam has been announced
         args.clear();
-        result = botEngine.Call("AnnounceSlam", args);
+        result = mBotEngine.Call("AnnounceSlam", args);
         if (result.IsValid())
         {
             slam = result.GetBool();
@@ -137,7 +135,7 @@ void Bot::StartDeal(Place taker, Contract contract, const Game::Shuffle &sh)
     JSEngine::StringList args;
     args.push_back(taker.ToString());
     args.push_back(contract.ToString());
-    botEngine.Call("StartDeal", args);
+    mBotEngine.Call("StartDeal", args);
 
     // We are ready, let's inform the server about that
     mClient.SendSyncStart();
@@ -160,7 +158,7 @@ void Bot::ShowHandle()
     {
         args.push_back("1");
     }
-    botEngine.Call("ShowHandle", args);
+    mBotEngine.Call("ShowHandle", args);
 
     // We have seen the handle, let's inform the server about that
     mClient.SendSyncHandle();
@@ -173,7 +171,7 @@ void Bot::BuildDiscard()
     Deck discard;
 
     args.push_back(mClient.GetDogDeck().GetCardList());
-    JSValue ret = botEngine.Call("BuildDiscard", args);
+    JSValue ret = mBotEngine.Call("BuildDiscard", args);
 
     if (!ret.IsValid())
     {
@@ -246,7 +244,7 @@ void Bot::PlayCard()
     std::this_thread::sleep_for(std::chrono::milliseconds(mTimeBeforeSend));
 
     JSEngine::StringList args;
-    JSValue ret = botEngine.Call("PlayCard", args);
+    JSValue ret = mBotEngine.Call("PlayCard", args);
 
     if (!ret.IsValid())
     {
@@ -289,7 +287,7 @@ void Bot::ShowCard(Place p, const std::string &name)
     JSEngine::StringList args;
     args.push_back(name);
     args.push_back(p.ToString());
-    botEngine.Call("PlayedCard", args);
+    mBotEngine.Call("PlayedCard", args);
 
     // We have seen the card, let's inform the server about that
     mClient.SendSyncCard();
@@ -329,7 +327,7 @@ void Bot::Initialize()
     mClient.Initialize();
 }
 /*****************************************************************************/
-void Bot::ConnectToHost(const string &hostName, std::uint16_t port)
+void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
     mClient.ConnectToHost(hostName, port);
 }
@@ -349,18 +347,17 @@ bool Bot::InitializeScriptContext()
     scriptFiles.push_back("tarotlib/card.js");
     scriptFiles.push_back("tarotlib/deck.js");
     scriptFiles.push_back("tarotlib/player.js");
-    scriptFiles.push_back("tarotlib/bot.js");
     scriptFiles.push_back("tarotlib/game.js");
     scriptFiles.push_back("beginner.js");
 
-    botEngine.Initialize();
+    mBotEngine.Initialize();
     // FIXME: register print function TLogInfo
 
     // Load all Javascript files
     for (std::uint32_t i = 0; i < scriptFiles.size(); i++)
     {
         std::string fileName = appRoot + scriptFiles[i];
-        if (!botEngine.Evaluate(fileName))
+        if (!mBotEngine.Evaluate(fileName))
         {
             std::stringstream message;
             message << "Script error: could not open program file: " << fileName;
