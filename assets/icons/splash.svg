@@ -15,8 +15,8 @@
    id="svg3031"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="splatch.svg"
-   inkscape:export-filename="E:\tarotclub\lib\splatch.png"
+   sodipodi:docname="splash.svg"
+   inkscape:export-filename="U:\tarotclub\assets\images\splash.png"
    inkscape:export-xdpi="33.157894"
    inkscape:export-ydpi="33.157894">
   <defs
@@ -102,9 +102,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="410.2692"
-     inkscape:cy="47.389658"
+     inkscape:zoom="0.35"
+     inkscape:cx="506.6359"
+     inkscape:cy="180.73572"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -163,17 +163,18 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:210.78852844px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="174.50896"
-       y="1009.0685"
+       style="font-size:271.64733887px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="163.1929"
+       y="1014.2756"
        id="text3115"
        sodipodi:linespacing="125%"
-       transform="scale(0.97520578,1.0254246)"><tspan
+       transform="scale(0.98365069,1.0166211)"><tspan
          sodipodi:role="line"
          id="tspan3117"
-         x="174.50896"
-         y="1009.0685"><tspan
-   style="fill:#d40000"
+         x="163.1929"
+         y="1014.2756"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Vijaya;-inkscape-font-specification:Vijaya"><tspan
+   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#d40000;font-family:Vijaya;-inkscape-font-specification:Vijaya Bold"
    id="tspan3119">Tarot</tspan>Club</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:10.54855156;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
