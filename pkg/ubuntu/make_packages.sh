@@ -52,6 +52,7 @@ cp ${TAROT_ROOT}/assets/ai/tarotlib/util.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/tarotlib/card.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/tarotlib/deck.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/tarotlib/player.js ./ai/tarotlib
+cp ${TAROT_ROOT}/assets/ai/tarotlib/bot.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/tarotlib/game.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/beginner.js ./ai
 cp ${TAROT_ROOT}/assets/icons/icon256x256.png .

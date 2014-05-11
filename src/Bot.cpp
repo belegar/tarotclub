@@ -347,6 +347,7 @@ bool Bot::InitializeScriptContext()
     scriptFiles.push_back("tarotlib/card.js");
     scriptFiles.push_back("tarotlib/deck.js");
     scriptFiles.push_back("tarotlib/player.js");
+    scriptFiles.push_back("tarotlib/bot.js");
     scriptFiles.push_back("tarotlib/game.js");
     scriptFiles.push_back("beginner.js");
 
