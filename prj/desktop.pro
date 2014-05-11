@@ -22,8 +22,14 @@
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
 BASE_DIR = $${PWD}/..
-release:    DESTDIR = $$BASE_DIR/build-desktop/release
+
+CONFIG(debug, debug|release) {
 debug:      DESTDIR = $$BASE_DIR/build-desktop/debug
+}
+
+CONFIG(release, debug|release) {
+release:    DESTDIR = $$BASE_DIR/build-desktop/release
+}
 
 UI_DIR          = $$DESTDIR/ui
 UI_HEADERS_DIR  = $$DESTDIR/include
@@ -68,7 +74,10 @@ QT += svg network
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
-QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
+
+# Mainly for Duktape, the only source code in C
+QMAKE_CFLAGS_DEBUG      += -O0 -pedantic -std=c99 -fstrict-aliasing -ggdb
+QMAKE_CFLAGS_RELEASE    += -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame-pointer
 
 # ------------------------------------------------------------------------------
 # Targer definitions
@@ -90,8 +99,14 @@ unix {
 
 CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
-#    DEFINES += DUK_OPT_DEBUG
+    DEFINES += DUK_OPT_DEBUG DUK_OPT_DDEBUG
+# DUK_OPT_DEBUG DUK_OPT_DDDEBUG DUK_OPT_DDEBUG
+
 }
+
+
+# Duktape defines
+DEFINES += DUK_OPT_NO_JSONX
 
 # ------------------------------------------------------------------------------
 # JavaScript files
