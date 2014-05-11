@@ -47,7 +47,7 @@ public:
 private:
     Client  mClient;
     std::uint16_t  mTimeBeforeSend;
-    JSEngine botEngine;
+    JSEngine mBotEngine;
 
     bool InitializeScriptContext();
 
