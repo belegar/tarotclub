@@ -126,6 +126,15 @@ std::vector<std::string> Place::Initialize()
     return stringList;
 }
 /*****************************************************************************/
+bool Place::operator++(int)
+{
+    mPlace++;
+    if (mPlace > NOWHERE)
+    {
+        mPlace = SOUTH;
+    }
+}
+/*****************************************************************************/
 Contract::Contract()
     : mContract(PASS)
 {
@@ -204,6 +213,74 @@ std::vector<std::string> Contract::Initialize()
     stringList.push_back(STR_GUARD_AGAINST);
 
     return stringList;
+}
+/*****************************************************************************/
+std::uint8_t Tarot::NumberOfCardsInHand(std::uint8_t numberOfPlayers)
+{
+    if (numberOfPlayers == 3U)
+    {
+        return 24U;
+    }
+    if (numberOfPlayers == 5U)
+    {
+        return 15U;
+    }
+    else
+    {
+        // 4 players
+        return 18U;
+    }
+}
+/*****************************************************************************/
+std::uint8_t Tarot::NumberOfDogCards(std::uint8_t numberOfPlayers)
+{
+    return (78U - (GetNumberOfCards() * numberOfPlayers));
+}
+/*****************************************************************************/
+Place Tarot::NextPlayer(Place current, std::uint8_t numberOfPlayers)
+{
+    Place p = current++;
+
+    if (numberOfPlayers == 3U)
+    {
+        if (p > Place::NORTH)
+        {
+            p = Place::SOUTH;
+        }
+    }
+    else if (numberOfPlayers == 5U)
+    {
+        if (p > Place::FIFTH)
+        {
+            p = Place::SOUTH;
+        }
+    }
+    else
+    {
+        // 4 players
+        if (p > Place::WEST)
+        {
+            p = Place::SOUTH;
+        }
+    }
+    return (p);
+}
+/*****************************************************************************/
+bool Tarot::IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers)
+{
+    if (trickCounter >= NumberOfCardsInHand(numberOfPlayers))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+/*****************************************************************************/
+int Tarot::GetRemainingTurns(std::uint8_t trickCounter, std::uint8_t numberOfPlayers)
+{
+    return (NumberOfCardsInHand(numberOfPlayers) - trickCounter);
 }
 
 //=============================================================================

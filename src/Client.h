@@ -51,7 +51,8 @@ public:
     public:
         virtual void Message(const std::string &message) = 0;
         virtual void AssignedPlace() = 0;
-        virtual void PlayersList(std::map<Place, Identity> &players) = 0;
+        virtual void PlayersList() = 0;
+        virtual void NewDeal() = 0;
         virtual void ReceiveCards() = 0;
         virtual void SelectPlayer(Place p) = 0;
         virtual void RequestBid(Contract highestBid) = 0;
@@ -60,7 +61,6 @@ public:
         virtual void ShowDog() = 0;
         virtual void ShowHandle() = 0;
         virtual void BuildDiscard() = 0;
-        virtual void DealAgain() = 0;
         virtual void PlayCard() = 0;
         virtual void ShowCard(Place p, const std::string &name) = 0;
         virtual void WaitTrick(Place winner) = 0;
@@ -86,8 +86,7 @@ public:
     Deck &GetDogDeck();
     Deck &GetHandleDeck();
     Deck &GetMyDeck();
-    Identity &GetMyIdentity();
-    Game &GetGameInfo();
+    Game &GetGame();
     Score &GetScore();
     Place GetPlace();
 
@@ -120,10 +119,9 @@ private:
         EXIT
     };
 
-
     Player      mPlayer;
     Deck::Statistics   stats;   // statistics on player's cards
-    Game        info;           // Helper class to store various game information
+    Game        mGame;           // Helper class to store various game information
     Score       score;
     Deck        dogDeck;
     Deck        handleDeck;     // declared poignee by a player

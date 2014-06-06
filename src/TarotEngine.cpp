@@ -35,13 +35,10 @@
 /*****************************************************************************/
 TarotEngine::TarotEngine(IEvent &handler)
     : mEventHandler(handler)
+    , mNbPlayers(4U)
+    , mSequence(STOPPED)
 {
-    shuffle.type = Game::RANDOM_DEAL;
-    shuffle.seed = 0U;
-    for (std::uint32_t i = 0U; i < 5U; i++)
-    {
-        players[i].SetPlace(i);
-    }
+    mSeed = std::chrono::system_clock::now().time_since_epoch().count();
 }
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
@@ -55,33 +52,93 @@ TarotEngine::~TarotEngine()
  */
 void TarotEngine::Initialize()
 {
-    cntSyncIdentity = 0;
+    mSequence = STOPPED;
+    ResetAck();
+    mShuffle.Initialize();
 }
 /*****************************************************************************/
-void TarotEngine::NewGame(Game::Mode mode)
+void TarotEngine::CreateGame(Tarot::GameMode mode, const Game::Shuffle &s, std::uint8_t nbPlayers)
 {
-    deal.Initialize();
-    gameState.gameMode = mode;
+    // Save parameters
+    mShuffle = s;
+    numberOfPlayers = nbPlayers;
+    mGameMode = mode;
+
+    // 1. Initialize internal states
+    mDeal.Initialize();
+    mBid.Initialize();
+    mPosition = 0U;
+    trickCounter = 0U;
+
+    // Choose the dealer
+    std::default_random_engine generator(mSeed);
+    std::uniform_int_distribution<std::uint32_t> distribution(0, nbPlayers-1);
+    mDealer = distribution(generator);
+
+    // Wait for ready
+    ResetAck();
+    mSequence = WAIT_FOR_PLAYERS;
 }
 /*****************************************************************************/
-void TarotEngine::SetShuffle(const Game::Shuffle &s)
+void TarotEngine::NewDeal()
 {
-    shuffle = s;
+    // 1. Initialize internal states
+    mDeal.NewDeal();
+    mBid.Initialize();
+    mPosition = 0U;
+    trickCounter = 0U;
+
+    // 2. Choose the dealer and the first player to start the bid
+    mDealer = Tarot::NextPlayer(mDealer);
+    mCurrentPlayer = Tarot::NextPlayer(mDealer, mNbPlayers); // The first player on the dealer's right begins the bid
+
+    // 3. Give cards to all players
+    CreateDeal();
+
+    // 4. Prepare the wait for ack
+    ResetAck();
+    mSequence = WAIT_FOR_CARDS;
+}
+/*****************************************************************************/
+void TarotEngine::StartDeal()
+{
+    trickCounter = 0;
+    mPosition = 0;
+    mBid = bid;
+
+    // In case of slam, the first player to play is the taker.
+    // Otherwise, it is the player on the right of the dealer
+    if (mBid.slam == true)
+    {
+        mCurrentPlayer = mBid.place;
+    }
+    else
+    {
+        mCurrentPlayer = FindNextPlayer(mDealer); // The first player on the dealer's right
+    }
+
+    mEventHandler.StartDeal();
 }
 /*****************************************************************************/
 Game::Shuffle TarotEngine::GetShuffle()
 {
-    return shuffle;
+    return mShuffle;
 }
 /*****************************************************************************/
 void TarotEngine::SetDiscard(Deck &discard)
 {
-    deal.SetDog(discard, ATTACK);
+    mDeal.SetDog(discard, ATTACK);
     // as soon as the discard has been done, the deal can start
     StartDeal();
 }
 /*****************************************************************************/
-void TarotEngine::SetHandle(Deck &handle, Place p)
+/**
+ * @brief TarotEngine::SetHandle
+ * @param handle
+ * @param p
+ * @return  true if the handle is valid, otherwise false
+ */
+bool TarotEngine::SetHandle(Deck &handle, Place p)
 {
     /* FIXME: add protections
     1) L'origine du client (sud, est ... ip ??)
@@ -91,6 +148,7 @@ void TarotEngine::SetHandle(Deck &handle, Place p)
     */
     Team handleOwner;
     Handle type;
+    bool valid = true;
 
     if (handle.Size() == 10)
     {
@@ -105,65 +163,112 @@ void TarotEngine::SetHandle(Deck &handle, Place p)
         type = TRIPLE_HANDLE;
     }
 
-    if (p == gameState.taker)
-    {
-        handleOwner = ATTACK;
-        gameState.attackHandle.declared = true;
-        gameState.attackHandle.type = type;
-    }
-    else
-    {
-        handleOwner = DEFENSE;
-        gameState.defenseHandle.declared = true;
-        gameState.defenseHandle.type = type;
-    }
+    // FIXME: Add a handle validity test here
 
-    deal.SetHandle(handle, handleOwner);
-    cntSyncHandle = 0;
+    if (valid)
+    {
+        if (p == mGame.GetTaker())
+        {
+            handleOwner = ATTACK;
+            mGame.attackHandle.declared = true;
+            mGame.attackHandle.type = type;
+        }
+        else
+        {
+            handleOwner = DEFENSE;
+            mGame.defenseHandle.declared = true;
+            mGame.defenseHandle.type = type;
+        }
+
+        mDeal.SetHandle(handle, handleOwner);
+    }
+    return valid;
 }
 /*****************************************************************************/
 void TarotEngine::SetCard(Card *c, Place p)
 {
     c->SetOwner(p);
     currentTrick.Append(c);
-    players[p.Value()].GetDeck().Remove(c);
-    cntSyncCard = 0;
-    gameState.sequence = Game::SYNC_CARD;
+    mPlayers[p.Value()].Remove(c);
 }
 /*****************************************************************************/
 Contract TarotEngine::SetBid(Contract c, bool slam, Place p)
 {
-    if (c > gameState.contract)
+    if (c > mBid.contract)
     {
-        gameState.contract = c;
-        gameState.taker = p;
-        gameState.slamAnnounced = slam;
+        mBid.contract = c;
+        mBid.place = p;
+        mBid.slam = slam;
     }
     else
     {
         c = Contract::PASS;
     }
-    cntSyncBid = 0;
-    gameState.sequence = Game::SYNC_BID;
+
+    // Advance sequence: show the declared bid to all the players
+    ResetAck();
+    mSequence = WAIT_FOR_SHOW_BID;
     return c;
+}
+/*****************************************************************************/
+bool TarotEngine::AckFromAllPlayers()
+{
+    bool ack = false;
+    std::uint8_t counter = 0U;
+
+    for (std::uint8_t i = 0U; i < mNbPlayers; i++)
+    {
+        if (mPlayers[i].HasAck())
+        {
+            counter++;
+        }
+    }
+
+    if (counter == mNbPlayers)
+    {
+        ack = true;
+    }
+
+    return ack;
+}
+/*****************************************************************************/
+void TarotEngine::ResetAck()
+{
+    for (std::uint8_t i = 0U; i < mNbPlayers; i++)
+    {
+        mPlayers[i].SetAck(false);
+    }
 }
 /*****************************************************************************/
 void TarotEngine::StopGame()
 {
-    gameState.Stop();
+    // FIXME: set the state
 }
 /*****************************************************************************/
-Place TarotEngine::GetFreePlayer()
+/**
+ * @brief TarotEngine::AddPlayer
+ *
+ * Adds a player around the table with the specified UUID. If the table is
+ * full, the returned place is NOWHERE.
+ *
+ * @param uuid
+ * @return
+ */
+Place TarotEngine::AddPlayer(std::uint32_t uuid)
 {
-    Place p;
+    Place p = Place::NOWHERE;
 
-    // Look for free space
-    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
+    if (mSequence == WAIT_FOR_PLAYERS)
     {
-        if (players[i].IsFree() == true)
+        // Look for free space
+        for (std::uint32_t i = 0U; i < mNbPlayers; i++)
         {
-            p = i;
-            break;
+            if (mPlayers[i].IsFree() == true)
+            {
+                p = i;
+                mPlayers[i].SetUuid(uuid);
+                break;
+            }
         }
     }
     return p;
@@ -177,51 +282,60 @@ Place TarotEngine::GetFreePlayer()
  */
 bool TarotEngine::SetIdentity(std::uint32_t uuid, const Identity &ident)
 {
-    Player *player = GetPlayer(uuid);
-    if (player)
+    if (mSequence == WAIT_FOR_PLAYERS)
     {
-        player->SetIdentity(ident);
-        cntSyncIdentity++;
-    }
-    else
-    {
-        TLogError("Fatal error, Uuid not found!");
+        Player *player = GetPlayer(uuid);
+        if (player != NULL)
+        {
+            // Look for place
+            Place p = GetPlayerPlace(uuid);
+            mPlayersIdent[p] = ident;
+            player->SetAck();
+        }
     }
 
-    if (cntSyncIdentity == gameState.numberOfPlayers)
+    bool full = AckFromAllPlayers();
+
+    if (full)
     {
-        return true;
+        mSequence = WAIT_FOR_READY;
     }
-    else
-    {
-        return false;
-    }
+    return full;
 }
 /*****************************************************************************/
-Player &TarotEngine::GetPlayer(Place p)
+Player *TarotEngine::GetPlayer(Place p)
 {
-    return players[p.Value()];
+    Player *player = NULL;
+
+    if (p < Place::NOWHERE)
+    {
+        player = &mPlayers[p.Value()];
+    }
+
+    return player;
 }
 /*****************************************************************************/
 Player *TarotEngine::GetPlayer(std::uint32_t uuid)
 {
-    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
+    Player *player = NULL;
+    for (std::uint8_t i = 0U; i < mNbPlayers; i++)
     {
-        if (players[i].GetUuid() == uuid)
+        if (mPlayers[i].GetUuid() == uuid)
         {
-            return &players[i];
+            player = &mPlayers[i];
+            break;
         }
     }
-    return NULL;
+    return player;
 }
 /*****************************************************************************/
 Place TarotEngine::GetPlayerPlace(std::uint32_t uuid)
 {
-    Place p;
+    Place p = NOWHERE;
 
-    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
+    for (std::uint8_t i = 0U; i < mNbPlayers; i++)
     {
-        if (players[i].GetUuid() == uuid)
+        if (mPlayers[i].GetUuid() == uuid)
         {
             p = i;
         }
@@ -231,24 +345,24 @@ Place TarotEngine::GetPlayerPlace(std::uint32_t uuid)
 /*****************************************************************************/
 Score &TarotEngine::GetScore()
 {
-    return deal.GetScore();
+    return mDeal.GetScore();
 }
 /*****************************************************************************/
 Game &TarotEngine::GetGameInfo()
 {
-    return gameState;
+    return mGame;
 }
 /*****************************************************************************/
-Deal &TarotEngine::GetDeal()
+Deck TarotEngine::GetDog()
 {
-    return deal;
+    return mDeal.GetDog();
 }
 /*****************************************************************************/
 bool TarotEngine::IsCardValid(Card *c, Place p)
 {
     bool ret = false;
 
-    if (gameState.sequence == Game::BUILD_DOG)
+    if (mGame.Sequence() == Game::BUILD_DOG)
     {
         if ((c->GetSuit() == Card::TRUMPS) ||
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
@@ -260,9 +374,9 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
             ret = true;
         }
     }
-    else if (gameState.sequence == Game::PLAY_TRICK)
+    else if (mGame.Sequence() == Game::PLAY_TRICK)
     {
-        ret =  players[p.Value()].CanPlayCard(c, currentTrick);
+        ret =  mPlayers[p.Value()].CanPlayCard(c, currentTrick);
     }
 
     return (ret);
@@ -270,66 +384,29 @@ bool TarotEngine::IsCardValid(Card *c, Place p)
 /*****************************************************************************/
 bool TarotEngine::HasCard(Card *c, Place p)
 {
-    return players[p.Value()].GetDeck().HasCard(c);
-}
-/*****************************************************************************/
-void TarotEngine::NewDeal()
-{
-    // 1. Initialize internal states
-    deal.NewDeal();
-    gameState.NewDeal();
-
-    // 2. Give cards to all players
-    CreateDeal();
-    mEventHandler.SendCards();
-
-    // 3. Start the bid sequence
-    BidSequence();
-}
-/*****************************************************************************/
-void TarotEngine::StartDeal()
-{
-    cntSyncStart = 0;
-    gameState.StartDeal();
-    mEventHandler.StartDeal();
+    return mPlayers[p.Value()].HasCard(c);
 }
 /*****************************************************************************/
 bool TarotEngine::SyncDog()
 {
     bool finished = false;
-    if (gameState.sequence == Game::SYNC_DOG)
+    if (mGame.Sequence() == Game::SHOW_DOG)
     {
-        cntSyncDog++;
-        if (cntSyncDog >= gameState.numberOfPlayers)
+        finished = mSync.Add();
+        if (finished)
         {
-            finished = true;
-            gameState.sequence = Game::BUILD_DOG;
+            mGame.NextSequence();
         }
     }
     return finished;
 }
 /*****************************************************************************/
-void TarotEngine::SyncStart()
-{
-    if (gameState.sequence == Game::SYNC_START)
-    {
-        cntSyncStart++;
-        if (cntSyncStart >= gameState.numberOfPlayers)
-        {
-            gameState.sequence = Game::PLAY_TRICK;
-            GameSateMachine();
-        }
-    }
-}
-/*****************************************************************************/
 void TarotEngine::SyncBid()
 {
-    if (gameState.sequence == Game::SYNC_BID)
+    if (mGame.Sequence == Game::BID)
     {
-        cntSyncBid++;
-        if (cntSyncBid >= gameState.numberOfPlayers)
+        if (mSync.Add())
         {
-            gameState.sequence = Game::BID;
             BidSequence();
         }
     }
@@ -337,164 +414,187 @@ void TarotEngine::SyncBid()
 /*****************************************************************************/
 void TarotEngine::SyncCard()
 {
-    if (gameState.sequence == Game::SYNC_CARD)
+    if (mGame.sequence == Game::SYNC_CARD)
     {
         cntSyncCard++;
-        if (cntSyncCard >= gameState.numberOfPlayers)
+        if (cntSyncCard >= mGame.numberOfPlayers)
         {
-            gameState.sequence = Game::PLAY_TRICK;
-            GameSateMachine();
+            mGame.sequence = Game::PLAY_TRICK;
+            GameSequence();
         }
     }
 }
 /*****************************************************************************/
 void TarotEngine::SyncTrick()
 {
-    if (gameState.sequence == Game::SYNC_TRICK)
+    if (mGame.sequence == Game::SYNC_TRICK)
     {
         cntSyncTrick++;
-        if (cntSyncTrick >= gameState.numberOfPlayers)
+        if (cntSyncTrick >= mGame.numberOfPlayers)
         {
-            if (gameState.IsDealFinished() == true)
+            if (mGame.IsDealFinished() == true)
             {
                 EndOfDeal();
             }
             else
             {
-                gameState.sequence = Game::PLAY_TRICK;
-                GameSateMachine();
+                mGame.sequence = Game::PLAY_TRICK;
+                GameSequence();
             }
         }
     }
 }
 /*****************************************************************************/
-void TarotEngine::SyncReady()
+bool TarotEngine::Sync(Sequence sequence, std::uint32_t uuid)
 {
-    if (gameState.sequence == Game::SYNC_READY)
+    bool ret = false;
+    Player *player = GetPlayer(uuid);
+
+    if (player != NULL)
     {
-        cntSyncReady++;
-        if (cntSyncReady >= gameState.numberOfPlayers)
+        if (mSequence == sequence)
         {
-            gameState.sequence = Game::DEAL;
-            NewDeal();
+            player->SetAck();
+            ret = AckFromAllPlayers();
         }
     }
+    return ret;
 }
 /*****************************************************************************/
 void TarotEngine::SyncHandle()
 {
-    if (gameState.sequence == Game::SYNC_HANDLE)
+    if (mGame.Sequence() == Game::SHOW_HANDLE)
     {
         cntSyncHandle++;
-        if (cntSyncHandle >= gameState.numberOfPlayers)
+        if (cntSyncHandle >= mGame.numberOfPlayers)
         {
-            gameState.sequence = Game::PLAY_TRICK;
+            mGame.sequence = Game::PLAY_TRICK;
         }
     }
 }
 /*****************************************************************************/
-void TarotEngine::GameSateMachine()
+void TarotEngine::GameSequence()
 {
-    if (gameState.Next() == true)
+    // Choose the next player, if true the trick is finished
+    if (mGame.NextPlayer() == true)
     {
         TLogInfo("----------------------------------------------------");
 
         // The current trick winner will begin the next trick
-        gameState.currentPlayer = deal.SetTrick(currentTrick, gameState);
+        mGame.currentPlayer = mDeal.SetTrick(currentTrick, mGame);
         currentTrick.Clear();
-        cntSyncTrick = 0;
-        gameState.sequence = Game::SYNC_TRICK;
-        mEventHandler.EndOfTrick(gameState.currentPlayer);
+        mSync.Reset(SYNC_TRICK);
+        mEventHandler.EndOfTrick(mGame.currentPlayer);
     }
     else
     {
         std::stringstream message;
 
-        message << "Turn: " << gameState.trickCounter << " player: " << gameState.currentPlayer.ToString();
+        message << "Turn: " << mGame.trickCounter << " player: " << mGame.currentPlayer.ToString();
         TLogInfo(message.str());
-        mEventHandler.PlayCard(gameState.currentPlayer);
+        mEventHandler.PlayCard(mGame.currentPlayer);
     }
 }
 /*****************************************************************************/
 void TarotEngine::EndOfDeal()
 {
-    if (deal.Calculate(gameState) == true)
+    // Result of the calculation is true if another deal is required
+    if (mDeal.Calculate(mGame) == true)
     {
-        gameState.sequence = Game::SYNC_READY;
+        mSync.Reset(SYNC_READY);
     }
     else
     {
-        gameState.sequence = Game::STOP;
+        // The game is finished, no any other deal
+        mGame.Stop();
+        mSync.Reset(SYNC_STOP);
     }
 
-    std::map<Place, Identity> list;
-
-    // Create a QMap list of players
-    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
-    {
-        Place p(i);
-        list[p] = players[i].GetIdentity();
-    }
-    deal.GenerateEndDealLog(gameState, list);
-
-    cntSyncReady = 0;
+    mDeal.GenerateEndDealLog(mGame);
     mEventHandler.EndOfDeal();
 }
 /*****************************************************************************/
-void TarotEngine::BidSequence()
+
+/**
+ * @brief TarotEngine::BidSequence
+ * @return The next sequence to go
+ */
+TarotEngine::BidResult TarotEngine::BidSequence()
 {
+    BidResult res = NEXT_PLAYER;
+
     // If a slam has been announced, we start immediately the deal
-    if ((gameState.Next() == true) ||
-            (gameState.slamAnnounced == true))
+    if ((NextPlayer() == true) ||
+            (mBid.slam == true))
     {
-        if (gameState.contract == Contract::PASS)
+        if (mBid.contract == Contract::PASS)
         {
             // All the players have passed, deal again new cards
-            cntSyncReady = 0;
-            gameState.sequence = Game::SYNC_READY;
-            mEventHandler.DealAgain();
+            res = ALL_PASSED;
         }
         else
         {
-            if ((gameState.contract == Contract::GUARD_WITHOUT) || (gameState.contract == Contract::GUARD_AGAINST))
+            if ((mBid.contract == Contract::GUARD_WITHOUT) || (mBid.contract == Contract::GUARD_AGAINST))
             {
                 // No discard is made, set the owner of the dog
-                if (gameState.contract != Contract::GUARD_AGAINST)
+                if (mBid.contract != Contract::GUARD_AGAINST)
                 {
-                    deal.SetDogOwner(ATTACK);
+                    mDeal.SetDogOwner(ATTACK);
                 }
                 else
                 {
                     // Guard _against_, the dog belongs to the defense
-                    deal.SetDogOwner(DEFENSE);
+                    mDeal.SetDogOwner(DEFENSE);
                 }
 
                 // We do not display the dog and start the deal immediatly
-                StartDeal();
+                res = START_DEAL;
+                ResetAck();
+                mSequence = WAIT_FOR_START_DEAL;
                 return;
             }
             else
             {
-                cntSyncDog = 0;
-                gameState.sequence = Game::SYNC_DOG; // Waiting for the taker's discard
-                mEventHandler.ShowDog();
+                // Show the dog to all the players
+                res = SHOW_DOG;
+                ResetAck();
+                mSequence = WAIT_FOR_SHOW_DOG;
             }
         }
     }
+
+    return res;
+}
+/*****************************************************************************/
+bool TarotEngine::NextPlayer()
+{
+    bool endOfTrick = false;
+    mPosition++;
+    if (mPosition > numberOfPlayers)
+    {
+        mPosition = 0;
+        trickCounter++;
+        endOfTrick = true;
+    }
     else
     {
-        mEventHandler.RequestBid(gameState.contract, gameState.currentPlayer);
+        if (mPosition > 1)
+        {
+            mCurrentPlayer = FindNextPlayer(mCurrentPlayer);
+        }
+        endOfTrick = false;
     }
+    return endOfTrick;
 }
 /*****************************************************************************/
 void TarotEngine::CreateDeal()
 {
     currentTrick.Clear();
 
-    if (shuffle.type == Game::CUSTOM_DEAL)
+    if (mShuffle.type == Game::CUSTOM_DEAL)
     {
         DealFile editor;
-        if (editor.LoadFile(shuffle.file) == true)
+        if (editor.LoadFile(mShuffle.file) == true)
         {
             // SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3,
             currentTrick.Append(editor.GetSouthDeck());
@@ -507,7 +607,7 @@ void TarotEngine::CreateDeal()
         {
             // Fall back to default mode
             TLogError("Cannot load custom deal file");
-            shuffle.type = Game::RANDOM_DEAL;
+            mShuffle.type = Game::RANDOM_DEAL;
         }
     }
     else
@@ -517,34 +617,34 @@ void TarotEngine::CreateDeal()
             currentTrick.Append(TarotDeck::GetCard(i));
         }
 
-        if (shuffle.type == Game::RANDOM_DEAL)
+        if (mShuffle.type == Game::RANDOM_DEAL)
         {
-            shuffle.seed =  std::chrono::system_clock::now().time_since_epoch().count();
+            mShuffle.seed =  std::chrono::system_clock::now().time_since_epoch().count();
         }
-        currentTrick.Shuffle(shuffle.seed);
+        currentTrick.Shuffle(mShuffle.seed);
     }
 
-    int n = gameState.GetNumberOfCards();
-    for (std::uint32_t i = 0U; i < gameState.numberOfPlayers; i++)
+    int n = mGame.GetNumberOfCards();
+    for (std::uint32_t i = 0U; i < mGame.numberOfPlayers; i++)
     {
-        players[i].GetDeck().Clear();
-        players[i].GetDeck().Append(currentTrick.Mid(i * n, n));
+        mPlayers[i].Clear();
+        mPlayers[i].Append(currentTrick.Mid(i * n, n));
 
         std::stringstream message;
         Place p(i);
-        message << "Player " << p.ToString() << " deck: " << players[i].GetDeck().GetCardList();
+        message << "Player " << p.ToString() << " deck: " << mPlayers[i].GetCardList();
         TLogInfo(message.str());
     }
 
     // Remaining cards go to the dog
     Deck dog;
-    dog.Append(currentTrick.Mid(gameState.numberOfPlayers * n));
+    dog.Append(currentTrick.Mid(mGame.numberOfPlayers * n));
 
     std::stringstream message;
     message << "Dog deck: " << dog.GetCardList();
     TLogInfo(message.str());
 
-    deal.SetDog(dog, NO_TEAM);
+    mDeal.SetDog(dog, NO_TEAM);
     currentTrick.Clear();
 }
 

@@ -73,11 +73,6 @@ Deck &Client::GetMyDeck()
     return mPlayer.GetDeck();
 }
 /*****************************************************************************/
-Identity &Client::GetMyIdentity()
-{
-    return mPlayer.GetIdentity();
-}
-/*****************************************************************************/
 bool Client::TestHandle()
 {
     bool ret = true;
@@ -90,9 +85,9 @@ bool Client::TestHandle()
     return ret;
 }
 /*****************************************************************************/
-Game &Client::GetGameInfo()
+Game &Client::GetGame()
 {
-    return info;
+    return mGame;
 }
 /*****************************************************************************/
 Score &Client::GetScore()
@@ -407,8 +402,8 @@ bool Client::DoAction(const ByteArray &data)
 
             mPlayer.SetPlace(place);
             mPlayer.SetUuid(myUuid);
-            info.Initialize(nbPlayers);
-            info.gameMode = (Game::Mode)mode;
+            mGame.NewGame(nbPlayers);
+            mGame.gameMode = (Game::Mode)mode;
             SendIdentity();
             mEventHandler.AssignedPlace();
             break;
@@ -416,11 +411,11 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_PLAYERS_LIST:
         {
-            std::uint8_t nombre;
+            std::uint8_t size;
             std::map<Place, Identity> players;
 
-            in >> nombre;
-            for (int i = 0; i < nombre; i++)
+            in >> size;
+            for (int i = 0; i < size; i++)
             {
                 Identity ident;
                 Place place;
@@ -429,7 +424,8 @@ bool Client::DoAction(const ByteArray &data)
                 in >> ident;
                 players[place] = ident;
             }
-            mEventHandler.PlayersList(players);
+            mGame.SetPlayers(players);
+            mEventHandler.PlayersList();
             break;
         }
 
@@ -474,14 +470,14 @@ bool Client::DoAction(const ByteArray &data)
         {
             in >> dogDeck;
             dogDeck.Sort();
-            info.sequence = Game::SHOW_DOG;
+            mGame.sequence = Game::SHOW_DOG;
             mEventHandler.ShowDog();
             break;
         }
 
         case Protocol::SERVER_BUILD_DISCARD:
         {
-            info.sequence = Game::BUILD_DOG;
+            mGame.sequence = Game::BUILD_DOG;
             mEventHandler.BuildDiscard();
             break;
         }
@@ -495,11 +491,11 @@ bool Client::DoAction(const ByteArray &data)
             in >> taker;
             in >> contrat;
             in >> sh;
-            info.NewDeal();
-            info.taker = taker;
-            info.contract = (Contract)contrat;
+
+            mGame.taker = taker;
+            mGame.contract = (Contract)contrat;
             currentTrick.Clear();
-            info.sequence = Game::SYNC_START;
+            mGame.sequence = Game::SYNC_START;
             mEventHandler.StartDeal(taker, (Contract)contrat, sh);
             break;
         }
@@ -509,7 +505,7 @@ bool Client::DoAction(const ByteArray &data)
             Place p;
             in >> p;
             in >> handleDeck;
-            if (GetGameInfo().taker == p)
+            if (GetGame().taker == p)
             {
                 handleDeck.SetOwner(ATTACK);
             }
@@ -520,7 +516,7 @@ bool Client::DoAction(const ByteArray &data)
             // Don't display the handle if we are the owner because we are in an other sequence (play card)
             if (p != mPlayer.GetPlace())
             {
-                info.sequence = Game::SHOW_HANDLE;
+                mGame.sequence = Game::SHOW_HANDLE;
                 mEventHandler.ShowHandle();
             }
             break;
@@ -534,9 +530,9 @@ bool Client::DoAction(const ByteArray &data)
             in >> player;
             in >> name;
 
-            info.Next();
+            mGame.NextPlayer();
             currentTrick.Append(TarotDeck::GetCard(name));
-            info.sequence = Game::SYNC_CARD;
+            mGame.sequence = Game::SYNC_CARD;
             mEventHandler.ShowCard(player, name);
             break;
         }
@@ -550,15 +546,16 @@ bool Client::DoAction(const ByteArray &data)
             if (p == mPlayer.GetPlace())
             {
                 // Our turn to play a card
-                info.sequence = Game::PLAY_TRICK;
+                mGame.sequence = Game::PLAY_TRICK;
                 mEventHandler.PlayCard();
             }
             break;
         }
 
-        case Protocol::SERVER_DEAL_AGAIN:
+        case Protocol::SERVER_NEW_DEAL:
         {
-            mEventHandler.DealAgain();
+            mGame.NewDeal();
+            mEventHandler.NewDeal();
             break;
         }
 
@@ -566,8 +563,8 @@ bool Client::DoAction(const ByteArray &data)
         {
             Place winner;
             in >> winner;
-            info.Next();
-            info.sequence = Game::SYNC_TRICK;
+            mGame.NextPlayer();
+            mGame.sequence = Game::SYNC_TRICK;
             mEventHandler.WaitTrick(winner);
             break;
         }
@@ -575,7 +572,7 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::SERVER_END_OF_DEAL:
         {
             in >> score;
-            info.sequence = Game::SYNC_READY;
+            mGame.sequence = Game::SYNC_READY;
             mEventHandler.EndOfDeal();
             break;
         }
@@ -651,7 +648,7 @@ void Client::SendCard(Card *c)
 /*****************************************************************************/
 void Client::SendSyncDog()
 {
-    info.sequence = Game::IDLE;
+    mGame.sequence = Game::IDLE;
 
     ByteArray packet = Protocol::BuildClientSyncDog(mPlayer.GetUuid());
     mTcpClient.Send(packet.ToSring());
@@ -659,7 +656,7 @@ void Client::SendSyncDog()
 /*****************************************************************************/
 void Client::SendSyncStart()
 {
-    info.sequence = Game::IDLE;
+    mGame.sequence = Game::IDLE;
 
     ByteArray packet = Protocol::BuildClientSyncStart(mPlayer.GetUuid());
     mTcpClient.Send(packet.ToSring());
@@ -667,7 +664,7 @@ void Client::SendSyncStart()
 /*****************************************************************************/
 void Client::SendSyncCard()
 {
-    info.sequence = Game::IDLE;
+    mGame.sequence = Game::IDLE;
 
     ByteArray packet = Protocol::BuildClientSyncCard(mPlayer.GetUuid());
     mTcpClient.Send(packet.ToSring());
@@ -675,7 +672,7 @@ void Client::SendSyncCard()
 /*****************************************************************************/
 void Client::SendSyncBid()
 {
-    info.sequence = Game::IDLE;
+    mGame.sequence = Game::IDLE;
 
     ByteArray packet = Protocol::BuildClientSyncBid(mPlayer.GetUuid());
     mTcpClient.Send(packet.ToSring());
@@ -683,7 +680,7 @@ void Client::SendSyncBid()
 /*****************************************************************************/
 void Client::SendSyncTrick()
 {
-    info.sequence = Game::IDLE;
+    mGame.sequence = Game::IDLE;
     currentTrick.Clear();
 
     ByteArray packet = Protocol::BuildClientSyncTrick(mPlayer.GetUuid());

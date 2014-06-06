@@ -48,8 +48,11 @@
 #define MAX_ROUNDS      5
 
 /*****************************************************************************/
-enum Team       { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };
-enum Handle     { SIMPLE_HANDLE = 0, DOUBLE_HANDLE = 1, TRIPLE_HANDLE = 2 };
+enum Team           { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };
+enum Handle         { SIMPLE_HANDLE = 0, DOUBLE_HANDLE = 1, TRIPLE_HANDLE = 2 };
+enum ShuffleType    { RANDOM_DEAL, CUSTOM_DEAL, NUMBERED_DEAL };
+enum GameMode       { ONE_DEAL, TOURNAMENT };
+
 /*****************************************************************************/
 class Place
 {
@@ -87,6 +90,7 @@ public:
     inline bool operator != (const Place& rhs) const { return (this->mPlace != rhs.mPlace); }
     inline bool operator <  (const Place& rhs) const { return (this->mPlace < rhs.mPlace);  }
     inline bool operator >  (const Place& rhs) const { return (this->mPlace > rhs.mPlace); }
+    bool operator++(int);
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Place &p)
     {
@@ -162,6 +166,77 @@ private:
     static std::vector<std::string> mStrings;
 
     static std::vector<std::string> Initialize();
+};
+/*****************************************************************************/
+/**
+ * @brief The Tarot class
+ * Various utilities and structures with regard of the Tarot rules
+ */
+class Tarot
+{
+public:
+    struct Bid
+    {
+        Place       place;     // who has annouced the contract
+        Contract    contract;  // contract announced
+        bool        slam;      // true if the taker has announced a slam (chelem)
+
+        void Initialize()
+        {
+            contract = Contract::PASS;
+            slam = false;
+            place = Place::NOWHERE;
+        }
+    };
+
+    struct HandleInfo
+    {
+        Handle  type;
+        bool    declared;
+    };
+
+    struct Shuffle
+    {
+        ShuffleType     type;
+        std::string     file;
+        std::uint32_t   seed;
+
+        void Initialize()
+        {
+            type = Game::RANDOM_DEAL;
+            seed = 0U;
+        }
+
+        friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Shuffle &sh)
+        {
+            out << (std::uint8_t)sh.type
+                << sh.file
+                << sh.seed;
+            return out;
+        }
+
+        friend ByteStreamReader &operator>>(ByteStreamReader &in, Shuffle &sh)
+        {
+            std::uint8_t var8;
+
+            in >> var8;
+            sh.type = (ShuffleType)var8;
+            in >> sh.file;
+            in >> sh.seed;
+            return in;
+        }
+
+    };
+
+    enum GameMode
+    {
+        ONE_DEAL    = 0xAA, //!< The game will stop after one full deal played
+        TOURNAMENT  = 0xBB  //!< The game will stop after a number of consecutive deals (server configuration)
+    };
+
+    static Place NextPlayer(Place current, std::uint8_t numberOfPlayers);
+    static std::uint8_t NumberOfDogCards(std::uint8_t numberOfPlayers);
+    static std::uint8_t NumberOfCardsInHand(std::uint8_t numberOfPlayers);
 };
 
 #endif // COMMON_H

@@ -28,11 +28,9 @@
 
 #include "Common.h"
 #include "Deck.h"
-#include "Identity.h"
-#include "Game.h"
 
 /*****************************************************************************/
-class Player
+class Player : public Deck
 {
 public:
     Player();
@@ -42,21 +40,16 @@ public:
     bool IsFree();
 
     // Getters
-    Identity &GetIdentity();
-    Place GetPlace();
-    Deck &GetDeck();
     std::uint32_t GetUuid() const;
+    bool HasAck() { return mAck; }
 
     // Setters
-    void SetIdentity(const Identity &ident);
-    void SetPlace(Place p);
     void SetUuid(std::uint32_t value);
+    void SetAck(bool ack = true) { mAck = ack; }
 
 private:
-    Identity    mIdentity;  //!< player's identification
-    Deck        mDeck;      //!< players cards
-    Place       mPlace;     //!< assigned place by the server around the table
     std::uint32_t mUuid;    //!< User's unique identifier
+    bool mAck;
 };
 
 #endif // _PLAYER_H

@@ -35,22 +35,21 @@
 
 /*****************************************************************************/
 /**
- * @brief The Server class
+ * @brief The Controller class
  *
- * A server instance creates a thread. All requests to the server must be
+ * A server instance creates one controller thread. All requests to the server must be
  * performed using a request packet sent to the send for executions.
  *
  * All the requests are queued in the order of arrival and executed in a FIFO mode.
  *
  * The TarotEngine is not accessible to protect accesses and enforce all the
- * calls within the thread context.
- *
+ * calls within the thread context. This mechanism allow a protection by design against
+ * multi-threaded application.
  */
-class Controller : public TarotEngine::IEvent
+class Controller
 {
 
 public:
-
     enum SignalType
     {
         SIG_SEND_DATA,    //!< Emitted when there is something to send to a client
@@ -83,18 +82,7 @@ private:
     void Run();
     static void EntryPoint(void * pthis);
 
-    void NewServerGame(Game::Mode mode, Game::Shuffle shuffle);
-
-    // From TarotEngine
-    void RequestBid(Contract c, Place p);
-    void DealAgain();
-    void PlayCard(Place p);
-    void EndOfTrick(Place p);
-    void EndOfDeal();
-    void SendCards();
-    void ShowDog();
-    void StartDeal();
-
+    void NewDeal();
     bool DoAction(const ByteArray &data);
     void SendPacket(const ByteArray &block);
     void SignalGameFull();

@@ -128,12 +128,12 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
 /*****************************************************************************/
 ByteArray Protocol::BuildClientReady(std::uint32_t uuid)
 {
-    return BuildCommand(Protocol::CLIENT_READY, uuid);
+    return BuildCommand(Protocol::CLIENT_SYNC_READY, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::BuildClientSyncDog(std::uint32_t uuid)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_DOG, uuid);
+    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_DOG, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::BuildClientSyncHandle(std::uint32_t uuid)
@@ -148,7 +148,7 @@ ByteArray Protocol::BuildClientSyncTrick(std::uint32_t uuid)
 /*****************************************************************************/
 ByteArray Protocol::BuildClientSyncCard(std::uint32_t uuid)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_CARD, uuid);
+    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_CARD, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::BuildClientSyncStart(std::uint32_t uuid)
@@ -158,7 +158,7 @@ ByteArray Protocol::BuildClientSyncStart(std::uint32_t uuid)
 /*****************************************************************************/
 ByteArray Protocol::BuildClientSyncBid(std::uint32_t uuid)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_BID, uuid);
+    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_BID, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::BuildClientError(std::uint32_t uuid)
@@ -170,30 +170,26 @@ ByteArray Protocol::BuildErrorServerFull(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::SERVER_ERROR_FULL, uuid);
 }
-/*****************************************************************************/
-ByteArray Protocol::BuildDiscardRequest(std::uint32_t uuid)
-{
-    return BuildCommand(Protocol::SERVER_BUILD_DISCARD, uuid);
-}
+
 /*****************************************************************************/
 ByteArray Protocol::BuildDisconnect(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::ADMIN_DISCONNECT, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildDealAgain()
+ByteArray Protocol::BuildAdminNewDeal()
 {
-    return BuildCommand(Protocol::SERVER_DEAL_AGAIN, Protocol::ALL_PLAYERS);
-}
-/*****************************************************************************/
-ByteArray Protocol::BuildStartDeal()
-{
-    return BuildCommand(Protocol::ADMIN_START_DEAL, Protocol::ADMIN_UID);
+    return BuildCommand(Protocol::ADMIN_NEW_DEAL, Protocol::ADMIN_UID);
 }
 /*****************************************************************************/
 ByteArray Protocol::BuildQuitGame()
 {
     return BuildCommand(Protocol::ADMIN_QUIT_GAME, Protocol::ADMIN_UID);
+}
+/*****************************************************************************/
+ByteArray Protocol::BuildNewDeal()
+{
+    return BuildCommand(Protocol::SERVER_NEW_DEAL, Protocol::ALL_PLAYERS);
 }
 /*****************************************************************************/
 ByteArray Protocol::BuildAddPlayer(std::uint32_t new_player_uuid)
@@ -312,14 +308,7 @@ ByteArray Protocol::BuildShowBid(Contract c, bool slam, Place p)
     out.Seek(HEADER_SIZE);
     out << p; // current player bid
     out << c; // contract to show
-    if (slam)
-    {
-        out << (std::uint8_t)1;
-    }
-    else
-    {
-        out << (std::uint8_t)0;
-    }
+    out << slam; // if slam declared
     UpdateHeader(packet);
 
     return packet;
@@ -389,16 +378,18 @@ ByteArray Protocol::BuildShowHandle(Deck &handle, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildSendCards(std::uint32_t uuid, Deck &cards)
+ByteArray Protocol::BuildSendCards(Player *player)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::SERVER_SEND_CARDS, uuid);
-    out.Seek(HEADER_SIZE);
-    out << cards;
-    UpdateHeader(packet);
-
+    if (player != NULL)
+    {
+        BuildHeader(packet, Protocol::SERVER_SEND_CARDS, player->GetUuid());
+        out.Seek(HEADER_SIZE);
+        out << *player;
+        UpdateHeader(packet);
+    }
     return packet;
 }
 /*****************************************************************************/
@@ -428,15 +419,16 @@ ByteArray Protocol::BuildEndOfTrick(Place winner)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildStartDeal(Place taker, Contract contract, const Game::Shuffle &sh)
+ByteArray Protocol::BuildStartDeal(const Game::Bid &bid, const Game::Shuffle &sh)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::SERVER_START_DEAL, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << taker;
-    out << contract;
+    out << bid.place;       // taker
+    out << bid.contract;    // bid declared
+    out << bid.slam;        // slame declared
     out << sh;
     UpdateHeader(packet);
 
@@ -483,12 +475,12 @@ ByteArray Protocol::BuildShowDog(Deck &dog)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildNewGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle)
+ByteArray Protocol::BuildAdminCreateGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::ADMIN_NEW_SERVER_GAME, Protocol::ADMIN_UID);
+    BuildHeader(packet, Protocol::ADMIN_CREATE_GAME, Protocol::ADMIN_UID);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)gameMode;
     out << (std::uint8_t)nbPlayers; // number of players in the current game

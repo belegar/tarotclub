@@ -28,6 +28,7 @@
 /*****************************************************************************/
 Player::Player()
     : mUuid(0U)
+    , mAck(false)
 {
 
 }
@@ -111,7 +112,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     }
 
     // Some indications on the player cards in hand
-    for (Deck::ConstIterator i = mDeck.Begin(); i != mDeck.End(); ++i)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         c = *(i);
         if (c->GetSuit() == Card::TRUMPS)
@@ -236,31 +237,6 @@ bool Player::IsFree()
     {
         return false;
     }
-}
-/*****************************************************************************/
-void Player::SetIdentity(const Identity &ident)
-{
-    mIdentity = ident;
-}
-/*****************************************************************************/
-void Player::SetPlace(Place p)
-{
-    mPlace = p;
-}
-/*****************************************************************************/
-Identity &Player::GetIdentity()
-{
-    return mIdentity;
-}
-/*****************************************************************************/
-Place Player::GetPlace()
-{
-    return mPlace;
-}
-/*****************************************************************************/
-Deck &Player::GetDeck()
-{
-    return mDeck;
 }
 
 //=============================================================================

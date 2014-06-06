@@ -58,9 +58,9 @@ void Bot::AssignedPlace()
     mBotEngine.Call("EnterGame", args);
 }
 /*****************************************************************************/
-void Bot::PlayersList(std::map<Place, Identity> &players)
+void Bot::PlayersList()
 {
-    (void)(players);
+    // Nothing to do with the list of players
 }
 /*****************************************************************************/
 void Bot::ReceiveCards()
@@ -223,7 +223,7 @@ void Bot::BuildDiscard()
     mClient.SetDiscard(discard);
 }
 /*****************************************************************************/
-void Bot::DealAgain()
+void Bot::NewDeal()
 {
     // Re-inititialize script context
     if (InitializeScriptContext() == true)

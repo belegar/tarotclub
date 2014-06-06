@@ -48,15 +48,15 @@ public:
     void Initialize();
     void NewDeal();
     bool Calculate(Game &info);
-    void GenerateEndDealLog(Game &info, std::map<Place, Identity> &players);
+    void GenerateEndDealLog(Game &info);
     bool AddScore(const Game &info);
 
     // Getters
     Deck GetTrick(int turn);
-    int  GetTotalPoints(Place p);
+    int  GetTotalPoints(Place p) const;
     Score  &GetScore();
     std::map<int, Place> GetPodium();
-    Deck &GetDog();
+    Deck GetDog();
 
     // Setters
     void SetHandle(Deck &handle, Team team);
