@@ -35,6 +35,7 @@
 #include "Common.h"
 #include "Game.h"
 #include "Deck.h"
+#include "Identity.h"
 
 /*****************************************************************************/
 class InfosDock : public QDockWidget
@@ -48,12 +49,13 @@ public:
     InfosDock(QWidget *parent);
 
     void Clear();
+    void SetPlayers(const QMap<Place, Identity> &players);
     void SetContract(Contract contract);
-    void SetTaker(QString &name, Place place);
+    void SetTaker(const QString &name, Place place);
     void SetDealNumber(std::uint32_t n);
-    void PrintStats(Deck::Statistics &stats);
-    void AddRound(Game &info, Place p, const QString &txt);
-    void SelectWinner(Game &info, Place p);
+    void PrintStats(const Deck::Statistics &stats);
+    void AddRound(const Game &info, Place p, const QString &txt);
+    void SelectWinner(const Game &info, Place p);
     void SelectFirstPlayer(int turn, Place p);
 };
 

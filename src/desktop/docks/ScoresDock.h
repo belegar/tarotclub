@@ -40,9 +40,9 @@ private:
 public:
     ScoresDock(QWidget *parent);
 
-    void clear();
-    void setPlayers(QMap<Place, Identity> &players);
-    void SetNewScore(Deal &deal);
+    void Clear();
+    void SetPlayers(const QMap<Place, Identity> &players);
+    void SetNewScore(const Deal &deal);
 
 protected:
     void closeEvent(QCloseEvent *e);

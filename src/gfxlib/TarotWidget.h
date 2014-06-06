@@ -62,9 +62,15 @@ public:
     void LaunchLocalGame(Game::Mode, const Game::Shuffle &sh);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
 
-
     // Configuration management
     void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
+
+    // Getters about various current game information, external usage
+    QMap<Place, Identity> GetPlayersList() { return mPlayers; }
+
+signals:
+    // These signals are used to indicate to an external widget any useful game event
+    void sigPlayersListEvent();
 
 public slots:
     // These slots are made available to link them to any external widget
@@ -75,12 +81,12 @@ public slots:
     void slotSendChatMessage(const QString &message);
 
 private:
-    Table           table;    // A Tarot table, owns a thread, bots and a Tarot network engine game
+    Table           mTable;    // A Tarot table, owns a thread, bots and a Tarot network engine game
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
     Client          mClient; // The human player
     bool            firstTurn;
-    QMap<Place, Identity> players;
+    QMap<Place, Identity> mPlayers;
     Deal            deal;
     Deck            discard;
     std::list<std::string> mMessages;
@@ -101,14 +107,16 @@ private:
         emit sigMessage();
     }
     virtual void AssignedPlace() { emit sigAssignedPlace(); }
-    virtual void PlayersList(std::map<Place, Identity> &pl)
+    virtual void PlayersList()
     {
         std::map<Place, Identity>::iterator iter;
+        std::map<Place, Identity> pl = mClient.GetGame().GetPlayers();
 
-        players.clear();
+        // Transform a std::map into a QMap
+        mPlayers.clear();
         for(iter = pl.begin(); iter != pl.end(); iter++)
         {
-            players[iter->first] = iter->second;
+            mPlayers[iter->first] = iter->second;
         }
 
         emit sigPlayersList();
@@ -121,7 +129,7 @@ private:
     virtual void ShowDog() { emit sigShowDog(); }
     virtual void ShowHandle() { emit sigShowHandle(); }
     virtual void BuildDiscard() { emit sigBuildDiscard(); }
-    virtual void DealAgain() { emit sigDealAgain(); }
+    virtual void NewDeal() { emit sigDealAgain(); }
     virtual void PlayCard()  { emit sigPlayCard(); }
     virtual void ShowCard(Place p, const std::string &name)  { emit sigShowCard(p, name); }
     virtual void WaitTrick(Place winner) { emit sigWaitTrick(winner); }

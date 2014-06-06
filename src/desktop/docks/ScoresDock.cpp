@@ -49,12 +49,12 @@ void ScoresDock::closeEvent(QCloseEvent *e)
     emit sgnlClose();
 }
 /*****************************************************************************/
-void ScoresDock::clear()
+void ScoresDock::Clear()
 {
     tableScores->setRowCount(0);
 }
 /*****************************************************************************/
-void ScoresDock::setPlayers(QMap<Place, Identity> &players)
+void ScoresDock::SetPlayers(const QMap<Place, Identity> &players)
 {
     QStringList header;
 
@@ -69,7 +69,7 @@ void ScoresDock::setPlayers(QMap<Place, Identity> &players)
     tableScores->setHorizontalHeaderLabels(header);
 }
 /*****************************************************************************/
-void ScoresDock::SetNewScore(Deal &deal)
+void ScoresDock::SetNewScore(const Deal &deal)
 {
     int n, total;
 
