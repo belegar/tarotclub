@@ -144,12 +144,12 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
         TLogError("3 or 5 players are not yet supported");
         return;
     }
-    mController.ExecuteRequest(Protocol::BuildNewGame(gameMode, nbPlayers, shuffle));
+    mController.ExecuteRequest(Protocol::BuildAdminCreateGame(gameMode, nbPlayers, shuffle));
 }
 /*****************************************************************************/
-void Table::StartDeal()
+void Table::NewDeal()
 {
-    mController.ExecuteRequest(Protocol::BuildStartDeal());
+    mController.ExecuteRequest(Protocol::BuildAdminNewDeal());
 }
 /*****************************************************************************/
 void Table::Initialize()
