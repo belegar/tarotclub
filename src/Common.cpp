@@ -277,11 +277,6 @@ bool Tarot::IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlaye
         return false;
     }
 }
-/*****************************************************************************/
-int Tarot::GetRemainingTurns(std::uint8_t trickCounter, std::uint8_t numberOfPlayers)
-{
-    return (NumberOfCardsInHand(numberOfPlayers) - trickCounter);
-}
 
 //=============================================================================
 // End of file Common.cpp
