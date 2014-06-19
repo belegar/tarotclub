@@ -107,18 +107,18 @@ public:
     Deck Mid(std::uint32_t from_pos);
     Deck Mid(std::uint32_t from_pos, std::uint32_t size);
     void Remove(Card *c);
-    std::uint32_t Count(Card *c);
-    bool HasCard(Card *c);
+    std::uint32_t Count(Card *c) const;
+    bool HasCard(Card *c) const;
 
     // Helpers
-    void AnalyzeTrumps(Statistics &stats);
+    void AnalyzeTrumps(Statistics &stats) const;
     void AnalyzeSuits(Statistics &stats);
     void Shuffle(int seed);
     void Sort(const std::string &order = "TCHDS");
-    bool HasOneOfTrump();
-    bool HasFool();
-    Card *HighestTrump();
-    Card *HighestSuit();
+    bool HasOneOfTrump() const;
+    bool HasFool() const;
+    Card *HighestTrump() const;
+    Card *HighestSuit() const;
 
     // Getters
     Card *GetCardByName(const std::string &i_name);

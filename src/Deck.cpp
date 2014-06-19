@@ -114,7 +114,7 @@ void Deck::Remove(Card *c)
  * @param c
  * @return
  */
-std::uint32_t Deck::Count(Card *c)
+std::uint32_t Deck::Count(Card *c) const
 {
     std::uint32_t counter = 0U;
 
@@ -171,42 +171,44 @@ Card *Deck::GetCardByName(const std::string &i_name)
     return NULL;
 }
 /*****************************************************************************/
-bool Deck::HasCard(Card *c)
+bool Deck::HasCard(Card *c) const
 { 
-    if (std::count(Begin(), End(), c) == 0)
+    bool ret = false;
+    if (std::count(Begin(), End(), c) > 0)
     {
-        return false;
+        ret = true;
     }
-    else
-    {
-        return true;
-    }
+    return ret;
 }
 /*****************************************************************************/
-bool Deck::HasOneOfTrump()
+bool Deck::HasOneOfTrump() const
 {
+    bool ret = false;
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if (((*i)->GetSuit() == Card::TRUMPS) &&
             ((*i)->GetValue() == 1))
         {
-            return true;
+            ret = true;
+            break;
         }
     }
-    return false;
+    return ret;
 }
 /*****************************************************************************/
-bool Deck::HasFool()
+bool Deck::HasFool() const
 {
+    bool ret = false;
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if (((*i)->GetSuit() == Card::TRUMPS) &&
             ((*i)->GetValue() == 0))
         {
-            return true;
+            ret = true;
+            break;
         }
     }
-    return false;
+    return ret;
 }
 /*****************************************************************************/
 /**
@@ -217,7 +219,7 @@ bool Deck::HasFool()
  *
  * @return The highest trump in the deck
  */
-Card *Deck::HighestTrump()
+Card *Deck::HighestTrump() const
 {
     Card *c = NULL;
     int value = 0;
@@ -234,7 +236,7 @@ Card *Deck::HighestTrump()
     return c;
 }
 /*****************************************************************************/
-Card *Deck::HighestSuit()
+Card *Deck::HighestSuit() const
 {
     Card *c = NULL;
     int value = 0;
@@ -373,7 +375,7 @@ void Deck::Statistics::Reset()
     points = 0.0;
 }
 /*****************************************************************************/
-void Deck::AnalyzeTrumps(Statistics &stats)
+void Deck::AnalyzeTrumps(Statistics &stats) const
 {
     int val;
     Card *c;
