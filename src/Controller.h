@@ -86,7 +86,8 @@ private:
     bool DoAction(const ByteArray &data);
     void SendPacket(const ByteArray &block);
     void SignalGameFull();
-
+    void BidSequence();
+    void GameSequence();
 };
 
 #endif // CONTROLLER_H
