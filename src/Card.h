@@ -58,14 +58,14 @@ public:
     void  SetPoints(float p);
     void  SetId(int);
     void  SetOwner(Place);
-    void  SetValue(int v);
+    void  SetValue(std::uint8_t v);
 
     // Getters
     Suit    GetSuit();
     float   GetPoints();
     int     GetId();
     Place   GetOwner();
-    int     GetValue();
+    std::uint8_t     GetValue();
     std::string GetName();
 
 private:
@@ -85,7 +85,7 @@ private:
      *      Knight  = 12
      *      Jack    = 11
      */
-    int     mValue;
+    std::uint8_t mValue;
 
 };
 
