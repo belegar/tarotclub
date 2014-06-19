@@ -149,6 +149,8 @@ void Bot::ShowDog()
 void Bot::ShowHandle()
 {
     JSEngine::StringList args;
+
+    // Send the handle to the bot
     args.push_back(mClient.GetHandleDeck().GetCardList());
     if (mClient.GetHandleDeck().GetOwner() == ATTACK)
     {
