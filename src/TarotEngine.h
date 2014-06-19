@@ -65,15 +65,16 @@ public:
         START_DEAL
     };
 
-    TarotEngine(IEvent &handler);
+    TarotEngine();
     ~TarotEngine();
 
     // Helpers
     void Initialize();
     void StopGame();
-    void CreateGame(Tarot::GameMode mode, const Game::Shuffle &s, std::uint8_t nbPlayers);
+    void CreateGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t nbPlayers);
     void NewDeal();
     void StartDeal();
+    void EndOfDeal();
 
     Place AddPlayer(std::uint32_t uuid);
     BidResult BidSequence();
@@ -92,13 +93,14 @@ public:
     Tarot::Bid      GetBid() { return mBid; }
     Tarot::GameMode GetGameMode() { return mGameMode; }
     Deck GetDog();
-    Game::Shuffle GetShuffle();
+    Tarot::Shuffle GetShuffle();
+    bool IsLastTrick() { return Tarot::IsDealFinished(mTrickCounter, mNbPlayers); }
 
     // Setters
     bool SetIdentity(std::uint32_t uuid, const Identity &ident);
-    void SetDiscard(Deck &discard);
-    bool SetHandle(Deck &handle, Place p);
-    void SetCard(Card *c, Place p);
+    void SetDiscard(const Deck &discard);
+    bool SetHandle(const Deck &handle, Place p);
+    bool SetCard(Card *c, Place p);
     Contract SetBid(Contract c, bool slam, Place p);
 
 private:
@@ -112,20 +114,18 @@ private:
     Sequence        mSequence;
     Tarot::Bid      mBid;
     Tarot::Shuffle  mShuffle;
-    std::uint32_t   mPosition;          // Current position, [1..numberOfPlayers]
+    std::uint8_t    mPosition;          // Current position, [1..numberOfPlayers]
     Place           mDealer;            // who has dealt the cards
-    std::uint32_t   trickCounter;      // number of tricks played [1..18] for 4 players
+    std::uint8_t    mTrickCounter;       // number of tricks played [1..18] for 4 players
     Place           mCurrentPlayer;
     unsigned        mSeed;
     Tarot::GameMode mGameMode;
+    Tarot::Handle   mAttackHandle;
+    Tarot::Handle   mDefenseHandle;
 
     bool AckFromAllPlayers();
     void ResetAck();
-    bool IsCardValid(Card *c, Place p);
-    bool HasCard(Card *c, Place p);
     void CreateDeal();
-    void ShowDog();
-    void EndOfDeal();
     bool NextPlayer();
 };
 
