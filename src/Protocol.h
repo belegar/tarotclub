@@ -33,7 +33,6 @@
 #include "Identity.h"
 #include "ByteArray.h"
 #include "Score.h"
-#include "Game.h"
 
 class Protocol
 {
@@ -59,7 +58,7 @@ public:
         CLIENT_BID              = 0x12,
         CLIENT_DISCARD          = 0x13, //!< Client send the discard
         CLIENT_CARD             = 0x14,
-        CLIENT_HANDLE           = 0x15, //!< Client has declared a handle
+        CLIENT_HANDLE           = 0x15, //!< Client handle declaration reply
         CLIENT_ERROR            = 0x16,
         CLIENT_SYNC_READY       = 0x17,
         CLIENT_SYNC_SHOW_DOG    = 0x18, //!< Used to synchronize all clients that are looking at the dog cards
@@ -84,11 +83,13 @@ public:
         SERVER_SHOW_CARD        = 0x79, //!< card played broadcasted to all clients
         SERVER_SHOW_PLAYER_BID  = 0x7A, //!< one player has announced something, broacast it to all clients
         SERVER_SHOW_DOG         = 0x7B,
-        SERVER_SHOW_HANDLE      = 0x7C, //!< show a handle to all players
-        SERVER_END_OF_TRICK     = 0x7D,
-        SERVER_END_OF_DEAL      = 0x7E,
-        SERVER_END_OF_GAME      = 0x7F, //!< end of the game mode (tournament ...)
-        SERVER_ERROR_FULL       = 0x80, //!< Server is full, cannot join game
+        SERVER_ASK_FOR_HANDLE   = 0x7C,
+        SERVER_SHOW_HANDLE      = 0x7D, //!< show a handle to all players
+        SERVER_END_OF_TRICK     = 0x7E,
+        SERVER_END_OF_DEAL      = 0x7F,
+        SERVER_END_OF_GAME      = 0x80, //!< end of the game mode (tournament ...)
+        SERVER_ERROR_FULL       = 0x81, //!< Server is full, cannot join game
+
 
         // admin -> server
         ADMIN_CREATE_GAME       = 0xA0, //!< Ask the server to start a new game
@@ -109,45 +110,46 @@ public:
     static std::vector<PacketInfo> DecodePacket(const ByteArray &data);
 
     // Client to server packets
-    static ByteArray BuildReplyIdentity(const Identity &ident, std::uint32_t uuid);
-    static ByteArray BuildClientChatMessage(const std::string &message, std::uint32_t uuid);
-    static ByteArray BuildClientReady(std::uint32_t uuid);
-    static ByteArray BuildClientError(std::uint32_t uuid);
-    static ByteArray BuildClientBid(Contract c, bool slam, std::uint32_t uuid);
-    static ByteArray BuildClientSyncDog(std::uint32_t uuid);
-    static ByteArray BuildClientSyncHandle(std::uint32_t uuid);
-    static ByteArray BuildClientSyncTrick(std::uint32_t uuid);
-    static ByteArray BuildClientSyncCard(std::uint32_t uuid);
-    static ByteArray BuildClientSyncStart(std::uint32_t uuid);
-    static ByteArray BuildClientSyncBid(std::uint32_t uuid);
-    static ByteArray BuildClientDiscard(const Deck &discard, std::uint32_t uuid);
-    static ByteArray BuildClientHandle(const Deck &handle, std::uint32_t uuid);
-    static ByteArray BuildClientCard(const std::string &card, std::uint32_t uuid);
+    static ByteArray ClientReplyIdentity(const Identity &ident, std::uint32_t uuid);
+    static ByteArray ClientChatMessage(const std::string &message, std::uint32_t uuid);
+    static ByteArray ClientReady(std::uint32_t uuid);
+    static ByteArray ClientError(std::uint32_t uuid);
+    static ByteArray ClientBid(Contract c, bool slam, std::uint32_t uuid);
+    static ByteArray ClientSyncDog(std::uint32_t uuid);
+    static ByteArray ClientSyncHandle(std::uint32_t uuid);
+    static ByteArray ClientSyncTrick(std::uint32_t uuid);
+    static ByteArray ClientSyncCard(std::uint32_t uuid);
+    static ByteArray ClientSyncStart(std::uint32_t uuid);
+    static ByteArray ClientSyncBid(std::uint32_t uuid);
+    static ByteArray ClientDiscard(const Deck &discard, std::uint32_t uuid);
+    static ByteArray ClientHandle(const Deck &handle, std::uint32_t uuid);
+    static ByteArray ClientCard(const std::string &card, std::uint32_t uuid);
 
     // Server to client packets
-    static ByteArray BuildErrorServerFull(std::uint32_t uuid);
-    static ByteArray BuildDiscardRequest(std::uint32_t uuid);
-    static ByteArray BuildDisconnect(std::uint32_t uuid);
-    static ByteArray BuildNewDeal();
-    static ByteArray BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::Mode mode, std::uint32_t uuid);
-    static ByteArray BuildServerChatMessage(const std::string &message);
-    static ByteArray BuildShowBid(Contract c, bool slam, Place p);
-    static ByteArray BuildPlayersList(std::map<Place, Identity> players);
-    static ByteArray BuildShowCard(Card *c, Place p);
-    static ByteArray BuildShowHandle(Deck &handle, Place p);
-    static ByteArray BuildSendCards(Player *player);
-    static ByteArray BuildEndOfDeal(Score &score);
-    static ByteArray BuildEndOfTrick(Place winner);
-    static ByteArray BuildStartDeal(const Game::Bid &bid, const Game::Shuffle &sh);
-    static ByteArray BuildPlayCard(Place p);
-    static ByteArray BuildBidRequest(Contract c, Place p);
-    static ByteArray BuildShowDog(Deck &dog);
+    static ByteArray ServerFullMessage(std::uint32_t uuid);
+    static ByteArray ServerDiscardRequest(std::uint32_t uuid);
+    static ByteArray ServerDisconnect(std::uint32_t uuid);
+    static ByteArray ServerAskForHandle(std::uint32_t uuid);
+    static ByteArray ServerNewDeal();
+    static ByteArray ServerRequestIdentity(Place p, std::uint8_t nbPlayers, Tarot::GameMode mode, std::uint32_t uuid);
+    static ByteArray ServerChatMessage(const std::string &message);
+    static ByteArray ServerShowBid(Contract c, bool slam, Place p);
+    static ByteArray ServerPlayersList(std::map<Place, Identity> players);
+    static ByteArray ServerShowCard(Card *c, Place p);
+    static ByteArray ServerShowHandle(Deck &handle, Place p);
+    static ByteArray ServerSendCards(Player *player);
+    static ByteArray ServerEndOfDeal(Score &score);
+    static ByteArray ServerEndOfTrick(Place winner);
+    static ByteArray ServerStartDeal(const Tarot::Bid &bid, const Tarot::Shuffle &sh);
+    static ByteArray ServerPlayCard(Place p);
+    static ByteArray ServerBidRequest(Contract c, Place p);
+    static ByteArray ServerShowDog(const Deck &dog);
 
     // Admin to controller packets
-    static ByteArray BuildAddPlayer(std::uint32_t new_player_uuid);
-    static ByteArray BuildAdminCreateGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle);
-    static ByteArray BuildAdminNewDeal();
-    static ByteArray BuildQuitGame();
+    static ByteArray AdminAddPlayer(std::uint32_t new_player_uuid);
+    static ByteArray AdminCreateGame(Tarot::GameMode gameMode, std::uint8_t nbPlayers, const Tarot::Shuffle &shuffle);
+    static ByteArray AdminNewDeal();
+    static ByteArray AdminQuitGame();
 
 private:
 

@@ -126,73 +126,77 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
     return packets;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientReady(std::uint32_t uuid)
+ByteArray Protocol::ClientReady(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_READY, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientSyncDog(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncDog(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_SHOW_DOG, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientSyncHandle(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncHandle(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_HANDLE, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientSyncTrick(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncTrick(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_TRICK, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientSyncCard(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncCard(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_SHOW_CARD, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientSyncStart(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncStart(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_START, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientSyncBid(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncBid(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_SHOW_BID, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientError(std::uint32_t uuid)
+ByteArray Protocol::ClientError(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_ERROR, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildErrorServerFull(std::uint32_t uuid)
+ByteArray Protocol::ServerFullMessage(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::SERVER_ERROR_FULL, uuid);
 }
-
 /*****************************************************************************/
-ByteArray Protocol::BuildDisconnect(std::uint32_t uuid)
+ByteArray Protocol::ServerDisconnect(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::ADMIN_DISCONNECT, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildAdminNewDeal()
+ByteArray Protocol::AdminNewDeal()
 {
     return BuildCommand(Protocol::ADMIN_NEW_DEAL, Protocol::ADMIN_UID);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildQuitGame()
+ByteArray Protocol::AdminQuitGame()
 {
     return BuildCommand(Protocol::ADMIN_QUIT_GAME, Protocol::ADMIN_UID);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildNewDeal()
+ByteArray Protocol::ServerNewDeal()
 {
     return BuildCommand(Protocol::SERVER_NEW_DEAL, Protocol::ALL_PLAYERS);
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildAddPlayer(std::uint32_t new_player_uuid)
+ByteArray Protocol::ServerAskForHandle(std::uint32_t uuid)
+{
+    return BuildCommand(Protocol::SERVER_ASK_FOR_HANDLE, uuid);
+}
+/*****************************************************************************/
+ByteArray Protocol::AdminAddPlayer(std::uint32_t new_player_uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -205,7 +209,7 @@ ByteArray Protocol::BuildAddPlayer(std::uint32_t new_player_uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::Mode mode, std::uint32_t uuid)
+ByteArray Protocol::ServerRequestIdentity(Place p, std::uint8_t nbPlayers, Tarot::GameMode mode, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -221,7 +225,7 @@ ByteArray Protocol::BuildRequestIdentity(Place p, std::uint8_t nbPlayers, Game::
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildReplyIdentity(const Identity &ident, std::uint32_t uuid)
+ByteArray Protocol::ClientReplyIdentity(const Identity &ident, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -234,7 +238,7 @@ ByteArray Protocol::BuildReplyIdentity(const Identity &ident, std::uint32_t uuid
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientDiscard(const Deck &discard, std::uint32_t uuid)
+ByteArray Protocol::ClientDiscard(const Deck &discard, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -247,7 +251,7 @@ ByteArray Protocol::BuildClientDiscard(const Deck &discard, std::uint32_t uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientHandle(const Deck &handle, std::uint32_t uuid)
+ByteArray Protocol::ClientHandle(const Deck &handle, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -260,7 +264,7 @@ ByteArray Protocol::BuildClientHandle(const Deck &handle, std::uint32_t uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientCard(const std::string &card, std::uint32_t uuid)
+ByteArray Protocol::ClientCard(const std::string &card, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -273,7 +277,7 @@ ByteArray Protocol::BuildClientCard(const std::string &card, std::uint32_t uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildServerChatMessage(const std::string &message)
+ByteArray Protocol::ServerChatMessage(const std::string &message)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -286,7 +290,7 @@ ByteArray Protocol::BuildServerChatMessage(const std::string &message)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientChatMessage(const std::string &message, std::uint32_t uuid)
+ByteArray Protocol::ClientChatMessage(const std::string &message, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -299,7 +303,7 @@ ByteArray Protocol::BuildClientChatMessage(const std::string &message, std::uint
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildShowBid(Contract c, bool slam, Place p)
+ByteArray Protocol::ServerShowBid(Contract c, bool slam, Place p)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -314,7 +318,7 @@ ByteArray Protocol::BuildShowBid(Contract c, bool slam, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildClientBid(Contract c, bool slam, std::uint32_t uuid)
+ByteArray Protocol::ClientBid(Contract c, bool slam, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -328,7 +332,7 @@ ByteArray Protocol::BuildClientBid(Contract c, bool slam, std::uint32_t uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildPlayersList(std::map<Place, Identity> players)
+ByteArray Protocol::ServerPlayersList(std::map<Place, Identity> players)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -349,7 +353,7 @@ ByteArray Protocol::BuildPlayersList(std::map<Place, Identity> players)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildShowCard(Card *c, Place p)
+ByteArray Protocol::ServerShowCard(Card *c, Place p)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -364,7 +368,7 @@ ByteArray Protocol::BuildShowCard(Card *c, Place p)
 }
 
 /*****************************************************************************/
-ByteArray Protocol::BuildShowHandle(Deck &handle, Place p)
+ByteArray Protocol::ServerShowHandle(Deck &handle, Place p)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -378,7 +382,7 @@ ByteArray Protocol::BuildShowHandle(Deck &handle, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildSendCards(Player *player)
+ByteArray Protocol::ServerSendCards(Player *player)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -393,7 +397,7 @@ ByteArray Protocol::BuildSendCards(Player *player)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildEndOfDeal(Score &score)
+ByteArray Protocol::ServerEndOfDeal(Score &score)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -406,7 +410,7 @@ ByteArray Protocol::BuildEndOfDeal(Score &score)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildEndOfTrick(Place winner)
+ByteArray Protocol::ServerEndOfTrick(Place winner)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -419,14 +423,14 @@ ByteArray Protocol::BuildEndOfTrick(Place winner)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildStartDeal(const Game::Bid &bid, const Game::Shuffle &sh)
+ByteArray Protocol::ServerStartDeal(const Tarot::Bid &bid, const Tarot::Shuffle &sh)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::SERVER_START_DEAL, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
-    out << bid.place;       // taker
+    out << bid.taker;       // taker
     out << bid.contract;    // bid declared
     out << bid.slam;        // slame declared
     out << sh;
@@ -435,7 +439,7 @@ ByteArray Protocol::BuildStartDeal(const Game::Bid &bid, const Game::Shuffle &sh
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildPlayCard(Place p)
+ByteArray Protocol::ServerPlayCard(Place p)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -448,7 +452,7 @@ ByteArray Protocol::BuildPlayCard(Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildBidRequest(Contract c, Place p)
+ByteArray Protocol::ServerBidRequest(Contract c, Place p)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -462,7 +466,7 @@ ByteArray Protocol::BuildBidRequest(Contract c, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildShowDog(Deck &dog)
+ByteArray Protocol::ServerShowDog(const Deck &dog)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -475,7 +479,7 @@ ByteArray Protocol::BuildShowDog(Deck &dog)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::BuildAdminCreateGame(Game::Mode gameMode, std::uint8_t nbPlayers, const Game::Shuffle &shuffle)
+ByteArray Protocol::AdminCreateGame(Tarot::GameMode gameMode, std::uint8_t nbPlayers, const Tarot::Shuffle &shuffle)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -483,7 +487,7 @@ ByteArray Protocol::BuildAdminCreateGame(Game::Mode gameMode, std::uint8_t nbPla
     BuildHeader(packet, Protocol::ADMIN_CREATE_GAME, Protocol::ADMIN_UID);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)gameMode;
-    out << (std::uint8_t)nbPlayers; // number of players in the current game
+    out << nbPlayers; // number of players in the current game
     out << shuffle;
     UpdateHeader(packet);
 
