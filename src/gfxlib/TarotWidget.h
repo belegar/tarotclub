@@ -92,6 +92,7 @@ private:
     std::list<std::string> mMessages;
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;
+    Deck            mMyHandle;
 
     // Helpers
     void ShowSouthCards();
@@ -127,6 +128,7 @@ private:
     virtual void ShowBid(Place p, bool slam, Contract c) { emit sigShowBid(p, slam, c); }
     virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh) { emit sigStartDeal(taker, c, sh); }
     virtual void ShowDog() { emit sigShowDog(); }
+    virtual void AskForHandle() { emit sigAskForHandle(); }
     virtual void ShowHandle() { emit sigShowHandle(); }
     virtual void BuildDiscard() { emit sigBuildDiscard(); }
     virtual void NewDeal() { emit sigDealAgain(); }
@@ -146,6 +148,7 @@ signals:
    void sigShowBid(Place, bool, Contract);
    void sigShowDog();
    void sigStartDeal(Place, Contract, Game::Shuffle);
+   void sigAskForHandle();
    void sigShowHandle();
    void sigBuildDiscard();
    void sigDealAgain();
@@ -166,6 +169,7 @@ private slots:
     void slotShowBid(Place p, bool slam, Contract c);
     void slotShowDog();
     void slotStartDeal(Place taker, Contract c, Game::Shuffle sh);
+    void slotAskForHandle();
     void slotShowHandle();
     void slotBuildDiscard();
     void slotDealAgain();

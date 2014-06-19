@@ -50,7 +50,7 @@ TarotWidget::TarotWidget(QWidget* parent = 0)
 
     qRegisterMetaType<Place>("Place");
     qRegisterMetaType<Contract>("Contract");
-    qRegisterMetaType<Game::Shuffle>("Game::Shuffle");
+    qRegisterMetaType<Tarot::Shuffle>("Game::Shuffle");
     qRegisterMetaType<std::string>("std::string");
 
     // Board click events
@@ -78,6 +78,7 @@ TarotWidget::TarotWidget(QWidget* parent = 0)
     connect(this, &TarotWidget::sigEndOfDeal, this, &TarotWidget::slotEndOfDeal, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigEndOfGame, this, &TarotWidget::slotEndOfGame, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigShowCard, this, &TarotWidget::slotShowCard, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigAskForHandle, this, &TarotWidget::slotAskForHandle, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigShowHandle, this, &TarotWidget::slotShowHandle, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigWaitTrick, this, &TarotWidget::slotWaitTrick, Qt::QueuedConnection);
 }
@@ -268,7 +269,7 @@ void TarotWidget::slotAcceptDiscard()
 /*****************************************************************************/
 void TarotWidget::slotAcceptHandle()
 {
-    if (mClient.TestHandle() == false)
+    if (mClient.TestHandle(mMyHandle) == false)
     {
         QMessageBox::information(this, trUtf8("Information"),
                                  trUtf8("Your handle is not valid.\n"
@@ -432,15 +433,13 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
             // select one card
             if (!selected)
             {
-                mClient.GetHandleDeck().Append(c);
+                mMyHandle.Append(c);
             }
             else if (selected)
             {
-                mClient.GetHandleDeck().Remove(c);
+                mMyHandle.Remove(c);
             }
-            if ((mClient.GetHandleDeck().Size() == 10U) ||
-                    (mClient.GetHandleDeck().Size() == 13U) ||
-                    (mClient.GetHandleDeck().Size() == 15U))
+            if (mClient.TestHandle(mMyHandle))
             {
                 mCanvas->SetFilter(Canvas::MENU | Canvas::CARDS);
                 mCanvas->DisplayHandleMenu(true);
@@ -510,7 +509,6 @@ void TarotWidget::slotStartDeal(Place taker, Contract c, Game::Shuffle sh)
 {
     (void)sh;
     (void)c;
-    firstTurn = true;
     QString name = "ERROR";
 
     if (mPlayers.contains(taker))
@@ -542,7 +540,7 @@ void TarotWidget::slotShowHandle()
 {
     QList<Card *> cards;
 
-    for (Deck::ConstIterator i = mClient.GetHandleDeck().Begin(); i != mClient.GetHandleDeck().End(); ++i)
+    for (Deck::ConstIterator i = mMyHandle.Begin(); i != mMyHandle.End(); ++i)
     {
         cards.append((*i));
     }
@@ -572,32 +570,34 @@ void TarotWidget::slotBuildDiscard()
     ShowSouthCards();
 }
 /*****************************************************************************/
-void TarotWidget::slotPlayCard()
+void TarotWidget::slotAskForHandle()
 {
-    mCanvas->SetFilter(Canvas::CARDS);
+    mMyHandle.Clear();
 
     // If we're about to play the first card, the Player is allowed to declare a handle
-    if (firstTurn == true)
+    // If a handle exists in the player's deck, we propose to declare it
+    if (mClient.GetStatistics().trumps >= 10)
     {
-        firstTurn = false;
-        // If a handle exists in the player's deck, we propose to declare it
-        if (mClient.GetStatistics().trumps >= 10)
+        int ret = QMessageBox::question(this, trUtf8("Handle"),
+                                        trUtf8("You have a handle.\n"
+                                               "Do you want to declare it?"),
+                                        QMessageBox::Yes | QMessageBox::No);
+        if (ret == QMessageBox::Yes)
         {
-            int ret = QMessageBox::question(this, trUtf8("Handle"),
-                                            trUtf8("You have a handle.\n"
-                                                   "Do you want to declare it?"),
-                                            QMessageBox::Yes | QMessageBox::No);
-            if (ret == QMessageBox::Yes)
-            {
-                mClient.GetGame().sequence = Game::BUILD_HANDLE;
-                mClient.GetHandleDeck().Clear();
-            }
+            mClient.GetGame().sequence = Game::BUILD_HANDLE;
+            mCanvas->SetFilter(Canvas::CARDS);
         }
     }
     else
     {
-
+        // no available handle, send an empty deck
+        mClient.SendHandle();
     }
+}
+/*****************************************************************************/
+void TarotWidget::slotPlayCard()
+{
+    mCanvas->SetFilter(Canvas::CARDS);
 }
 /*****************************************************************************/
 /**
