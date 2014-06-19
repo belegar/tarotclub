@@ -38,6 +38,8 @@ public:
     // Helpers
     bool CanPlayCard(Card *, Deck &trick);
     bool IsFree();
+    bool TestHandle(const Deck &handle);
+    bool TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numberOfPlayers);
 
     // Getters
     std::uint32_t GetUuid() const;
