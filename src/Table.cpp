@@ -44,7 +44,7 @@ void Table::NewConnection(int socket)
     mUsers[uuid] = socket;
     mUsersMutex.unlock();
     // send the information to the Tarot engine
-    mController.ExecuteRequest(Protocol::BuildAddPlayer(uuid));
+    mController.ExecuteRequest(Protocol::AdminAddPlayer(uuid));
 }
 /*****************************************************************************/
 void Table::ReadData(int socket, const std::string &data)
@@ -144,12 +144,12 @@ void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &
         TLogError("3 or 5 players are not yet supported");
         return;
     }
-    mController.ExecuteRequest(Protocol::BuildAdminCreateGame(gameMode, nbPlayers, shuffle));
+    mController.ExecuteRequest(Protocol::AdminCreateGame(gameMode, nbPlayers, shuffle));
 }
 /*****************************************************************************/
 void Table::NewDeal()
 {
-    mController.ExecuteRequest(Protocol::BuildAdminNewDeal());
+    mController.ExecuteRequest(Protocol::AdminNewDeal());
 }
 /*****************************************************************************/
 void Table::Initialize()
