@@ -74,8 +74,10 @@ public:
     Place(std::uint8_t p);
     Place(std::string p);
 
+    // Helpers
     std::string ToString() const;
     std::uint8_t Value();
+    Place Next(std::uint8_t max);
 
     Place &operator = (Place const &rhs)
     {
@@ -87,7 +89,6 @@ public:
     inline bool operator != (const Place& rhs) const { return (this->mPlace != rhs.mPlace); }
     inline bool operator <  (const Place& rhs) const { return (this->mPlace < rhs.mPlace);  }
     inline bool operator >  (const Place& rhs) const { return (this->mPlace > rhs.mPlace); }
-    bool operator++(int);
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Place &p)
     {
@@ -235,7 +236,6 @@ public:
         TOURNAMENT  = 0xBB  //!< The game will stop after a number of consecutive deals (server configuration)
     };
 
-    static Place NextPlayer(Place current, std::uint8_t numberOfPlayers);
     static std::uint8_t NumberOfDogCards(std::uint8_t numberOfPlayers);
     static std::uint8_t NumberOfCardsInHand(std::uint8_t numberOfPlayers);
     static bool IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers);

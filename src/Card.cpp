@@ -39,7 +39,8 @@ std::string Card::GetName()
 {
     std::stringstream name;
 
-    name << std::setfill('0') << std::setw(2) << mValue << "-" << Card::ToString(mSuit);
+    // Cast internal value to ingeter to interpret the char as an "integer"
+    name << std::setfill('0') << std::setw(2) << (std::uint32_t)mValue << "-" << Card::ToString(mSuit);
     return name.str();
 }
 /*****************************************************************************/

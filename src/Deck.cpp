@@ -302,9 +302,9 @@ void Deck::SetOwner(Team team)
     owner = team;
 }
 /*****************************************************************************/
-int Deck::SetCards(const std::string &cards)
+std::uint8_t Deck::SetCards(const std::string &cards)
 {
-    int count = 0;
+    std::uint8_t count = 0U;
     std::size_t found = std::string::npos;
     int pos = 0;
 

@@ -59,8 +59,9 @@ private:
     virtual void SelectPlayer(Place p);
     virtual void RequestBid(Contract highestBid);
     virtual void ShowBid(Place p, bool slam, Contract c);
-    virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh);
+    virtual void StartDeal();
     virtual void ShowDog();
+    virtual void AskForHandle();
     virtual void ShowHandle();
     virtual void BuildDiscard();
     virtual void NewDeal();
@@ -69,6 +70,7 @@ private:
     virtual void WaitTrick(Place winner);
     virtual void EndOfDeal();
     virtual void EndOfGame();
+
 };
 
 #endif // BOT_H

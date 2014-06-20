@@ -127,7 +127,7 @@ public:
 
     // Setters
     void SetOwner(Team o);
-    int SetCards(const std::string &cards);
+    std::uint8_t SetCards(const std::string &cards);
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Deck &deck)
     {

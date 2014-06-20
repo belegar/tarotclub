@@ -136,7 +136,7 @@ void Table::SetTcpPort(std::uint16_t port)
     mTcpPort = port;
 }
 /*****************************************************************************/
-void Table::CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle)
+void Table::CreateGame(Tarot::GameMode gameMode, int nbPlayers, const Tarot::Shuffle &shuffle)
 {
     // TODO: add support for 3 and 5 players game
     if (nbPlayers != 4)

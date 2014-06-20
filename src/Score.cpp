@@ -26,7 +26,7 @@
 #include "Score.h"
 
 /*****************************************************************************/
-Team Score::Winner()
+Team Score::Winner() const
 {
     if (pointsAttack >= pointsToDo)
     {
@@ -50,7 +50,7 @@ void Score::Reset()
     slamPoints = 0;
 }
 /*****************************************************************************/
-int Score::GetNumberOfOudlers()
+int Score::GetNumberOfOudlers() const
 {
     int oudlers;
 
@@ -94,7 +94,7 @@ void Score::SetPointsToDo(int oudlers)
     }
 }
 /*****************************************************************************/
-int Score::GetAttackScore()
+int Score::GetAttackScore() const
 {
     int sign = -1;
 
@@ -105,7 +105,7 @@ int Score::GetAttackScore()
     return (scoreAttack * sign * 3);
 }
 /*****************************************************************************/
-int Score::GetDefenseScore()
+int Score::GetDefenseScore() const
 {
     int sign = 1;
 

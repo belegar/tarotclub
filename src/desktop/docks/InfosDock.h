@@ -33,7 +33,6 @@
 
 // Includes locales
 #include "Common.h"
-#include "Game.h"
 #include "Deck.h"
 #include "Identity.h"
 
@@ -54,8 +53,8 @@ public:
     void SetTaker(const QString &name, Place place);
     void SetDealNumber(std::uint32_t n);
     void PrintStats(const Deck::Statistics &stats);
-    void AddRound(const Game &info, Place p, const QString &txt);
-    void SelectWinner(const Game &info, Place p);
+    void AddRound(std::uint8_t trickCounter, Place p, const QString &txt);
+    void SelectWinner(std::uint8_t trickCounter, Place p);
     void SelectFirstPlayer(int turn, Place p);
 };
 

@@ -40,7 +40,7 @@ public:
 
     // Helpers
     void SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay);
-    void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
+    void CreateGame(Tarot::GameMode gameMode, int nbPlayers, const Tarot::Shuffle &shuffle);
     void NewDeal();
     void Initialize();
     void Stop();

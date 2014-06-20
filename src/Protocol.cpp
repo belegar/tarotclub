@@ -146,7 +146,7 @@ ByteArray Protocol::ClientSyncTrick(std::uint32_t uuid)
     return BuildCommand(Protocol::CLIENT_SYNC_TRICK, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncCard(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncShowCard(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_SHOW_CARD, uuid);
 }
@@ -159,6 +159,11 @@ ByteArray Protocol::ClientSyncStart(std::uint32_t uuid)
 ByteArray Protocol::ClientSyncBid(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_SHOW_BID, uuid);
+}
+/*****************************************************************************/
+ByteArray Protocol::ClientSyncCards(std::uint32_t uuid)
+{
+    return BuildCommand(Protocol::CLIENT_SYNC_CARDS, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::ClientError(std::uint32_t uuid)
@@ -194,6 +199,11 @@ ByteArray Protocol::ServerNewDeal()
 ByteArray Protocol::ServerAskForHandle(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::SERVER_ASK_FOR_HANDLE, uuid);
+}
+/*****************************************************************************/
+ByteArray Protocol::ServerAskForDiscard(std::uint32_t uuid)
+{
+    return BuildCommand(Protocol::SERVER_ASK_FOR_DISCARD, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::AdminAddPlayer(std::uint32_t new_player_uuid)

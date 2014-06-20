@@ -112,6 +112,18 @@ std::uint8_t Place::Value()
     return mPlace;
 }
 /*****************************************************************************/
+Place Place::Next(std::uint8_t max)
+{
+    mPlace++;
+
+    if ((mPlace >= max) ||
+        (mPlace >= NOWHERE))
+    {
+        mPlace = Place::SOUTH;
+    }
+    return *this;
+}
+/*****************************************************************************/
 std::vector<std::string> Place::Initialize()
 {
     std::vector<std::string> stringList;
@@ -124,15 +136,6 @@ std::vector<std::string> Place::Initialize()
     stringList.push_back(STR_NOWHERE);
 
     return stringList;
-}
-/*****************************************************************************/
-bool Place::operator++(int)
-{
-    mPlace++;
-    if (mPlace > NOWHERE)
-    {
-        mPlace = SOUTH;
-    }
 }
 /*****************************************************************************/
 Contract::Contract()
@@ -234,36 +237,7 @@ std::uint8_t Tarot::NumberOfCardsInHand(std::uint8_t numberOfPlayers)
 /*****************************************************************************/
 std::uint8_t Tarot::NumberOfDogCards(std::uint8_t numberOfPlayers)
 {
-    return (78U - (GetNumberOfCards() * numberOfPlayers));
-}
-/*****************************************************************************/
-Place Tarot::NextPlayer(Place current, std::uint8_t numberOfPlayers)
-{
-    Place p = current++;
-
-    if (numberOfPlayers == 3U)
-    {
-        if (p > Place::NORTH)
-        {
-            p = Place::SOUTH;
-        }
-    }
-    else if (numberOfPlayers == 5U)
-    {
-        if (p > Place::FIFTH)
-        {
-            p = Place::SOUTH;
-        }
-    }
-    else
-    {
-        // 4 players
-        if (p > Place::WEST)
-        {
-            p = Place::SOUTH;
-        }
-    }
-    return (p);
+    return (78U - (NumberOfCardsInHand(numberOfPlayers) * numberOfPlayers));
 }
 /*****************************************************************************/
 bool Tarot::IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers)

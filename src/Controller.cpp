@@ -288,7 +288,7 @@ bool Controller::DoAction(const ByteArray &data)
                 if (player != NULL)
                 {
                     std::uint32_t id = player->GetUuid();
-                    SendPacket(Protocol::ServerDiscardRequest(id));
+                    SendPacket(Protocol::ServerAskForDiscard(id));
                 }
             }
         }

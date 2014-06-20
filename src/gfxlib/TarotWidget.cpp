@@ -50,7 +50,7 @@ TarotWidget::TarotWidget(QWidget* parent = 0)
 
     qRegisterMetaType<Place>("Place");
     qRegisterMetaType<Contract>("Contract");
-    qRegisterMetaType<Tarot::Shuffle>("Game::Shuffle");
+    qRegisterMetaType<Tarot::Shuffle>("Tarot::Shuffle");
     qRegisterMetaType<std::string>("std::string");
 
     // Board click events
@@ -108,26 +108,26 @@ void TarotWidget::slotCleanBeforeExit()
 /*****************************************************************************/
 void TarotWidget::slotNewTournamentGame()
 {
-    Game::Shuffle sh;
-    sh.type = Game::RANDOM_DEAL;
+    Tarot::Shuffle sh;
+    sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
-    LaunchLocalGame(Game::TOURNAMENT, sh);
+    LaunchLocalGame(Tarot::TOURNAMENT, sh);
 }
 /*****************************************************************************/
 void TarotWidget::slotNewQuickGame()
 {
-    Game::Shuffle sh;
-    sh.type = Game::RANDOM_DEAL;
+    Tarot::Shuffle sh;
+    sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
-    LaunchLocalGame(Game::ONE_DEAL, sh);
+    LaunchLocalGame(Tarot::ONE_DEAL, sh);
 }
 /*****************************************************************************/
 void TarotWidget::slotCreateNetworkGame()
 {
-    Game::Shuffle sh;
-    sh.type = Game::RANDOM_DEAL;
+    Tarot::Shuffle sh;
+    sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
-    mTable.CreateGame(Game::ONE_DEAL, 4U, sh);
+    mTable.CreateGame(Tarot::ONE_DEAL, 4U, sh);
     // Connect us to the server
     mClient.ConnectToHost("127.0.0.1", DEFAULT_TCP_PORT);
 }
@@ -158,7 +158,7 @@ void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
     mConnectionType = REMOTE;
 }
 /*****************************************************************************/
-void TarotWidget::LaunchLocalGame(Game::Mode mode, const Game::Shuffle &sh)
+void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh)
 {
     mTable.CreateGame(mode, 4U, sh);
     InitScreen();
@@ -279,9 +279,8 @@ void TarotWidget::slotAcceptHandle()
 
     mCanvas->DisplayHandleMenu(false);
     mCanvas->SetFilter(Canvas::CARDS);
-    mClient.SendHandle();
+    mClient.SendHandle(mMyHandle);
     ShowSouthCards();
-    mClient.GetGame().sequence = Game::PLAY_TRICK;
 }
 /*****************************************************************************/
 /**
@@ -299,17 +298,17 @@ void TarotWidget::ShowSouthCards()
 /*****************************************************************************/
 void TarotWidget::slotClickBoard()
 {
-    if (mClient.GetGame().sequence == Game::SHOW_DOG)
+    if (mClient.GetSequence() == Client::SHOW_DOG)
     {
         mCanvas->HidePopup();
         mClient.SendSyncDog(); // We have seen the dog, let's inform the server about that
     }
-    else if (mClient.GetGame().sequence == Game::SHOW_HANDLE)
+    else if (mClient.GetSequence() == Client::SHOW_HANDLE)
     {
         mCanvas->HidePopup();
         mClient.SendSyncHandle(); // We have seen the handle, let's inform the server about that
     }
-    else if (mClient.GetGame().sequence == Game::SYNC_TRICK)
+    else if (mClient.GetSequence() == Client::SYNC_TRICK)
     {
         HideTrick();
         mClient.SendSyncTrick();
@@ -334,7 +333,7 @@ void TarotWidget::slotMoveCursor(std::uint8_t index)
         return;
     }
 
-    if (mClient.GetGame().sequence == Game::BUILD_DOG)
+    if (mClient.GetSequence() == Client::BUILD_DISCARD)
     {
         if ((c->GetSuit() == Card::TRUMPS) ||
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
@@ -346,7 +345,7 @@ void TarotWidget::slotMoveCursor(std::uint8_t index)
             mCanvas->SetCursorType(Canvas::ARROW);
         }
     }
-    else if (mClient.GetGame().sequence == Game::BUILD_HANDLE)
+    else if (mClient.GetSequence() == Client::BUILD_HANDLE)
     {
         if (c->GetSuit() == Card::TRUMPS)
         {
@@ -357,7 +356,7 @@ void TarotWidget::slotMoveCursor(std::uint8_t index)
             mCanvas->SetCursorType(Canvas::FORBIDDEN);
         }
     }
-    else if (mClient.GetGame().sequence == Game::PLAY_TRICK)
+    else if (mClient.GetSequence() == Client::PLAY_TRICK)
     {
         if (mClient.IsValid(c) == true)
         {
@@ -379,7 +378,7 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
         return;
     }
 
-    if (mClient.GetGame().sequence == Game::PLAY_TRICK)
+    if (mClient.GetSequence() == Client::PLAY_TRICK)
     {
         if (mClient.IsValid(c) == false)
         {
@@ -392,7 +391,7 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
 
         ShowSouthCards();
     }
-    else if (mClient.GetGame().sequence == Game::BUILD_DOG)
+    else if (mClient.GetSequence() == Client::BUILD_DISCARD)
     {
 
         if ((c->GetSuit() == Card::TRUMPS) ||
@@ -426,7 +425,7 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
         }
         mCanvas->ToggleCardSelection(index);
     }
-    else if (mClient.GetGame().sequence == Game::BUILD_HANDLE)
+    else if (mClient.GetSequence() == Client::BUILD_HANDLE)
     {
         if (c->GetSuit() == Card::TRUMPS)
         {
@@ -505,11 +504,10 @@ void TarotWidget::slotShowBid(Place p, bool slam, Contract c)
     mClient.SendSyncBid();
 }
 /*****************************************************************************/
-void TarotWidget::slotStartDeal(Place taker, Contract c, Game::Shuffle sh)
+void TarotWidget::slotStartDeal()
 {
-    (void)sh;
-    (void)c;
     QString name = "ERROR";
+    Place taker = mClient.GetBid().taker;
 
     if (mPlayers.contains(taker))
     {
@@ -584,14 +582,13 @@ void TarotWidget::slotAskForHandle()
                                         QMessageBox::Yes | QMessageBox::No);
         if (ret == QMessageBox::Yes)
         {
-            mClient.GetGame().sequence = Game::BUILD_HANDLE;
             mCanvas->SetFilter(Canvas::CARDS);
         }
     }
     else
     {
         // no available handle, send an empty deck
-        mClient.SendHandle();
+        mClient.SendHandle(mMyHandle);
     }
 }
 /*****************************************************************************/
@@ -610,7 +607,7 @@ void TarotWidget::slotShowCard(Place p, std::string name)
     mCanvas->DrawCard(TarotDeck::GetIndex(name), p, mClient.GetPlace());
 
     // We have seen the card, let's inform the server about that
-    mClient.SendSyncCard();
+    mClient.SendSyncShowCard();
 }
 /*****************************************************************************/
 void TarotWidget::slotEndOfDeal()
@@ -618,7 +615,7 @@ void TarotWidget::slotEndOfDeal()
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
     mCanvas->InitBoard();
     mCanvas->ResetCards();
-    mCanvas->SetResult(mClient.GetScore(), mClient.GetGame());
+    mCanvas->SetResult(mClient.GetScore(), mClient.GetBid());
 
     /*
      * FIXME:
@@ -627,12 +624,12 @@ void TarotWidget::slotEndOfDeal()
         - Otherwise, show the deal winner
      */
 
-    if (mClient.GetGame().gameMode == Game::TOURNAMENT)
+    if (mClient.GetGameMode() == Tarot::TOURNAMENT)
     {
         bool continueGame;
 
         deal.SetScore(mClient.GetScore());
-        continueGame = deal.AddScore(mClient.GetGame());
+        continueGame = deal.AddScore(mClient.GetBid(), mClient.GetNumberOfPlayers());
 
         if (continueGame == true)
         {

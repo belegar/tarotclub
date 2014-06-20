@@ -88,8 +88,8 @@ void TarotEngine::NewDeal()
     mTrickCounter = 0U;
 
     // 2. Choose the dealer and the first player to start the bid
-    mDealer = Tarot::NextPlayer(mDealer, mNbPlayers);
-    mCurrentPlayer = Tarot::NextPlayer(mDealer, mNbPlayers); // The first player on the dealer's right begins the bid
+    (void) mDealer.Next(mNbPlayers);
+    mCurrentPlayer = mDealer.Next(mNbPlayers); // The first player on the dealer's right begins the bid
 
     // 3. Give cards to all players
     CreateDeal();
@@ -112,7 +112,7 @@ void TarotEngine::StartDeal()
     }
     else
     {
-        mCurrentPlayer = Tarot::NextPlayer(mDealer, mNbPlayers); // The first player on the dealer's right
+        mCurrentPlayer = mDealer.Next(mNbPlayers); // The first player on the dealer's right
     }
 }
 /*****************************************************************************/
@@ -494,7 +494,7 @@ bool TarotEngine::NextPlayer()
     {
         if (mPosition > 1U)
         {
-            mCurrentPlayer = Tarot::NextPlayer(mDealer, mNbPlayers);
+            mCurrentPlayer = mDealer.Next(mNbPlayers);
         }
         endOfTrick = false;
     }

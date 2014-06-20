@@ -59,7 +59,7 @@ public:
     TarotWidget(QWidget *parent);
 
     void Initialize();
-    void LaunchLocalGame(Game::Mode, const Game::Shuffle &sh);
+    void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
 
     // Configuration management
@@ -111,7 +111,7 @@ private:
     virtual void PlayersList()
     {
         std::map<Place, Identity>::iterator iter;
-        std::map<Place, Identity> pl = mClient.GetGame().GetPlayers();
+        std::map<Place, Identity> pl = mClient.GetPlayersList();
 
         // Transform a std::map into a QMap
         mPlayers.clear();
@@ -122,11 +122,12 @@ private:
 
         emit sigPlayersList();
     }
+
     virtual void ReceiveCards() { emit sigReceiveCards(); }
     virtual void SelectPlayer(Place p) { emit sigSelectPlayer(p); }
     virtual void RequestBid(Contract highestBid) { emit sigRequestBid(highestBid); }
     virtual void ShowBid(Place p, bool slam, Contract c) { emit sigShowBid(p, slam, c); }
-    virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh) { emit sigStartDeal(taker, c, sh); }
+    virtual void StartDeal() { emit sigStartDeal(); }
     virtual void ShowDog() { emit sigShowDog(); }
     virtual void AskForHandle() { emit sigAskForHandle(); }
     virtual void ShowHandle() { emit sigShowHandle(); }
@@ -147,7 +148,7 @@ signals:
    void sigRequestBid(Contract);
    void sigShowBid(Place, bool, Contract);
    void sigShowDog();
-   void sigStartDeal(Place, Contract, Game::Shuffle);
+   void sigStartDeal();
    void sigAskForHandle();
    void sigShowHandle();
    void sigBuildDiscard();
@@ -168,7 +169,7 @@ private slots:
     void slotRequestBid(Contract highestBid);
     void slotShowBid(Place p, bool slam, Contract c);
     void slotShowDog();
-    void slotStartDeal(Place taker, Contract c, Game::Shuffle sh);
+    void slotStartDeal();
     void slotAskForHandle();
     void slotShowHandle();
     void slotBuildDiscard();

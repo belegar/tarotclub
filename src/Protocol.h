@@ -77,7 +77,7 @@ public:
         SERVER_NEW_DEAL         = 0x73, //!< new deal, cleanup everything. Cards are flushed and to be sent to players
         SERVER_SEND_CARDS       = 0x74,
         SERVER_REQUEST_BID      = 0x75, //!< ask for a bid
-        SERVER_BUILD_DISCARD    = 0x76,
+        SERVER_ASK_FOR_DISCARD  = 0x76,
         SERVER_START_DEAL       = 0x77, //!< Bid sequence is finished and discard is done, deal game can start
         SERVER_PLAY_CARD        = 0x78,
         SERVER_SHOW_CARD        = 0x79, //!< card played broadcasted to all clients
@@ -89,7 +89,6 @@ public:
         SERVER_END_OF_DEAL      = 0x7F,
         SERVER_END_OF_GAME      = 0x80, //!< end of the game mode (tournament ...)
         SERVER_ERROR_FULL       = 0x81, //!< Server is full, cannot join game
-
 
         // admin -> server
         ADMIN_CREATE_GAME       = 0xA0, //!< Ask the server to start a new game
@@ -118,7 +117,8 @@ public:
     static ByteArray ClientSyncDog(std::uint32_t uuid);
     static ByteArray ClientSyncHandle(std::uint32_t uuid);
     static ByteArray ClientSyncTrick(std::uint32_t uuid);
-    static ByteArray ClientSyncCard(std::uint32_t uuid);
+    static ByteArray ClientSyncShowCard(std::uint32_t uuid);
+    static ByteArray ClientSyncCards(std::uint32_t uuid);
     static ByteArray ClientSyncStart(std::uint32_t uuid);
     static ByteArray ClientSyncBid(std::uint32_t uuid);
     static ByteArray ClientDiscard(const Deck &discard, std::uint32_t uuid);
@@ -127,7 +127,7 @@ public:
 
     // Server to client packets
     static ByteArray ServerFullMessage(std::uint32_t uuid);
-    static ByteArray ServerDiscardRequest(std::uint32_t uuid);
+    static ByteArray ServerAskForDiscard(std::uint32_t uuid);
     static ByteArray ServerDisconnect(std::uint32_t uuid);
     static ByteArray ServerAskForHandle(std::uint32_t uuid);
     static ByteArray ServerNewDeal();

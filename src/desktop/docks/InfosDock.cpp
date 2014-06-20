@@ -137,15 +137,15 @@ void InfosDock::PrintStats(const Deck::Statistics &stats)
     ui.statsEdit->setPlainText(buffer);
 }
 /*****************************************************************************/
-void InfosDock::AddRound(const Game &info, Place p, const QString &txt)
+void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const QString &txt)
 {
-    ui.tableWidget->item(info.trickCounter, p.Value())->setText(txt);
+    ui.tableWidget->item(trickCounter, p.Value())->setText(txt);
 }
 /*****************************************************************************/
-void InfosDock::SelectWinner(const Game &info, Place p)
+void InfosDock::SelectWinner(std::uint8_t trickCounter, Place p)
 {
     QBrush brush(Qt::darkGreen);
-    ui.tableWidget->item(info.trickCounter - 1, p.Value())->setBackground(brush);
+    ui.tableWidget->item(trickCounter - 1, p.Value())->setBackground(brush);
 }
 /*****************************************************************************/
 void InfosDock::SelectFirstPlayer(int turn, Place p)
