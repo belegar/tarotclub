@@ -654,7 +654,7 @@ void Client::SendSyncShowCard()
 void Client::SendSyncCards()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncBid(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncCards(mPlayer.GetUuid()));
 }
 /*****************************************************************************/
 void Client::SendSyncBid()

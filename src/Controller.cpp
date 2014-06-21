@@ -193,7 +193,7 @@ bool Controller::DoAction(const ByteArray &data)
 
     case Protocol::ADMIN_NEW_DEAL:
     {
-        engine.NewDeal();
+        NewDeal();
         break;
     }
 
@@ -221,6 +221,7 @@ bool Controller::DoAction(const ByteArray &data)
                 BidSequence();
             }
         }
+        break;
     }
 
     case Protocol::CLIENT_BID:
@@ -287,8 +288,13 @@ bool Controller::DoAction(const ByteArray &data)
                 Player *player = engine.GetPlayer(engine.GetBid().taker);
                 if (player != NULL)
                 {
+                    engine.DiscardSequence();
                     std::uint32_t id = player->GetUuid();
                     SendPacket(Protocol::ServerAskForDiscard(id));
+                }
+                else
+                {
+                    TLogError("Cannot get player pointer!");
                 }
             }
         }
@@ -478,8 +484,15 @@ void Controller::NewDeal()
     // Send the cards to all the players
     for (std::uint32_t i = 0U; i < engine.GetNbPlayers(); i++)
     {
-        Player *player = engine.GetPlayer(i);
-        SendPacket(Protocol::ServerSendCards(player));
+        Player *player = engine.GetPlayer(Place(i));
+        if (player != NULL)
+        {
+            SendPacket(Protocol::ServerSendCards(player));
+        }
+        else
+        {
+            TLogError("Cannot get player deck");
+        }
     }
 }
 /*****************************************************************************/
@@ -553,9 +566,16 @@ void Controller::SendPacket(const ByteArray &block)
 {
     Signal sig;
 
-    sig.type = SIG_SEND_DATA;
-    sig.data = block;
-    mSubject.Notify(sig);
+    if (block.Size() > 0U)
+    {
+        sig.type = SIG_SEND_DATA;
+        sig.data = block;
+        mSubject.Notify(sig);
+    }
+    else
+    {
+        TLogError("Packet cannot be empty");
+    }
 }
 /*****************************************************************************/
 void Controller::SignalGameFull()

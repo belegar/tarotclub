@@ -476,8 +476,18 @@ TarotEngine::BidResult TarotEngine::BidSequence()
             }
         }
     }
+    else
+    {
+        ResetAck();
+        mSequence = WAIT_FOR_BID;
+    }
 
     return res;
+}
+/*****************************************************************************/
+void TarotEngine::DiscardSequence()
+{
+    mSequence = WAIT_FOR_DISCARD;
 }
 /*****************************************************************************/
 bool TarotEngine::NextPlayer()

@@ -130,12 +130,15 @@ std::uint16_t ByteArray::GetUint16 (std::uint32_t index) const
 {
     std::uint16_t data = 0U;
 
-    if (index <= (mData.size() - sizeof(std::uint16_t)))
+    if (mData.size() >= sizeof(std::uint16_t))
     {
-        for (std::uint8_t i = 0U; i < 2U; i++)
+        if (index <= (mData.size() - sizeof(std::uint16_t)))
         {
-            std::uint16_t hword = mData[index + i];
-            data = data + (hword << (i*8U));
+            for (std::uint8_t i = 0U; i < 2U; i++)
+            {
+                std::uint16_t hword = mData[index + i];
+                data = data + (hword << (i*8U));
+            }
         }
     }
     return data;
@@ -145,12 +148,15 @@ std::uint32_t ByteArray::GetUint32 (std::uint32_t index) const
 {
     std::uint32_t data = 0U;
 
-    if (index <= (mData.size() - sizeof(std::uint32_t)))
+    if (mData.size() >= sizeof(std::uint32_t))
     {
-        for (std::uint8_t i = 0U; i < 2U; i++)
+        if (index <= (mData.size() - sizeof(std::uint32_t)))
         {
-            std::uint32_t word = mData[index + i];
-            data = data + (word << (i * 8U));
+            for (std::uint8_t i = 0U; i < 2U; i++)
+            {
+                std::uint32_t word = mData[index + i];
+                data = data + (word << (i * 8U));
+            }
         }
     }
     return data;

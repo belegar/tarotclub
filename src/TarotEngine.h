@@ -78,6 +78,7 @@ public:
 
     Place AddPlayer(std::uint32_t uuid);
     BidResult BidSequence();
+    void DiscardSequence();
     void GameSequence();
     bool Sync(Sequence sequence, std::uint32_t uuid);
 
