@@ -72,19 +72,19 @@ void ClientConfig::SetOptions(const ClientOptions &newOptions)
 /*****************************************************************************/
 bool ClientConfig::Load()
 {
-    bool ret = true;
     JsonReader json;
 
-    ret = json.Open(System::HomePath() + CLIENT_CONFIG_FILE);
+    bool ret = json.Open(System::HomePath() + CLIENT_CONFIG_FILE);
     if (ret)
     {
         std::string stringval;
         std::int32_t intval;
-        bool boolval;
+
         if (json.GetValue("", "version", stringval))
         {
             if (stringval == CLIENT_CONFIG_VERSION)
             {
+                bool boolval;
                 // The general strategy is to be tolerant on the values.
                 // If they are not in the acceptable range, we set the default value
                 // without throwing any error

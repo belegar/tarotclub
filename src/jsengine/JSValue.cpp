@@ -29,33 +29,45 @@
 JSValue::JSValue(std::int32_t value)
     : mType(INTEGER)
     , mIntegerValue(value)
+    , mDoubleValue(0.0f)
+    , mBoolValue(false)
 {
 
 }
 /*****************************************************************************/
 JSValue::JSValue(double value)
     : mType(DOUBLE)
+    , mIntegerValue(0)
     , mDoubleValue(value)
+    , mBoolValue(false)
 {
 
 }
 /*****************************************************************************/
 JSValue::JSValue(const char * value)
     : mType(STRING)
+    , mIntegerValue(0)
+    , mDoubleValue(0.f)
     , mStringValue(value)
+    , mBoolValue(false)
 {
 
 }
 /*****************************************************************************/
 JSValue::JSValue(const std::string &value)
     : mType(STRING)
+    , mIntegerValue(0)
+    , mDoubleValue(0.f)
     , mStringValue(value)
+    , mBoolValue(false)
 {
 
 }
 /*****************************************************************************/
 JSValue::JSValue(bool value)
     : mType(BOOLEAN)
+    , mIntegerValue(0)
+    , mDoubleValue(0.f)
     , mBoolValue(value)
 {
 
@@ -67,8 +79,12 @@ JSValue::JSValue(const JSValue &value)
 }
 /*****************************************************************************/
 JSValue::JSValue()
+    : mType(INVALID)
+    , mIntegerValue(0)
+    , mDoubleValue(0.f)
+    , mBoolValue(false)
 {
-    mType = INVALID;
+
 }
 /*****************************************************************************/
 JSValue::~JSValue()

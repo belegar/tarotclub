@@ -71,14 +71,12 @@ void ScoresDock::SetPlayers(const QMap<Place, Identity> &players)
 /*****************************************************************************/
 void ScoresDock::SetNewScore(const Deal &deal)
 {
-    int n, total;
-
-    n = tableScores->rowCount() + 1;
+    int  n = tableScores->rowCount() + 1;
     tableScores->setRowCount(n);
 
     for (std::uint32_t i = 0; i < static_cast<std::uint32_t>(tableScores->columnCount()); i++)
     {
-        total = deal.GetTotalPoints(i);
+        int total = deal.GetTotalPoints(i);
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(total));
         tableScores->setItem(n - 1, i, newItem);
     }

@@ -252,7 +252,7 @@ void Bot::BuildDiscard()
     {
         TLogInfo("Invalid discard is: " + discard.GetCardList());
 
-        discard = mClient.BuildDogDeck(); // build a random valid deck
+        discard = mClient.AutoDiscard(); // build a random valid deck
         ReceiveCards(); // Resend cards to the bot!
     }
     mClient.SetDiscard(discard);

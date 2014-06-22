@@ -352,7 +352,7 @@ ByteArray Protocol::ServerPlayersList(std::map<Place, Identity> players)
     out << (std::uint8_t)players.size();
     std::map<Place, Identity>::iterator iter;
 
-    for(iter = players.begin(); iter != players.end(); iter++)
+    for(iter = players.begin(); iter != players.end(); ++iter)
     {
         out << iter->first;
         out << iter->second;

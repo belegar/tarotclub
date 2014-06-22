@@ -51,11 +51,9 @@ void ServerConfig::SetOptions(const ServerOptions &newOptions)
 /*****************************************************************************/
 bool ServerConfig::Load()
 {
-    bool ret = true;
-
     JsonReader json;
 
-    ret = json.Open(System::HomePath() + SERVER_CONFIG_FILE);
+    bool ret = json.Open(System::HomePath() + SERVER_CONFIG_FILE);
     if (ret)
     {
         std::string value;
