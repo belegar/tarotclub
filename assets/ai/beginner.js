@@ -95,13 +95,13 @@ function BuildDiscard(dog)
  *
  * Informational purpose, the script should memorize the arguments for later use
  *
- * @param[in] taker Indicates the place of the taker
- * @param[in] contract Indicates the contract announced by the taker
+ * @param[in] taker Indicates the place of the taker (string format)
+ * @param[in] contract Indicates the contract announced by the taker (string format)
  */
 function StartDeal(taker, contract)
 {
-    CurrentGame.taker = taker;
-    CurrentGame.contract = contract;
+    CurrentGame.taker = TarotLib.Place.fromString(taker);
+    CurrentGame.contract = TarotLib.Contract.fromString(contract);
 }
 
 /**
@@ -134,12 +134,14 @@ function PlayCard()
 {
     var cardName;
 
-    if (CurrentGame.taker === CurrentGame.myPlace)
+    if (CurrentGame.taker === CurrentGame.botPlace)
     {
+        systemPrint("Play ATTACK!");
         cardName = CurrentGame.playAttackStrategy();
     }
     else
     {
+        systemPrint("Play DEFENSE!");
         cardName = CurrentGame.playDefenseStrategy();
     }
 
@@ -158,7 +160,7 @@ function PlayCard()
  */
 function PlayedCard(cardName, place)
 {
-    CurrentGame.setPlayedCard(cardName, parseInt(place));
+    CurrentGame.setPlayedCard(cardName, TarotLib.Place.fromString(place));
 }
 
 

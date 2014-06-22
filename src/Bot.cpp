@@ -276,6 +276,10 @@ void Bot::PlayCard()
 
         // The show must go on, play a random card
         c = mClient.Play();
+
+        message.flush();
+        message << "Randomly choosen card is: " << c->GetName();
+        TLogInfo(message.str());
     }
 
     mClient.GetMyDeck().Remove(c);

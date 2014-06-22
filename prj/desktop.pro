@@ -118,6 +118,7 @@ OTHER_FILES = beginner.js \
               deck.js \
               game.js \
               player.js \
+              bot.js \
               unit_test.js
 
 # ------------------------------------------------------------------------------

@@ -65,8 +65,8 @@ module.RunUnitTest = function()
 	
 	var deck = new TarotLib.Deck();
 	var stats = new TarotLib.Stats();
-	
-	deck.setCards("7-C;21-T;13-C;4-C;9-S;11-T;12-D;2-T;10-H");
+	  
+    deck.setCards("01-T;09-C;13-D;05-D;09-S;03-S");
 	
 	stats.update(deck);
 	

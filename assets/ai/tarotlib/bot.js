@@ -312,19 +312,21 @@ var p = Bot.prototype;
         var discard = new TarotLib.Deck();
         discard.setCards(dogDeck);
 
+        systemPrint("Received dog: " + dogDeck + " JsBot discard before: " + discard.toString());
+
         // We're looking for trumps or kings in the deck and we replace
         // them by other valid cards
         while (ok == false)
         {
             var c = discard.get(i);
-            if ((c.suit == TarotLib.Suit.TRUMPS) ||
-                    ((c.suit != TarotLib.Suit.TRUMPS) && (c.value == 14)))
+            if ((c.suit === TarotLib.Suit.TRUMPS) ||
+                    ((c.suit !== TarotLib.Suit.TRUMPS) && (c.value === 14)))
             {
                 // looking for valid card in the player's deck
                 for (var j = 0; j < this.deck.size(); j++)
                 {
                     var playerCard = this.deck.get(j);
-                    if ((playerCard.suit != TarotLib.Suit.TRUMPS) && (playerCard.value < 14))
+                    if ((playerCard.suit !== TarotLib.Suit.TRUMPS) && (playerCard.value < 14))
                     {
                         // Exchange card in the player's deck
                         this.deck.removeCard(playerCard.getName());

@@ -56,7 +56,7 @@ var p = Deck.prototype;
 			{
 				buffer += ";";
 			}
-            buffer += this.cards[i].value + "-" + this.cards[i].suit;
+            buffer += this.cards[i].getName();
 		}
 		return buffer;
 	};

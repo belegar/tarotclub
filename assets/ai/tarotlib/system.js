@@ -25,7 +25,8 @@
 
 function systemPrint(message)
 {
- //   TarotUtil.Print(message);
+    // Duktape extension
+    print(message);
 }
 
 // End of file

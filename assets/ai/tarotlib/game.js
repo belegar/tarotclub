@@ -173,11 +173,11 @@ var p = Game.prototype;
         // Each trick is won by the highest trump in it, or the highest card
         // of the suit led if no trumps were played.
         var leader = this.highestTrump();
-        if (leader == undefined)
+        if (leader === undefined)
         {
             leader = this.highestSuit();
         }
-        if (leader == undefined)
+        if (leader === undefined)
         {
             systemPrint("leader cannot be undefined!");
         }
@@ -395,7 +395,7 @@ var p = Game.prototype;
 
     p.playAttackStrategy = function()
     {
-        return this.playDefenseStrategy();
+        return "00-C"; // FIXME: bad card, strategy to implement
     };
 
 	

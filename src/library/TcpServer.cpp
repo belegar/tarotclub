@@ -136,7 +136,7 @@ void TcpServer::Run()
             /**********************************************************/
             /* Call select() and wait 5 minutes for it to complete.   */
             /**********************************************************/
-            printf("Waiting on select()...\n");
+        //    printf("Waiting on select()...\n");
             rc = select(mMaxSd + 1, &working_set, NULL, NULL, NULL); // &timeout);
 
             if (rc < 0)
@@ -216,7 +216,7 @@ void TcpServer::IncommingConnection()
 {
     int new_sd = -1;
 
-    printf("  Listening socket is readable\n");
+//    printf("  Listening socket is readable\n");
     /*************************************************/
     /* Accept all incoming connections that are      */
     /* queued up on the listening socket before we   */
@@ -244,7 +244,7 @@ void TcpServer::IncommingConnection()
         /* Add the new incoming connection to the     */
         /* master read set                            */
         /**********************************************/
-        printf("  New incoming connection - %d\n", new_sd);
+   //     printf("  New incoming connection - %d\n", new_sd);
         FD_SET(new_sd, &mMasterSet);
 
         // Update the maximum socket file identifier
@@ -270,7 +270,7 @@ bool TcpServer::IncommingData(int in_sock)
 
     socket.SetSocket(in_sock);
 
-    printf("  Descriptor %d is readable\n", in_sock);
+   // printf("  Descriptor %d is readable\n", in_sock);
     /*************************************************/
     /* Receive all incoming data on this socket      */
     /* before we loop back and call select again.    */

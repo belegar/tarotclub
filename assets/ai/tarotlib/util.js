@@ -36,7 +36,8 @@ this.TarotLib = this.TarotLib || {};
 		EAST:1,
 		NORTH:2,
 		WEST:3,
-		NOWHERE:0xFF
+        FIFTH:4,
+        NOWHERE:5
 	};
 
 	var Suit = {
@@ -263,6 +264,8 @@ this.TarotLib = this.TarotLib || {};
             position = Place.WEST;
         } else if (place === "East") {
             position = Place.EAST;
+        } else if (place === "Fifth") {
+            position = Place.FIFTH;
         } else {
             position = "Nowhere";
         }
