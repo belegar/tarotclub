@@ -66,8 +66,6 @@ void TarotEngine::CreateGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std:
     // 1. Initialize internal states
     mDeal.Initialize();
     mBid.Initialize();
-    mPosition = 0U;
-    mTrickCounter = 0U;
 
     // Choose the dealer
     std::default_random_engine generator(mSeed);
@@ -85,10 +83,9 @@ void TarotEngine::NewDeal()
     mDeal.NewDeal();
     mBid.Initialize();
     mPosition = 0U;
-    mTrickCounter = 0U;
 
     // 2. Choose the dealer and the first player to start the bid
-    (void) mDealer.Next(mNbPlayers);
+    mDealer = mDealer.Next(mNbPlayers);
     mCurrentPlayer = mDealer.Next(mNbPlayers); // The first player on the dealer's right begins the bid
 
     // 3. Give cards to all players
@@ -101,8 +98,13 @@ void TarotEngine::NewDeal()
 /*****************************************************************************/
 void TarotEngine::StartDeal()
 {
-    mTrickCounter = 0;
-    mPosition = 0;
+    mTrickCounter = 0U;
+    mPosition = 0U;
+
+    for (std::uint8_t i = 0U; i < 5U; i++)
+    {
+        mHandleAsked[i] = false;
+    }
 
     // In case of slam, the first player to play is the taker.
     // Otherwise, it is the player on the right of the dealer
@@ -124,6 +126,8 @@ Tarot::Shuffle TarotEngine::GetShuffle()
 void TarotEngine::SetDiscard(const Deck &discard)
 {
     mDeal.SetDiscard(discard, ATTACK);
+    ResetAck();
+    mSequence = WAIT_FOR_START_DEAL;
 }
 /*****************************************************************************/
 /**
@@ -134,12 +138,12 @@ void TarotEngine::SetDiscard(const Deck &discard)
  */
 bool TarotEngine::SetHandle(const Deck &handle, Place p)
 {
-    Team handleOwner;
     bool valid = mPlayers[p.Value()].TestHandle(handle);
 
     if (valid)
     {
         std::uint8_t type;
+        Team handleOwner;
 
         if (handle.Size() == 10U)
         {
@@ -182,6 +186,9 @@ bool TarotEngine::SetCard(Card *c, Place p)
         currentTrick.Append(c);
         mPlayers[p.Value()].Remove(c);
 
+        // ------- PREPARE NEXT ONE
+        mPosition++; // done for this player
+        mCurrentPlayer = mCurrentPlayer.Next(mNbPlayers); // next player!
         ResetAck();
         mSequence = WAIT_FOR_SHOW_CARD;
         ret = true;
@@ -202,7 +209,9 @@ Contract TarotEngine::SetBid(Contract c, bool slam, Place p)
         c = Contract::PASS;
     }
 
-    // Advance sequence: show the declared bid to all the players
+    // ------- PREPARE NEXT ONE
+    mPosition++; // done for this player
+    mCurrentPlayer = mCurrentPlayer.Next(mNbPlayers); // next player!
     ResetAck();
     mSequence = WAIT_FOR_SHOW_BID;
     return c;
@@ -372,16 +381,23 @@ bool TarotEngine::Sync(Sequence sequence, std::uint32_t uuid)
  */
 void TarotEngine::GameSequence()
 {
-    // Choose the next player, if true the trick is finished
-    if (NextPlayer() == true)
+    // If end of trick, prepare next one
+    if (IsEndOfTrick())
     {
-        TLogInfo("\n----------------------------------------------------\n");
+        TLogInfo("----------------------------------------------------\n");
 
         // The current trick winner will begin the next trick
         mCurrentPlayer = mDeal.SetTrick(currentTrick, mBid, mTrickCounter);
         currentTrick.Clear();
         ResetAck();
         mSequence = WAIT_FOR_END_OF_TRICK;
+    }
+    // Special case of first round: players can declare a handle
+    else if ((mTrickCounter == 0U) &&
+            (!mHandleAsked[mCurrentPlayer.Value()]))
+    {
+        mHandleAsked[mCurrentPlayer.Value()] = true;
+        mSequence = WAIT_FOR_HANDLE;
     }
     else
     {
@@ -391,16 +407,7 @@ void TarotEngine::GameSequence()
         TLogInfo(message.str());
 
         ResetAck();
-
-        // During the first turn, before the first card played, each player can declare an handle. We ask for it.
-        if (mTrickCounter == 0U)
-        {
-            mSequence = WAIT_FOR_HANDLE;
-        }
-        else
-        {
-            mSequence = WAIT_FOR_PLAYED_CARD;
-        }
+        mSequence = WAIT_FOR_PLAYED_CARD;
     }
 }
 /*****************************************************************************/
@@ -439,7 +446,7 @@ TarotEngine::BidResult TarotEngine::BidSequence()
     BidResult res = NEXT_PLAYER;
 
     // If a slam has been announced, we start immediately the deal
-    if ((NextPlayer() == true) ||
+    if ((IsEndOfTrick() == true) ||
             (mBid.slam == true))
     {
         if (mBid.contract == Contract::PASS)
@@ -490,23 +497,15 @@ void TarotEngine::DiscardSequence()
     mSequence = WAIT_FOR_DISCARD;
 }
 /*****************************************************************************/
-bool TarotEngine::NextPlayer()
+bool TarotEngine::IsEndOfTrick()
 {
     bool endOfTrick = false;
-    mPosition++;
-    if (mPosition > mNbPlayers)
+    if (mPosition >= mNbPlayers)
     {
+        // Trick as ended, all the players have played
         mPosition = 0U;
         mTrickCounter++;
         endOfTrick = true;
-    }
-    else
-    {
-        if (mPosition > 1U)
-        {
-            mCurrentPlayer = mDealer.Next(mNbPlayers);
-        }
-        endOfTrick = false;
     }
     return endOfTrick;
 }
