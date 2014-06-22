@@ -403,7 +403,7 @@ void TarotEngine::GameSequence()
     {
         std::stringstream message;
 
-        message << "Turn: " << mTrickCounter << " player: " << mCurrentPlayer.ToString();
+        message << "Turn: " << (std::uint32_t)mTrickCounter << " player: " << mCurrentPlayer.ToString();
         TLogInfo(message.str());
 
         ResetAck();
