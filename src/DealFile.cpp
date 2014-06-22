@@ -66,10 +66,9 @@ Deck &DealFile::GetDogDeck()
 /*****************************************************************************/
 bool DealFile::LoadFile(const std::string &fileName)
 {
-    bool ret = true;
     JsonReader json;
 
-    ret = json.Open(fileName);
+    bool ret = json.Open(fileName);
     if (ret)
     {
         mDogDeck.Clear();
@@ -175,7 +174,7 @@ void DealFile::Clear()
 {
     for (std::uint32_t i = 0; i < 5; i++)
     {
-        mPlayers[5].Clear();
+        mPlayers[i].Clear();
     }
 
     mDogDeck.Clear();

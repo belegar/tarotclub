@@ -28,7 +28,8 @@
 
 /*****************************************************************************/
 TcpServer::TcpServer(IEvent &handler)
-    : mInitialized(false)
+    : mMaxSd(0)
+    , mInitialized(false)
     , mEventHandler(handler)
 {
 }
@@ -208,7 +209,7 @@ void TcpServer::Run()
 /*****************************************************************************/
 void TcpServer::EntryPoint(void *pthis)
 {
-    TcpServer * pt = (TcpServer*)pthis;
+    TcpServer * pt = static_cast<TcpServer*>(pthis);
     pt->Run();
 }
 /*****************************************************************************/

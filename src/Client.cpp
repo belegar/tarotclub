@@ -198,9 +198,8 @@ void Client::UpdateStatistics()
     mPlayer.AnalyzeSuits(stats);
 }
 /*****************************************************************************/
-Deck Client::BuildDogDeck()
+Deck Client::AutoDiscard()
 {
-    Card *c, *cdeck;
     Deck discard = mDog;
 
     TLogInfo("Auto discard before: " + discard.GetCardList());
@@ -209,14 +208,14 @@ Deck Client::BuildDogDeck()
     // them by other valid cards
     for (Deck::ConstIterator iter = mDog.Begin(); iter != mDog.End(); ++iter)
     {
-        c = (*iter);
+        Card *c = (*iter);
         if ((c->GetSuit() == Card::TRUMPS) ||
                 ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
         {
             // looking for valid card
             for (Deck::ConstIterator j = mPlayer.Begin(); j != mPlayer.End(); ++j)
             {
-                cdeck = (*j);
+                Card *cdeck = (*j);
                 if ((cdeck->GetSuit() != Card::TRUMPS) && (cdeck->GetValue() < 14))
                 {
                     // Swap cards between the player and the discard
@@ -292,7 +291,7 @@ void Client::Close()
 /*****************************************************************************/
 void Client::EntryPoint(void *pthis)
 {
-    Client * pt = (Client*)pthis;
+    Client * pt = static_cast<Client*>(pthis);
     pt->Run();
 }
 /*****************************************************************************/

@@ -42,7 +42,10 @@ public:
     class Statistics
     {
     public:
-        Statistics() {}
+        Statistics()
+        {
+            Reset();
+        }
 
         std::uint32_t   nbCards;
 
@@ -144,9 +147,10 @@ public:
         return s;
     }
 
-    Deck operator = (const Deck &l)
+    Deck &operator = (const Deck &l)
     {
         mDeck = l.mDeck;
+        mOwner = l.mOwner;
         return *this;
     }
 
@@ -171,7 +175,7 @@ private:
      * @brief This variable can be use to store a deck owner
      * information, tricks won for example
      */
-    Team owner;
+    Team mOwner;
     std::list<Card *> mDeck; //!< Container to store the cards
 };
 

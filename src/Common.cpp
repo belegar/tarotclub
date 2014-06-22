@@ -114,14 +114,15 @@ std::uint8_t Place::Value()
 /*****************************************************************************/
 Place Place::Next(std::uint8_t max)
 {
-    mPlace++;
+    std::uint8_t place = mPlace;
+    place++;
 
-    if ((mPlace >= max) ||
-        (mPlace >= NOWHERE))
+    if ((place >= max) ||
+        (place >= NOWHERE))
     {
-        mPlace = Place::SOUTH;
+        place = Place::SOUTH;
     }
-    return *this;
+    return place;
 }
 /*****************************************************************************/
 std::vector<std::string> Place::Initialize()

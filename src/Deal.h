@@ -68,7 +68,7 @@ public:
 
 private:
     // Helper private methods
-    int GetHandlePoints(const Tarot::Handle handle);
+    int GetHandlePoints(const Tarot::Handle &handle);
     std::list<std::string> GetSortedTrick(int trick);
 
     // We store played cards to count points

@@ -31,7 +31,7 @@
 /*****************************************************************************/
 Deck::Deck()
 {
-    owner = NO_TEAM;
+    mOwner = NO_TEAM;
 }
 /*****************************************************************************/
 void Deck::Append(const Deck &deck)
@@ -299,7 +299,7 @@ bool Deck::LessThanCards(Card *c1, Card *c2)
 /*****************************************************************************/
 void Deck::SetOwner(Team team)
 {
-    owner = team;
+    mOwner = team;
 }
 /*****************************************************************************/
 std::uint8_t Deck::SetCards(const std::string &cards)
@@ -341,7 +341,7 @@ std::uint8_t Deck::SetCards(const std::string &cards)
 /*****************************************************************************/
 Team Deck::GetOwner()
 {
-    return owner;
+    return mOwner;
 }
 /*****************************************************************************/
 void Deck::Statistics::Reset()
@@ -417,9 +417,6 @@ void Deck::AnalyzeTrumps(Statistics &stats) const
 void Deck::AnalyzeSuits(Statistics &stats)
 {
     Card::Suit suit;
-    int longue;
-    int count = 0;
-    int flag = 0;
     Card *c;
     int i, k;
 
@@ -428,6 +425,8 @@ void Deck::AnalyzeSuits(Statistics &stats)
     // Normal suits
     for (i = 0; i < 4; i++)
     {
+        int count = 0; // Generic counter
+
         if (i == 0)
         {
             suit = Card::SPADES;
@@ -512,8 +511,8 @@ void Deck::AnalyzeSuits(Statistics &stats)
 
         // test des séquences :
         count = 0;  // longueur de la séquence
-        flag = 0;   // couleur trouvée : on est dans la séquence
-        longue = 0;
+        int flag = 0;   // couleur trouvée : on est dans la séquence
+        int longue = 0;
 
         for (k = 0; k < 14; k++)
         {

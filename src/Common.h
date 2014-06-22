@@ -77,6 +77,15 @@ public:
     // Helpers
     std::string ToString() const;
     std::uint8_t Value();
+
+    /**
+     * @brief Next
+     *
+     * Calculate the next player on the right of the current one
+     *
+     * @param max
+     * @return
+     */
     Place Next(std::uint8_t max);
 
     Place &operator = (Place const &rhs)

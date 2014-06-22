@@ -360,6 +360,11 @@ bool Controller::DoAction(const ByteArray &data)
                         // Handle is valid, show it to all players
                         SendPacket(Protocol::ServerShowHandle(handle, p));
                     }
+                    else
+                    {
+                        // Invalid or no handle, continue game (player has to play a card)
+                        GameSequence();
+                    }
                 }
             }
         }

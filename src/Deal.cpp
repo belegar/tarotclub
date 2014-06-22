@@ -64,6 +64,7 @@ void Deal::NewDeal()
     }
 
     littleEndianOudler = false;
+    littleEndianOwner = NO_TEAM;
     slamDone = false;
     slamOwner = NO_TEAM;
     foolSwap = false;
@@ -433,7 +434,7 @@ void Deal::CalculateScore(const Tarot::Bid &bid, const Tarot::Handle &attack, co
     score.scoreAttack = (25 + abs(score.difference) + score.littleEndianPoints) * score.multiplier + score.handlePoints + score.slamPoints;
 }
 /*****************************************************************************/
-int Deal::GetHandlePoints(const Tarot::Handle handle)
+int Deal::GetHandlePoints(const Tarot::Handle &handle)
 {
     int points = 0;
 

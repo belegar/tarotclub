@@ -123,11 +123,12 @@ private:
     Tarot::GameMode mGameMode;
     Tarot::Handle   mAttackHandle;
     Tarot::Handle   mDefenseHandle;
+    bool            mHandleAsked[5U];
 
     bool AckFromAllPlayers();
     void ResetAck();
     void CreateDeal();
-    bool NextPlayer();
+    bool IsEndOfTrick();
 };
 
 #endif // _TAROTENGINE_H
