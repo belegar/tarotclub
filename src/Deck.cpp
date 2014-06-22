@@ -425,6 +425,8 @@ void Deck::AnalyzeSuits(Statistics &stats)
     // Normal suits
     for (i = 0; i < 4; i++)
     {
+        int count = 0; // Generic counter
+
         if (i == 0)
         {
             suit = Card::SPADES;
@@ -508,7 +510,7 @@ void Deck::AnalyzeSuits(Statistics &stats)
         }
 
         // test des séquences :
-        int count = 0;  // longueur de la séquence
+        count = 0;  // longueur de la séquence
         int flag = 0;   // couleur trouvée : on est dans la séquence
         int longue = 0;
 
