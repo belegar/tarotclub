@@ -112,6 +112,18 @@ std::uint8_t Place::Value()
     return mPlace;
 }
 /*****************************************************************************/
+Place Place::Next(std::uint8_t max)
+{
+    mPlace++;
+
+    if ((mPlace >= max) ||
+        (mPlace >= NOWHERE))
+    {
+        mPlace = Place::SOUTH;
+    }
+    return *this;
+}
+/*****************************************************************************/
 std::vector<std::string> Place::Initialize()
 {
     std::vector<std::string> stringList;
@@ -204,6 +216,40 @@ std::vector<std::string> Contract::Initialize()
     stringList.push_back(STR_GUARD_AGAINST);
 
     return stringList;
+}
+/*****************************************************************************/
+std::uint8_t Tarot::NumberOfCardsInHand(std::uint8_t numberOfPlayers)
+{
+    if (numberOfPlayers == 3U)
+    {
+        return 24U;
+    }
+    if (numberOfPlayers == 5U)
+    {
+        return 15U;
+    }
+    else
+    {
+        // 4 players
+        return 18U;
+    }
+}
+/*****************************************************************************/
+std::uint8_t Tarot::NumberOfDogCards(std::uint8_t numberOfPlayers)
+{
+    return (78U - (NumberOfCardsInHand(numberOfPlayers) * numberOfPlayers));
+}
+/*****************************************************************************/
+bool Tarot::IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers)
+{
+    if (trickCounter >= NumberOfCardsInHand(numberOfPlayers))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 //=============================================================================

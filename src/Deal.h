@@ -34,9 +34,9 @@
 #include "Card.h"
 #include "Deck.h"
 #include "Common.h"
-#include "Game.h"
 #include "Score.h"
 #include "Player.h"
+#include "Identity.h"
 
 /*****************************************************************************/
 class Deal
@@ -47,35 +47,32 @@ public:
     // Helpers
     void Initialize();
     void NewDeal();
-    bool Calculate(Game &info);
-    void GenerateEndDealLog(Game &info, std::map<Place, Identity> &players);
-    bool AddScore(const Game &info);
+    void AnalyzeGame(std::uint8_t numberOfPlayers);
+    void CalculateScore(const Tarot::Bid &bid, const Tarot::Handle &attack, const Tarot::Handle &defense);
+    void GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Identity> &players);
+    bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 
     // Getters
     Deck GetTrick(int turn);
-    int  GetTotalPoints(Place p);
+    int  GetTotalPoints(Place p) const;
     Score  &GetScore();
     std::map<int, Place> GetPodium();
-    Deck &GetDog();
+    Deck GetDog();
 
     // Setters
-    void SetHandle(Deck &handle, Team team);
-    void SetPoints(const Game &infos);
+    void SetHandle(const Deck &handle, Team team);
     void SetScore(const Score &score);
-    void SetDog(Deck &dog, Team owner);
-    Place SetTrick(Deck &trick, Game &info);
+    void SetDiscard(const Deck &discard, Team owner);
+    Place SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t trickCounter);
     void SetDogOwner(Team team);
 
 private:
-
     // Helper private methods
-    void AnalyzeGame(Game &info);
-    void CalculateScore(Game &info);
-    int GetHandlePoints(Handle h);
+    int GetHandlePoints(const Tarot::Handle handle);
     std::list<std::string> GetSortedTrick(int trick);
 
     // We store played cards to count points
-    Deck dogDeck;
+    Deck mDiscard;
     Deck attackHandleDeck;
     Deck defenseHandleDeck;
     Deck tricks[24];    // 24 tricks max with 3 players

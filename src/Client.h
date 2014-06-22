@@ -37,7 +37,6 @@
 #include "Protocol.h"
 #include "Common.h"
 #include "Score.h"
-#include "Game.h"
 #include "Deal.h"
 #include "ThreadQueue.h"
 
@@ -46,21 +45,38 @@ class Client
 {
 
 public:
+    enum Sequence
+    {
+        STOPPED,
+        IDLE,
+        SHOW_DOG,
+        BUILD_DISCARD,
+        BUILD_HANDLE,
+        SYNC_START,
+        SHOW_HANDLE,
+        SYNC_CARD,
+        PLAY_TRICK,
+        SYNC_TRICK,
+        SYNC_READY
+    };
+
+
     class IEvent
     {
     public:
         virtual void Message(const std::string &message) = 0;
         virtual void AssignedPlace() = 0;
-        virtual void PlayersList(std::map<Place, Identity> &players) = 0;
+        virtual void PlayersList() = 0;
+        virtual void NewDeal() = 0;
         virtual void ReceiveCards() = 0;
         virtual void SelectPlayer(Place p) = 0;
         virtual void RequestBid(Contract highestBid) = 0;
         virtual void ShowBid(Place p, bool slam, Contract c) = 0;
-        virtual void StartDeal(Place taker, Contract c, const Game::Shuffle &sh) = 0;
+        virtual void StartDeal() = 0;
         virtual void ShowDog() = 0;
+        virtual void AskForHandle() = 0;
         virtual void ShowHandle() = 0;
         virtual void BuildDiscard() = 0;
-        virtual void DealAgain() = 0;
         virtual void PlayCard() = 0;
         virtual void ShowCard(Place p, const std::string &name) = 0;
         virtual void WaitTrick(Place winner) = 0;
@@ -72,7 +88,8 @@ public:
 
     // Helpers
     void Initialize();
-    bool TestHandle();
+    bool TestHandle(const Deck &handle);
+    bool TestDiscard(const Deck &discard);
     Contract CalculateBid();
     void UpdateStatistics();
     Card *Play();
@@ -86,10 +103,14 @@ public:
     Deck &GetDogDeck();
     Deck &GetHandleDeck();
     Deck &GetMyDeck();
-    Identity &GetMyIdentity();
-    Game &GetGameInfo();
     Score &GetScore();
     Place GetPlace();
+    std::uint8_t GetNumberOfPlayers() { return mNbPlayers; }
+    std::map<Place, Identity> GetPlayersList() { return mPlayersIdent; }
+    Tarot::GameMode GetGameMode() { return mGameMode; }
+    Sequence GetSequence() { return mSequence; }
+    Tarot::Bid      GetBid() { return mBid; }
+    Tarot::Shuffle GetShuffle() { return mShuffle; }
 
     // Setters
     void SetMyIdentity(const Identity &ident);
@@ -106,9 +127,10 @@ public:
     void SendError();
     void SendCard(Card *c);
     void SendSyncTrick();
-    void SendHandle();
+    void SendHandle(const Deck &handle);
     void SendSyncStart();
-    void SendSyncCard();
+    void SendSyncShowCard();
+    void SendSyncCards();
     void SendSyncBid();
     void SendSyncHandle();
     void SendChatMessage(const std::string &message);
@@ -120,15 +142,25 @@ private:
         EXIT
     };
 
+    Player      mPlayer;    // Player's deck, utilities and assigned UUID
+    Place       mPlace;     // assigned place around the table
+    Identity    mIdentity;  // Player's identity
 
-    Player      mPlayer;
-    Deck::Statistics   stats;   // statistics on player's cards
-    Game        info;           // Helper class to store various game information
+    // Memorized game states and parameters
+    Tarot::GameMode mGameMode;
+    std::map<Place, Identity> mPlayersIdent;
+    std::uint8_t mNbPlayers;
+    Tarot::Bid  mBid;
+    Tarot::Shuffle mShuffle;
+
     Score       score;
-    Deck        dogDeck;
+    Deck        mDog;
     Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;
     IEvent&     mEventHandler;
+    Sequence    mSequence;
+    Deck::Statistics   stats;   // statistics on player's cards
+
     TcpClient   mTcpClient;
     std::thread mThread;
     bool        mInitialized;
@@ -141,7 +173,9 @@ private:
     // TarotClub Protocol methods
     void SendIdentity();
     void SendDiscard(const Deck &discard);
+    void SendPacket(const ByteArray &packet);
     bool DoAction(const ByteArray &data);
+
 };
 
 #endif // _CLIENT_H

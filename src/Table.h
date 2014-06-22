@@ -40,8 +40,8 @@ public:
 
     // Helpers
     void SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay);
-    void CreateGame(Game::Mode gameMode, int nbPlayers, const Game::Shuffle &shuffle);
-    void StartDeal();
+    void CreateGame(Tarot::GameMode gameMode, int nbPlayers, const Tarot::Shuffle &shuffle);
+    void NewDeal();
     void Initialize();
     void Stop();
     void ConnectBots();
@@ -53,7 +53,7 @@ public:
     void SaveConfiguration(const ServerOptions &opt);
     void SetTcpPort(std::uint16_t port);
 
-    // TcpServer class events
+    // Fom TcpServer interface
     virtual void NewConnection(int socket);
     virtual void ReadData(int socket, const std::string &data);
     virtual void ClientClosed(int socket);
@@ -78,7 +78,7 @@ private:
             {
                 if (mTable.mAutoStart)
                 {
-                    mTable.StartDeal();
+                    mTable.NewDeal();
                 }
             }
         }

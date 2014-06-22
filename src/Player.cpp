@@ -28,6 +28,7 @@
 /*****************************************************************************/
 Player::Player()
     : mUuid(0U)
+    , mAck(false)
 {
 
 }
@@ -67,6 +68,12 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     int  maxPreviousTrump = 0;      // maximum value of the previous trump played
 
     Card *c = NULL;
+
+    // Check if the player has the card in hand
+    if (!this->HasCard(cVerif))
+    {
+        return false;
+    }
 
     // The player is the first of the trick, he can play all the cards
     if (trick.Size() == 0)
@@ -111,7 +118,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     }
 
     // Some indications on the player cards in hand
-    for (Deck::ConstIterator i = mDeck.Begin(); i != mDeck.End(); ++i)
+    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         c = *(i);
         if (c->GetSuit() == Card::TRUMPS)
@@ -226,6 +233,92 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     return true;
 }
 /*****************************************************************************/
+bool Player::TestHandle(const Deck &handle)
+{
+    bool ret = true;
+    Deck::Statistics stats;
+
+    // Check if the handle size is correct
+    if ((handle.Size() == 10U) ||
+        (handle.Size() == 13U) ||
+        (handle.Size() == 15U))
+    {
+        ret = true;
+    }
+    else
+    {
+        ret = false;
+    }
+
+    // Test if the handle contains only trumpts
+    stats.Reset();
+    handle.AnalyzeTrumps(stats);
+
+    if (handle.Size() != stats.trumps)
+    {
+        ret = false;
+    }
+
+    // Test if the player has all the cards of the declared handle
+    for (Deck::ConstIterator i = handle.Begin(); i != handle.End(); ++i)
+    {
+        Card *c = (*i);
+        if (!this->HasCard(c))
+        {
+            ret = false;
+        }
+    }
+
+    // If the fool is shown, then it indicates that there is no more any trumps in the player's hand
+    stats.Reset();
+    AnalyzeTrumps(stats);
+    if ((handle.HasFool() == true) && (stats.trumps > handle.Size()))
+    {
+        ret = false;
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool Player::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numberOfPlayers)
+{
+    bool valid = true;
+
+    if (discard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
+    {
+        for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
+        {
+            Card *c = (*i);
+
+            // Look if the card belongs to the dog or the player's deck
+            if (this->HasCard(c) || dog.HasCard(c))
+            {
+                // Look the card value against the Tarot rules
+                if ((c->GetSuit() == Card::TRUMPS) ||
+                    ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+                {
+                    valid = false;
+                }
+
+                // Look if this card is unique
+                if (discard.Count(c) != 1)
+                {
+                    valid = false;
+                }
+            }
+            else
+            {
+                valid = false;
+            }
+        }
+    }
+    else
+    {
+        valid = false;
+    }
+
+    return valid;
+}
+/*****************************************************************************/
 bool Player::IsFree()
 {
     if (mUuid == 0)
@@ -236,31 +329,6 @@ bool Player::IsFree()
     {
         return false;
     }
-}
-/*****************************************************************************/
-void Player::SetIdentity(const Identity &ident)
-{
-    mIdentity = ident;
-}
-/*****************************************************************************/
-void Player::SetPlace(Place p)
-{
-    mPlace = p;
-}
-/*****************************************************************************/
-Identity &Player::GetIdentity()
-{
-    return mIdentity;
-}
-/*****************************************************************************/
-Place Player::GetPlace()
-{
-    return mPlace;
-}
-/*****************************************************************************/
-Deck &Player::GetDeck()
-{
-    return mDeck;
 }
 
 //=============================================================================

@@ -54,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(newTournamentAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewTournamentGame);
     connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
 
+    // TarotWidget events
+    connect (tarotWidget, &TarotWidget::sigPlayersListEvent, this, &MainWindow::slotPlayersListEvent);
+
     // Game menu to specific desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
     connect(newCustomDealAct, &QAction::triggered, this, &MainWindow::slotNewCustomDeal);
@@ -76,11 +79,11 @@ void MainWindow::slotNewNumberedDeal()
 
     if (widget->exec() == QDialog::Accepted)
     {
-        Game::Shuffle sh;
-        sh.type = Game::NUMBERED_DEAL;
+        Tarot::Shuffle sh;
+        sh.type = Tarot::Shuffle::NUMBERED_DEAL;
         sh.seed = ui.dealNumber->value();
 
-        tarotWidget->LaunchLocalGame(Game::ONE_DEAL, sh);
+        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh);
     }
 }
 /*****************************************************************************/
@@ -90,11 +93,11 @@ void MainWindow::slotNewCustomDeal()
 
     if (fileName.size() != 0)
     {
-        Game::Shuffle sh;
-        sh.type = Game::CUSTOM_DEAL;
+        Tarot::Shuffle sh;
+        sh.type = Tarot::Shuffle::CUSTOM_DEAL;
         sh.file = fileName.toStdString();
 
-        tarotWidget->LaunchLocalGame(Game::ONE_DEAL, sh);
+        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh);
     }
 }
 /*****************************************************************************/
@@ -318,6 +321,12 @@ void MainWindow::slotLaunchHelp()
 {
     QString path = QString(Util::ExecutablePath().c_str()) + "/doc/index.html";
     QDesktopServices::openUrl(QUrl("file:///" + path, QUrl::TolerantMode));
+}
+/*****************************************************************************/
+void MainWindow::slotPlayersListEvent()
+{
+    scoresDock->SetPlayers(tarotWidget->GetPlayersList());
+    infosDock->SetPlayers(tarotWidget->GetPlayersList());
 }
 /*****************************************************************************/
 void MainWindow::slotDealEditor()

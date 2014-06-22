@@ -526,7 +526,7 @@ bool Canvas::TestFilter(quint8 mask)
     return ret;
 }
 /*****************************************************************************/
-void Canvas::SetResult(Score &score, Game &info)
+void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
 {
     QString result_str;
 
@@ -546,8 +546,8 @@ void Canvas::SetResult(Score &score, Game &info)
     // Deal caracteristics
     result_str += "<td><table>";
     result_str += QString("<tr><td colspan=\"2\"><b>Summary</b><td /></tr>");
-    result_str += QString("<tr><td>Taker:</td><td>") + QString(info.taker.ToString().data()) + QString("</td></tr>");
-    result_str += QString("<tr><td>Contract:</td><td>") + QString(info.contract.ToString().data()) + QString("</td>");
+    result_str += QString("<tr><td>Taker:</td><td>") + QString(bid.taker.ToString().data()) + QString("</td></tr>");
+    result_str += QString("<tr><td>Contract:</td><td>") + QString(bid.contract.ToString().data()) + QString("</td>");
     result_str += QString("<tr><td>Number of oudlers:</td><td>") + QString().setNum(score.GetNumberOfOudlers()) + QString("</td></tr>");
     result_str += QString("<tr><td>Points:</td><td>") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
     result_str += QString("<tr><td>Points to do: </td><td>") + QString().setNum((int)score.pointsToDo) + QString("</td></tr>");

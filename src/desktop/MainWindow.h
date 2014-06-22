@@ -64,6 +64,9 @@ private slots:
     void slotShowOptions();
     void slotLaunchHelp();
 
+    // Events from TarotWidget
+    void slotPlayersListEvent();
+
 private:
     void SetupDialogs();
     void SetupMenus();

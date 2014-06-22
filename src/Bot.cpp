@@ -58,9 +58,9 @@ void Bot::AssignedPlace()
     mBotEngine.Call("EnterGame", args);
 }
 /*****************************************************************************/
-void Bot::PlayersList(std::map<Place, Identity> &players)
+void Bot::PlayersList()
 {
-    (void)(players);
+    // Nothing to do with the list of players
 }
 /*****************************************************************************/
 void Bot::ReceiveCards()
@@ -127,14 +127,13 @@ void Bot::ShowBid(Place place, bool slam, Contract contract)
     mClient.SendSyncBid();
 }
 /*****************************************************************************/
-void Bot::StartDeal(Place taker, Contract contract, const Game::Shuffle &sh)
+void Bot::StartDeal()
 {
-    (void)(sh);
-
     // FIXME: pass the game type to the script
+    // FIXME: pass the slam declared bolean to the script
     JSEngine::StringList args;
-    args.push_back(taker.ToString());
-    args.push_back(contract.ToString());
+    args.push_back(mClient.GetBid().taker.ToString());
+    args.push_back(mClient.GetBid().contract.ToString());
     mBotEngine.Call("StartDeal", args);
 
     // We are ready, let's inform the server about that
@@ -146,9 +145,61 @@ void Bot::ShowDog()
     mClient.SendSyncDog();
 }
 /*****************************************************************************/
+void Bot::AskForHandle()
+{
+    bool valid = false;
+    JSEngine::StringList args;
+    JSValue ret = mBotEngine.Call("AskForHandle", args);
+    Deck handle; // empty by default
+
+    if (ret.IsValid())
+    {
+        if (ret.GetType() == JSValue::STRING)
+        {
+            std::string cards = ret.GetString();
+            if (cards.size() > 0)
+            {
+                std::uint8_t count = handle.SetCards(cards);
+                if (count > 0U)
+                {
+                    valid = mClient.TestHandle(handle);
+                }
+                else
+                {
+                    TLogError("Unknown cards in the handle");
+                }
+            }
+            else
+            {
+                // Empty string means no handle to declare, it is valid!
+                valid = true;
+            }
+        }
+        else
+        {
+            TLogError("Bad format, requested a string");
+        }
+    }
+    else
+    {
+        TLogError("Invalid script answer");
+    }
+
+    if (valid)
+    {
+        mClient.SendHandle(handle);
+    }
+    else
+    {
+        TLogInfo("Invalid handle is: " + handle.GetCardList());
+    }
+}
+/*****************************************************************************/
 void Bot::ShowHandle()
 {
     JSEngine::StringList args;
+
+    // Send the handle to the bot
     args.push_back(mClient.GetHandleDeck().GetCardList());
     if (mClient.GetHandleDeck().GetOwner() == ATTACK)
     {
@@ -166,56 +217,40 @@ void Bot::ShowHandle()
 /*****************************************************************************/
 void Bot::BuildDiscard()
 {
-    bool valid = true;
+    bool valid = false;
     JSEngine::StringList args;
     Deck discard;
 
     args.push_back(mClient.GetDogDeck().GetCardList());
     JSValue ret = mBotEngine.Call("BuildDiscard", args);
 
-    if (!ret.IsValid())
+    if (ret.IsValid())
     {
-        TLogError("Invalid script answer, requested string");
-    }
-
-    int count = discard.SetCards(ret.GetString());
-
-    if (count == 6)
-    {
-        for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
+        if (ret.GetType() == JSValue::STRING)
         {
-            Card *c = (*i);
-
-            // Look if the card belongs to the dog or the player's deck
-            if (mClient.GetDogDeck().HasCard(c) || mClient.GetMyDeck().HasCard(c))
+            std::uint8_t count = discard.SetCards(ret.GetString());
+            if (count == Tarot::NumberOfDogCards(mClient.GetNumberOfPlayers()))
             {
-                // Look the card value against the Tarot rules
-                if ((c->GetSuit() == Card::TRUMPS) ||
-                    ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
-                {
-                    valid = false;
-                }
-
-                // Look if this card is unique
-                if (discard.Count(c) != 1)
-                {
-                    valid = false;
-                }
+                valid = mClient.TestDiscard(discard);
             }
             else
             {
-                valid = false;
+                TLogError("Unknown cards in the discard");
             }
+        }
+        else
+        {
+            TLogError("Bad format, requested a string");
         }
     }
     else
     {
-        valid = false;
+        TLogError("Invalid script answer");
     }
 
     if (!valid)
     {
-        TLogInfo("Invalid discard: " + discard.GetCardList());
+        TLogInfo("Invalid discard is: " + discard.GetCardList());
 
         discard = mClient.BuildDogDeck(); // build a random valid deck
         ReceiveCards(); // Resend cards to the bot!
@@ -223,7 +258,7 @@ void Bot::BuildDiscard()
     mClient.SetDiscard(discard);
 }
 /*****************************************************************************/
-void Bot::DealAgain()
+void Bot::NewDeal()
 {
     // Re-inititialize script context
     if (InitializeScriptContext() == true)
@@ -294,7 +329,7 @@ void Bot::ShowCard(Place p, const std::string &name)
     mBotEngine.Call("PlayedCard", args);
 
     // We have seen the card, let's inform the server about that
-    mClient.SendSyncCard();
+    mClient.SendSyncShowCard();
 }
 /*****************************************************************************/
 void Bot::WaitTrick(Place winner)

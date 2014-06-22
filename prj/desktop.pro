@@ -189,7 +189,6 @@ HEADERS += ServerConfig.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \
-    Game.h \
     Score.h \
     Protocol.h \
     Controller.h \
@@ -207,7 +206,6 @@ SOURCES += ServerConfig.cpp \
     Bot.cpp \
     TarotEngine.cpp \
     Deal.cpp \
-    Game.cpp \
     Protocol.cpp \
     Controller.cpp \
     Table.cpp \

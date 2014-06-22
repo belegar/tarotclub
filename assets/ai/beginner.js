@@ -105,6 +105,18 @@ function StartDeal(taker, contract)
 }
 
 /**
+ * @brief This function is called by the server to ask for a declared handle
+ *
+ * @return The declared handle, or an empty string if there is no handle to declare
+ */
+function AskForHandle()
+{
+    // FIXME: manage handle declaration
+    return "";
+}
+
+
+/**
  * @brief This function is called when a player as declared a handle
  * 
  * @param[in] handle declared, card list in string format

@@ -43,12 +43,12 @@ public:
     int handlePoints;
     int slamPoints;
 
-    Team Winner();
+    Team Winner() const;
     void Reset();
-    int GetNumberOfOudlers();
+    int GetNumberOfOudlers() const;
     void SetPointsToDo(int oudlers);
-    int GetAttackScore();
-    int GetDefenseScore();
+    int GetAttackScore() const;
+    int GetDefenseScore() const;
     std::string ToString();
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)

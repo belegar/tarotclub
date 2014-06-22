@@ -69,6 +69,21 @@ void InfosDock::Clear()
     }
 }
 /*****************************************************************************/
+void InfosDock::SetPlayers(const QMap<Place, Identity> &players)
+{
+    QStringList header;
+
+    ui.tableWidget->setColumnCount(players.size());
+
+    QMapIterator<Place, Identity> i(players);
+    while (i.hasNext())
+    {
+        i.next();
+        header += i.value().name.data();
+    }
+    ui.tableWidget->setHorizontalHeaderLabels(header);
+}
+/*****************************************************************************/
 void InfosDock::SetDealNumber(std::uint32_t n)
 {
     if (n == 0U)
@@ -81,7 +96,7 @@ void InfosDock::SetDealNumber(std::uint32_t n)
     }
 }
 /*****************************************************************************/
-void InfosDock::SetTaker(QString &name, Place place)
+void InfosDock::SetTaker(const QString &name, Place place)
 {
     ui.preneurVar->setText("<b>" + name + "</b>" + " (" + QString(place.ToString().data()) + ")");
 }
@@ -91,7 +106,7 @@ void InfosDock::SetContract(Contract contract)
     ui.contratVar->setText("<b>" + QString(contract.ToString().data()) + "</b>");
 }
 /*****************************************************************************/
-void InfosDock::PrintStats(Deck::Statistics &stats)
+void InfosDock::PrintStats(const Deck::Statistics &stats)
 {
     QString buffer, tmp;
 
@@ -122,15 +137,15 @@ void InfosDock::PrintStats(Deck::Statistics &stats)
     ui.statsEdit->setPlainText(buffer);
 }
 /*****************************************************************************/
-void InfosDock::AddRound(Game &info, Place p, const QString &txt)
+void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const QString &txt)
 {
-    ui.tableWidget->item(info.trickCounter, p.Value())->setText(txt);
+    ui.tableWidget->item(trickCounter, p.Value())->setText(txt);
 }
 /*****************************************************************************/
-void InfosDock::SelectWinner(Game &info, Place p)
+void InfosDock::SelectWinner(std::uint8_t trickCounter, Place p)
 {
     QBrush brush(Qt::darkGreen);
-    ui.tableWidget->item(info.trickCounter - 1, p.Value())->setBackground(brush);
+    ui.tableWidget->item(trickCounter - 1, p.Value())->setBackground(brush);
 }
 /*****************************************************************************/
 void InfosDock::SelectFirstPlayer(int turn, Place p)

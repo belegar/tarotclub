@@ -31,7 +31,6 @@
 #include "Player.h"
 #include "TarotDeck.h"
 #include "Common.h"
-#include "Game.h"
 #include "ServerConfig.h"
 #include "Observer.h"
 
@@ -39,79 +38,96 @@
 class TarotEngine
 {
 public:
-    class IEvent
+    enum Sequence
     {
-    public:
-        virtual void RequestBid(Contract c, Place p) = 0;
-        virtual void DealAgain() = 0;
-        virtual void PlayCard(Place p) = 0;
-        virtual void EndOfTrick(Place p) = 0;
-        virtual void EndOfDeal() = 0;
-        virtual void SendCards() = 0;
-        virtual void ShowDog() = 0;
-        virtual void StartDeal() = 0;
+        STOPPED,
+        WAIT_FOR_PLAYERS,
+        WAIT_FOR_READY,
+        WAIT_FOR_CARDS,
+        WAIT_FOR_BID,
+        WAIT_FOR_SHOW_BID,
+        WAIT_FOR_ALL_PASSED,
+        WAIT_FOR_SHOW_DOG,
+        WAIT_FOR_DISCARD,
+        WAIT_FOR_START_DEAL,
+        WAIT_FOR_HANDLE,
+        WAIT_FOR_SHOW_HANDLE,
+        WAIT_FOR_PLAYED_CARD,
+        WAIT_FOR_SHOW_CARD,
+        WAIT_FOR_END_OF_TRICK
     };
 
-    TarotEngine(IEvent &handler);
+    enum BidResult
+    {
+        ALL_PASSED,
+        NEXT_PLAYER,
+        SHOW_DOG,
+        START_DEAL
+    };
+
+    TarotEngine();
     ~TarotEngine();
 
     // Helpers
     void Initialize();
-    void NewGame(Game::Mode mode);
     void StopGame();
+    void CreateGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t nbPlayers);
     void NewDeal();
     void StartDeal();
-    bool SyncDog();
-    void SyncTrick();
-    void SyncReady();
-    void SyncCard();
-    void SyncStart();
-    void SyncBid();
-    void SyncHandle();
-    void BidSequence();
+    void EndOfDeal();
+
+    Place AddPlayer(std::uint32_t uuid);
+    BidResult BidSequence();
+    void DiscardSequence();
+    void GameSequence();
+    bool Sync(Sequence sequence, std::uint32_t uuid);
 
     // Getters
-    Player &GetPlayer(Place p);
+    Player *GetPlayer(Place p);
     Player *GetPlayer(std::uint32_t uuid);
     Place GetPlayerPlace(std::uint32_t uuid);
+    Place GetCurrentPlayer() { return mCurrentPlayer; }
+    Sequence GetSequence() { return mSequence; }
     Score &GetScore();
-    Game &GetGameInfo();
-    Deal &GetDeal();
-    Game::Shuffle GetShuffle();
-    Place GetFreePlayer();
+    std::map<Place, Identity> GetPlayersList() { return mPlayersIdent; }
+    std::uint8_t    GetNbPlayers() { return mNbPlayers; }
+    Tarot::Bid      GetBid() { return mBid; }
+    Tarot::GameMode GetGameMode() { return mGameMode; }
+    Deck GetDog();
+    Tarot::Shuffle GetShuffle();
+    bool IsLastTrick() { return Tarot::IsDealFinished(mTrickCounter, mNbPlayers); }
 
     // Setters
     bool SetIdentity(std::uint32_t uuid, const Identity &ident);
-    void SetShuffle(const Game::Shuffle &s);
-    void SetDiscard(Deck &discard);
-    void SetHandle(Deck &handle, Place p);
-    void SetCard(Card *c, Place p);
+    void SetDiscard(const Deck &discard);
+    bool SetHandle(const Deck &handle, Place p);
+    bool SetCard(Card *c, Place p);
     Contract SetBid(Contract c, bool slam, Place p);
 
 private:
-    Player  players[5];     // [3..5] players
+    Player  mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
+    std::map<Place, Identity> mPlayersIdent;
     Deck    currentTrick;   // the main deck of cards
-    Deal    deal;
-    Game    gameState;
-    Game::Shuffle       shuffle;
-    IEvent& mEventHandler;
+    Deal    mDeal;
 
-    // synchonization counters
-    std::uint32_t     cntSyncIdentity;    // player sent his identity
-    std::uint32_t     cntSyncDog;         // players saw the dog
-    std::uint32_t     cntSyncBid;         // players saw the bid
-    std::uint32_t     cntSyncTrick;       // end of a round
-    std::uint32_t     cntSyncReady;       // end of a deal
-    std::uint32_t     cntSyncHandle;      // show a declared handle to all players
-    std::uint32_t     cntSyncStart;       // start of a deal
-    std::uint32_t     cntSyncCard;        // players saw the played card
+    // Game state variables
+    std::uint8_t    mNbPlayers;
+    Sequence        mSequence;
+    Tarot::Bid      mBid;
+    Tarot::Shuffle  mShuffle;
+    std::uint8_t    mPosition;          // Current position, [1..numberOfPlayers]
+    Place           mDealer;            // who has dealt the cards
+    std::uint8_t    mTrickCounter;       // number of tricks played [1..18] for 4 players
+    Place           mCurrentPlayer;
+    unsigned        mSeed;
+    Tarot::GameMode mGameMode;
+    Tarot::Handle   mAttackHandle;
+    Tarot::Handle   mDefenseHandle;
 
-    bool IsCardValid(Card *c, Place p);
-    bool HasCard(Card *c, Place p);
+    bool AckFromAllPlayers();
+    void ResetAck();
     void CreateDeal();
-    void ShowDog();
-    void GameSateMachine();
-    void EndOfDeal();
+    bool NextPlayer();
 };
 
 #endif // _TAROTENGINE_H
