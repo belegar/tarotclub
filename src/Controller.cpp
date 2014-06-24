@@ -417,7 +417,11 @@ bool Controller::DoAction(const ByteArray &data)
                         }
                         else
                         {
-                            TLogError("The player cannot play the card");
+                            std::stringstream ss;
+                            ss << "The player cannot play the card: " << c->GetName()
+                               << " Engine deck is: " << engine.GetPlayer(uuid)->GetCardList();
+
+                            TLogError(ss.str());
                         }
                     }
                     else
