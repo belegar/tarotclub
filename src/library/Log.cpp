@@ -46,7 +46,7 @@ void Log::RegisterListener(Observer<std::string> &listener)
     mSubject.Attach(listener);
 }
 /*****************************************************************************/
-void Log::AddEntry(Event event, const std::string &file, const std::string &message)
+void Log::AddEntry(Event event, const std::string &file, const int line, const std::string &message)
 {
     std::vector<std::string> eventString;
     eventString.push_back("Error");
@@ -56,11 +56,16 @@ void Log::AddEntry(Event event, const std::string &file, const std::string &mess
     eventString.push_back("Protocol");
     eventString.push_back("Error");
 
-    std::string line = eventString[event] + ", " + Util::CurrentDateTime("%Y-%m-%d.%X") + ", " + file + ", " + message + "\r\n";
+    std::stringstream ss;
+    ss << eventString[event] << ", " <<
+          Util::CurrentDateTime("%Y-%m-%d.%X") << ", " <<
+          file << ", " <<
+          line << ", " <<
+          message;
 
-    std::cout << line;      // print to local std output
-    mSubject.Notify(line);  // send message to all the listeners
-    Save(line);             // save message to a file
+    std::cout << ss.str() << std::endl; // print to local std output
+    mSubject.Notify(ss.str());          // send message to all the listeners
+    Save(ss.str());                     // save message to a file
 }
 /*****************************************************************************/
 void Log::Save(const std::string &line)

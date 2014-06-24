@@ -57,7 +57,7 @@ public:
 
     Log();
 
-    static void AddEntry(Event event, const std::string &file, const std::string &message);
+    static void AddEntry(Event event, const std::string &file, const int line, const std::string &message);
     static void RegisterListener(Observer<std::string> &listener);
 
 private:
@@ -68,8 +68,8 @@ private:
 };
 
 // Macros definitions
-#define TLogInfo(message)   Log::AddEntry(Log::Info, __FILE__, message)
-#define TLogError(message)  Log::AddEntry(Log::Error, __FILE__, message)
+#define TLogInfo(message)   Log::AddEntry(Log::Info, __FILE__, __LINE__, message)
+#define TLogError(message)  Log::AddEntry(Log::Error, __FILE__, __LINE__, message)
 
 
 #endif // LOG_H
