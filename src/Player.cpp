@@ -319,6 +319,19 @@ bool Player::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numb
     return valid;
 }
 /*****************************************************************************/
+void Player::RemoveDuplicates(const Deck &cards)
+{
+    // remove cards in the player's deck that are similar to the discard
+    for (Deck::ConstIterator i = cards.Begin(); i != cards.End(); ++i)
+    {
+        Card *c = (*i);
+        if (HasCard(c))
+        {
+            Remove(c);
+        }
+    }
+}
+/*****************************************************************************/
 bool Player::IsFree()
 {
     if (mUuid == 0)

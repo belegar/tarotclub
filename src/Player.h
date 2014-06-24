@@ -41,6 +41,15 @@ public:
     bool TestHandle(const Deck &handle);
     bool TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numberOfPlayers);
 
+    /**
+     * @brief RemoveDuplicates
+     *
+     * Remove all the cards in the player's deck that exist in the "cards" deck passed in argument
+     *
+     * @param cards
+     */
+    void RemoveDuplicates(const Deck &cards);
+
     // Getters
     std::uint32_t GetUuid() const;
     bool HasAck() { return mAck; }
