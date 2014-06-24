@@ -93,13 +93,13 @@ public:
     std::uint8_t    GetNbPlayers() { return mNbPlayers; }
     Tarot::Bid      GetBid() { return mBid; }
     Tarot::GameMode GetGameMode() { return mGameMode; }
-    Deck GetDog();
+    Deck GetDog() { return mDog; }
     Tarot::Shuffle GetShuffle();
     bool IsLastTrick() { return Tarot::IsDealFinished(mTrickCounter, mNbPlayers); }
 
     // Setters
     bool SetIdentity(std::uint32_t uuid, const Identity &ident);
-    void SetDiscard(const Deck &discard);
+    bool SetDiscard(const Deck &discard);
     bool SetHandle(const Deck &handle, Place p);
     bool SetCard(Card *c, Place p);
     Contract SetBid(Contract c, bool slam, Place p);
@@ -109,6 +109,7 @@ private:
     std::map<Place, Identity> mPlayersIdent;
     Deck    currentTrick;   // the main deck of cards
     Deal    mDeal;
+    Deck    mDog;   // The remaining cards (dog)
 
     // Game state variables
     std::uint8_t    mNbPlayers;

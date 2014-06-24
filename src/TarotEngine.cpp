@@ -123,11 +123,25 @@ Tarot::Shuffle TarotEngine::GetShuffle()
     return mShuffle;
 }
 /*****************************************************************************/
-void TarotEngine::SetDiscard(const Deck &discard)
+bool TarotEngine::SetDiscard(const Deck &discard)
 {
-    mDeal.SetDiscard(discard, ATTACK);
-    ResetAck();
-    mSequence = WAIT_FOR_START_DEAL;
+    bool valid = mPlayers[mBid.taker.Value()].TestDiscard(discard, mDog, mNbPlayers);
+
+    if (valid)
+    {
+        // Add the dog to the player's deck, and then filter the discard
+        mPlayers[mBid.taker.Value()] += mDog;
+        mPlayers[mBid.taker.Value()].RemoveDuplicates(discard);
+
+        std::stringstream ss;
+        ss << "Taker's deck after the discard: " << mPlayers[mBid.taker.Value()].GetCardList();
+        TLogInfo(ss.str());
+
+        mDeal.SetDiscard(discard, ATTACK);
+        ResetAck();
+        mSequence = WAIT_FOR_START_DEAL;
+    }
+    return valid;
 }
 /*****************************************************************************/
 /**
@@ -185,6 +199,10 @@ bool TarotEngine::SetCard(Card *c, Place p)
         c->SetOwner(p);
         currentTrick.Append(c);
         mPlayers[p.Value()].Remove(c);
+
+        std::stringstream ss;
+        ss << "Player " << p.ToString() << " played " << c->GetName() << " Engine player deck is: " << mPlayers[p.Value()].GetCardList();
+        TLogInfo(ss.str());
 
         // ------- PREPARE NEXT ONE
         mPosition++; // done for this player
@@ -354,11 +372,6 @@ Score &TarotEngine::GetScore()
     return mDeal.GetScore();
 }
 /*****************************************************************************/
-Deck TarotEngine::GetDog()
-{
-    return mDeal.GetDog();
-}
-/*****************************************************************************/
 bool TarotEngine::Sync(Sequence sequence, std::uint32_t uuid)
 {
     bool ret = false;
@@ -461,12 +474,12 @@ TarotEngine::BidResult TarotEngine::BidSequence()
                 // No discard is made, set the owner of the dog
                 if (mBid.contract != Contract::GUARD_AGAINST)
                 {
-                    mDeal.SetDogOwner(ATTACK);
+                    mDeal.SetDiscard(mDog, ATTACK);
                 }
                 else
                 {
                     // Guard _against_, the dog belongs to the defense
-                    mDeal.SetDogOwner(DEFENSE);
+                    mDeal.SetDiscard(mDog, DEFENSE);
                 }
 
                 // We do not display the dog and start the deal immediatly
@@ -560,14 +573,13 @@ void TarotEngine::CreateDeal()
     }
 
     // Remaining cards go to the dog
-    Deck dog;
-    dog.Append(currentTrick.Mid(mNbPlayers * n));
+    mDog.Clear();
+    mDog.Append(currentTrick.Mid(mNbPlayers * n));
 
     std::stringstream message;
-    message << "Dog deck: " << dog.GetCardList();
+    message << "Dog deck: " << mDog.GetCardList();
     TLogInfo(message.str());
 
-    mDeal.SetDiscard(dog, NO_TEAM);
     currentTrick.Clear();
 }
 
