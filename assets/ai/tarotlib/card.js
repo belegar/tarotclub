@@ -36,7 +36,8 @@ this.TarotLib = this.TarotLib || {};
  */
 var Card = function(cardName, place) {
     var elem = cardName.split("-");
-    this.value = parseInt(elem[0]);
+
+    this.value = parseInt(elem[0], 10); // specify the base-10 to not parse it in octal
     this.suit = elem[1];
     this.owner = place;
 };
