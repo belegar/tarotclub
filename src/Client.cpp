@@ -102,15 +102,7 @@ void Client::SetMyIdentity(const Identity &ident)
 /*****************************************************************************/
 void Client::SetDiscard(Deck &discard)
 {
-    // remove cards from the client's deck
-    for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
-    {
-        Card *c = (*i);
-        if (mPlayer.HasCard(c))
-        {
-            mPlayer.Remove(c);
-        }
-    }
+    mPlayer.RemoveDuplicates(discard);
 
     std::string message = "Dog: " + mDog.GetCardList();
     TLogInfo(message);
@@ -416,11 +408,20 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_SEND_CARDS:
         {
+            mPlayer.Clear();
             in >> mPlayer;
-            score.Reset();
-            UpdateStatistics();
-            mEventHandler.ReceiveCards();
-            SendSyncCards();
+
+            if (mPlayer.Size() == Tarot::NumberOfCardsInHand(mNbPlayers))
+            {
+                score.Reset();
+                UpdateStatistics();
+                mEventHandler.ReceiveCards();
+                SendSyncCards();
+            }
+            else
+            {
+                TLogError("Wrong number of cards received!");
+            }
             break;
         }
 
