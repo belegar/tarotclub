@@ -64,7 +64,6 @@ public:
     void SetScore(const Score &score);
     void SetDiscard(const Deck &discard, Team owner);
     Place SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t trickCounter);
-    void SetDogOwner(Team team);
 
 private:
     // Helper private methods

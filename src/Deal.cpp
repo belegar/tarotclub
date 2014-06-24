@@ -184,11 +184,6 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
     return winner;
 }
 /*****************************************************************************/
-void Deal::SetDogOwner(Team team)
-{
-    mDiscard.SetOwner(team);
-}
-/*****************************************************************************/
 Deck Deal::GetTrick(int turn)
 {
     if ((turn < 0) || (turn >= 24))
@@ -528,7 +523,7 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
 
     if (!json.SaveToFile(fileName))
     {
-        TLogError("Saving client's configuration failed.");
+        TLogError("Saving deal game result failed.");
     }
 }
 
