@@ -281,9 +281,9 @@ void Bot::PlayCard()
     JSEngine::StringList args;
     JSValue ret = mBotEngine.Call("PlayCard", args);
 
-    if (!ret.IsValid())
+    if (ret.IsValid())
     {
-        TLogError("Invalid script answer, requested string");
+        TLogError("Invalid script answer");
     }
 
     // Test validity of card
@@ -302,18 +302,13 @@ void Bot::PlayCard()
     else
     {
         std::stringstream message;
-        message << mClient.GetPlace().ToString() << " played an unkown card: " << ret.GetString();
-        TLogInfo(message.str());
-
-        message.flush();
-        message << mClient.GetPlace().ToString() << " engine deck is: " << mClient.GetMyDeck().GetCardList();
-        TLogInfo(message.str());
+        message << mClient.GetPlace().ToString() << " played an unknown card: " << ret.GetString()
+                << " Client deck is: " << mClient.GetMyDeck().GetCardList();
 
         // The show must go on, play a random card
         c = mClient.Play();
 
-        message.flush();
-        message << "Randomly choosen card is: " << c->GetName();
+        message << " Randomly chosen card is: " << c->GetName();
         TLogInfo(message.str());
     }
 
