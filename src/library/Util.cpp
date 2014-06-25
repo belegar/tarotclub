@@ -151,36 +151,12 @@ int my_mkdir(const char *path)
  */
 bool Util::Mkdir(const std::string &fullPath)
 {
-    std::string current_level = "";
-    std::string level;
-    std::stringstream ss(fullPath);
-
-    // split path using slash as a separator
-    while (std::getline(ss, level, '/'))
+    bool ret = false;
+    if (my_mkdir(fullPath.c_str()) == 0)
     {
-        current_level += level; // append folder to the current level
-
-        if (FolderExists(current_level))
-        {
-            continue;
-        }
-        else if ((current_level[1] == ':') && (current_level.size() == 2))
-        {
-            // not a directory but a disk letter (windows only)
-            continue;
-        }
-        else
-        {
-            // create current level
-            if (my_mkdir(current_level.c_str()) != 0)
-            {
-                return false;
-            }
-        }
-        current_level += "/"; // don't forget to append a slash
+        ret = true;
     }
-
-    return true;
+    return ret;
 }
 /*****************************************************************************/
 std::vector<std::string> Util::Split(const std::string &theString, const std::string &delimiter)
