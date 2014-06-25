@@ -32,8 +32,8 @@ class System
 {
 public:
     static std::string HomePath()   { return mHomePath; }
-    static std::string GamePath()   { return mHomePath + "/games/"; }
-    static std::string LogPath()    { return mHomePath + "/logs/"; }
+    static std::string GamePath()   { return mHomePath + "/games"; }
+    static std::string LogPath()    { return mHomePath + "/logs"; }
 
     /**
      * @brief DeckPath, where the card images are located

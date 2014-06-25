@@ -52,11 +52,11 @@ void System::Initialize()
 #else
 
 #ifdef TAROT_DEBUG
-    mHomePath  = "./";
+    mHomePath  = Util::ExecutablePath() + "/.tarotclub";
     mScriptPath = Util::ExecutablePath() + "/../../assets/ai/";
     mDeckPath = Util::ExecutablePath() + "/../../assets/cards/default/";
 #else
-    mHomePath  = Util::HomePath() + "/.tarotclub/";
+    mHomePath  = Util::HomePath() + "/.tarotclub";
     mScriptPath = Util::ExecutablePath() + "/ai/";
     mDeckPath = Util::ExecutablePath() + "/default/";
 #endif
