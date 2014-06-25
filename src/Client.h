@@ -114,7 +114,7 @@ public:
 
     // Setters
     void SetMyIdentity(const Identity &ident);
-    void SetDiscard(Deck &discard);
+    void SetDiscard(const Deck &discard);
 
     // Network
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
@@ -123,6 +123,7 @@ public:
     // Protocol methods
     void SendBid(Contract c, bool slam);
     void SendSyncDog();
+    void SendDiscard(const Deck &discard);
     void SendReady();
     void SendError();
     void SendCard(Card *c);
@@ -172,7 +173,6 @@ private:
 
     // TarotClub Protocol methods
     void SendIdentity();
-    void SendDiscard(const Deck &discard);
     void SendPacket(const ByteArray &packet);
     bool DoAction(const ByteArray &data);
 

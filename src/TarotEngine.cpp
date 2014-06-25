@@ -211,6 +211,14 @@ bool TarotEngine::SetCard(Card *c, Place p)
         mSequence = WAIT_FOR_SHOW_CARD;
         ret = true;
     }
+    else
+    {
+        std::stringstream ss;
+        ss << "The player cannot play the card: " << c->GetName()
+           << " Engine deck is: " << mPlayers[p.Value()].GetCardList();
+
+        TLogError(ss.str());
+    }
     return ret;
 }
 /*****************************************************************************/

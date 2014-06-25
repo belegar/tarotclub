@@ -415,14 +415,6 @@ bool Controller::DoAction(const ByteArray &data)
                             // Broadcast played card, and wait for all acknowlegements
                             SendPacket(Protocol::ServerShowCard(c, p));
                         }
-                        else
-                        {
-                            std::stringstream ss;
-                            ss << "The player cannot play the card: " << c->GetName()
-                               << " Engine deck is: " << engine.GetPlayer(uuid)->GetCardList();
-
-                            TLogError(ss.str());
-                        }
                     }
                     else
                     {

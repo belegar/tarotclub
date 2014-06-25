@@ -85,6 +85,12 @@ bool Client::TestDiscard(const Deck &discard)
     return mPlayer.TestDiscard(discard, mDog, mNbPlayers);
 }
 /*****************************************************************************/
+void Client::SetDiscard(const Deck &discard)
+{
+    mPlayer += mDog;
+    mPlayer.RemoveDuplicates(discard);
+}
+/*****************************************************************************/
 Score &Client::GetScore()
 {
     return score;
@@ -98,19 +104,6 @@ Place Client::GetPlace()
 void Client::SetMyIdentity(const Identity &ident)
 {
     mIdentity = ident;
-}
-/*****************************************************************************/
-void Client::SetDiscard(Deck &discard)
-{
-    mPlayer.RemoveDuplicates(discard);
-
-    std::string message = "Dog: " + mDog.GetCardList();
-    TLogInfo(message);
-    TLogInfo("Player: " + mPlayer.GetCardList());
-    TLogInfo("Discard: " + discard.GetCardList());
-
-    // Send discard to the server
-    SendDiscard(discard);
 }
 /*****************************************************************************/
 Contract Client::CalculateBid()
@@ -192,35 +185,29 @@ void Client::UpdateStatistics()
 /*****************************************************************************/
 Deck Client::AutoDiscard()
 {
-    Deck discard = mDog;
+    Deck discard;
 
-    TLogInfo("Auto discard before: " + discard.GetCardList());
+    // We add all the dog cards to the player's deck
+    mPlayer += mDog;
 
-    // We're looking for trumps or kings in the dog and we replace
-    // them by other valid cards
-    for (Deck::ConstIterator iter = mDog.Begin(); iter != mDog.End(); ++iter)
+    // We're looking valid discard cards to put in the discard
+    for (Deck::ConstIterator iter = mPlayer.Begin(); iter != mPlayer.End(); ++iter)
     {
         Card *c = (*iter);
-        if ((c->GetSuit() == Card::TRUMPS) ||
-                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+        if ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() != 14U))
         {
-            // looking for valid card
-            for (Deck::ConstIterator j = mPlayer.Begin(); j != mPlayer.End(); ++j)
+            mPlayer.Remove(c);
+            discard.Append(c);
+
+            if (discard.Size() == Tarot::NumberOfDogCards(mNbPlayers))
             {
-                Card *cdeck = (*j);
-                if ((cdeck->GetSuit() != Card::TRUMPS) && (cdeck->GetValue() < 14))
-                {
-                    // Swap cards between the player and the discard
-                    mPlayer.Remove(cdeck);
-                    mPlayer.Append(c);
-                    discard.Remove(c);
-                    discard.Append(cdeck);
-                }
+                // enough cards!
+                break;
             }
         }
     }
 
-    TLogInfo("Auto discard after: " + discard.GetCardList());
+    TLogInfo("Auto discard: " + discard.GetCardList());
     return discard;
 }
 /*****************************************************************************/

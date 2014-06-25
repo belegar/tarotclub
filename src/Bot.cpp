@@ -248,14 +248,22 @@ void Bot::BuildDiscard()
         TLogError("Invalid script answer");
     }
 
-    if (!valid)
+    if (valid)
+    {
+        mClient.SetDiscard(discard);
+
+        TLogInfo("Player deck: " + mClient.GetMyDeck().GetCardList());
+        TLogInfo("Discard: " + discard.GetCardList());
+    }
+    else
     {
         TLogInfo("Invalid discard is: " + discard.GetCardList());
 
         discard = mClient.AutoDiscard(); // build a random valid deck
         ReceiveCards(); // Resend cards to the bot!
     }
-    mClient.SetDiscard(discard);
+
+    mClient.SendDiscard(discard);
 }
 /*****************************************************************************/
 void Bot::NewDeal()
@@ -297,6 +305,11 @@ void Bot::PlayCard()
             TLogInfo(message.str());
             // The show must go on, play a random card
             c = mClient.Play();
+
+            if (c == NULL)
+            {
+                TLogError("Panic!");
+            }
         }
     }
     else
@@ -308,8 +321,15 @@ void Bot::PlayCard()
         // The show must go on, play a random card
         c = mClient.Play();
 
-        message << " Randomly chosen card is: " << c->GetName();
-        TLogInfo(message.str());
+        if (c != NULL)
+        {
+            message << " Randomly chosen card is: " << c->GetName();
+            TLogInfo(message.str());
+        }
+        else
+        {
+            TLogError("Panic!");
+        }
     }
 
     mClient.GetMyDeck().Remove(c);
