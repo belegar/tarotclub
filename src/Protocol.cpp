@@ -78,6 +78,7 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
     bool found = true;
     std::vector<PacketInfo> packets;
     std::uint16_t offset = 0U;
+    std::uint16_t totalSize = 0U;
 
     if (data.Size() >= HEADER_SIZE)
     {
@@ -100,8 +101,9 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
                     inf.size = blockSize;
                     packets.push_back(inf);
 
+                    totalSize += blockSize;
                     // Is there another packet available ?
-                    if (blockSize == data.Size())
+                    if (totalSize >= data.Size())
                     {
                         found = false;
                     }
@@ -113,6 +115,7 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
                 }
                 else
                 {
+                    // Drop the rest of the packet
                     found = false;
                 }
             }
