@@ -67,10 +67,16 @@ public:
 
     // Getters about various current game information, external usage
     QMap<Place, Identity> GetPlayersList() { return mPlayers; }
+    Tarot::Bid GetBid() { return mClient.GetBid(); }
+    Tarot::Shuffle GetShuffle() { return mClient.GetShuffle(); }
 
 signals:
-    // These signals are used to indicate to an external widget any useful game event
-    void sigPlayersListEvent();
+    // These signals are used internally and made accessible in public for any external entity
+    void sigPlayersList();
+    void sigShowCard(Place, std::string);
+    void sigWaitTrick(Place);
+    void sigStartDeal();
+    void sigMessage(std::string);
 
 public slots:
     // These slots are made available to link them to any external widget
@@ -89,7 +95,6 @@ private:
     QMap<Place, Identity> mPlayers;
     Deal            deal;
     Deck            discard;
-    std::list<std::string> mMessages;
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;
     Deck            mMyHandle;
@@ -102,11 +107,7 @@ private:
     bool HasLocalConnection();
 
     // Client events
-    virtual void Message(const std::string &message)
-    {
-        mMessages.push_back(message);
-        emit sigMessage();
-    }
+    virtual void Message(const std::string &message) { emit sigMessage(message); }
     virtual void AssignedPlace() { emit sigAssignedPlace(); }
     virtual void PlayersList()
     {
@@ -139,23 +140,19 @@ private:
     virtual void EndOfDeal() { emit sigEndOfDeal(); }
     virtual void EndOfGame() { emit sigEndOfGame(); }
 
-signals:
+    // Private signals, not accessible to external entities
+signals: 
    void sigReceiveCards();
    void sigAssignedPlace();
-   void sigPlayersList();
-   void sigMessage();
    void sigSelectPlayer(Place);
    void sigRequestBid(Contract);
    void sigShowBid(Place, bool, Contract);
    void sigShowDog();
-   void sigStartDeal();
    void sigAskForHandle();
    void sigShowHandle();
    void sigBuildDiscard();
    void sigDealAgain();
    void sigPlayCard();
-   void sigShowCard(Place, std::string);
-   void sigWaitTrick(Place);
    void sigEndOfDeal();
    void sigEndOfGame();
 
@@ -164,7 +161,7 @@ private slots:
     void slotReceiveCards();
     void slotAssignedPlace();
     void slotPlayersList();
-    void slotMessage();
+    void slotMessage(std::string message);
     void slotSelectPlayer(Place p);
     void slotRequestBid(Contract highestBid);
     void slotShowBid(Place p, bool slam, Contract c);
