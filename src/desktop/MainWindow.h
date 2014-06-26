@@ -66,11 +66,17 @@ private slots:
 
     // Events from TarotWidget
     void slotPlayersListEvent();
+    void slotShowCardEvent(Place p, std::string cardName);
+    void slotStartDealEvent();
+    void slotWaitTrickEvent(Place winner);
+    void slotMessageEvent(std::string message);
 
 private:
     void SetupDialogs();
     void SetupMenus();
     void SetupDocks();
+
+    std::uint8_t mTrickCounter;
 
     ClientConfig    mClientConfig;
     ServerConfig    mServerConfig;

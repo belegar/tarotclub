@@ -458,24 +458,20 @@ void TarotWidget::slotSendChatMessage(const QString &message)
     mClient.SendChatMessage(message.toStdString());
 }
 /*****************************************************************************/
-void TarotWidget::slotMessage()
+void TarotWidget::slotMessage(std::string message)
 {
-    while (!mMessages.empty())
-    {
-        std::string msg = mMessages.front();
-        mMessages.pop_front();
-    }
+    // Nothing to do here!
+    (void) message;
 }
 /*****************************************************************************/
 void TarotWidget::slotAssignedPlace()
 {
-
+    // Nothing to do here!
 }
 /*****************************************************************************/
 void TarotWidget::slotPlayersList()
 {
     mCanvas->SetPlayerIdentity(mPlayers, mClient.GetPlace());
-    emit sigPlayersListEvent();
 }
 /*****************************************************************************/
 void TarotWidget::slotReceiveCards()

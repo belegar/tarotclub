@@ -55,7 +55,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
 
     // TarotWidget events
-    connect (tarotWidget, &TarotWidget::sigPlayersListEvent, this, &MainWindow::slotPlayersListEvent);
+    connect (tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent, Qt::QueuedConnection);
 
     // Game menu to specific desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
@@ -327,6 +331,53 @@ void MainWindow::slotPlayersListEvent()
 {
     scoresDock->SetPlayers(tarotWidget->GetPlayersList());
     infosDock->SetPlayers(tarotWidget->GetPlayersList());
+}
+/*****************************************************************************/
+void MainWindow::slotShowCardEvent(Place p, std::string cardName)
+{
+    infosDock->AddRound(mTrickCounter, p, QString(cardName.data()));
+}
+/*****************************************************************************/
+void MainWindow::slotWaitTrickEvent(Place winner)
+{
+    infosDock->SelectWinner(mTrickCounter, winner);
+
+    mTrickCounter++;
+}
+/*****************************************************************************/
+void MainWindow::slotMessageEvent(std::string message)
+{
+    chatDock->message(message);
+}
+/*****************************************************************************/
+void MainWindow::slotStartDealEvent()
+{
+    mTrickCounter = 0U;
+    Tarot::Bid bid = tarotWidget->GetBid();
+    Tarot::Shuffle shuffle = tarotWidget->GetShuffle();
+    QMap<Place, Identity> players = tarotWidget->GetPlayersList();
+
+    infosDock->Clear();
+    infosDock->SetContract(bid.contract);
+
+    QString name = "ERROR";
+
+    if (players.contains(bid.taker))
+    {
+        name = QString(players.value(bid.taker).name.data());
+    }
+    infosDock->SetTaker(name, bid.taker);
+
+    if (shuffle.type != Tarot::Shuffle::CUSTOM_DEAL)
+    {
+        infosDock->SetDealNumber(shuffle.seed);
+    }
+    else
+    {
+        // Numbered deal
+        infosDock->SetDealNumber(0U);
+    }
+
 }
 /*****************************************************************************/
 void MainWindow::slotDealEditor()
