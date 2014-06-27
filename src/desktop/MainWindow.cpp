@@ -67,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netGameClientAct, &QAction::triggered, this, &MainWindow::slotJoinNetworkGame);
     connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
     connect(optionsAct, &QAction::triggered, this, &MainWindow::slotShowOptions);
+    connect(newAutoPlayAct, &QAction::triggered, this, &MainWindow::slotNewAutoPlay);
+
 
     // Network chat
     connect(chatDock, &ChatDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendChatMessage);
@@ -87,8 +89,15 @@ void MainWindow::slotNewNumberedDeal()
         sh.type = Tarot::Shuffle::NUMBERED_DEAL;
         sh.seed = ui.dealNumber->value();
 
-        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh);
+        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh, false);
     }
+}
+/*****************************************************************************/
+void MainWindow::slotNewAutoPlay()
+{
+    Tarot::Shuffle sh;
+    sh.type = Tarot::Shuffle::RANDOM_DEAL;
+    tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh, true);
 }
 /*****************************************************************************/
 void MainWindow::slotNewCustomDeal()
@@ -101,7 +110,7 @@ void MainWindow::slotNewCustomDeal()
         sh.type = Tarot::Shuffle::CUSTOM_DEAL;
         sh.file = fileName.toStdString();
 
-        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh);
+        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh, false);
     }
 }
 /*****************************************************************************/
@@ -247,6 +256,10 @@ void MainWindow::SetupMenus()
     newCustomDealAct->setShortcut(tr("Ctrl+L"));
     newCustomDealAct->setStatusTip(tr("Deal cards with a deal created with the editor"));
 
+    newAutoPlayAct = new QAction(tr("New auto& play"), this);
+    newAutoPlayAct->setShortcut(tr("Ctrl+P"));
+    newAutoPlayAct->setStatusTip(tr("Auto play, to train your AI script!"));
+
     //----- Network
     netGameServerAct = new QAction(tr("Create a new network game (serve&r)"), this);
     netGameServerAct->setShortcut(tr("Ctrl+R"));
@@ -271,6 +284,7 @@ void MainWindow::SetupMenus()
     gameMenu->addAction(newTournamentAct);
     gameMenu->addAction(newNumberedDealAct);
     gameMenu->addAction(newCustomDealAct);
+    gameMenu->addAction(newAutoPlayAct);
     gameMenu->addSeparator();
     gameMenu->addAction(netGameServerAct);
     gameMenu->addAction(netQuickJoinAct);

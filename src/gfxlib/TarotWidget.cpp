@@ -38,6 +38,7 @@ TarotWidget::TarotWidget(QWidget* parent = 0)
   : QWidget(parent)
   , mClient(*this)
   , mConnectionType(NO_CONNECTION)
+  , mAutoPlay(false)
 {
     setWindowTitle(QString(TAROT_TITRE) + " " + QString(TAROT_VERSION));
 
@@ -111,7 +112,7 @@ void TarotWidget::slotNewTournamentGame()
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
-    LaunchLocalGame(Tarot::TOURNAMENT, sh);
+    LaunchLocalGame(Tarot::TOURNAMENT, sh, false);
 }
 /*****************************************************************************/
 void TarotWidget::slotNewQuickGame()
@@ -119,7 +120,7 @@ void TarotWidget::slotNewQuickGame()
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
-    LaunchLocalGame(Tarot::ONE_DEAL, sh);
+    LaunchLocalGame(Tarot::ONE_DEAL, sh, false);
 }
 /*****************************************************************************/
 void TarotWidget::slotCreateNetworkGame()
@@ -158,8 +159,9 @@ void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
     mConnectionType = REMOTE;
 }
 /*****************************************************************************/
-void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh)
+void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
 {
+    mAutoPlay = autoPlay;
     mTable.CreateGame(mode, 4U, sh);
     InitScreen();
 
@@ -590,7 +592,20 @@ void TarotWidget::slotAskForHandle()
 /*****************************************************************************/
 void TarotWidget::slotPlayCard()
 {
-    mCanvas->SetFilter(Canvas::CARDS);
+    if (mAutoPlay)
+    {
+        mCanvas->SetFilter(Canvas::BLOCK_ALL);
+
+        Card *c = mClient.Play();
+        mClient.GetMyDeck().Remove(c);
+        mClient.SendCard(c);
+
+        ShowSouthCards();
+    }
+    else
+    {
+        mCanvas->SetFilter(Canvas::CARDS);
+    }
 }
 /*****************************************************************************/
 /**

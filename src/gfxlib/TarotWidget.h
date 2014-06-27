@@ -59,7 +59,7 @@ public:
     TarotWidget(QWidget *parent);
 
     void Initialize();
-    void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh);
+    void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
 
     // Configuration management
@@ -98,6 +98,7 @@ private:
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;
     Deck            mMyHandle;
+    bool            mAutoPlay;
 
     // Helpers
     void ShowSouthCards();
