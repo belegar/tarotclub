@@ -458,9 +458,10 @@ bool Controller::DoAction(const ByteArray &data)
         {
             if (engine.Sync(TarotEngine::WAIT_FOR_END_OF_TRICK, uuid))
             {
-                if (engine.IsLastTrick() == true)
+                if (engine.IsLastTrick())
                 {
                     engine.EndOfDeal();
+                    SendPacket(Protocol::ServerEndOfDeal(engine.GetScore()));
                 }
                 else
                 {
