@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #endif
 
+#include <cstdint>
 #include "Util.h"
 
 /*****************************************************************************/
@@ -125,9 +126,15 @@ std::string Util::HomePath()
  */
 bool Util::FolderExists(const std::string &foldername)
 {
+	bool ret = false;
     struct stat st;
     ::stat(foldername.c_str(), &st);
-    return st.st_mode & S_IFDIR;
+
+	if ((st.st_mode & S_IFDIR) != 0)
+	{
+		ret = true;
+	}
+    return ret;
 }
 /*****************************************************************************/
 /**

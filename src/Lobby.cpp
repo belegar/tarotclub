@@ -49,8 +49,8 @@ void Lobby::Initialize()
 {
     TarotDeck::Initialize();
 
-    Game::Shuffle sh;
-    sh.type = Game::RANDOM_DEAL;
+    Tarot::Shuffle sh;
+    sh.type = Tarot::Shuffle::RANDOM_DEAL;
     int tcpPort = 33000; // FIXME: make this as an option
 
     for (int j = 0; j < SERVER_MAX_SALOONS; j++)
@@ -59,7 +59,7 @@ void Lobby::Initialize()
         {
             saloons[j].tables[i].table.SetTcpPort(tcpPort);
             saloons[j].tables[i].table.Initialize(); // Start all threads and TCP sockets
-            saloons[j].tables[i].table.CreateGame(Game::ONE_DEAL, 4U, sh);
+            saloons[j].tables[i].table.CreateGame(Tarot::ONE_DEAL, 4U, sh);
             // Each table has a unique port
             tcpPort++;
         }
@@ -88,8 +88,24 @@ void Lobby::ReadData(int socket, const std::string &data)
     std::string command = data;
     command.pop_back();
 
+
+
     std::vector<std::string> tokens = Util::Split(command, ":");
     std::stringstream ss;
+
+
+    std::string request = data.substr(0, 3);
+    if (request == "GET")
+    {
+        std::cout << data << std::endl;
+
+        ss << "HTTP/1.1 101 Switching Protocols"
+              "Upgrade: websocket"
+              "Connection: Upgrade"
+              "Access-Control-Allow-Origin: http://example.com"
+              "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+              "Sec-WebSocket-Protocol: appProtocol-v2"
+    }
 
     if (tokens[0] == "GET")
     {

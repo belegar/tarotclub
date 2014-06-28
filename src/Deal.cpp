@@ -341,7 +341,7 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
     score.SetPointsToDo(statsAttack.oudlers);
 
     // 6. We save the points done by the attacker
-    score.pointsAttack = statsAttack.points;
+    score.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma
 }
 /*****************************************************************************/
 /**

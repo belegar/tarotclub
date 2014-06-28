@@ -450,9 +450,9 @@ void Deck::AnalyzeSuits(Statistics &stats)
         }
         count = 0;
 
-        for (Deck::ConstIterator k = Begin(); k != End(); ++k)
+        for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
         {
-            c = (*k);
+            c = (*iter);
             if (c->GetSuit() == suit)
             {
                 count++;
@@ -540,6 +540,7 @@ void Deck::AnalyzeSuits(Statistics &stats)
                 flag = 0;
             }
         }
+
         if (longue >= 5)
         {
             stats.longSuits++;

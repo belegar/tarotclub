@@ -37,7 +37,8 @@ TarotEngine::TarotEngine()
     : mNbPlayers(4U)
     , mSequence(STOPPED)
 {
-    mSeed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
+	mSeed = static_cast<std::uint32_t>(seed);
 }
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
@@ -563,7 +564,8 @@ void TarotEngine::CreateDeal()
 
         if (mShuffle.type == Tarot::Shuffle::RANDOM_DEAL)
         {
-            mShuffle.seed =  std::chrono::system_clock::now().time_since_epoch().count();
+			std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
+            mShuffle.seed = static_cast<std::uint32_t>(seed);
         }
         currentTrick.Shuffle(mShuffle.seed);
     }
