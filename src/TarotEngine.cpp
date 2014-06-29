@@ -37,8 +37,8 @@ TarotEngine::TarotEngine()
     : mNbPlayers(4U)
     , mSequence(STOPPED)
 {
-	std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
-	mSeed = static_cast<std::uint32_t>(seed);
+    std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
+    mSeed = static_cast<std::uint32_t>(seed);
 }
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
@@ -70,7 +70,7 @@ void TarotEngine::CreateGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std:
 
     // Choose the dealer
     std::default_random_engine generator(mSeed);
-    std::uniform_int_distribution<std::uint32_t> distribution(0, nbPlayers-1);
+    std::uniform_int_distribution<std::uint32_t> distribution(0, nbPlayers - 1);
     mDealer = distribution(generator);
 
     // Wait for ready
@@ -416,7 +416,7 @@ void TarotEngine::GameSequence()
     }
     // Special case of first round: players can declare a handle
     else if ((mTrickCounter == 0U) &&
-            (!mHandleAsked[mCurrentPlayer.Value()]))
+             (!mHandleAsked[mCurrentPlayer.Value()]))
     {
         mHandleAsked[mCurrentPlayer.Value()] = true;
         mSequence = WAIT_FOR_HANDLE;
@@ -563,7 +563,7 @@ void TarotEngine::CreateDeal()
 
         if (mShuffle.type == Tarot::Shuffle::RANDOM_DEAL)
         {
-			std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
+            std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
             mShuffle.seed = static_cast<std::uint32_t>(seed);
         }
         currentTrick.Shuffle(mShuffle.seed);

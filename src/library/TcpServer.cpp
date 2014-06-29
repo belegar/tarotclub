@@ -103,7 +103,7 @@ void TcpServer::Run()
 {
     int rc;
     bool end_server = false;
- //   struct timeval timeout;
+    //   struct timeval timeout;
     fd_set working_set;
 
     for (;;)
@@ -120,8 +120,8 @@ void TcpServer::Run()
         /* activity after N minutes this program will end.           */
         /* 0 means unlimited (== no timeout)                         */
         /*************************************************************/
-     //   timeout.tv_sec  = 0; //10 * 60;
-     //   timeout.tv_usec = 0;
+        //   timeout.tv_sec  = 0; //10 * 60;
+        //   timeout.tv_usec = 0;
 
         /*************************************************************/
         /* Loop waiting for incoming connects or for incoming data   */
@@ -137,7 +137,7 @@ void TcpServer::Run()
             /**********************************************************/
             /* Call select() and wait 5 minutes for it to complete.   */
             /**********************************************************/
-        //    printf("Waiting on select()...\n");
+            //    printf("Waiting on select()...\n");
             rc = select(mMaxSd + 1, &working_set, NULL, NULL, NULL); // &timeout);
 
             if (rc < 0)
@@ -209,7 +209,7 @@ void TcpServer::Run()
 /*****************************************************************************/
 void TcpServer::EntryPoint(void *pthis)
 {
-    TcpServer * pt = static_cast<TcpServer*>(pthis);
+    TcpServer *pt = static_cast<TcpServer *>(pthis);
     pt->Run();
 }
 /*****************************************************************************/
@@ -217,7 +217,7 @@ void TcpServer::IncommingConnection()
 {
     int new_sd = -1;
 
-//    printf("  Listening socket is readable\n");
+    //    printf("  Listening socket is readable\n");
     /*************************************************/
     /* Accept all incoming connections that are      */
     /* queued up on the listening socket before we   */
@@ -245,7 +245,7 @@ void TcpServer::IncommingConnection()
         /* Add the new incoming connection to the     */
         /* master read set                            */
         /**********************************************/
-   //     printf("  New incoming connection - %d\n", new_sd);
+        //     printf("  New incoming connection - %d\n", new_sd);
         FD_SET(new_sd, &mMasterSet);
 
         // Update the maximum socket file identifier
@@ -258,7 +258,8 @@ void TcpServer::IncommingConnection()
         /* Loop back up and accept another incoming   */
         /* connection                                 */
         /**********************************************/
-    } while (new_sd != -1);
+    }
+    while (new_sd != -1);
 }
 /*****************************************************************************/
 bool TcpServer::IncommingData(int in_sock)
@@ -271,7 +272,7 @@ bool TcpServer::IncommingData(int in_sock)
 
     socket.SetSocket(in_sock);
 
-   // printf("  Descriptor %d is readable\n", in_sock);
+    // printf("  Descriptor %d is readable\n", in_sock);
     /*************************************************/
     /* Receive all incoming data on this socket      */
     /* before we loop back and call select again.    */
@@ -319,11 +320,11 @@ bool TcpServer::IncommingData(int in_sock)
     {
         socket.Close();
 
-        for (size_t i=0; i<mClients.size(); i++)
+        for (size_t i = 0; i < mClients.size(); i++)
         {
             if (mClients[i] == in_sock)
             {
-                mClients.erase(mClients.begin()+i);
+                mClients.erase(mClients.begin() + i);
             }
         }
         FD_CLR((u_int)in_sock, &mMasterSet); // need a cast here because of the macro
@@ -341,7 +342,7 @@ void TcpServer::UpdateMaxSocket()
     std::vector<int>::iterator pos;
 
     // find the maximum socket file descriptor
-    pos = std::max_element (mClients.begin(), mClients.end());
+    pos = std::max_element(mClients.begin(), mClients.end());
 
     if (*pos > GetSocket())
     {

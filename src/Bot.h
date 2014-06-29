@@ -42,7 +42,10 @@ public:
     void SetIdentity(const Identity &ident);
     void Initialize();
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
-    void Close() { mClient.Close(); }
+    void Close()
+    {
+        mClient.Close();
+    }
 
 private:
     Client  mClient;

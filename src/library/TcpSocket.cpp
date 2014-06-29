@@ -33,7 +33,7 @@ TcpSocket::TcpSocket()
     , mPort(0U)
     , mSock(-1)
 {
-    memset (&mAddr, 0, sizeof(mAddr));
+    memset(&mAddr, 0, sizeof(mAddr));
 }
 /*****************************************************************************/
 TcpSocket::TcpSocket(int sock)
@@ -41,7 +41,7 @@ TcpSocket::TcpSocket(int sock)
     , mPort(0U)
     , mSock(sock)
 {
-    memset (&mAddr, 0, sizeof(mAddr));
+    memset(&mAddr, 0, sizeof(mAddr));
 }
 /*****************************************************************************/
 TcpSocket::~TcpSocket()
@@ -65,11 +65,11 @@ bool TcpSocket::Create()
 
         // Allows the socket to be bound to an address that is already in use.
         // For more information, see bind. Not applicable on ATM sockets.
-        if (setsockopt (mSock,
-                         SOL_SOCKET,
-                         SO_REUSEADDR,
-                         reinterpret_cast<const char*>(&on),
-                         sizeof(on)) == 0)
+        if (setsockopt(mSock,
+                       SOL_SOCKET,
+                       SO_REUSEADDR,
+                       reinterpret_cast<const char *>(&on),
+                       sizeof(on)) == 0)
         {
             ret = true;
         }
@@ -112,8 +112,8 @@ bool TcpSocket::Bind(std::uint16_t port)
         mAddr.sin_port        = htons(port);
 
         if (::bind(mSock,
-                    reinterpret_cast<struct sockaddr *>(&mAddr),
-                    sizeof(mAddr)) == 0)
+                   reinterpret_cast<struct sockaddr *>(&mAddr),
+                   sizeof(mAddr)) == 0)
         {
             ret = true;
         }
@@ -149,29 +149,29 @@ bool TcpSocket::Listen(std::int32_t maxConnections) const
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Accept (int &new_sd) const
+bool TcpSocket::Accept(int &new_sd) const
 {
     bool ret = false;
 
     new_sd = ::accept(mSock, NULL, NULL);
     if (new_sd > 0)
     {
-       ret = true;
+        ret = true;
     }
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Connect (const std::string &host, const int port)
+bool TcpSocket::Connect(const std::string &host, const int port)
 {
     bool ret = false;
 
     mHost = host;
     mPort = port;
     mAddr.sin_family = AF_INET;
-    mAddr.sin_port = htons (port);
+    mAddr.sin_port = htons(port);
     mAddr.sin_addr.s_addr = inet_addr(mHost.c_str()); // Convert a string IPv4 into a structure
 
-    if ( mAddr.sin_addr.s_addr == INADDR_NONE )
+    if (mAddr.sin_addr.s_addr == INADDR_NONE)
     {
         //printf("inet_addr failed and returned INADDR_NONE\n");
         //     WSACleanup();
@@ -179,7 +179,7 @@ bool TcpSocket::Connect (const std::string &host, const int port)
     }
     if (mAddr.sin_addr.s_addr == INADDR_ANY)
     {
-    //    printf("inet_addr failed and returned INADDR_ANY\n");
+        //    printf("inet_addr failed and returned INADDR_ANY\n");
         return false;
     }
 
@@ -192,7 +192,7 @@ bool TcpSocket::Connect (const std::string &host, const int port)
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Send (const std::string & input) const
+bool TcpSocket::Send(const std::string &input) const
 {
     size_t ret;
 
@@ -231,7 +231,7 @@ bool TcpSocket::Initialize()
     return true;
 }
 /*****************************************************************************/
-std::int32_t TcpSocket::Recv (std::string & output) const
+std::int32_t TcpSocket::Recv(std::string &output) const
 {
     char buf [MAXRECV + 1];
     memset(buf, 0, sizeof(buf));
@@ -245,7 +245,7 @@ std::int32_t TcpSocket::Recv (std::string & output) const
     // a short packet. But it might be a long one.
     status = ::recv(mSock, buf, MAXRECV, 0);
 
-    if(status > 0)
+    if (status > 0)
     {
         output.append(buf, static_cast<size_t>(status));
         memset(buf, 0, sizeof(buf));

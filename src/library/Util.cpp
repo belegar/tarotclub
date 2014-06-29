@@ -54,23 +54,23 @@ std::string Util::CurrentDateTime(const std::string &format)
     std::stringstream datetime;
 
     time_t rawtime;
-    struct tm * timeinfo;
+    struct tm *timeinfo;
     char buffer [80];
 
-    time (&rawtime);
+    time(&rawtime);
     timeinfo = localtime(&rawtime);
 
-    strftime (buffer, sizeof(buffer), format.c_str(), timeinfo);
+    strftime(buffer, sizeof(buffer), format.c_str(), timeinfo);
 
     datetime << buffer;
-/*
- * This code is the C++0x11 way of formating date, but GCC does not support it yet :(
-    std::stringstream datetime;
-    std::time_t t = std::time(nullptr);
-    std::tm tm = *std::localtime(&t);
+    /*
+     * This code is the C++0x11 way of formating date, but GCC does not support it yet :(
+        std::stringstream datetime;
+        std::time_t t = std::time(nullptr);
+        std::tm tm = *std::localtime(&t);
 
-    datetime << std::put_time(&tm, format);
-*/
+        datetime << std::put_time(&tm, format);
+    */
     return datetime.str();
 }
 /*****************************************************************************/
@@ -103,7 +103,7 @@ std::string Util::ExecutablePath()
 #else
 #error "A portable code is needed here"
 #endif
-    return(path.substr(0, found));
+    return (path.substr(0, found));
 }
 /*****************************************************************************/
 std::string Util::HomePath()
@@ -126,14 +126,14 @@ std::string Util::HomePath()
  */
 bool Util::FolderExists(const std::string &foldername)
 {
-	bool ret = false;
+    bool ret = false;
     struct stat st;
     ::stat(foldername.c_str(), &st);
 
-	if ((st.st_mode & S_IFDIR) != 0)
-	{
-		ret = true;
-	}
+    if ((st.st_mode & S_IFDIR) != 0)
+    {
+        ret = true;
+    }
     return ret;
 }
 /*****************************************************************************/
@@ -176,12 +176,12 @@ std::vector<std::string> Util::Split(const std::string &theString, const std::st
         end = theString.find(delimiter, start);
 
         // If at end, use length=maxLength.  Else use length=end-start.
-        theStringVector.push_back(theString.substr( start,
-                       (end == std::string::npos) ? std::string::npos : end - start));
+        theStringVector.push_back(theString.substr(start,
+                                  (end == std::string::npos) ? std::string::npos : end - start));
 
         // If at end, use start=maxSize.  Else use start=end+delimiter.
-        start = (   ( end > (std::string::npos - delimiter.size()) )
-                  ?  std::string::npos  :  end + delimiter.size());
+        start = ((end > (std::string::npos - delimiter.size()))
+                 ?  std::string::npos  :  end + delimiter.size());
     }
     return theStringVector;
 }

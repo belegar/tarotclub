@@ -105,12 +105,30 @@ public:
     Deck &GetMyDeck();
     Score &GetScore();
     Place GetPlace();
-    std::uint8_t GetNumberOfPlayers() { return mNbPlayers; }
-    std::map<Place, Identity> GetPlayersList() { return mPlayersIdent; }
-    Tarot::GameMode GetGameMode() { return mGameMode; }
-    Sequence GetSequence() { return mSequence; }
-    Tarot::Bid      GetBid() { return mBid; }
-    Tarot::Shuffle GetShuffle() { return mShuffle; }
+    std::uint8_t GetNumberOfPlayers()
+    {
+        return mNbPlayers;
+    }
+    std::map<Place, Identity> GetPlayersList()
+    {
+        return mPlayersIdent;
+    }
+    Tarot::GameMode GetGameMode()
+    {
+        return mGameMode;
+    }
+    Sequence GetSequence()
+    {
+        return mSequence;
+    }
+    Tarot::Bid      GetBid()
+    {
+        return mBid;
+    }
+    Tarot::Shuffle GetShuffle()
+    {
+        return mShuffle;
+    }
 
     // Setters
     void SetMyIdentity(const Identity &ident);
@@ -158,7 +176,7 @@ private:
     Deck        mDog;
     Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;
-    IEvent&     mEventHandler;
+    IEvent     &mEventHandler;
     Sequence    mSequence;
     Deck::Statistics   stats;   // statistics on player's cards
 

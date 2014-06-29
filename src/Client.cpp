@@ -270,7 +270,7 @@ void Client::Close()
 /*****************************************************************************/
 void Client::EntryPoint(void *pthis)
 {
-    Client * pt = static_cast<Client*>(pthis);
+    Client *pt = static_cast<Client *>(pthis);
     pt->Run();
 }
 /*****************************************************************************/
@@ -279,7 +279,7 @@ void Client::Run()
     std::string buffer;
     Command cmd;
 
-    while(true)
+    while (true)
     {
         mQueue.WaitAndPop(cmd);
         if (cmd == START)
@@ -294,7 +294,7 @@ void Client::Run()
                     std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
 
                     // Execute all packets
-                    for (std::uint16_t i = 0U; i< packets.size(); i++)
+                    for (std::uint16_t i = 0U; i < packets.size(); i++)
                     {
                         Protocol::PacketInfo inf = packets[i];
 

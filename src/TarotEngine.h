@@ -86,16 +86,40 @@ public:
     Player *GetPlayer(Place p);
     Player *GetPlayer(std::uint32_t uuid);
     Place GetPlayerPlace(std::uint32_t uuid);
-    Place GetCurrentPlayer() { return mCurrentPlayer; }
-    Sequence GetSequence() { return mSequence; }
+    Place GetCurrentPlayer()
+    {
+        return mCurrentPlayer;
+    }
+    Sequence GetSequence()
+    {
+        return mSequence;
+    }
     Score &GetScore();
-    std::map<Place, Identity> GetPlayersList() { return mPlayersIdent; }
-    std::uint8_t    GetNbPlayers() { return mNbPlayers; }
-    Tarot::Bid      GetBid() { return mBid; }
-    Tarot::GameMode GetGameMode() { return mGameMode; }
-    Deck GetDog() { return mDog; }
+    std::map<Place, Identity> GetPlayersList()
+    {
+        return mPlayersIdent;
+    }
+    std::uint8_t    GetNbPlayers()
+    {
+        return mNbPlayers;
+    }
+    Tarot::Bid      GetBid()
+    {
+        return mBid;
+    }
+    Tarot::GameMode GetGameMode()
+    {
+        return mGameMode;
+    }
+    Deck GetDog()
+    {
+        return mDog;
+    }
     Tarot::Shuffle GetShuffle();
-    bool IsLastTrick() { return Tarot::IsDealFinished(mTrickCounter, mNbPlayers); }
+    bool IsLastTrick()
+    {
+        return Tarot::IsDealFinished(mTrickCounter, mNbPlayers);
+    }
 
     // Setters
     bool SetIdentity(std::uint32_t uuid, const Identity &ident);

@@ -65,7 +65,7 @@ std::string ByteStreamReader::ToString()
     return array.str();
 }
 /*****************************************************************************/
-ByteStreamReader& ByteStreamReader::operator >> (std::uint8_t &d)
+ByteStreamReader &ByteStreamReader::operator >> (std::uint8_t &d)
 {
     if (mIndex < mArray.Size())
     {
@@ -75,7 +75,7 @@ ByteStreamReader& ByteStreamReader::operator >> (std::uint8_t &d)
     return *this;
 }
 /*****************************************************************************/
-ByteStreamReader& ByteStreamReader::operator >> (std::uint16_t &d)
+ByteStreamReader &ByteStreamReader::operator >> (std::uint16_t &d)
 {
     std::uint8_t byte;
     std::uint16_t hword;
@@ -87,13 +87,13 @@ ByteStreamReader& ByteStreamReader::operator >> (std::uint16_t &d)
         {
             *this >> byte;
             hword = byte;
-            d = d + (hword << (i*8U));
+            d = d + (hword << (i * 8U));
         }
     }
     return *this;
 }
 /*****************************************************************************/
-ByteStreamReader& ByteStreamReader::operator >> (std::uint32_t &d)
+ByteStreamReader &ByteStreamReader::operator >> (std::uint32_t &d)
 {
     std::uint8_t byte;
     std::uint32_t word;
@@ -105,13 +105,13 @@ ByteStreamReader& ByteStreamReader::operator >> (std::uint32_t &d)
         {
             *this >> byte;
             word = byte;
-            d = d + (word << (i*8U));
+            d = d + (word << (i * 8U));
         }
     }
     return *this;
 }
 /*****************************************************************************/
-ByteStreamReader& ByteStreamReader::operator >> (bool &d)
+ByteStreamReader &ByteStreamReader::operator >> (bool &d)
 {
     std::uint8_t byte;
 
@@ -127,7 +127,7 @@ ByteStreamReader& ByteStreamReader::operator >> (bool &d)
     return *this;
 }
 /*****************************************************************************/
-ByteStreamReader& ByteStreamReader::operator >> (std::string &s)
+ByteStreamReader &ByteStreamReader::operator >> (std::string &s)
 {
     std::uint32_t size;
     std::uint8_t byte;

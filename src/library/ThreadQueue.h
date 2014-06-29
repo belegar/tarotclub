@@ -39,7 +39,7 @@ class ThreadQueue
 {
 
 public:
-    void Push(Data const& data)
+    void Push(Data const &data)
     {
         std::lock_guard<std::mutex> lock(mMutex);
         mQueue.push(data);
@@ -52,10 +52,10 @@ public:
         return mQueue.empty();
     }
 
-    bool TryPop(Data& popped_value)
+    bool TryPop(Data &popped_value)
     {
         std::lock_guard<std::mutex> lock(mMutex);
-        if(mQueue.empty())
+        if (mQueue.empty())
         {
             return false;
         }
@@ -65,10 +65,10 @@ public:
         return true;
     }
 
-    void WaitAndPop(Data& popped_value)
+    void WaitAndPop(Data &popped_value)
     {
         std::unique_lock<std::mutex> lock(mMutex);
-        while(mQueue.empty())
+        while (mQueue.empty())
         {
             mCondVar.wait(lock);
         }

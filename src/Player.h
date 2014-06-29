@@ -52,11 +52,17 @@ public:
 
     // Getters
     std::uint32_t GetUuid() const;
-    bool HasAck() { return mAck; }
+    bool HasAck()
+    {
+        return mAck;
+    }
 
     // Setters
     void SetUuid(std::uint32_t value);
-    void SetAck(bool ack = true) { mAck = ack; }
+    void SetAck(bool ack = true)
+    {
+        mAck = ack;
+    }
 
 private:
     std::uint32_t mUuid;    //!< User's unique identifier

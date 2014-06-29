@@ -58,10 +58,10 @@ void Log::AddEntry(Event event, const std::string &file, const int line, const s
 
     std::stringstream ss;
     ss << eventString[event] << ", " <<
-          Util::CurrentDateTime("%Y-%m-%d.%X") << ", " <<
-          file << ", " <<
-          line << ", " <<
-          message;
+       Util::CurrentDateTime("%Y-%m-%d.%X") << ", " <<
+       file << ", " <<
+       line << ", " <<
+       message;
 
     std::cout << ss.str() << std::endl; // print to local std output
     mSubject.Notify(ss.str());          // send message to all the listeners

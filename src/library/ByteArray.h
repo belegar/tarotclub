@@ -47,8 +47,8 @@ public:
     ByteArray();
 
     // Getters
-    std::uint16_t GetUint16 (std::uint32_t index) const;
-    std::uint32_t GetUint32 (std::uint32_t index) const;
+    std::uint16_t GetUint16(std::uint32_t index) const;
+    std::uint32_t GetUint32(std::uint32_t index) const;
     std::string ToSring() const;
     std::uint32_t Size() const;
 
@@ -61,16 +61,16 @@ public:
     void Erase(std::uint32_t index, std::uint32_t len);
 
     // Operators
-    std::uint8_t& operator[] (std::uint32_t i);
-    std::uint8_t operator[] (std::uint32_t i) const;
-    ByteArray& operator=(const ByteArray &rhs);
-    ByteArray& operator += (const ByteArray &rhs);
+    std::uint8_t &operator[](std::uint32_t i);
+    std::uint8_t operator[](std::uint32_t i) const;
+    ByteArray &operator=(const ByteArray &rhs);
+    ByteArray &operator += (const ByteArray &rhs);
     ByteArray operator+(const ByteArray &rhs) const;
 
 private:
     std::vector<std::uint8_t> mData;
 
-    void Append (const std::vector<std::uint8_t> &data);
+    void Append(const std::vector<std::uint8_t> &data);
 };
 
 

@@ -80,7 +80,7 @@ private:
      * @brief Main server thread loop
      */
     void Run();
-    static void EntryPoint(void * pthis);
+    static void EntryPoint(void *pthis);
 
     void NewDeal();
     bool DoAction(const ByteArray &data);

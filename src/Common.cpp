@@ -118,7 +118,7 @@ Place Place::Next(std::uint8_t max)
     place++;
 
     if ((place >= max) ||
-        (place >= NOWHERE))
+            (place >= NOWHERE))
     {
         place = Place::SOUTH;
     }

@@ -95,7 +95,7 @@ void Table::SendToSocket(const ByteArray &packet)
     for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
         if (uuid == Protocol::ALL_PLAYERS ||
-            iter->first == uuid)
+                iter->first == uuid)
         {
             peer.SetSocket(iter->second);
             peer.Send(packet.ToSring());

@@ -75,24 +75,39 @@ public:
     virtual ~TcpSocket();
 
     // Getters
-    int  GetSocket() const      { return mSock; }
-    int  GetIPAddr() const      { return mAddr.sin_addr.s_addr; }
-    int  GetRealPort() const    { return mPort; }
+    int  GetSocket() const
+    {
+        return mSock;
+    }
+    int  GetIPAddr() const
+    {
+        return mAddr.sin_addr.s_addr;
+    }
+    int  GetRealPort() const
+    {
+        return mPort;
+    }
 
     // Setters
     bool SetBlocking(bool block);
-    void SetSocket(int sock) { mSock = sock; }
+    void SetSocket(int sock)
+    {
+        mSock = sock;
+    }
 
     // Helpers
-    bool IsValid() const { return mSock != -1; }
+    bool IsValid() const
+    {
+        return mSock != -1;
+    }
     bool Create();
     bool Bind(std::uint16_t port);
     void Close();
     bool Listen(std::int32_t maxConnections) const;
     bool Accept(int &new_sd) const;
-    std::int32_t Recv(std::string & output) const;
+    std::int32_t Recv(std::string &output) const;
     bool Connect(const std::string &host, const int port);
-    bool Send(const std::string & input) const;
+    bool Send(const std::string &input) const;
 
     // Static
     static bool Initialize();

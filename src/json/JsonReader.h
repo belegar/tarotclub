@@ -41,7 +41,7 @@ public:
     // ctors / dtor
     JsonReader();
     ~JsonReader();
-    
+
     // Helpers
     bool Open(const std::string &fileName);
     void Close();
@@ -50,7 +50,7 @@ public:
     bool GetValue(const std::string &obj, const std::string &key, std::int32_t &value);
     bool GetValue(const std::string &obj, const std::string &key, std::string &value);
     bool GetValue(const std::string &obj, const std::string &key, bool &value);
-    
+
 private:
     duk_context *mCtx;
     bool mValid;

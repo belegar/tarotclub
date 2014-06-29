@@ -53,7 +53,7 @@ void ByteStreamWriter::Seek(std::uint32_t pos)
     }
 }
 /*****************************************************************************/
-ByteStreamWriter& ByteStreamWriter::operator << (const std::uint8_t &d)
+ByteStreamWriter &ByteStreamWriter::operator << (const std::uint8_t &d)
 {
     if (mIndex >= mArray.Size())
     {
@@ -69,7 +69,7 @@ ByteStreamWriter& ByteStreamWriter::operator << (const std::uint8_t &d)
     return *this;
 }
 /*****************************************************************************/
-ByteStreamWriter& ByteStreamWriter::operator << (const std::uint16_t &d)
+ByteStreamWriter &ByteStreamWriter::operator << (const std::uint16_t &d)
 {
     std::uint8_t byte;
     std::uint16_t data = d;
@@ -83,7 +83,7 @@ ByteStreamWriter& ByteStreamWriter::operator << (const std::uint16_t &d)
     return *this;
 }
 /*****************************************************************************/
-ByteStreamWriter& ByteStreamWriter::operator << (const std::uint32_t &d)
+ByteStreamWriter &ByteStreamWriter::operator << (const std::uint32_t &d)
 {
     std::uint8_t byte;
     std::uint32_t data = d;
@@ -97,7 +97,7 @@ ByteStreamWriter& ByteStreamWriter::operator << (const std::uint32_t &d)
     return *this;
 }
 /*****************************************************************************/
-ByteStreamWriter& ByteStreamWriter::operator << (const bool &d)
+ByteStreamWriter &ByteStreamWriter::operator << (const bool &d)
 {
     std::uint8_t byte = 0U;
 
@@ -116,7 +116,7 @@ ByteStreamWriter& ByteStreamWriter::operator << (const bool &d)
  * @param s
  * @return
  */
-ByteStreamWriter& ByteStreamWriter::operator << (const std::string &s)
+ByteStreamWriter &ByteStreamWriter::operator << (const std::string &s)
 {
     std::uint32_t size = s.size();
     std::uint8_t byte;

@@ -100,11 +100,11 @@ void Lobby::ReadData(int socket, const std::string &data)
         std::cout << data << std::endl;
 
         ss << "HTTP/1.1 101 Switching Protocols"
-              "Upgrade: websocket"
-              "Connection: Upgrade"
-              "Access-Control-Allow-Origin: http://example.com"
-              "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
-              "Sec-WebSocket-Protocol: appProtocol-v2"
+           "Upgrade: websocket"
+           "Connection: Upgrade"
+           "Access-Control-Allow-Origin: http://example.com"
+           "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+           "Sec-WebSocket-Protocol: appProtocol-v2"
     }
 
     if (tokens[0] == "GET")

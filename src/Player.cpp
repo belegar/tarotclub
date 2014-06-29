@@ -56,7 +56,7 @@ void Player::SetUuid(std::uint32_t value)
  * @return true if the card can be played
  */
 bool Player::CanPlayCard(Card *cVerif, Deck &trick)
-{   
+{
     Card::Suit   suit; // required suit
 
     // player's cards in hand
@@ -240,8 +240,8 @@ bool Player::TestHandle(const Deck &handle)
 
     // Check if the handle size is correct
     if ((handle.Size() == 10U) ||
-        (handle.Size() == 13U) ||
-        (handle.Size() == 15U))
+            (handle.Size() == 13U) ||
+            (handle.Size() == 15U))
     {
         ret = true;
     }
@@ -294,7 +294,7 @@ bool Player::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numb
             {
                 // Look the card value against the Tarot rules
                 if ((c->GetSuit() == Card::TRUMPS) ||
-                    ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+                        ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
                 {
                     valid = false;
                 }

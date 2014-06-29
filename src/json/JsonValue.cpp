@@ -9,7 +9,7 @@ std::string JsonValue::ToString()
 
     if (GetType() == STRING)
     {
-       text += "\"" + GetString() + "\"";
+        text += "\"" + GetString() + "\"";
     }
     else if (GetType() == INTEGER)
     {

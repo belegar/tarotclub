@@ -81,7 +81,7 @@ void ByteArray::Erase(std::uint32_t index, std::uint32_t len)
     mData.erase(mData.begin() + index, mData.begin() + index + len);
 }
 /*****************************************************************************/
-std::uint8_t& ByteArray::operator[] (std::uint32_t i)
+std::uint8_t &ByteArray::operator[](std::uint32_t i)
 {
     if (i >= mData.size())
     {
@@ -93,7 +93,7 @@ std::uint8_t& ByteArray::operator[] (std::uint32_t i)
     }
 }
 /*****************************************************************************/
-std::uint8_t ByteArray::operator[] (std::uint32_t i) const
+std::uint8_t ByteArray::operator[](std::uint32_t i) const
 {
     if (i >= mData.size())
     {
@@ -105,14 +105,14 @@ std::uint8_t ByteArray::operator[] (std::uint32_t i) const
     }
 }
 /*****************************************************************************/
-ByteArray& ByteArray::operator=(const ByteArray &rhs)
+ByteArray &ByteArray::operator=(const ByteArray &rhs)
 {
-  mData.clear();
-  mData = rhs.mData;
-  return *this;
+    mData.clear();
+    mData = rhs.mData;
+    return *this;
 }
 /*****************************************************************************/
-ByteArray& ByteArray::operator += (const ByteArray &rhs)
+ByteArray &ByteArray::operator += (const ByteArray &rhs)
 {
     *this = *this + rhs;
     return *this;
@@ -126,7 +126,7 @@ ByteArray ByteArray::operator+(const ByteArray &rhs) const
     return result;
 }
 /*****************************************************************************/
-std::uint16_t ByteArray::GetUint16 (std::uint32_t index) const
+std::uint16_t ByteArray::GetUint16(std::uint32_t index) const
 {
     std::uint16_t data = 0U;
 
@@ -137,14 +137,14 @@ std::uint16_t ByteArray::GetUint16 (std::uint32_t index) const
             for (std::uint8_t i = 0U; i < 2U; i++)
             {
                 std::uint16_t hword = mData[index + i];
-                data = data + (hword << (i*8U));
+                data = data + (hword << (i * 8U));
             }
         }
     }
     return data;
 }
 /*****************************************************************************/
-std::uint32_t ByteArray::GetUint32 (std::uint32_t index) const
+std::uint32_t ByteArray::GetUint32(std::uint32_t index) const
 {
     std::uint32_t data = 0U;
 
@@ -174,7 +174,7 @@ std::string ByteArray::ToSring() const
     return buf;
 }
 /*****************************************************************************/
-void ByteArray::Append (const std::vector<std::uint8_t> &data)
+void ByteArray::Append(const std::vector<std::uint8_t> &data)
 {
     std::vector<std::uint8_t>::iterator it = mData.end();
     mData.insert(it, data.begin(), data.end());

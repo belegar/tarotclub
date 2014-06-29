@@ -103,9 +103,18 @@ public:
     }
 
     // Raw deck management
-    inline std::uint32_t Size() const { return mDeck.size(); }
-    inline void Clear() { mDeck.clear(); }
-    inline void Append(Card *c) { mDeck.push_back(c); }
+    inline std::uint32_t Size() const
+    {
+        return mDeck.size();
+    }
+    inline void Clear()
+    {
+        mDeck.clear();
+    }
+    inline void Append(Card *c)
+    {
+        mDeck.push_back(c);
+    }
     void Append(const Deck &deck);
     Deck Mid(std::uint32_t from_pos);
     Deck Mid(std::uint32_t from_pos, std::uint32_t size);

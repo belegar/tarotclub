@@ -94,10 +94,22 @@ public:
         return *this;
     }
 
-    inline bool operator == (const Place& rhs) const { return (this->mPlace == rhs.mPlace); }
-    inline bool operator != (const Place& rhs) const { return (this->mPlace != rhs.mPlace); }
-    inline bool operator <  (const Place& rhs) const { return (this->mPlace < rhs.mPlace);  }
-    inline bool operator >  (const Place& rhs) const { return (this->mPlace > rhs.mPlace); }
+    inline bool operator == (const Place &rhs) const
+    {
+        return (this->mPlace == rhs.mPlace);
+    }
+    inline bool operator != (const Place &rhs) const
+    {
+        return (this->mPlace != rhs.mPlace);
+    }
+    inline bool operator < (const Place &rhs) const
+    {
+        return (this->mPlace < rhs.mPlace);
+    }
+    inline bool operator > (const Place &rhs) const
+    {
+        return (this->mPlace > rhs.mPlace);
+    }
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Place &p)
     {
@@ -149,12 +161,30 @@ public:
         return *this;
     }
 
-    inline bool operator == (const Contract& rhs) const { return (this->mContract == rhs.mContract);}
-    inline bool operator != (const Contract& rhs) const { return (this->mContract != rhs.mContract);}
-    inline bool operator <  (const Contract& rhs) const { return (this->mContract < rhs.mContract); }
-    inline bool operator <= (const Contract& rhs) const { return (this->mContract <= rhs.mContract);}
-    inline bool operator >  (const Contract& rhs) const { return (this->mContract > rhs.mContract); }
-    inline bool operator >= (const Contract& rhs) const { return (this->mContract >=rhs.mContract); }
+    inline bool operator == (const Contract &rhs) const
+    {
+        return (this->mContract == rhs.mContract);
+    }
+    inline bool operator != (const Contract &rhs) const
+    {
+        return (this->mContract != rhs.mContract);
+    }
+    inline bool operator < (const Contract &rhs) const
+    {
+        return (this->mContract < rhs.mContract);
+    }
+    inline bool operator <= (const Contract &rhs) const
+    {
+        return (this->mContract <= rhs.mContract);
+    }
+    inline bool operator > (const Contract &rhs) const
+    {
+        return (this->mContract > rhs.mContract);
+    }
+    inline bool operator >= (const Contract &rhs) const
+    {
+        return (this->mContract >= rhs.mContract);
+    }
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Contract &p)
     {

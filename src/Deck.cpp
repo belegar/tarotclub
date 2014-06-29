@@ -92,7 +92,7 @@ Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t size)
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if ((counter >= from_pos) &&
-            (counter < to_pos))
+                (counter < to_pos))
         {
             deck.Append((*i));
         }
@@ -172,7 +172,7 @@ Card *Deck::GetCardByName(const std::string &i_name)
 }
 /*****************************************************************************/
 bool Deck::HasCard(Card *c) const
-{ 
+{
     bool ret = false;
     if (std::count(Begin(), End(), c) > 0)
     {
@@ -187,7 +187,7 @@ bool Deck::HasOneOfTrump() const
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if (((*i)->GetSuit() == Card::TRUMPS) &&
-            ((*i)->GetValue() == 1))
+                ((*i)->GetValue() == 1))
         {
             ret = true;
             break;
@@ -202,7 +202,7 @@ bool Deck::HasFool() const
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if (((*i)->GetSuit() == Card::TRUMPS) &&
-            ((*i)->GetValue() == 0))
+                ((*i)->GetValue() == 0))
         {
             ret = true;
             break;
@@ -227,7 +227,7 @@ Card *Deck::HighestTrump() const
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if (((*i)->GetSuit() == Card::TRUMPS) &&
-            ((*i)->GetValue() > value))
+                ((*i)->GetValue() > value))
         {
             value = (*i)->GetValue();
             c = (*i);
@@ -244,7 +244,7 @@ Card *Deck::HighestSuit() const
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if (((*i)->GetSuit() != Card::TRUMPS) &&
-            ((*i)->GetValue() > value))
+                ((*i)->GetValue() > value))
         {
             value = (*i)->GetValue();
             c = (*i);
@@ -272,7 +272,8 @@ void Deck::Sort(const std::string &order)
         // Generate a weight for each suit
         for (int i = 0; i < 5; i++)
         {
-            std::string letter; letter.push_back(order[4-i]);
+            std::string letter;
+            letter.push_back(order[4 - i]);
             weight[Card::ToSuit(letter)] = 100 * i;
         }
 

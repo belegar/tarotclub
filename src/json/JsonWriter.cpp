@@ -47,8 +47,8 @@ std::string JsonArray::ToString()
 /*****************************************************************************/
 void JsonArray::CreateValue(const JsonValue &value)
 {
-     JsonValue *val = new JsonValue(value);
-     mArray.push_back(val);
+    JsonValue *val = new JsonValue(value);
+    mArray.push_back(val);
 }
 /*****************************************************************************/
 JsonObject *JsonArray::CreateObject()
@@ -98,7 +98,7 @@ std::string JsonObject::ToString()
     std::string text;
     std::string indent;
 
-    for (std::uint32_t i = 0; i < (4*(mLevel+1)); i++)
+    for (std::uint32_t i = 0; i < (4 * (mLevel + 1)); i++)
     {
         indent += " ";
     }
@@ -117,7 +117,7 @@ std::string JsonObject::ToString()
         }
     }
     indent.clear();
-    for (std::uint32_t i = 0; i < (4*mLevel); i++)
+    for (std::uint32_t i = 0; i < (4 * mLevel); i++)
     {
         indent += " ";
     }
@@ -142,8 +142,8 @@ JsonArray *JsonObject::CreateArrayPair(const std::string &name)
 /*****************************************************************************/
 JsonObject *JsonObject::CreateObjectPair(const std::string &name)
 {
-    JsonObject *obj = new JsonObject(mLevel+1);
-     std::pair<std::string, IJsonNode *> node(name, obj);
+    JsonObject *obj = new JsonObject(mLevel + 1);
+    std::pair<std::string, IJsonNode *> node(name, obj);
     mObject.push_back(node);
     return obj;
 }

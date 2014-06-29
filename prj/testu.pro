@@ -29,8 +29,6 @@ BASE_DIR = $${PWD}/..
 # ------------------------------------------------------------------------------
 VPATH += $$BASE_DIR/src
 VPATH += $$BASE_DIR/src/library
-VPATH += $$BASE_DIR/src/desktop
-VPATH += $$BASE_DIR/src/server
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/lib
@@ -43,8 +41,6 @@ VPATH += $$BASE_DIR/prj/testu
 # ------------------------------------------------------------------------------
 INCLUDEPATH += $$BASE_DIR/src
 INCLUDEPATH += $$BASE_DIR/src/library
-INCLUDEPATH += $$BASE_DIR/src/desktop
-INCLUDEPATH += $$BASE_DIR/src/server
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/prj/testu
@@ -90,7 +86,8 @@ HEADERS += Log.h \
     TcpSocket.h \
     TcpServer.h \
     TcpClient.h \
-    UniqueId.h
+    UniqueId.h \
+    Base64.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -100,7 +97,8 @@ SOURCES += Log.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
-    UniqueId.cpp
+    UniqueId.cpp \
+    Base64.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -145,11 +143,13 @@ SOURCES += TarotDeck.cpp \
 
 HEADERS +=  tst_tarot_base.h \
             tst_utilities.h \
-            tst_jsengine.h
+            tst_jsengine.h \
+            tst_hash.h
 
-SOURCES +=  tst_utilities.cpp \
+SOURCES +=  main.cpp \
+            tst_utilities.cpp \
             tst_tarot_base.cpp \
-            tst_main.cpp \
-            tst_jsengine.cpp
+            tst_jsengine.cpp \
+            tst_hash.cpp
 
 # End of project file

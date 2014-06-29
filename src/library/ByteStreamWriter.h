@@ -45,10 +45,10 @@ public:
     void Seek(std::uint32_t pos);
 
     // Operators
-    ByteStreamWriter& operator << (const std::uint8_t &d);
-    ByteStreamWriter& operator << (const std::uint16_t &d);
-    ByteStreamWriter& operator << (const std::uint32_t &d);
-    ByteStreamWriter& operator << (const bool &d);
+    ByteStreamWriter &operator << (const std::uint8_t &d);
+    ByteStreamWriter &operator << (const std::uint16_t &d);
+    ByteStreamWriter &operator << (const std::uint32_t &d);
+    ByteStreamWriter &operator << (const bool &d);
     /**
      * @brief Overloaded operator to add a string to a byte stream
      * The first uint32_t will contain the size of the string
@@ -56,7 +56,7 @@ public:
      * @param s
      * @return
      */
-    ByteStreamWriter& operator << (const std::string &s);
+    ByteStreamWriter &operator << (const std::string &s);
 
 private:
     ByteArray &mArray;

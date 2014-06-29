@@ -58,7 +58,7 @@ private:
     fd_set mMasterSet;
     std::vector<int> mClients;
     bool mInitialized;
-    IEvent&     mEventHandler;
+    IEvent     &mEventHandler;
 
     static void EntryPoint(void *pthis);
     void Run();

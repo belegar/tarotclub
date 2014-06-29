@@ -34,7 +34,7 @@ class TcpClient : public TcpSocket
 {
 public:
 
-    TcpClient ();
+    TcpClient();
     ~TcpClient() { }
 
     bool Start();
