@@ -56,6 +56,8 @@ public:
     void Initialize();
 
 private slots:
+
+    // Events from MainWindow
     void slotDealEditor();
     void slotNewNumberedDeal();
     void slotNewCustomDeal();
@@ -63,6 +65,7 @@ private slots:
     void slotQuickJoinNetworkGame();
     void slotShowOptions();
     void slotLaunchHelp();
+    void slotNewAutoPlay();
 
     // Events from TarotWidget
     void slotPlayersListEvent();
@@ -92,6 +95,8 @@ private:
     QAction *newTournamentAct;
     QAction *newNumberedDealAct;
     QAction *newCustomDealAct;
+    QAction *newAutoPlayAct;
+
     //----network
     QAction *netGameServerAct;
     QAction *netGameClientAct;

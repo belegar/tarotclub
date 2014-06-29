@@ -275,7 +275,7 @@ void TarotEngine::ResetAck()
 /*****************************************************************************/
 void TarotEngine::StopGame()
 {
-    // FIXME: set the state
+    mSequence = STOPPED;
 }
 /*****************************************************************************/
 /**
@@ -443,15 +443,15 @@ void TarotEngine::EndOfDeal()
         continueGame = mDeal.AddScore(mBid, mNbPlayers);
     }
 
+    ResetAck();
     // Result of the calculation is true if another deal is required
     if (continueGame == true)
     {
-        ResetAck();
+        mSequence = WAIT_FOR_READY;
     }
     else
     {
         // The game is finished, no any other deal
-        ResetAck();
         mSequence = WAIT_FOR_READY;
     }
 
@@ -468,8 +468,7 @@ TarotEngine::BidResult TarotEngine::BidSequence()
     BidResult res = NEXT_PLAYER;
 
     // If a slam has been announced, we start immediately the deal
-    if ((IsEndOfTrick() == true) ||
-            (mBid.slam == true))
+    if (IsEndOfTrick() || mBid.slam)
     {
         if (mBid.contract == Contract::PASS)
         {
