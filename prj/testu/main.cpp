@@ -5,6 +5,7 @@
 #include "tst_tarot_base.h"
 #include "tst_utilities.h"
 #include "tst_jsengine.h"
+#include "tst_hash.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +19,9 @@ int main(int argc, char *argv[])
 
     JsonTest tst_json;
     QTest::qExec(&tst_json, argc, argv);
+
+    LibraryHash tst_hash;
+    QTest::qExec(&tst_hash, argc, argv);
 
     return 0;
 }
