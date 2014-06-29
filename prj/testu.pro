@@ -87,7 +87,8 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    Base64.h
+    Base64.h \
+    Sha1.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -98,7 +99,8 @@ SOURCES += Log.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
-    Base64.cpp
+    Base64.cpp \
+    Sha1.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files

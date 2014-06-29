@@ -15,8 +15,7 @@ public:
 
 private Q_SLOTS:
     void TestBase64();
-
-
+    void TestSha1();
 private:
 
 };
