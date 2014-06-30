@@ -139,10 +139,10 @@ private:
     virtual void ShowCard(Place p, const std::string &name)  { emit sigShowCard(p, name); }
     virtual void WaitTrick(Place winner) { emit sigWaitTrick(winner); }
     virtual void EndOfDeal() { emit sigEndOfDeal(); }
-    virtual void EndOfGame() { emit sigEndOfGame(); }
+    virtual void EndOfGame(Place winner) { emit sigEndOfGame(winner); }
 
     // Private signals, not accessible to external entities
-signals: 
+signals:
    void sigReceiveCards();
    void sigAssignedPlace();
    void sigSelectPlayer(Place);
@@ -155,7 +155,7 @@ signals:
    void sigDealAgain();
    void sigPlayCard();
    void sigEndOfDeal();
-   void sigEndOfGame();
+   void sigEndOfGame(Place winner);
 
 private slots:
     // Client events
@@ -176,7 +176,7 @@ private slots:
     void slotShowCard(Place p, std::string name);
     void slotWaitTrick(Place p);
     void slotEndOfDeal();
-    void slotEndOfGame();
+    void slotEndOfGame(Place winner);
 
     // Board events
     void slotAcceptHandle();

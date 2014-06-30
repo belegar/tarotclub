@@ -57,7 +57,8 @@ public:
         SYNC_CARD,
         PLAY_TRICK,
         SYNC_TRICK,
-        SYNC_READY
+        SYNC_READY,
+        SHOW_SCORE
     };
 
 
@@ -81,7 +82,7 @@ public:
         virtual void ShowCard(Place p, const std::string &name) = 0;
         virtual void WaitTrick(Place winner) = 0;
         virtual void EndOfDeal() = 0;
-        virtual void EndOfGame() = 0;
+        virtual void EndOfGame(Place winner) = 0;
     };
 
     Client(IEvent &handler);
@@ -152,6 +153,7 @@ public:
     void SendSyncCards();
     void SendSyncBid();
     void SendSyncHandle();
+    void SendSyncEndOfDeal();
     void SendChatMessage(const std::string &message);
 
 private:

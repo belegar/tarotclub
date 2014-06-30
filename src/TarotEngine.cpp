@@ -435,27 +435,24 @@ void TarotEngine::GameSequence()
 /*****************************************************************************/
 void TarotEngine::EndOfDeal()
 {
-    bool continueGame = false;
     mDeal.AnalyzeGame(mNbPlayers);
     mDeal.CalculateScore(mBid, mAttackHandle, mDefenseHandle);
+    mDeal.GenerateEndDealLog(mBid, mPlayersIdent);
+
+    ResetAck();
+    mSequence = WAIT_FOR_END_OF_DEAL;
+}
+/*****************************************************************************/
+bool TarotEngine::NextDeal()
+{
+    bool continueGame = false;
+
     if (mGameMode == Tarot::TOURNAMENT)
     {
         continueGame = mDeal.AddScore(mBid, mNbPlayers);
     }
 
-    ResetAck();
-    // Result of the calculation is true if another deal is required
-    if (continueGame == true)
-    {
-        mSequence = WAIT_FOR_READY;
-    }
-    else
-    {
-        // The game is finished, no any other deal
-        mSequence = WAIT_FOR_READY;
-    }
-
-    mDeal.GenerateEndDealLog(mBid, mPlayersIdent);
+    return continueGame;
 }
 /*****************************************************************************/
 

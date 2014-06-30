@@ -438,6 +438,11 @@ void Canvas::HidePopup()
     popupItem.hide();
 }
 /*****************************************************************************/
+void Canvas::HideMessageBox()
+{
+    mMsgBoxItem.hide();
+}
+/*****************************************************************************/
 void Canvas::ShowSelection(Place p, Place myPlace)
 {
     QMapIterator<Place, PlayerBox *> i(playerBox);
@@ -498,6 +503,7 @@ void Canvas::InitBoard()
 
     HidePopup();
     HideBidsChoice();
+    HideMessageBox();
 }
 /*****************************************************************************/
 void Canvas::ResetCards()

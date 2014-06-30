@@ -54,7 +54,8 @@ public:
         WAIT_FOR_SHOW_HANDLE,
         WAIT_FOR_PLAYED_CARD,
         WAIT_FOR_SHOW_CARD,
-        WAIT_FOR_END_OF_TRICK
+        WAIT_FOR_END_OF_TRICK,
+        WAIT_FOR_END_OF_DEAL
     };
 
     enum BidResult
@@ -75,6 +76,7 @@ public:
     void NewDeal();
     void StartDeal();
     void EndOfDeal();
+    bool NextDeal();
 
     Place AddPlayer(std::uint32_t uuid);
     BidResult BidSequence();
@@ -116,6 +118,9 @@ public:
         return mDog;
     }
     Tarot::Shuffle GetShuffle();
+
+    std::map<int, Place> GetPodium() { return mDeal.GetPodium(); }
+
     bool IsLastTrick()
     {
         return Tarot::IsDealFinished(mTrickCounter, mNbPlayers);

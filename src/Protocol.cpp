@@ -149,6 +149,11 @@ ByteArray Protocol::ClientSyncTrick(std::uint32_t uuid)
     return BuildCommand(Protocol::CLIENT_SYNC_TRICK, uuid);
 }
 /*****************************************************************************/
+ByteArray Protocol::ClientSyncEndOfDeal(std::uint32_t uuid)
+{
+    return BuildCommand(Protocol::CLIENT_SYNC_END_OF_DEAL, uuid);
+}
+/*****************************************************************************/
 ByteArray Protocol::ClientSyncShowCard(std::uint32_t uuid)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_SHOW_CARD, uuid);
@@ -418,6 +423,19 @@ ByteArray Protocol::ServerEndOfDeal(Score &score)
     BuildHeader(packet, Protocol::SERVER_END_OF_DEAL, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
     out << score;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::ServerEndOfGame(Place winner)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SERVER_END_OF_GAME, Protocol::ALL_PLAYERS);
+    out.Seek(HEADER_SIZE);
+    out << winner;
     UpdateHeader(packet);
 
     return packet;

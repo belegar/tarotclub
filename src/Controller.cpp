@@ -472,6 +472,28 @@ bool Controller::DoAction(const ByteArray &data)
             break;
         }
 
+        case Protocol::CLIENT_SYNC_END_OF_DEAL:
+        {
+            // Check if the uuid exists
+            if (engine.GetPlayerPlace(uuid) != Place::NOWHERE)
+            {
+                if (engine.Sync(TarotEngine::WAIT_FOR_END_OF_DEAL, uuid))
+                {
+                    if (engine.NextDeal())
+                    {
+                        NewDeal();
+                    }
+                    else
+                    {
+                        std::map<int, Place> podium = engine.GetPodium();
+
+                        Place winner = podium.rbegin()->second;
+                        SendPacket(Protocol::ServerEndOfGame(winner));
+                    }
+                }
+            }
+        }
+
         default:
             TLogError("Unknown packet received");
             break;

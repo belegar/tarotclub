@@ -315,6 +315,11 @@ void TarotWidget::slotClickBoard()
         HideTrick();
         mClient.SendSyncTrick();
     }
+    else if (mClient.GetSequence() == Client::SHOW_SCORE)
+    {
+        mCanvas->HideMessageBox();
+        mClient.SendSyncEndOfDeal();
+    }
     // Forbid any further clicks
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 }
@@ -621,39 +626,6 @@ void TarotWidget::slotShowCard(Place p, std::string name)
     mClient.SendSyncShowCard();
 }
 /*****************************************************************************/
-void TarotWidget::slotEndOfDeal()
-{
-    mCanvas->SetFilter(Canvas::BLOCK_ALL);
-    mCanvas->InitBoard();
-    mCanvas->ResetCards();
-    mCanvas->SetResult(mClient.GetScore(), mClient.GetBid());
-
-    /*
-     * FIXME:
-        - If tournament mode, show the deal winner, then send a sync on window closing
-        - If the last turn of a tournament, show the deal result, then sho the podem
-        - Otherwise, show the deal winner
-     */
-
-    if (mClient.GetGameMode() == Tarot::TOURNAMENT)
-    {
-        bool continueGame;
-
-        deal.SetScore(mClient.GetScore());
-        continueGame = deal.AddScore(mClient.GetBid(), mClient.GetNumberOfPlayers());
-
-        if (continueGame == true)
-        {
-            mClient.SendReady();
-        }
-        else
-        {
-            // Continue next deal (FIXME: test if it is the last deal)
-            ShowVictoryWindow();
-        }
-    }
-}
-/*****************************************************************************/
 /**
  * @brief TarotWidget::slotWaitTrick
  *
@@ -672,9 +644,42 @@ void TarotWidget::slotWaitTrick(Place winner)
     }
 }
 /*****************************************************************************/
-void TarotWidget::slotEndOfGame()
+void TarotWidget::slotEndOfDeal()
 {
-    // TODO
+    mCanvas->InitBoard();
+    mCanvas->ResetCards();
+    mCanvas->SetResult(mClient.GetScore(), mClient.GetBid());
+    mCanvas->SetFilter(Canvas::BOARD);
+}
+/*****************************************************************************/
+void TarotWidget::slotEndOfGame(Place winner)
+{
+    (void) winner; // FIXME: usage?
+     bool continueGame = false;
+
+    /*
+     * FIXME:
+        - If tournament mode, show the deal winner, then send a sync on window closing
+        - If the last turn of a tournament, show the deal result, then sho the podem
+        - Otherwise, show the deal winner
+     */
+    if (mClient.GetGameMode() == Tarot::TOURNAMENT)
+    {
+        deal.SetScore(mClient.GetScore());
+        continueGame = deal.AddScore(mClient.GetBid(), mClient.GetNumberOfPlayers());
+
+        if (!continueGame)
+        {
+            // Continue next deal (FIXME: test if it is the last deal)
+            ShowVictoryWindow();
+        }
+    }
+
+    if (!continueGame)
+    {
+        mCanvas->SetFilter(Canvas::MENU);
+        mCanvas->DisplayMainMenu(true);
+    }
 }
 
 //=============================================================================

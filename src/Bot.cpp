@@ -358,11 +358,12 @@ void Bot::WaitTrick(Place winner)
 void Bot::EndOfDeal()
 {
     // FIXME Call the script and pass the score?
-    mClient.SendReady();
+    mClient.SendSyncEndOfDeal();
 }
 /*****************************************************************************/
-void Bot::EndOfGame()
+void Bot::EndOfGame(Place winner)
 {
+    (void) winner;
     // FIXME What must we do?
 }
 /*****************************************************************************/

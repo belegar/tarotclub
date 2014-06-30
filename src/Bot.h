@@ -72,7 +72,7 @@ private:
     virtual void ShowCard(Place p, const std::string &name);
     virtual void WaitTrick(Place winner);
     virtual void EndOfDeal();
-    virtual void EndOfGame();
+    virtual void EndOfGame(Place winner);
 
 };
 

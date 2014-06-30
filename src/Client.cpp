@@ -545,14 +545,16 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::SERVER_END_OF_DEAL:
         {
             in >> score;
-            mSequence = SYNC_READY;
+            mSequence = SHOW_SCORE;
             mEventHandler.EndOfDeal();
             break;
         }
 
         case Protocol::SERVER_END_OF_GAME:
         {
-            mEventHandler.EndOfGame();
+            Place winner;
+            in >> winner;
+            mEventHandler.EndOfGame(winner);
             break;
         }
 
@@ -655,6 +657,12 @@ void Client::SendSyncTrick()
     mSequence = IDLE;
     currentTrick.Clear();
     SendPacket(Protocol::ClientSyncTrick(mPlayer.GetUuid()));
+}
+/*****************************************************************************/
+void Client::SendSyncEndOfDeal()
+{
+    mSequence = IDLE;
+    SendPacket(Protocol::ClientSyncEndOfDeal(mPlayer.GetUuid()));
 }
 /*****************************************************************************/
 void Client::SendSyncHandle()

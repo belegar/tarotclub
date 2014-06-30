@@ -79,6 +79,7 @@ public:
     void DrawSouthCards(const Deck &cards);
     void DrawCardsInPopup(const QList<Card *> &cards);
     void HidePopup();
+    void HideMessageBox();
     void ShowBidsChoice(Contract contract);
     void ShowBid(Place p, Contract contract, Place myPlace);
     void HideBidsChoice();

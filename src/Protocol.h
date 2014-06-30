@@ -69,6 +69,7 @@ public:
         CLIENT_SYNC_SHOW_BID    = 0x1D, //!< Used to synchronize all clients that are looking the bid declared
         CLIENT_SYNC_CARDS       = 0x1E, //!< Used to synchronize all clients that have received their cards in hand
         CLIENT_SYNC_ALL_PASSED  = 0x1F, //!< All the players have passed, new deal will be played
+        CLIENT_SYNC_END_OF_DEAL = 0x20, //!< The score has been displayed, all players must ack to go to the next deal or terminate
 
         // server -> client (player)
         SERVER_MESSAGE          = 0x70, //!< chat message broadcasted to all clients
@@ -121,6 +122,7 @@ public:
     static ByteArray ClientSyncCards(std::uint32_t uuid);
     static ByteArray ClientSyncStart(std::uint32_t uuid);
     static ByteArray ClientSyncBid(std::uint32_t uuid);
+    static ByteArray ClientSyncEndOfDeal(std::uint32_t uuid);
     static ByteArray ClientDiscard(const Deck &discard, std::uint32_t uuid);
     static ByteArray ClientHandle(const Deck &handle, std::uint32_t uuid);
     static ByteArray ClientCard(const std::string &card, std::uint32_t uuid);
@@ -138,12 +140,13 @@ public:
     static ByteArray ServerShowCard(Card *c, Place p);
     static ByteArray ServerShowHandle(Deck &handle, Place p);
     static ByteArray ServerSendCards(Player *player);
-    static ByteArray ServerEndOfDeal(Score &score);
-    static ByteArray ServerEndOfTrick(Place winner);
     static ByteArray ServerStartDeal(const Tarot::Bid &bid, const Tarot::Shuffle &sh);
     static ByteArray ServerPlayCard(Place p);
     static ByteArray ServerBidRequest(Contract c, Place p);
     static ByteArray ServerShowDog(const Deck &dog);
+    static ByteArray ServerEndOfTrick(Place winner);
+    static ByteArray ServerEndOfDeal(Score &score);
+    static ByteArray ServerEndOfGame(Place winner);
 
     // Admin to controller packets
     static ByteArray AdminAddPlayer(std::uint32_t new_player_uuid);
