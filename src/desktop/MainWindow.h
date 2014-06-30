@@ -73,6 +73,7 @@ private slots:
     void slotStartDealEvent();
     void slotWaitTrickEvent(Place winner);
     void slotMessageEvent(std::string message);
+    void slotEndOfDeal();
 
 private:
     void SetupDialogs();
@@ -121,6 +122,7 @@ private:
     InfosDock *infosDock;
     ChatDock *chatDock;
     DebugDock *debugDock;
+
 };
 
 #endif // _MAINWINDOW_H

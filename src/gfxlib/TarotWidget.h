@@ -69,6 +69,8 @@ public:
     QMap<Place, Identity> GetPlayersList() { return mPlayers; }
     Tarot::Bid GetBid() { return mClient.GetBid(); }
     Tarot::Shuffle GetShuffle() { return mClient.GetShuffle(); }
+    Score GetScore() { return mClient.GetScore(); }
+    Deal GetDeal() { return deal; }
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
@@ -77,6 +79,8 @@ signals:
     void sigWaitTrick(Place);
     void sigStartDeal();
     void sigMessage(std::string);
+    void sigAddScore();
+
 
 public slots:
     // These slots are made available to link them to any external widget
@@ -91,7 +95,6 @@ private:
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
     Client          mClient; // The human player
-    bool            firstTurn;
     QMap<Place, Identity> mPlayers;
     Deal            deal;
     Deck            discard;

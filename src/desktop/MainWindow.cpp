@@ -55,13 +55,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
 
     // TarotWidget events
-    connect (tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent);
+    connect (tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent);
+    connect (tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent);
+    connect (tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent);
+    connect (tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent);
+    connect (tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal);
 
-    // Game menu to specific desktop version
+    // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
     connect(newCustomDealAct, &QAction::triggered, this, &MainWindow::slotNewCustomDeal);
     connect(netGameClientAct, &QAction::triggered, this, &MainWindow::slotJoinNetworkGame);
@@ -357,6 +358,11 @@ void MainWindow::slotWaitTrickEvent(Place winner)
     infosDock->SelectWinner(mTrickCounter, winner);
 
     mTrickCounter++;
+}
+/*****************************************************************************/
+void MainWindow::slotEndOfDeal()
+{
+    scoresDock->SetNewScore(tarotWidget->GetDeal());
 }
 /*****************************************************************************/
 void MainWindow::slotMessageEvent(std::string message)
