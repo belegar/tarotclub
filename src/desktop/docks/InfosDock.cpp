@@ -58,11 +58,14 @@ void InfosDock::Clear()
 
     int i, j;
     QBrush brush(Qt::white);
+    QFont font = ui.tableWidget->item(0, 0)->font();
+    font.setBold(false);
 
     for (i = 0; i < 4; i++)
     {
         for (j = 0; j < 18; j++)
         {
+            ui.tableWidget->item(j, i)->setFont(font);
             ui.tableWidget->item(j, i)->setText("");
             ui.tableWidget->item(j, i)->setBackground(brush);
         }
@@ -150,8 +153,9 @@ void InfosDock::SelectWinner(std::uint8_t trickCounter, Place p)
 /*****************************************************************************/
 void InfosDock::SelectFirstPlayer(int turn, Place p)
 {
-    QBrush brush(Qt::lightGray);
-    ui.tableWidget->item(turn, p.Value())->setBackground(brush);
+    QFont font = ui.tableWidget->item(turn, p.Value())->font();
+    font.setBold(true);
+    ui.tableWidget->item(turn, p.Value())->setFont(font);
 }
 
 //=============================================================================
