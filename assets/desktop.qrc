@@ -15,12 +15,12 @@
         <file>images/avatars/scruffy.png</file>
         <file>images/avatars/zoidberg.png</file>
         <file>images/tick.svg</file>
-        <file>images/version.jpg</file>
         <file>icons/club.svg</file>
         <file>icons/diamond.svg</file>
         <file>icons/heart.svg</file>
         <file>icons/spade.svg</file>
         <file>icons/trump.svg</file>
         <file>images/avatars/empty.png</file>
+        <file>images/version.png</file>
     </qresource>
 </RCC>
