@@ -74,6 +74,7 @@ private slots:
     void slotWaitTrickEvent(Place winner);
     void slotMessageEvent(std::string message);
     void slotEndOfDeal();
+    void slotReceiveCards();
 
 private:
     void SetupDialogs();
@@ -81,6 +82,8 @@ private:
     void SetupDocks();
 
     std::uint8_t mTrickCounter;
+    std::uint8_t mNbPlayers;
+    bool mFirstPlayer;
 
     ClientConfig    mClientConfig;
     ServerConfig    mServerConfig;

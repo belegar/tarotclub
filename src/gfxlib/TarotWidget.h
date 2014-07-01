@@ -71,6 +71,7 @@ public:
     Tarot::Shuffle GetShuffle() { return mClient.GetShuffle(); }
     Score GetScore() { return mClient.GetScore(); }
     Deal GetDeal() { return deal; }
+    Deck GetDeck() { return mClient.GetMyDeck(); }
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
@@ -80,7 +81,7 @@ signals:
     void sigStartDeal();
     void sigMessage(std::string);
     void sigAddScore();
-
+    void sigReceiveCards();
 
 public slots:
     // These slots are made available to link them to any external widget
@@ -146,7 +147,6 @@ private:
 
     // Private signals, not accessible to external entities
 signals:
-   void sigReceiveCards();
    void sigAssignedPlace();
    void sigSelectPlayer(Place);
    void sigRequestBid(Contract);

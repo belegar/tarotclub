@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect (tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent);
     connect (tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent);
     connect (tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal);
+    connect (tarotWidget, &TarotWidget::sigReceiveCards, this, &MainWindow::slotReceiveCards);
 
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
@@ -344,25 +345,43 @@ void MainWindow::slotLaunchHelp()
 /*****************************************************************************/
 void MainWindow::slotPlayersListEvent()
 {
-    scoresDock->SetPlayers(tarotWidget->GetPlayersList());
-    infosDock->SetPlayers(tarotWidget->GetPlayersList());
+    QMap<Place, Identity> players = tarotWidget->GetPlayersList();
+    scoresDock->SetPlayers(players);
+    infosDock->SetPlayers(players);
+    mNbPlayers = players.size();
 }
 /*****************************************************************************/
 void MainWindow::slotShowCardEvent(Place p, std::string cardName)
 {
     infosDock->AddRound(mTrickCounter, p, QString(cardName.data()));
+
+    if (mFirstPlayer)
+    {
+        mFirstPlayer = false;
+        infosDock->SelectFirstPlayer(mTrickCounter, p);
+    }
 }
 /*****************************************************************************/
 void MainWindow::slotWaitTrickEvent(Place winner)
 {
     infosDock->SelectWinner(mTrickCounter, winner);
-
     mTrickCounter++;
+    mFirstPlayer = true;
 }
 /*****************************************************************************/
 void MainWindow::slotEndOfDeal()
 {
     scoresDock->SetNewScore(tarotWidget->GetDeal());
+}
+/*****************************************************************************/
+void MainWindow::slotReceiveCards()
+{
+    Deck deck = tarotWidget->GetDeck();
+    Deck::Statistics stats;
+    stats.Reset();
+    deck.AnalyzeSuits(stats);
+    deck.AnalyzeTrumps(stats);
+    infosDock->PrintStats(stats);
 }
 /*****************************************************************************/
 void MainWindow::slotMessageEvent(std::string message)
@@ -373,6 +392,7 @@ void MainWindow::slotMessageEvent(std::string message)
 void MainWindow::slotStartDealEvent()
 {
     mTrickCounter = 0U;
+    mFirstPlayer = true;
     Tarot::Bid bid = tarotWidget->GetBid();
     Tarot::Shuffle shuffle = tarotWidget->GetShuffle();
     QMap<Place, Identity> players = tarotWidget->GetPlayersList();
