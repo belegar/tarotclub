@@ -69,6 +69,13 @@ void JsonTest::GenerateFile()
     obj2->CreateValuePair("prut", -3400);
     obj2->CreateValuePair("prot", 807.53);
 
+    JsonArray *obj3 = obj->CreateArrayPair("MyArray");
+    obj3->CreateValue("my");
+    obj3->CreateValue("name");
+    obj3->CreateValue("is");
+    obj3->CreateValue("john");
+    obj3->CreateValue("doe");
+
     json.SaveToFile("essai.json");
 }
 
