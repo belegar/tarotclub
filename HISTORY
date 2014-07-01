@@ -4,6 +4,24 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+* version 2.3.0 <Snowboard>
+  -------------------------------
+    + Show south cards with a constant padding, middle alignment
+    + Use JSON instead of XML for client/server configuration and various generated files (deals, statistics ...)
+    + Advanced logging system in files and in the DebugDock window
+    + Network protocol robustness's: better header, more synchronization with clients, separate class file
+    + Restart game without previous disconnection
+    + Exit game gracefully, cooperative termination of threads with join()
+    + Beginner AI level (defense only)
+    + New option: suit order selection
+    + Show the game result in the Canvas instead of a Window (Android compatibility)
+    + Big internal rework of code architecture (
+    + Full standard C++11 dedicated server, without Qt. Compatible with MSVC++ 2013 Express.
+    + Separate and independant, platform agnostic C++ library classes
+    + JSON and ScriptEngine standard interface
+    ~ Modified the JavaScript engine: use of Duktape 0.10
+    - Removed integrated help system. Replace by the launch of a web browser showing provided HTML help pages
+
 * version 2.2.0 <Juliette>
   -------------------------------
     + Dedicated server with multi game rooms, independent executable
