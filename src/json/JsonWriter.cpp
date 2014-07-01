@@ -28,7 +28,7 @@
 #include "JsonWriter.h"
 
 // Helper function
-static std::string CreateIdent(std::uint32_t level)
+static std::string CreateIndent(std::uint32_t level)
 {
     std::string indent;
 
@@ -58,21 +58,20 @@ JsonArray::~JsonArray()
 std::string JsonArray::ToString()
 {
     std::string text = "[\n";
-    std::string indent = CreateIdent(mLevel + 1U);
+    std::string indent = CreateIndent(mLevel + 1U);
 
     std::uint32_t index = 0U;
-    for (std::uint32_t i = 0U; i < mArray.size(); i++)
+    for (std::vector<IJsonNode *>::iterator iter = mArray.begin(); iter != mArray.end(); ++iter)
     {
-        std::vector<IJsonNode *> node = mArray[i];
-        text += indent + node->ToString();
+        text += indent + (*iter)->ToString();
         index++;
-        if (index < mObject.size())
+        if (index < mArray.size())
         {
             text += ",\n";
         }
     }
 
-    indent = CreateIdent(mLevel);
+    indent = CreateIndent(mLevel);
     text += "\n" + indent + "]";
     return text;
 }
@@ -126,14 +125,8 @@ JsonObject::~JsonObject()
 /*****************************************************************************/
 std::string JsonObject::ToString()
 {
-    std::string text;
-    std::string indent = CreateIndent(mLevel+1);
-
-    for (std::uint32_t i = 0U; i < (4U*(mLevel+1U)); i++)
-    {
-        indent += " ";
-    }
-    text += "{\n";
+    std::string text = "{\n";
+    std::string indent = CreateIndent(mLevel + 1U);
 
     std::uint32_t index = 0U;
     for (std::uint32_t i = 0U; i < mObject.size(); i++)
@@ -147,7 +140,7 @@ std::string JsonObject::ToString()
             text += ",\n";
         }
     }
-    indent = CreateIdent(mLevel);
+    indent = CreateIndent(mLevel);
     text += "\n" + indent + "}";
     return text;
 }
