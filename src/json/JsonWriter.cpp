@@ -27,10 +27,27 @@
 #include <iostream>
 #include "JsonWriter.h"
 
+// Helper function
+static std::string CreateIdent(std::uint32_t level)
+{
+    std::string indent;
+
+    for (std::uint32_t i = 0U; i < (4U*level); i++)
+    {
+        indent += " ";
+    }
+    return indent;
+}
+/*****************************************************************************/
+JsonArray::JsonArray(std::uint32_t level)
+    : mLevel(level)
+{
+
+}
 /*****************************************************************************/
 JsonArray::~JsonArray()
 {
-    for (std::uint32_t i = 0; i < mArray.size(); i++)
+    for (std::uint32_t i = 0U; i < mArray.size(); i++)
     {
         IJsonNode *node = mArray[i];
         delete node;
@@ -40,8 +57,23 @@ JsonArray::~JsonArray()
 /*****************************************************************************/
 std::string JsonArray::ToString()
 {
-    std::string text;
+    std::string text = "[\n";
+    std::string indent = CreateIdent(mLevel + 1U);
 
+    std::uint32_t index = 0U;
+    for (std::uint32_t i = 0U; i < mArray.size(); i++)
+    {
+        std::vector<IJsonNode *> node = mArray[i];
+        text += indent + node->ToString();
+        index++;
+        if (index < mObject.size())
+        {
+            text += ",\n";
+        }
+    }
+
+    indent = CreateIdent(mLevel);
+    text += "\n" + indent + "]";
     return text;
 }
 /*****************************************************************************/
@@ -53,21 +85,20 @@ void JsonArray::CreateValue(const JsonValue &value)
 /*****************************************************************************/
 JsonObject *JsonArray::CreateObject()
 {
-    JsonObject *obj = new JsonObject(1);
+    JsonObject *obj = new JsonObject(1U);
     mArray.push_back(obj);
     return obj;
 }
 /*****************************************************************************/
 JsonArray *JsonArray::CreateArray()
 {
-    JsonArray *array = new JsonArray();
+    JsonArray *array = new JsonArray(1U);
     mArray.push_back(array);
     return array;
 }
 /*****************************************************************************/
 JsonObject::JsonObject(std::uint32_t level)
     : mLevel(level)
-
 {
 
 }
@@ -78,7 +109,7 @@ JsonObject::~JsonObject()
     static std::uint32_t counter = 0U;
 #endif
 
-    for (std::uint32_t i = 0; i < mObject.size(); i++)
+    for (std::uint32_t i = 0U; i < mObject.size(); i++)
     {
         std::pair<std::string, IJsonNode *> node = mObject[i];
         delete node.second;
@@ -96,16 +127,16 @@ JsonObject::~JsonObject()
 std::string JsonObject::ToString()
 {
     std::string text;
-    std::string indent;
+    std::string indent = CreateIndent(mLevel+1);
 
-    for (std::uint32_t i = 0; i < (4*(mLevel+1)); i++)
+    for (std::uint32_t i = 0U; i < (4U*(mLevel+1U)); i++)
     {
         indent += " ";
     }
     text += "{\n";
 
-    std::uint32_t index = 0;
-    for (std::uint32_t i = 0; i < mObject.size(); i++)
+    std::uint32_t index = 0U;
+    for (std::uint32_t i = 0U; i < mObject.size(); i++)
     {
         std::pair<std::string, IJsonNode *> node = mObject[i];
 
@@ -116,11 +147,7 @@ std::string JsonObject::ToString()
             text += ",\n";
         }
     }
-    indent.clear();
-    for (std::uint32_t i = 0; i < (4*mLevel); i++)
-    {
-        indent += " ";
-    }
+    indent = CreateIdent(mLevel);
     text += "\n" + indent + "}";
     return text;
 }
@@ -134,7 +161,7 @@ void JsonObject::CreateValuePair(const std::string &name, const JsonValue &value
 /*****************************************************************************/
 JsonArray *JsonObject::CreateArrayPair(const std::string &name)
 {
-    JsonArray *array = new JsonArray();
+    JsonArray *array = new JsonArray(mLevel + 1U);
     std::pair<std::string, IJsonNode *> node(name, array);
     mObject.push_back(node);
     return array;
@@ -142,8 +169,8 @@ JsonArray *JsonObject::CreateArrayPair(const std::string &name)
 /*****************************************************************************/
 JsonObject *JsonObject::CreateObjectPair(const std::string &name)
 {
-    JsonObject *obj = new JsonObject(mLevel+1);
-     std::pair<std::string, IJsonNode *> node(name, obj);
+    JsonObject *obj = new JsonObject(mLevel + 1U);
+    std::pair<std::string, IJsonNode *> node(name, obj);
     mObject.push_back(node);
     return obj;
 }

@@ -40,6 +40,7 @@ class JsonObject;
 class JsonArray : public IJsonNode
 {
 public:
+    JsonArray(std::uint32_t level);
     virtual ~JsonArray();
 
     std::string ToString();
@@ -50,6 +51,7 @@ public:
 
 private:
     std::vector<IJsonNode *> mArray;
+    std::uint32_t mLevel;
 };
 /*****************************************************************************/
 class JsonObject : public IJsonNode
