@@ -514,6 +514,10 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
         {
             // Trick is always showed in the same order:
             // SOUTH EAST NORTH WEST FIFTH
+            if (it != list.begin())
+            {
+                cards += ";";
+            }
             cards += (*it);
         }
 
