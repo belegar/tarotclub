@@ -108,7 +108,6 @@ private:
     void ShowSouthCards();
     void HideTrick();
     void InitScreen();
-    void ShowVictoryWindow();
     bool HasLocalConnection();
 
     // Client events

@@ -200,42 +200,6 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
     mCanvas->SetBackground(mClientOptions.backgroundColor);
 }
 /*****************************************************************************/
-void TarotWidget::ShowVictoryWindow()
-{
-
-    /*
-    QGraphicsTextItem *txt;
-
-    QDialog *widget = new QDialog;
-    Ui::WinUI ui;
-    ui.setupUi(widget);
-
-    QGraphicsScene *scene = new QGraphicsScene();
-    QGraphicsSvgItem *victory = new QGraphicsSvgItem(":images/podium.svg");
-
-    ui.tournamentGraph->setScene(scene);
-    scene->addItem(victory);
-    ui.tournamentGraph->centerOn(victory);
-    */
-    std::map<int, Place> podium = deal.GetPodium();
-
-    QMessageBox::information(this, trUtf8("Tournament result"),
-                             trUtf8("The winner of the tournament is ") + QString(mPlayers[podium[0]].name.data()),
-                             QMessageBox::Ok);
-
-    /*
-    // add the three best players to the image
-    txt = scene->addText(players[podium[0]].name);
-    txt->setPos(20+150, 450);
-    txt = scene->addText(players[podium[1]].name);
-    txt->setPos(20, 450);
-    txt = scene->addText(players[podium[2]].name);
-    txt->setPos(20+300, 450);
-
-    widget->exec();
-    */
-}
-/*****************************************************************************/
 void TarotWidget::HideTrick()
 {
     Deck &trick = mClient.GetCurrentTrick();
@@ -662,9 +626,9 @@ void TarotWidget::slotEndOfDeal()
 /*****************************************************************************/
 void TarotWidget::slotEndOfGame(Place winner)
 {
-    (void) winner; // FIXME: usage?
-
-    ShowVictoryWindow();
+    QMessageBox::information(this, trUtf8("Game result"),
+                             trUtf8("The winner is ") + QString(winner.ToString().c_str()),
+                             QMessageBox::Ok);
 
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
