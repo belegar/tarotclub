@@ -46,6 +46,7 @@ void Controller::Start()
     engine.Initialize();
     if (!mInitialized)
     {
+        mInitialized = true;
         mThread = std::thread(Controller::EntryPoint, this);
     }
 }
@@ -492,6 +493,7 @@ bool Controller::DoAction(const ByteArray &data)
                     }
                 }
             }
+            break;
         }
 
         default:
