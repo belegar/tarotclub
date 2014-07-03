@@ -26,6 +26,7 @@
 #define SYSTEM_H_
 
 #include <string>
+#include "Util.h"
 
 /*****************************************************************************/
 class System
@@ -37,11 +38,11 @@ public:
     }
     static std::string GamePath()
     {
-        return mHomePath + "/games";
+        return mHomePath + "games" + Util::DIR_SEPARATOR;
     }
     static std::string LogPath()
     {
-        return mHomePath + "/logs";
+        return mHomePath + "logs" + Util::DIR_SEPARATOR;
     }
 
     /**

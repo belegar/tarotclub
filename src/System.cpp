@@ -53,14 +53,20 @@ FIXME:
 #else
 
 #ifdef TAROT_DEBUG
-    mHomePath  = Util::ExecutablePath() + "/.tarotclub";
+    mHomePath  = Util::ExecutablePath() + "/.tarotclub/";
     mScriptPath = Util::ExecutablePath() + "/../../assets/ai/";
     mDeckPath = Util::ExecutablePath() + "/../../assets/cards/default/";
 #else
-    mHomePath  = Util::HomePath() + "/.tarotclub";
+    mHomePath  = Util::HomePath() + "/.tarotclub/";
     mScriptPath = Util::ExecutablePath() + "/ai/";
     mDeckPath = Util::ExecutablePath() + "/default/";
 #endif
+#endif
+
+#ifdef USE_WINDOWS_OS
+    Util::ReplaceCharacter(mHomePath, "/", "\\");
+    Util::ReplaceCharacter(mScriptPath, "/", "\\");
+    Util::ReplaceCharacter(mDeckPath, "/", "\\");
 #endif
 
     // Check the user TarotClub directories and create them if necessary (all platforms)

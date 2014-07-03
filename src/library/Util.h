@@ -37,14 +37,19 @@
 class Util
 {
 public:
+#ifdef USE_WINDOWS_OS
+    static const char DIR_SEPARATOR = '\\';
+#else
+    static const char DIR_SEPARATOR = '/';
+#endif
+
     // Get current date/time, format is YYYY-MM-DD.HH:mm:ss
     static std::string CurrentDateTime(const std::string &format);
     static std::string ExecutablePath();
     static std::string HomePath();
     static bool FolderExists(const std::string &foldername);
     static bool Mkdir(const std::string &fullPath);
-    static std::vector<std::string> Split(const std::string &theString, const std::string  &delimiter);
-    static std::string Join(const std::vector<std::string> &tokens, const std::string &delimiter);
+    static void ReplaceCharacter(std::string &theString, const std::string &toFind, const std::string &toReplace);
 };
 
 #endif // UTIL_H
