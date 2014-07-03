@@ -88,12 +88,10 @@ void Lobby::ReadData(int socket, const std::string &data)
     std::string command = data;
     command.pop_back();
 
-
-
     std::vector<std::string> tokens = Util::Split(command, ":");
     std::stringstream ss;
 
-
+/**
     std::string request = data.substr(0, 3);
     if (request == "GET")
     {
@@ -106,6 +104,7 @@ void Lobby::ReadData(int socket, const std::string &data)
            "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
            "Sec-WebSocket-Protocol: appProtocol-v2"
     }
+    */
 
     if (tokens[0] == "GET")
     {
