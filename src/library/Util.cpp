@@ -128,12 +128,15 @@ bool Util::FolderExists(const std::string &foldername)
 {
     bool ret = false;
     struct stat st;
-    ::stat(foldername.c_str(), &st);
-
-    if ((st.st_mode & S_IFDIR) != 0)
+    if (::stat(foldername.c_str(), &st) == 0)
     {
-        ret = true;
+        if ((st.st_mode & S_IFDIR) != 0)
+        {
+            ret = true;
+        }
     }
+
+
     return ret;
 }
 /*****************************************************************************/
@@ -174,23 +177,20 @@ bool Util::Mkdir(const std::string &fullPath)
     {
         current_level += level; // append folder to the current level
 
-        if (FolderExists(current_level))
+        if (!FolderExists(current_level))
         {
-            continue;
-        }
-        else if ((current_level[1] == ':') && (current_level.size() == 2))
-        {
-            // not a directory but a disk letter (windows only)
-            current_level += Util::DIR_SEPARATOR;
-            continue;
-        }
-        else
-        {
-            // create current level
-            if (my_mkdir(current_level.c_str()) != 0)
+            // on windows, skip the "c:" string
+            if ((current_level[1] != ':') && (current_level.size() > 2))
             {
-                ret = false;
-                break;
+                if (current_level.size() != 0)
+                {
+                    // create current level
+                    if (my_mkdir(current_level.c_str()) != 0)
+                    {
+                        ret = false;
+                        break;
+                    }
+                }
             }
         }
         current_level += Util::DIR_SEPARATOR; // don't forget to append a slash

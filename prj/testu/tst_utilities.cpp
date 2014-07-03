@@ -138,8 +138,16 @@ void Utilities::TestByteStream()
 void Utilities::TestUtilFunctions()
 {
     bool ret;
-    std::string path1 = "c:/tetstor";
-    std::string path2 = "c:/test_mkdir/sub/directory/";
+    std::string rootPath;
+
+#ifdef USE_WINDOWS_OS
+    rootPath = "c:/";
+#else
+    rootPath = "/tmp/";
+#endif
+
+    std::string path1 = rootPath + "tetstor";
+    std::string path2 = rootPath + "test_mkdir/sub/directory/";
 
     std::cout << Util::ExecutablePath() << std::endl;
     std::cout << Util::HomePath() << std::endl;

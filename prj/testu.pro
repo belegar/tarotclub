@@ -24,6 +24,22 @@
 
 BASE_DIR = $${PWD}/..
 
+CONFIG(debug, debug|release) {
+debug:      DESTDIR = $$BASE_DIR/build-testu/debug
+}
+
+CONFIG(release, debug|release) {
+release:    DESTDIR = $$BASE_DIR/build-testu/release
+}
+
+UI_DIR          = $$DESTDIR/ui
+UI_HEADERS_DIR  = $$DESTDIR/include
+UI_SOURCES_DIR  = $$DESTDIR/src
+OBJECTS_DIR     = $$DESTDIR/obj
+RCC_DIR         = $$DESTDIR/rcc
+MOC_DIR         = $$DESTDIR/moc
+
+
 # ------------------------------------------------------------------------------
 # The search path to find supplied files
 # ------------------------------------------------------------------------------
