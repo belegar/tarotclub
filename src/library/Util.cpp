@@ -212,6 +212,44 @@ void Util::ReplaceCharacter(std::string &theString, const std::string &toFind, c
     }
     while (found != std::string::npos);
 }
+/*****************************************************************************/
+std::vector<std::string> Util::Split(const std::string &theString, const std::string &delimiter)
+{
+    std::vector<std::string> theStringVector;
+    size_t  start = 0, end = 0;
+
+    while (end != std::string::npos)
+    {
+        end = theString.find(delimiter, start);
+
+        // If at end, use length=maxLength.  Else use length=end-start.
+        theStringVector.push_back(theString.substr(start,
+                                  (end == std::string::npos) ? std::string::npos : end - start));
+
+        // If at end, use start=maxSize.  Else use start=end+delimiter.
+        start = ((end > (std::string::npos - delimiter.size()))
+                 ?  std::string::npos  :  end + delimiter.size());
+    }
+    return theStringVector;
+}
+/*****************************************************************************/
+std::string Util::Join(const std::vector<std::string> &tokens, const std::string &delimiter)
+{
+    std::stringstream ss;
+
+    for (size_t i = 0; i < tokens.size(); i++)
+    {
+        // Add the delimiter between tokens only, nothing at the end of the string
+        if (i != 0)
+        {
+            ss << delimiter;
+        }
+        ss << tokens[i];
+    }
+
+    return ss.str();
+}
+
 
 //=============================================================================
 // End of file Util.cpp

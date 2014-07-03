@@ -43,13 +43,14 @@ public:
     static const char DIR_SEPARATOR = '/';
 #endif
 
-    // Get current date/time, format is YYYY-MM-DD.HH:mm:ss
     static std::string CurrentDateTime(const std::string &format);
     static std::string ExecutablePath();
     static std::string HomePath();
     static bool FolderExists(const std::string &foldername);
     static bool Mkdir(const std::string &fullPath);
     static void ReplaceCharacter(std::string &theString, const std::string &toFind, const std::string &toReplace);
+    static std::vector<std::string> Split(const std::string &theString, const std::string &delimiter);
+    static std::string Join(const std::vector<std::string> &tokens, const std::string &delimiter);
 };
 
 #endif // UTIL_H
