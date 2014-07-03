@@ -137,11 +137,23 @@ void Utilities::TestByteStream()
 
 void Utilities::TestUtilFunctions()
 {
+    bool ret;
+    std::string path1 = "c:/tetstor";
+    std::string path2 = "c:/test_mkdir/sub/directory/";
+
     std::cout << Util::ExecutablePath() << std::endl;
     std::cout << Util::HomePath() << std::endl;
 
-    Util::Mkdir("c:/test_mkdir/sub/directory/");
+    ret = Util::Mkdir(path1);
+    QCOMPARE(ret, true);
+    ret = Util::FolderExists(path1);
+    QCOMPARE(ret, true);
 
-    std::cout << "Current date-time: " << Util::CurrentDateTime("%Y-%m-%d.%X");
+    ret = Util::Mkdir(path2);
+    QCOMPARE(ret, true);
+    ret = Util::FolderExists(path2);
+    QCOMPARE(ret, true);
+
+    std::cout << "Current date-time: " << Util::CurrentDateTime("%Y-%m-%d.%X")  << std::endl;
 }
 

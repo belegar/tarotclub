@@ -158,49 +158,59 @@ int my_mkdir(const char *path)
  */
 bool Util::Mkdir(const std::string &fullPath)
 {
-    bool ret = false;
-    if (my_mkdir(fullPath.c_str()) == 0)
+    bool ret = true;
+    std::string temp = fullPath;
+
+#ifdef USE_WINDOWS_OS
+    ReplaceCharacter(temp, "/", "\\");
+#endif
+
+    std::string current_level = "";
+    std::string level;
+    std::stringstream ss(temp);
+
+    // split path using slash as a separator
+    while (std::getline(ss, level, Util::DIR_SEPARATOR))
     {
-        ret = true;
+        current_level += level; // append folder to the current level
+
+        if (FolderExists(current_level))
+        {
+            continue;
+        }
+        else if ((current_level[1] == ':') && (current_level.size() == 2))
+        {
+            // not a directory but a disk letter (windows only)
+            current_level += Util::DIR_SEPARATOR;
+            continue;
+        }
+        else
+        {
+            // create current level
+            if (my_mkdir(current_level.c_str()) != 0)
+            {
+                ret = false;
+                break;
+            }
+        }
+        current_level += Util::DIR_SEPARATOR; // don't forget to append a slash
     }
+
     return ret;
 }
 /*****************************************************************************/
-std::vector<std::string> Util::Split(const std::string &theString, const std::string &delimiter)
+void Util::ReplaceCharacter(std::string &theString, const std::string &toFind, const std::string &toReplace)
 {
-    std::vector<std::string> theStringVector;
-    size_t  start = 0, end = 0;
-
-    while (end != std::string::npos)
+    std::size_t found;
+    do
     {
-        end = theString.find(delimiter, start);
-
-        // If at end, use length=maxLength.  Else use length=end-start.
-        theStringVector.push_back(theString.substr(start,
-                                  (end == std::string::npos) ? std::string::npos : end - start));
-
-        // If at end, use start=maxSize.  Else use start=end+delimiter.
-        start = ((end > (std::string::npos - delimiter.size()))
-                 ?  std::string::npos  :  end + delimiter.size());
-    }
-    return theStringVector;
-}
-/*****************************************************************************/
-std::string Util::Join(const std::vector<std::string> &tokens, const std::string &delimiter)
-{
-    std::stringstream ss;
-
-    for (size_t i = 0; i < tokens.size(); i++)
-    {
-        // Add the delimiter between tokens only, nothing at the end of the string
-        if (i != 0)
+        found = theString.find(toFind);
+        if (found != std::string::npos)
         {
-            ss << delimiter;
+            theString.replace(found, 1, toReplace);
         }
-        ss << tokens[i];
     }
-
-    return ss.str();
+    while (found != std::string::npos);
 }
 
 //=============================================================================
