@@ -233,9 +233,9 @@ ClientOptions ClientConfig::GetDefault()
     opt.delayBeforeCleaning = CLIENT_TIMER_DEF;
     opt.clickToClean = true;
 
-    opt.identity.name = "Moi";
-    opt.identity.avatar = ":/images/avatars/inconnu.png";
-    opt.identity.quote = "L'inventeur de l'escalier habitait sûrement au premier étage.";
+    opt.identity.name = "Fry";
+    opt.identity.avatar = ":/images/avatars/fry.png";
+    opt.identity.quote = "But existing is practically all I do!";
     opt.identity.gender = Identity::MALE;
 
     return opt;
