@@ -63,6 +63,7 @@ public:
 
 private:
     ServerOptions mOptions;
+    bool mLoaded;
 
 };
 

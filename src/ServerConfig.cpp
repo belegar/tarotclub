@@ -37,10 +37,15 @@ static const std::string SERVER_CONFIG_FILE     = "tcsc.json"; // tcs = TarotClu
 ServerConfig::ServerConfig()
 {
     mOptions = GetDefault();
+    mLoaded = false;
 }
 /*****************************************************************************/
 ServerOptions &ServerConfig::GetOptions()
 {
+    if (!mLoaded)
+    {
+        Load();
+    }
     return mOptions;
 }
 /*****************************************************************************/
@@ -124,6 +129,14 @@ bool ServerConfig::Load()
         TLogError("Cannot open server configuration file");
     }
 
+    if (!ret)
+    {
+        // Overwrite old file with default value
+        mOptions = GetDefault();
+        ret = Save();
+    }
+
+    mLoaded = true;
     return ret;
 }
 /*****************************************************************************/
