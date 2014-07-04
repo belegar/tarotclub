@@ -179,17 +179,23 @@ bool Util::Mkdir(const std::string &fullPath)
 
         if (!FolderExists(current_level))
         {
-            // on windows, skip the "c:" string
-            if ((current_level[1] != ':') && (current_level.size() > 2))
+#ifdef USE_WINDOWS_OS
+            if (current_level.size() == 2)
             {
-                if (current_level.size() != 0)
+                if (current_level[1] != ':')
                 {
-                    // create current level
-                    if (my_mkdir(current_level.c_str()) != 0)
-                    {
-                        ret = false;
-                        break;
-                    }
+                    continue;
+                }
+            }
+#endif
+
+            if (current_level.size() > 2)
+            {
+                // create current level
+                if (my_mkdir(current_level.c_str()) != 0)
+                {
+                    ret = false;
+                    break;
                 }
             }
         }
