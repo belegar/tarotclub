@@ -91,13 +91,13 @@ std::string Util::ExecutablePath()
     }
     std::wstring wstr(buf);
     path = std::string(wstr.begin(), wstr.end());
-    found = path.find_last_of("\\");
+    found = path.find_last_of("\\"); // remove the executable name
 
 #elif defined(USE_UNIX_OS)
     char buf[FILENAME_MAX];
     readlink("/proc/self/exe", buf, sizeof(buf));
     path = buf;
-    found = path.find_last_of("/");
+    found = path.find_last_of("/");  // remove the executable name
 #elif defined(USE_APPLE_OS)
     _NSGetExecutablePath(path, &size); // make it compile
 #else

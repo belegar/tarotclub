@@ -91,7 +91,7 @@ Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
     , mShowAvatars(true)
     , cardsPics(0)
-    , menuItem(this)
+    , mMenuItem(this)
 {
     setScene(&scene);
 
@@ -102,9 +102,9 @@ Canvas::Canvas(QWidget *parent)
     setRenderHint(QPainter::Antialiasing);
     setCacheMode(QGraphicsView::CacheBackground);
 
-    menuItem.setPos(MENU_POS_X, MENU_POS_Y);
-    menuItem.show();
-    scene.addItem(&menuItem);
+    mMenuItem.setPos(MENU_POS_X, MENU_POS_Y);
+    mMenuItem.show();
+    scene.addItem(&mMenuItem);
 
     popupItem.hide();
     scene.addItem(&popupItem);
@@ -119,6 +119,7 @@ bool Canvas::Initialize()
     QString image;
     QString path(System::DeckPath().c_str());
 
+    mMenuItem.Initialize();
     cardsPics.clear();
 
     for (std::uint8_t i = 0U; i < 78U; i++)
@@ -190,18 +191,18 @@ void Canvas::ToggleCardSelection(std::uint8_t index)
 /*****************************************************************************/
 bool Canvas::GetSlamOption()
 {
-    return menuItem.GetSlamOption();
+    return mMenuItem.GetSlamOption();
 }
 /*****************************************************************************/
 void Canvas::DisplayDiscardMenu(bool visible)
 {
     if (visible)
     {
-        menuItem.DisplayMenu(MenuItem::DISCARD_MENU);
+        mMenuItem.DisplayMenu(MenuItem::DISCARD_MENU);
     }
     else
     {
-        menuItem.DisplayMenu(MenuItem::NO_MENU);
+        mMenuItem.DisplayMenu(MenuItem::NO_MENU);
     }
 }
 /*****************************************************************************/
@@ -209,11 +210,11 @@ void Canvas::DisplayHandleMenu(bool visible)
 {
     if (visible)
     {
-        menuItem.DisplayMenu(MenuItem::HANDLE_MENU);
+        mMenuItem.DisplayMenu(MenuItem::HANDLE_MENU);
     }
     else
     {
-        menuItem.DisplayMenu(MenuItem::NO_MENU);
+        mMenuItem.DisplayMenu(MenuItem::NO_MENU);
     }
 }
 /*****************************************************************************/
@@ -221,11 +222,11 @@ void Canvas::DisplayMainMenu(bool visible)
 {
     if (visible)
     {
-        menuItem.DisplayMenu(MenuItem::MAIN_MENU);
+        mMenuItem.DisplayMenu(MenuItem::MAIN_MENU);
     }
     else
     {
-        menuItem.DisplayMenu(MenuItem::NO_MENU);
+        mMenuItem.DisplayMenu(MenuItem::NO_MENU);
     }
 }
 /*****************************************************************************/
@@ -470,12 +471,12 @@ void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
 {
-    menuItem.DisplayMenu(contract);
+    mMenuItem.DisplayMenu(contract);
 }
 /*****************************************************************************/
 void Canvas::HideBidsChoice()
 {
-    menuItem.DisplayMenu(MenuItem::NO_MENU);
+    mMenuItem.DisplayMenu(MenuItem::NO_MENU);
 }
 /*****************************************************************************/
 void Canvas::ShowAvatars(bool b)

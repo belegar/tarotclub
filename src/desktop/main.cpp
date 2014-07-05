@@ -36,6 +36,7 @@
 #include "ClientConfig.h"
 #include "Log.h"
 #include "System.h"
+#include "Util.h"
 
 /*****************************************************************************/
 QString GetLocale()
@@ -63,7 +64,8 @@ int main(int argc, char **argv)
     QString locale = GetLocale();
 
     // Install language translation files
-    if (translator.load(QString("tarotclub_") + locale) == false)
+    QString langPath = QString(Util::ExecutablePath().c_str()) + QString(Util::DIR_SEPARATOR) + QString("tarotclub_") + locale;
+    if (translator.load(langPath) == false)
     {
         TLogError("Cannot load translation file: tarotclub_xx.");
     }

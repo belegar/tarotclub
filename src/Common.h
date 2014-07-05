@@ -40,7 +40,7 @@
  * @brief The version string uses Semantic Versioning format
  * @see http://semver.org
  */
-#define TAROT_VERSION   "2.3.0"
+#define TAROT_VERSION   "2.3.1"
 #define TAROT_TITRE     "TarotClub"
 #define TAROT_VNAME     "Snowboard"
 

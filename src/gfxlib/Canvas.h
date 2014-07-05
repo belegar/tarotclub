@@ -138,7 +138,7 @@ private:
     QGraphicsScene scene;
 
     QMap<Place, PlayerBox *> playerBox;
-    MenuItem    menuItem;
+    MenuItem    mMenuItem;
     PopupItem   popupItem;
     MessageBoxItem mMsgBoxItem;
 };

@@ -45,14 +45,14 @@ static const std::uint32_t SPACE = 10;
 
 static const MenuItem::Button buttonList[] =
 {
-    { QObject::tr("Pass"),             MenuItem::BIDS_MENU },
-    { QObject::tr("Take"),             MenuItem::BIDS_MENU },
-    { QObject::tr("Guard"),            MenuItem::BIDS_MENU },
-    { QObject::tr("Guard without"),    MenuItem::BIDS_MENU },
-    { QObject::tr("Guard against"),    MenuItem::BIDS_MENU },
-    { QObject::tr("Handle"),           MenuItem::HANDLE_MENU },
-    { QObject::tr("Accept"),           MenuItem::DISCARD_MENU },
-    { QObject::tr("Quick start"),      MenuItem::MAIN_MENU }
+    { QT_TR_NOOP("Pass"),             MenuItem::BIDS_MENU },
+    { QT_TR_NOOP("Take"),             MenuItem::BIDS_MENU },
+    { QT_TR_NOOP("Guard"),            MenuItem::BIDS_MENU },
+    { QT_TR_NOOP("Guard without"),    MenuItem::BIDS_MENU },
+    { QT_TR_NOOP("Guard against"),    MenuItem::BIDS_MENU },
+    { QT_TR_NOOP("Handle"),           MenuItem::HANDLE_MENU },
+    { QT_TR_NOOP("Accept"),           MenuItem::DISCARD_MENU },
+    { QT_TR_NOOP("Quick start"),      MenuItem::MAIN_MENU }
 };
 
 /*****************************************************************************/
@@ -68,9 +68,10 @@ MenuItem::MenuItem(IButtonEvent *event)
         ButtonItem *button = new ButtonItem(event, i, buttonList[i].menu);
         button->setParentItem(this);
         button->hide();
-        button->SetText(buttonList[i].text);
+//        button->SetText(buttonList[i].text);
         buttons.insert(&buttonList[i], button);
     }
+
     checkBox.hide();
 }
 /*****************************************************************************/
@@ -78,6 +79,20 @@ int MenuItem::type() const
 {
     // Enable the use of qgraphicsitem_cast with this item.
     return Type;
+}
+/*****************************************************************************/
+
+#include <QApplication>
+void MenuItem::Initialize()
+{
+
+    QMap<const MenuItem::Button *, ButtonItem *>::Iterator iter;
+
+    for (iter = buttons.begin(); iter != buttons.end(); ++iter)
+    {
+        iter.value()->SetText(QObject::tr(iter.key()->text));
+    }
+
 }
 /*****************************************************************************/
 void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

@@ -66,7 +66,7 @@ public:
 
     struct Button
     {
-        QString text;       //!< Text printed on this button
+        const char* text;       //!< Text printed on this button
         std::uint8_t menu;  //!< In which menu the button belongs to
     };
 
@@ -79,6 +79,7 @@ public:
     // Helpers
     void DisplayMenu(std::uint8_t menu);
     void DisplayMenu(Contract minContract);
+    void Initialize();
 
     // Getters
     bool GetSlamOption();

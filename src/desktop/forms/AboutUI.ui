@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>528</width>
-    <height>316</height>
+    <width>591</width>
+    <height>361</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,7 +32,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="TextLabel1">
         <property name="text">
-         <string>TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+         <string>TarotClub ( http://www.tarotclub.fr ) - The free Tarot card game!
 Copyright (C) 2003-2999 - Anthony Rabine
 anthony@tarotclub.fr
 

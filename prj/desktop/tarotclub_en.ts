@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>AboutUI</name>
     <message>
-        <location filename="../src/client/AboutUI.ui" line="20"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="20"/>
         <source>About...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/client/AboutUI.ui" line="35"/>
-        <source>TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="35"/>
+        <source>TarotClub ( http://www.tarotclub.fr ) - The free Tarot card game!
 Copyright (C) 2003-2999 - Anthony Rabine
 anthony@tarotclub.fr
 
@@ -26,25 +26,25 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/AboutUI.ui" line="110"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="116"/>
         <source>TarotClub 0.0.0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/client/AboutUI.ui" line="120"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="126"/>
         <source>&lt;Nom&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/client/AboutUI.ui" line="140"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="146"/>
         <source>&amp;Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/client/AboutUI.ui" line="143"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="149"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
@@ -52,17 +52,17 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>Avatars</name>
     <message>
-        <location filename="../src/client/AvatarsUI.ui" line="17"/>
+        <location filename="../../src/desktop/forms/AvatarsUI.ui" line="17"/>
         <source>Avatars</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/client/AvatarsUI.ui" line="90"/>
+        <location filename="../../src/desktop/forms/AvatarsUI.ui" line="90"/>
         <source>&amp;OK</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/client/AvatarsUI.ui" line="97"/>
+        <location filename="../../src/desktop/forms/AvatarsUI.ui" line="97"/>
         <source>&amp;Cancel</source>
         <translation></translation>
     </message>
@@ -70,98 +70,55 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>ChatDock</name>
     <message>
-        <location filename="../src/client/ChatDock.cpp" line="37"/>
+        <location filename="../../src/desktop/docks/ChatDock.cpp" line="37"/>
         <source>Chat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ChatDock.cpp" line="41"/>
-        <source>Commands</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Client</name>
-    <message>
-        <location filename="../src/Client.cpp" line="281"/>
-        <source> is connected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Client.cpp" line="287"/>
-        <source> is trying to connect...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Client.cpp" line="293"/>
-        <source> connection has been closed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Client.cpp" line="304"/>
-        <source>: network error: connection refused.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Client.cpp" line="307"/>
-        <source>: network error: server not found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Client.cpp" line="310"/>
-        <source>: network error: data transmission failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Client.cpp" line="516"/>
-        <source>: Unkown packet received.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DealEditorUI</name>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="14"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="14"/>
         <source>Deal editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="20"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="20"/>
         <source>Assign the card to each player. Remaining cards on the left side are the dog deck. Double-click on a card to move it back to the left column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="37"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="37"/>
         <source>South</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="48"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="48"/>
         <source>West</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="73"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="73"/>
         <source>North</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="84"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="84"/>
         <source>East</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="136"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="136"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="143"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="143"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DealEditorUI.ui" line="150"/>
+        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="150"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -169,450 +126,454 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>DebugDock</name>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="41"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="40"/>
         <source>Debug</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="44"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="43"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="45"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="44"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="87"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="86"/>
         <source>Save Log Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="88"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="87"/>
         <source>%1/logfile.txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="89"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="88"/>
         <source>Text Files (*.txt);;All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="102"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="101"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/DebugDock.cpp" line="103"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="102"/>
         <source>&lt;nobr&gt;File &apos;%1&apos;&lt;br/&gt;cannot be opened for writing.&lt;br/&gt;&lt;br/&gt;The log output could &lt;b&gt;not&lt;/b&gt; be saved!&lt;/nobr&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>HelpUI</name>
-    <message>
-        <location filename="../src/client/HelpUI.ui" line="14"/>
-        <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>InfosDock</name>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="37"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="37"/>
         <source>Informations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="90"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="116"/>
         <source>Trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="91"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="117"/>
         <source>Major trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="93"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="119"/>
         <source>Oudlers: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="94"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="120"/>
         <source>Fool: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="95"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="121"/>
         <source>21 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="96"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="122"/>
         <source>1 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="98"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="124"/>
         <source>Long suits: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="99"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="125"/>
         <source>Weddings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="100"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="126"/>
         <source>Sequences: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="101"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="127"/>
         <source>Singletons: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="103"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="129"/>
         <source>Clubs: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="104"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="130"/>
         <source>Diamonds: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="105"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="131"/>
         <source>Spades: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="106"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="132"/>
         <source>Hearts: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="108"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="134"/>
         <source>Kings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="109"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="135"/>
         <source>Voids: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="110"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
         <source>Queens: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="111"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="137"/>
         <source>Knights: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDock.cpp" line="112"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="138"/>
         <source>Jacks: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>JoinWizard</name>
+    <name>LobbyUI</name>
     <message>
-        <location filename="../src/client/JoinWizard.cpp" line="114"/>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="14"/>
+        <source>Lobby</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="23"/>
+        <source>Server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="37"/>
+        <source>IP address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="44"/>
+        <source>Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="55"/>
+        <source>000.000.000.000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="58"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="82"/>
+        <source>Connect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="106"/>
+        <source>Status:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="113"/>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="140"/>
+        <source>Rooms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="167"/>
+        <source>Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="194"/>
+        <source>Join</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="201"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LobbyWindow</name>
+    <message>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="103"/>
+        <source>Not connected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="145"/>
         <source>Connected to the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/JoinWizard.cpp" line="125"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="156"/>
         <source>Connection to the server ....</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/JoinWizard.cpp" line="131"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="162"/>
         <source>The connection has been closed by the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/JoinWizard.cpp" line="137"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="168"/>
         <source>Socket error - code: </source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>JoinWizardPage1</name>
-    <message>
-        <location filename="../src/client/JoinWizard.cpp" line="34"/>
-        <source>Connection to a TarotClub server</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizard.cpp" line="35"/>
-        <source>A game server can be created using a TarotClub cient or a dedicated server.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>JoinWizardPage2</name>
-    <message>
-        <location filename="../src/client/JoinWizard.cpp" line="54"/>
-        <source>Connection to a TarotClub server</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizard.cpp" line="55"/>
-        <source>Choose your room and game table.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="146"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="245"/>
         <source>&amp;New quick game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="147"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="246"/>
         <source>Ctrl+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="148"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="247"/>
         <source>Start a one player game against computer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="150"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="249"/>
         <source>New &amp;tournament</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="151"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="250"/>
         <source>Ctrl+T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="152"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="251"/>
         <source>Play five deals against the computer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="154"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="253"/>
         <source>New nu&amp;mbered deal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="155"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="254"/>
         <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="156"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="255"/>
         <source>Deal cards with a predefined deal number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="158"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="257"/>
         <source>New manua&amp;l deal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="159"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="258"/>
         <source>Ctrl+L</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="160"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="259"/>
         <source>Deal cards with a deal created with the editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="163"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="261"/>
+        <source>New auto&amp; play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="263"/>
+        <source>Auto play, to train your AI script!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="266"/>
         <source>Create a new network game (serve&amp;r)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="164"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="267"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="165"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="268"/>
         <source>Create a network game and invite friends to join the game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="168"/>
-        <source>&amp;Join a network game</source>
+        <location filename="../../src/desktop/MainWindow.cpp" line="270"/>
+        <source>&amp;Quick join a network game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="169"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="271"/>
+        <source>Ctrl+U</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="272"/>
+        <source>Join a game server created using TarotClub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="274"/>
+        <source>&amp;Join a dedicated game server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="276"/>
+        <source>Join a game server created using TarotClubServer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="275"/>
         <source>Ctrl+J</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="170"/>
-        <source>Join a game server over Internet or over a local area network</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="173"/>
-        <source>&amp;Previous trick</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="174"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="262"/>
         <source>Ctrl+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="175"/>
-        <source>Show the previous trick played</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="178"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="278"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="179"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="279"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="180"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="280"/>
         <source>Quit the game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="184"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="284"/>
         <source>Game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="200"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="300"/>
         <source>&amp;Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="201"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="301"/>
         <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="202"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="302"/>
         <source>Game options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="204"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="304"/>
         <source>Deal e&amp;ditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="205"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="305"/>
         <source>Ctrl+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="206"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="306"/>
         <source>Create a pre-defined deal by choosing the cards of each player</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="209"/>
-        <source>Score</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="211"/>
-        <source>Show/hide the score window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="215"/>
-        <source>Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="217"/>
-        <source>Show/hide the information window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="221"/>
-        <source>Chat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="223"/>
-        <source>Show/hide the chat window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="227"/>
-        <source>Server</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="229"/>
-        <source>Show/hide the server window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="233"/>
-        <source>Debug</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="235"/>
-        <source>Show/hide the debug window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/MainWindow.cpp" line="239"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="309"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="252"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="324"/>
         <source>&amp;About...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="253"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="325"/>
         <source>Ctrl+A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="254"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="326"/>
         <source>About TarotClub</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="257"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="329"/>
         <source>&amp;Help and manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="258"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="330"/>
         <source>Ctrl+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="259"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="331"/>
         <source>Show game help and Tarot rules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/MainWindow.cpp" line="263"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="335"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
@@ -620,12 +581,12 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>NumberedDeal</name>
     <message>
-        <location filename="../src/client/NumberedDealUI.ui" line="14"/>
+        <location filename="../../src/desktop/forms/NumberedDealUI.ui" line="14"/>
         <source>Choose a numbered deal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/NumberedDealUI.ui" line="20"/>
+        <location filename="../../src/desktop/forms/NumberedDealUI.ui" line="20"/>
         <source>Enter the numbered deal:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -633,153 +594,158 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>OptionsUI</name>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="20"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="20"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="33"/>
-        <location filename="../src/client/OptionsUI.ui" line="39"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="86"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="92"/>
         <source>Identity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="147"/>
-        <source>Genre</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/OptionsUI.ui" line="185"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="238"/>
         <source>Male</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="192"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="245"/>
         <source>Female</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="238"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="291"/>
         <source>Nick name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="277"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="330"/>
         <source>Quote:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="316"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="369"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="322"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="375"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="328"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="502"/>
         <source>Show avatars on the board</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="352"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="383"/>
         <source>TCP/IP port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="391"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="420"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
-        <location filename="../src/client/OptionsUI.ui" line="411"/>
+    <message>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="453"/>
         <source>Français</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="416"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="458"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="428"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="470"/>
         <source>Background color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="462"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="545"/>
         <source>Delay between two players</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="485"/>
-        <location filename="../src/client/OptionsUI.ui" line="532"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="534"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="568"/>
         <source>0.0 seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="500"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="583"/>
         <source>Activate automatic trick flushing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="509"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="511"/>
         <source>Delay before trick flush:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="558"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="200"/>
+        <source>Gender</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="592"/>
+        <source>Cards order in hand (drag and drop to change position):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="621"/>
         <source>Opponents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="577"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="640"/>
         <source>North player</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="615"/>
-        <location filename="../src/client/OptionsUI.ui" line="778"/>
-        <location filename="../src/client/OptionsUI.ui" line="1027"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="678"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="841"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="1090"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="622"/>
-        <location filename="../src/client/OptionsUI.ui" line="785"/>
-        <location filename="../src/client/OptionsUI.ui" line="1034"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="685"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="848"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="1097"/>
         <source>Level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="740"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="803"/>
         <source>West player</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="896"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="959"/>
         <source>East player</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="1065"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="31"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="1088"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="54"/>
         <source>&amp;Ok</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="1091"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="57"/>
         <source>Alt+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsUI.ui" line="1104"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="70"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -787,408 +753,139 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>OptionsWindow</name>
     <message>
-        <location filename="../src/client/OptionsWindow.cpp" line="124"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="339"/>
         <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsWindow.cpp" line="125"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="340"/>
         <source>You must restart TarotClub to enable the new language.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/OptionsWindow.cpp" line="159"/>
-        <location filename="../src/client/OptionsWindow.cpp" line="164"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="375"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="380"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Page1</name>
-    <message>
-        <location filename="../src/client/JoinWizardPage1.ui" line="14"/>
-        <source>WizardPage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizardPage1.ui" line="43"/>
-        <source>IP address:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizardPage1.ui" line="50"/>
-        <source>Port:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizardPage1.ui" line="61"/>
-        <source>000.000.000.000</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizardPage1.ui" line="64"/>
-        <source>...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Page2</name>
-    <message>
-        <location filename="../src/client/JoinWizardPage2.ui" line="14"/>
-        <source>WizardPage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizardPage2.ui" line="22"/>
-        <source>Rooms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizardPage2.ui" line="49"/>
-        <source>Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/JoinWizardPage2.ui" line="61"/>
-        <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/Tools.h" line="32"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="48"/>
         <source>Pass</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="33"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="49"/>
         <source>Take</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="34"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="50"/>
         <source>Guard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="35"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="51"/>
         <source>Guard without</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="36"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="52"/>
         <source>Guard against</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="38"/>
-        <source>South</source>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="53"/>
+        <source>Handle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="39"/>
-        <source>East</source>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="54"/>
+        <source>Accept</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="40"/>
-        <source>North</source>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="55"/>
+        <source>Quick start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="41"/>
-        <source>West</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tools.h" line="43"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="57"/>
         <source>Contract succeded by </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="44"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="58"/>
         <source>Contract failed by </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tools.h" line="45"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="59"/>
         <source> points</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ResultUI</name>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="14"/>
-        <source>Deal score result</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="40"/>
-        <source>Result text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="56"/>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="111"/>
-        <source>Taker:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="118"/>
-        <source>Contract:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="125"/>
-        <source>Number of oudlers:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="132"/>
-        <source>Points done:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="158"/>
-        <location filename="../src/client/ResultUI.ui" line="168"/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="178"/>
-        <source>0 oudlers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="188"/>
-        <location filename="../src/client/ResultUI.ui" line="465"/>
-        <location filename="../src/client/ResultUI.ui" line="486"/>
-        <source>0 points</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="218"/>
-        <source>Calculation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="273"/>
-        <source>Contract :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="283"/>
-        <source>Earn / loss:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="293"/>
-        <source>Little endian bonus:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="303"/>
-        <source>Contract multiplier:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="313"/>
-        <source>Handle:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="323"/>
-        <source>Slam:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="344"/>
-        <source>Total defense:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="365"/>
-        <source>Total attack:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="394"/>
-        <source>25</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="404"/>
-        <location filename="../src/client/ResultUI.ui" line="414"/>
-        <source>0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="424"/>
-        <location filename="../src/client/ResultUI.ui" line="434"/>
-        <location filename="../src/client/ResultUI.ui" line="444"/>
-        <source>1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/ResultUI.ui" line="531"/>
-        <source>Ok</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RoundUI</name>
-    <message>
-        <location filename="../src/client/RoundUI.ui" line="14"/>
-        <source>Cards played each turn</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/RoundUI.ui" line="64"/>
-        <source>South</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/RoundUI.ui" line="69"/>
-        <source>East</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/RoundUI.ui" line="74"/>
-        <source>North</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/RoundUI.ui" line="79"/>
-        <source>West</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ScoresDock</name>
     <message>
-        <location filename="../src/client/ScoresDock.cpp" line="31"/>
+        <location filename="../../src/desktop/docks/ScoresDock.cpp" line="31"/>
         <source>Scores</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Server</name>
+    <name>TarotWidget</name>
     <message>
-        <location filename="../src/Server.cpp" line="289"/>
-        <source>: Unkown packet received.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Tapis</name>
-    <message>
-        <location filename="../src/client/Tapis.cpp" line="107"/>
-        <source>Bids</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/Tapis.cpp" line="130"/>
-        <source>Accept the discard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/Tapis.cpp" line="137"/>
-        <source>Declare a handle</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TarotClub</name>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="259"/>
-        <source>Tournament result</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="260"/>
-        <source>The winner of the tournament is </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="497"/>
-        <location filename="../src/client/TarotClub.cpp" line="594"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="240"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="521"/>
         <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="498"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="241"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="505"/>
-        <source>Please, play a card, it&apos;s your turn!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="571"/>
-        <source>Click on the board once you have seen the dog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="595"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="522"/>
         <source>All the players have passed.
 New deal will begin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="614"/>
-        <source>Select cards to build your discard.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="650"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="546"/>
         <source>Handle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="651"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="547"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="658"/>
-        <source>Build your handle.</source>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="629"/>
+        <source>Game result</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/TarotClub.cpp" line="664"/>
-        <source>It&apos;s your turn to play a card.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="680"/>
-        <source>End of the deal.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/client/TarotClub.cpp" line="719"/>
-        <source>Click on the board to continue.</source>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="630"/>
+        <source>The winner is </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>WinUI</name>
     <message>
-        <location filename="../src/client/WinUI.ui" line="20"/>
+        <location filename="../../src/desktop/forms/WinUI.ui" line="20"/>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/WinUI.ui" line="26"/>
+        <location filename="../../src/desktop/forms/WinUI.ui" line="26"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1197,7 +894,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/WinUI.ui" line="78"/>
+        <location filename="../../src/desktop/forms/WinUI.ui" line="78"/>
         <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1205,41 +902,76 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>infosDock</name>
     <message>
-        <location filename="../src/client/InfosDockUI.ui" line="14"/>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="14"/>
         <source>Informations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDockUI.ui" line="21"/>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="21"/>
         <source>Current deal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDockUI.ui" line="29"/>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="29"/>
         <source>Deal number:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDockUI.ui" line="47"/>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="47"/>
         <source>Taker:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDockUI.ui" line="65"/>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="65"/>
         <source>Contract: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/client/InfosDockUI.ui" line="84"/>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="84"/>
         <source>Your deck statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="146"/>
+        <source>South</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="151"/>
+        <source>East</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="156"/>
+        <source>North</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="161"/>
+        <source>West</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>serverDock</name>
+    <name>quickJoin</name>
     <message>
-        <location filename="../src/client/ServerManagerUI.ui" line="14"/>
-        <source>Server Manager output</source>
+        <location filename="../../src/desktop/forms/QuickJoin.ui" line="14"/>
+        <source>Quick join a single server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/QuickJoin.ui" line="22"/>
+        <source>IP Address: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/QuickJoin.ui" line="32"/>
+        <source>127.0.0.1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/QuickJoin.ui" line="46"/>
+        <source>TCP Port: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
