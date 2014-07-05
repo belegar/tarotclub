@@ -182,7 +182,7 @@ bool Util::Mkdir(const std::string &fullPath)
 #ifdef USE_WINDOWS_OS
             if (current_level.size() == 2)
             {
-                if (current_level[1] != ':')
+                if (current_level[1] == ':')
                 {
                     continue;
                 }
