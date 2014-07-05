@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     tarot.Initialize(); // Init GUI internal stuff before showing the interface
 
     // Exit catching to terminate the game properly
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotQuitTarotClub()));
+ //   connect(qApp, &QApplication::aboutToQuit, &tarot, TarotWidget::slotQuitTarotClub);
 
     tarot.showFullScreen();
 

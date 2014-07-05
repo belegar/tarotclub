@@ -34,7 +34,7 @@
 #include "Log.h"
 
 /*****************************************************************************/
-TarotWidget::TarotWidget(QWidget* parent = 0)
+TarotWidget::TarotWidget(QWidget* parent)
   : QWidget(parent)
   , mClient(*this)
   , mConnectionType(NO_CONNECTION)

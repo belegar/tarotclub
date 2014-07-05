@@ -21,12 +21,22 @@
 # ------------------------------------------------------------------------------
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
-UI_DIR = ./ui
-UI_HEADERS_DIR = ./include
-UI_SOURCES_DIR = ./src
-OBJECTS_DIR = ./obj
-DESTDIR = ./bin
 BASE_DIR = $${PWD}/..
+
+CONFIG(debug, debug|release) {
+debug:      DESTDIR = $$BASE_DIR/build-android/debug
+}
+
+CONFIG(release, debug|release) {
+release:    DESTDIR = $$BASE_DIR/build-android/release
+}
+
+UI_DIR          = $$DESTDIR/ui
+UI_HEADERS_DIR  = $$DESTDIR/include
+UI_SOURCES_DIR  = $$DESTDIR/src
+OBJECTS_DIR     = $$DESTDIR/obj
+RCC_DIR         = $$DESTDIR/rcc
+MOC_DIR         = $$DESTDIR/moc
 
 # ------------------------------------------------------------------------------
 # The search path to find supplied files
@@ -154,7 +164,6 @@ HEADERS += DealFile.h \
     TarotEngine.h \
     Deal.h \
     Identity.h \
-    Game.h \
     Score.h \
     Protocol.h \
     Controller.h \
@@ -171,7 +180,6 @@ SOURCES += DealFile.cpp \
     Bot.cpp \
     TarotEngine.cpp \
     Deal.cpp \
-    Game.cpp \
     Protocol.cpp \
     Controller.cpp \
     ClientConfig.cpp \
@@ -185,18 +193,26 @@ SOURCES += DealFile.cpp \
 HEADERS += Canvas.h \
     TextBox.h \
     GfxCard.h \
-    MenuItem.h \
     TarotWidget.h \
     PlayerBox.h \
     CustomTypes.h \
+    IButtonEvent.h \
+    ICardEvent.h \
+    ButtonItem.h \
+    CheckBoxItem.h \
+    MessageBoxItem.h \
+    MenuItem.h \
     PopupItem.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
     TarotWidget.cpp \
     GfxCard.cpp \
-    MenuItem.cpp \
     PlayerBox.cpp \
+    ButtonItem.cpp \
+    CheckBoxItem.cpp \
+    MessageBoxItem.cpp \
+    MenuItem.cpp \
     PopupItem.cpp
 
 

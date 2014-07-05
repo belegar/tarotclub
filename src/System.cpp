@@ -45,10 +45,11 @@ void System::Initialize()
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     mHomePath = path.toStdString();
 
-FIXME:
-    Copy script files from the Qt resource file to the application internal memory
+//FIXME:
+    //Copy script files from the Qt resource file to the application internal memory
 
     mDeckPath = ":cards/default/";
+
     // ----------- Linux, Windows ...
 #else
 

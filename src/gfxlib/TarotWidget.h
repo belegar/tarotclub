@@ -56,7 +56,7 @@ public:
         REMOTE
     };
 
-    TarotWidget(QWidget *parent);
+    TarotWidget(QWidget *parent = 0);
 
     void Initialize();
     void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
