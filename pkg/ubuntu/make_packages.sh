@@ -22,6 +22,7 @@ fi
 # Various directory paths
 TAROT_ROOT=$(pwd)/../..
 RELEASE_ROOT=build-desktop/release
+SERVER_RELEASE_ROOT=build-server/release
 TEMP_DIR=tarotclub
 
 # version is in defines.h file in the following format:
@@ -45,6 +46,7 @@ cp ${TAROT_ROOT}/COPYING .
 cp ${TAROT_ROOT}/HISTORY .
 cp ${TAROT_ROOT}/README.md .
 cp ${TAROT_ROOT}/${RELEASE_ROOT}/TarotClub .
+cp ${TAROT_ROOT}/${SERVER_RELEASE_ROOT}/tcds .
 cp -r ${TAROT_ROOT}/assets/cards/default/ .
 cp ${TAROT_ROOT}/assets/fonts/kanzlei.ttf .
 cp ${TAROT_ROOT}/assets/ai/tarotlib/system.js ./ai/tarotlib
@@ -84,7 +86,7 @@ CONTROL_FILE+="Depends: qt5-default (>= 5.2.0)\n"
 CONTROL_FILE+="Installed-Size: 8312\n"
 CONTROL_FILE+="Maintainer: Anthony Rabine <anthony.rabine@tarotclub.fr>\n"
 CONTROL_FILE+="Homepage: http://www.tarotclub.fr\n"
-CONTROL_FILE+="Description: French Tarot card game\n"
+CONTROL_FILE+="Description: TarotClub\n"
 CONTROL_FILE+=" TarotClub is a french Tarot card game. Network and local games \n"
 CONTROL_FILE+=" are available, full customisable SVG deck, deal editor.\n"
 CONTROL_FILE+=" .\n"
