@@ -4,6 +4,12 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+
+* version 2.3.1 <Snowboard>
+  -------------------------------
+    ~ Corrected french translation, bug in translation file loading and in Canvas item texts
+    ~ Make the debian package dependant of QtSvg
+
 * version 2.3.0 <Snowboard>
   -------------------------------
     + Show south cards with a constant padding, middle alignment
