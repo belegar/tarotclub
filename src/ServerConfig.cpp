@@ -31,7 +31,7 @@
 #include "System.h"
 
 static const std::string SERVER_CONFIG_VERSION  = "2.0";
-static const std::string SERVER_CONFIG_FILE     = "tcsc.json"; // tcs = TarotClub Server Configuration
+static const std::string SERVER_CONFIG_FILE     = "tcds.json";
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
