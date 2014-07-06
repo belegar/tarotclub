@@ -231,6 +231,7 @@ void TarotWidget::slotAcceptDiscard()
 
     mClient.SetDiscard(discard);
     ShowSouthCards();
+    mClient.SendDiscard(discard);
 }
 /*****************************************************************************/
 void TarotWidget::slotAcceptHandle()
@@ -458,8 +459,15 @@ void TarotWidget::slotSelectPlayer(Place p)
 /*****************************************************************************/
 void TarotWidget::slotRequestBid(Contract highestBid)
 {
-    mCanvas->ShowBidsChoice(highestBid);
-    mCanvas->SetFilter(Canvas::MENU);
+    if (mAutoPlay)
+    {
+        mClient.SendBid(Contract::PASS, false);
+    }
+    else
+    {
+        mCanvas->ShowBidsChoice(highestBid);
+        mCanvas->SetFilter(Canvas::MENU);
+    }
 }
 /*****************************************************************************/
 void TarotWidget::slotShowBid(Place p, bool slam, Contract c)
@@ -491,14 +499,21 @@ void TarotWidget::slotStartDeal()
 /*****************************************************************************/
 void TarotWidget::slotShowDog()
 {
-    QList<Card *> cards;
-
-    for (Deck::ConstIterator i = mClient.GetDogDeck().Begin(); i != mClient.GetDogDeck().End(); ++i)
+    if (mAutoPlay)
     {
-        cards.append((*i));
+        mClient.SendSyncDog();
     }
-    mCanvas->DrawCardsInPopup(cards);
-    mCanvas->SetFilter(Canvas::BOARD);
+    else
+    {
+        QList<Card *> cards;
+
+        for (Deck::ConstIterator i = mClient.GetDogDeck().Begin(); i != mClient.GetDogDeck().End(); ++i)
+        {
+            cards.append((*i));
+        }
+        mCanvas->DrawCardsInPopup(cards);
+        mCanvas->SetFilter(Canvas::BOARD);
+    }
 }
 /*****************************************************************************/
 void TarotWidget::slotShowHandle()
@@ -626,10 +641,12 @@ void TarotWidget::slotEndOfDeal()
 /*****************************************************************************/
 void TarotWidget::slotEndOfGame(Place winner)
 {
+    (void) winner;
+    /*
     QMessageBox::information(this, trUtf8("Game result"),
                              trUtf8("The winner is ") + QString(winner.ToString().c_str()),
                              QMessageBox::Ok);
-
+*/
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
 }
