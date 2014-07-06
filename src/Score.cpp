@@ -115,22 +115,6 @@ int Score::GetDefenseScore() const
     }
     return (scoreAttack * sign);
 }
-/*****************************************************************************/
-std::string Score::ToString()
-{
-    std::stringstream temp;
-
-    temp << "Attacker points: " << pointsAttack;
-    temp << "\n" << "Attacker score: " << scoreAttack;
-    temp << "\n" << "Attacker objective: " << pointsToDo;
-    temp << "\n" << "Difference: " << difference;
-    temp << "\n" << "Multiplier: " << multiplier;
-    temp << "\n" << "Little endian: " << littleEndianPoints;
-    temp << "\n" << "Handle bonus: " << handlePoints;
-    temp << "\n" << "Slam bonus: " << slamPoints;
-
-    return temp.str();
-}
 
 //=============================================================================
 // End of file Score.cpp

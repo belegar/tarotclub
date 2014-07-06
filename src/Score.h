@@ -49,7 +49,6 @@ public:
     void SetPointsToDo(int oudlers);
     int GetAttackScore() const;
     int GetDefenseScore() const;
-    std::string ToString();
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
     {
