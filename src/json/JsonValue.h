@@ -27,6 +27,13 @@
 #define JSONVALUE_H
 
 #include "JSValue.h"
+#include <vector>
+
+
+// Forward declarations to resolve inter-dependency between Array and Object
+class JsonArray;
+class JsonObject;
+class JsonValue;
 
 /*****************************************************************************/
 class IJsonNode
@@ -35,6 +42,39 @@ public:
     virtual ~IJsonNode() {}
 
     virtual std::string ToString() = 0;
+};
+/*****************************************************************************/
+class JsonArray : public IJsonNode
+{
+public:
+    JsonArray(std::uint32_t level);
+    virtual ~JsonArray();
+
+    std::string ToString();
+
+    void CreateValue(const JsonValue &value);
+    JsonArray *CreateArray(); // no name in an array inside an array
+    JsonObject *CreateObject(); // no name in an object inside an object
+
+private:
+    std::vector<IJsonNode *> mArray;
+    std::uint32_t mLevel;
+};
+/*****************************************************************************/
+class JsonObject : public IJsonNode
+{
+public:
+    JsonObject(std::uint32_t level);
+    virtual ~JsonObject();
+
+    std::string ToString();
+    void CreateValuePair(const std::string &name, const JsonValue &value);
+    JsonArray *CreateArrayPair(const std::string &name);
+    JsonObject *CreateObjectPair(const std::string &name);
+
+private:
+    std::vector<std::pair<std::string, IJsonNode *> > mObject;
+    std::uint32_t mLevel;
 };
 /*****************************************************************************/
 class JsonValue : public JSValue, public IJsonNode
