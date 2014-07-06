@@ -499,8 +499,18 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
 
     Deck::ConstIterator firstPlayer = tricks[0].Begin();
     obj->CreateValuePair("first_trick_lead", (*firstPlayer)->GetOwner().ToString());
-    obj->CreateValuePair("score", score.ToString());
     obj->CreateValuePair("discard", mDiscard.GetCardList());
+
+    // ========================== Score calculation ==========================
+    JsonObject *scoreObj = obj->CreateObjectPair("score");
+    scoreObj->CreateValuePair("attacker_points", score.pointsAttack);
+    scoreObj->CreateValuePair("attacker_score", score.scoreAttack);
+    scoreObj->CreateValuePair("attacker_goal", score.pointsToDo);
+    scoreObj->CreateValuePair("difference", score.difference);
+    scoreObj->CreateValuePair("multiplier", score.multiplier);
+    scoreObj->CreateValuePair("one_of_trump_bonus", score.littleEndianPoints);
+    scoreObj->CreateValuePair("handle_bonus", score.handlePoints);
+    scoreObj->CreateValuePair("slam_bonus", score.slamPoints);
 
     // ========================== Played cards ==========================
     JsonArray *obj3 = json.CreateArrayPair("tricks");
