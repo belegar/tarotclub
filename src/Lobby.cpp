@@ -91,20 +91,20 @@ void Lobby::ReadData(int socket, const std::string &data)
     std::vector<std::string> tokens = Util::Split(command, ":");
     std::stringstream ss;
 
-/**
-    std::string request = data.substr(0, 3);
-    if (request == "GET")
-    {
-        std::cout << data << std::endl;
+    /**
+        std::string request = data.substr(0, 3);
+        if (request == "GET")
+        {
+            std::cout << data << std::endl;
 
-        ss << "HTTP/1.1 101 Switching Protocols"
-           "Upgrade: websocket"
-           "Connection: Upgrade"
-           "Access-Control-Allow-Origin: http://example.com"
-           "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
-           "Sec-WebSocket-Protocol: appProtocol-v2"
-    }
-    */
+            ss << "HTTP/1.1 101 Switching Protocols"
+               "Upgrade: websocket"
+               "Connection: Upgrade"
+               "Access-Control-Allow-Origin: http://example.com"
+               "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+               "Sec-WebSocket-Protocol: appProtocol-v2"
+        }
+        */
 
     if (tokens[0] == "GET")
     {

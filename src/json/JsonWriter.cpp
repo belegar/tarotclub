@@ -32,7 +32,7 @@ static std::string CreateIndent(std::uint32_t level)
 {
     std::string indent;
 
-    for (std::uint32_t i = 0U; i < (4U*level); i++)
+    for (std::uint32_t i = 0U; i < (4U * level); i++)
     {
         indent += " ";
     }

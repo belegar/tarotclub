@@ -119,7 +119,10 @@ public:
     }
     Tarot::Shuffle GetShuffle();
 
-    std::map<int, Place> GetPodium() { return mDeal.GetPodium(); }
+    std::map<int, Place> GetPodium()
+    {
+        return mDeal.GetPodium();
+    }
 
     bool IsLastTrick()
     {
