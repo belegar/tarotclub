@@ -4,6 +4,12 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+* version 2.3.2 <Snowboard>
+  -------------------------------
+    ~ Correction: the user does not send the discard to the server
+    ~ Correction: the deal JSON output was not JSON compliant
+    ~ Removed winner message box (no sense for one deal)
+    + Auto play works also for bid step
 
 * version 2.3.1 <Snowboard>
   -------------------------------
