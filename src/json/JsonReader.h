@@ -30,14 +30,37 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "duktape.h"
 #include "JsonValue.h"
 
 /*****************************************************************************/
-class JsonReader
+class JsonReader : public JsonObject
 {
 
 public:
+    enum ParseStatus
+    {
+        JSON_PARSE_OK,
+        JSON_PARSE_BAD_NUMBER,
+        JSON_PARSE_BAD_STRING,
+        JSON_PARSE_BAD_IDENTIFIER,
+        JSON_PARSE_STACK_OVERFLOW,
+        JSON_PARSE_STACK_UNDERFLOW,
+        JSON_PARSE_MISMATCH_BRACKET,
+        JSON_PARSE_UNEXPECTED_CHARACTER,
+        JSON_PARSE_UNQUOTED_KEY,
+        JSON_PARSE_BREAKING_BAD
+    };
+
+    enum JsonTag
+    {
+        JSON_TAG_NUMBER = 0,
+        JSON_TAG_STRING,
+        JSON_TAG_BOOL,
+        JSON_TAG_ARRAY,
+        JSON_TAG_OBJECT,
+        JSON_TAG_NULL = 0xF
+    };
+
     // ctors / dtor
     JsonReader();
     ~JsonReader();
@@ -52,16 +75,33 @@ public:
     bool GetValue(const std::string &obj, const std::string &key, bool &value);
 
 private:
-    duk_context *mCtx;
     bool mValid;
 
-    // Static function to be run in protected call
-    static int WrappedJsonDecode(duk_context *ctx);
-    static int WrappedJsonGetValue(duk_context *ctx);
-
     JsonValue GetJsonValue(const std::string &obj, const std::string &key, JsonValue::ValueType type);
-    void PrintError();
-    void PrintTop();
+
+    JsonReader::ParseStatus Parse(char *s, char **endptr);
+
+    double StringToDouble(char *s, char **endptr);
+
+
+    /*****************************************************************************/
+    inline bool IsDelim(char c)
+    {
+        return isspace(c) || c == ',' || c == ':' || c == ']' || c == '}' || c == '\0';
+    }
+    /*****************************************************************************/
+    static inline int CharToInt(char c)
+    {
+        if (c >= 'a')
+        {
+            return c - 'a' + 10;
+        }
+        if (c >= 'A')
+        {
+            return c - 'A' + 10;
+        }
+        return c - '0';
+    }
 };
 
 #endif // JSON_READER_H

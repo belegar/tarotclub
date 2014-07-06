@@ -23,12 +23,17 @@
  *=============================================================================
  */
 
+#include <cctype>
+#include <map>
+#include <iostream>
+#include <string.h>
+
 #include "JsonReader.h"
 
 /*****************************************************************************/
 JsonReader::JsonReader()
+    : JsonObject(0U)
 {
-    mCtx = NULL;
     mValid = false;
 }
 /*****************************************************************************/
@@ -48,27 +53,20 @@ JsonReader::~JsonReader()
 bool JsonReader::Open(const std::string &fileName)
 {
     std::ifstream f;
-    f.open(fileName, std::ios_base::in | std::ios_base::binary);
 
+    f.open(fileName, std::ios_base::in | std::ios_base::binary);
     if (f.is_open())
     {
-        mCtx = duk_create_heap_default();
         std::ostringstream contents;
         contents << f.rdbuf();
         f.close();
+        //    duk_push_lstring(mCtx, contents.str().c_str(), contents.str().size());
 
-        duk_push_lstring(mCtx, contents.str().c_str(), contents.str().size());
+        char *endptr;
+        char *source = strdup(contents.str().c_str());
+        Parse(source, &endptr);
+        free(source);
 
-        int rc = duk_safe_call(mCtx, JsonReader::WrappedJsonDecode, 1 /*nargs*/, 1 /*nrets*/);
-        if (rc != DUK_EXEC_SUCCESS)
-        {
-            PrintError();
-            mValid = false;
-        }
-        else
-        {
-            mValid = true;
-        }
     }
     else
     {
@@ -81,8 +79,8 @@ bool JsonReader::Open(const std::string &fileName)
 bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::int32_t &value)
 {
     bool ret = false;
-    JsonValue val = GetJsonValue(obj, key, JsonValue::INTEGER);
 
+    JsonValue val = GetJsonValue(obj, key, JsonValue::INTEGER);
     if (val.IsValid())
     {
         value = val.GetInteger();
@@ -94,8 +92,8 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::i
 bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::string &value)
 {
     bool ret = false;
-    JsonValue val = GetJsonValue(obj, key, JsonValue::STRING);
 
+    JsonValue val = GetJsonValue(obj, key, JsonValue::STRING);
     if (val.IsValid())
     {
         value = val.GetString();
@@ -107,8 +105,8 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::s
 bool JsonReader::GetValue(const std::string &obj, const std::string &key, bool &value)
 {
     bool ret = false;
-    JsonValue val = GetJsonValue(obj, key, JsonValue::BOOLEAN);
 
+    JsonValue val = GetJsonValue(obj, key, JsonValue::BOOLEAN);
     if (val.IsValid())
     {
         value = val.GetBool();
@@ -120,57 +118,9 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, bool &
 JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &key, JsonValue::ValueType type)
 {
     JsonValue retval;
-    if (!mValid)
-    {
-        return retval;
-    }
 
-    // Push arguments into the stack (JSON object and key)
-    duk_push_lstring(mCtx, obj.c_str(), obj.size());
-    duk_push_lstring(mCtx, key.c_str(), key.size());
+    // Todo: parse the Json object in memory to find the object, then the key, then get the value
 
-    int rc = duk_safe_call(mCtx, JsonReader::WrappedJsonGetValue, 2 /*nargs*/, 1 /*nrets*/);
-    if (rc != DUK_EXEC_SUCCESS)
-    {
-        PrintError();
-    }
-    else
-    {
-        if (type == JsonValue::STRING)
-        {
-            if (duk_check_type(mCtx, -1, DUK_TYPE_STRING))
-            {
-                std::string value = duk_get_string(mCtx, -1);
-                retval = JsonValue(value);
-            }
-        }
-        if (type == JsonValue::INTEGER)
-        {
-            if (duk_check_type(mCtx, -1, DUK_TYPE_NUMBER))
-            {
-                std::int32_t value = static_cast<std::int32_t>(duk_get_number(mCtx, -1));
-                retval = JsonValue(value);
-            }
-        }
-        if (type == JsonValue::BOOLEAN)
-        {
-            if (duk_check_type(mCtx, -1, DUK_TYPE_BOOLEAN))
-            {
-                bool value = false;
-                if (duk_get_boolean(mCtx, -1) > 0)
-                {
-                    value = true;
-                }
-                retval = JsonValue(value);
-            }
-        }
-
-        // Context garbage collector: remove elements except the decoded Json object
-        while (duk_get_top(mCtx) > 1)
-        {
-            duk_pop(mCtx);
-        }
-    }
     return retval;
 }
 /*****************************************************************************/
@@ -182,106 +132,349 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &ke
  */
 void JsonReader::Close()
 {
-    if (mCtx != NULL)
-    {
-        duk_destroy_heap(mCtx);
-        mCtx = NULL;
-
-    }
     mValid = false;
 }
 /*****************************************************************************/
-/**
- * @brief WrappedJsonDecode
- *
- * Decode a JSON string, throw an error if parsing problem
- *
- * @param ctx
- * @return
- */
-int JsonReader::WrappedJsonDecode(duk_context *ctx)
+JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
 {
-    duk_json_decode(ctx, -1);
-    return 1; // return parsed json object
-}
-/*****************************************************************************/
-/**
- * @brief WrappedJsonGetValue
- *
- * Gets a property in an (optional) object value
- *
- * @param ctx
- * @return
- */
-int JsonReader::WrappedJsonGetValue(duk_context *ctx)
-{
-    // State at call [ json "obj" "key" ]
-    std::string obj = duk_get_string(ctx, -2);
-    std::string key = duk_get_string(ctx, -1);
+    int pos = -1;
+    std::map<int, JsonTag> tags; // keep a trace of tags (open tag/close tag)
+    std::map<int, std::string> keys; // keep a trace of keys inside an object (multiple keys are forbidden)
+    bool separator = true;
+    *endptr = s;
 
-    // Remove key from the stack
-    duk_pop(ctx); // State after: [ json "obj" ]
-
-    if (obj.size() == 0)
+    while (*s)
     {
-        // Remove object from the stack if empty (key is located at the document root)
-        duk_pop(ctx); // [ json "obj" ]
-    }
-    else
-    {
-        // Otherwise, get the object from its name
-        duk_get_prop(ctx, -2);  // [ json obj ] object name has been replaced by the real object
-    }
-
-    if (duk_has_prop_string(ctx, -1, key.c_str()))
-    {
-        duk_get_prop_string(ctx, -1, key.c_str());
-        // leave the answer into the stack to retreive it by the caller
-        // so, we have one return value
-        return 1;
-    }
-    return 0; // no return values
-}
-/*****************************************************************************/
-/**
- * @brief PrintError
- *
- * Print and pop error.
- *
- */
-void JsonReader::PrintError()
-{
-    if (duk_is_object(mCtx, -1) && duk_has_prop_string(mCtx, -1, "stack"))
-    {
-        /* FIXME: print error objects specially */
-        /* FIXME: pcall the string coercion */
-        duk_get_prop_string(mCtx, -1, "stack");
-        if (duk_is_string(mCtx, -1))
+        JsonValue o;
+        while (*s && isspace(*s))
         {
-            std::cout << duk_get_string(mCtx, -1) << std::endl;
-            duk_pop_2(mCtx);
-            return;
+            ++s;
+        }
+
+        *endptr = s++;
+        switch (**endptr)
+        {
+            case '\0':
+                continue;
+            case '-':
+                if (!isdigit(*s) && *s != '.')
+                {
+                    *endptr = s;
+                    return JSON_PARSE_BAD_NUMBER;
+                }
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+ //               o = JsonValue(StringToDouble(*endptr, &s));
+                if (!IsDelim(*s))
+                {
+                    *endptr = s;
+                    return JSON_PARSE_BAD_NUMBER;
+                }
+                break;
+            case '"':
+                //o = JsonValue(JSON_TAG_STRING, s);
+
+#ifdef JSON_READER_D
+                std::cout << "JSON_TAG_STRING" << std::endl;
+#endif
+
+                for (char *it = s; *s; ++it, ++s)
+                {
+                    int c = *it = *s;
+                    if (c == '\\')
+                    {
+                        c = *++s;
+                        switch (c)
+                        {
+                            case '\\':
+                            case '"':
+                            case '/':
+                                *it = c;
+                                break;
+                            case 'b':
+                                *it = '\b';
+                                break;
+                            case 'f':
+                                *it = '\f';
+                                break;
+                            case 'n':
+                                *it = '\n';
+                                break;
+                            case 'r':
+                                *it = '\r';
+                                break;
+                            case 't':
+                                *it = '\t';
+                                break;
+                            case 'u':
+                                c = 0;
+                                for (int i = 0; i < 4; ++i)
+                                {
+                                    if (!isxdigit(*++s))
+                                    {
+                                        *endptr = s;
+                                        return JSON_PARSE_BAD_STRING;
+                                    }
+                                    c = c * 16 + CharToInt(*s);
+                                }
+                                if (c < 0x80)
+                                {
+                                    *it = c;
+                                }
+                                else if (c < 0x800)
+                                {
+                                    *it++ = 0xC0 | (c >> 6);
+                                    *it = 0x80 | (c & 0x3F);
+                                }
+                                else
+                                {
+                                    *it++ = 0xE0 | (c >> 12);
+                                    *it++ = 0x80 | ((c >> 6) & 0x3F);
+                                    *it = 0x80 | (c & 0x3F);
+                                }
+                                break;
+                            default:
+                                *endptr = s;
+                                return JSON_PARSE_BAD_STRING;
+                        }
+                    }
+                    else if (iscntrl(c))
+                    {
+                        *endptr = s;
+                        return JSON_PARSE_BAD_STRING;
+                    }
+                    else if (c == '"')
+                    {
+                        *it = 0;
+                        ++s;
+                        break;
+                    }
+                }
+                if (!IsDelim(*s))
+                {
+                    *endptr = s;
+                    return JSON_PARSE_BAD_STRING;
+                }
+                break;
+            case 't':
+                for (const char *it = "rue"; *it; ++it, ++s)
+                {
+                    if (*it != *s)
+                    {
+                        return JSON_PARSE_BAD_IDENTIFIER;
+                    }
+                }
+                if (!IsDelim(*s))
+                {
+                    return JSON_PARSE_BAD_IDENTIFIER;
+                }
+                //o = JsonValue(JSON_TAG_BOOL, (void *)true);
+#ifdef JSON_READER_D
+                std::cout << "JSON_TAG_BOOL" << std::endl;
+#endif
+
+                break;
+            case 'f':
+                for (const char *it = "alse"; *it; ++it, ++s)
+                {
+                    if (*it != *s)
+                    {
+                        return JSON_PARSE_BAD_IDENTIFIER;
+                    }
+                }
+                if (!IsDelim(*s))
+                {
+                    return JSON_PARSE_BAD_IDENTIFIER;
+                }
+                //o = JsonValue(JSON_TAG_BOOL, (void *)false);
+#ifdef JSON_READER_D
+                std::cout << "JSON_TAG_BOOL" << std::endl;
+#endif
+
+                break;
+            case 'n':
+                for (const char *it = "ull"; *it; ++it, ++s)
+                {
+                    if (*it != *s)
+                    {
+                        return JSON_PARSE_BAD_IDENTIFIER;
+                    }
+                }
+                if (!IsDelim(*s))
+                {
+                    return JSON_PARSE_BAD_IDENTIFIER;
+                }
+                break;
+            case ']':
+                if (pos == -1)
+                {
+                    return JSON_PARSE_STACK_UNDERFLOW;
+                }
+                if (tags[pos] != JSON_TAG_ARRAY)
+                {
+                    return JSON_PARSE_MISMATCH_BRACKET;
+                }
+                //o = listToValue(JSON_TAG_ARRAY, tails[pos--]);
+
+#ifdef JSON_READER_D
+                std::cout << "JSON_TAG_ARRAY" << std::endl;
+#endif
+
+                break;
+            case '}':
+                if (pos == -1)
+                {
+                    return JSON_PARSE_STACK_UNDERFLOW;
+                }
+                if (tags[pos] != JSON_TAG_OBJECT)
+                {
+                    return JSON_PARSE_MISMATCH_BRACKET;
+                }
+                if (keys[pos] != "")
+                {
+                    return JSON_PARSE_UNEXPECTED_CHARACTER;
+                }
+                //o = listToValue(JSON_TAG_OBJECT, tails[pos--]);
+
+#ifdef JSON_READER_D
+                std::cout << "JSON_TAG_OBJECT" << std::endl;
+#endif
+                break;
+            case '[':
+                ++pos;
+                //tails[pos] = nullptr;
+                tags[pos] = JSON_TAG_ARRAY;
+                keys[pos] = "";
+                separator = true;
+                continue;
+            case '{':
+                ++pos;
+                //tails[pos] = nullptr;
+                tags[pos] = JSON_TAG_OBJECT;
+                keys[pos] = "";
+                separator = true;
+                continue;
+            case ':':
+                if (separator || keys[pos] == "")
+                {
+                    return JSON_PARSE_UNEXPECTED_CHARACTER;
+                }
+                separator = true;
+                continue;
+            case ',':
+                if (separator || keys[pos] != "")
+                {
+                    return JSON_PARSE_UNEXPECTED_CHARACTER;
+                }
+                separator = true;
+                continue;
+            default:
+                return JSON_PARSE_UNEXPECTED_CHARACTER;
+        }
+        separator = false;
+
+        if (pos == -1)
+        {
+            *endptr = s;
+            return JSON_PARSE_OK;
+        }
+
+        /*
+        if (tags[pos] == JSON_TAG_OBJECT)
+        {
+            if (keys[pos] != "")
+            {
+                if (o.getTag() != JSON_TAG_STRING)
+                {
+                    return JSON_PARSE_UNQUOTED_KEY;
+                }
+                keys[pos] = o.toString();
+                continue;
+            }
+            tails[pos] = insertAfter(tails[pos], (JsonNode *)allocator.allocate(sizeof(JsonNode)));
+            tails[pos]->key = keys[pos];
+            keys[pos] = "";
         }
         else
         {
-            duk_pop(mCtx);
+            tails[pos] = insertAfter(tails[pos], (JsonNode *)allocator.allocate(sizeof(JsonNode) - sizeof(char *)));
         }
+        tails[pos]->value = o;
+        */
     }
-    duk_to_string(mCtx, -1);
-    std::cout << duk_get_string(mCtx, -1) << std::endl;
-    duk_pop(mCtx);
+    return JSON_PARSE_BREAKING_BAD;
 }
 /*****************************************************************************/
-/**
- * @brief PrintTop
- *
- * Prints the top value information of the stack
- */
-void JsonReader::PrintTop()
+double JsonReader::StringToDouble(char *s, char **endptr)
 {
-    std::cout << "Stack size: " << duk_get_top(mCtx) << std::endl;
-    std::cout << "Top type is: " << duk_get_type(mCtx, -1) << std::endl;
+    char ch = *s;
+    if (ch == '+' || ch == '-')
+    {
+        ++s;
+    }
+
+    double result = 0;
+    while (isdigit(*s))
+    {
+        result = (result * 10) + (*s++ - '0');
+    }
+
+    if (*s == '.')
+    {
+        ++s;
+
+        double fraction = 1;
+        while (isdigit(*s))
+        {
+            fraction *= 0.1;
+            result += (*s++ - '0') * fraction;
+        }
+    }
+
+    if (*s == 'e' || *s == 'E')
+    {
+        ++s;
+
+        double base = 10;
+        if (*s == '+')
+        {
+            ++s;
+        }
+        else if (*s == '-')
+        {
+            ++s;
+            base = 0.1;
+        }
+
+        int exponent = 0;
+        while (isdigit(*s))
+        {
+            exponent = (exponent * 10) + (*s++ - '0');
+        }
+
+        double power = 1;
+        for (; exponent; exponent >>= 1, base *= base)
+            if (exponent & 1)
+            {
+                power *= base;
+            }
+
+        result *= power;
+    }
+
+    *endptr = s;
+    return ch == '-' ? -result : result;
 }
+
+
 
 //=============================================================================
 // End of file JsonReader.cpp
