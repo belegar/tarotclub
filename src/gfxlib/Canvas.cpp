@@ -328,11 +328,6 @@ void Canvas::ShowTaker(Place taker, Place myPlace)
     playerBox.value(rel)->HighlightPlayer(true);
 }
 /*****************************************************************************/
-void Canvas::SetAvatar(Place p, const QString &file)
-{
-    playerBox.value(p)->SetAvatar(file);
-}
-/*****************************************************************************/
 /**
  * @brief Canvas::SwapPlace
  *
