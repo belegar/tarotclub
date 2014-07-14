@@ -3,7 +3,7 @@
 #include <QCoreApplication>
 #include <cstdint>
 
-#include "tst_jsengine.h"
+#include "tst_json.h"
 #include "Util.h"
 #include "JsonReader.h"
 #include "JsonWriter.h"
@@ -29,7 +29,7 @@ void JsonTest::ParseFile()
 
     std::string value;
     // key is at the root of the document
-    if (!json.GetValue("", "version", value))
+    if (!json.GetValue("version", value))
     {
         QFAIL("Get value error");
     }
@@ -38,7 +38,7 @@ void JsonTest::ParseFile()
     QCOMPARE(value, std::string("1.5"));
 
     value.clear();
-    if (!json.GetValue("identity", "name", value))
+    if (!json.GetValue("identity:name", value))
     {
         QFAIL("Get value error");
     }
@@ -47,7 +47,7 @@ void JsonTest::ParseFile()
     QCOMPARE(value, std::string("Moi"));
 
     std::int32_t intvalue = 0;
-    if (!json.GetValue("", "delay_before_cleaning", intvalue))
+    if (!json.GetValue("delay_before_cleaning", intvalue))
     {
         QFAIL("Get value error");
     }

@@ -161,13 +161,13 @@ SOURCES += TarotDeck.cpp \
 
 HEADERS +=  tst_tarot_base.h \
             tst_utilities.h \
-            tst_jsengine.h \
+            tst_json.h \
             tst_hash.h
 
 SOURCES +=  main.cpp \
             tst_utilities.cpp \
             tst_tarot_base.cpp \
-            tst_jsengine.cpp \
+            tst_json.cpp \
             tst_hash.cpp
 
 # End of project file
