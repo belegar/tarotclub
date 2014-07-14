@@ -32,9 +32,11 @@
 
 /*****************************************************************************/
 JsonReader::JsonReader()
-    : JsonObject(0U)
 {
     mValid = false;
+    mRootArray = NULL;
+    mRootObject = NULL;
+    mRootType = IJsonNode::JSON_OBJECT;
 }
 /*****************************************************************************/
 JsonReader::~JsonReader()
@@ -115,7 +117,7 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, bool &
     return ret;
 }
 /*****************************************************************************/
-JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &key, JsonValue::ValueType type)
+JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &key, JsonValue::Type type)
 {
     JsonValue retval;
 
@@ -133,13 +135,26 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &ke
 void JsonReader::Close()
 {
     mValid = false;
+    if (mRootArray != NULL)
+    {
+        delete mRootArray;
+    }
+    if (mRootObject != NULL)
+    {
+        delete mRootObject;
+    }
 }
+
+#define JSON_READER_D
+
 /*****************************************************************************/
 JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
 {
     int pos = -1;
-    std::map<int, JsonTag> tags; // keep a trace of tags (open tag/close tag)
+    std::map<int, IJsonNode::Tag> tags; // keep a trace of tags (open tag/close tag)
     std::map<int, std::string> keys; // keep a trace of keys inside an object (multiple keys are forbidden)
+    std::map<int, IJsonNode *> nodes;
+
     bool separator = true;
     *endptr = s;
 
@@ -172,7 +187,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
             case '7':
             case '8':
             case '9':
- //               o = JsonValue(StringToDouble(*endptr, &s));
+                o = JsonValue(StringToDouble(*endptr, &s));
                 if (!IsDelim(*s))
                 {
                     *endptr = s;
@@ -180,15 +195,15 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 }
                 break;
             case '"':
-                //o = JsonValue(JSON_TAG_STRING, s);
-
+            {
+                std::string temp;
 #ifdef JSON_READER_D
                 std::cout << "JSON_TAG_STRING" << std::endl;
 #endif
-
-                for (char *it = s; *s; ++it, ++s)
+                while(*s)
                 {
-                    int c = *it = *s;
+                    //int c = *it = *s;
+                    int c = *s;
                     if (c == '\\')
                     {
                         c = *++s;
@@ -197,24 +212,31 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                             case '\\':
                             case '"':
                             case '/':
-                                *it = c;
+                                //*it = c;
+                                temp.push_back(c);
                                 break;
                             case 'b':
-                                *it = '\b';
+                                //*it = '\b';
+                                temp.push_back('\b');
                                 break;
                             case 'f':
-                                *it = '\f';
+                                //*it = '\f';
+                                temp.push_back('\f');
                                 break;
                             case 'n':
-                                *it = '\n';
+                                //*it = '\n';
+                                temp.push_back('\n');
                                 break;
                             case 'r':
-                                *it = '\r';
+                                //*it = '\r';
+                                temp.push_back('\r');
                                 break;
                             case 't':
-                                *it = '\t';
+                                //*it = '\t';
+                                temp.push_back('\t');
                                 break;
                             case 'u':
+                                // Manage unicode encoding
                                 c = 0;
                                 for (int i = 0; i < 4; ++i)
                                 {
@@ -227,18 +249,24 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                                 }
                                 if (c < 0x80)
                                 {
-                                    *it = c;
+                                    //*it = c;
+                                    temp.push_back(c);
                                 }
                                 else if (c < 0x800)
                                 {
-                                    *it++ = 0xC0 | (c >> 6);
-                                    *it = 0x80 | (c & 0x3F);
+                                    //*it++ = 0xC0 | (c >> 6);
+                                    //*it = 0x80 | (c & 0x3F);
+                                    temp.push_back(0xC0 | (c >> 6));
+                                    temp.push_back(0x80 | (c & 0x3F));
                                 }
                                 else
                                 {
-                                    *it++ = 0xE0 | (c >> 12);
-                                    *it++ = 0x80 | ((c >> 6) & 0x3F);
-                                    *it = 0x80 | (c & 0x3F);
+                                    //*it++ = 0xE0 | (c >> 12);
+                                    //*it++ = 0x80 | ((c >> 6) & 0x3F);
+                                    //*it = 0x80 | (c & 0x3F);
+                                    temp.push_back(0xE0 | (c >> 12));
+                                    temp.push_back(0x80 | ((c >> 6) & 0x3F));
+                                    temp.push_back(0x80 | (c & 0x3F));
                                 }
                                 break;
                             default:
@@ -253,17 +281,31 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                     }
                     else if (c == '"')
                     {
-                        *it = 0;
                         ++s;
                         break;
                     }
+                    else
+                    {
+                       temp.push_back(c);
+                    }
+                    s++;
                 }
+
+                // Save the string into the JsonValue
+                o = JsonValue(temp);
+
+#ifdef JSON_READER_D
+                std::cout << "Found string: "  << temp << std::endl;
+#endif
+
+                // There must be a ':' after the key or a coma "," after a value
                 if (!IsDelim(*s))
                 {
                     *endptr = s;
                     return JSON_PARSE_BAD_STRING;
                 }
                 break;
+            }
             case 't':
                 for (const char *it = "rue"; *it; ++it, ++s)
                 {
@@ -276,11 +318,11 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 {
                     return JSON_PARSE_BAD_IDENTIFIER;
                 }
-                //o = JsonValue(JSON_TAG_BOOL, (void *)true);
+
+                o = JsonValue(true);
 #ifdef JSON_READER_D
                 std::cout << "JSON_TAG_BOOL" << std::endl;
 #endif
-
                 break;
             case 'f':
                 for (const char *it = "alse"; *it; ++it, ++s)
@@ -294,7 +336,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 {
                     return JSON_PARSE_BAD_IDENTIFIER;
                 }
-                //o = JsonValue(JSON_TAG_BOOL, (void *)false);
+                o = JsonValue(false);
 #ifdef JSON_READER_D
                 std::cout << "JSON_TAG_BOOL" << std::endl;
 #endif
@@ -312,20 +354,35 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 {
                     return JSON_PARSE_BAD_IDENTIFIER;
                 }
+                o.SetNull();
+#ifdef JSON_READER_D
+                std::cout << "JSON_TAG_BOOL" << std::endl;
+#endif
+
                 break;
             case ']':
                 if (pos == -1)
                 {
                     return JSON_PARSE_STACK_UNDERFLOW;
                 }
-                if (tags[pos] != JSON_TAG_ARRAY)
+                if (tags[pos] != IJsonNode::JSON_ARRAY)
                 {
                     return JSON_PARSE_MISMATCH_BRACKET;
                 }
-                //o = listToValue(JSON_TAG_ARRAY, tails[pos--]);
+                // We have finished with this object, we do not need to keep trace of the pointer
+                nodes[pos] = NULL;
+                pos--;
+                keys[pos] = ""; // key has been used to create the array
+                separator = false;
+                if (pos == -1)
+                {
+                    *endptr = s;
+                    return JSON_PARSE_OK;
+                }
+                continue;
 
 #ifdef JSON_READER_D
-                std::cout << "JSON_TAG_ARRAY" << std::endl;
+                std::cout << "TAG_ARRAY_END" << std::endl;
 #endif
 
                 break;
@@ -334,7 +391,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 {
                     return JSON_PARSE_STACK_UNDERFLOW;
                 }
-                if (tags[pos] != JSON_TAG_OBJECT)
+                if (tags[pos] != IJsonNode::JSON_OBJECT)
                 {
                     return JSON_PARSE_MISMATCH_BRACKET;
                 }
@@ -342,23 +399,80 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 {
                     return JSON_PARSE_UNEXPECTED_CHARACTER;
                 }
-                //o = listToValue(JSON_TAG_OBJECT, tails[pos--]);
+                // We have finished with this object, we do not need to keep trace of the pointer
+                nodes[pos] = NULL;
+                pos--;
+                keys[pos] = ""; // key has been used to create the object
+                separator = false;
+                if (pos == -1)
+                {
+                    *endptr = s;
+                    return JSON_PARSE_OK;
+                }
+                continue;
 
 #ifdef JSON_READER_D
-                std::cout << "JSON_TAG_OBJECT" << std::endl;
+                std::cout << "TAG_OBJECT_END" << std::endl;
 #endif
                 break;
             case '[':
+
+#ifdef JSON_READER_D
+                std::cout << "TAG_ARRAY_BEGIN" << std::endl;
+#endif
                 ++pos;
-                //tails[pos] = nullptr;
-                tags[pos] = JSON_TAG_ARRAY;
+                if (pos == 0)
+                {
+                    // We create the root node of the document
+                    mRootArray = new JsonArray(0U);
+                    mRootType = IJsonNode::JSON_ARRAY;
+                    nodes[pos] = mRootArray;
+                }
+                else if (tags[pos-1] == IJsonNode::JSON_OBJECT)
+                {
+                    // if previous node was an object, then we create a new array
+                    JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos-1]);
+                    nodes[pos] = obj->CreateArrayPair(keys[pos-1]);
+                }
+                else
+                {
+                    // array in an array?
+                    JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos-1]);
+                    nodes[pos] = array->CreateArray();
+                }
+
+                tags[pos] = IJsonNode::JSON_ARRAY;
                 keys[pos] = "";
                 separator = true;
                 continue;
             case '{':
+
+#ifdef JSON_READER_D
+                std::cout << "TAG_OBJECT_BEGIN" << std::endl;
+#endif
                 ++pos;
+                if (pos == 0)
+                {
+                    // We create the root node of the document
+                    mRootObject = new JsonObject(0U);
+                    mRootType = IJsonNode::JSON_OBJECT;
+                    nodes[pos] = mRootObject;
+                }
+                else if (tags[pos-1] == IJsonNode::JSON_OBJECT)
+                {
+                    // if previous node was an object, then we create a new object
+                    JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos-1]);
+                    nodes[pos] = obj->CreateObjectPair(keys[pos-1]);
+                }
+                else
+                {
+                    // Object in an array? ==> no tag
+                    JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos-1]);
+                    nodes[pos] = array->CreateObject();
+                }
+
                 //tails[pos] = nullptr;
-                tags[pos] = JSON_TAG_OBJECT;
+                tags[pos] = IJsonNode::JSON_OBJECT;
                 keys[pos] = "";
                 separator = true;
                 continue;
@@ -381,34 +495,47 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
         }
         separator = false;
 
-        if (pos == -1)
+        // We are here because we are in an object
+        if (tags[pos] == IJsonNode::JSON_OBJECT)
         {
-            *endptr = s;
-            return JSON_PARSE_OK;
-        }
-
-        /*
-        if (tags[pos] == JSON_TAG_OBJECT)
-        {
-            if (keys[pos] != "")
+            if (keys[pos] == "")
             {
-                if (o.getTag() != JSON_TAG_STRING)
+                // Key found!
+                if (o.GetType() != JsonValue::STRING)
                 {
                     return JSON_PARSE_UNQUOTED_KEY;
                 }
-                keys[pos] = o.toString();
-                continue;
+                keys[pos] = o.GetString();
+                continue; // Let's continue to find the value ...
             }
-            tails[pos] = insertAfter(tails[pos], (JsonNode *)allocator.allocate(sizeof(JsonNode)));
-            tails[pos]->key = keys[pos];
-            keys[pos] = "";
+
+            // Use our own type management, event if the RTTI thing would also work...
+            if (nodes[pos]->GetTag() == IJsonNode::JSON_OBJECT)
+            {
+                JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos]);
+                obj->CreateValuePair(keys[pos], o);
+                keys[pos] = "";
+            }
+            else
+            {
+                return JSON_PARSE_ALLOC_ERROR;
+            }
         }
         else
         {
-            tails[pos] = insertAfter(tails[pos], (JsonNode *)allocator.allocate(sizeof(JsonNode) - sizeof(char *)));
+            // We are in an Array
+            // Use our own type management, event if the RTTI thing would also work...
+            if (nodes[pos]->GetTag() == IJsonNode::JSON_ARRAY)
+            {
+                JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos]);
+                array->CreateValue(o);
+                keys[pos] = "";
+            }
+            else
+            {
+                return JSON_PARSE_ALLOC_ERROR;
+            }
         }
-        tails[pos]->value = o;
-        */
     }
     return JSON_PARSE_BREAKING_BAD;
 }

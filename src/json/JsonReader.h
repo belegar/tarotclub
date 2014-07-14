@@ -33,7 +33,7 @@
 #include "JsonValue.h"
 
 /*****************************************************************************/
-class JsonReader : public JsonObject
+class JsonReader
 {
 
 public:
@@ -43,22 +43,12 @@ public:
         JSON_PARSE_BAD_NUMBER,
         JSON_PARSE_BAD_STRING,
         JSON_PARSE_BAD_IDENTIFIER,
-        JSON_PARSE_STACK_OVERFLOW,
         JSON_PARSE_STACK_UNDERFLOW,
         JSON_PARSE_MISMATCH_BRACKET,
         JSON_PARSE_UNEXPECTED_CHARACTER,
         JSON_PARSE_UNQUOTED_KEY,
-        JSON_PARSE_BREAKING_BAD
-    };
-
-    enum JsonTag
-    {
-        JSON_TAG_NUMBER = 0,
-        JSON_TAG_STRING,
-        JSON_TAG_BOOL,
-        JSON_TAG_ARRAY,
-        JSON_TAG_OBJECT,
-        JSON_TAG_NULL = 0xF
+        JSON_PARSE_BREAKING_BAD,
+        JSON_PARSE_ALLOC_ERROR
     };
 
     // ctors / dtor
@@ -76,8 +66,11 @@ public:
 
 private:
     bool mValid;
+    IJsonNode::Tag mRootType;
+    JsonArray *mRootArray;
+    JsonObject *mRootObject;
 
-    JsonValue GetJsonValue(const std::string &obj, const std::string &key, JsonValue::ValueType type);
+    JsonValue GetJsonValue(const std::string &obj, const std::string &key, JSValue::Type type);
 
     JsonReader::ParseStatus Parse(char *s, char **endptr);
 
