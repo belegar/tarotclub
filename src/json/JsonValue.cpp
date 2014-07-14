@@ -174,12 +174,12 @@ std::string JsonValue::ToString()
 
     if (GetType() == STRING)
     {
-        text += "\"" + GetString() + "\"";
+        text = "\"" + GetString() + "\"";
     }
     else if (GetType() == INTEGER)
     {
         ss << GetInteger();
-        text += ss.str();
+        text = ss.str();
     }
     else if (GetType() == BOOLEAN)
     {
@@ -195,7 +195,15 @@ std::string JsonValue::ToString()
     else if (GetType() == DOUBLE)
     {
         ss << GetDouble();
-        text += ss.str();
+        text = ss.str();
+    }
+    else if (GetType() == NULL_VAL)
+    {
+        text = "null";
+    }
+    else
+    {
+        // INVALID!
     }
 
     return text;

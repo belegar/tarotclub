@@ -39,8 +39,16 @@ class JsonValue;
 class IJsonNode
 {
 public:
+    enum Tag
+    {
+        JSON_VALUE,
+        JSON_ARRAY,
+        JSON_OBJECT
+    };
+
     virtual ~IJsonNode() {}
 
+    virtual Tag GetTag() = 0;
     virtual std::string ToString() = 0;
 };
 /*****************************************************************************/
@@ -50,8 +58,11 @@ public:
     JsonArray(std::uint32_t level);
     virtual ~JsonArray();
 
+    // Implemented virtual methods
+    IJsonNode::Tag GetTag() { return IJsonNode::JSON_ARRAY; }
     std::string ToString();
 
+    // JsonArray
     void CreateValue(const JsonValue &value);
     JsonArray *CreateArray(); // no name in an array inside an array
     JsonObject *CreateObject(); // no name in an object inside an object
@@ -67,7 +78,11 @@ public:
     JsonObject(std::uint32_t level);
     virtual ~JsonObject();
 
+    // Implemented virtual methods
+    IJsonNode::Tag GetTag() { return IJsonNode::JSON_OBJECT; }
     std::string ToString();
+
+    // JsonObject
     void CreateValuePair(const std::string &name, const JsonValue &value);
     JsonArray *CreateArrayPair(const std::string &name);
     JsonObject *CreateObjectPair(const std::string &name);
@@ -82,6 +97,7 @@ class JsonValue : public JSValue, public IJsonNode
 
 public:
 
+    // From JSValue
     JsonValue(std::int32_t value) : JSValue(value) {}
     JsonValue(double value) : JSValue(value) {}
     JsonValue(const char *value) : JSValue(value) {}
@@ -90,6 +106,8 @@ public:
     JsonValue(const JSValue &value) : JSValue(value) {}
     JsonValue() : JSValue() {}
 
+    // Implemented virtual methods from IJsonNode
+    IJsonNode::Tag GetTag() { return IJsonNode::JSON_VALUE; }
     std::string ToString();
 };
 
