@@ -66,6 +66,8 @@ public:
     void CreateValue(const JsonValue &value);
     JsonArray *CreateArray(); // no name in an array inside an array
     JsonObject *CreateObject(); // no name in an object inside an object
+    std::uint32_t GetSize();
+    IJsonNode *GetNode(std::uint32_t index);
 
 private:
     std::vector<IJsonNode *> mArray;

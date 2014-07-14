@@ -88,6 +88,22 @@ JsonObject *JsonArray::CreateObject()
     return obj;
 }
 /*****************************************************************************/
+std::uint32_t JsonArray::GetSize()
+{
+    return mArray.size();
+}
+/*****************************************************************************/
+IJsonNode *JsonArray::GetNode(std::uint32_t index)
+{
+    IJsonNode *node = NULL;
+
+    if (index < mArray.size())
+    {
+        node = mArray[index];
+    }
+    return node;
+}
+/*****************************************************************************/
 JsonArray *JsonArray::CreateArray()
 {
     JsonArray *array = new JsonArray(1U);

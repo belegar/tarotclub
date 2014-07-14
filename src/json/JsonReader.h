@@ -81,8 +81,7 @@ public:
     bool GetValue(const std::string &obj, std::int32_t &value);
     bool GetValue(const std::string &obj, std::string &value);
     bool GetValue(const std::string &obj, bool &value);
-
-    // Fixme: add GetValue of Array of JsonValue
+    std::vector<JsonValue> GetArray(const std::string &obj, JSValue::Type type);
 
 private:
     bool mValid;

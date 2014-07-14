@@ -53,6 +53,32 @@ void JsonTest::ParseFile()
     }
     std::cout << "delay_before_cleaning = " << intvalue << std::endl;
     QCOMPARE(intvalue, 1500);
+
+
+    std::vector<JsonValue> array = json.GetArray("identity:array_of_strings", JsonValue::STRING);
+    std::int32_t  size = array.size();
+    QCOMPARE(size, 4);
+
+    for (std::uint32_t i = 0U; i < array.size(); i++)
+    {
+        if (array[i].IsValid())
+        {
+            if (array[i].GetType() == JsonValue::STRING)
+            {
+                std::cout << "Value " << i << ": " << array[i].GetString() << std::endl;
+            }
+            else
+            {
+                QFAIL("Json value must be a string");
+            }
+        }
+        else
+        {
+            QFAIL("Not a valid Json value!");
+        }
+    }
+
+
 }
 
 void JsonTest::GenerateFile()

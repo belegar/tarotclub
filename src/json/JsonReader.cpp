@@ -125,6 +125,88 @@ bool JsonReader::GetValue(const std::string &obj, bool &value)
     return ret;
 }
 /*****************************************************************************/
+std::vector<JsonValue> JsonReader::GetArray(const std::string &obj, JsonValue::Type type)
+{
+    std::vector<JsonValue> retval;
+
+    std::vector<std::string> path = Split(obj);
+
+    if (mValid)
+    {
+        if (mRootType == IJsonNode::JSON_OBJECT)
+        {
+            IJsonNode * node = mRootObject;
+            for (std::uint32_t i = 0U; i < path.size(); i++)
+            {
+                std::string key = path[i];
+                if (node != NULL)
+                {
+                    if (node->GetTag() == IJsonNode::JSON_OBJECT)
+                    {
+                        JsonObject *object = dynamic_cast<JsonObject *>(node);
+                        if (object->HasNode(key))
+                        {
+                            node = object->GetNode(key);
+
+                            if (node->GetTag() == IJsonNode::JSON_ARRAY)
+                            {
+                                // we are arrived to the array, get it
+                                JsonArray *array = dynamic_cast<JsonArray *>(node);
+
+                                // Fill the array with the values
+                                for (std::uint32_t j = 0U; j < array->GetSize(); j++)
+                                {
+                                    IJsonNode *value = array->GetNode(j);
+
+                                    // We only manage array of JsonValues (not array of objects or array of arrays)
+                                    if (value != NULL)
+                                    {
+                                        if (value->GetTag() == IJsonNode::JSON_VALUE)
+                                        {
+                                            JsonValue *jsonValue = dynamic_cast<JsonValue*>(value);
+                                            if (jsonValue->IsValid() && (jsonValue->GetType() == type))
+                                            {
+                                                retval.push_back(*jsonValue);
+                                            }
+                                            else
+                                            {
+                                                // bad json value
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // array of objects or array of arrays ara not supported
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // oops ...
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Not found
+                            node = NULL;
+                        }
+                    }
+                }
+                else
+                {
+                    // Parse error, bad key or other internal problem
+                    break;
+                }
+            }
+        }
+    }
+
+    return retval;
+}
+/*****************************************************************************/
 JsonValue JsonReader::GetJsonValue(const std::string &obj, JsonValue::Type type)
 {
     JsonValue retval;
@@ -201,6 +283,8 @@ void JsonReader::Close()
     {
         delete mRootObject;
     }
+    mRootArray = NULL;
+    mRootObject = NULL;
 }
 
 #define JSON_READER_D
