@@ -6,7 +6,7 @@
 
 #include "tst_tarot_base.h"
 #include "tst_utilities.h"
-#include "tst_jsengine.h"
+#include "tst_json.h"
 #include "tst_hash.h"
 
 int main(int argc, char *argv[])
@@ -57,8 +57,8 @@ int main(int argc, char *argv[])
     }
 
     std::cout << std::endl << "=============================================" << std::endl;
-    std::cout << std::endl << "Success : " << testSuccesses << std::endl;
-    std::cout << std::endl << "Failures: " << testFailures << std::endl;
+    std::cout << std::endl << "Success : " << testSuccesses;
+    std::cout << std::endl << "Failures: " << testFailures;
     std::cout << std::endl << "=============================================" << std::endl;
 
 
