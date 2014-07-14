@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "Util.h"
 #include "System.h"
+#include "JsonReader.h"
 
 /*****************************************************************************/
 Bot::Bot()
@@ -389,37 +390,51 @@ void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()
 {
-    bool retCode = true;
-    JSEngine::StringList scriptFiles;
+    bool retCode = false;
     std::string appRoot;
 
     appRoot = System::ScriptPath();
 
-    // TarotClub Javascript library files
-    // Beware, the order is important, for global objects creation
-    scriptFiles.push_back("tarotlib/system.js");
-    scriptFiles.push_back("tarotlib/util.js");
-    scriptFiles.push_back("tarotlib/card.js");
-    scriptFiles.push_back("tarotlib/deck.js");
-    scriptFiles.push_back("tarotlib/player.js");
-    scriptFiles.push_back("tarotlib/bot.js");
-    scriptFiles.push_back("tarotlib/game.js");
-    scriptFiles.push_back("beginner.js");
+    // Open the configuration file to find the scripts
+    JsonReader json;
 
-    mBotEngine.Initialize();
-    // FIXME: register print function TLogInfo
-
-    // Load all Javascript files
-    for (std::uint32_t i = 0; i < scriptFiles.size(); i++)
+    if (json.Open(appRoot + "conf.json"))
     {
-        std::string fileName = appRoot + scriptFiles[i];
-        if (!mBotEngine.Evaluate(fileName))
+        std::vector<JsonValue> files = json.GetArray("files", JsonValue::STRING);
+
+        mBotEngine.Initialize();
+
+        // Load all Javascript files
+        for (std::uint32_t i = 0U; i < files.size(); i++)
         {
-            std::stringstream message;
-            message << "Script error: could not open program file: " << fileName;
-            TLogError(message.str());
-            retCode = false;
+            if (files[i].IsValid() && (files[i].GetType() == JsonValue::STRING))
+            {
+                std::string fileName = appRoot + files[i].GetString();
+
+#ifdef USE_WINDOWS_OS
+                // Correct the path if needed
+                Util::ReplaceCharacter(fileName, "/", "\\");
+#endif
+
+                if (!mBotEngine.Evaluate(fileName))
+                {
+                    std::stringstream message;
+                    message << "Script error: could not open program file: " << fileName;
+                    TLogError(message.str());
+                    retCode = false;
+                }
+            }
+            else
+            {
+                TLogError("Bad Json value in the array");
+                retCode = false;
+            }
         }
+    }
+    else
+    {
+        TLogError("Cannot open Json configuration file");
+        retCode = false;
     }
 
     return retCode;

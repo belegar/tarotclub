@@ -10,6 +10,8 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Correction: the deal JSON output was not JSON compliant
     ~ Removed winner message box (no sense for one deal)
     + Auto play works also for bid step
+    + JSON reader now uses its own parser instead of the Duktape's one
+    + New JSON configuration file for AI scripts
 
 * version 2.3.1 <Snowboard>
   -------------------------------
