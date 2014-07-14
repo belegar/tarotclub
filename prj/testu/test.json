@@ -1,15 +1,12 @@
 {
     "version": "1.5",
-    "generator": "TarotClub 2.3.0-alpha.1",
     "show_avatars": true,
-    "background_color": "#008000",
-    "language": 0,
+    "array_of_int": [ 1, 2, 3, 4, 5 ],
     "delay_before_cleaning": 1500,
-    "click_to_clean": true,
+    "click_to_clean": false,
     "identity": {
         "name": "Moi",
-        "avatar": ":/images/avatars/fry.png",
         "genre": 0,
-        "quote": "L'inventeur de l'escalier habitait surement au premier etage."
+        "array_of_strings": [ "je", "suis", "un", "tableau" ]
     }
 }
