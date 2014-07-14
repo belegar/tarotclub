@@ -33,6 +33,24 @@
 #include "JsonValue.h"
 
 /*****************************************************************************/
+
+/**
+ * @brief The JsonReader class
+ *
+ * A Json reader object will parse a Json file and create an in-memory version of the
+ * file contents.
+ *
+ * Then, several getters are provided to retreive a Json value. To get a value, the node
+ * path must be passed as a request. A node path is built using all the keys of the node
+ * path separated by a semi-colon.
+ *
+ * Example: let's take the following Json file:
+ *
+ * { "test": "hello", "test2": { "name": "toto" } }
+ *
+ * To get the value of the key "name", the node path will be: "test2:name"
+ *
+ */
 class JsonReader
 {
 
@@ -60,9 +78,11 @@ public:
     void Close();
 
     // Getters
-    bool GetValue(const std::string &obj, const std::string &key, std::int32_t &value);
-    bool GetValue(const std::string &obj, const std::string &key, std::string &value);
-    bool GetValue(const std::string &obj, const std::string &key, bool &value);
+    bool GetValue(const std::string &obj, std::int32_t &value);
+    bool GetValue(const std::string &obj, std::string &value);
+    bool GetValue(const std::string &obj, bool &value);
+
+    // Fixme: add GetValue of Array of JsonValue
 
 private:
     bool mValid;
@@ -70,11 +90,10 @@ private:
     JsonArray *mRootArray;
     JsonObject *mRootObject;
 
-    JsonValue GetJsonValue(const std::string &obj, const std::string &key, JSValue::Type type);
-
+    JsonValue GetJsonValue(const std::string &obj, JSValue::Type type);
     JsonReader::ParseStatus Parse(char *s, char **endptr);
-
     double StringToDouble(char *s, char **endptr);
+    std::vector<std::string> Split(const std::string &obj);
 
 
     /*****************************************************************************/
@@ -95,6 +114,7 @@ private:
         }
         return c - '0';
     }
+
 };
 
 #endif // JSON_READER_H

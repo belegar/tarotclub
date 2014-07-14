@@ -167,6 +167,36 @@ JsonObject *JsonObject::CreateObjectPair(const std::string &name)
     return obj;
 }
 /*****************************************************************************/
+bool JsonObject::HasNode(const std::string &key)
+{
+    bool ret = false;
+    std::vector<std::pair<std::string, IJsonNode *> >::const_iterator iter;
+    for (iter = mObject.begin(); iter != mObject.end(); ++iter)
+    {
+        if (iter->first == key)
+        {
+            ret = true;
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+IJsonNode *JsonObject::GetNode(const std::string &key)
+{
+    IJsonNode *retval = NULL;
+    std::vector<std::pair<std::string, IJsonNode *> >::const_iterator iter;
+
+    for (iter = mObject.begin(); iter != mObject.end(); ++iter)
+    {
+        if (iter->first == key)
+        {
+            retval = iter->second;
+        }
+    }
+
+    return retval;
+}
+/*****************************************************************************/
 std::string JsonValue::ToString()
 {
     std::string text;

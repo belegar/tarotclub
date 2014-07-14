@@ -62,7 +62,7 @@ bool ServerConfig::Load()
     if (ret)
     {
         std::string value;
-        if (json.GetValue("", "version", value))
+        if (json.GetValue("version", value))
         {
             if (value == SERVER_CONFIG_VERSION)
             {
@@ -70,7 +70,7 @@ bool ServerConfig::Load()
                 // If they are not in the acceptable range, we set the default value
                 // without throwing any error
                 std::int32_t intval;
-                if (json.GetValue("", "delay", intval))
+                if (json.GetValue("delay", intval))
                 {
                     if ((intval < 0) || (intval > 9000))
                     {
@@ -78,7 +78,7 @@ bool ServerConfig::Load()
                     }
                     mOptions.timer = intval;
                 }
-                if (json.GetValue("", "tcp_port", intval))
+                if (json.GetValue("tcp_port", intval))
                 {
                     mOptions.tcp_port = intval;
                 }
@@ -86,15 +86,15 @@ bool ServerConfig::Load()
                 for (std::uint32_t i = 1U; i < 4U; i++)
                 {
                     Place bot(i);
-                    if (json.GetValue(bot.ToString(), "name", value))
+                    if (json.GetValue(bot.ToString() + ":name", value))
                     {
                         mOptions.bots[i].name = value;
                     }
-                    if (json.GetValue(bot.ToString(), "avatar", value))
+                    if (json.GetValue(bot.ToString() + ":avatar", value))
                     {
                         mOptions.bots[i].avatar = value;
                     }
-                    if (json.GetValue(bot.ToString(), "gender", value))
+                    if (json.GetValue(bot.ToString() + ":gender", value))
                     {
                         if (value == "female")
                         {
@@ -106,7 +106,7 @@ bool ServerConfig::Load()
                         }
 
                     }
-                    if (json.GetValue(bot.ToString(), "quote", value))
+                    if (json.GetValue(bot.ToString() + ":quote", value))
                     {
                         mOptions.bots[i].quote = value;
                     }

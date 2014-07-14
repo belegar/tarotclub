@@ -86,6 +86,8 @@ public:
     void CreateValuePair(const std::string &name, const JsonValue &value);
     JsonArray *CreateArrayPair(const std::string &name);
     JsonObject *CreateObjectPair(const std::string &name);
+    bool HasNode(const std::string &key);
+    IJsonNode *GetNode(const std::string &key);
 
 private:
     std::vector<std::pair<std::string, IJsonNode *> > mObject;

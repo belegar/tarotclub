@@ -66,7 +66,15 @@ bool JsonReader::Open(const std::string &fileName)
 
         char *endptr;
         char *source = strdup(contents.str().c_str());
-        Parse(source, &endptr);
+
+        if (Parse(source, &endptr) == JSON_PARSE_OK)
+        {
+            mValid = true;
+        }
+        else
+        {
+            mValid = false;
+        }
         free(source);
 
     }
@@ -78,11 +86,11 @@ bool JsonReader::Open(const std::string &fileName)
     return mValid;
 }
 /*****************************************************************************/
-bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::int32_t &value)
+bool JsonReader::GetValue(const std::string &obj, std::int32_t &value)
 {
     bool ret = false;
 
-    JsonValue val = GetJsonValue(obj, key, JsonValue::INTEGER);
+    JsonValue val = GetJsonValue(obj, JsonValue::INTEGER);
     if (val.IsValid())
     {
         value = val.GetInteger();
@@ -91,11 +99,11 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::i
     return ret;
 }
 /*****************************************************************************/
-bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::string &value)
+bool JsonReader::GetValue(const std::string &obj, std::string &value)
 {
     bool ret = false;
 
-    JsonValue val = GetJsonValue(obj, key, JsonValue::STRING);
+    JsonValue val = GetJsonValue(obj, JsonValue::STRING);
     if (val.IsValid())
     {
         value = val.GetString();
@@ -104,11 +112,11 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, std::s
     return ret;
 }
 /*****************************************************************************/
-bool JsonReader::GetValue(const std::string &obj, const std::string &key, bool &value)
+bool JsonReader::GetValue(const std::string &obj, bool &value)
 {
     bool ret = false;
 
-    JsonValue val = GetJsonValue(obj, key, JsonValue::BOOLEAN);
+    JsonValue val = GetJsonValue(obj, JsonValue::BOOLEAN);
     if (val.IsValid())
     {
         value = val.GetBool();
@@ -117,11 +125,61 @@ bool JsonReader::GetValue(const std::string &obj, const std::string &key, bool &
     return ret;
 }
 /*****************************************************************************/
-JsonValue JsonReader::GetJsonValue(const std::string &obj, const std::string &key, JsonValue::Type type)
+JsonValue JsonReader::GetJsonValue(const std::string &obj, JsonValue::Type type)
 {
     JsonValue retval;
 
-    // Todo: parse the Json object in memory to find the object, then the key, then get the value
+    std::vector<std::string> path = Split(obj);
+
+    if (mValid)
+    {
+        if (mRootType == IJsonNode::JSON_OBJECT)
+        {
+            IJsonNode * node = mRootObject;
+            for (std::uint32_t i = 0U; i < path.size(); i++)
+            {
+                std::string key = path[i];
+                if (node != NULL)
+                {
+                    if (node->GetTag() == IJsonNode::JSON_OBJECT)
+                    {
+                        JsonObject *object = dynamic_cast<JsonObject *>(node);
+                        if (object->HasNode(key))
+                        {
+                            node = object->GetNode(key);
+
+                            if (node->GetTag() == IJsonNode::JSON_VALUE)
+                            {
+                                // we are arrived to the value, get it
+                                JsonValue *value = dynamic_cast<JsonValue *>(node);
+
+                                switch (type)
+                                {
+                                case JsonValue::INTEGER:
+                                    // convert double into integer
+                                    retval = JsonValue(static_cast<std::int32_t>(value->GetDouble()));
+                                    break;
+                                default:
+                                    retval = *value; // copy value
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Not found
+                            node = NULL;
+                        }
+                    }
+                }
+                else
+                {
+                    // Parse error, bad key or other internal problem
+                    break;
+                }
+            }
+        }
+    }
 
     return retval;
 }
@@ -599,6 +657,35 @@ double JsonReader::StringToDouble(char *s, char **endptr)
 
     *endptr = s;
     return ch == '-' ? -result : result;
+}
+/*****************************************************************************/
+std::vector<std::string> JsonReader::Split(const std::string &obj)
+{
+    std::vector<std::string> path;
+    std::size_t found = std::string::npos;
+    int pos = 0;
+
+    do
+    {
+        int size;
+        found = obj.find(':', pos);
+        if (found != std::string::npos)
+        {
+            // calculate size of the string between the delimiters
+            size = found - pos;
+        }
+        else
+        {
+            // last: get remaining characters
+            size = obj.size() - pos;
+        }
+
+        std::string key = obj.substr(pos, size);
+        pos = found + 1;
+        path.push_back(key);
+    }
+    while (found != std::string::npos);
+    return path;
 }
 
 
