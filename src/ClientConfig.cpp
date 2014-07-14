@@ -80,7 +80,7 @@ bool ClientConfig::Load()
         std::string stringval;
         std::int32_t intval;
 
-        if (json.GetValue("", "version", stringval))
+        if (json.GetValue("version", stringval))
         {
             if (stringval == CLIENT_CONFIG_VERSION)
             {
@@ -89,17 +89,17 @@ bool ClientConfig::Load()
                 // If they are not in the acceptable range, we set the default value
                 // without throwing any error
 
-                if (json.GetValue("", "show_avatars", boolval))
+                if (json.GetValue("show_avatars", boolval))
                 {
                     mOptions.showAvatars = boolval;
                 }
 
-                if (json.GetValue("", "background_color", stringval))
+                if (json.GetValue("background_color", stringval))
                 {
                     mOptions.backgroundColor = stringval;
                 }
 
-                if (json.GetValue("", "language", intval))
+                if (json.GetValue("language", intval))
                 {
                     mOptions.language = intval;
                     if (mOptions.language >= mLang.size())
@@ -108,7 +108,7 @@ bool ClientConfig::Load()
                     }
                 }
 
-                if (json.GetValue("", "delay_before_cleaning", intval))
+                if (json.GetValue("delay_before_cleaning", intval))
                 {
                     mOptions.delayBeforeCleaning = intval;
                     if (mOptions.delayBeforeCleaning > 5000)
@@ -117,26 +117,26 @@ bool ClientConfig::Load()
                     }
                 }
 
-                if (json.GetValue("", "click_to_clean", boolval))
+                if (json.GetValue("click_to_clean", boolval))
                 {
                     mOptions.clickToClean = boolval;
                 }
 
-                if (json.GetValue("", "cards_order", stringval))
+                if (json.GetValue("cards_order", stringval))
                 {
                     mOptions.cardsOrder = stringval;
                 }
 
                 // Player's identity
-                if (json.GetValue("identity", "name", stringval))
+                if (json.GetValue("identity:name", stringval))
                 {
                     mOptions.identity.name = stringval;
                 }
-                if (json.GetValue("identity", "avatar", stringval))
+                if (json.GetValue("identity:avatar", stringval))
                 {
                     mOptions.identity.avatar = stringval;
                 }
-                if (json.GetValue("identity", "gender", stringval))
+                if (json.GetValue("identity:gender", stringval))
                 {
                     if (stringval == "female")
                     {
@@ -148,7 +148,7 @@ bool ClientConfig::Load()
                     }
 
                 }
-                if (json.GetValue("identity", "quote", stringval))
+                if (json.GetValue("identity:quote", stringval))
                 {
                     mOptions.identity.quote = stringval;
                 }

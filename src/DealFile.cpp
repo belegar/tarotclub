@@ -78,11 +78,11 @@ bool DealFile::LoadFile(const std::string &fileName)
         }
 
         std::string stringval;
-        if (json.GetValue("", "version", stringval))
+        if (json.GetValue("version", stringval))
         {
             if (stringval == DEAL_FILE_VERSION)
             {
-                if (json.GetValue("", "Dog", stringval))
+                if (json.GetValue("Dog", stringval))
                 {
                     ret = FillDeck(mDogDeck, stringval, 6);
                 }
@@ -98,7 +98,7 @@ bool DealFile::LoadFile(const std::string &fileName)
                     if (ret)
                     {
                         Place player(i);
-                        if (json.GetValue("", player.ToString(), stringval))
+                        if (json.GetValue(player.ToString(), stringval))
                         {
                             ret = FillDeck(mPlayers[i], stringval, 18);
                         }
