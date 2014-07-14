@@ -43,13 +43,14 @@
 class JSValue
 {
 public:
-    enum ValueType
+    enum Type
     {
         INVALID,
         INTEGER,
         DOUBLE,
         BOOLEAN,
-        STRING
+        STRING,
+        NULL_VAL
     };
 
     JSValue(std::int32_t value);
@@ -64,15 +65,17 @@ public:
     JSValue &operator = (JSValue const &rhs);
 
     bool IsValid() { return mType != INVALID; }
-    ValueType GetType() { return mType; }
+    Type GetType() { return mType; }
 
     std::int32_t    GetInteger(){ return mIntegerValue; }
     double          GetDouble() { return mDoubleValue; }
     bool            GetBool()   { return mBoolValue; }
     std::string     GetString() { return mStringValue; }
 
+    void SetNull() { mType = NULL_VAL; }
+
 private:
-    ValueType mType;
+    Type mType;
     std::int32_t mIntegerValue;
     double mDoubleValue;
     std::string mStringValue;
