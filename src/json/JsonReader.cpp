@@ -30,6 +30,9 @@
 
 #include "JsonReader.h"
 
+// Uncomment this line to enable JSON parsing traces
+//#define JSON_READER_D
+
 /*****************************************************************************/
 JsonReader::JsonReader()
 {
@@ -286,9 +289,6 @@ void JsonReader::Close()
     mRootArray = NULL;
     mRootObject = NULL;
 }
-
-#define JSON_READER_D
-
 /*****************************************************************************/
 JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
 {
