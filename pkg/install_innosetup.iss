@@ -42,6 +42,7 @@ Source: ..\{#RELEASE_DIR}\TarotClub.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\{#SERVER_DIR}\tcds.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\assets\cards\default\*; DestDir: {app}\default; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: ..\assets\ai\beginner.js; DestDir: {app}\ai; Flags: ignoreversion
+Source: ..\assets\ai\conf.json; DestDir: {app}\ai; Flags: ignoreversion
 Source: ..\assets\ai\tarotlib\*; DestDir: {app}\ai\tarotlib; Flags: ignoreversion
 Source: ..\prj\desktop\tarotclub_en.qm; DestDir: {app}; Flags: ignoreversion
 Source: ..\prj\desktop\tarotclub_fr.qm; DestDir: {app}; Flags: ignoreversion

@@ -1,5 +1,6 @@
 #!/bin/bash
-# This is the main TarotClub install script
+# This is the TarotClub Linux package generation script
+# 
 # It will generate two files:
 #   - A tarball file containing the current TarotClub binaries architecture
 #   - A Debian package (i386 or amd64)
@@ -57,6 +58,7 @@ cp ${TAROT_ROOT}/assets/ai/tarotlib/player.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/tarotlib/bot.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/tarotlib/game.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/beginner.js ./ai
+cp ${TAROT_ROOT}/assets/ai/conf.json ./ai
 cp ${TAROT_ROOT}/assets/icons/icon256x256.png .
 cp ${TAROT_ROOT}/prj/desktop/tarotclub_en.qm .
 cp ${TAROT_ROOT}/prj/desktop/tarotclub_fr.qm .
@@ -71,12 +73,19 @@ echo "Tarball archive created."
 
 ####################  DEBIAN PACKAGE ###########################
 
+# ---------------------------------
+# Some directory definitions
+# ---------------------------------
 PACKAGE_ROOT="./deb_temp"
 INSTALL_DIR="${PACKAGE_ROOT}/usr/share/tarotclub"
 FONTS_DIR="${PACKAGE_ROOT}/usr/share/fonts"
 DESKTOP_ENTRY="${PACKAGE_ROOT}/usr/share/applications"
 MENU_ENTRY="${PACKAGE_ROOT}/usr/share/menu"
 DEBIAN_DIR="${PACKAGE_ROOT}/DEBIAN"
+
+# ---------------------------------
+# Control file contents
+# ---------------------------------
 CONTROL_FILE="Package: tarotclub\n"
 CONTROL_FILE+="Version: ${VERSION}\n"
 CONTROL_FILE+="Section: games\n"
