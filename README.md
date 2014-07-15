@@ -131,10 +131,10 @@ Header format is:
 
   * Size of message (2 bytes)
   * Protocol version (1 byte)
-  * UUID (1 byte)
+  * UUID (4 bytes)
   * Command (1 byte)
 
-Packet size is minimum 5 bytes (command without data).
+Packet size is minimum 8 bytes (command without data).
 
 ## Cards and deck format
 
@@ -155,14 +155,46 @@ Fool of trumps is 00-T
 One of diamonds is 01-D
 ```
 
-# Javascript IA interface
+A deck of cards is a character string of cards separated by semi-colons. Example:
+```
+10-S;12-D;01-S;05-T;11-D;13-C;12-H;04-H;07-C;04-T;03-S;02-T;11-H;13-D;08-D;09-D;12-C;10-D
+```
 
-The artificial intelligence of bot players are programmed using the JavaScript language. It is the same than the one for the Web 
-except that some global objects specific to the browser are not available such as "window". The JavaScript follow the ECMA Script standard 5.1.
+# JavaScript IA interface
 
-## Entry points
+The artificial intelligence of bot players is programmed using the JavaScript language. It is the same than the one for the Web 
+except that some global objects specific to the browser are not available such as "window". This JavaScript engine follows the ECMA Script standard 5.1.
 
-TODO.
+## Configuration file
+
+An AI script can be programmed in one or more JavaScript files. It is recommended to use several files in order to split your game 
+elements into logic parts as you would do in every software programming.
+
+Here is an example of a configuration file:
+
+```
+{
+    "level": "noob",
+    "files": [
+        "tarotlib/system.js",
+        "tarotlib/util.js",
+        "tarotlib/card.js",
+        "tarotlib/deck.js",
+        "tarotlib/player.js",
+        "tarotlib/bot.js",
+        "tarotlib/game.js",
+        "beginner.js"
+    ]
+}
+```
+
+The two mandatory nodes are the "level" and "files" ones. The "files" node is an array than contains all the JavaScript files that 
+must be loaded during the initialization of the game. The order is important because of the lack of external include facility in JavaScript. The first file indicated in the array is loaded first.
+
+The path of the file must be relative to the root of the configuration file.
+
+## Game interface
+
 
 
 
