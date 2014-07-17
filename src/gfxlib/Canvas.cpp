@@ -90,7 +90,6 @@ void BorderLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
     , mShowAvatars(true)
-    , cardsPics(0)
     , mMenuItem(this)
 {
     setScene(&scene);
@@ -143,24 +142,26 @@ bool Canvas::Initialize()
         }
     }
 
-    QRectF cardSize = cardsPics.at(0)->boundingRect();
-    cardSize.setWidth(cardSize.width() * SCALE_FACTOR);
-    cardSize.setHeight(cardSize.height() * SCALE_FACTOR);
-
-    // 4 players by default
-    for (std::uint32_t i = 0U; i < 4U; i++)
+    if (ret)
     {
-        PlayerBox *pb = new PlayerBox(cardSize);
-        pb->setPos(coordPlayerBox[i]);
-        pb->show();
-        playerBox.insert((Place)i, pb);
-        scene.addItem(pb);
+        QRectF cardSize = cardsPics.at(0)->boundingRect();
+        cardSize.setWidth(cardSize.width() * SCALE_FACTOR);
+        cardSize.setHeight(cardSize.height() * SCALE_FACTOR);
+
+        // 4 players by default
+        for (std::uint32_t i = 0U; i < 4U; i++)
+        {
+            PlayerBox *pb = new PlayerBox(cardSize);
+            pb->setPos(coordPlayerBox[i]);
+            pb->show();
+            playerBox.insert((Place)i, pb);
+            scene.addItem(pb);
+        }
+
+        // Give canvas element sizes to the popup to allow dynamic resizing
+        popupItem.SetSizes(border, cardSize);
+        mMsgBoxItem.SetBorder(border);
     }
-
-    // Give canvas element sizes to the popup to allow dynamic resizing
-    popupItem.SetSizes(border, cardSize);
-    mMsgBoxItem.SetBorder(border);
-
     return ret;
 }
 /*****************************************************************************/
@@ -173,11 +174,12 @@ void Canvas::SetBackground(const std::string &code)
     }
 }
 /*****************************************************************************/
-void Canvas::ShowCard(std::uint8_t index, bool visible)
+void Canvas::HideCard(Card *c)
 {
+    std::uint8_t index = TarotDeck::GetIndex(c->GetName());
     if (index < cardsPics.size())
     {
-        cardsPics.at(index)->setVisible(visible);
+        cardsPics.at(index)->setVisible(false);
     }
 }
 /*****************************************************************************/
@@ -407,7 +409,9 @@ void Canvas::DrawSouthCards(const Deck &cards)
     qreal z = 0.0;
     for (Deck::ConstIterator i = cards.Begin(); i != cards.End(); ++i)
     {
-        cgfx = cardsPics.at(TarotDeck::GetIndex((*i)->GetName()));
+        std::string name = (*i)->GetName();
+//        std::cout << name << ", ";
+        cgfx = cardsPics.at(TarotDeck::GetIndex(name));
         cgfx->setPos(x, y);
         cgfx->setZValue(z++);
         cgfx->show();
@@ -466,6 +470,7 @@ void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
 {
+    mMenuItem.ClearSlamOption();
     mMenuItem.DisplayMenu(contract);
 }
 /*****************************************************************************/

@@ -317,9 +317,15 @@ bool Controller::DoAction(const ByteArray &data)
                     // Check if right player
                     if (engine.GetBid().taker == p)
                     {
-                        engine.SetDiscard(discard);
-                        // Then start the deal
-                        SendPacket(Protocol::ServerStartDeal(engine.GetBid(), engine.GetShuffle()));
+                        if (engine.SetDiscard(discard))
+                        {
+                            // Then start the deal
+                            SendPacket(Protocol::ServerStartDeal(engine.GetBid(), engine.GetShuffle()));
+                        }
+                        else
+                        {
+                            TLogError("Not a valid discard" + discard.GetCardList());
+                        }
                     }
                 }
             }

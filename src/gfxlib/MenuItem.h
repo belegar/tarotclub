@@ -80,6 +80,7 @@ public:
     void DisplayMenu(std::uint8_t menu);
     void DisplayMenu(Contract minContract);
     void Initialize();
+    void ClearSlamOption();
 
     // Getters
     bool GetSlamOption();

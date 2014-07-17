@@ -199,6 +199,11 @@ bool MenuItem::GetSlamOption()
 {
     return checkBox.GetStatus();
 }
+/*****************************************************************************/
+void MenuItem::ClearSlamOption()
+{
+    checkBox.Clear();
+}
 
 //=============================================================================
 // End of file MenuItem.cpp

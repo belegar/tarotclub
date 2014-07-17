@@ -98,11 +98,12 @@ private:
     Client          mClient; // The human player
     QMap<Place, Identity> mPlayers;
     Deal            deal;
-    Deck            discard;
+    Deck            mDiscard;
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;
     Deck            mMyHandle;
     bool            mAutoPlay;
+    Deck            mMySavedDeck;
 
     // Helpers
     void ShowSouthCards();

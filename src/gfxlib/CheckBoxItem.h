@@ -53,6 +53,12 @@ public:
         return status;
     }
 
+    void Clear()
+    {
+        status = false;
+        tick.hide();
+    }
+
 private:
     bool status;
     QGraphicsSvgItem tick;

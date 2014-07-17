@@ -135,6 +135,7 @@ bool TarotEngine::SetDiscard(const Deck &discard)
         mPlayers[mBid.taker.Value()].RemoveDuplicates(discard);
 
         std::stringstream ss;
+        ss << "Received discard: " << discard.GetCardList() << " / ";
         ss << "Taker's deck after the discard: " << mPlayers[mBid.taker.Value()].GetCardList();
         TLogInfo(ss.str());
 
@@ -186,6 +187,8 @@ bool TarotEngine::SetHandle(const Deck &handle, Place p)
             mDefenseHandle.type = type;
         }
 
+        ResetAck();
+        mSequence = WAIT_FOR_SHOW_HANDLE;
         mDeal.SetHandle(handle, handleOwner);
     }
     return valid;

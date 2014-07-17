@@ -96,15 +96,15 @@ public:
     Card *Play();
     bool IsValid(Card *c);
     bool IsConnected();
-    Deck AutoDiscard();
+    Deck AutoDiscard();    
 
     // Getters
     Deck::Statistics &GetStatistics();
-    Deck &GetCurrentTrick();
+    Deck GetCurrentTrick();
     Deck &GetDogDeck();
     Deck &GetHandleDeck();
-    Deck &GetMyDeck();
-    Score &GetScore();
+    Deck GetMyDeck();
+    Score GetScore();
     Place GetPlace();
     std::uint8_t GetNumberOfPlayers()
     {
@@ -134,6 +134,8 @@ public:
     // Setters
     void SetMyIdentity(const Identity &ident);
     void SetDiscard(const Deck &discard);
+    void SetPlayedCard(Card *c);
+    void SetMyDeck(const Deck &deck);
 
     // Network
     void ConnectToHost(const std::string &hostName, std::uint16_t port);

@@ -202,12 +202,12 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
 /*****************************************************************************/
 void TarotWidget::HideTrick()
 {
-    Deck &trick = mClient.GetCurrentTrick();
+    Deck trick = mClient.GetCurrentTrick();
 
     for (Deck::ConstIterator i = trick.Begin(); i != trick.End(); ++i)
     {
         Card *c = (*i);
-        mCanvas->ShowCard(TarotDeck::GetIndex(c->GetName()), false);
+        mCanvas->HideCard(c);
     }
 }
 /*****************************************************************************/
@@ -223,15 +223,19 @@ void TarotWidget::slotAcceptDiscard()
     mCanvas->DisplayDiscardMenu(false);
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-    for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
+    for (Deck::ConstIterator i = mDiscard.Begin(); i != mDiscard.End(); ++i)
     {
         Card *c = (*i);
-        mCanvas->ShowCard(TarotDeck::GetIndex(c->GetName()), false);
-    }
+        mCanvas->HideCard(c);
+    }    
 
-    mClient.SetDiscard(discard);
+    TLogInfo("Hide discard: " + mDiscard.GetCardList());
+
+
+    mClient.SetMyDeck(mMySavedDeck); // Re-set previous player deck
+    mClient.SetDiscard(mDiscard);    // Then filter out the discard
     ShowSouthCards();
-    mClient.SendDiscard(discard);
+    mClient.SendDiscard(mDiscard);
 }
 /*****************************************************************************/
 void TarotWidget::slotAcceptHandle()
@@ -259,8 +263,9 @@ void TarotWidget::slotAcceptHandle()
  */
 void TarotWidget::ShowSouthCards()
 {
-    mClient.GetMyDeck().Sort(mClientOptions.cardsOrder);
-    mCanvas->DrawSouthCards(mClient.GetMyDeck());
+    Deck deck = mClient.GetMyDeck();
+    deck.Sort(mClientOptions.cardsOrder);
+    mCanvas->DrawSouthCards(deck);
 }
 /*****************************************************************************/
 void TarotWidget::slotClickBoard()
@@ -273,6 +278,7 @@ void TarotWidget::slotClickBoard()
     else if (mClient.GetSequence() == Client::SHOW_HANDLE)
     {
         mCanvas->HidePopup();
+        ShowSouthCards(); // refresh our cards if the handle displayed is our own one
         mClient.SendSyncHandle(); // We have seen the handle, let's inform the server about that
     }
     else if (mClient.GetSequence() == Client::SYNC_TRICK)
@@ -358,7 +364,7 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
         }
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-        mClient.GetMyDeck().Remove(c);
+        mClient.SetPlayedCard(c);
         mClient.SendCard(c);
 
         ShowSouthCards();
@@ -375,12 +381,12 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
         // select one card
         if (!selected)
         {
-            if (discard.Size() == 6U)
+            if (mDiscard.Size() == 6U)
             {
                 return;
             }
-            discard.Append(c);
-            if (discard.Size() == 6U)
+            mDiscard.Append(c);
+            if (mDiscard.Size() == 6U)
             {
                 mCanvas->DisplayDiscardMenu(true);
             }
@@ -388,11 +394,11 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
         // Un-select card
         else if (selected)
         {
-            if (discard.Size() == 0U)
+            if (mDiscard.Size() == 0U)
             {
                 return;
             }
-            discard.Remove(c);
+            mDiscard.Remove(c);
             mCanvas->DisplayDiscardMenu(false);
         }
         mCanvas->ToggleCardSelection(index);
@@ -490,7 +496,6 @@ void TarotWidget::slotStartDeal()
     }
 
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
-    mCanvas->InitBoard();
     mCanvas->ShowTaker(taker, mClient.GetPlace());
 
     // We are ready, let's inform the server about that
@@ -541,9 +546,13 @@ void TarotWidget::slotDealAgain()
 /*****************************************************************************/
 void TarotWidget::slotBuildDiscard()
 {
-    // We add the dog to the player's deck
-    mClient.GetMyDeck().Append(mClient.GetDogDeck());
-    discard.Clear();
+    // We add the dog to the player's deck for discard building
+    Deck deck = mClient.GetMyDeck();
+    mMySavedDeck = deck;  // locally save the legacy player's deck
+    deck.Append(mClient.GetDogDeck()); // Add the dog
+    mClient.SetMyDeck(deck);
+
+    mDiscard.Clear();
     mCanvas->SetFilter(Canvas::CARDS | Canvas::MENU);
 
     // Player's cards are shown
@@ -581,9 +590,8 @@ void TarotWidget::slotPlayCard()
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
         Card *c = mClient.Play();
-        mClient.GetMyDeck().Remove(c);
+        mClient.SetPlayedCard(c);
         mClient.SendCard(c);
-
         ShowSouthCards();
     }
     else

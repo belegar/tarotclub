@@ -55,7 +55,7 @@ Deck::Statistics &Client::GetStatistics()
     return stats;
 }
 /*****************************************************************************/
-Deck &Client::GetCurrentTrick()
+Deck Client::GetCurrentTrick()
 {
     return currentTrick;
 }
@@ -70,7 +70,7 @@ Deck &Client::GetHandleDeck()
     return handleDeck;
 }
 /*****************************************************************************/
-Deck &Client::GetMyDeck()
+Deck Client::GetMyDeck()
 {
     return mPlayer;
 }
@@ -91,7 +91,18 @@ void Client::SetDiscard(const Deck &discard)
     mPlayer.RemoveDuplicates(discard);
 }
 /*****************************************************************************/
-Score &Client::GetScore()
+void Client::SetPlayedCard(Card *c)
+{
+    mPlayer.Remove(c);
+}
+/*****************************************************************************/
+void Client::SetMyDeck(const Deck &deck)
+{
+    mPlayer.Clear();
+    mPlayer.Append(deck);
+}
+/*****************************************************************************/
+Score Client::GetScore()
 {
     return score;
 }
@@ -489,12 +500,8 @@ bool Client::DoAction(const ByteArray &data)
             {
                 handleDeck.SetOwner(DEFENSE);
             }
-            // Don't display the handle if we are the owner because we are in an other sequence (play card)
-            if (p != mPlace)
-            {
-                mSequence = SHOW_HANDLE;
-                mEventHandler.ShowHandle();
-            }
+            mSequence = SHOW_HANDLE;
+            mEventHandler.ShowHandle();
             break;
         }
 

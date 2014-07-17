@@ -333,7 +333,7 @@ void Bot::PlayCard()
         }
     }
 
-    mClient.GetMyDeck().Remove(c);
+    mClient.SetPlayedCard(c);
     mClient.SendCard(c);
 }
 /*****************************************************************************/

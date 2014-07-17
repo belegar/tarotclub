@@ -90,7 +90,7 @@ public:
     void DisplayDiscardMenu(bool visible);
     void DisplayHandleMenu(bool visible);
     void DisplayMainMenu(bool visible);
-    void ShowCard(std::uint8_t index, bool visible);
+    void HideCard(Card *c);
     void ToggleCardSelection(std::uint8_t index);
 
     // Getters
