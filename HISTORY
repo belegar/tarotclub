@@ -4,6 +4,12 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+* version 2.3.3 <Snowboard>
+  -------------------------------
+    ~ Correction: show handle sequence was not managed well
+    ~ Correction: the dog cards was hidden in the player's hand
+    ~ Correction: the slam tick was not cleared between two deals
+    
 * version 2.3.2 <Snowboard>
   -------------------------------
     ~ Correction: the user does not send the discard to the server

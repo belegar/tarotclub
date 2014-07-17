@@ -4,7 +4,7 @@
 ; Customize the Qt dir installation and version
 [Code]
 #define QT_DIR 	      "C:\Qt\Qt5.2.1\5.2.1\mingw48_32\bin"
-#define VERSION       "2.3.2"
+#define VERSION       "2.3.3"
 #define RELEASE_DIR   "build-desktop\release"
 #define SERVER_DIR    "build-server\release"
 
