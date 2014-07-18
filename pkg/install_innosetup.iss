@@ -4,17 +4,18 @@
 ; Customize the Qt dir installation and version
 [Code]
 #define QT_DIR 	      "C:\Qt\Qt5.2.1\5.2.1\mingw48_32\bin"
-#define VERSION       "2.3.3"
 #define RELEASE_DIR   "build-desktop\release"
 #define SERVER_DIR    "build-server\release"
+
+#include "../src/Defines.h"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{66E297AA-D2C9-4060-851F-3B8B9383ACF2}
-AppName=TarotClub-{#VERSION}
-AppVerName=TarotClub-{#VERSION}
+AppName=TarotClub-{#TAROT_VERSION}
+AppVerName=TarotClub-{#TAROT_VERSION}
 AppPublisher=TarotClub Corp.
 AppPublisherURL=http://www.tarotclub.fr
 AppSupportURL=http://www.tarotclub.fr
@@ -23,7 +24,7 @@ DefaultDirName={pf}\TarotClub
 DefaultGroupName=TarotClub
 LicenseFile=..\COPYING
 OutputDir=.
-OutputBaseFilename=TarotClub-{#VERSION}-Setup
+OutputBaseFilename=TarotClub-{#TAROT_VERSION}-Setup
 Compression=lzma
 SolidCompression=true
 WizardImageFile=compiler:wizmodernimage-IS.bmp
@@ -34,8 +35,8 @@ SetupIconFile=install.ico
 Name: french; MessagesFile: compiler:Languages\French.isl
 
 [Tasks]
-Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked
-Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked; OnlyBelowVersion: 0,6.1
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
 Source: ..\{#RELEASE_DIR}\TarotClub.exe; DestDir: {app}; Flags: ignoreversion

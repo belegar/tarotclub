@@ -193,7 +193,8 @@ HEADERS += ServerConfig.h \
     Protocol.h \
     Controller.h \
     Table.h \
-    Common.h
+    Common.h \
+    Defines.h
 
 SOURCES += ServerConfig.cpp \
     ClientConfig.cpp \

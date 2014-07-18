@@ -32,20 +32,7 @@
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
 #include "Util.h"
-
-/*****************************************************************************/
-// Game definitions
-
-/**
- * @brief The version string uses Semantic Versioning format
- * @see http://semver.org
- */
-#define TAROT_VERSION   "2.3.3"
-#define TAROT_TITRE     "TarotClub"
-#define TAROT_VNAME     "Snowboard"
-
-#define NB_LANGUAGE     2
-#define MAX_ROUNDS      5
+#include "Defines.h"
 
 /*****************************************************************************/
 enum Team           { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };
