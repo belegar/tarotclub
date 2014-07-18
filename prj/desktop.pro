@@ -80,7 +80,7 @@ QMAKE_CFLAGS_DEBUG      += -O0 -pedantic -std=c99 -fstrict-aliasing -ggdb
 QMAKE_CFLAGS_RELEASE    += -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame-pointer
 
 # ------------------------------------------------------------------------------
-# Targer definitions
+# Target definitions
 # ------------------------------------------------------------------------------
 TARGET = TarotClub # name of the output executable
 
@@ -250,7 +250,6 @@ FORMS += AboutUI.ui \
     OptionsUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
-    WinUI.ui \
     QuickJoin.ui \
     LobbyUI.ui
 

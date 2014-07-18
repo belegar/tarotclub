@@ -49,7 +49,6 @@ CheckBoxItem::CheckBoxItem(QGraphicsItem *parent, std::uint32_t space)
     pen.setWidth(2);
     square.setPen(pen);
 
-    text.setText("Slam");
     QFont font = text.font();
     font.setBold(true);
     text.setFont(font);

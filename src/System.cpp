@@ -36,6 +36,7 @@
 std::string System::mHomePath;
 std::string System::mDeckPath;
 std::string System::mScriptPath;
+std::string System::mLocalePath;
 
 /*****************************************************************************/
 void System::Initialize()
@@ -57,10 +58,12 @@ void System::Initialize()
     mHomePath  = Util::ExecutablePath() + "/.tarotclub/";
     mScriptPath = Util::ExecutablePath() + "/../../assets/ai/";
     mDeckPath = Util::ExecutablePath() + "/../../assets/cards/default/";
+    mLocalePath = Util::ExecutablePath() + "/../../prj/desktop/";
 #else
     mHomePath  = Util::HomePath() + "/.tarotclub/";
     mScriptPath = Util::ExecutablePath() + "/ai/";
     mDeckPath = Util::ExecutablePath() + "/default/";
+    mLocalePath = Util::ExecutablePath() + "/";
 #endif
 #endif
 
@@ -68,6 +71,7 @@ void System::Initialize()
     Util::ReplaceCharacter(mHomePath, "/", "\\");
     Util::ReplaceCharacter(mScriptPath, "/", "\\");
     Util::ReplaceCharacter(mDeckPath, "/", "\\");
+    Util::ReplaceCharacter(mLocalePath, "/", "\\");
 #endif
 
     // Check the user TarotClub directories and create them if necessary (all platforms)

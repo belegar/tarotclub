@@ -54,9 +54,6 @@ static const QPointF coordPlayerBox[5] =
     QPointF(0, 0)       // NORTH-WEST
 };
 
-#define STR_WIN      QObject::tr("Contract succeded by ")
-#define STR_LOSE     QObject::tr("Contract failed by ")
-#define STR_POINTS   QObject::tr(" points")
 
 /*****************************************************************************/
 class BorderLine : public QGraphicsItem
@@ -539,15 +536,14 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
 
     if (score.Winner() == ATTACK)
     {
-        result_str = QString("<h2><center><font color=\"darkgreen\">") + STR_WIN;
+        result_str = QString("<h2><center><font color=\"darkgreen\">") + tr("Contract succeded by ");
     }
     else
     {
-        result_str = QString("<font color=\"darkred\">") + STR_LOSE;
+        result_str = QString("<h2><center><font color=\"darkred\">") + tr("Contract failed by ");
     }
 
-    result_str += QString().setNum(abs(score.difference)) + STR_POINTS + QString("</font></center></h2><hr />");
-
+    result_str += QString().setNum(abs(score.difference)) + tr(" points") + QString("</font></center></h2><hr />");
     result_str += "<table><tr>";
 
     // Deal caracteristics
@@ -573,8 +569,8 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
     result_str += "</tr></table><hr />";
 
 
-    result_str += "Total defense: " + QString().setNum(score.GetDefenseScore()) + STR_POINTS + "<br />";
-    result_str += "Total attack: "  + QString().setNum(score.GetAttackScore()) + STR_POINTS + "<br />";
+    result_str += tr("Total defense: ") + QString().setNum(score.GetDefenseScore()) + tr(" points") + "<br />";
+    result_str += tr("Total attack: ")  + QString().setNum(score.GetAttackScore()) + tr(" points") + "<br />";
 
     mMsgBoxItem.SetText(result_str);
     mMsgBoxItem.show();

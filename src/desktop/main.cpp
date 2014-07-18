@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     QString locale = GetLocale();
 
     // Install language translation files
-    QString langPath = QString(Util::ExecutablePath().c_str()) + QString(Util::DIR_SEPARATOR) + QString("tarotclub_") + locale;
+    QString langPath = QString(System::LocalePath().c_str()) + QString("tarotclub_") + locale;
     if (translator.load(langPath) == false)
     {
         TLogError("Cannot load translation file: tarotclub_xx.");

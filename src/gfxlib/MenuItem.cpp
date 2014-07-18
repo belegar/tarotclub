@@ -27,6 +27,7 @@
 #include <QBrush>
 #include <QPainter>
 #include <QtGlobal>
+#include <QApplication>
 
 // Game includes
 #include "Common.h"
@@ -43,16 +44,16 @@ static const std::uint32_t SPACE = 10;
  *  MenuName menu;
  */
 
-static const MenuItem::Button buttonList[] =
+static const std::uint8_t buttonList[] =
 {
-    { QT_TR_NOOP("Pass"),             MenuItem::BIDS_MENU },
-    { QT_TR_NOOP("Take"),             MenuItem::BIDS_MENU },
-    { QT_TR_NOOP("Guard"),            MenuItem::BIDS_MENU },
-    { QT_TR_NOOP("Guard without"),    MenuItem::BIDS_MENU },
-    { QT_TR_NOOP("Guard against"),    MenuItem::BIDS_MENU },
-    { QT_TR_NOOP("Handle"),           MenuItem::HANDLE_MENU },
-    { QT_TR_NOOP("Accept"),           MenuItem::DISCARD_MENU },
-    { QT_TR_NOOP("Quick start"),      MenuItem::MAIN_MENU }
+    MenuItem::BIDS_MENU,
+    MenuItem::BIDS_MENU,
+    MenuItem::BIDS_MENU,
+    MenuItem::BIDS_MENU,
+    MenuItem::BIDS_MENU,
+    MenuItem::HANDLE_MENU,
+    MenuItem::DISCARD_MENU,
+    MenuItem::MAIN_MENU
 };
 
 /*****************************************************************************/
@@ -63,13 +64,12 @@ MenuItem::MenuItem(IButtonEvent *event)
     setRect(0, 0, 260, 130);
 
     // This menu manages N buttons
-    for (std::uint8_t i = 0U; i < (sizeof(buttonList)/sizeof(MenuItem::Button)); i++)
+    for (std::uint8_t i = 0U; i < sizeof(buttonList); i++)
     {
-        ButtonItem *button = new ButtonItem(event, i, buttonList[i].menu);
+        ButtonItem *button = new ButtonItem(event, i, buttonList[i]);
         button->setParentItem(this);
         button->hide();
-//        button->SetText(buttonList[i].text);
-        buttons.insert(&buttonList[i], button);
+        buttons.insert(buttonList[i], button);
     }
 
     checkBox.hide();
@@ -81,18 +81,26 @@ int MenuItem::type() const
     return Type;
 }
 /*****************************************************************************/
-
-#include <QApplication>
 void MenuItem::Initialize()
 {
+    QMap<std::uint8_t, ButtonItem *>::Iterator iter;
 
-    QMap<const MenuItem::Button *, ButtonItem *>::Iterator iter;
+    QString labels[] = {
+        tr("Pass"),
+        tr("Take"),
+        tr("Guard"),
+        tr("Guard without"),
+        tr("Guard against"),
+        tr("Handle"),
+        tr("Accept"),
+        tr("Quick start")
+    };
 
-    for (iter = buttons.begin(); iter != buttons.end(); ++iter)
+    for (std::uint8_t i = 0U; i < sizeof(buttonList); i++)
     {
-        iter.value()->SetText(QObject::tr(iter.key()->text));
+        iter.value()->SetText(labels[i]);
     }
-
+    checkBox.SetText(tr("Slam"));
 }
 /*****************************************************************************/
 void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -110,7 +118,7 @@ void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 /*****************************************************************************/
 void MenuItem::DisplayMenu(std::uint8_t menu)
 {
-    QMapIterator<const MenuItem::Button *, ButtonItem *> i(buttons);
+    QMapIterator<std::uint8_t, ButtonItem *> i(buttons);
     std::uint32_t pos = 0U;
 
     while (i.hasNext())

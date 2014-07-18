@@ -39,8 +39,10 @@
 #include "ButtonItem.h"
 
 /*****************************************************************************/
-class MenuItem : public QGraphicsRectItem
+class MenuItem : public QGraphicsRectItem, QObject
 {
+    Q_OBJECT
+
 public:
     MenuItem(IButtonEvent *event);
 
@@ -64,11 +66,6 @@ public:
     static const std::uint8_t DISCARD_MENU  = 3U;
     static const std::uint8_t MAIN_MENU     = 4U;
 
-    struct Button
-    {
-        const char* text;       //!< Text printed on this button
-        std::uint8_t menu;  //!< In which menu the button belongs to
-    };
 
     enum { Type = UserType + MENU_TYPE_ITEM };
 
@@ -89,7 +86,7 @@ private:
     QPointF GetButtonPosition(std::uint32_t pos);
 
     QColor color;
-    QMap<const MenuItem::Button *, ButtonItem *> buttons;
+    QMap<std::uint8_t, ButtonItem *> buttons; // menu type, button
     CheckBoxItem checkBox;
 };
 

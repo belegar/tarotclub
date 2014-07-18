@@ -59,6 +59,11 @@ public:
         tick.hide();
     }
 
+    void SetText(const QString &checkText)
+    {
+        text.setText(checkText);
+    }
+
 private:
     bool status;
     QGraphicsSvgItem tick;

@@ -44,6 +44,10 @@ public:
     {
         return mHomePath + "logs" + Util::DIR_SEPARATOR;
     }
+    static std::string LocalePath()
+    {
+        return mLocalePath;
+    }
 
     /**
      * @brief DeckPath, where the card images are located
@@ -66,6 +70,7 @@ private:
     static std::string mHomePath;
     static std::string mDeckPath;
     static std::string mScriptPath;
+    static std::string mLocalePath;
 };
 
 #endif // SYSTEM_H_

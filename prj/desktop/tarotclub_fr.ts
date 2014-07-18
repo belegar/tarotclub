@@ -585,6 +585,14 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
     </message>
 </context>
 <context>
+    <name>MenuItem</name>
+    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="92"/>
+        <source>Slam</source>
+        <translation>Chelem</translation>
+    </message>
+</context>
+<context>
     <name>NumberedDeal</name>
     <message>
         <location filename="../../src/desktop/forms/NumberedDealUI.ui" line="14"/>
@@ -778,44 +786,36 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="48"/>
         <source>Pass</source>
-        <translation>Passe</translation>
+        <translation type="vanished">Passe</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="49"/>
         <source>Take</source>
-        <translation>Prise</translation>
+        <translation type="vanished">Prise</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="50"/>
         <source>Guard</source>
-        <translation>Garde</translation>
+        <translation type="vanished">Garde</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="51"/>
         <source>Guard without</source>
-        <translation>Garde sans</translation>
+        <translation type="vanished">Garde sans</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="52"/>
         <source>Guard against</source>
-        <translation>Garde contre</translation>
+        <translation type="vanished">Garde contre</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="53"/>
         <source>Handle</source>
-        <translation>Poignée</translation>
+        <translation type="vanished">Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="54"/>
         <source>Accept</source>
-        <translation>Accepter</translation>
+        <translation type="vanished">Accepter</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="55"/>
         <source>Quick start</source>
-        <translation>Démarrer</translation>
+        <translation type="vanished">Démarrer</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/Canvas.cpp" line="57"/>
@@ -830,7 +830,11 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
     <message>
         <location filename="../../src/gfxlib/Canvas.cpp" line="59"/>
         <source> points</source>
-        <translation></translation>
+        <translation>points</translation>
+    </message>
+    <message>
+        <source>Slam</source>
+        <translation type="vanished">Chelem</translation>
     </message>
 </context>
 <context>
@@ -844,65 +848,41 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
 <context>
     <name>TarotWidget</name>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="240"/>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="521"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="245"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="541"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="241"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="246"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation>Votre poignée n&apos;est pas valide. Montrer l&apos;excuse signifie que vous n&apos;avez plus d&apos;atouts en main.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="522"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="542"/>
         <source>All the players have passed.
 New deal will begin.</source>
         <translation>Tous les joueurs ont passé. Une nouvelle donne va se lancer.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="546"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="570"/>
         <source>Handle</source>
         <translation>Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="547"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="571"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation>Vous possédez une poignée. Souhaitez-vous la déclarer ?</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="629"/>
         <source>Game result</source>
-        <translation>Résultat de la partie</translation>
+        <translation type="vanished">Résultat de la partie</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="630"/>
         <source>The winner is </source>
-        <translation>Le gagnant est </translation>
-    </message>
-</context>
-<context>
-    <name>WinUI</name>
-    <message>
-        <location filename="../../src/desktop/forms/WinUI.ui" line="20"/>
-        <source>Dialog</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/forms/WinUI.ui" line="26"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;OxygenSans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:16pt; font-weight:600;&quot;&gt;End of the tournament&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/forms/WinUI.ui" line="78"/>
-        <source>Ok</source>
-        <translation></translation>
+        <translation type="vanished">Le gagnant est </translation>
     </message>
 </context>
 <context>
