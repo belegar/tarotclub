@@ -328,8 +328,11 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
     if (slamDone)
     {
         // With a slam, the 1 of Trump bonus is valid if played
-        // in the penultimate trick
-        lastTrick--;
+        // in the penultimate trick AND if the fool is played in the last trick
+        if (tricks[lastTrick].HasFool())
+        {
+            lastTrick--;
+        }
     }
     if (tricks[lastTrick].HasOneOfTrump())
     {
