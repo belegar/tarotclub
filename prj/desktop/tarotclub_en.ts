@@ -68,6 +68,36 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
     </message>
 </context>
 <context>
+    <name>Canvas</name>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="539"/>
+        <source>Contract succeded by </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="543"/>
+        <source>Contract failed by </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="546"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="573"/>
+        <source> points</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
+        <source>Total defense: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="573"/>
+        <source>Total attack: </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ChatDock</name>
     <message>
         <location filename="../../src/desktop/docks/ChatDock.cpp" line="37"/>
@@ -579,14 +609,6 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
     </message>
 </context>
 <context>
-    <name>MenuItem</name>
-    <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="92"/>
-        <source>Slam</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>NumberedDeal</name>
     <message>
         <location filename="../../src/desktop/forms/NumberedDealUI.ui" line="14"/>
@@ -780,18 +802,48 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="57"/>
-        <source>Contract succeded by </source>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="87"/>
+        <source>Pass</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="58"/>
-        <source>Contract failed by </source>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="88"/>
+        <source>Take</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="59"/>
-        <source> points</source>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="89"/>
+        <source>Guard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="90"/>
+        <source>Guard without</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="91"/>
+        <source>Guard against</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="92"/>
+        <source>Handle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="93"/>
+        <source>Accept</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="94"/>
+        <source>Quick start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="101"/>
+        <source>Slam</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
