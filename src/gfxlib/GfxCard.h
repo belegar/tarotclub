@@ -63,6 +63,7 @@ private:
     bool mSelected;
     ICardEvent *mEvent;
     std::uint8_t mId;
+    QGraphicsDropShadowEffect shadow;
 };
 
 #endif // GFXCARD_H
