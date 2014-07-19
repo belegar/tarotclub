@@ -7,6 +7,7 @@ HISTORY OF TAROTCLUB VERSIONS
 * version 2.3.4 <Snowboard>
   -------------------------------
     ~ Correction: little endian bonus in case of slam and fool in last trick was not detected
+    + New drop shadow effect on cards
 
 * version 2.3.3 <Snowboard>
   -------------------------------
