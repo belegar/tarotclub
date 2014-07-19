@@ -70,30 +70,91 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>Canvas</name>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="539"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="547"/>
         <source>Contract succeded by </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="543"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="551"/>
         <source>Contract failed by </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="546"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="573"/>
-        <source> points</source>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="554"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="580"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
+        <source>points</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="559"/>
+        <source>Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="560"/>
+        <source>Taker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="561"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="569"/>
+        <source>Contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="562"/>
+        <source>Number of oudlers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="563"/>
+        <source>Points</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="564"/>
+        <source>Points to do</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="568"/>
+        <source>Calculation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="570"/>
+        <source>Earn / loss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="571"/>
+        <source>Little endian bonus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
-        <source>Total defense: </source>
+        <source>Contract multiplier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/Canvas.cpp" line="573"/>
-        <source>Total attack: </source>
+        <source>Handle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="574"/>
+        <source>Slam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="580"/>
+        <source>Total defense</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
+        <source>Total attack</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -802,26 +863,31 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="465"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="87"/>
         <source>Pass</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="466"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="88"/>
         <source>Take</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="467"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="89"/>
         <source>Guard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="468"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="90"/>
         <source>Guard without</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="469"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="91"/>
         <source>Guard against</source>
         <translation type="unfinished"></translation>

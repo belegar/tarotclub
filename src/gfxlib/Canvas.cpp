@@ -461,8 +461,16 @@ void Canvas::ShowSelection(Place p, Place myPlace)
 /*****************************************************************************/
 void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 {
+    QString labels[] = {
+        QObject::tr("Pass"),
+        QObject::tr("Take"),
+        QObject::tr("Guard"),
+        QObject::tr("Guard without"),
+        QObject::tr("Guard against")
+    };
+
     Place rel = SwapPlace(myPlace, p);  // relative place
-    playerBox.value(rel)->SetBidText(contract.ToString().data());
+    playerBox.value(rel)->SetBidText(labels[contract.Value()]);
 }
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
@@ -532,7 +540,7 @@ bool Canvas::TestFilter(quint8 mask)
 /*****************************************************************************/
 void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
 {
-    QString result_str;
+    QString result_str = "<html><head></head><body>";
 
     if (score.Winner() == ATTACK)
     {
@@ -543,34 +551,37 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
         result_str = QString("<h2><center><font color=\"darkred\">") + tr("Contract failed by ");
     }
 
-    result_str += QString().setNum(abs(score.difference)) + tr(" points") + QString("</font></center></h2><hr />");
+    result_str += QString().setNum(abs(score.difference)) + QString(" ") + tr("points") + QString("</font></center></h2><hr />");
     result_str += "<table><tr>";
 
     // Deal caracteristics
-    result_str += "<td><table>";
-    result_str += QString("<tr><td colspan=\"2\"><b>Summary</b><td /></tr>");
-    result_str += QString("<tr><td>Taker:</td><td>") + QString(bid.taker.ToString().data()) + QString("</td></tr>");
-    result_str += QString("<tr><td>Contract:</td><td>") + QString(bid.contract.ToString().data()) + QString("</td>");
-    result_str += QString("<tr><td>Number of oudlers:</td><td>") + QString().setNum(score.GetNumberOfOudlers()) + QString("</td></tr>");
-    result_str += QString("<tr><td>Points:</td><td>") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
-    result_str += QString("<tr><td>Points to do: </td><td>") + QString().setNum((int)score.pointsToDo) + QString("</td></tr>");
+    result_str += "<td width=50%><table>";
+    result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Summary") + QString("</b><td /></tr>");
+    result_str += QString("<tr><td>") + tr("Taker") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString(bid.taker.ToString().data()) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString(bid.contract.ToString().data()) + QString("</td>");
+    result_str += QString("<tr><td>") + tr("Number of oudlers") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.GetNumberOfOudlers()) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Points") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Points to do") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)score.pointsToDo) + QString("</td></tr>");
     result_str += "</table></td>";
 
-    result_str += "<td><table>";
-    result_str += QString("<tr><td colspan=\"2\"><b>Calculation</b><td /></tr>");
-    result_str += QString("<tr><td>Contract:</td><td>25</td></tr>");
-    result_str += QString("<tr><td>Earn / loss:</td><td>") + QString().setNum(abs(score.difference)) + QString("</td>");
-    result_str += QString("<tr><td>Little endian bonus:</td><td>") + QString().setNum(score.littleEndianPoints) + QString("</td></tr>");
-    result_str += QString("<tr><td>Contract multiplier:</td><td>") + QString().setNum(score.multiplier) + QString("</td></tr>");
-    result_str += QString("<tr><td>Handle: </td><td>") + QString().setNum(score.handlePoints) + QString("</td></tr>");
-    result_str += QString("<tr><td>Slam: </td><td>") + QString().setNum(score.slamPoints) + QString("</td></tr>");
+    result_str += "<td width=50%><table>";
+    result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Calculation") + QString("</b><td /></tr>");
+    result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;25</td></tr>");
+    result_str += QString("<tr><td>") + tr("Earn / loss") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(abs(score.difference)) + QString("</td>");
+    result_str += QString("<tr><td>") + tr("Little endian bonus") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.littleEndianPoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Contract multiplier") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.multiplier) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Handle") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.handlePoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Slam") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.slamPoints) + QString("</td></tr>");
     result_str += "</table></td>";
 
     result_str += "</tr></table><hr />";
 
 
-    result_str += tr("Total defense: ") + QString().setNum(score.GetDefenseScore()) + tr(" points") + "<br />";
-    result_str += tr("Total attack: ")  + QString().setNum(score.GetAttackScore()) + tr(" points") + "<br />";
+    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(score.GetDefenseScore()) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(score.GetAttackScore()) + QString(" ")  + tr("points") + "<br />";
+
+
+    result_str += "</body></html>";
 
     mMsgBoxItem.SetText(result_str);
     mMsgBoxItem.show();

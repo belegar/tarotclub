@@ -76,31 +76,92 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
 <context>
     <name>Canvas</name>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="539"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="547"/>
         <source>Contract succeded by </source>
         <translation>Contrat réussi de </translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="543"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="551"/>
         <source>Contract failed by </source>
         <translation>Contrat échoué de </translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="546"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="573"/>
-        <source> points</source>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="554"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="580"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
+        <source>points</source>
         <translation>points</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="559"/>
+        <source>Summary</source>
+        <translation>Résumé</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="560"/>
+        <source>Taker</source>
+        <translation>Preneur</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="561"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="569"/>
+        <source>Contract</source>
+        <translation>Contrat</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="562"/>
+        <source>Number of oudlers</source>
+        <translation>Nombre de bouts</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="563"/>
+        <source>Points</source>
+        <translation>Points</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="564"/>
+        <source>Points to do</source>
+        <translation>Points à faire</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="568"/>
+        <source>Calculation</source>
+        <translation>Calcul</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="570"/>
+        <source>Earn / loss</source>
+        <translation>Gains / pertes</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="571"/>
+        <source>Little endian bonus</source>
+        <translation>Bonus petit au bout</translation>
+    </message>
+    <message>
         <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
-        <source>Total defense: </source>
-        <translation>Total défense : </translation>
+        <source>Contract multiplier</source>
+        <translation>Multiplicateur de contrat</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/Canvas.cpp" line="573"/>
-        <source>Total attack: </source>
-        <translation>Total attaque : </translation>
+        <source>Handle</source>
+        <translation>Poignée</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="574"/>
+        <source>Slam</source>
+        <translation>Chelem</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="580"/>
+        <source>Total defense</source>
+        <translation>Total défense</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
+        <source>Total attack</source>
+        <translation>Total attaque</translation>
     </message>
 </context>
 <context>
@@ -808,26 +869,31 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="465"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="87"/>
         <source>Pass</source>
         <translation>Passe</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="466"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="88"/>
         <source>Take</source>
         <translation>Prise</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="467"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="89"/>
         <source>Guard</source>
         <translation>Garde</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="468"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="90"/>
         <source>Guard without</source>
         <translation>Garde sans</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="469"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="91"/>
         <source>Guard against</source>
         <translation>Garde contre</translation>
