@@ -9,6 +9,7 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Correction: little endian bonus in case of slam and fool in last trick was not detected
     ~ Correction: translated deal result text in french
     + New drop shadow effect on cards
+    + New radial gradient effect for the background color
 
 * version 2.3.3 <Snowboard>
   -------------------------------
