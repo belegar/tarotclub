@@ -121,10 +121,7 @@ signals:
     void sigStartGame();
 
 protected:
-
     void  mousePressEvent(QMouseEvent *e);
-/*    void  mouseMoveEvent(QMouseEvent *e);
-    */
     void  resizeEvent(QResizeEvent *event);
 
 private:

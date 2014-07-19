@@ -159,15 +159,23 @@ bool Canvas::Initialize()
         popupItem.SetSizes(border, cardSize);
         mMsgBoxItem.SetBorder(border);
     }
+
     return ret;
 }
 /*****************************************************************************/
 void Canvas::SetBackground(const std::string &code)
 {
     QColor color(code.c_str());
+
+    QRectF size = scene.sceneRect();
+
+    QRadialGradient gradient(size.width()/2, size.height()/2, size.width()*2);
+
     if (color.isValid())
     {
-        scene.setBackgroundBrush(color);
+        gradient.setColorAt(0, color);
+        gradient.setColorAt(1, Qt::black);
+        scene.setBackgroundBrush(gradient);
     }
 }
 /*****************************************************************************/
