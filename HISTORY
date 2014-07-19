@@ -8,6 +8,8 @@ HISTORY OF TAROTCLUB VERSIONS
   -------------------------------
     ~ Correction: little endian bonus in case of slam and fool in last trick was not detected
     ~ Correction: translated deal result text in french
+    ~ Correction of the highest suit dection (trick winner)
+    ~ Correction of the last trick, it was not taken into account
     + New drop shadow effect on cards
     + New radial gradient effect for the background color
 
