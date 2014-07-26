@@ -41,7 +41,6 @@ public:
     // Helpers
     void SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay);
     void CreateTable(std::uint8_t nbPlayers);
-    void NewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
     void Initialize();
     void Stop();
     void ConnectBots();

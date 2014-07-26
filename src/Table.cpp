@@ -155,11 +155,6 @@ void Table::CreateTable(std::uint8_t nbPlayers)
     mIsFull = false;
 }
 /*****************************************************************************/
-void Table::NewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle)
-{
-    mController.ExecuteRequest(Protocol::AdminNewGame(gameMode, shuffle));
-}
-/*****************************************************************************/
 void Table::Initialize()
 {
     if (!TcpSocket::Initialize())
