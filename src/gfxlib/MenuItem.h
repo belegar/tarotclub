@@ -39,10 +39,8 @@
 #include "ButtonItem.h"
 
 /*****************************************************************************/
-class MenuItem : public QGraphicsRectItem, QObject
+class MenuItem : public QGraphicsRectItem
 {
-    Q_OBJECT
-
 public:
     MenuItem(IButtonEvent *event);
 
@@ -86,7 +84,7 @@ private:
     QPointF GetButtonPosition(std::uint32_t pos);
 
     QColor color;
-    QMap<std::uint8_t, ButtonItem *> buttons; // menu type, button
+    std::vector<ButtonItem *> buttons; // menu type, button
     CheckBoxItem checkBox;
 };
 

@@ -465,15 +465,7 @@ bool Controller::DoAction(const ByteArray &data)
             {
                 if (engine.Sync(TarotEngine::WAIT_FOR_END_OF_TRICK, uuid))
                 {
-                    if (engine.IsLastTrick())
-                    {
-                        engine.EndOfDeal();
-                        SendPacket(Protocol::ServerEndOfDeal(engine.GetScore()));
-                    }
-                    else
-                    {
-                        GameSequence();
-                    }
+                    GameSequence();
                 }
             }
             break;
@@ -560,37 +552,46 @@ void Controller::BidSequence()
 void Controller::GameSequence()
 {
     engine.GameSequence();
-    TarotEngine::Sequence seq = engine.GetSequence();
 
-    Place p = engine.GetCurrentPlayer();
-
-    switch (seq)
+    if (engine.IsLastTrick())
     {
-        case TarotEngine::WAIT_FOR_END_OF_TRICK:
-            SendPacket(Protocol::ServerEndOfTrick(p));
-            break;
+        engine.EndOfDeal();
+        SendPacket(Protocol::ServerEndOfDeal(engine.GetScore()));
+    }
+    else
+    {
+        TarotEngine::Sequence seq = engine.GetSequence();
 
-        case TarotEngine::WAIT_FOR_PLAYED_CARD:
-            SendPacket(Protocol::ServerPlayCard(p));
-            break;
+        Place p = engine.GetCurrentPlayer();
 
-        case TarotEngine::WAIT_FOR_HANDLE:
+        switch (seq)
         {
-            Player *player = engine.GetPlayer(p);
-            if (player != NULL)
-            {
-                SendPacket(Protocol::ServerAskForHandle(player->GetUuid()));
-            }
-            else
-            {
-                TLogError("Big problem here...");
-            }
-        }
-        break;
+            case TarotEngine::WAIT_FOR_END_OF_TRICK:
+                SendPacket(Protocol::ServerEndOfTrick(p));
+                break;
 
-        default:
-            TLogError("Bad sequence, game engine state problem");
+            case TarotEngine::WAIT_FOR_PLAYED_CARD:
+                SendPacket(Protocol::ServerPlayCard(p));
+                break;
+
+            case TarotEngine::WAIT_FOR_HANDLE:
+            {
+                Player *player = engine.GetPlayer(p);
+                if (player != NULL)
+                {
+                    SendPacket(Protocol::ServerAskForHandle(player->GetUuid()));
+                }
+                else
+                {
+                    TLogError("Big problem here...");
+                }
+            }
             break;
+
+            default:
+                TLogError("Bad sequence, game engine state problem");
+                break;
+        }
     }
 }
 /*****************************************************************************/

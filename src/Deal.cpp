@@ -104,6 +104,7 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
         cLeader = trick.HighestTrump();
         if (cLeader == NULL)
         {
+            // lead color is the first one, expect if the first card is a fool. In that case, the second player plays the lead color
             cLeader = trick.HighestSuit();
         }
         if (cLeader == NULL)

@@ -44,7 +44,7 @@ static const std::uint32_t SPACE = 10;
  *  MenuName menu;
  */
 
-static const std::uint8_t buttonList[] =
+static const std::uint8_t buttonMenu[] =
 {
     MenuItem::BIDS_MENU,
     MenuItem::BIDS_MENU,
@@ -64,12 +64,12 @@ MenuItem::MenuItem(IButtonEvent *event)
     setRect(0, 0, 260, 130);
 
     // This menu manages N buttons
-    for (std::uint8_t i = 0U; i < sizeof(buttonList); i++)
+    for (std::uint8_t i = 0U; i < sizeof(buttonMenu); i++)
     {
-        ButtonItem *button = new ButtonItem(event, i, buttonList[i]);
+        ButtonItem *button = new ButtonItem(event, i, buttonMenu[i]);
         button->setParentItem(this);
         button->hide();
-        buttons.insert(buttonList[i], button);
+        buttons.push_back(button);
     }
 
     checkBox.hide();
@@ -83,24 +83,22 @@ int MenuItem::type() const
 /*****************************************************************************/
 void MenuItem::Initialize()
 {
-    QMap<std::uint8_t, ButtonItem *>::Iterator iter;
-
     QString labels[] = {
-        tr("Pass"),
-        tr("Take"),
-        tr("Guard"),
-        tr("Guard without"),
-        tr("Guard against"),
-        tr("Handle"),
-        tr("Accept"),
-        tr("Quick start")
+        QObject::tr("Pass"),
+        QObject::tr("Take"),
+        QObject::tr("Guard"),
+        QObject::tr("Guard without"),
+        QObject::tr("Guard against"),
+        QObject::tr("Handle"),
+        QObject::tr("Accept"),
+        QObject::tr("Quick start")
     };
 
-    for (std::uint8_t i = 0U; i < sizeof(buttonList); i++)
+    for (std::uint8_t i = 0U; i < sizeof(buttonMenu); i++)
     {
-        iter.value()->SetText(labels[i]);
+        buttons[i]->SetText(labels[i]);
     }
-    checkBox.SetText(tr("Slam"));
+    checkBox.SetText(QObject::tr("Slam"));
 }
 /*****************************************************************************/
 void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -118,22 +116,21 @@ void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 /*****************************************************************************/
 void MenuItem::DisplayMenu(std::uint8_t menu)
 {
-    QMapIterator<std::uint8_t, ButtonItem *> i(buttons);
+    std::vector<ButtonItem *>::iterator iter;
     std::uint32_t pos = 0U;
 
-    while (i.hasNext())
+    for (iter = buttons.begin(); iter != buttons.end(); ++iter)
     {
-        i.next();
-        if (i.key()->menu == menu)
+        if ((*iter)->GetMenu() == menu)
         {
-            i.value()->setPos(GetButtonPosition(pos));
-            i.value()->show();
-            i.value()->HighLight(false);
+            (*iter)->setPos(GetButtonPosition(pos));
+            (*iter)->show();
+            (*iter)->HighLight(false);
             pos++;
         }
         else
         {
-            i.value()->hide();
+            (*iter)->hide();
         }
     }
     checkBox.hide();
@@ -141,30 +138,29 @@ void MenuItem::DisplayMenu(std::uint8_t menu)
 /*****************************************************************************/
 void MenuItem::DisplayMenu(Contract minContract)
 {
-    QMapIterator<const MenuItem::Button *, ButtonItem *> i(buttons);
+    std::vector<ButtonItem *>::iterator iter;
     std::uint32_t pos = 0U;
 
-    while (i.hasNext())
+    for (iter = buttons.begin(); iter != buttons.end(); ++iter)
     {
-        i.next();
-        if (i.key()->menu == BIDS_MENU)
+        if ((*iter)->GetMenu() == BIDS_MENU)
         {
-            i.value()->setPos(GetButtonPosition(pos));
-            i.value()->show();
-            i.value()->HighLight(false);
-            std::uint32_t id = i.value()->GetId();
+            (*iter)->setPos(GetButtonPosition(pos));
+            (*iter)->show();
+            (*iter)->HighLight(false);
+            std::uint32_t id = (*iter)->GetId();
             if (id != PASS_BUTTON)
             {
                 if (minContract >= Contract(id))
                 {
-                    i.value()->hide();
+                    (*iter)->hide();
                 }
             }
             pos++;
         }
         else
         {
-            i.value()->hide();
+            (*iter)->hide();
         }
     }
     checkBox.setPos(GetButtonPosition(pos));

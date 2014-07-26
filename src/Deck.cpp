@@ -236,18 +236,37 @@ Card *Deck::HighestTrump() const
     return c;
 }
 /*****************************************************************************/
+/**
+ * @brief Deck::HighestSuit
+ *
+ * This algorithm take into account that the first card played lead the color
+ *
+ * @return the card leader, null if not found
+ */
 Card *Deck::HighestSuit() const
 {
     Card *c = NULL;
     int value = 0;
+    Card::Suit suit; // leading suit
+    bool hasLead = false;
 
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         if (((*i)->GetSuit() != Card::TRUMPS) &&
                 ((*i)->GetValue() > value))
         {
-            value = (*i)->GetValue();
-            c = (*i);
+            if (!hasLead)
+            {
+                hasLead = true;
+                suit = (*i)->GetSuit();
+                value = (*i)->GetValue();
+                c = (*i);
+            }
+            else if ((*i)->GetSuit() == suit)
+            {
+                value = (*i)->GetValue();
+                c = (*i);
+            }
         }
     }
     return c;

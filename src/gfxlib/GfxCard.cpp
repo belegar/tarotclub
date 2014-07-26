@@ -34,6 +34,12 @@ GfxCard::GfxCard(const QString &fileName, ICardEvent *event, std::uint8_t id, QG
 {
     setAcceptHoverEvents(true);
     setAcceptTouchEvents(true);
+
+
+    shadow.setBlurRadius(20.0);
+    shadow.setColor(Qt::black);
+    shadow.setOffset(0,0);
+    setGraphicsEffect(&shadow);
 }
 /*****************************************************************************/
 void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

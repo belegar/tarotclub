@@ -74,6 +74,97 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
     </message>
 </context>
 <context>
+    <name>Canvas</name>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="555"/>
+        <source>Contract succeded by </source>
+        <translation>Contrat réussi de </translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="559"/>
+        <source>Contract failed by </source>
+        <translation>Contrat échoué de </translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="562"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="588"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="589"/>
+        <source>points</source>
+        <translation>points</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="567"/>
+        <source>Summary</source>
+        <translation>Résumé</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="568"/>
+        <source>Taker</source>
+        <translation>Preneur</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="569"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="577"/>
+        <source>Contract</source>
+        <translation>Contrat</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="570"/>
+        <source>Number of oudlers</source>
+        <translation>Nombre de bouts</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="571"/>
+        <source>Points</source>
+        <translation>Points</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
+        <source>Points to do</source>
+        <translation>Points à faire</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="576"/>
+        <source>Calculation</source>
+        <translation>Calcul</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="578"/>
+        <source>Earn / loss</source>
+        <translation>Gains / pertes</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="579"/>
+        <source>Little endian bonus</source>
+        <translation>Bonus petit au bout</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="580"/>
+        <source>Contract multiplier</source>
+        <translation>Multiplicateur de contrat</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
+        <source>Handle</source>
+        <translation>Poignée</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="582"/>
+        <source>Slam</source>
+        <translation>Chelem</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="588"/>
+        <source>Total defense</source>
+        <translation>Total défense</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="589"/>
+        <source>Total attack</source>
+        <translation>Total attaque</translation>
+    </message>
+</context>
+<context>
     <name>ChatDock</name>
     <message>
         <location filename="../../src/desktop/docks/ChatDock.cpp" line="37"/>
@@ -391,7 +482,7 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
     <message>
         <location filename="../../src/desktop/MainWindow.cpp" line="249"/>
         <source>New &amp;tournament</source>
-        <translation>Nouveau &amp;Tournois</translation>
+        <translation>Nouveau &amp;Tournoi</translation>
     </message>
     <message>
         <location filename="../../src/desktop/MainWindow.cpp" line="250"/>
@@ -582,14 +673,6 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
         <location filename="../../src/desktop/MainWindow.cpp" line="335"/>
         <source>Help</source>
         <translation>Aide</translation>
-    </message>
-</context>
-<context>
-    <name>MenuItem</name>
-    <message>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="92"/>
-        <source>Slam</source>
-        <translation>Chelem</translation>
     </message>
 </context>
 <context>
@@ -786,55 +869,54 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="473"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="87"/>
         <source>Pass</source>
-        <translation type="vanished">Passe</translation>
+        <translation>Passe</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="474"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="88"/>
         <source>Take</source>
-        <translation type="vanished">Prise</translation>
+        <translation>Prise</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="475"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="89"/>
         <source>Guard</source>
-        <translation type="vanished">Garde</translation>
+        <translation>Garde</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="476"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="90"/>
         <source>Guard without</source>
-        <translation type="vanished">Garde sans</translation>
+        <translation>Garde sans</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="477"/>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="91"/>
         <source>Guard against</source>
-        <translation type="vanished">Garde contre</translation>
+        <translation>Garde contre</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="92"/>
         <source>Handle</source>
-        <translation type="vanished">Poignée</translation>
+        <translation>Poignée</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="93"/>
         <source>Accept</source>
-        <translation type="vanished">Accepter</translation>
+        <translation>Accepter</translation>
     </message>
     <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="94"/>
         <source>Quick start</source>
-        <translation type="vanished">Démarrer</translation>
+        <translation>Démarrer</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="57"/>
-        <source>Contract succeded by </source>
-        <translation>Contrat réussi de </translation>
-    </message>
-    <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="58"/>
-        <source>Contract failed by </source>
-        <translation>Contrat échoué de </translation>
-    </message>
-    <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="59"/>
-        <source> points</source>
-        <translation>points</translation>
-    </message>
-    <message>
+        <location filename="../../src/gfxlib/MenuItem.cpp" line="101"/>
         <source>Slam</source>
-        <translation type="vanished">Chelem</translation>
+        <translation>Chelem</translation>
     </message>
 </context>
 <context>
@@ -875,14 +957,6 @@ New deal will begin.</source>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation>Vous possédez une poignée. Souhaitez-vous la déclarer ?</translation>
-    </message>
-    <message>
-        <source>Game result</source>
-        <translation type="vanished">Résultat de la partie</translation>
-    </message>
-    <message>
-        <source>The winner is </source>
-        <translation type="vanished">Le gagnant est </translation>
     </message>
 </context>
 <context>
