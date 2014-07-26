@@ -36,7 +36,7 @@ GfxCard::GfxCard(const QString &fileName, ICardEvent *event, std::uint8_t id, QG
     setAcceptTouchEvents(true);
 
 
-    shadow.setBlurRadius(20.0);
+    shadow.setBlurRadius(15.0);
     shadow.setColor(Qt::black);
     shadow.setOffset(0,0);
     setGraphicsEffect(&shadow);
