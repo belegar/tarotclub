@@ -93,7 +93,7 @@ public:
         SERVER_ERROR_FULL       = 0x82, //!< Server is full, cannot join game
 
         // FIXME: Not implemented in the server side
-        SERVER_DISCONNECT       = 0x82, //!< Ask a client to quit the game
+        SERVER_DISCONNECT       = 0x83, //!< Ask a client to quit the game
 
         // system -> server
         SYSTEM_CREATE_TABLE     = 0xA0, //!< Ask the server to start a new table with N players
