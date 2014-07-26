@@ -124,6 +124,12 @@ bool Controller::DoAction(const ByteArray &data)
             break;
         }
 
+        case Protocol::CLIENT_ERROR:
+        {
+            TLogError("Client has sent an error code");
+            break;
+        }
+
         case Protocol::SYSTEM_CREATE_TABLE:
         {
             if (uuid == Protocol::SYSTEM_UID)
