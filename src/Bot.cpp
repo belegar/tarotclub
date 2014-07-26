@@ -395,7 +395,7 @@ void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()
 {
-    bool retCode = false;
+    bool retCode = true;
     std::string appRoot;
 
     appRoot = System::ScriptPath();
