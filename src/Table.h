@@ -32,7 +32,7 @@
 #include "UniqueId.h"
 
 /*****************************************************************************/
-class Table : public TcpServer::IEvent
+class Table : public TcpServer::IEvent, Controller::IEvent
 {
 
 public:
@@ -40,14 +40,15 @@ public:
 
     // Helpers
     void SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay);
-    void CreateGame(Tarot::GameMode gameMode, int nbPlayers, const Tarot::Shuffle &shuffle);
-    void NewDeal();
+    void CreateTable(std::uint8_t nbPlayers);
+    void NewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
     void Initialize();
     void Stop();
     void ConnectBots();
 
     // Getters
     std::uint16_t GetTcpPort();
+    bool IsCreated() { return mCreated; }
 
     // Setters
     void SaveConfiguration(const ServerOptions &opt);
@@ -58,48 +59,20 @@ public:
     virtual void ReadData(int socket, const std::string &data);
     virtual void ClientClosed(int socket);
 
+    // From Controller
+    virtual void SendData(const ByteArray &block);
+
 private:
-    class ControllerListener : public Observer<Controller::Signal>
-    {
-    public:
-        ControllerListener(Table &i_table)
-            : mTable(i_table)
-        {
-
-        }
-
-        void Update(const Controller::Signal &info)
-        {
-            if (info.type == Controller::SIG_SEND_DATA)
-            {
-                mTable.SendToSocket(info.data);
-            }
-            else if (info.type == Controller::SIG_GAME_FULL)
-            {
-                if (mTable.mAutoStart)
-                {
-                    mTable.NewDeal();
-                }
-            }
-        }
-
-    private:
-        Table &mTable;
-    };
-
-    friend class ControllerListener;
-
-    void SendToSocket(const ByteArray &packet);
     void StopServer();
     void CloseClients();
 
-    ControllerListener mControllerListener;
     int             mTcpPort;
     Controller      mController;
     Bot             mBots[3];
     UniqueId        mIdManager;
     TcpServer       mTcpServer;
-    bool            mAutoStart;
+    bool            mCreated;   ///< True if the table has been created
+    bool            mIsFull;
 
     // Pair of UUID and socket
     std::map<std::uint32_t, std::int32_t> mUsers;
