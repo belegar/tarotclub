@@ -4,6 +4,13 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+* version 2.3.5 <Snowboard>
+  -------------------------------
+    ~ Correction: About box was too large (switched to a text edit control)
+    ~ Change in the network protocol: clear separation between a game and a deal
+    ~ Various defense AI corrections
+    + New AI attack, basic version, with discard build
+
 * version 2.3.4 <Snowboard>
   -------------------------------
     ~ Correction: little endian bonus in case of slam and fool in last trick was not detected
