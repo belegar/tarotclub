@@ -555,9 +555,12 @@ void TarotWidget::slotAllPassed()
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
     mCanvas->InitBoard();
 
-    QMessageBox::information(this, trUtf8("Information"),
-                             trUtf8("All the players have passed.\n"
-                                    "New deal will begin."));
+    if (!mAutoPlay)
+    {
+        QMessageBox::information(this, trUtf8("Information"),
+                                 trUtf8("All the players have passed.\n"
+                                        "New deal will start."));
+    }
     mClient.SendSyncAllPassed();
 }
 /*****************************************************************************/
