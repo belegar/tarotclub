@@ -60,6 +60,69 @@ var p = Card.prototype;
         systemPrint("Card value: " + this.value + " Suit: " + this.suit + " Owner: " + place);
 	};
 
+
+    /**
+     *  @param[in] Card class
+     */
+    p.getHtmlName = function()
+    {
+        var htmlCode;
+        
+        if (this.suit != "T")
+        {
+            if (this.value == 11)
+            {
+                htmlCode = "V";
+            }
+            else if (this.value == 12)
+            {
+                htmlCode = "C";
+            }
+            else if (this.value == 13)
+            {
+                htmlCode = "D";
+            }
+            else if (this.value == 14)
+            {
+                htmlCode = "K";
+            }
+            else
+            {
+                htmlCode = this.value;
+            }
+        }
+        else
+        {
+            htmlCode = this.value;
+        }
+
+        htmlCode += "-";
+
+        // then we append the suit HTML code
+        if (this.suit == TarotLib.Suit.SPADES)
+        {
+            htmlCode += "&spades;";
+        }
+        else if (this.suit == TarotLib.Suit.HEARTS)
+        {
+            htmlCode += "&hearts;";
+        }
+        else if (this.suit == TarotLib.Suit.CLUBS)
+        {
+            htmlCode += "&clubs;";
+        }
+        else if (this.suit == TarotLib.Suit.DIAMONDS)
+        {
+            htmlCode += "&diams;";
+        }
+        else
+        {
+            // Trumps
+            htmlCode += "A";
+        }
+        return htmlCode;
+    };
+
 TarotLib.Card = Card;
 }());
 // End of file

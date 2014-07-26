@@ -15,11 +15,19 @@
 	<script type="text/javascript" src="../../../assets/ai/beginner.js"></script>
 	<script type="text/javascript" src="unit_test.js"></script>
 
-	<script>	
-		UnitTestModule.RunUnitTest();
+	<script>
+		UnitTestModule.HtmlHeader();
+
+
+		UnitTestModule.RunCardAndDeckTests();
 		UnitTestModule.RunStatsTest();
 		UnitTestModule.RunMissingSuitDetectionTester();
-		UnitTestModule.RunFakeGame();
+		
+		UnitTestModule.RunDiscardTest();
+
+		//UnitTestModule.RunFakeGame();
+
+		UnitTestModule.HtmlFooter();
 	</script>
   </head>
   <body>

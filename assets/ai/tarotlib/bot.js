@@ -305,50 +305,89 @@ var p = Bot.prototype;
         return cont;
     };
 
+    /**
+     *  @brief Constructs a valid discard, attack strategy
+     *  We're building the discard:
+      *    - Save queens, knights and jacks
+      *    - Try to make cuts in suits
+     *
+     *  @param[in] dogDeck, string format
+     */
     p.buildDiscard = function(dogDeck)
     {
         var ok = false;
         var i = 0;
         var discard = new TarotLib.Deck();
-        discard.setCards(dogDeck);
+        var possibleCuts = [];
+        var possibleCutsCounter = 0;
+      
+        this.deck.addCards(dogDeck);
+        var suitToAdd;
+        var bestSuitToAdd = 0;
 
-        systemPrint("Received dog: " + dogDeck + " JsBot discard before: " + discard.toString());
-
-        // We're looking for trumps or kings in the deck and we replace
-        // them by other valid cards
-        while (ok == false)
+        // Look if we can have cuts in some suits
+        for (i = 0; i < 4; i++)
         {
-            var c = discard.get(i);
-            if ((c.suit === TarotLib.Suit.TRUMPS) ||
-                    ((c.suit !== TarotLib.Suit.TRUMPS) && (c.value === 14)))
+            var suit = TarotLib.Suit.toString(i);
+            if ((this.stats.suits[suit] < 7) && (this.stats.suits[suit] > 0))
             {
-                // looking for valid card in the player's deck
-                for (var j = 0; j < this.deck.size(); j++)
+                // If this suit contains a king, this is not a good candidate for a discard
+                if (this.deck.hasCard(14, suit))
                 {
-                    var playerCard = this.deck.get(j);
-                    if ((playerCard.suit !== TarotLib.Suit.TRUMPS) && (playerCard.value < 14))
+                    possibleCuts[i] = false;
+                }
+                else
+                {
+                    possibleCuts[i] = true;
+                    possibleCutsCounter++;
+                    if (this.stats.suitPoints[suit] >= bestSuitToAdd)
                     {
-                        // Exchange card in the player's deck
-                        this.deck.removeCard(playerCard.getName());
-                        this.deck.addOneCard(c.getName());
+                        bestSuitToAdd = this.stats.suitPoints[suit];
+                        suitToAdd = suit;
+                    }
+                }
+            }
+        }
 
-                        // build the discard
-                        discard.addOneCard(playerCard.getName());
-                        discard.removeCard(c.getName());
+        // If we have possible cuts, then add the cards to the discard
+        if (possibleCutsCounter > 0)
+        {
+            // Try to add the suit with higher points
+            for (i = 0; i < this.deck.size(); i++)
+            {
+                var card = this.deck.get(i);
+                if (card.suit == suitToAdd)
+                {
+                    discard.addOneCard(card.getName(), 0);
+                    this.deck.removeCard(card.getName());
+                }
+            }
+        }
+
+        var minValue = 13;
+
+        while (discard.size() < 6)
+        {
+            // Then, complete the discard to save points (queens, knights...)
+            for (i = 0; i < this.deck.size(); i++)
+            {
+                var card = this.deck.get(i);
+                if ((card.value != 14) && (card.suit != "T"))
+                {
+                    if (card.value == minValue)
+                    {
+                        discard.addOneCard(card.getName(), 0);
+                        this.deck.removeCard(card.getName());
+                    }
+                    if (discard.size() == 6)
+                    {
                         break;
                     }
                 }
-                i = 0;
-            }
-            else
-            {
-                i++;
             }
 
-            if (i == 6)
-            {
-                ok = true;
-            }
+            // Next paths: add the higher points to lower
+            minValue--;
         }
 
         return discard.toString();

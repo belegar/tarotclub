@@ -295,7 +295,7 @@ void Bot::PlayCard()
     JSEngine::StringList args;
     JSValue ret = mBotEngine.Call("PlayCard", args);
 
-    if (ret.IsValid())
+    if (!ret.IsValid())
     {
         TLogError("Invalid script answer");
     }

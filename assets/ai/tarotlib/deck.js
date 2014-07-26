@@ -61,10 +61,26 @@ var p = Deck.prototype;
 		return buffer;
 	};
 
+	p.toHtmlString = function()
+	{
+		var buffer = "<table><tr>";
+		for(var i=0; i < this.cards.length; i++)
+		{
+            buffer += "<td>" + this.cards[i].getHtmlName() + "</td>";
+		}
+		buffer += "</tr></table>";
+		return buffer;
+	};
+
 	// debug code only
     p.print = function()
 	{
 		systemPrint(this.toString());
+	};
+
+	p.printHtml = function()
+	{
+		systemPrint(this.toHtmlString());
 	};
 	
 	p.size = function()
@@ -78,6 +94,19 @@ var p = Deck.prototype;
 	p.get = function(index)
 	{
 		return this.cards[index];
+	};
+
+	p.hasCard = function(value, suit)
+	{
+		var ret = false;
+		for (var i = 0; i < this.cards.length; i++)
+		{
+			if ((this.cards[i].value == value) && (this.cards[i].suit == suit))
+			{
+				ret = true;
+			}
+		}
+		return ret;
 	};
 	
     p.clear = function()
@@ -96,7 +125,7 @@ var p = Deck.prototype;
      */
     p.removeCard = function(cardName)
 	{
-		for (var i=0; i<this.cards.length; i++)
+		for (var i = 0; i < this.cards.length; i++)
 		{
 			var card = this.cards[i].getName();
 			if (cardName == card)
@@ -106,16 +135,27 @@ var p = Deck.prototype;
 		}
 	};
 	
+    /**
+     * @brief build a deck with a string of cards passed in parameters
+     */
     p.setCards = function(list)
 	{
-		var result = list.split(/;/g);		
-		
         this.clear();
-		for (var i=0; i<result.length; i++)
-		{
-            this.cards[i] = new TarotLib.Card(result[i]);
-		}
+        this.addCards(list);
 	};
+    
+    /**
+     * @brief Add some cards to the deck with a string of cards passed in parameters
+     */
+    p.addCards = function(list)
+    {
+        var result = list.split(/;/g);
+        var size = this.cards.length;
+		for (var i = 0; i < result.length; i++)
+		{
+            this.cards[size + i] = new TarotLib.Card(result[i]);
+		}
+    };
 
 TarotLib.Deck = Deck;
 }());
