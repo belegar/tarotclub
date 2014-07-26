@@ -683,7 +683,7 @@ void Client::SendSyncBid()
 void Client::SendSyncAllPassed()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncBid(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncAllPassed(mPlayer.GetUuid()));
 }
 /*****************************************************************************/
 void Client::SendSyncTrick()
