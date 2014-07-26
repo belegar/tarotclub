@@ -114,9 +114,9 @@ var p = Game.prototype;
 
     p.beforeAttack = function()
     {
-    	var botRelativePlate = ((this.botPlace + 4) - this.firstPlayer) % 4;
-        var takerRelativePlate = ((this.taker + 4) - this.firstPlayer) % 4;
-    	if (botRelativePlate < takerRelativePlate)
+    	var botRelativePlace = ((this.botPlace + 4) - this.firstPlayer) % 4;
+        var takerRelativePlace = ((this.taker + 4) - this.firstPlayer) % 4;
+    	if (botRelativePlace < takerRelativePlace)
     	{
             return true;
     	}
@@ -145,6 +145,9 @@ var p = Game.prototype;
         return highestCard;
     };
 
+    /**
+     * @brief Detect the highest suit of the current trick
+     */
     p.highestSuit = function()
     {
         var value = 0;
@@ -157,8 +160,11 @@ var p = Game.prototype;
             if ((card.suit != TarotLib.Suit.TRUMPS) &&
                 (card.value > value))
             {
-                value = card.value;
-                highestCard = card;
+                if (card.suit == this.trickSuit)
+                {
+                    value = card.value;
+                    highestCard = card;
+                }
             }
         }
         return highestCard;
@@ -259,7 +265,8 @@ var p = Game.prototype;
                 {
                     if (this.players[this.taker].hasSuits[i] == true)
                     {
-                        playedCard = this.bot.playLowestCard(i);               
+                        playedCard = this.bot.playLowestCard(TarotLib.Suit.toString(i));    
+                        break;
                     }
                 }
             }
@@ -279,6 +286,8 @@ var p = Game.prototype;
 		}
 		else
 		{
+            // We have to play the suit color previously played
+            
             if (this.beforeAttack())
             {
                 // look if we have the suit
@@ -393,9 +402,72 @@ var p = Game.prototype;
         return playedCard;
     };
 
+    /*
+        Basic attack strategy
+    */
     p.playAttackStrategy = function()
     {
-        return "00-C"; // FIXME: bad card, strategy to implement
+        var playedCard = undefined;
+		this.bot.updateStats();
+    
+        // We are the first player
+		if ((this.currentPosition == 0) ||
+            ((this.startedWithExcuse == true) && (this.currentPosition == 1)))
+		{
+            var found = false;
+
+            // Look if opponents have missed suits to make them cut
+            for (var i=0; i<4; i++)
+            {
+                if (this.taker != i)
+                {
+                    // forget trumps, search for missing suits only
+                    for (var j=0; j<4; j++)
+                    {
+                        if (this.players[i].hasSuits[j] == false)
+                        {
+                            playedCard = this.bot.playLowestCard(TarotLib.Suit.toString(i));
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (found)
+                {
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                // No any cut in opponents... play trumps starting from the top!
+                if (this.bot.hasSuit("T"))
+                {
+                    playedCard = this.bot.playHighestCard("T");
+                }
+                else
+                {
+                    // no any trumps :( play low card
+                    playedCard = this.bot.playLowestCard();
+                }
+            }
+        }
+        else
+        {
+            // do we have the suit?
+            if (this.bot.hasSuit(this.trickSuit))
+            {
+               // yes: do we have higher card? yes ==> play higher to become master, otherwise play low card
+                playedCard = this.bot.playHighestCard(this.trickSuit);
+            }
+            else
+            {
+                // no, we have to cut.
+                playedCard = this.bot.playHighestCard("T");
+            }
+        }
+        return playedCard;
     };
 
 	

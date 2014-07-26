@@ -62,6 +62,7 @@ this.TarotLib = this.TarotLib || {};
 	function Stats()
 	{
         this.suits = new Array(5);
+        this.suitPoints = new Array(5);
  
         this.reset = function()
         {
@@ -78,10 +79,12 @@ this.TarotLib = this.TarotLib || {};
             this.cuts = 0;          // aucune carte dans une couleur
             this.singletons = 0;    // une seule carte dans une couleur
             this.sequences = 0;     // cartes qui se suivent (au moins 5 cartes pour être comptées)
+            this.bestSuit = "";		// best suit detected
 
 	        for (var i=0; i<5; i++)
 	        {
 	        	this.suits[Suit.toString(i)] = 0;
+	        	this.suitPoints[Suit.toString(i)] = 0;
 	        }
 
 	        this.littleTrump = false;
@@ -91,6 +94,7 @@ this.TarotLib = this.TarotLib || {};
 		
 		/**
 		 * @brief Update the statistics of a deck
+		 * @param[in] deck Deck class of cards
 		 */
 		this.update = function(deck)
 		{
@@ -128,11 +132,11 @@ this.TarotLib = this.TarotLib || {};
 				}
 			}
 		
-			var suit;
 			var longue;
 			var count = 0;
 			var flag = 0;
-			var distr = new Array(14); // test of a distribution
+			var distr = new Array(14); // test of a distribution (14 cards in a suit)
+			var highestPoints = 0;
 
 			// Normal suits
 			for (i = 0; i<4; i++)
@@ -143,6 +147,7 @@ this.TarotLib = this.TarotLib || {};
 				}
 				count = 0;
 
+				var points = 0;
 				for (k = 0; k < deck.size(); k++)
 				{
 					c = deck.get(k);
@@ -153,12 +158,36 @@ this.TarotLib = this.TarotLib || {};
 						if (c.value == 11)
 						{
 							this.jacks++;
+							points += 1.5;
 						}
-						if (c.value == 12)
+						else if (c.value == 12)
 						{
 							this.knights++;
+							points += 2.5;
+						}
+						else if (c.value == 13)
+						{
+							this.queens++;
+							points += 3.5;
+						}
+						else if (c.value == 14)
+						{
+							this.kings++;
+							points += 4.5;
+						}
+						else
+						{
+							points += 0.5;
 						}
 					}
+				}
+
+				// Save the points
+				this.suitPoints[Suit.toString(i)] = points;
+				if (points >= highestPoints)
+				{
+					highestPoints = points;
+					this.bestSuit = Suit.toString(i);
 				}
 
 				if (count == 1)
@@ -176,14 +205,6 @@ this.TarotLib = this.TarotLib || {};
 				if ((distr[13] == 1) && (distr[12] == 1))
 				{
 					this.weddings++; // mariage (king + queen)
-				}
-				if (distr[13] == 1)
-				{
-					this.kings++;     // king without queen
-				}
-				if (distr[12] == 1)
-				{
-					this.queens++;    // queen without kings
 				}
 
 				// sequences
