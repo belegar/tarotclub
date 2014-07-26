@@ -468,6 +468,7 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_ALL_PASSED:
         {
+            mEventHandler.AllPassed();
             break;
         }
 
