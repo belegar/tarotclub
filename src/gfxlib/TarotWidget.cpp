@@ -64,7 +64,8 @@ TarotWidget::TarotWidget(QWidget* parent)
     connect(mCanvas, &Canvas::sigStartGame, this, &TarotWidget::slotNewQuickGame);
 
     // Client events. This connection list allow to call Qt GUI from another thread (Client class thread)
-    connect(this, &TarotWidget::sigReceiveCards, this, &TarotWidget::slotReceiveCards, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigNewGame, this, &TarotWidget::slotNewGame, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigNewDeal, this, &TarotWidget::slotNewDeal, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigAssignedPlace, this, &TarotWidget::slotAssignedPlace, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigPlayersList, this, &TarotWidget::slotPlayersList, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigMessage, this, &TarotWidget::slotMessage, Qt::QueuedConnection);
@@ -75,13 +76,14 @@ TarotWidget::TarotWidget(QWidget* parent)
     connect(this, &TarotWidget::sigStartDeal, this, &TarotWidget::slotStartDeal, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigPlayCard, this, &TarotWidget::slotPlayCard, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigBuildDiscard, this, &TarotWidget::slotBuildDiscard, Qt::QueuedConnection);
-    connect(this, &TarotWidget::sigDealAgain, this, &TarotWidget::slotDealAgain, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigAllPassed, this, &TarotWidget::slotAllPassed, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigEndOfDeal, this, &TarotWidget::slotEndOfDeal, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigEndOfGame, this, &TarotWidget::slotEndOfGame, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigShowCard, this, &TarotWidget::slotShowCard, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigAskForHandle, this, &TarotWidget::slotAskForHandle, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigShowHandle, this, &TarotWidget::slotShowHandle, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigWaitTrick, this, &TarotWidget::slotWaitTrick, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigGameFull, this, &TarotWidget::slotStartGame, Qt::QueuedConnection);
 }
 /*****************************************************************************/
 /**
@@ -128,7 +130,7 @@ void TarotWidget::slotCreateNetworkGame()
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
-    mTable.CreateGame(Tarot::ONE_DEAL, 4U, sh);
+    mTable.CreateTable(4U);
     // Connect us to the server
     mClient.ConnectToHost("127.0.0.1", DEFAULT_TCP_PORT);
 }
@@ -161,22 +163,32 @@ void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
 /*****************************************************************************/
 void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
 {
+    // Save game config
     mAutoPlay = autoPlay;
-    mTable.CreateGame(mode, 4U, sh);
+    mGameMode = mode;
+    mShuffle = sh;
+
     InitScreen();
 
-    if (HasLocalConnection())
+    if (!HasLocalConnection())
     {
-        mTable.NewDeal();
-    }
-    else
-    {
+        mTable.CreateTable(4U);
+
         mConnectionType = LOCAL;
         // Connect us to the server
         mClient.ConnectToHost("127.0.0.1", DEFAULT_TCP_PORT);
         // Connect the other players
         mTable.ConnectBots();
     }
+    else
+    {
+        slotStartGame();
+    }
+}
+/*****************************************************************************/
+void TarotWidget::slotStartGame()
+{
+    mClient.AdminNewGame(mGameMode, mShuffle);
 }
 /*****************************************************************************/
 void TarotWidget::InitScreen()
@@ -452,7 +464,12 @@ void TarotWidget::slotPlayersList()
     mCanvas->SetPlayerIdentity(mPlayers, mClient.GetPlace());
 }
 /*****************************************************************************/
-void TarotWidget::slotReceiveCards()
+void TarotWidget::slotNewGame()
+{
+    mClient.SendSyncNewGame();
+}
+/*****************************************************************************/
+void TarotWidget::slotNewDeal()
 {
     mCanvas->ResetCards();
     ShowSouthCards();
@@ -533,7 +550,7 @@ void TarotWidget::slotShowHandle()
     mCanvas->SetFilter(Canvas::BOARD);
 }
 /*****************************************************************************/
-void TarotWidget::slotDealAgain()
+void TarotWidget::slotAllPassed()
 {
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
     mCanvas->InitBoard();
@@ -541,7 +558,7 @@ void TarotWidget::slotDealAgain()
     QMessageBox::information(this, trUtf8("Information"),
                              trUtf8("All the players have passed.\n"
                                     "New deal will begin."));
-    mClient.SendReady();
+    mClient.SendSyncAllPassed();
 }
 /*****************************************************************************/
 void TarotWidget::slotBuildDiscard()
