@@ -353,6 +353,14 @@ bool Client::DoAction(const ByteArray &data)
 
     switch (cmd)
     {
+        case Protocol::ADMIN_GAME_FULL:
+        {
+            bool full;
+            in >> full;
+            mEventHandler.AdminGameFull();
+            break;
+        }
+
         case Protocol::SERVER_MESSAGE:
         {
             std::string message;
@@ -361,7 +369,7 @@ bool Client::DoAction(const ByteArray &data)
             break;
         }
 
-        case Protocol::ADMIN_DISCONNECT:
+        case Protocol::SERVER_DISCONNECT:
         {
             mTcpClient.Close();
             ret = false;
@@ -371,14 +379,11 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::SERVER_REQUEST_IDENTITY:
         {
             std::uint32_t myUuid;
-            std::uint8_t mode;
 
             in >> mPlace;
             in >> myUuid;
             in >> mNbPlayers;
-            in >> mode;
 
-            mGameMode = (Tarot::GameMode)mode;
             mPlayer.SetUuid(myUuid);
             SendIdentity();
             mEventHandler.AssignedPlace();
@@ -404,7 +409,17 @@ bool Client::DoAction(const ByteArray &data)
             break;
         }
 
-        case Protocol::SERVER_SEND_CARDS:
+        case Protocol::SERVER_NEW_GAME:
+        {
+            std::uint8_t mode;
+            in >> mode;
+            in >> mShuffle;
+            mGameMode = (Tarot::GameMode)mode;
+            mEventHandler.NewGame();
+            break;
+        }
+
+        case Protocol::SERVER_NEW_DEAL:
         {
             mPlayer.Clear();
             in >> mPlayer;
@@ -413,7 +428,7 @@ bool Client::DoAction(const ByteArray &data)
             {
                 score.Reset();
                 UpdateStatistics();
-                mEventHandler.ReceiveCards();
+                mEventHandler.NewDeal();
                 SendSyncCards();
             }
             else
@@ -448,6 +463,11 @@ bool Client::DoAction(const ByteArray &data)
             in >> c;
             in >> slam;
             mEventHandler.ShowBid(p, (slam == 1 ? true : false), (Contract)c);
+            break;
+        }
+
+        case Protocol::SERVER_ALL_PASSED:
+        {
             break;
         }
 
@@ -534,12 +554,6 @@ bool Client::DoAction(const ByteArray &data)
             break;
         }
 
-        case Protocol::SERVER_NEW_DEAL:
-        {
-            mEventHandler.NewDeal();
-            break;
-        }
-
         case Protocol::SERVER_END_OF_TRICK:
         {
             Place winner;
@@ -573,6 +587,12 @@ bool Client::DoAction(const ByteArray &data)
     return ret;
 }
 /*****************************************************************************/
+void Client::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle)
+{
+    ByteArray packet = Protocol::AdminNewGame(gameMode, shuffle, mPlayer.GetUuid());
+    SendPacket(packet);
+}
+/*****************************************************************************/
 void Client::SendIdentity()
 {
     ByteArray packet = Protocol::ClientReplyIdentity(mIdentity, mPlayer.GetUuid());
@@ -585,9 +605,9 @@ void Client::SendChatMessage(const std::string &message)
     SendPacket(packet);
 }
 /*****************************************************************************/
-void Client::SendReady()
+void Client::SendSyncNewGame()
 {
-    ByteArray packet = Protocol::ClientReady(mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientSyncNewGame(mPlayer.GetUuid());
     SendPacket(packet);
 }
 /*****************************************************************************/
@@ -654,6 +674,12 @@ void Client::SendSyncCards()
 }
 /*****************************************************************************/
 void Client::SendSyncBid()
+{
+    mSequence = IDLE;
+    SendPacket(Protocol::ClientSyncBid(mPlayer.GetUuid()));
+}
+/*****************************************************************************/
+void Client::SendSyncAllPassed()
 {
     mSequence = IDLE;
     SendPacket(Protocol::ClientSyncBid(mPlayer.GetUuid()));
