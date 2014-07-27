@@ -346,7 +346,7 @@ void MainWindow::slotLaunchHelp()
 void MainWindow::slotPlayersListEvent()
 {
     QMap<Place, Identity> players = tarotWidget->GetPlayersList();
- //   scoresDock->SetPlayers(players);
+    scoresDock->SetPlayers(players);
     infosDock->SetPlayers(players);
 }
 /*****************************************************************************/
@@ -358,7 +358,6 @@ void MainWindow::slotNewGameEvent()
 /*****************************************************************************/
 void MainWindow::slotShowCardEvent(Place p, std::string cardName)
 {
-    /*
     infosDock->AddRound(mTrickCounter, p, QString(cardName.data()));
 
     if (mFirstPlayer)
@@ -366,12 +365,11 @@ void MainWindow::slotShowCardEvent(Place p, std::string cardName)
         mFirstPlayer = false;
         infosDock->SelectFirstPlayer(mTrickCounter, p);
     }
-    */
 }
 /*****************************************************************************/
 void MainWindow::slotWaitTrickEvent(Place winner)
 {
- //   infosDock->SelectWinner(mTrickCounter, winner);
+    infosDock->SelectWinner(mTrickCounter, winner);
     mTrickCounter++;
     mFirstPlayer = true;
 }
@@ -404,7 +402,7 @@ void MainWindow::slotStartDealEvent()
     Tarot::Shuffle shuffle = tarotWidget->GetShuffle();
     QMap<Place, Identity> players = tarotWidget->GetPlayersList();
 
- //   infosDock->Clear();
+    infosDock->Clear();
     infosDock->SetContract(bid.contract);
 
     QString name = "ERROR";
