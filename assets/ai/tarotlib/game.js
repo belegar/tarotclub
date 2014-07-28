@@ -126,6 +126,25 @@ var p = Game.prototype;
     	}
     };
 
+    p.isPlayed = function(suit, value)
+    {
+        var ret = false;
+
+        for (var i=0; i<this.deck.size(); i++)
+        {
+            var card = this.deck.get(i);
+            if ((card.suit == suit) &&
+                (card.value == value))
+            {
+                ret = true;
+            }
+        }
+        return ret;
+    };
+
+    /**
+     * @brief Detect the highest trump of the current trick
+     */
     p.highestTrump = function()
     {
         var value = 0;
@@ -428,6 +447,7 @@ var p = Game.prototype;
                         {
                             playedCard = this.bot.playLowestCard(TarotLib.Suit.toString(i));
                             found = true;
+                            systemPrint("attack: playing first, lowest card");
                             break;
                         }
                     }
@@ -445,11 +465,13 @@ var p = Game.prototype;
                 if (this.bot.hasSuit("T"))
                 {
                     playedCard = this.bot.playHighestCard("T");
+                    systemPrint("attack: playing first, highest trump");
                 }
                 else
                 {
                     // no any trumps :( play low card
                     playedCard = this.bot.playLowestCard();
+                    systemPrint("attack: playing first, lowest any card");
                 }
             }
         }
@@ -460,11 +482,44 @@ var p = Game.prototype;
             {
                // yes: do we have higher card? yes ==> play higher to become master, otherwise play low card
                 playedCard = this.bot.playHighestCard(this.trickSuit);
+                systemPrint("attack: playing a higher card");
             }
             else
             {
-                // no, we have to cut.
-                playedCard = this.bot.playHighestCard("T");
+                // no, we have to cut, if we have some trumps
+                if (this.bot.hasSuit("T"))
+                {
+                    // Over-cut a previous trump? 
+                    var card = highestTrump();
+                    if (card == undefined)
+                    {
+                        // no any trump played before, cut with a low trump
+                        playedCard = this.bot.playLowestCard("T");
+                        systemPrint("attack: cut with a low trump");    
+                    }
+                    else
+                    {
+                        if (this.isPlayed("T", 1))
+                        {
+                            // if the one of trump has been played, over-cut with a very high card
+                            playedCard = this.bot.playHighestCard("T");
+                            systemPrint("attack: try to catch the one of trump!");
+                        }
+                        else
+                        {
+                            // over-cut, with a trump just higher than the highest one
+                            playedCard = this.bot.playLowestCard("T", card.value);
+                            systemPrint("attack: over-cut, just as necessary");
+                        }
+                    }
+                }
+                else
+                {
+                    // Play any low card that we have in hand
+                    playedCard = this.bot.playLowestCard();
+                    systemPrint("attack: play low card :(");
+                }
+                
             }
         }
         return playedCard;
