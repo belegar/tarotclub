@@ -103,7 +103,7 @@ module.RunCardAndDeckTests = function()
 /*****************************************************************************/
 module.RunStatsTest = function()
 {
-	systemPrint("********** STATS TEST **********");
+	systemPrint("********** TEST_2: statistics **********");
 	
 	module.game.botPlace = TarotLib.Place.SOUTH;
 
@@ -124,6 +124,8 @@ module.RunStatsTest = function()
 /*****************************************************************************/
 module.RunDiscardTest = function()
 {
+	systemPrint("********** TEST_3: discard **********");
+
 	module.game.setBotCards("01-C;19-T;04-D;11-H;11-S;13-D;02-T;06-C;05-S;09-D;14-H;01-S;04-C;06-S;04-S;07-C;21-T;12-S");
 
 	systemPrint("Deck before: ");
@@ -137,6 +139,33 @@ module.RunDiscardTest = function()
 
 	systemPrint("Discard: ");
 	discard.printHtml();
+};
+/*****************************************************************************/
+module.RunBotFunctionsTest = function()
+{
+	systemPrint("********** TEST_4: bot algorithms **********");
+
+	module.game.setBotCards("01-C;19-T;04-D;11-H;11-S;13-D;02-T;06-C;05-S;09-D;14-H;01-S;04-C;06-S;04-S;07-C;21-T;12-S;00-T;01-T");
+	module.game.bot.deck.printHtml();
+
+	systemPrint("Highest club: " + module.game.bot.getHighestCard("C"));
+	systemPrint("Highest spade: " + module.game.bot.getHighestCard("S"));
+	systemPrint("Highest diamond: " + module.game.bot.getHighestCard("D"));
+	systemPrint("Highest heart: " + module.game.bot.getHighestCard("H"));
+	systemPrint("Highest trump: " + module.game.bot.getHighestCard("T"));
+
+
+	systemPrint("Lowest club: " + module.game.bot.getLowestCard("C", 0));
+	systemPrint("Lowest spade: " + module.game.bot.getLowestCard("S", 0));
+	systemPrint("Lowest diamond: " + module.game.bot.getLowestCard("D", 0));
+	systemPrint("Lowest heart: " + module.game.bot.getLowestCard("H", 0));
+	systemPrint("Lowest trump: " + module.game.bot.getLowestCard("T", 0));
+
+
+	systemPrint("Lowest trump higher than 1: " + module.game.bot.getLowestCard("T", 2));
+	systemPrint("Lowest trump higher than 2: " + module.game.bot.getLowestCard("T", 3));
+
+
 };
 /*****************************************************************************/
 module.RunMissingSuitDetectionTester = function()
