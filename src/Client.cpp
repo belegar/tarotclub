@@ -320,6 +320,7 @@ void Client::Run()
                 else if (ret == 0)
                 {
                     mConnected = false;
+                    TLogInfo("Lost connection! Place: " + mPlace.ToString());
                 }
                 else
                 {

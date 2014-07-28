@@ -76,13 +76,19 @@ void InfosDock::SetPlayers(const QMap<Place, Identity> &players)
 {
     QStringList header;
 
-    ui.tableWidget->setColumnCount(players.size());
+    ui.tableWidget->setColumnCount(4);
 
-    QMapIterator<Place, Identity> i(players);
-    while (i.hasNext())
+    for (std::uint8_t i = 0; i < 4; i++)
     {
-        i.next();
-        header += i.value().name.data();
+        Place place(i);
+        if (players.contains(place))
+        {
+            header += players[place].name.data();
+        }
+        else
+        {
+            header += "";
+        }
     }
     ui.tableWidget->setHorizontalHeaderLabels(header);
 }
@@ -142,7 +148,11 @@ void InfosDock::PrintStats(const Deck::Statistics &stats)
 /*****************************************************************************/
 void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const QString &txt)
 {
-    ui.tableWidget->item(trickCounter, p.Value())->setText(txt);
+    QTableWidgetItem *item = ui.tableWidget->item(trickCounter, p.Value());
+    if (item != NULL)
+    {
+        item->setText(txt);
+    }
 }
 /*****************************************************************************/
 void InfosDock::SelectWinner(std::uint8_t trickCounter, Place p)

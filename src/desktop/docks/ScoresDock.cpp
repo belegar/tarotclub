@@ -58,13 +58,19 @@ void ScoresDock::SetPlayers(const QMap<Place, Identity> &players)
 {
     QStringList header;
 
-    tableScores->setColumnCount(players.size());
+    tableScores->setColumnCount(4);
 
-    QMapIterator<Place, Identity> i(players);
-    while (i.hasNext())
+    for (std::uint8_t i = 0; i < 4; i++)
     {
-        i.next();
-        header += i.value().name.data();
+        Place place(i);
+        if (players.contains(place))
+        {
+            header += players[place].name.data();
+        }
+        else
+        {
+            header += "";
+        }
     }
     tableScores->setHorizontalHeaderLabels(header);
 }
