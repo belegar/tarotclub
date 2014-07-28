@@ -115,16 +115,17 @@ var p = Bot.prototype;
     p.getLowestCard = function(suit, minValue)
     {
         var index = 100; // init with impossible index
-        var startValue = 25; // init with impossible value
+        var lowestValue = 25; // init with impossible value
         for (var i=0; i<this.deck.size(); i++)
         {
             var card = this.deck.get(i);
             if (card.suit == suit)
             {
-                if ((card.value < startValue) &&
+                if ((card.value < lowestValue) &&
                     (card.value >= minValue))
                 {
                     index = i;
+                    lowestValue = card.value;
                 }
             }
         }
@@ -143,15 +144,16 @@ var p = Bot.prototype;
     p.getHighestCard = function(suit)
     {
         var index = 100; // init with impossible index
-        var startValue = 0; // init with impossible value
+        var highestValue = 0; // init with impossible value
         for (var i=0; i<this.deck.size(); i++)
         {
             var card = this.deck.get(i);
             if (card.suit == suit)
             {
-                if (card.value > startValue)
+                if (card.value > highestValue)
                 {
                     index = i;
+                    highestValue = card.value;
                 }
             }
         }
@@ -162,6 +164,9 @@ var p = Bot.prototype;
         return undefined;
     };
 
+    /**
+     * @brief Play a card in the long suit of the player
+     */
     p.playLongSuit = function()
     {
         var playedCard = undefined;
