@@ -55,13 +55,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
 
     // TarotWidget events
-    connect (tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent);
-    connect (tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent);
-    connect (tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent);
-    connect (tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent);
-    connect (tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent);
-    connect (tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal);
-    connect (tarotWidget, &TarotWidget::sigReceiveCards, this, &MainWindow::slotReceiveCards);
+    connect (tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
+    connect (tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
@@ -70,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
     connect(optionsAct, &QAction::triggered, this, &MainWindow::slotShowOptions);
     connect(newAutoPlayAct, &QAction::triggered, this, &MainWindow::slotNewAutoPlay);
-
 
     // Network chat
     connect(chatDock, &ChatDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendChatMessage);
@@ -346,13 +346,19 @@ void MainWindow::slotLaunchHelp()
 void MainWindow::slotPlayersListEvent()
 {
     QMap<Place, Identity> players = tarotWidget->GetPlayersList();
-    scoresDock->SetPlayers(players);
+ //   scoresDock->SetPlayers(players);
     infosDock->SetPlayers(players);
-    mNbPlayers = players.size();
+}
+/*****************************************************************************/
+void MainWindow::slotNewGameEvent()
+{
+    // reset scores
+    scoresDock->Clear();
 }
 /*****************************************************************************/
 void MainWindow::slotShowCardEvent(Place p, std::string cardName)
 {
+    /*
     infosDock->AddRound(mTrickCounter, p, QString(cardName.data()));
 
     if (mFirstPlayer)
@@ -360,11 +366,12 @@ void MainWindow::slotShowCardEvent(Place p, std::string cardName)
         mFirstPlayer = false;
         infosDock->SelectFirstPlayer(mTrickCounter, p);
     }
+    */
 }
 /*****************************************************************************/
 void MainWindow::slotWaitTrickEvent(Place winner)
 {
-    infosDock->SelectWinner(mTrickCounter, winner);
+ //   infosDock->SelectWinner(mTrickCounter, winner);
     mTrickCounter++;
     mFirstPlayer = true;
 }
@@ -374,7 +381,7 @@ void MainWindow::slotEndOfDeal()
     scoresDock->SetNewScore(tarotWidget->GetDeal());
 }
 /*****************************************************************************/
-void MainWindow::slotReceiveCards()
+void MainWindow::slotNewDealEvent()
 {
     Deck deck = tarotWidget->GetDeck();
     Deck::Statistics stats;
@@ -397,7 +404,7 @@ void MainWindow::slotStartDealEvent()
     Tarot::Shuffle shuffle = tarotWidget->GetShuffle();
     QMap<Place, Identity> players = tarotWidget->GetPlayersList();
 
-    infosDock->Clear();
+ //   infosDock->Clear();
     infosDock->SetContract(bid.contract);
 
     QString name = "ERROR";

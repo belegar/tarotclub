@@ -88,6 +88,13 @@ The best option is to use QtCreator since qmake projects (.pro files) are availa
 
 # Glossary and translations
 
+TarotClub definitions:
+  
+  * A deal is distribute (cards) in an orderly rotation to the players for a game or round.
+  * A game has different types: single deal, successive deals (tournaments)
+
+Tarot specific words:
+
   * Hearts = Coeur
   * Spades = Pic
   * Diamonds = Carreau
@@ -97,7 +104,6 @@ The best option is to use QtCreator since qmake projects (.pro files) are availa
   * Handler = Poignée
   * Slam = chelem
   * Trick = tour
-  * Round = partie
 
 # Generated files
 
@@ -194,6 +200,15 @@ must be loaded during the initialization of the game. The order is important bec
 The path of the file must be relative to the root of the configuration file.
 
 ## Game interface
+
+TODO
+
+# Credits / contributions
+
+Hizoka, for all of his remarks, game testing and contributions
+cledesol, for all his remarks and game testing
+Duktape author, for his Javascript engine and helps
+
 
 
 

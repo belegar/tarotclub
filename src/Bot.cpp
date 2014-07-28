@@ -64,7 +64,7 @@ void Bot::PlayersList()
     // Nothing to do with the list of players
 }
 /*****************************************************************************/
-void Bot::ReceiveCards()
+void Bot::NewDeal()
 {
     JSEngine::StringList args;
     args.push_back(mClient.GetMyDeck().GetCardList());
@@ -126,6 +126,11 @@ void Bot::ShowBid(Place place, bool slam, Contract contract)
     (void)(contract);
     (void)(slam);
     mClient.SendSyncBid();
+}
+/*****************************************************************************/
+void Bot::AllPassed()
+{
+    mClient.SendSyncAllPassed();
 }
 /*****************************************************************************/
 void Bot::StartDeal()
@@ -261,18 +266,18 @@ void Bot::BuildDiscard()
         TLogInfo("Invalid discard is: " + discard.GetCardList());
 
         discard = mClient.AutoDiscard(); // build a random valid deck
-        ReceiveCards(); // Resend cards to the bot!
+        NewDeal(); // Resend cards to the bot!
     }
 
     mClient.SendDiscard(discard);
 }
 /*****************************************************************************/
-void Bot::NewDeal()
+void Bot::NewGame()
 {
     // Re-inititialize script context
     if (InitializeScriptContext() == true)
     {
-        mClient.SendReady();
+        mClient.SendSyncNewGame();
     }
     else
     {
@@ -390,7 +395,7 @@ void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()
 {
-    bool retCode = false;
+    bool retCode = true;
     std::string appRoot;
 
     appRoot = System::ScriptPath();
@@ -438,6 +443,11 @@ bool Bot::InitializeScriptContext()
     }
 
     return retCode;
+}
+/*****************************************************************************/
+void Bot::AdminGameFull()
+{
+    // Nothing to do, bot is never
 }
 
 //=============================================================================

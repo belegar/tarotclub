@@ -61,18 +61,19 @@ public:
         SHOW_SCORE
     };
 
-
     class IEvent
     {
     public:
+        virtual void AdminGameFull() = 0;
         virtual void Message(const std::string &message) = 0;
         virtual void AssignedPlace() = 0;
         virtual void PlayersList() = 0;
+        virtual void NewGame() = 0;
         virtual void NewDeal() = 0;
-        virtual void ReceiveCards() = 0;
         virtual void SelectPlayer(Place p) = 0;
         virtual void RequestBid(Contract highestBid) = 0;
         virtual void ShowBid(Place p, bool slam, Contract c) = 0;
+        virtual void AllPassed() = 0;
         virtual void StartDeal() = 0;
         virtual void ShowDog() = 0;
         virtual void AskForHandle() = 0;
@@ -142,10 +143,11 @@ public:
     void Close();
 
     // Protocol methods
+    void AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
     void SendBid(Contract c, bool slam);
     void SendSyncDog();
     void SendDiscard(const Deck &discard);
-    void SendReady();
+    void SendSyncNewGame();
     void SendError();
     void SendCard(Card *c);
     void SendSyncTrick();
@@ -154,6 +156,7 @@ public:
     void SendSyncShowCard();
     void SendSyncCards();
     void SendSyncBid();
+    void SendSyncAllPassed();
     void SendSyncHandle();
     void SendSyncEndOfDeal();
     void SendChatMessage(const std::string &message);

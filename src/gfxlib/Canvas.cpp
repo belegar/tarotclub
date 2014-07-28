@@ -169,7 +169,7 @@ void Canvas::SetBackground(const std::string &code)
 
     QRectF size = scene.sceneRect();
 
-    QRadialGradient gradient(size.width()/2, size.height()/2, size.width()*2);
+    QRadialGradient gradient(size.width()/2, size.height()/2, size.width()*1.5);
 
     if (color.isValid())
     {

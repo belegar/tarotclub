@@ -57,16 +57,20 @@ void TarotEngine::Initialize()
     mShuffle.Initialize();
 }
 /*****************************************************************************/
-void TarotEngine::CreateGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t nbPlayers)
+void TarotEngine::CreateTable(std::uint8_t nbPlayers)
 {
     // Save parameters
-    mShuffle = s;
     mNbPlayers = nbPlayers;
-    mGameMode = mode;
 
     // 1. Initialize internal states
     mDeal.Initialize();
     mBid.Initialize();
+
+    for (std::uint32_t i = 0U; i < 5U; i++)
+    {
+        mPlayers[i].SetUuid(0U); // close all the clients
+    }
+    mPlayersIdent.clear();
 
     // Choose the dealer
     std::default_random_engine generator(mSeed);
@@ -76,6 +80,13 @@ void TarotEngine::CreateGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std:
     // Wait for ready
     ResetAck();
     mSequence = WAIT_FOR_PLAYERS;
+}
+/*****************************************************************************/
+void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s)
+{
+    mShuffle = s;
+    mGameMode = mode;
+    mSequence = WAIT_FOR_READY;
 }
 /*****************************************************************************/
 void TarotEngine::NewDeal()
@@ -329,14 +340,7 @@ bool TarotEngine::SetIdentity(std::uint32_t uuid, const Identity &ident)
             player->SetAck();
         }
     }
-
-    bool full = AckFromAllPlayers();
-
-    if (full)
-    {
-        mSequence = WAIT_FOR_READY;
-    }
-    return full;
+    return AckFromAllPlayers();
 }
 /*****************************************************************************/
 Player *TarotEngine::GetPlayer(Place p)
@@ -463,17 +467,16 @@ bool TarotEngine::NextDeal()
  * @brief TarotEngine::BidSequence
  * @return The next sequence to go
  */
-TarotEngine::BidResult TarotEngine::BidSequence()
+void TarotEngine::BidSequence()
 {
-    BidResult res = NEXT_PLAYER;
-
     // If a slam has been announced, we start immediately the deal
     if (IsEndOfTrick() || mBid.slam)
     {
         if (mBid.contract == Contract::PASS)
         {
             // All the players have passed, deal again new cards
-            res = ALL_PASSED;
+            ResetAck();
+            mSequence = WAIT_FOR_ALL_PASSED;
         }
         else
         {
@@ -491,14 +494,12 @@ TarotEngine::BidResult TarotEngine::BidSequence()
                 }
 
                 // We do not display the dog and start the deal immediatly
-                res = START_DEAL;
                 ResetAck();
                 mSequence = WAIT_FOR_START_DEAL;
             }
             else
             {
                 // Show the dog to all the players
-                res = SHOW_DOG;
                 ResetAck();
                 mSequence = WAIT_FOR_SHOW_DOG;
             }
@@ -509,8 +510,6 @@ TarotEngine::BidResult TarotEngine::BidSequence()
         ResetAck();
         mSequence = WAIT_FOR_BID;
     }
-
-    return res;
 }
 /*****************************************************************************/
 void TarotEngine::DiscardSequence()

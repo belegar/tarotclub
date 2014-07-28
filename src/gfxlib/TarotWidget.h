@@ -75,13 +75,15 @@ public:
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
+    void sigGameFull();
+    void sigNewGame();
     void sigPlayersList();
     void sigShowCard(Place, std::string);
     void sigWaitTrick(Place);
     void sigStartDeal();
     void sigMessage(std::string);
     void sigAddScore();
-    void sigReceiveCards();
+    void sigNewDeal();
 
 public slots:
     // These slots are made available to link them to any external widget
@@ -90,6 +92,7 @@ public slots:
     void slotCreateNetworkGame();
     void slotCleanBeforeExit();
     void slotSendChatMessage(const QString &message);
+    void slotStartGame();
 
 private:
     Table           mTable;    // A Tarot table, owns a thread, bots and a Tarot network engine game
@@ -104,6 +107,8 @@ private:
     Deck            mMyHandle;
     bool            mAutoPlay;
     Deck            mMySavedDeck;
+    Tarot::GameMode mGameMode;
+    Tarot::Shuffle  mShuffle;
 
     // Helpers
     void ShowSouthCards();
@@ -129,7 +134,9 @@ private:
         emit sigPlayersList();
     }
 
-    virtual void ReceiveCards() { emit sigReceiveCards(); }
+    virtual void AdminGameFull() { emit sigGameFull(); }
+    virtual void NewGame() { emit sigNewGame(); }
+    virtual void NewDeal() { emit sigNewDeal(); }
     virtual void SelectPlayer(Place p) { emit sigSelectPlayer(p); }
     virtual void RequestBid(Contract highestBid) { emit sigRequestBid(highestBid); }
     virtual void ShowBid(Place p, bool slam, Contract c) { emit sigShowBid(p, slam, c); }
@@ -138,7 +145,7 @@ private:
     virtual void AskForHandle() { emit sigAskForHandle(); }
     virtual void ShowHandle() { emit sigShowHandle(); }
     virtual void BuildDiscard() { emit sigBuildDiscard(); }
-    virtual void NewDeal() { emit sigDealAgain(); }
+    virtual void AllPassed()  { emit sigAllPassed(); }
     virtual void PlayCard()  { emit sigPlayCard(); }
     virtual void ShowCard(Place p, const std::string &name)  { emit sigShowCard(p, name); }
     virtual void WaitTrick(Place winner) { emit sigWaitTrick(winner); }
@@ -155,14 +162,15 @@ signals:
    void sigAskForHandle();
    void sigShowHandle();
    void sigBuildDiscard();
-   void sigDealAgain();
+   void sigAllPassed();
    void sigPlayCard();
    void sigEndOfDeal();
    void sigEndOfGame(Place winner);
 
 private slots:
     // Client events
-    void slotReceiveCards();
+    void slotNewGame();
+    void slotNewDeal();
     void slotAssignedPlace();
     void slotPlayersList();
     void slotMessage(std::string message);
@@ -174,7 +182,7 @@ private slots:
     void slotAskForHandle();
     void slotShowHandle();
     void slotBuildDiscard();
-    void slotDealAgain();
+    void slotAllPassed();
     void slotPlayCard();
     void slotShowCard(Place p, std::string name);
     void slotWaitTrick(Place p);

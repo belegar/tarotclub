@@ -42,7 +42,7 @@ public:
     static const std::uint8_t   VERSION;        //!< Protocol version
     static const std::uint32_t  SERVER_UID;     //!< Server unique identifier, 1, reserved
     static const std::uint32_t  ALL_PLAYERS;    //!< 0, send to all players
-    static const std::uint32_t  ADMIN_UID;      //!< Admin user(s)
+    static const std::uint32_t  SYSTEM_UID;     //!< System user
 
     struct PacketInfo
     {
@@ -60,14 +60,14 @@ public:
         CLIENT_CARD             = 0x14,
         CLIENT_HANDLE           = 0x15, //!< Client handle declaration reply
         CLIENT_ERROR            = 0x16,
-        CLIENT_SYNC_READY       = 0x17,
+        CLIENT_SYNC_NEW_GAME    = 0x17, //!< Used to synchronize all clients for a new game
         CLIENT_SYNC_SHOW_DOG    = 0x18, //!< Used to synchronize all clients that are looking at the dog cards
         CLIENT_SYNC_HANDLE      = 0x19, //!< Used to synchronize all clients that are looking at the handle cards
         CLIENT_SYNC_TRICK       = 0x1A, //!< Used to synchronize all clients that are looking at the trick cards
         CLIENT_SYNC_SHOW_CARD   = 0x1B, //!< Used to synchronize all clients to ensure that they have received the card played
         CLIENT_SYNC_START       = 0x1C, //!< Used to synchronize all clients to start the deal
         CLIENT_SYNC_SHOW_BID    = 0x1D, //!< Used to synchronize all clients that are looking the bid declared
-        CLIENT_SYNC_CARDS       = 0x1E, //!< Used to synchronize all clients that have received their cards in hand
+        CLIENT_SYNC_NEW_DEAL    = 0x1E, //!< Used to synchronize all clients that have received their cards in hand
         CLIENT_SYNC_ALL_PASSED  = 0x1F, //!< All the players have passed, new deal will be played
         CLIENT_SYNC_END_OF_DEAL = 0x20, //!< The score has been displayed, all players must ack to go to the next deal or terminate
 
@@ -75,28 +75,37 @@ public:
         SERVER_MESSAGE          = 0x70, //!< chat message broadcasted to all clients
         SERVER_REQUEST_IDENTITY = 0x71, //!< Server assigns a place to a client and he must reply back the identity
         SERVER_PLAYERS_LIST     = 0x72, //!< Once the players list has been received, players must indicate if they are ready
-        SERVER_NEW_DEAL         = 0x73, //!< new deal, cleanup everything. Cards are flushed and to be sent to players
-        SERVER_SEND_CARDS       = 0x74,
+        SERVER_NEW_GAME         = 0x73, //!< New game mode, and shuffle type
+        SERVER_NEW_DEAL         = 0x74, //!< new deal, cleanup everything. Cards are flushed and to be sent to players
         SERVER_REQUEST_BID      = 0x75, //!< ask for a bid
-        SERVER_ASK_FOR_DISCARD  = 0x76,
-        SERVER_START_DEAL       = 0x77, //!< Bid sequence is finished and discard is done, deal game can start
-        SERVER_PLAY_CARD        = 0x78,
-        SERVER_SHOW_CARD        = 0x79, //!< card played broadcasted to all clients
-        SERVER_SHOW_PLAYER_BID  = 0x7A, //!< one player has announced something, broacast it to all clients
-        SERVER_SHOW_DOG         = 0x7B,
-        SERVER_ASK_FOR_HANDLE   = 0x7C,
-        SERVER_SHOW_HANDLE      = 0x7D, //!< show a handle to all players
-        SERVER_END_OF_TRICK     = 0x7E,
-        SERVER_END_OF_DEAL      = 0x7F,
-        SERVER_END_OF_GAME      = 0x80, //!< end of the game mode (tournament ...)
-        SERVER_ERROR_FULL       = 0x81, //!< Server is full, cannot join game
+        SERVER_ALL_PASSED       = 0x76,
+        SERVER_ASK_FOR_DISCARD  = 0x77,
+        SERVER_START_DEAL       = 0x78, //!< Bid sequence is finished and discard is done, deal game can start
+        SERVER_PLAY_CARD        = 0x79,
+        SERVER_SHOW_CARD        = 0x7A, //!< card played broadcasted to all clients
+        SERVER_SHOW_PLAYER_BID  = 0x7B, //!< one player has announced something, broacast it to all clients
+        SERVER_SHOW_DOG         = 0x7C,
+        SERVER_ASK_FOR_HANDLE   = 0x7D,
+        SERVER_SHOW_HANDLE      = 0x7E, //!< show a handle to all players
+        SERVER_END_OF_TRICK     = 0x7F,
+        SERVER_END_OF_DEAL      = 0x80,
+        SERVER_END_OF_GAME      = 0x81, //!< end of the game mode (tournament ...)
+        SERVER_ERROR_FULL       = 0x82, //!< Server is full, cannot join game
+
+        // FIXME: Not implemented in the server side
+        SERVER_DISCONNECT       = 0x83, //!< Ask a client to quit the game
+
+        // system -> server
+        SYSTEM_CREATE_TABLE     = 0xA0, //!< Ask the server to start a new table with N players
+        SYSTEM_ADD_PLAYER       = 0xA1, //!< A new player is entering the game
+        SYSTEM_QUIT_GAME        = 0xA2,
 
         // admin -> server
-        ADMIN_CREATE_GAME       = 0xA0, //!< Ask the server to start a new game
-        ADMIN_ADD_PLAYER        = 0xA1, //!< A new player is entering the game
-        ADMIN_NEW_DEAL          = 0xA2, //!< Start a new deal
-        ADMIN_DISCONNECT        = 0xA3, //!< Ask client(s) to quit properly
-        ADMIN_QUIT_GAME         = 0xA4
+        ADMIN_NEW_GAME          = 0xB0, //!< Start a new game with a specified mode
+
+        // server -> admin
+        ADMIN_GAME_FULL         = 0xC0  //!< Game is full, the admin can start a game
+
     };
 
     /**
@@ -112,9 +121,10 @@ public:
     // Client to server packets
     static ByteArray ClientReplyIdentity(const Identity &ident, std::uint32_t uuid);
     static ByteArray ClientChatMessage(const std::string &message, std::uint32_t uuid);
-    static ByteArray ClientReady(std::uint32_t uuid);
+    static ByteArray ClientSyncNewGame(std::uint32_t uuid);
     static ByteArray ClientError(std::uint32_t uuid);
     static ByteArray ClientBid(Contract c, bool slam, std::uint32_t uuid);
+    static ByteArray ClientSyncAllPassed(std::uint32_t uuid);
     static ByteArray ClientSyncDog(std::uint32_t uuid);
     static ByteArray ClientSyncHandle(std::uint32_t uuid);
     static ByteArray ClientSyncTrick(std::uint32_t uuid);
@@ -128,18 +138,19 @@ public:
     static ByteArray ClientCard(const std::string &card, std::uint32_t uuid);
 
     // Server to client packets
+    static ByteArray ServerAllPassed();
     static ByteArray ServerFullMessage(std::uint32_t uuid);
     static ByteArray ServerAskForDiscard(std::uint32_t uuid);
     static ByteArray ServerDisconnect(std::uint32_t uuid);
     static ByteArray ServerAskForHandle(std::uint32_t uuid);
-    static ByteArray ServerNewDeal();
-    static ByteArray ServerRequestIdentity(Place p, std::uint8_t nbPlayers, Tarot::GameMode mode, std::uint32_t uuid);
+    static ByteArray ServerNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
+    static ByteArray ServerRequestIdentity(Place p, std::uint8_t nbPlayers, std::uint32_t uuid);
     static ByteArray ServerChatMessage(const std::string &message);
     static ByteArray ServerShowBid(Contract c, bool slam, Place p);
     static ByteArray ServerPlayersList(std::map<Place, Identity> players);
     static ByteArray ServerShowCard(Card *c, Place p);
     static ByteArray ServerShowHandle(Deck &handle, Place p);
-    static ByteArray ServerSendCards(Player *player);
+    static ByteArray ServerNewDeal(Player *player);
     static ByteArray ServerStartDeal(const Tarot::Bid &bid, const Tarot::Shuffle &sh);
     static ByteArray ServerPlayCard(Place p);
     static ByteArray ServerBidRequest(Contract c, Place p);
@@ -148,11 +159,14 @@ public:
     static ByteArray ServerEndOfDeal(Score &score);
     static ByteArray ServerEndOfGame(Place winner);
 
+    // System to controller packets
+    static ByteArray SystemAddPlayer(std::uint32_t new_player_uuid);
+    static ByteArray SystemCreateTable(std::uint8_t nbPlayers);
+    static ByteArray SystemQuitGame();
+
     // Admin to controller packets
-    static ByteArray AdminAddPlayer(std::uint32_t new_player_uuid);
-    static ByteArray AdminCreateGame(Tarot::GameMode gameMode, std::uint8_t nbPlayers, const Tarot::Shuffle &shuffle);
-    static ByteArray AdminNewDeal();
-    static ByteArray AdminQuitGame();
+    static ByteArray AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint32_t uuid);
+    static ByteArray AdminGameFull(bool full, std::uint32_t uuid);
 
 private:
 

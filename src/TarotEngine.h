@@ -58,28 +58,21 @@ public:
         WAIT_FOR_END_OF_DEAL
     };
 
-    enum BidResult
-    {
-        ALL_PASSED,
-        NEXT_PLAYER,
-        SHOW_DOG,
-        START_DEAL
-    };
-
     TarotEngine();
     ~TarotEngine();
 
     // Helpers
     void Initialize();
     void StopGame();
-    void CreateGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t nbPlayers);
+    void CreateTable(std::uint8_t nbPlayers);
+    void NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s);
     void NewDeal();
     void StartDeal();
     void EndOfDeal();
     bool NextDeal();
 
     Place AddPlayer(std::uint32_t uuid);
-    BidResult BidSequence();
+    void BidSequence();
     void DiscardSequence();
     void GameSequence();
     bool Sync(Sequence sequence, std::uint32_t uuid);

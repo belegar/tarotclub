@@ -26,11 +26,12 @@
 
 /*****************************************************************************/
 Table::Table()
-    : mControllerListener(*this)
-    , mTcpPort(DEFAULT_TCP_PORT)
+    : mTcpPort(DEFAULT_TCP_PORT)
+    , mController(*this)
     , mIdManager(2U, 20U)
     , mTcpServer(*this)
-    , mAutoStart(true)
+    , mCreated(false)
+    , mIsFull(false)
 {
 
 }
@@ -44,7 +45,7 @@ void Table::NewConnection(int socket)
     mUsers[uuid] = socket;
     mUsersMutex.unlock();
     // send the information to the Tarot engine
-    mController.ExecuteRequest(Protocol::AdminAddPlayer(uuid));
+    mController.ExecuteRequest(Protocol::SystemAddPlayer(uuid));
 }
 /*****************************************************************************/
 void Table::ReadData(int socket, const std::string &data)
@@ -60,6 +61,30 @@ void Table::ClientClosed(int socket)
     // FIXME: if a player has quit during a game, replace it by a bot
     //SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
     //SendPlayersList();
+}
+/*****************************************************************************/
+void Table::SendData(const ByteArray &block)
+{
+    // Extract the UUID from the data packet received
+    std::uint32_t uuid = block.GetUint32(3U);
+
+    std::map<std::uint32_t, std::int32_t>::iterator iter;
+    TcpSocket peer;
+
+    mUsersMutex.lock();
+
+    // Send the data to a(all) peer(s)
+    for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        if (uuid == Protocol::ALL_PLAYERS ||
+                iter->first == uuid)
+        {
+            peer.SetSocket(iter->second);
+            peer.Send(block.ToSring());
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(20U));
+    }
+    mUsersMutex.unlock();
 }
 /*****************************************************************************/
 void Table::CloseClients()
@@ -78,30 +103,6 @@ void Table::CloseClients()
 
     mUsers.clear();
 
-    mUsersMutex.unlock();
-}
-/*****************************************************************************/
-void Table::SendToSocket(const ByteArray &packet)
-{
-    // Extract the UUID from the data packet received
-    std::uint32_t uuid = packet.GetUint32(3U);
-
-    std::map<std::uint32_t, std::int32_t>::iterator iter;
-    TcpSocket peer;
-
-    mUsersMutex.lock();
-
-    // Send the data to a(all) peer(s)
-    for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
-    {
-        if (uuid == Protocol::ALL_PLAYERS ||
-                iter->first == uuid)
-        {
-            peer.SetSocket(iter->second);
-            peer.Send(packet.ToSring());
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20U));
-    }
     mUsersMutex.unlock();
 }
 /*****************************************************************************/
@@ -136,20 +137,22 @@ void Table::SetTcpPort(std::uint16_t port)
     mTcpPort = port;
 }
 /*****************************************************************************/
-void Table::CreateGame(Tarot::GameMode gameMode, int nbPlayers, const Tarot::Shuffle &shuffle)
+void Table::CreateTable(std::uint8_t nbPlayers)
 {
     // TODO: add support for 3 and 5 players game
-    if (nbPlayers != 4)
+    if (nbPlayers != 4U)
     {
         TLogError("3 or 5 players are not yet supported");
         return;
     }
-    mController.ExecuteRequest(Protocol::AdminCreateGame(gameMode, nbPlayers, shuffle));
-}
-/*****************************************************************************/
-void Table::NewDeal()
-{
-    mController.ExecuteRequest(Protocol::AdminNewDeal());
+
+    if (mCreated)
+    {
+        CloseClients();
+    }
+    mController.ExecuteRequest(Protocol::SystemCreateTable(nbPlayers));
+    mCreated = true;
+    mIsFull = false;
 }
 /*****************************************************************************/
 void Table::Initialize()
@@ -160,7 +163,6 @@ void Table::Initialize()
     }
 
     mTcpServer.Start(mTcpPort, 10U);
-    mController.RegisterListener(mControllerListener);
     mController.Start();
     for (int i = 0; i < 3; i++)
     {

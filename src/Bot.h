@@ -55,19 +55,21 @@ private:
     bool InitializeScriptContext();
 
     // Client events
+    virtual void AdminGameFull();
     virtual void Message(const std::string &message);
     virtual void AssignedPlace();
     virtual void PlayersList();
-    virtual void ReceiveCards();
+    virtual void NewDeal();
     virtual void SelectPlayer(Place p);
     virtual void RequestBid(Contract highestBid);
     virtual void ShowBid(Place p, bool slam, Contract c);
+    virtual void AllPassed();
     virtual void StartDeal();
     virtual void ShowDog();
     virtual void AskForHandle();
     virtual void ShowHandle();
     virtual void BuildDiscard();
-    virtual void NewDeal();
+    virtual void NewGame();
     virtual void PlayCard();
     virtual void ShowCard(Place p, const std::string &name);
     virtual void WaitTrick(Place winner);

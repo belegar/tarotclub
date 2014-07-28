@@ -50,31 +50,26 @@ class Controller
 {
 
 public:
-    enum SignalType
+    class IEvent
     {
-        SIG_SEND_DATA,    //!< Emitted when there is something to send to a client
-        SIG_GAME_FULL     //!< Emitted when there is enough players to start the game
+    public:
+        virtual void SendData(const ByteArray &block) = 0;
     };
 
-    struct Signal
-    {
-        SignalType type;
-        ByteArray data;
-    };
+    Controller(IEvent &handler);
 
-    Controller();
-
-    void RegisterListener(Observer<Signal> &observer);
     void Start();
     void Stop();
     void ExecuteRequest(const ByteArray &packet);
 
 private:
+    IEvent     &mEventHandler;
     TarotEngine engine;
-    Subject<Signal> mSubject;
     std::thread mThread;
     ThreadQueue<ByteArray> mQueue; //!< Queue of network packets received
     bool mInitialized;
+    bool mFull;
+    std::vector<std::uint32_t> mAdmins; //!< A list of admin players (default is the first player to be connected
 
     /**
      * @brief Main server thread loop
@@ -84,10 +79,10 @@ private:
 
     void NewDeal();
     bool DoAction(const ByteArray &data);
-    void SendPacket(const ByteArray &block);
-    void SignalGameFull();
     void BidSequence();
     void GameSequence();
+    bool IsAdmin(std::uint32_t unique_id);
+
 };
 
 #endif // CONTROLLER_H
