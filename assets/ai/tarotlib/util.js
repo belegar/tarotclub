@@ -312,7 +312,7 @@ this.TarotLib = this.TarotLib || {};
             text = "Guard against";
         }
         return text;
-    }
+    };
 
     /**
      * string Contract --> integer Contract
@@ -333,7 +333,7 @@ this.TarotLib = this.TarotLib || {};
             value = Contract.GUARD_AGAINST;
         }
         return value;
-    }
+    };
 
 	Suit.toString = function(intValue)
 	{
