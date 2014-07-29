@@ -41,11 +41,12 @@ JSEngine::~JSEngine()
 /*****************************************************************************/
 void JSEngine::Initialize()
 {
-     mCtx = duk_create_heap_default();
-     if (mCtx != NULL)
-     {
-         mValidContext = true;
-     }
+    Close();
+    mCtx = duk_create_heap_default();
+    if (mCtx != NULL)
+    {
+        mValidContext = true;
+    }
 }
 /*****************************************************************************/
 bool JSEngine::Evaluate(const std::string &fileName)
