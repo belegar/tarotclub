@@ -469,7 +469,7 @@ var p = Game.prototype;
                     // Look if opponents have trumps
                     for (var j=0; j<4; j++)
                     {
-                        if (this.players[i].hasSuits[4] == true)
+                        if (this.players[j].hasSuits[4] == true)
                         {
                             opponentsHaveTrumps = true;
                         }
@@ -516,7 +516,7 @@ var p = Game.prototype;
                 if (this.bot.hasSuit("T"))
                 {
                     // Over-cut a previous trump? 
-                    var card = highestTrump();
+                    var card = this.highestTrump();
                     if (card == undefined)
                     {
                         // no any trump played before, cut with a low trump
