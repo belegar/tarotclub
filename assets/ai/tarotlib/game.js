@@ -464,8 +464,34 @@ var p = Game.prototype;
                 // No any cut in opponents... play trumps starting from the top!
                 if (this.bot.hasSuit("T"))
                 {
-                    playedCard = this.bot.playHighestCard("T");
-                    systemPrint("attack: playing first, highest trump");
+                    var opponentsHaveTrumps = false;
+                    var onlyOneOfTrump = false;
+                    // Look if opponents have trumps
+                    for (var j=0; j<4; j++)
+                    {
+                        if (this.players[i].hasSuits[4] == true)
+                        {
+                            opponentsHaveTrumps = true;
+                        }
+                    }
+
+                    if ((this.bot.stats.suits["T"] == 1) &&
+                        (this.bot.stats.littleTrump))
+                    {
+                        onlyOneOfTrump = true;
+                    }
+
+                    if (onlyOneOfTrump && opponentsHaveTrumps)
+                    {
+                        // we have only the one of trump, save it because it can be captured and play low card
+                        playedCard = this.bot.playLowestCard();
+                        systemPrint("attack: playing first, lowest any card (saving one of trump)");
+                    }
+                    else
+                    {
+                        playedCard = this.bot.playHighestCard("T");
+                        systemPrint("attack: playing first, highest trump");
+                    }
                 }
                 else
                 {
