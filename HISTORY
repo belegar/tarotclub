@@ -8,7 +8,8 @@ HISTORY OF TAROTCLUB VERSIONS
   -------------------------------
     ~ Correction: About box was too large (switched to a text edit control)
     ~ Change in the network protocol: clear separation between a game and a deal
-    ~ Various defense AI corrections
+    ~ Various defense AI corrections and function bugs
+    ~ JS script context is now reloaded at each new game with a proper heap cleaning
     + New AI attack, basic version, with discard build
 
 * version 2.3.4 <Snowboard>
