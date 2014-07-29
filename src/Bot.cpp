@@ -51,12 +51,7 @@ void Bot::Message(const std::string &message)
 /*****************************************************************************/
 void Bot::AssignedPlace()
 {
-    InitializeScriptContext();
-
-    JSEngine::StringList args;
-    args.push_back(mClient.GetPlace().ToString());
-    args.push_back(""); // FIXME replace by the game mode, string format
-    mBotEngine.Call("EnterGame", args);
+    // Nothing to do
 }
 /*****************************************************************************/
 void Bot::PlayersList()
@@ -274,9 +269,24 @@ void Bot::BuildDiscard()
 /*****************************************************************************/
 void Bot::NewGame()
 {
-    // Re-inititialize script context
+    // (re)inititialize script context
     if (InitializeScriptContext() == true)
-    {
+    {  
+        JSEngine::StringList args;
+        args.push_back(mClient.GetPlace().ToString());
+        Tarot::GameMode mode = mClient.GetGameMode();
+        std::string modeString;
+        if (mode == Tarot::ONE_DEAL)
+        {
+            modeString = "one_deal";
+        }
+        else
+        {
+            modeString = "tournament";
+        }
+        args.push_back(modeString);
+        mBotEngine.Call("EnterGame", args);
+
         mClient.SendSyncNewGame();
     }
     else
