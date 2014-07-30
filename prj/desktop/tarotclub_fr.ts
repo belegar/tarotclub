@@ -9,7 +9,6 @@
         <translation>À propos...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="35"/>
         <source>TarotClub ( http://www.tarotclub.fr ) - The free Tarot card game!
 Copyright (C) 2003-2999 - Anthony Rabine
 anthony@tarotclub.fr
@@ -26,7 +25,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source>
-        <translation>TarotClub ( http://www.tarotclub.fr ) - Le jeu de Tarot libre !
+        <translation type="vanished">TarotClub ( http://www.tarotclub.fr ) - Le jeu de Tarot libre !
 Copyright (C) 2003-2999 - Anthony Rabine
 anthony@tarotclub.fr
 
@@ -35,22 +34,57 @@ Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les 
 Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE, ni explicite ni implicite, y compris les garanties de commercialisation ou d&apos;adaptation dans un but spécifique. Reportez-vous à la Licence Publique Générale GNU pour plus de détails.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="116"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="29"/>
+        <source>TarotClub ( http://www.tarotclub.fr ) - The free Tarot card game!
+
+Copyright (C) 2003-2999 - Anthony Rabine
+anthony@tarotclub.fr
+
+TarotClub is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+TarotClub is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source>
+        <translation>TarotClub ( http://www.tarotclub.fr ) - Le jeu de Tarot libre!
+
+Copyright (C) 2003-2999 - Anthony Rabine
+anthony@tarotclub.fr
+
+Ce programme est un logiciel libre ; vous pouvez le redistribuer ou le modifier
+suivant les termes de la GNU General Public License telle que publiée par la
+Free Software Foundation , soit la version 3 de la Licence, soit (à votre gré)
+toute version ultérieure.
+Ce programme est distribué dans l’espoir qu’il sera utile, mais SANS AUCUNE
+GARANTIE : sans même la garantie implicite de COMMERCIALISABILITÉ
+ni d’ADÉQUATION À UN OBJECTIF PARTICULIER. Consultez la GNU
+General Public License pour plus de détails.
+
+Vous devriez avoir reçu une copie de la GNU General Public License avec ce
+programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/licenses/&gt;.</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="107"/>
         <source>TarotClub 0.0.0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="126"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="117"/>
         <source>&lt;Nom&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="146"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="137"/>
         <source>&amp;Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="149"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="140"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
@@ -271,97 +305,97 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="116"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
         <source>Trumps: </source>
         <translation>Atouts :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="117"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="137"/>
         <source>Major trumps: </source>
         <translation>Atouts majeurs :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="119"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="139"/>
         <source>Oudlers: </source>
         <translation>Bouts : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="120"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="140"/>
         <source>Fool: </source>
         <translation>Excuse :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="121"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="141"/>
         <source>21 of trump: </source>
         <translation>Atout 21 :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="122"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="142"/>
         <source>1 of trump: </source>
         <translation>Petit :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="124"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="144"/>
         <source>Long suits: </source>
         <translation>Longues :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="125"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="145"/>
         <source>Weddings: </source>
         <translation>Mariages :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="126"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="146"/>
         <source>Sequences: </source>
         <translation>Sequences :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="127"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="147"/>
         <source>Singletons: </source>
         <translation>Singletons :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="129"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="149"/>
         <source>Clubs: </source>
         <translation>Trèfles :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="130"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="150"/>
         <source>Diamonds: </source>
         <translation>Carreaux : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="131"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="151"/>
         <source>Spades: </source>
         <translation>Piques : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="132"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="152"/>
         <source>Hearts: </source>
         <translation>Coeurs :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="134"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="154"/>
         <source>Kings: </source>
         <translation>Rois : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="135"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="155"/>
         <source>Voids: </source>
         <translation>Coupes : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="156"/>
         <source>Queens: </source>
         <translation>Dames : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="137"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="157"/>
         <source>Knights: </source>
         <translation>Cavaliers : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="138"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="158"/>
         <source>Jacks: </source>
         <translation>Valets : </translation>
     </message>
@@ -869,30 +903,60 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="111"/>
+        <source>South</source>
+        <translation>Sud</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="112"/>
+        <source>East</source>
+        <translation>Est</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="113"/>
+        <source>North</source>
+        <translation>Nord</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="114"/>
+        <source>West</source>
+        <translation>Ouest</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="115"/>
+        <source>Fifth</source>
+        <translation>Cinquième</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="123"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="473"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="87"/>
         <source>Pass</source>
         <translation>Passe</translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="124"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="474"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="88"/>
         <source>Take</source>
         <translation>Prise</translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="125"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="475"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="89"/>
         <source>Guard</source>
         <translation>Garde</translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="126"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="476"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="90"/>
         <source>Guard without</source>
         <translation>Garde sans</translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="127"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="477"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="91"/>
         <source>Guard against</source>
@@ -930,30 +994,35 @@ Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE
 <context>
     <name>TarotWidget</name>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="245"/>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="541"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="257"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="561"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="246"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="258"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation>Votre poignée n&apos;est pas valide. Montrer l&apos;excuse signifie que vous n&apos;avez plus d&apos;atouts en main.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="542"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="562"/>
         <source>All the players have passed.
-New deal will begin.</source>
-        <translation>Tous les joueurs ont passé. Une nouvelle donne va se lancer.</translation>
+New deal will start.</source>
+        <translation>Tous les joueurs ont passé. Une nouvelle donne va démarrer.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="570"/>
+        <source>All the players have passed.
+New deal will begin.</source>
+        <translation type="vanished">Tous les joueurs ont passé. Une nouvelle donne va se lancer.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="591"/>
         <source>Handle</source>
         <translation>Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="571"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="592"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation>Vous possédez une poignée. Souhaitez-vous la déclarer ?</translation>

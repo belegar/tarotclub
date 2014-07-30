@@ -107,12 +107,26 @@ void InfosDock::SetDealNumber(std::uint32_t n)
 /*****************************************************************************/
 void InfosDock::SetTaker(const QString &name, Place place)
 {
-    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + QString(place.ToString().data()) + ")");
+    QString labels[] = {
+        QObject::tr("South"),
+        QObject::tr("East"),
+        QObject::tr("North"),
+        QObject::tr("West"),
+        QObject::tr("Fifth")
+    };
+    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + labels[place.Value()] + ")");
 }
 /*****************************************************************************/
 void InfosDock::SetContract(Contract contract)
 {
-    ui.contratVar->setText("<b>" + QString(contract.ToString().data()) + "</b>");
+    QString labels[] = {
+        QObject::tr("Pass"),
+        QObject::tr("Take"),
+        QObject::tr("Guard"),
+        QObject::tr("Guard without"),
+        QObject::tr("Guard against")
+    };
+    ui.contratVar->setText("<b>" + labels[contract.Value()] + "</b>");
 }
 /*****************************************************************************/
 void InfosDock::PrintStats(const Deck::Statistics &stats)
