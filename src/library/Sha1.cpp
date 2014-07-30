@@ -1,19 +1,27 @@
-/*
-    Sha1.cpp - source code of
-
-    ============
-    SHA-1 in C++
-    ============
-
-    100% Public Domain.
-
-    Original C Code
-        -- Steve Reid <steve@edmweb.com>
-    Small changes to fit into bglibs
-        -- Bruce Guenter <bruce@untroubled.org>
-    Translation to simpler C++ Code
-        -- Volker Grabsch <vog@notjusthosting.com>
-*/
+/*=============================================================================
+ * TarotClub - Sha1.cpp
+ *=============================================================================
+ * Sha1 hash C++ implementation
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
 
 #include "Sha1.h"
 #include <sstream>
@@ -54,57 +62,81 @@ void Sha1::Update(std::istream &is)
  * Add padding and return the message digest.
  */
 
-std::string Sha1::Final()
+std::string Sha1::Final(bool ascii)
 {
-    /* Total number of hashed bits */
-    std::uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
+	/* Total number of hashed bits */
+	std::uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
 
-    /* Padding */
-    buffer += 0x80;
-    unsigned int orig_size = buffer.size();
-    while (buffer.size() < BLOCK_BYTES)
-    {
-        buffer += (char)0x00;
-    }
+	/* Padding */
+	buffer += (char)0x80;
+	size_t orig_size = buffer.size();
+	while (buffer.size() < BLOCK_BYTES)
+	{
+		buffer += (char)0x00;
+	}
 
-    std::uint32_t block[BLOCK_INTS];
-    BufferToBlock(buffer, block);
+	std::uint32_t block[BLOCK_INTS];
+	BufferToBlock(buffer, block);
 
-    if (orig_size > BLOCK_BYTES - 8)
-    {
-        Transform(block);
-        for (unsigned int i = 0; i < BLOCK_INTS - 2; i++)
-        {
-            block[i] = 0;
-        }
-    }
+	if (orig_size > BLOCK_BYTES - 8)
+	{
+		Transform(block);
+		for (unsigned int i = 0; i < BLOCK_INTS - 2; i++)
+		{
+			block[i] = 0;
+		}
+	}
 
-    /* Append total_bits, split this std::uint64_t into two std::uint32_t */
-    block[BLOCK_INTS - 1] = total_bits;
-    block[BLOCK_INTS - 2] = (total_bits >> 32);
-    Transform(block);
+	/* Append total_bits, split this std::uint64_t into two std::uint32_t */
+	block[BLOCK_INTS - 1] = static_cast<std::uint32_t>(total_bits);
+	block[BLOCK_INTS - 2] = (total_bits >> 32);
+	Transform(block);
 
-    /* Hex std::string */
-    std::ostringstream result;
-    for (unsigned int i = 0; i < DIGEST_INTS; i++)
-    {
-        result << std::hex << std::setfill('0') << std::setw(8);
-        result << (digest[i] & 0xffffffff);
-    }
+	/* Hex std::string */
+	std::string output;
+
+	if (ascii)
+	{
+		std::ostringstream result;
+		for (unsigned int i = 0; i < DIGEST_INTS; i++)
+		{
+			result << std::hex << std::setfill('0') << std::setw(8);
+			result << (digest[i] & 0xffffffff);
+		}
+		output = result.str();
+	}
+	else
+	{
+		for (unsigned int i = 0; i < DIGEST_INTS; i++)
+		{
+			std::uint8_t byte;
+			std::uint32_t mask = 0xFF000000U;
+			std::uint32_t pos = 24U;
+			std::uint32_t data = digest[i];
+
+			for (std::uint8_t j = 0U; j < 4U; j++)
+			{
+				byte = (data & mask) >> pos;
+				output.push_back(byte);
+				pos -= 8;
+				mask >>= 8;
+			}
+		}
+	}
 
     /* Reset for next run */
     Reset();
 
-    return result.str();
+    return output;
 }
 
 /*****************************************************************************/
-std::string Sha1::FromFile(const std::string &filename)
+std::string Sha1::FromFile(const std::string &filename, bool ascii)
 {
     std::ifstream stream(filename.c_str(), std::ios::binary);
     Sha1 checksum;
     checksum.Update(stream);
-    return checksum.Final();
+    return checksum.Final(ascii);
 }
 
 /*****************************************************************************/
@@ -254,7 +286,12 @@ void Sha1::BufferToBlock(const std::string &buffer, std::uint32_t block[])
 /*****************************************************************************/
 void Sha1::Read(std::istream &is, std::string &s, int max)
 {
-    char sbuf[max];
+    char *sbuf = new char[max];
     is.read(sbuf, max);
-    s.assign(sbuf, is.gcount());
+    s.assign(sbuf, static_cast<unsigned>(is.gcount()));
+	delete[] sbuf;
 }
+
+//=============================================================================
+// End of file Sha1.cpp
+//=============================================================================

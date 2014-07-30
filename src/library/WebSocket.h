@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Sha1.h
+ * TarotClub - WebSocket.h
  *=============================================================================
- * Sha1 hash C++ implementation
+ * WebSocket handshake manager
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,47 +22,40 @@
  *
  *=============================================================================
  */
-#ifndef SHA1_HPP
-#define SHA1_HPP
 
-#include <iostream>
-#include <string>
-#include <cstdint>
+#ifndef WEB_SOCKET_H
+#define WEB_SOCKET_H
+
+#include <regex>
+
+#include "Sha1.h"
+#include "Base64.h"
 
 /*****************************************************************************/
 /**
- * @brief Sha1
- * This implementation supports two output formats (ASCII or binary)
+ * @brief WebSocketRequest
  */
-class Sha1
+class WebSocketRequest
 {
 public:
-    Sha1();
-    void Update(const std::string &s);
-    void Update(std::istream &is);
-	std::string Final(bool ascii);
-	static std::string FromFile(const std::string &filename, bool ascii);
+	void Parse(const std::string &msg);
+	bool IsProtocol(const std::string &proto);
+	std::string Accept();
+	std::string Upgrade(const std::string &proto);
+	bool IsValid();
 
 private:
-    static const unsigned int DIGEST_INTS = 5;  /* number of 32bit integers per SHA1 digest */
-    static const unsigned int BLOCK_INTS = 16;  /* number of 32bit integers per SHA1 block */
-    static const unsigned int BLOCK_BYTES = BLOCK_INTS * 4;
+	std::string Match(const std::string &msg, const std::string &patternString);
 
-    std::uint32_t digest[DIGEST_INTS];
-    std::string buffer;
-    std::uint64_t transforms;
-
-    void Reset();
-    void Transform(std::uint32_t block[BLOCK_BYTES]);
-
-    static void BufferToBlock(const std::string &buffer, std::uint32_t block[BLOCK_BYTES]);
-    static void Read(std::istream &is, std::string &s, int max);
+	std::string resource;
+	std::string host;
+	std::string origin;
+	std::string key;
+	std::string protocol;
 };
 
-
-#endif  // SHA1_HPP
+#endif // WEB_SOCKET_H
 
 //=============================================================================
-// End of file Sha1.h
+// End of file WebSocket.h
 //=============================================================================
-

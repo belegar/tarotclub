@@ -81,16 +81,22 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\library\Base64.cpp" />
+    <ClCompile Include="..\..\..\src\library\Sha1.cpp" />
     <ClCompile Include="..\..\..\src\library\TcpClient.cpp" />
     <ClCompile Include="..\..\..\src\library\TcpServer.cpp" />
     <ClCompile Include="..\..\..\src\library\TcpSocket.cpp" />
+    <ClCompile Include="..\..\..\src\library\WebSocket.cpp" />
     <ClCompile Include="..\tst_tcp_socket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\library\Base64.h" />
     <ClInclude Include="..\..\..\src\library\Observer.h" />
+    <ClInclude Include="..\..\..\src\library\Sha1.h" />
     <ClInclude Include="..\..\..\src\library\TcpClient.h" />
     <ClInclude Include="..\..\..\src\library\TcpServer.h" />
     <ClInclude Include="..\..\..\src\library\TcpSocket.h" />
+    <ClInclude Include="..\..\..\src\library\WebSocket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
