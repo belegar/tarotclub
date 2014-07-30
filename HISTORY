@@ -6,13 +6,14 @@ HISTORY OF TAROTCLUB VERSIONS
 
 * version 2.3.5 <Snowboard>
   -------------------------------
-    ~ About box was too large (switched to a text edit control)
-    ~ Various defense AI corrections
+    ~ About box was too large (switched to a text edit control)   
+    ~ Various defense AI corrections and function bugs
+    ~ JS script context is now reloaded at each new game with a proper heap cleaning
     ~ Corrected upper limit of the numbered deal (32-bit signed value)
     ~ Tournament box is now cleared when the game starts
     + Change in the network protocol: clear separation between a game and a deal (preparation for network game enhencements)
-    + New AI attack, basic version, with discard build
-
+    + New AI attack, basic version, with discard build   
+    
 * version 2.3.4 <Snowboard>
   -------------------------------
     ~ Correction: little endian bonus in case of slam and fool in last trick was not detected
