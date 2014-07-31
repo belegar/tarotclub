@@ -141,7 +141,8 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    System.h
+    System.h \
+    Value.h
 
 
 SOURCES += Log.cpp \
@@ -153,7 +154,8 @@ SOURCES += Log.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
-    System.cpp
+    System.cpp \
+    Value.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -164,14 +166,12 @@ HEADERS += duktape.h \
     JsonReader.h \
     JSEngine.h \
     IScriptEngine.h \
-    JSValue.h \
     JsonValue.h
 
 SOURCES += duktape.c \
     JsonWriter.cpp \
     JsonReader.cpp \
     JSEngine.cpp \
-    JSValue.cpp \
     JsonValue.cpp
 
 # ------------------------------------------------------------------------------
