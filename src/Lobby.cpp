@@ -59,7 +59,7 @@ void Lobby::Initialize()
         {
             saloons[j].tables[i].table.SetTcpPort(tcpPort);
             saloons[j].tables[i].table.Initialize(); // Start all threads and TCP sockets
-            saloons[j].tables[i].table.CreateGame(Tarot::ONE_DEAL, 4U, sh);
+            saloons[j].tables[i].table.CreateTable(4U);
             // Each table has a unique port
             tcpPort++;
         }
