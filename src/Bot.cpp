@@ -77,7 +77,7 @@ void Bot::RequestBid(Contract highestBid)
     JSEngine::StringList args;
 
     args.push_back(highestBid.ToString());
-    JSValue result = mBotEngine.Call("AnnounceBid", args);
+    Value result = mBotEngine.Call("AnnounceBid", args);
 
     if (!result.IsValid())
     {
@@ -150,12 +150,12 @@ void Bot::AskForHandle()
 {
     bool valid = false;
     JSEngine::StringList args;
-    JSValue ret = mBotEngine.Call("AskForHandle", args);
+    Value ret = mBotEngine.Call("AskForHandle", args);
     Deck handle; // empty by default
 
     if (ret.IsValid())
     {
-        if (ret.GetType() == JSValue::STRING)
+        if (ret.GetType() == Value::STRING)
         {
             std::string cards = ret.GetString();
             if (cards.size() > 0)
@@ -223,11 +223,11 @@ void Bot::BuildDiscard()
     Deck discard;
 
     args.push_back(mClient.GetDogDeck().GetCardList());
-    JSValue ret = mBotEngine.Call("BuildDiscard", args);
+    Value ret = mBotEngine.Call("BuildDiscard", args);
 
     if (ret.IsValid())
     {
-        if (ret.GetType() == JSValue::STRING)
+        if (ret.GetType() == Value::STRING)
         {
             std::uint8_t count = discard.SetCards(ret.GetString());
             if (count == Tarot::NumberOfDogCards(mClient.GetNumberOfPlayers()))
@@ -303,7 +303,7 @@ void Bot::PlayCard()
     std::this_thread::sleep_for(std::chrono::milliseconds(mTimeBeforeSend));
 
     JSEngine::StringList args;
-    JSValue ret = mBotEngine.Call("PlayCard", args);
+    Value ret = mBotEngine.Call("PlayCard", args);
 
     if (!ret.IsValid())
     {
