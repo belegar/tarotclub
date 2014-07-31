@@ -26,7 +26,7 @@
 #ifndef JSONVALUE_H
 #define JSONVALUE_H
 
-#include "JSValue.h"
+#include "Value.h"
 #include <vector>
 
 
@@ -96,19 +96,19 @@ private:
     std::uint32_t mLevel;
 };
 /*****************************************************************************/
-class JsonValue : public JSValue, public IJsonNode
+class JsonValue : public Value, public IJsonNode
 {
 
 public:
 
     // From JSValue
-    JsonValue(std::int32_t value) : JSValue(value) {}
-    JsonValue(double value) : JSValue(value) {}
-    JsonValue(const char *value) : JSValue(value) {}
-    JsonValue(const std::string &value) : JSValue(value) {}
-    JsonValue(bool value) : JSValue(value) {}
-    JsonValue(const JSValue &value) : JSValue(value) {}
-    JsonValue() : JSValue() {}
+    JsonValue(std::int32_t value) : Value(value) {}
+    JsonValue(double value) : Value(value) {}
+    JsonValue(const char *value) : Value(value) {}
+    JsonValue(const std::string &value) : Value(value) {}
+    JsonValue(bool value) : Value(value) {}
+    JsonValue(const Value &value) : Value(value) {}
+    JsonValue() : Value() {}
 
     // Implemented virtual methods from IJsonNode
     IJsonNode::Tag GetTag() { return IJsonNode::JSON_VALUE; }

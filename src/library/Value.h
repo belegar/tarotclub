@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - JSValue.h
+ * TarotClub - Value.h
  *=============================================================================
- * JavaScript value class
+ * General purpose value class
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef JSVALUE_H
-#define JSVALUE_H
+#ifndef VALUE_H
+#define VALUE_H
 
 #include <string>
 #include <cstdint>
@@ -40,7 +40,7 @@
  *
  * null is not supported. Array and Object are managed with dedicated classes.
  */
-class JSValue
+class Value
 {
 public:
     enum Type
@@ -53,16 +53,16 @@ public:
         NULL_VAL
     };
 
-    JSValue(std::int32_t value);
-    JSValue(double value);
-    JSValue(const char *value);
-    JSValue(const std::string &value);
-    JSValue(bool value);
-    JSValue(const JSValue &value);
-    JSValue(); // default constructor creates an invalid value!
-    ~JSValue();
+    Value(std::int32_t value);
+    Value(double value);
+    Value(const char *value);
+    Value(const std::string &value);
+    Value(bool value);
+    Value(const Value &value);
+    Value(); // default constructor creates an invalid value!
+    ~Value();
 
-    JSValue &operator = (JSValue const &rhs);
+    Value &operator = (Value const &rhs);
 
     bool IsValid() { return mType != INVALID; }
     Type GetType() { return mType; }
@@ -82,8 +82,8 @@ private:
     bool mBoolValue;
 };
 
-#endif // JSVALUE_H
+#endif // VALUE_H
 
 //=============================================================================
-// End of file JSValue.h
+// End of file Value.h
 //=============================================================================

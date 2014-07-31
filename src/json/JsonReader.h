@@ -81,7 +81,7 @@ public:
     bool GetValue(const std::string &obj, std::int32_t &value);
     bool GetValue(const std::string &obj, std::string &value);
     bool GetValue(const std::string &obj, bool &value);
-    std::vector<JsonValue> GetArray(const std::string &obj, JSValue::Type type);
+    std::vector<JsonValue> GetArray(const std::string &obj, Value::Type type);
 
 private:
     bool mValid;
@@ -89,7 +89,7 @@ private:
     JsonArray *mRootArray;
     JsonObject *mRootObject;
 
-    JsonValue GetJsonValue(const std::string &obj, JSValue::Type type);
+    JsonValue GetJsonValue(const std::string &obj, Value::Type type);
     JsonReader::ParseStatus Parse(char *s, char **endptr);
     double StringToDouble(char *s, char **endptr);
     std::vector<std::string> Split(const std::string &obj);

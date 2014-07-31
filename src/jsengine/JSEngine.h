@@ -41,7 +41,7 @@ public:
     
     void Initialize();
     bool Evaluate(const std::string &fileName);
-    JSValue Call(const std::string &function, const IScriptEngine::StringList &args);
+    Value Call(const std::string &function, const IScriptEngine::StringList &args);
     void Close();
 
 private:

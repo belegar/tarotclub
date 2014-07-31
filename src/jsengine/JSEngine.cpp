@@ -81,9 +81,9 @@ bool JSEngine::Evaluate(const std::string &fileName)
     }
 }
 /*****************************************************************************/
-JSValue JSEngine::Call(const std::string &function, const IScriptEngine::StringList &args)
+Value JSEngine::Call(const std::string &function, const IScriptEngine::StringList &args)
 {
-    JSValue retval; // default is invalid value
+    Value retval; // default is invalid value
 
     if (!mValidContext)
     {
@@ -116,7 +116,7 @@ JSValue JSEngine::Call(const std::string &function, const IScriptEngine::StringL
             if (duk_check_type(mCtx, -1, DUK_TYPE_STRING))
             {
                 std::string value = duk_get_string(mCtx, -1);
-                retval = JSValue(value);
+                retval = Value(value);
             }
             if (duk_check_type(mCtx, -1, DUK_TYPE_BOOLEAN))
             {
@@ -125,7 +125,7 @@ JSValue JSEngine::Call(const std::string &function, const IScriptEngine::StringL
                 {
                     value = true;
                 }
-                retval = JSValue(value);
+                retval = Value(value);
             }
         }
     }

@@ -1,5 +1,5 @@
 /*=============================================================================
- * TarotClub - JSValue.cpp
+ * TarotClub - Value.cpp
  *=============================================================================
  * JavaScript value class
  *=============================================================================
@@ -23,10 +23,10 @@
  *=============================================================================
  */
 
-#include "JSValue.h"
+#include "Value.h"
 
 /*****************************************************************************/
-JSValue::JSValue(std::int32_t value)
+Value::Value(std::int32_t value)
     : mType(INTEGER)
     , mIntegerValue(value)
     , mDoubleValue(0.0f)
@@ -35,7 +35,7 @@ JSValue::JSValue(std::int32_t value)
 
 }
 /*****************************************************************************/
-JSValue::JSValue(double value)
+Value::Value(double value)
     : mType(DOUBLE)
     , mIntegerValue(0)
     , mDoubleValue(value)
@@ -44,7 +44,7 @@ JSValue::JSValue(double value)
 
 }
 /*****************************************************************************/
-JSValue::JSValue(const char * value)
+Value::Value(const char * value)
     : mType(STRING)
     , mIntegerValue(0)
     , mDoubleValue(0.f)
@@ -54,7 +54,7 @@ JSValue::JSValue(const char * value)
 
 }
 /*****************************************************************************/
-JSValue::JSValue(const std::string &value)
+Value::Value(const std::string &value)
     : mType(STRING)
     , mIntegerValue(0)
     , mDoubleValue(0.f)
@@ -64,7 +64,7 @@ JSValue::JSValue(const std::string &value)
 
 }
 /*****************************************************************************/
-JSValue::JSValue(bool value)
+Value::Value(bool value)
     : mType(BOOLEAN)
     , mIntegerValue(0)
     , mDoubleValue(0.f)
@@ -73,12 +73,12 @@ JSValue::JSValue(bool value)
 
 }
 /*****************************************************************************/
-JSValue::JSValue(const JSValue &value)
+Value::Value(const Value &value)
 {
     *this = value;
 }
 /*****************************************************************************/
-JSValue::JSValue()
+Value::Value()
     : mType(INVALID)
     , mIntegerValue(0)
     , mDoubleValue(0.f)
@@ -87,12 +87,12 @@ JSValue::JSValue()
 
 }
 /*****************************************************************************/
-JSValue::~JSValue()
+Value::~Value()
 {
 
 }
 /*****************************************************************************/
-JSValue &JSValue::operator =(const JSValue &rhs)
+Value &Value::operator =(const Value &rhs)
 {
     mType = rhs.mType;
     mIntegerValue = rhs.mIntegerValue;
@@ -103,5 +103,5 @@ JSValue &JSValue::operator =(const JSValue &rhs)
 }
 
 //=============================================================================
-// End of file JSValue.cpp
+// End of file Value.cpp
 //=============================================================================
