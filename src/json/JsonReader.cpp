@@ -65,7 +65,6 @@ bool JsonReader::Open(const std::string &fileName)
         std::ostringstream contents;
         contents << f.rdbuf();
         f.close();
-        //    duk_push_lstring(mCtx, contents.str().c_str(), contents.str().size());
 
         char *endptr;
         char *source = strdup(contents.str().c_str());
