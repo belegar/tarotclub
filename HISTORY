@@ -11,6 +11,7 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ JS script context is now reloaded at each new game with a proper heap cleaning
     ~ Corrected upper limit of the numbered deal (32-bit signed value)
     ~ Tournament box is now cleared when the game starts
+    ~ Correction of all the diamond suit cards (rendering problem) - Contribution by Hizoka
     + Change in the network protocol: clear separation between a game and a deal (preparation for network game enhencements)
     + New AI attack, basic version, with discard build   
     
