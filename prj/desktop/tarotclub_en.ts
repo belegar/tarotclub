@@ -9,8 +9,9 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="35"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="29"/>
         <source>TarotClub ( http://www.tarotclub.fr ) - The free Tarot card game!
+
 Copyright (C) 2003-2999 - Anthony Rabine
 anthony@tarotclub.fr
 
@@ -18,7 +19,6 @@ TarotClub is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-
 TarotClub is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -29,22 +29,22 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="116"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="107"/>
         <source>TarotClub 0.0.0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="126"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="117"/>
         <source>&lt;Nom&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="146"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="137"/>
         <source>&amp;Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="149"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="140"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
@@ -265,97 +265,97 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="116"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
         <source>Trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="117"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="137"/>
         <source>Major trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="119"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="139"/>
         <source>Oudlers: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="120"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="140"/>
         <source>Fool: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="121"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="141"/>
         <source>21 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="122"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="142"/>
         <source>1 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="124"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="144"/>
         <source>Long suits: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="125"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="145"/>
         <source>Weddings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="126"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="146"/>
         <source>Sequences: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="127"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="147"/>
         <source>Singletons: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="129"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="149"/>
         <source>Clubs: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="130"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="150"/>
         <source>Diamonds: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="131"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="151"/>
         <source>Spades: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="132"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="152"/>
         <source>Hearts: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="134"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="154"/>
         <source>Kings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="135"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="155"/>
         <source>Voids: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="156"/>
         <source>Queens: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="137"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="157"/>
         <source>Knights: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="138"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="158"/>
         <source>Jacks: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -863,30 +863,60 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="111"/>
+        <source>South</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="112"/>
+        <source>East</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="113"/>
+        <source>North</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="114"/>
+        <source>West</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="115"/>
+        <source>Fifth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="123"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="473"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="87"/>
         <source>Pass</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="124"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="474"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="88"/>
         <source>Take</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="125"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="475"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="89"/>
         <source>Guard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="126"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="476"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="90"/>
         <source>Guard without</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="127"/>
         <location filename="../../src/gfxlib/Canvas.cpp" line="477"/>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="91"/>
         <source>Guard against</source>
@@ -924,30 +954,30 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>TarotWidget</name>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="245"/>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="541"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="257"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="561"/>
         <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="246"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="258"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="542"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="562"/>
         <source>All the players have passed.
-New deal will begin.</source>
+New deal will start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="570"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="591"/>
         <source>Handle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="571"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="592"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation type="unfinished"></translation>
