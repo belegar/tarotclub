@@ -7,6 +7,8 @@
 
 # Planned for 2.4.0 (Target date: October 2014)
 
+  * Use a command line TCDS configuration file
+  * Change the Lobby protocol into JSON-RPC
   * Beginner AI level (attack and defense)
   * JavaScript AI framework (TarotLib)
   * Display a more comprehensive card name in the history of tricks dock window (eg: 13-D ==> display D with a diamond icon)
