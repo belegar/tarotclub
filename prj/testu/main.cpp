@@ -8,6 +8,8 @@
 #include "tst_utilities.h"
 #include "tst_json.h"
 #include "tst_hash.h"
+#include "tst_websocket.h"
+#include "tst_database.h"
 
 int main(int argc, char *argv[])
 {
@@ -56,7 +58,27 @@ int main(int argc, char *argv[])
         testFailures++;
     }
 
-    std::cout << std::endl << "=============================================" << std::endl;
+    TstWebSocket tst_websock;
+    if (QTest::qExec(&tst_websock, argc, argv) == 0)
+    {
+        testSuccesses++;
+    }
+    else
+    {
+        testFailures++;
+    }
+
+    TstDataBase tst_db;
+    if (QTest::qExec(&tst_db, argc, argv) == 0)
+    {
+        testSuccesses++;
+    }
+    else
+    {
+        testFailures++;
+    }
+
+    std::cout << std::endl << "=============================================";
     std::cout << std::endl << "Success : " << testSuccesses;
     std::cout << std::endl << "Failures: " << testFailures;
     std::cout << std::endl << "=============================================" << std::endl;

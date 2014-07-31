@@ -47,6 +47,7 @@ VPATH += $$BASE_DIR/src
 VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
+VPATH += $$BASE_DIR/src/database
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
@@ -57,9 +58,11 @@ VPATH += $$BASE_DIR/prj/testu
 # ------------------------------------------------------------------------------
 INCLUDEPATH += $$BASE_DIR/src
 INCLUDEPATH += $$BASE_DIR/src/library
+INCLUDEPATH += $$BASE_DIR/src/database
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/prj/testu
+
 
 QT       += testlib
 QT       -= gui
@@ -104,7 +107,9 @@ HEADERS += Log.h \
     TcpClient.h \
     UniqueId.h \
     Base64.h \
-    Sha1.h
+    Sha1.h \
+    WebSocket.h \
+    Value.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -116,7 +121,18 @@ SOURCES += Log.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
     Base64.cpp \
-    Sha1.cpp
+    Sha1.cpp \
+    WebSocket.cpp \
+    Value.cpp
+
+# ------------------------------------------------------------------------------
+# Database management files
+# ------------------------------------------------------------------------------
+HEADERS += sqlite3.h \
+    DataBase.h
+
+SOURCES += sqlite3.c \
+    DataBase.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -126,14 +142,12 @@ HEADERS += duktape.h \
     JsonReader.h \
     JSEngine.h \
     IScriptEngine.h \
-    JSValue.h \
     JsonValue.h
 
 SOURCES += duktape.c \
     JsonWriter.cpp \
     JsonReader.cpp \
     JSEngine.cpp \
-    JSValue.cpp \
     JsonValue.cpp
 
 # ------------------------------------------------------------------------------
@@ -162,12 +176,16 @@ SOURCES += TarotDeck.cpp \
 HEADERS +=  tst_tarot_base.h \
             tst_utilities.h \
             tst_json.h \
-            tst_hash.h
+            tst_hash.h \
+            tst_websocket.h \
+            tst_database.h
 
 SOURCES +=  main.cpp \
             tst_utilities.cpp \
             tst_tarot_base.cpp \
             tst_json.cpp \
-            tst_hash.cpp
+            tst_hash.cpp \
+            tst_websocket.cpp \
+            tst_database.cpp
 
 # End of project file
