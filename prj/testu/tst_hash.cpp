@@ -43,7 +43,7 @@ void LibraryHash::TestSha1()
 
     Sha1 sha;
     sha.Update(plainText);
-    std::string result = sha.Final();
+    std::string result = sha.Final(true);
     std::cout << "Signed text: " << result << std::endl;
     QCOMPARE(result, hash);
 
