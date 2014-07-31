@@ -33,7 +33,6 @@
 // Game includes
 #include "MainWindow.h"
 #include "ui_NumberedDealUI.h"
-#include "ui_WinUI.h"
 #include "Util.h"
 
 /*****************************************************************************/
