@@ -180,15 +180,13 @@ bool Util::Mkdir(const std::string &fullPath)
         if (!FolderExists(current_level))
         {
 #ifdef USE_WINDOWS_OS
-            if (current_level.size() == 2)
+            if ((current_level.size() == 2) &&
+                (current_level[1] == ':'))
             {
-                if (current_level[1] == ':')
-                {
-                    continue;
-                }
+                // Do nothing, skip disk name
             }
+            else
 #endif
-
             if (current_level.size() > 2)
             {
                 // create current level
