@@ -25,22 +25,42 @@
 
 #include "Lobby.h"
 #include "System.h"
+#include "GetOptions.h"
 
 /*****************************************************************************/
 /**
- * Entry point of the game
+ * @brief Entry point of the dedicated game server
  */
 int main(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
 
+    if(CmdOptionExists(argv, argv + argc, "-h"))
+    {
+        // Print help and exit:
+        std::cout << std::endl << "Usage: " << argv[0] << "[option] [argument] ..." << std::endl;
+        std::cout << "Options are:" << std::endl;
+        std::cout << "\t" << "-h" << "\tPrints this help" << std::endl;
+        std::cout << "\t" << "-f" << "\tSpecifies a JSON server configuration file" << std::endl;
+        return 0;
+    }
+
+    std::string fileName(GetCmdOption(argv, argv + argc, "-f"));
+    if (fileName.size() == 0)
+    {
+        // No specific configuration file, try to open the default one
+        fileName = System::HomePath() + DEFAULT_SERVER_CONFIG_FILE;
+    }
+    ServerConfig conf;
+    conf.Load(fileName);
+
     System::Initialize();
 
     std::cout << "TarotClub server " << TAROT_VERSION << " is ready." << std::endl;
 
     Lobby lobby;
-    lobby.Initialize();
+    lobby.Initialize(conf.GetOptions());
     lobby.WaitForEnd();
 
     return 0;
