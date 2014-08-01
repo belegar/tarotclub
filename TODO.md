@@ -1,16 +1,8 @@
 
-# Planned for 2.3.5
-
-  * Network protocol improvements (game creation, table creation)
-  * Tournament bug fixes (reset scoring when the tournament starts)
-  * Game blocking bug (tcp thread exit)
-
 # Planned for 2.4.0 (Target date: October 2014)
 
   * Use a command line TCDS configuration file
   * Change the Lobby protocol into JSON-RPC
-  * Beginner AI level (attack and defense)
-  * JavaScript AI framework (TarotLib)
   * Display a more comprehensive card name in the history of tricks dock window (eg: 13-D ==> display D with a diamond icon)
   * Allow to choose the AI script configuration file (user customization)
   * Advanced rooms in the Lobby: see status, number of connected players, scores, player names
