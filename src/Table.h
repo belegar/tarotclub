@@ -50,7 +50,6 @@ public:
     bool IsCreated() { return mCreated; }
 
     // Setters
-    void SaveConfiguration(const ServerOptions &opt);
     void SetTcpPort(std::uint16_t port);
 
     // Fom TcpServer interface
@@ -62,7 +61,6 @@ public:
     virtual void SendData(const ByteArray &block);
 
 private:
-    void StopServer();
     void CloseClients();
 
     int             mTcpPort;
