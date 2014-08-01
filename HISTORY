@@ -4,24 +4,28 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
-* version 2.3.5 <Snowboard>
+* version 2.4.0 <???>
+  -------------------------------
+    ~ Mkdir utility did not manage the disk name separator properly (Windows only)
+  
+* version 2.3.5 <Snowboard> (31/07/2014)
   -------------------------------
     ~ About box was too large (switched to a text edit control)   
-    ~ Various defense AI corrections and function bugs
+    ~ Various defence AI corrections and function bugs
     ~ JS script context is now reloaded at each new game with a proper heap cleaning
     ~ Corrected upper limit of the numbered deal (32-bit signed value)
     ~ Tournament box is now cleared when the game starts
-    + Change in the network protocol: clear separation between a game and a deal (preparation for network game enhencements)
+    + Change in the network protocol: clear separation between a game and a deal (preparation for network game enhancements)
     + New AI attack, basic version, with discard build   
     
 * version 2.3.4 <Snowboard>
   -------------------------------
     ~ Correction: little endian bonus in case of slam and fool in last trick was not detected
-    ~ Correction: translated deal result text in french
-    ~ Correction of the highest suit dection (trick winner)
+    ~ Correction: translated deal result text in French
+    ~ Correction of the highest suit detection (trick winner)
     ~ Correction of the last trick, it was not taken into account
     + New drop shadow effect on cards
-    + New radial gradient effect for the background color
+    + New radial gradient effect for the background colour
 
 * version 2.3.3 <Snowboard>
   -------------------------------
@@ -40,7 +44,7 @@ HISTORY OF TAROTCLUB VERSIONS
 
 * version 2.3.1 <Snowboard>
   -------------------------------
-    ~ Corrected french translation, bug in translation file loading and in Canvas item texts
+    ~ Corrected French translation, bug in translation file loading and in Canvas item texts
     ~ Make the debian package dependant of QtSvg
 
 * version 2.3.0 <Snowboard>
@@ -51,12 +55,12 @@ HISTORY OF TAROTCLUB VERSIONS
     + Network protocol robustness's: better header, more synchronization with clients, separate class file
     + Restart game without previous disconnection
     + Exit game gracefully, cooperative termination of threads with join()
-    + Beginner AI level (defense only)
+    + Beginner AI level (defence only)
     + New option: suit order selection
     + Show the game result in the Canvas instead of a Window (Android compatibility)
     + Big internal rework of code architecture (
     + Full standard C++11 dedicated server, without Qt. Compatible with MSVC++ 2013 Express.
-    + Separate and independant, platform agnostic C++ library classes
+    + Separate and independent, platform agnostic C++ library classes
     + JSON and ScriptEngine standard interface
     ~ Modified the JavaScript engine: use of Duktape 0.10
     - Removed integrated help system. Replace by the launch of a web browser showing provided HTML help pages
