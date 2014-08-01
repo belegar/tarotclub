@@ -106,7 +106,8 @@ HEADERS += Log.h \
     TcpServer.h \
     TcpClient.h \
     UniqueId.h \
-    Value.h
+    Value.h \
+    GetOptions.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -147,6 +148,7 @@ HEADERS += ServerConfig.h \
     Player.h \
     Client.h \
     Bot.h \
+    Defines.h \
     Common.h \
     TarotEngine.h \
     Deal.h \
