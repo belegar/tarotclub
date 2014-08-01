@@ -23,6 +23,9 @@
 #include "Table.h"
 #include "ServerConfig.h"
 
+#define SERVER_MAX_TABLES     10
+#define SERVER_MAX_SALOONS    2
+
 /*****************************************************************************/
 class Lobby : public TcpServer::IEvent
 {
@@ -31,7 +34,7 @@ public:
     Lobby();
     ~Lobby();
 
-    void Initialize();
+    void Initialize(const ServerOptions &opt);
     void WaitForEnd();
 
 private:

@@ -45,19 +45,20 @@ Lobby::~Lobby()
     mTcpServer.Close();
 }
 /*****************************************************************************/
-void Lobby::Initialize()
+void Lobby::Initialize(const ServerOptions &opt)
 {
     TarotDeck::Initialize();
 
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
-    int tcpPort = 33000; // FIXME: make this as an option
 
+    // Initialize all the tables, starting with the TCP port indicated
+    int tcpPort = opt.table_tcp_port;
     for (int j = 0; j < SERVER_MAX_SALOONS; j++)
     {
         for (int i = 0; i < SERVER_MAX_TABLES; i++)
         {
-            saloons[j].tables[i].table.SetTcpPort(tcpPort);
+            saloons[j].tables[i].table.SetTcpPort(tcpPort); // Set the port before starting the TCP server
             saloons[j].tables[i].table.Initialize(); // Start all threads and TCP sockets
             saloons[j].tables[i].table.CreateTable(4U);
             // Each table has a unique port
@@ -66,7 +67,7 @@ void Lobby::Initialize()
     }
 
     // Lobby TCP server
-    mTcpServer.Start(4242, 20U);
+    mTcpServer.Start(opt.lobby_tcp_port, opt.lobby_max_conn);
 }
 /*****************************************************************************/
 void Lobby::WaitForEnd()
