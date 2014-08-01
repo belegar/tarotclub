@@ -26,7 +26,7 @@
 
 /*****************************************************************************/
 Table::Table()
-    : mTcpPort(DEFAULT_TCP_PORT)
+    : mTcpPort(DEFAULT_TABLE_TCP_PORT)
     , mController(*this)
     , mIdManager(2U, 20U)
     , mTcpServer(*this)
