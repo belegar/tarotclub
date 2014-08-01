@@ -19,7 +19,7 @@ use Getopt::Long;
 use File::Path qw(make_path remove_tree);
 
 # Global variables
-my $QT_LOC = "C:/Qt/Qt5.2.0/5.2.0/mingw48_32/bin";
+my $QT_LOC = "C:/Qt/Qt5.2.1/5.2.1/mingw48_32/bin";
 my $output_root = "../build-desktop";
 
 @players = (
