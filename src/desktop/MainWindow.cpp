@@ -34,6 +34,7 @@
 #include "MainWindow.h"
 #include "ui_NumberedDealUI.h"
 #include "Util.h"
+#include "System.h"
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
@@ -152,7 +153,7 @@ void MainWindow::slotShowOptions()
         mServerConfig.SetOptions(optionsWindow->GetServerOptions());
 
         mClientConfig.Save();
-        mServerConfig.Save();
+        mServerConfig.Save(System::HomePath() + DEFAULT_SERVER_CONFIG_FILE);
         tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
                                   mServerConfig.GetOptions());
     }
@@ -161,7 +162,7 @@ void MainWindow::slotShowOptions()
 void MainWindow::Initialize()
 {
     mClientConfig.Load();
-    mServerConfig.Load();
+    mServerConfig.Load(System::HomePath() + DEFAULT_SERVER_CONFIG_FILE);
 
     tarotWidget->Initialize();
     tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
