@@ -4,6 +4,11 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+* version 2.3.6 <Snowboard>
+  -------------------------------
+    ~ Still missing some translations, added factorization of texts to simplify the translation process
+    ~ Corrected the Mkdir() method under windows
+
 * version 2.3.5 <Snowboard>
   -------------------------------
     ~ About box was too large (switched to a text edit control)   
