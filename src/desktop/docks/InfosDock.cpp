@@ -31,6 +31,7 @@
 // Includes locales
 #include "InfosDock.h"
 #include "Common.h"
+#include "Translations.h"
 
 /*****************************************************************************/
 InfosDock::InfosDock(QWidget *parent)
@@ -107,26 +108,12 @@ void InfosDock::SetDealNumber(std::uint32_t n)
 /*****************************************************************************/
 void InfosDock::SetTaker(const QString &name, Place place)
 {
-    QString labels[] = {
-        QObject::tr("South"),
-        QObject::tr("East"),
-        QObject::tr("North"),
-        QObject::tr("West"),
-        QObject::tr("Fifth")
-    };
-    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + labels[place.Value()] + ")");
+    ui.preneurVar->setText("<b>" + name + "</b>" + " (" + PlaceToString(place) + ")");
 }
 /*****************************************************************************/
 void InfosDock::SetContract(Contract contract)
 {
-    QString labels[] = {
-        QObject::tr("Pass"),
-        QObject::tr("Take"),
-        QObject::tr("Guard"),
-        QObject::tr("Guard without"),
-        QObject::tr("Guard against")
-    };
-    ui.contratVar->setText("<b>" + labels[contract.Value()] + "</b>");
+    ui.contratVar->setText("<b>" + ContractToString(contract) + "</b>");
 }
 /*****************************************************************************/
 void InfosDock::PrintStats(const Deck::Statistics &stats)

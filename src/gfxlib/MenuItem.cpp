@@ -84,11 +84,11 @@ int MenuItem::type() const
 void MenuItem::Initialize()
 {
     QString labels[] = {
-        QObject::tr("Pass"),
-        QObject::tr("Take"),
-        QObject::tr("Guard"),
-        QObject::tr("Guard without"),
-        QObject::tr("Guard against"),
+        QObject::tr(Contract::STR_PASS.c_str()),
+        QObject::tr(Contract::STR_TAKE.c_str()),
+        QObject::tr(Contract::STR_GUARD.c_str()),
+        QObject::tr(Contract::STR_GUARD_WITHOUT.c_str()),
+        QObject::tr(Contract::STR_GUARD_AGAINST.c_str()),
         QObject::tr("Handle"),
         QObject::tr("Accept"),
         QObject::tr("Quick start")

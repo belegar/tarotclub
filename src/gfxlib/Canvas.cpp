@@ -34,6 +34,7 @@
 #include "TarotDeck.h"
 #include "Log.h"
 #include "System.h"
+#include "Translations.h"
 
 static const QRectF border(10, 10, 925, 700);
 
@@ -469,16 +470,8 @@ void Canvas::ShowSelection(Place p, Place myPlace)
 /*****************************************************************************/
 void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 {
-    QString labels[] = {
-        QObject::tr("Pass"),
-        QObject::tr("Take"),
-        QObject::tr("Guard"),
-        QObject::tr("Guard without"),
-        QObject::tr("Guard against")
-    };
-
     Place rel = SwapPlace(myPlace, p);  // relative place
-    playerBox.value(rel)->SetBidText(labels[contract.Value()]);
+    playerBox.value(rel)->SetBidText(ContractToString(contract));
 }
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
@@ -565,8 +558,8 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
     // Deal caracteristics
     result_str += "<td width=50%><table>";
     result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Summary") + QString("</b><td /></tr>");
-    result_str += QString("<tr><td>") + tr("Taker") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString(bid.taker.ToString().data()) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString(bid.contract.ToString().data()) + QString("</td>");
+    result_str += QString("<tr><td>") + tr("Taker") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + PlaceToString(bid.taker) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + ContractToString(bid.contract) + QString("</td>");
     result_str += QString("<tr><td>") + tr("Number of oudlers") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.GetNumberOfOudlers()) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Points") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Points to do") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)score.pointsToDo) + QString("</td></tr>");

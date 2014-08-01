@@ -144,7 +144,6 @@ HEADERS += Log.h \
     System.h \
     Value.h
 
-
 SOURCES += Log.cpp \
     Util.cpp \
     ByteArray.cpp \
@@ -228,7 +227,8 @@ HEADERS += Canvas.h \
     ButtonItem.h \
     MessageBoxItem.h \
     IButtonEvent.h \
-    ICardEvent.h
+    ICardEvent.h \
+    Translations.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
@@ -239,7 +239,8 @@ SOURCES += Canvas.cpp \
     PopupItem.cpp \
     CheckBoxItem.cpp \
     ButtonItem.cpp \
-    MessageBoxItem.cpp
+    MessageBoxItem.cpp \
+    Translations.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files

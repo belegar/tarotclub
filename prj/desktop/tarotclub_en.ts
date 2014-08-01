@@ -70,90 +70,90 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>Canvas</name>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="555"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="548"/>
         <source>Contract succeded by </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="559"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="552"/>
         <source>Contract failed by </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="562"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="588"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="589"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="555"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="582"/>
         <source>points</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="567"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="560"/>
         <source>Summary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="568"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="561"/>
         <source>Taker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="569"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="577"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="562"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="570"/>
         <source>Contract</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="570"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="563"/>
         <source>Number of oudlers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="571"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="564"/>
         <source>Points</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="565"/>
         <source>Points to do</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="576"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="569"/>
         <source>Calculation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="578"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="571"/>
         <source>Earn / loss</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="579"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="572"/>
         <source>Little endian bonus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="580"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="573"/>
         <source>Contract multiplier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="574"/>
         <source>Handle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="582"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="575"/>
         <source>Slam</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="588"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="581"/>
         <source>Total defense</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="589"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="582"/>
         <source>Total attack</source>
         <translation type="unfinished"></translation>
     </message>
@@ -260,102 +260,102 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>InfosDock</name>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="37"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="38"/>
         <source>Informations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="123"/>
         <source>Trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="137"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="124"/>
         <source>Major trumps: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="139"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="126"/>
         <source>Oudlers: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="140"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="127"/>
         <source>Fool: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="141"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="128"/>
         <source>21 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="142"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="129"/>
         <source>1 of trump: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="144"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="131"/>
         <source>Long suits: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="145"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="132"/>
         <source>Weddings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="146"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="133"/>
         <source>Sequences: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="147"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="134"/>
         <source>Singletons: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="149"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
         <source>Clubs: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="150"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="137"/>
         <source>Diamonds: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="151"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="138"/>
         <source>Spades: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="152"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="139"/>
         <source>Hearts: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="154"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="141"/>
         <source>Kings: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="155"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="142"/>
         <source>Voids: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="156"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="143"/>
         <source>Queens: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="157"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="144"/>
         <source>Knights: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="158"/>
+        <location filename="../../src/desktop/docks/InfosDock.cpp" line="145"/>
         <source>Jacks: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -459,212 +459,212 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="245"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="244"/>
         <source>&amp;New quick game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="246"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="245"/>
         <source>Ctrl+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="247"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="246"/>
         <source>Start a one player game against computer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="249"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="248"/>
         <source>New &amp;tournament</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="250"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="249"/>
         <source>Ctrl+T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="251"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="250"/>
         <source>Play five deals against the computer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="253"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="252"/>
         <source>New nu&amp;mbered deal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="254"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="253"/>
         <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="255"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="254"/>
         <source>Deal cards with a predefined deal number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="257"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="256"/>
         <source>New manua&amp;l deal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="258"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="257"/>
         <source>Ctrl+L</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="259"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="258"/>
         <source>Deal cards with a deal created with the editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="261"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="260"/>
         <source>New auto&amp; play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="263"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="262"/>
         <source>Auto play, to train your AI script!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="266"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="265"/>
         <source>Create a new network game (serve&amp;r)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="267"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="266"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="268"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="267"/>
         <source>Create a network game and invite friends to join the game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="270"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="269"/>
         <source>&amp;Quick join a network game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="271"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="270"/>
         <source>Ctrl+U</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="272"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="271"/>
         <source>Join a game server created using TarotClub</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="274"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="273"/>
         <source>&amp;Join a dedicated game server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="276"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="275"/>
         <source>Join a game server created using TarotClubServer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="275"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="274"/>
         <source>Ctrl+J</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="262"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="261"/>
         <source>Ctrl+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="278"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="277"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="279"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="278"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="280"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="279"/>
         <source>Quit the game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="284"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="283"/>
         <source>Game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="300"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="299"/>
         <source>&amp;Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="301"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="300"/>
         <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="302"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="301"/>
         <source>Game options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="304"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="303"/>
         <source>Deal e&amp;ditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="305"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="304"/>
         <source>Ctrl+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="306"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="305"/>
         <source>Create a pre-defined deal by choosing the cards of each player</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="309"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="308"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="324"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="323"/>
         <source>&amp;About...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="325"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="324"/>
         <source>Ctrl+A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="326"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="325"/>
         <source>About TarotClub</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="329"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="328"/>
         <source>&amp;Help and manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="330"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="329"/>
         <source>Ctrl+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="331"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="330"/>
         <source>Show game help and Tarot rules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="335"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="334"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
@@ -863,66 +863,6 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="111"/>
-        <source>South</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="112"/>
-        <source>East</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="113"/>
-        <source>North</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="114"/>
-        <source>West</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="115"/>
-        <source>Fifth</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="123"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="473"/>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="87"/>
-        <source>Pass</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="124"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="474"/>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="88"/>
-        <source>Take</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="125"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="475"/>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="89"/>
-        <source>Guard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="126"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="476"/>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="90"/>
-        <source>Guard without</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="127"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="477"/>
-        <location filename="../../src/gfxlib/MenuItem.cpp" line="91"/>
-        <source>Guard against</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="92"/>
         <source>Handle</source>
         <translation type="unfinished"></translation>
@@ -940,6 +880,56 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</source
     <message>
         <location filename="../../src/gfxlib/MenuItem.cpp" line="101"/>
         <source>Slam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="8"/>
+        <source>Pass</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="9"/>
+        <source>Take</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="10"/>
+        <source>Guard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="11"/>
+        <source>Guard without</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="12"/>
+        <source>Guard against</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="24"/>
+        <source>South</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="25"/>
+        <source>East</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="26"/>
+        <source>North</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="27"/>
+        <source>West</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gfxlib/Translations.cpp" line="28"/>
+        <source>Fifth</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
