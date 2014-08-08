@@ -86,6 +86,7 @@ void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s)
 {
     mShuffle = s;
     mGameMode = mode;
+    mDeal.Initialize();
     mSequence = WAIT_FOR_READY;
 }
 /*****************************************************************************/
