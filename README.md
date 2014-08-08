@@ -74,17 +74,52 @@ hg clone https://tarotclub@bitbucket.org/tarotclub/tarotclub
 ```
 
 You will need to install the Mercurial source code management client, available here [http://mercurial.selenic.com] or from your Linux distribution software center.
+
+On Ubuntu:
+
+```
+apt-get install tortoisehg
+```
+
 It is also possible to see the code by using the Web interface: [https://bitbucket.org/tarotclub/tarotclub/overview]
 
 ## How to compile TarotClub under Ubuntu
 
-The best option is to use QtCreator since qmake projects (.pro files) are available. The following commands will help you to install everything:
+The following commands will help you to install everything to build TarotClub:
+```
+apt-get install build-essential
+apt-get install libglw1-mesa-dev
+apt-get install libegl1-mesa-dev
+apt-get install libgl1-mesa-dev
+apt-get install qt5-default qttools5-dev-tools qttools5-doc libqt5svg5-dev
+```
 
-  * apt-get install build-essential
-  * apt-get install libglw1-mesa-dev
-  * apt-get install libegl1-mesa-dev
-  * apt-get install libgl1-mesa-dev
-  * apt-get install qt5-default qttools5-dev-tools qttools5-doc
+Then, best option is to use QtCreator since qmake projects (.pro files) are available.
+Another way is to use the command line:
+
+```
+cd tarotclub
+qmake prj/desktop.pro
+make
+```
+
+# Development tools
+
+## Code style
+
+The following tools are used:
+  * AStyle, to automatically reformat the source code
+
+## Code quality
+
+The following tools are used:
+  * CppCheck
+  * Simian (http://www.harukizaemon.com/simian/) TODO
+  * STACK (http://css.csail.mit.edu/stack/) TODO
+  * Coverity Scan (https://scan.coverity.com) TODO
+  * Valgrind (TODO)
+  * -fsanitize est disponible pour Clang et gcc 4.9
+
 
 # Glossary and translations
 
