@@ -37,7 +37,7 @@
           <string>South</string>
          </property>
          <property name="icon">
-          <iconset resource="../data/data.qrc">
+          <iconset resource="../../../assets/desktop.qrc">
            <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
          </property>
         </widget>
@@ -48,7 +48,7 @@
           <string>West</string>
          </property>
          <property name="icon">
-          <iconset resource="../data/data.qrc">
+          <iconset resource="../../../assets/desktop.qrc">
            <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
          </property>
         </widget>
@@ -73,7 +73,7 @@
           <string>North</string>
          </property>
          <property name="icon">
-          <iconset resource="../data/data.qrc">
+          <iconset resource="../../../assets/desktop.qrc">
            <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
          </property>
         </widget>
@@ -84,7 +84,7 @@
           <string>East</string>
          </property>
          <property name="icon">
-          <iconset resource="../data/data.qrc">
+          <iconset resource="../../../assets/desktop.qrc">
            <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
          </property>
         </widget>
@@ -158,7 +158,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../data/data.qrc"/>
+  <include location="../../../assets/desktop.qrc"/>
  </resources>
  <connections>
   <connection>
