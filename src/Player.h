@@ -65,8 +65,30 @@ public:
     }
 
 private:
+    // player's cards in hand
+    struct PlayerStats
+    {
+        bool hasSuit;           // true if the player has the requested color
+        bool hasTrump;          // true if the player has some trumps
+        int  highestTrumpValue; // value of the maximum trump in hand
+        bool previousTrump;     // true if there is previous trump played
+        int  maxPreviousTrump;  // maximum value of the previous trump played
+
+        PlayerStats()
+        {
+            hasSuit = false;
+            hasTrump = false;
+            highestTrumpValue = 0;
+            previousTrump = false;
+            maxPreviousTrump = 0;
+        }
+    };
+
     std::uint32_t mUuid;    //!< User's unique identifier
     bool mAck;
+
+
+    bool TestPlayTrump(Card *cVerif, const PlayerStats &stats);
 };
 
 #endif // _PLAYER_H
