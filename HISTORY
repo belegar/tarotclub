@@ -4,6 +4,12 @@ HISTORY OF TAROTCLUB VERSIONS
 ~ bug corrected
 - feature removed
 
+* version 2.3.7 <Snowboard>
+  -------------------------------
+    ~ Added "codename" string in the AboutBox
+    ~ Factorized 12 lines of duplicate code in Player.cpp (Simian tool)
+    ~ Correction of tournament score initialization (server and client sides)
+
 * version 2.3.6 <Snowboard>
   -------------------------------
     ~ Still missing some translations, added factorization of texts to simplify the translation process
