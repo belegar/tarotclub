@@ -466,6 +466,7 @@ void TarotWidget::slotPlayersList()
 /*****************************************************************************/
 void TarotWidget::slotNewGame()
 {
+    deal.Initialize();
     deal.NewDeal();
     mClient.SendSyncNewGame();
 }

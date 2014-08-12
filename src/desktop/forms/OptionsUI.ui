@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
+    <width>462</width>
     <height>410</height>
    </rect>
   </property>
@@ -79,7 +79,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="optionsUI">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="identityTab">
       <attribute name="title">
@@ -171,7 +171,7 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="../../assets/data.qrc">
+                   <iconset resource="../../../assets/desktop.qrc">
                     <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
                   </property>
                   <property name="autoDefault">
@@ -742,7 +742,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../../assets/data.qrc">
+               <iconset resource="../../../assets/desktop.qrc">
                 <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
              </widget>
@@ -937,7 +937,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../../assets/data.qrc">
+               <iconset resource="../../../assets/desktop.qrc">
                 <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
               <property name="autoDefault">
@@ -1028,7 +1028,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../../assets/data.qrc">
+               <iconset resource="../../../assets/desktop.qrc">
                 <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
               </property>
              </widget>
@@ -1129,7 +1129,7 @@
   <tabstop>btnAnnuler</tabstop>
  </tabstops>
  <resources>
-  <include location="../../assets/data.qrc"/>
+  <include location="../../../assets/desktop.qrc"/>
  </resources>
  <connections>
   <connection>

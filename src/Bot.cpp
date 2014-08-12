@@ -317,7 +317,7 @@ void Bot::PlayCard()
         if (mClient.IsValid(c) == false)
         {
             std::stringstream message;
-            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.GetString();
+            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.GetMyDeck().GetCardList();
             TLogInfo(message.str());
             // The show must go on, play a random card
             c = mClient.Play();
