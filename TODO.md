@@ -20,14 +20,16 @@
   * Add unit tests on trick winner detection
   * Add unit tests on score calculation
 
-## Other bugs
+## Bugs
   * Game is freezing if: Game menu > Exit
   * On a pris le petit du preneur, et le preneur joue son excuse au dernier pli. Malgré cela, au calcul des points, le logiciel lui conserve les 3 bouts
   * Peux-tu aussi regarder pourquoi il faut soit un clic soit un double clic pour jouer une carte ?
   * Edit : 12 atouts mais on ne me demande pas si je veux déclarer une poignée, il compte bien le nombre d'atout apres avoir eu le chien ? car avant le chien je n'en avais que 9...
+  * Bitbucket tickets #21 and #22
 
 ## IA strategy
 
+  * Correct lost deck synchronization between engine and JS world (bad card number played)
   * je suis le preneur, on joue coeur, je coupe et le mec derrière moi (le dernier à jouer) met un roi alors qu'il lui reste du coeur à jouer (ils le font souvent ça, le sacrifice des grosses cartes...)
   * Si je me lance à faire des series d'atouts (surtout en partant de mes plus hauts), c'est pour aller à la chasse au petit mais eux ils jouent d'entrée leurs gros atouts (du coup les adversaires mettent les petits qu'ils ont) puis enchaine avec un petit atout...
 Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant tes gros...
