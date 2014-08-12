@@ -9,6 +9,7 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Added "codename" string in the AboutBox
     ~ Factorized 12 lines of duplicate code in Player.cpp (Simian tool)
     ~ Correction of tournament score initialization (server and client sides)
+    + New hand-made makefile do build the TCDS executable
 
 * version 2.3.6 <Snowboard>
   -------------------------------
