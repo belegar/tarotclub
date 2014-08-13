@@ -113,7 +113,7 @@ void TcpServer::Run()
         /*************************************************************/
         FD_ZERO(&mMasterSet);
         mMaxSd = GetSocket();
-        FD_SET(GetSocket(), &mMasterSet);
+        FD_SET(mMaxSd, &mMasterSet);
 
         /*************************************************************/
         /* Initialize the timeval struct to N minutes.  If no        */
