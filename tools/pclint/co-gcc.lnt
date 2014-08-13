@@ -46,6 +46,7 @@ au-misra-cpp.lnt
 // Inhibits Lint parser bugs, since the project is compiling the C++ code is correct. We do not need to rise these errors:
 -e10
 -e14
+-e36
 
 // Include files are fines (we can use other tools to detect unused include files)
 -e766
