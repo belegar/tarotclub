@@ -29,7 +29,7 @@
 Value::Value(std::int32_t value)
     : mType(INTEGER)
     , mIntegerValue(value)
-    , mDoubleValue(0.0f)
+    , mDoubleValue(0.0F)
     , mBoolValue(false)
 {
 
@@ -47,7 +47,7 @@ Value::Value(double value)
 Value::Value(const char * value)
     : mType(STRING)
     , mIntegerValue(0)
-    , mDoubleValue(0.f)
+    , mDoubleValue(0.0F)
     , mStringValue(value)
     , mBoolValue(false)
 {
@@ -57,7 +57,7 @@ Value::Value(const char * value)
 Value::Value(const std::string &value)
     : mType(STRING)
     , mIntegerValue(0)
-    , mDoubleValue(0.f)
+    , mDoubleValue(0.0F)
     , mStringValue(value)
     , mBoolValue(false)
 {
@@ -67,7 +67,7 @@ Value::Value(const std::string &value)
 Value::Value(bool value)
     : mType(BOOLEAN)
     , mIntegerValue(0)
-    , mDoubleValue(0.f)
+    , mDoubleValue(0.0F)
     , mBoolValue(value)
 {
 
@@ -81,7 +81,7 @@ Value::Value(const Value &value)
 Value::Value()
     : mType(INVALID)
     , mIntegerValue(0)
-    , mDoubleValue(0.f)
+    , mDoubleValue(0.0F)
     , mBoolValue(false)
 {
 

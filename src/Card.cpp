@@ -46,7 +46,7 @@ std::string Card::GetName()
 /*****************************************************************************/
 Card::Card()
     : mSuit(Card::CLUBS)
-    , mPoints(0.0f)
+    , mPoints(0.0F)
     , mId(0)
     , mValue(0U)
 {

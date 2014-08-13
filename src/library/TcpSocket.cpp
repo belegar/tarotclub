@@ -33,7 +33,7 @@
 #include <iostream>
 
 // Larger values will read larger chunks of data.
-#define MAXRECV (1024)
+static const std::int32_t MAXRECV = 1024;
 
 
 bool TcpSocket::mOneTimeInit = false;
