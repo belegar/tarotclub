@@ -149,16 +149,10 @@ bool TcpSocket::Listen(std::int32_t maxConnections) const
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Accept(int &new_sd) const
+int TcpSocket::Accept() const
 {
-    bool ret = false;
-
-    new_sd = ::accept(mSock, NULL, NULL);
-    if (new_sd > 0)
-    {
-        ret = true;
-    }
-    return ret;
+    int new_sd = ::accept(mSock, NULL, NULL);
+    return new_sd;
 }
 /*****************************************************************************/
 bool TcpSocket::Connect(const std::string &host, const int port)

@@ -104,7 +104,12 @@ public:
     bool Bind(std::uint16_t port);
     void Close();
     bool Listen(std::int32_t maxConnections) const;
-    bool Accept(int &new_sd) const;
+
+    /**
+     * @brief Accept
+     * @return The new socket descriptor, valid if >0
+     */
+    int Accept() const;
     std::int32_t Recv(std::string &output) const;
     bool Connect(const std::string &host, const int port);
     bool Send(const std::string &input) const;
