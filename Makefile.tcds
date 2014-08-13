@@ -33,12 +33,16 @@ else
     OPTIM           = -O2
 endif
 
+
 # ==============================================================================
 # Compiler, tools and options
 # ==============================================================================
 
 CC            = gcc
 CXX           = g++
+LINT          = lint-nt
+LINT_FLAGS    = -zero
+PERL          = perl
 DEFINES       = -DUNICODE $(USER_DEFINES)
 CFLAGS        = -pipe -fno-keep-inline-dllexport -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame-pointer -Wall -Wextra -MMD $(DEFINES)
 CXXFLAGS      = -pipe -fno-keep-inline-dllexport -std=c++11 $(OPTIM) -Wall -Wextra -frtti -fexceptions -mthreads -MMD $(DEFINES)
@@ -121,6 +125,16 @@ clean:
 	@echo Cleaning generated files ...
 	@$(DEL_FILE) build-server/*
 
+.PHONY: lint    
+lint: run_lint
+	@echo Filtering Lint results to keep project files only...
+	@$(PERL) tools/pclint/parse_output.pl
+
+.PHONY: run_lint
+run_lint:
+	@echo Linting files...
+	@$(LINT) -itools/pclint $(LINT_FLAGS) co-gcc.lnt $(DEFINES) $(INCPATH) $(CPP_FILES) > out.txt
+    
 # ==============================================================================
 # Explicit rules
 # ==============================================================================
