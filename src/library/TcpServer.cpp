@@ -106,7 +106,26 @@ void TcpServer::Run()
     //   struct timeval timeout;
     fd_set working_set;
 
-    for (;;)
+    /*************************************************************/
+    /* Initialize the master fd_set                              */
+    /*************************************************************/
+    FD_ZERO(&mMasterSet);
+    mMaxSd = GetSocket();
+    FD_SET(GetSocket(), &mMasterSet);
+
+    /*************************************************************/
+    /* Initialize the timeval struct to N minutes.  If no        */
+    /* activity after N minutes this program will end.           */
+    /* 0 means unlimited (== no timeout)                         */
+    /*************************************************************/
+    //   timeout.tv_sec  = 0; //10 * 60;
+    //   timeout.tv_usec = 0;
+
+    /*************************************************************/
+    /* Loop waiting for incoming connects or for incoming data   */
+    /* on any of the connected sockets.                          */
+    /*************************************************************/
+    do
     {
         /*************************************************************/
         /* Initialize the master fd_set                              */
@@ -115,96 +134,77 @@ void TcpServer::Run()
         mMaxSd = GetSocket();
         FD_SET(mMaxSd, &mMasterSet);
 
-        /*************************************************************/
-        /* Initialize the timeval struct to N minutes.  If no        */
-        /* activity after N minutes this program will end.           */
-        /* 0 means unlimited (== no timeout)                         */
-        /*************************************************************/
-        //   timeout.tv_sec  = 0; //10 * 60;
-        //   timeout.tv_usec = 0;
+        /**********************************************************/
+        /* Call select() and wait 5 minutes for it to complete.   */
+        /**********************************************************/
+        //    printf("Waiting on select()...\n");
+        rc = select(mMaxSd + 1, &working_set, NULL, NULL, NULL); // &timeout);
 
-        /*************************************************************/
-        /* Loop waiting for incoming connects or for incoming data   */
-        /* on any of the connected sockets.                          */
-        /*************************************************************/
-        do
+        if (rc < 0)
         {
             /**********************************************************/
-            /* Copy the master fd_set over to the working fd_set.     */
+            /* The select call failed.                                */
             /**********************************************************/
-            memcpy(&working_set, &mMasterSet, sizeof(mMasterSet));
-
+            end_server = true;
+        }
+        else if (rc == 0)
+        {
             /**********************************************************/
-            /* Call select() and wait 5 minutes for it to complete.   */
+            /* The time out expired.                                  */
             /**********************************************************/
-            //    printf("Waiting on select()...\n");
-            rc = select(mMaxSd + 1, &working_set, NULL, NULL, NULL); // &timeout);
-
-            if (rc < 0)
+            end_server = true;
+            //TODO: call a listener / signal this event
+        }
+        else
+        {
+            /**********************************************************/
+            /* One or more descriptors are readable.  Need to         */
+            /* determine which ones they are.                         */
+            /**********************************************************/
+            for (int i = 0; i < rc; i++)
             {
-                /**********************************************************/
-                /* The select call failed.                                */
-                /**********************************************************/
-                end_server = true;
-            }
-            else if (rc == 0)
-            {
-                /**********************************************************/
-                /* The time out expired.                                  */
-                /**********************************************************/
-                end_server = true;
-                //TODO: call a listener / signal this event
-            }
-            else
-            {
-                /**********************************************************/
-                /* One or more descriptors are readable.  Need to         */
-                /* determine which ones they are.                         */
-                /**********************************************************/
-                for (int i = 0; i < rc; i++)
+                if (FD_ISSET(GetSocket(), &working_set))
                 {
-                    if (FD_ISSET(GetSocket(), &working_set))
+                    /****************************************************/
+                    /* This is the listening socket                     */
+                    /****************************************************/
+                    IncommingConnection();
+                }
+                else
+                {
+                    // Scan for already connected clients
+                    for (size_t j = 0; j < mClients.size(); j++)
                     {
-                        /****************************************************/
-                        /* This is the listening socket                     */
-                        /****************************************************/
-                        IncommingConnection();
-                    }
-                    else
-                    {
-                        // Scan for already connected clients
-                        for (size_t j = 0; j < mClients.size(); j++)
+                        if (FD_ISSET(mClients[j], &working_set))
                         {
-                            if (FD_ISSET(mClients[j], &working_set))
-                            {
-                                /****************************************************/
-                                /* This is not the listening socket, therefore an   */
-                                /* existing connection must be readable             */
-                                /****************************************************/
-                                IncommingData(mClients[j]);
-                            }
+                            /****************************************************/
+                            /* This is not the listening socket, therefore an   */
+                            /* existing connection must be readable             */
+                            /****************************************************/
+                            IncommingData(mClients[j]);
                         }
                     }
                 }
             }
         }
-        while (end_server == false);
-
-        /*************************************************************/
-        /* Cleanup all of the sockets that are open                  */
-        /*************************************************************/
-        for (size_t i = 0; i < mClients.size(); i++)
-        {
-            if (FD_ISSET(mClients[i], &mMasterSet))
-            {
-                TcpSocket socket;
-                socket.SetSocket(i);
-                socket.Close();
-            }
-        }
-
-        return;
     }
+    while (end_server == false);
+
+    /*************************************************************/
+    /* Cleanup all of the sockets that are open                  */
+    /*************************************************************/
+    for (size_t i = 0; i < mClients.size(); i++)
+    {
+        if (FD_ISSET(mClients[i], &mMasterSet))
+        {
+            TcpSocket socket;
+            socket.SetSocket(i);
+            socket.Close();
+        }
+    }
+
+    return;
+
 }
 /*****************************************************************************/
 void TcpServer::EntryPoint(void *pthis)
@@ -234,32 +234,33 @@ void TcpServer::IncommingConnection()
         /* failure on accept will cause us to end the */
         /* server.                                    */
         /**********************************************/
-        if (!Accept(new_sd))
+        new_sd = Accept();
+
+        if (new_sd > 0)
         {
-            break;
+            // Save socket descriptor
+            mClients.push_back(new_sd);
+
+            /**********************************************/
+            /* Add the new incoming connection to the     */
+            /* master read set                            */
+            /**********************************************/
+            //     printf("  New incoming connection - %d\n", new_sd);
+            FD_SET(new_sd, &mMasterSet);
+
+            // Update the maximum socket file identifier
+            UpdateMaxSocket();
+
+            // Signal a new client
+            mEventHandler.NewConnection(new_sd);
         }
-
-        mClients.push_back(new_sd);
-
-        /**********************************************/
-        /* Add the new incoming connection to the     */
-        /* master read set                            */
-        /**********************************************/
-        //     printf("  New incoming connection - %d\n", new_sd);
-        FD_SET(new_sd, &mMasterSet);
-
-        // Update the maximum socket file identifier
-        UpdateMaxSocket();
-
-        // Signal a new client
-        mEventHandler.NewConnection(new_sd);
 
         /**********************************************/
         /* Loop back up and accept another incoming   */
         /* connection                                 */
         /**********************************************/
     }
-    while (new_sd != -1);
+    while (new_sd > 0);
 }
 /*****************************************************************************/
 bool TcpServer::IncommingData(int in_sock)
