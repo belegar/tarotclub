@@ -26,7 +26,6 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include <fstream>
 #include <mutex>
 #include "Observer.h"
 
@@ -59,12 +58,14 @@ public:
 
     static void AddEntry(Event event, const std::string &file, const int line, const std::string &message);
     static void RegisterListener(Observer<std::string> &listener);
+    static void SetLogPath(const std::string &path) { mLogPath = path; }
 
 private:
     static void Save(const std::string &line);
 
     static std::mutex mMutex;
     static Subject<std::string> mSubject;
+    static std::string mLogPath;
 };
 
 // Macros definitions

@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     System::Initialize(); // Initialize TarotClub context
+    Log::SetLogPath(System::LogPath());
 
     TarotWidget tarot;
     tarot.Initialize(); // Init GUI internal stuff before showing the interface

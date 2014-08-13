@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
     (void)argv;
 
     System::Initialize();
+    Log::SetLogPath(System::LogPath());
 
     std::cout << "TarotClub server " << TAROT_VERSION << " is ready." << std::endl;
 

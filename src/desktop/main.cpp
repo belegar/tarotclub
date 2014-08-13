@@ -59,6 +59,7 @@ int main(int argc, char **argv)
     splash.show();
 
     System::Initialize();
+    Log::SetLogPath(System::LogPath());
 
     QTranslator translator;
     QString locale = GetLocale();
