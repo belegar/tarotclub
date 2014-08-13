@@ -26,14 +26,16 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include <string>
+
 /// @brief The version string uses Semantic Versioning format
 /// @see http://semver.org
-#define TAROT_VERSION   "2.3.7"
-#define TAROT_TITRE     "TarotClub"
-#define TAROT_VNAME     "Snowboard"
+static const std::string TAROT_VERSION  = "2.3.7";
+static const std::string TAROT_TITLE    = "TarotClub";
+static const std::string TAROT_VNAME    = "Snowboard";
 
-#define NB_LANGUAGE     2
-#define MAX_ROUNDS      2
+static const std::uint32_t NB_LANGUAGE  = 2U;
+static const std::uint32_t MAX_ROUNDS   = 5U;
 
 #endif // DEFINES_H
 
