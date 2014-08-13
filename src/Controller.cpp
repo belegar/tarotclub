@@ -33,6 +33,7 @@
 Controller::Controller(IEvent &handler)
     : mEventHandler(handler)
     , mInitialized(false)
+    , mFull(false)
 {
 
 }
@@ -60,7 +61,7 @@ void Controller::ExecuteRequest(const ByteArray &packet)
 /*****************************************************************************/
 void Controller::EntryPoint(void *pthis)
 {
-    Controller *pt = (Controller *)pthis;
+    Controller *pt = static_cast<Controller *>(pthis);
     pt->Run();
 }
 /*****************************************************************************/

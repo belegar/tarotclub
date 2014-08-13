@@ -35,10 +35,10 @@
 /*****************************************************************************/
 class CardListItem : public QListWidgetItem
 {
-    Card *c;
-
 public:
-    CardListItem(Card *ref) : QListWidgetItem()
+    CardListItem(Card *ref)
+        : QListWidgetItem()
+        , c(ref)
     {
         c = ref;
         setText(QString(c->GetName().data()));
@@ -48,6 +48,8 @@ public:
     {
         return c;
     }
+private:
+    Card *c;
 };
 
 

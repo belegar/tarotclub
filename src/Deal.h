@@ -48,7 +48,7 @@ public:
     void Initialize();
     void NewDeal();
     void AnalyzeGame(std::uint8_t numberOfPlayers);
-    void CalculateScore(const Tarot::Bid &bid, const Tarot::Handle &attack, const Tarot::Handle &defense);
+    void CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Handle defense);
     void GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Identity> &players);
     bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 
@@ -66,8 +66,6 @@ public:
     Place SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t trickCounter);
 
 private:
-    // Helper private methods
-    int GetHandlePoints(const Tarot::Handle &handle);
     std::list<std::string> GetSortedTrick(int trick);
 
     // We store played cards to count points

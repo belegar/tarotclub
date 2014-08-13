@@ -96,7 +96,6 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
     if (turn < 24U)
     {
         tricks[turn] = trick;
-        Card *cFool = NULL;
         Card *cLeader = NULL;
 
         // Each trick is won by the highest trump in it, or the highest card
@@ -117,7 +116,7 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
 
         if (tricks[turn].HasFool())
         {
-            cFool = tricks[turn].GetCardByName("00-T");
+            Card *cFool = tricks[turn].GetCardByName("00-T");
             if (cFool == NULL)
             {
                 TLogError("Card pointer cannot be NULL");
@@ -360,7 +359,7 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
  * ch = the slam bonus (200 or 400)
  *
  */
-void Deal::CalculateScore(const Tarot::Bid &bid, const Tarot::Handle &attack, const Tarot::Handle &defense)
+void Deal::CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Handle defense)
 {
     if (bid.contract == Contract::TAKE)
     {
@@ -381,14 +380,8 @@ void Deal::CalculateScore(const Tarot::Bid &bid, const Tarot::Handle &attack, co
 
     // Handle bonus: Ces primes gardent la même valeur quel que soit le contrat.
     // La prime est acquise au camp vainqueur de la donne.
-    if (attack.declared)
-    {
-        score.handlePoints += GetHandlePoints(attack);
-    }
-    if (defense.declared)
-    {
-        score.handlePoints += GetHandlePoints(defense);
-    }
+    score.handlePoints += Tarot::GetHandlePoints(attack);
+    score.handlePoints += Tarot::GetHandlePoints(defense);
 
     // Little endian bonus:
     // Le camp qui réalise la dernière levée, à condition que cette levée
@@ -430,25 +423,6 @@ void Deal::CalculateScore(const Tarot::Bid &bid, const Tarot::Handle &attack, co
     score.difference = score.pointsAttack - score.pointsToDo;
     // Final scoring
     score.scoreAttack = (25 + abs(score.difference) + score.littleEndianPoints) * score.multiplier + score.handlePoints + score.slamPoints;
-}
-/*****************************************************************************/
-int Deal::GetHandlePoints(const Tarot::Handle &handle)
-{
-    int points = 0;
-
-    if (handle.type == Tarot::Handle::SIMPLE)
-    {
-        points = 20;
-    }
-    else if (handle.type == Tarot::Handle::DOUBLE)
-    {
-        points = 30;
-    }
-    else
-    {
-        points = 40;
-    }
-    return points;
 }
 /*****************************************************************************/
 std::list<std::string> Deal::GetSortedTrick(int trick)

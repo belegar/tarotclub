@@ -126,7 +126,7 @@ private:
 
         // Transform a std::map into a QMap
         mPlayers.clear();
-        for(iter = pl.begin(); iter != pl.end(); iter++)
+        for(iter = pl.begin(); iter != pl.end(); ++iter)
         {
             mPlayers[iter->first] = iter->second;
         }

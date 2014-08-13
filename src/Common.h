@@ -205,6 +205,11 @@ public:
         Contract    contract;  // contract announced
         bool        slam;      // true if the taker has announced a slam (chelem)
 
+        Bid()
+        {
+            Initialize();
+        }
+
         void Initialize()
         {
             contract = Contract::PASS;
@@ -213,15 +218,11 @@ public:
         }
     };
 
-    struct Handle
-    {
-        static const std::uint8_t SIMPLE = 0U;
-        static const std::uint8_t DOUBLE = 1U;
-        static const std::uint8_t TRIPLE = 2U;
-
-        std::uint8_t  type;
-        bool    declared;
-    };
+    typedef std::uint8_t Handle;
+    static const std::uint8_t NO_HANDLE     = 0U;
+    static const std::uint8_t SIMPLE_HANDLE = 1U;
+    static const std::uint8_t DOUBLE_HANDLE = 2U;
+    static const std::uint8_t TRIPLE_HANDLE = 3U;
 
     struct Shuffle
     {
@@ -265,6 +266,7 @@ public:
     static std::uint8_t NumberOfDogCards(std::uint8_t numberOfPlayers);
     static std::uint8_t NumberOfCardsInHand(std::uint8_t numberOfPlayers);
     static bool IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers);
+    static int GetHandlePoints(Tarot::Handle handle);
 };
 
 #endif // COMMON_H

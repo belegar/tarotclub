@@ -75,13 +75,13 @@ ByteArray Protocol::BuildCommand(Command cmd, std::uint32_t uuid)
 /*****************************************************************************/
 std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
 {
-    bool found = true;
     std::vector<PacketInfo> packets;
     std::uint16_t offset = 0U;
     std::uint16_t totalSize = 0U;
 
     if (data.Size() >= HEADER_SIZE)
     {
+        bool found = true;
         // Search for valid packets in the data stream
         while (found)
         {

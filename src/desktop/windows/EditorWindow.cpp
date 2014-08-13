@@ -72,7 +72,7 @@ void EditorWindow::AddToList(int id, QListWidget *list, QListWidgetItem *item)
     // find the best row to insert it
     for (i = 0; i < list->count(); i++)
     {
-        CardListItem *el = (CardListItem *)list->item(i);
+        CardListItem *el = dynamic_cast<CardListItem *>(list->item(i));
         if (id < el->GetCard()->GetId())
         {
             break;
@@ -88,7 +88,7 @@ void EditorWindow::slotToSouth()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.southList, element);
 }
 /*****************************************************************************/
@@ -99,7 +99,7 @@ void EditorWindow::slotToNorth()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.northList, element);
 }
 /*****************************************************************************/
@@ -110,7 +110,7 @@ void EditorWindow::slotToWest()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.westList, element);
 }
 /*****************************************************************************/
@@ -121,7 +121,7 @@ void EditorWindow::slotToEast()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.eastList, element);
 }
 /*****************************************************************************/
@@ -131,7 +131,7 @@ void EditorWindow::slotRemoveSouthCard(QListWidgetItem *item)
 
     int row = ui.southList->currentRow();
     QListWidgetItem *element = ui.southList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
@@ -141,7 +141,7 @@ void EditorWindow::slotRemoveNorthCard(QListWidgetItem *item)
 
     int row = ui.northList->currentRow();
     QListWidgetItem *element = ui.northList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
@@ -151,7 +151,7 @@ void EditorWindow::slotRemoveWestCard(QListWidgetItem *item)
 
     int row = ui.westList->currentRow();
     QListWidgetItem *element = ui.westList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
@@ -161,7 +161,7 @@ void EditorWindow::slotRemoveEastCard(QListWidgetItem *item)
 
     int row = ui.eastList->currentRow();
     QListWidgetItem *element = ui.eastList->takeItem(row);
-    Card *c = ((CardListItem *)(element))->GetCard();
+    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
     AddToList(c->GetId(), ui.mainCardList, element);
 }
 /*****************************************************************************/
@@ -190,32 +190,32 @@ void EditorWindow::slotSaveDeal()
     // Chien
     for (int i = 0; i < ui.mainCardList->count(); i++)
     {
-        CardListItem *el = (CardListItem *)ui.mainCardList->item(i);
-        editor.GetDogDeck().Append(((CardListItem *)el)->GetCard());
+        CardListItem *el = dynamic_cast<CardListItem *>(ui.mainCardList->item(i));
+        editor.GetDogDeck().Append(el->GetCard());
     }
     // East
     for (int i = 0; i < ui.eastList->count(); i++)
     {
-        CardListItem *el = (CardListItem *)ui.eastList->item(i);
-        editor.GetEastDeck().Append(((CardListItem *)el)->GetCard());
+        CardListItem *el = dynamic_cast<CardListItem *>(ui.eastList->item(i));
+        editor.GetEastDeck().Append(el->GetCard());
     }
     // West
     for (int i = 0; i < ui.westList->count(); i++)
     {
-        CardListItem *el = (CardListItem *)ui.westList->item(i);
-        editor.GetWestDeck().Append(((CardListItem *)el)->GetCard());
+        CardListItem *el = dynamic_cast<CardListItem *>(ui.westList->item(i));
+        editor.GetWestDeck().Append(el->GetCard());
     }
     // South
     for (int i = 0; i < ui.southList->count(); i++)
     {
-        CardListItem *el = (CardListItem *)ui.southList->item(i);
-        editor.GetSouthDeck().Append(((CardListItem *)el)->GetCard());
+        CardListItem *el = dynamic_cast<CardListItem *>(ui.southList->item(i));
+        editor.GetSouthDeck().Append(el->GetCard());
     }
     // North
     for (int i = 0; i < ui.northList->count(); i++)
     {
-        CardListItem *el = (CardListItem *)ui.northList->item(i);
-        editor.GetNorthDeck().Append(((CardListItem *)el)->GetCard());
+        CardListItem *el = dynamic_cast<CardListItem *>(ui.northList->item(i));
+        editor.GetNorthDeck().Append(el->GetCard());
     }
 
     editor.SaveFile(fileName.toStdString());

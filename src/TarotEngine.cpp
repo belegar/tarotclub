@@ -36,9 +36,16 @@
 TarotEngine::TarotEngine()
     : mNbPlayers(4U)
     , mSequence(STOPPED)
+    , mAttackHandle(Tarot::NO_HANDLE)
+    , mDefenseHandle(Tarot::NO_HANDLE)
 {
     std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
     mSeed = static_cast<std::uint32_t>(seed);
+
+    for (std::uint8_t i = 0U; i < 5U; i++)
+    {
+        mHandleAsked[i] = false;
+    }
 }
 /*****************************************************************************/
 TarotEngine::~TarotEngine()
@@ -96,6 +103,8 @@ void TarotEngine::NewDeal()
     mDeal.NewDeal();
     mBid.Initialize();
     mPosition = 0U;
+    mAttackHandle = Tarot::NO_HANDLE;
+    mDefenseHandle = Tarot::NO_HANDLE;
 
     // 2. Choose the dealer and the first player to start the bid
     mDealer = mDealer.Next(mNbPlayers);
@@ -175,28 +184,32 @@ bool TarotEngine::SetHandle(const Deck &handle, Place p)
 
         if (handle.Size() == 10U)
         {
-            type = Tarot::Handle::SIMPLE;
+            type = Tarot::SIMPLE_HANDLE;
         }
         else if (handle.Size() == 13U)
         {
-            type = Tarot::Handle::DOUBLE;
+            type = Tarot::DOUBLE_HANDLE;
+        }
+        else if (handle.Size() == 15U)
+        {
+            type = Tarot::TRIPLE_HANDLE;
         }
         else
         {
-            type = Tarot::Handle::TRIPLE;
+            // We should never reach this code since the validity of the handle is tested before
+            type = Tarot::NO_HANDLE;
+            TLogError("Handle fallback: internal problem");
         }
 
         if (p == mBid.taker)
         {
             handleOwner = ATTACK;
-            mAttackHandle.declared = true;
-            mAttackHandle.type = type;
+            mAttackHandle = type;
         }
         else
         {
             handleOwner = DEFENSE;
-            mDefenseHandle.declared = true;
-            mDefenseHandle.type = type;
+            mDefenseHandle = type;
         }
 
         ResetAck();

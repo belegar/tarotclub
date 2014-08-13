@@ -390,7 +390,6 @@ void Canvas::DrawSouthCards(const Deck &cards)
 {
     qreal x = 20.0;
     qreal y = SOUTH_CARDS_POS;
-    GfxCard *cgfx;
 
     // Calculate the step needed between each card.
     // It depends on the number of the cards to be displayed within the border line
@@ -417,7 +416,7 @@ void Canvas::DrawSouthCards(const Deck &cards)
     {
         std::string name = (*i)->GetName();
 //        std::cout << name << ", ";
-        cgfx = cardsPics.at(TarotDeck::GetIndex(name));
+        GfxCard *cgfx = cardsPics.at(TarotDeck::GetIndex(name));
         cgfx->setPos(x, y);
         cgfx->setZValue(z++);
         cgfx->show();
