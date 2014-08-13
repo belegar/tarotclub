@@ -51,20 +51,7 @@
 
 #endif // USE_WINDOWS_OS
 
-#include <string.h> // memset.
-#include <errno.h>  // errno, just like it says.
-#include <fcntl.h>  // symbolic names for socket flags.
-
-// C++ creatures
 #include <string>
-#include <iostream>
-#include <iomanip>
-#include <cstdlib>
-#include <exception>
-#include <cstdint>
-
-// Larger values will read larger chunks of data.
-#define MAXRECV (1024)
 
 /*****************************************************************************/
 class TcpSocket

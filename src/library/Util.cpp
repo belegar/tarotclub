@@ -36,6 +36,9 @@
 #include <stdlib.h>
 #endif
 
+#include <ctime>
+#include <sstream>
+#include <iomanip>
 #include <cstdint>
 #include "Util.h"
 

@@ -25,6 +25,17 @@
 
 #include "TcpSocket.h"
 
+
+#include <errno.h>  // errno, just like it says.
+#include <fcntl.h>  // symbolic names for socket flags.
+
+// C++ creatures
+#include <iostream>
+
+// Larger values will read larger chunks of data.
+#define MAXRECV (1024)
+
+
 bool TcpSocket::mOneTimeInit = false;
 
 /*****************************************************************************/

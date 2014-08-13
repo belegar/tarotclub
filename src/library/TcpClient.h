@@ -26,7 +26,6 @@
 #ifndef TCPCLIENT_H
 #define TCPCLIENT_H
 
-#include <string>
 #include "TcpSocket.h"
 
 /*****************************************************************************/
