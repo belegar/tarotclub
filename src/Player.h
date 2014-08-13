@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _PLAYER_H
-#define _PLAYER_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
 #include "Common.h"
 #include "Deck.h"
@@ -91,7 +91,7 @@ private:
     bool TestPlayTrump(Card *cVerif, const PlayerStats &stats);
 };
 
-#endif // _PLAYER_H
+#endif // PLAYER_H
 
 //=============================================================================
 // End of file Player.h

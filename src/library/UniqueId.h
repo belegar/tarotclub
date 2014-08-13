@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _UNIQUE_ID_H
-#define _UNIQUE_ID_H
+#ifndef UNIQUE_ID_H
+#define UNIQUE_ID_H
 
 #include <cstdint>
 #include <list>
@@ -44,7 +44,7 @@ private:
     std::list<std::uint32_t> mUsedIds;
 };
 
-#endif // _UNIQUE_ID_H
+#endif // UNIQUE_ID_H
 
 //=============================================================================
 // End of file UniqueId.h

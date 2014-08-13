@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _TAROT_DECK_H
-#define _TAROT_DECK_H
+#ifndef TAROT_DECK_H
+#define TAROT_DECK_H
 
 #include "Card.h"
 
@@ -43,7 +43,7 @@ private:
     static Card mCards[78];
 };
 
-#endif // _TAROT_DECK_H
+#endif // TAROT_DECK_H
 
 //=============================================================================
 // End of file TarotDeck.h

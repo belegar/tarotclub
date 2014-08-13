@@ -22,8 +22,8 @@
  *
  *=============================================================================
  */
-#ifndef _TAROTENGINE_H
-#define _TAROTENGINE_H
+#ifndef TAROT_ENGINE_H
+#define TAROT_ENGINE_H
 
 #include "Card.h"
 #include "Deck.h"
@@ -157,7 +157,7 @@ private:
     bool IsEndOfTrick();
 };
 
-#endif // _TAROTENGINE_H
+#endif // TAROT_ENGINE_H
 
 //=============================================================================
 // End of file TarotEngine.h

@@ -22,8 +22,8 @@
  *
  *=============================================================================
  */
-#ifndef _SCORE_H
-#define _SCORE_H
+#ifndef SCORE_H
+#define SCORE_H
 
 #include <string>
 #include "Common.h"
@@ -88,7 +88,7 @@ public:
 
 };
 
-#endif // _SCORE_H
+#endif // SCORE_H
 
 //=============================================================================
 // End of file Score.h

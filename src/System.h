@@ -22,8 +22,8 @@
  *
  *=============================================================================
  */
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
 #include <string>
 #include "Util.h"
@@ -73,7 +73,7 @@ private:
     static std::string mLocalePath;
 };
 
-#endif // SYSTEM_H_
+#endif // SYSTEM_H
 
 //=============================================================================
 // End of file System.h

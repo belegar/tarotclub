@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _CLIENT_H
-#define _CLIENT_H
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #include <thread>
 #include <string>
@@ -203,7 +203,7 @@ private:
 
 };
 
-#endif // _CLIENT_H
+#endif // CLIENT_H
 
 //=============================================================================
 // End of file Client.h

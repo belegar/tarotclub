@@ -22,8 +22,8 @@
  *
  *=============================================================================
  */
-#ifndef DEALFILE_H
-#define DEALFILE_H
+#ifndef DEAL_FILE_H
+#define DEAL_FILE_H
 
 #include <string>
 #include "Deck.h"
@@ -52,7 +52,7 @@ private:
     Deck    mDogDeck;
 };
 
-#endif // DEALFILE_H
+#endif // DEAL_FILE_H
 
 //=============================================================================
 // End of file DealFile.h

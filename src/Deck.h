@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _DECK_H
-#define _DECK_H
+#ifndef DECK_H
+#define DECK_H
 
 #include <list>
 
@@ -188,7 +188,7 @@ private:
     std::list<Card *> mDeck; //!< Container to store the cards
 };
 
-#endif // _DECK_H
+#endif // DECK_H
 
 //=============================================================================
 // End of file Deck.h

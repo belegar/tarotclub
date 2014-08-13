@@ -40,7 +40,7 @@ TarotWidget::TarotWidget(QWidget* parent)
   , mConnectionType(NO_CONNECTION)
   , mAutoPlay(false)
 {
-    setWindowTitle(QString(TAROT_TITRE) + " " + QString(TAROT_VERSION));
+    setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mCanvas = new Canvas(this);

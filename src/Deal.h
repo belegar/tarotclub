@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _DEAL_H
-#define _DEAL_H
+#ifndef DEAL_H
+#define DEAL_H
 
 // Standard includes
 #include <map>
@@ -94,12 +94,12 @@ private:
     Score  score;
 
     // scores of previous deals
-    int dealCounter;
+    std::uint32_t dealCounter;
     int scores[MAX_ROUNDS][5];   // score of each turn players, 5 players max
 };
 
 
-#endif // _DEAL_H
+#endif // DEAL_H
 
 //=============================================================================
 // End of file Deal.h

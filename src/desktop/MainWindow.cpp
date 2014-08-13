@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     SetupDocks();
     SetupMenus();
 
-    setWindowTitle(QString(TAROT_TITRE) + " " + QString(TAROT_VERSION));
+    setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
     tarotWidget = new TarotWidget(this);
     tarotWidget->show();
     setCentralWidget(tarotWidget);

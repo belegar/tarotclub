@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _CARD_H
-#define _CARD_H
+#ifndef CARD_H
+#define CARD_H
 
 // Game includes
 #include "Common.h"
@@ -89,7 +89,7 @@ private:
 
 };
 
-#endif // _CARD_H
+#endif // CARD_H
 
 //=============================================================================
 // End of file Card.h

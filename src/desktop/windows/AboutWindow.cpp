@@ -33,8 +33,8 @@ AboutWindow::AboutWindow(QWidget *parent)
 {
     ui.setupUi(this);
 
-    ui.version->setText(QString(TAROT_TITRE) + " " +  QString(TAROT_VERSION));
-    ui.nom->setText("Codename: <" + QString(TAROT_VNAME) + ">");
+    ui.version->setText(QString(TAROT_TITLE.c_str()) + " " +  QString(TAROT_VERSION.c_str()));
+    ui.nom->setText("Codename: <" + QString(TAROT_VNAME.c_str()) + ">");
 
 }
 

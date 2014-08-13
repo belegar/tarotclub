@@ -22,8 +22,8 @@
  *
  *=============================================================================
  */
-#ifndef _CLIENTCONFIG_H
-#define _CLIENTCONFIG_H
+#ifndef CLIENT_CONFIG_H
+#define CLIENT_CONFIG_H
 
 // Standard library
 #include <cstdint>
@@ -74,7 +74,7 @@ private:
     std::vector<std::string> mLang;
 };
 
-#endif // _CLIENTCONFIG_H
+#endif // CLIENT_CONFIG_H
 
 //=============================================================================
 // End of file ClientConfig.h
