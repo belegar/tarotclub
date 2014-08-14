@@ -83,7 +83,7 @@ apt-get install tortoisehg
 
 It is also possible to see the code by using the Web interface: [https://bitbucket.org/tarotclub/tarotclub/overview]
 
-## How to compile TarotClub under Ubuntu
+## How to build TarotClub under Ubuntu
 
 The following commands will help you to install everything to build TarotClub:
 ```
@@ -103,22 +103,72 @@ qmake prj/desktop.pro
 make
 ```
 
+## How to build TarotClub Dedicated Server (TCDS)
+
+You can use the prj/tcds.pro file and follow the same way than the previous chapter.
+Another way is to use the hand-made "Makefile.tcds" available at the directory root. Some batch/sh command-line 
+scripts are available.
+
+Example under Windows:
+```
+cd tarotclub
+build_tcds.bat
+```
+
 # Development tools
 
 ## Code style
 
 The following tools are used:
+
   * AStyle, to automatically reformat the source code
 
+## Coding rules
+
+Here is a quick-and-dirty coding rules list:
+
+  * Class members are prefixed by a 'm' letter, followed by mixed-case: mMyMemberVariable;
+  * Class/Enum/Structure names are mixed-case: class MyClass() { ... };
+  
 ## Code quality
 
 The following tools are used:
   * CppCheck
-  * Simian (http://www.harukizaemon.com/simian/) TODO
-  * STACK (http://css.csail.mit.edu/stack/) TODO
-  * Coverity Scan (https://scan.coverity.com) TODO
-  * Valgrind (TODO)
-  * -fsanitize est disponible pour Clang et gcc 4.9
+  * Simian (http://www.harukizaemon.com/simian/)
+  * STACK (http://css.csail.mit.edu/stack/) (TODO)
+  * Coverity Scan (https://scan.coverity.com)
+  * MISRA C++ 2008
+  * GCC AddressSanitizer
+
+Each tool has its own way to run.
+
+### How to run CppCheck
+
+You can use the GUI provided with the installation program, open the 'tools/tarotclub.cppcheck' project file
+and start a scan.
+
+### How to run Simian
+
+TODO
+
+### How to run Coverity Scan
+
+Follow the guide available on the website. Basically, it consists in downloading a software, launching a build 
+with it and uploading the raw result file generated on the project web account. The analysis will start on the 
+Coverity Scan servers, wait a bit and see the results on-line.
+
+### How to run MISRA C++ 2008
+
+You need the PC-Lint commercial tool installed on a windows computer. Then run the batch file provided at the 
+directory root:
+
+```
+build_tcds.bat lint
+```
+
+### How to use GCC AddressSanitizer
+
+http://blog.qt.digia.com/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt/
 
 
 # Glossary and translations
