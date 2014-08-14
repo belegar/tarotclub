@@ -68,7 +68,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
         return false;
     }
 
-    // The player is the first of the trick, he can play all the cards
+    // The player is the first of the trick, he can play any card
     if (trick.Size() == 0)
     {
         return true;
@@ -173,7 +173,8 @@ bool Player::TestPlayTrump(Card *cVerif, const PlayerStats &stats)
 {
     bool ret = false;
 
-    // He must play a trump if he has some, higher than the highest previous played trump, or any other cards in other case
+    // He must play a trump if he has some, higher than the highest previous played trump,
+    // or any other cards in other case
     if (cVerif->GetSuit() == Card::TRUMPS)
     {
         // He may have to play a higher trump
@@ -196,6 +197,11 @@ bool Player::TestPlayTrump(Card *cVerif, const PlayerStats &stats)
                     ret = true;
                 }
             }
+        }
+        else
+        {
+            // No any previous trump played, so he can play any value
+            ret = true;
         }
     }
     else
