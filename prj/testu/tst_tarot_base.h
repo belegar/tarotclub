@@ -5,6 +5,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <cstdint>
+#include "Player.h"
 
 class TarotBase : public QObject
 {
@@ -18,10 +19,14 @@ private Q_SLOTS:
     void TestDeckClass();
     void TestConfig();
     void TestCommon();
-    void TestPlayerClass();
+    void TestCanPlayCard();
 
 private:
 
+    Player player;
+    Deck currentTrick;
+
+    void TestCard(const std::string &card, bool expected);
 };
 
 #endif // TST_TAROT_BASE_H

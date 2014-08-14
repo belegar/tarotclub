@@ -1,9 +1,5 @@
 # Planned for 2.3.7
 
-## Unit tests
-  
-  * Add unit tests on player CanPlayCard() (IN-DEV)
-
 ## Bugs
   * Game is freezing if: Game menu > Exit
   * On a pris le petit du preneur, et le preneur joue son excuse au dernier pli. Malgré cela, au calcul des points, le logiciel lui conserve les 3 bouts

@@ -10,7 +10,7 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Correction of tournament score initialization (server and client sides)
     ~ CppCheck, Coverity Scan, Simian (duplicate code) and MISRA C++ corrections
     ~ CanPlayCard() algorithm correction in one test case
-    ~ Added unit tests (Player)
+    ~ Added unit tests (Player class, CanPlayCard())
     + New hand-made makefile do build the TCDS executable
 
 * version 2.3.6 <Snowboard>
