@@ -10,6 +10,7 @@
 #include "Deck.h"
 #include "TarotDeck.h"
 #include "ServerConfig.h"
+#include "Player.h"
 
 TarotBase::TarotBase()
 {
@@ -104,6 +105,30 @@ void TarotBase::TestConfig()
     options = ServerConfig::GetDefault();
     conf.SetOptions(options);
     conf.Save();
+}
+
+void TarotBase::TestCommon()
+{
+    std::cout << "Place size: " << sizeof(Place) << std::endl;
+    std::cout << "Contract size: " << sizeof(Contract) << std::endl;
+
+
+}
+
+void TarotBase::TestPlayerClass()
+{
+    Player player;
+    Deck currentTrick;
+
+    // Test 1: the player must cut (he does not have the requested suit)
+    currentTrick.SetCards("13-S;03-S;06-S");
+    player.SetCards("12-C;12-H;10-H;02-H;03-H;11-C;11-T;07-D;01-H;09-C;13-C;05-H");
+
+    Card *c = TarotDeck::GetCard("11-T");
+    bool actual = player.CanPlayCard(c, currentTrick);
+    QCOMPARE(actual, true); // A trump is valid
+
+
 }
 
 
