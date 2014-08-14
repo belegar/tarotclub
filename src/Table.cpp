@@ -63,6 +63,12 @@ void Table::ClientClosed(int socket)
     //SendPlayersList();
 }
 /*****************************************************************************/
+void Table::ServerTerminated(TcpServer::IEvent::CloseType type)
+{
+    (void) type;
+    // FIXME: log an error
+}
+/*****************************************************************************/
 void Table::SendData(const ByteArray &block)
 {
     // Extract the UUID from the data packet received

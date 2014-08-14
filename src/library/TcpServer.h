@@ -32,15 +32,53 @@
 #include "Observer.h"
 
 /*****************************************************************************/
+/**
+ * @brief The TcpServer class
+ *
+ * General purpose Tcp Server thread.
+ * Events on the server socket are throwed through the IEvent interface that
+ * must be implemented in the user side of this class. The event handler is
+ * required in the constructor.
+ */
 class TcpServer : public TcpSocket
 {
 public:
     class IEvent
     {
     public:
+        enum CloseType
+        {
+            WAIT_SOCK_FAILED,
+            TIMEOUT
+        };
+
+        /**
+         * @brief NewConnection
+         * Called when a new TCP/IP connection has been created
+         * @param socket
+         */
         virtual void NewConnection(int socket) = 0;
+
+        /**
+         * @brief ReadData
+         * Called when new data have been sent by the peer to the server
+         * @param socket
+         * @param data
+         */
         virtual void ReadData(int socket, const std::string &data) = 0;
+
+        /**
+         * @brief ClientClosed
+         * Called when a client has closed its connection
+         * @param socket
+         */
         virtual void ClientClosed(int socket) = 0;
+
+        /**
+         * @brief ServerTerminated
+         * Called when the server is about to shutdown (mainly because of an internal problem)
+         */
+        virtual void ServerTerminated(CloseType type) = 0;
     };
 
     TcpServer(IEvent &handler);

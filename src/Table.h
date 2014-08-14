@@ -57,6 +57,7 @@ public:
     virtual void NewConnection(int socket);
     virtual void ReadData(int socket, const std::string &data);
     virtual void ClientClosed(int socket);
+    virtual void ServerTerminated(CloseType type);
 
     // From Controller
     virtual void SendData(const ByteArray &block);
