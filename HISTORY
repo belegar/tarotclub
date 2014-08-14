@@ -7,8 +7,10 @@ HISTORY OF TAROTCLUB VERSIONS
 * version 2.3.7 <Snowboard>
   -------------------------------
     ~ Added "codename" string in the AboutBox
-    ~ Factorized 12 lines of duplicate code in Player.cpp (Simian tool)
     ~ Correction of tournament score initialization (server and client sides)
+    ~ CppCheck, Coverity Scan, Simian (duplicate code) and MISRA C++ corrections
+    ~ CanPlayCard() algorithm correction in one test case
+    ~ Added unit tests (Player)
     + New hand-made makefile do build the TCDS executable
 
 * version 2.3.6 <Snowboard>
