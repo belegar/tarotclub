@@ -24,6 +24,7 @@
  */
 
 #include <algorithm>
+#include <cstring>
 #include "TcpServer.h"
 
 /*****************************************************************************/
@@ -130,7 +131,7 @@ void TcpServer::Run()
         /**********************************************************/
         /* Copy the master fd_set over to the working fd_set.     */
         /**********************************************************/
-        memcpy(&working_set, &mMasterSet, sizeof(mMasterSet));
+        std::memcpy(&working_set, &mMasterSet, sizeof(mMasterSet));
 
         /**********************************************************/
         /* Call select() and wait N minutes for it to complete.   */
