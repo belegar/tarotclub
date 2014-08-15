@@ -136,7 +136,7 @@ The following tools are used:
   * CppCheck
   * Simian (http://www.harukizaemon.com/simian/)
   * STACK (http://css.csail.mit.edu/stack/) (TODO)
-  * Coverity Scan (https://scan.coverity.com)
+  * Coverity Scan (https://scan.coverity.com/projects/2732)
   * MISRA C++ 2008
   * GCC AddressSanitizer
 
@@ -194,6 +194,7 @@ Tarot specific words:
 
 TarotClub generates some files to store the user configuration and various game information to find bugs or retreive past data.
 The files are generated in the user's home directory:
+
   * in  ~/<username>/.tarotclub for Linux
   * in c:\users\<username>\.tarotclub for Windows
 
@@ -290,9 +291,9 @@ TODO
 
 # Credits / contributions
 
-Hizoka, for all of his remarks, game testing and contributions
-cledesol, for all his remarks and game testing
-Duktape author, for his Javascript engine and helps
+  * Hizoka, for all of his remarks, game testing and contributions
+  * cledesol, for all his remarks and game testing
+  * Duktape author, for his Javascript engine and helps
 
 
 

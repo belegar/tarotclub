@@ -31,7 +31,8 @@ void TstDataBase::Query()
 
         std::vector<std::vector<Value> > result = db.Query("SELECT a, b FROM a;");
 
-        QCOMPARE(result.size(), 2U);
+        size_t expected_val = 2;
+        QCOMPARE(result.size(), expected_val);
 
         int line = 0U;
         for(std::vector<std::vector<Value> >::iterator it = result.begin(); it < result.end(); ++it)
