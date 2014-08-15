@@ -29,7 +29,7 @@
 #include <errno.h>  // errno, just like it says.
 #include <fcntl.h>  // symbolic names for socket flags.
 
-// C++ creatures
+#include <cstring>
 #include <iostream>
 
 // Larger values will read larger chunks of data.
@@ -44,7 +44,7 @@ TcpSocket::TcpSocket()
     , mPort(0U)
     , mSock(-1)
 {
-    memset(&mAddr, 0, sizeof(mAddr));
+    std::memset(&mAddr, 0, sizeof(mAddr));
 }
 /*****************************************************************************/
 TcpSocket::TcpSocket(int sock)
