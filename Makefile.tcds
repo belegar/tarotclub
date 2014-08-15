@@ -21,11 +21,13 @@ DESTDIR        = build-server/release/
 ifeq ($(ARCH), mingw)
     SOURCES         = icon.rc
     USER_DEFINES    = -DUSE_WINDOWS_OS -mthreads
-    LIBS            =  -Wl,-subsystem,console -lws2_32 -mthreads
-    DESTDIR_TARGET = build-server/release/tcds.exe
+    LFLAGS          = -static-libgcc -static-libstdc++ -static -lpthread -Wl,-s -Wl,-subsystem,console 
+    LIBS            = -lws2_32 -mthreads
+    DESTDIR_TARGET  = build-server/release/tcds.exe
 else 
-   USER_DEFINES    = -DUSE_UNIX_OS
-   DESTDIR_TARGET = build-server/release/tcds
+   USER_DEFINES     = -DUSE_UNIX_OS
+   LFLAGS           = -pthread -std=c++11
+   DESTDIR_TARGET   = build-server/release/tcds
 endif
 
 # Debug / release build differences
@@ -51,7 +53,6 @@ CFLAGS        = -pipe $(OPTIM) -pedantic -std=c99 -fstrict-aliasing -fomit-frame
 CXXFLAGS      = -pipe -std=c++11 $(OPTIM) -Wall -Wextra -frtti -fexceptions -MMD $(DEFINES)
 INCPATH       = -Iprj -I'src' -I'src/library' -I'src/tcds' -I'src/jsengine' -I'src/json' -I'.'
 LINKER        = g++
-LFLAGS        = -static-libgcc -static-libstdc++ -static -lpthread -Wl,-s
 COPY          = cp -f
 COPY_FILE     = cp -f
 COPY_DIR      = cp -f -R
