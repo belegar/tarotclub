@@ -133,12 +133,14 @@ Here is a quick-and-dirty coding rules list:
 ## Code quality
 
 The following tools are used:
+
   * CppCheck
   * Simian (http://www.harukizaemon.com/simian/)
   * STACK (http://css.csail.mit.edu/stack/) (TODO)
   * Coverity Scan (https://scan.coverity.com)
   * MISRA C++ 2008
-  * GCC AddressSanitizer
+  * GCC AddressSanitizer (TODO)
+  * Code coverage on unit tests key algorithm
 
 Each tool has its own way to run.
 
@@ -149,7 +151,9 @@ and start a scan.
 
 ### How to run Simian
 
-TODO
+```
+java -jar simian.jar **/*.cpp **/*.h
+```
 
 ### How to run Coverity Scan
 
@@ -170,7 +174,49 @@ build_tcds.bat lint
 
 http://blog.qt.digia.com/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt/
 
+### How to run a code coverage
 
+Two steps are required:
+
+  1. Build the test project using QtCrator or by the command line
+  2. Execute the bash script in 'tools/run_coverage.bat'
+
+TODO: detect un-tested source files (compare file list in /src)
+  
+# Release process
+
+## Version numbering
+
+TODO: explain when and how to increment the version
+
+## Game manual tests
+
+Some parts of the game are not easy to test automatically. Here is a check list of manual tests to perform.
+
+  * Check translations (dock windows, about box, editor)
+  * Check different bids (guard, guard without...) with discard creation
+  * Check handle creation using predefined deals
+  * Check game modes (tournament ==> play two or more consecutive games, one deal)
+  * Check option change, game exit
+  * Finally, check the generated log and debug output to look for problems especially bot related errors
+
+## Delivery process
+
+The delivery process must be performed in the following order. If one step is failing the acceptance criteria, the correction must be performed 
+and the delivery process must be executed again from the beginning).
+
+  * Increase the version number
+  * Check and update the TODO, HISTORY and README files
+  * Run AStyle formatter, commit all files
+  * Run the code quality checkers (criteria: no regressions)
+  * Build TarotClub and the dedicated server under each of the supported platform in debug and in release (criteria: no warnings)
+  * Build the unit test project under each of the supported platform (criteria: all passed)
+  * Create the setup executables or install packages
+  * Install the packages on all the supported platforms, execute manual tests (criteria: all passed)
+  * Save the code quality checker results for this version (criteria: create a delivery report)
+  * Upload the setup executables on Bitbucket
+  * Update the website versions
+  
 # Glossary and translations
 
 TarotClub definitions:
