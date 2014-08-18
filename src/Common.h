@@ -104,9 +104,9 @@ public:
         return out;
     }
 
-    friend ByteStreamReader &operator>>(ByteStreamReader &s, Place &l)
+    friend ByteStreamReader &operator>>(ByteStreamReader &s, Place &p)
     {
-        s >> l.mPlace;
+        s >> p.mPlace;
         return s;
     }
 
@@ -173,15 +173,15 @@ public:
         return (this->mContract >= rhs.mContract);
     }
 
-    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Contract &p)
+    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Contract &c)
     {
-        out << p.mContract;
+        out << c.mContract;
         return out;
     }
 
-    friend ByteStreamReader &operator>>(ByteStreamReader &s, Contract &l)
+    friend ByteStreamReader &operator>>(ByteStreamReader &s, Contract &c)
     {
-        s >> l.mContract;
+        s >> c.mContract;
         return s;
     }
 
