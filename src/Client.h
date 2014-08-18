@@ -168,6 +168,8 @@ private:
         EXIT
     };
 
+    IEvent     &mEventHandler;
+
     Player      mPlayer;    // Player's deck, utilities and assigned UUID
     Place       mPlace;     // assigned place around the table
     Identity    mIdentity;  // Player's identity
@@ -183,7 +185,7 @@ private:
     Deck        mDog;
     Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;
-    IEvent     &mEventHandler;
+
     Sequence    mSequence;
     Deck::Statistics   stats;   // statistics on player's cards
 
