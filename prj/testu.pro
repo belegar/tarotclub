@@ -85,7 +85,7 @@ win32 {
 }
 unix {
     DEFINES += USE_UNIX_OS
-    LIBS += -ldl
+    LIBS += -ldl -lgcov
 }
 
 CONFIG(debug, debug|release) {
