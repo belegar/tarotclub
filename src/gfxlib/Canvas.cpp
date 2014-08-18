@@ -87,6 +87,7 @@ void BorderLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 /*****************************************************************************/
 Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
+    , mFilter(BLOCK_ALL)
     , mShowAvatars(true)
     , mMenuItem(this)
 {

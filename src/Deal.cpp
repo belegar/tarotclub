@@ -121,47 +121,49 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
             {
                 TLogError("Card pointer cannot be NULL");
             }
-
-            if (Tarot::IsDealFinished(trickCounter, numberOfPlayers) == true)
-            {
-                // Special case of the fool: if played at last turn with a slam realized, it wins the trick
-                if ((tricksWon == (numberOfTricks - 1)) &&
-                        (cFool->GetOwner() == bid.taker))
-                {
-                    winner = bid.taker;
-                }
-                // Otherwise, the fool is _always_ lost if played at the last trick, even if the
-                // fool belongs to the same team than the winner of the trick.
-                else
-                {
-                    foolSwap = true;
-                    if (cFool->GetOwner() == bid.taker)
-                    {
-                        foolOwner = DEFENSE;
-                    }
-                    else
-                    {
-                        foolOwner = ATTACK;
-                    }
-                }
-            }
             else
             {
-                // In all other cases, the fool is kept by the owner. If the trick is won by a
-                // different team than the fool owner, they must exchange 1 low card with the fool.
-                if (winner != cFool->GetOwner())
+                if (Tarot::IsDealFinished(trickCounter, numberOfPlayers) == true)
                 {
-                    foolSwap = true;
-                    if (winner == bid.taker)
+                    // Special case of the fool: if played at last turn with a slam realized, it wins the trick
+                    if ((tricksWon == (numberOfTricks - 1)) &&
+                            (cFool->GetOwner() == bid.taker))
                     {
-                        foolOwner = DEFENSE;
+                        winner = bid.taker;
                     }
+                    // Otherwise, the fool is _always_ lost if played at the last trick, even if the
+                    // fool belongs to the same team than the winner of the trick.
                     else
                     {
-                        foolOwner = ATTACK;
+                        foolSwap = true;
+                        if (cFool->GetOwner() == bid.taker)
+                        {
+                            foolOwner = DEFENSE;
+                        }
+                        else
+                        {
+                            foolOwner = ATTACK;
+                        }
                     }
                 }
-                // else, the trick is won by the attacker, it keeps the fool
+                else
+                {
+                    // In all other cases, the fool is kept by the owner. If the trick is won by a
+                    // different team than the fool owner, they must exchange 1 low card with the fool.
+                    if (winner != cFool->GetOwner())
+                    {
+                        foolSwap = true;
+                        if (winner == bid.taker)
+                        {
+                            foolOwner = DEFENSE;
+                        }
+                        else
+                        {
+                            foolOwner = ATTACK;
+                        }
+                    }
+                    // else, the trick is won by the attacker, it keeps the fool
+                }
             }
         }
 

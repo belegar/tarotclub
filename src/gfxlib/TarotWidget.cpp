@@ -39,6 +39,7 @@ TarotWidget::TarotWidget(QWidget* parent)
   , mClient(*this)
   , mConnectionType(NO_CONNECTION)
   , mAutoPlay(false)
+  , mGameMode(Tarot::ONE_DEAL)
 {
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
 

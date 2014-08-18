@@ -146,55 +146,62 @@ std::vector<JsonValue> JsonReader::GetArray(const std::string &obj, JsonValue::T
                     if (node->GetTag() == IJsonNode::JSON_OBJECT)
                     {
                         JsonObject *object = dynamic_cast<JsonObject *>(node);
-                        if (object->HasNode(key))
+                        if (object != NULL)
                         {
-                            node = object->GetNode(key);
-
-                            if (node->GetTag() == IJsonNode::JSON_ARRAY)
+                            if (object->HasNode(key))
                             {
-                                // we are arrived to the array, get it
-                                JsonArray *array = dynamic_cast<JsonArray *>(node);
+                                node = object->GetNode(key);
 
-                                // Fill the array with the values
-                                for (std::uint32_t j = 0U; j < array->GetSize(); j++)
+                                if (node->GetTag() == IJsonNode::JSON_ARRAY)
                                 {
-                                    IJsonNode *value = array->GetNode(j);
+                                    // we are arrived to the array, get it
+                                    JsonArray *array = dynamic_cast<JsonArray *>(node);
 
-                                    // We only manage array of JsonValues (not array of objects or array of arrays)
-                                    if (value != NULL)
+                                    if (array != NULL)
                                     {
-                                        if (value->GetTag() == IJsonNode::JSON_VALUE)
+                                        // Fill the array with the values
+                                        for (std::uint32_t j = 0U; j < array->GetSize(); j++)
                                         {
-                                            JsonValue *jsonValue = dynamic_cast<JsonValue*>(value);
-                                            if (jsonValue->IsValid() && (jsonValue->GetType() == type))
+                                            IJsonNode *value = array->GetNode(j);
+
+                                            // We only manage array of JsonValues (not array of objects or array of arrays)
+                                            if (value != NULL)
                                             {
-                                                retval.push_back(*jsonValue);
+                                                if (value->GetTag() == IJsonNode::JSON_VALUE)
+                                                {
+                                                    JsonValue *jsonValue = dynamic_cast<JsonValue*>(value);
+                                                    if (jsonValue->IsValid() && (jsonValue->GetType() == type))
+                                                    {
+                                                        retval.push_back(*jsonValue);
+                                                    }
+                                                    else
+                                                    {
+                                                        // bad json value
+                                                        break;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    // array of objects or array of arrays ara not supported
+                                                    break;
+                                                }
                                             }
                                             else
                                             {
-                                                // bad json value
+                                                // oops ...
                                                 break;
                                             }
                                         }
-                                        else
-                                        {
-                                            // array of objects or array of arrays ara not supported
-                                            break;
-                                        }
                                     }
-                                    else
-                                    {
-                                        // oops ...
-                                        break;
-                                    }
+
                                 }
                             }
-                        }
-                        else
-                        {
-                            // Not found
-                            node = NULL;
-                        }
+                            else
+                            {
+                                // Not found
+                                node = NULL;
+                            }
+                    }
                     }
                 }
                 else
@@ -228,31 +235,36 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, JsonValue::Type type)
                     if (node->GetTag() == IJsonNode::JSON_OBJECT)
                     {
                         JsonObject *object = dynamic_cast<JsonObject *>(node);
-                        if (object->HasNode(key))
+                        if (object != NULL)
                         {
-                            node = object->GetNode(key);
-
-                            if (node->GetTag() == IJsonNode::JSON_VALUE)
+                            if (object->HasNode(key))
                             {
-                                // we are arrived to the value, get it
-                                JsonValue *value = dynamic_cast<JsonValue *>(node);
+                                node = object->GetNode(key);
 
-                                switch (type)
+                                if (node->GetTag() == IJsonNode::JSON_VALUE)
                                 {
-                                case JsonValue::INTEGER:
-                                    // convert double into integer
-                                    retval = JsonValue(static_cast<std::int32_t>(value->GetDouble()));
-                                    break;
-                                default:
-                                    retval = *value; // copy value
-                                    break;
+                                    // we are arrived to the value, get it
+                                    JsonValue *value = dynamic_cast<JsonValue *>(node);
+                                    if (value != NULL)
+                                    {
+                                        switch (type)
+                                        {
+                                        case JsonValue::INTEGER:
+                                            // convert double into integer
+                                            retval = JsonValue(static_cast<std::int32_t>(value->GetDouble()));
+                                            break;
+                                        default:
+                                            retval = *value; // copy value
+                                            break;
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            // Not found
-                            node = NULL;
+                            else
+                            {
+                                // Not found
+                                node = NULL;
+                            }
                         }
                     }
                 }
@@ -312,6 +324,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
         {
             case '\0':
                 continue;
+                break;
             case '-':
                 if (!isdigit(*s) && *s != '.')
                 {
