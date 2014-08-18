@@ -1,2 +1,5 @@
 syntax: glob
-build-TarotClub-*
+build-*
+*.gcov
+*~
+*.user
