@@ -12,6 +12,7 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ CanPlayCard() algorithm correction in one test case
     ~ Added unit tests (Player class, CanPlayCard())
     + New hand-made makefile do build the TCDS executable
+    + New code coverage script
 
 * version 2.3.6 <Snowboard>
   -------------------------------
