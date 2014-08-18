@@ -34,30 +34,28 @@ my $SCRIPT_DIR	= cwd();
 # Main
 # =========================================================		
 
-# FIXME : delete temp_dir
-
-# 1. We generate all Gcov file by reading the output object dir. 
-#	 	-> Read all generate files. 
-#		-> We execute gcov and save new file into TempDirGcov.
-print "Get all files under test ...\n";
-my @Files 		= GetFilesList ($OBJECT_DIR, $GCOV_EXTENSION);
+# gets all coverage GCC output files
+my @Files 		= GetFileList ($OBJECT_DIR, $GCOV_EXTENSION);
 
 print "Run gcov on files ...\n";
 foreach my $File  (@Files) 
 {
- #   RunGcov($File);
+    RunGcov($File);
 }
 
 # Then open the summary file and print a general summary
-my @Files 		= GetFilesList (".", $GCOV_SUMMARY_EXT);
+my @Files 		= GetFileList (".", $GCOV_SUMMARY_EXT);
+print("\t\tSource file\t\t\t|\tCompletion\t|\tTotal lines\t|\r\n");
+print("------------------------------------------------------------------------------------------------------\r\n");
 foreach my $File  (@Files) 
 {
     ParseSummary($File);
-    unlink($File);
 }
 
+unlink(@Files);
+
 # Then move all the gcov files into a dedicated directory
-my @Files 		= GetFilesList (".", $GCOV_GENERATED_EXT);
+my @Files 		= GetFileList (".", $GCOV_GENERATED_EXT);
 system("mkdir -p gen");
 foreach my $File  (@Files) 
 {
@@ -92,26 +90,44 @@ sub RunGcov
 #
 # File '../src/library/ByteStreamReader.cpp'
 # Lines executed:69.39% of 49
+# Creating 'Base64.cpp.gcov'
 # =========================================================
 sub ParseSummary
 {
-    my $filename  = shift(@_);
-    
-    open SUMMARY_FILE_IN, $filename or die $!;
+    open SUMMARY_FILE_IN, shift(@_) or die $!;
     while(<SUMMARY_FILE_IN>)
     { 
         my $line = $_;
-        if (($sourceFile) = $line =~ m/File '(\s+)'/g)
+        my $sourceFile;
+        my $executed;
+        my $lines;
+        
+        if (($sourceFile) = ($line =~ m/File\s+'(.+)'/g))
         {
-            print $sourceFile;
-        }
+            ($base_name, $curr_path, $file_suffix) = fileparse($sourceFile, qr/\.[^.]*/);
+            if ($file_suffix eq ".cpp")
+            {
+                if ($curr_path =~ m/testu/g)
+                {
+                    # Exclude test files
+                }
+                else
+                {
+                    my $nextLine = <SUMMARY_FILE_IN>;
+                    if (($executed, $lines) = ($nextLine =~ m/Lines executed:(.+) of (\d+)/g))
+                    {
+                        print "$sourceFile\t\t\t|\t$toPrint$executed\t\t|\t$lines\t\t|\r\n";
+                    }
+                }
+            }
+        }        
     }
     close(SUMMARY_FILE_IN);
 }
 
 
 # =========================================================
-# @sub 	GetFilesList
+# @sub 	GetFileList
 # This function gets all files of one directory
 # recursively with the extension provided in parameter
 #
@@ -119,7 +135,7 @@ sub ParseSummary
 # @param	$_[1] => The extension of files to find
 # @return	Array of files with path
 # =========================================================
-sub GetFilesList
+sub GetFileList
 {
 	my $Path 		= $_[0];
 	my $Extension 	= $_[1];
@@ -128,11 +144,11 @@ sub GetFilesList
 
 	# Get all elements of directory
 	opendir (my $FhRep, $Path) or die "Cannot open directory $Path\n";
-	my @Contenu = grep { !/^\.\.?$/ } readdir($FhRep);
+	my @Elements = grep { !/^\.\.?$/ } readdir($FhRep);
 	closedir ($FhRep);
 
 	# Loop to the elements found
-	foreach my $FileFound (@Contenu) 
+	foreach my $FileFound (@Elements) 
 	{
 		# File => Just keep $suffix file extension.
 		if (-f "$Path/$FileFound") 
@@ -147,7 +163,7 @@ sub GetFilesList
 		# Directory => Call this function recursively
 		elsif (-d "$Path/$FileFound") 
 		{
-			push (@FilesList, GetFilesList("$Path/$FileFound", $Extension));
+			push (@FilesList, GetFileList("$Path/$FileFound", $Extension));
 		}
 	}
 	

@@ -73,14 +73,14 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11  -fprofile-arcs -ftest-coverage
 
-QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
+QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing  -fprofile-arcs -ftest-coverage
 DEFINES += DUK_OPT_SELF_TESTS
 
 # Specific OS stuff
 win32 {
-    LIBS +=  libws2_32
+    LIBS +=  libws2_32 libgcov
     DEFINES += USE_WINDOWS_OS
 }
 unix {
