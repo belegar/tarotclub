@@ -30,6 +30,8 @@
 /*****************************************************************************/
 Client::Client(IEvent &handler)
     : mEventHandler(handler)
+    , mGameMode(Tarot::ONE_DEAL)
+    , mNbPlayers(4U)
     , mSequence(STOPPED)
     , mInitialized(false)
     , mConnected(false)

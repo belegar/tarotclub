@@ -137,7 +137,7 @@ std::vector<JsonValue> JsonReader::GetArray(const std::string &obj, JsonValue::T
     {
         if (mRootType == IJsonNode::JSON_OBJECT)
         {
-            IJsonNode *node = mRootObject;
+            IJsonNode * node = mRootObject;
             for (std::uint32_t i = 0U; i < path.size(); i++)
             {
                 std::string key = path[i];
@@ -146,55 +146,62 @@ std::vector<JsonValue> JsonReader::GetArray(const std::string &obj, JsonValue::T
                     if (node->GetTag() == IJsonNode::JSON_OBJECT)
                     {
                         JsonObject *object = dynamic_cast<JsonObject *>(node);
-                        if (object->HasNode(key))
+                        if (object != NULL)
                         {
-                            node = object->GetNode(key);
-
-                            if (node->GetTag() == IJsonNode::JSON_ARRAY)
+                            if (object->HasNode(key))
                             {
-                                // we are arrived to the array, get it
-                                JsonArray *array = dynamic_cast<JsonArray *>(node);
+                                node = object->GetNode(key);
 
-                                // Fill the array with the values
-                                for (std::uint32_t j = 0U; j < array->GetSize(); j++)
+                                if (node->GetTag() == IJsonNode::JSON_ARRAY)
                                 {
-                                    IJsonNode *value = array->GetNode(j);
+                                    // we are arrived to the array, get it
+                                    JsonArray *array = dynamic_cast<JsonArray *>(node);
 
-                                    // We only manage array of JsonValues (not array of objects or array of arrays)
-                                    if (value != NULL)
+                                    if (array != NULL)
                                     {
-                                        if (value->GetTag() == IJsonNode::JSON_VALUE)
+                                        // Fill the array with the values
+                                        for (std::uint32_t j = 0U; j < array->GetSize(); j++)
                                         {
-                                            JsonValue *jsonValue = dynamic_cast<JsonValue *>(value);
-                                            if (jsonValue->IsValid() && (jsonValue->GetType() == type))
+                                            IJsonNode *value = array->GetNode(j);
+
+                                            // We only manage array of JsonValues (not array of objects or array of arrays)
+                                            if (value != NULL)
                                             {
-                                                retval.push_back(*jsonValue);
+                                                if (value->GetTag() == IJsonNode::JSON_VALUE)
+                                                {
+                                                    JsonValue *jsonValue = dynamic_cast<JsonValue*>(value);
+                                                    if (jsonValue->IsValid() && (jsonValue->GetType() == type))
+                                                    {
+                                                        retval.push_back(*jsonValue);
+                                                    }
+                                                    else
+                                                    {
+                                                        // bad json value
+                                                        break;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    // array of objects or array of arrays ara not supported
+                                                    break;
+                                                }
                                             }
                                             else
                                             {
-                                                // bad json value
+                                                // oops ...
                                                 break;
                                             }
                                         }
-                                        else
-                                        {
-                                            // array of objects or array of arrays ara not supported
-                                            break;
-                                        }
                                     }
-                                    else
-                                    {
-                                        // oops ...
-                                        break;
-                                    }
+
                                 }
                             }
-                        }
-                        else
-                        {
-                            // Not found
-                            node = NULL;
-                        }
+                            else
+                            {
+                                // Not found
+                                node = NULL;
+                            }
+                    }
                     }
                 }
                 else
@@ -219,7 +226,7 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, JsonValue::Type type)
     {
         if (mRootType == IJsonNode::JSON_OBJECT)
         {
-            IJsonNode *node = mRootObject;
+            IJsonNode * node = mRootObject;
             for (std::uint32_t i = 0U; i < path.size(); i++)
             {
                 std::string key = path[i];
@@ -228,31 +235,36 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, JsonValue::Type type)
                     if (node->GetTag() == IJsonNode::JSON_OBJECT)
                     {
                         JsonObject *object = dynamic_cast<JsonObject *>(node);
-                        if (object->HasNode(key))
+                        if (object != NULL)
                         {
-                            node = object->GetNode(key);
-
-                            if (node->GetTag() == IJsonNode::JSON_VALUE)
+                            if (object->HasNode(key))
                             {
-                                // we are arrived to the value, get it
-                                JsonValue *value = dynamic_cast<JsonValue *>(node);
+                                node = object->GetNode(key);
 
-                                switch (type)
+                                if (node->GetTag() == IJsonNode::JSON_VALUE)
                                 {
-                                    case JsonValue::INTEGER:
-                                        // convert double into integer
-                                        retval = JsonValue(static_cast<std::int32_t>(value->GetDouble()));
-                                        break;
-                                    default:
-                                        retval = *value; // copy value
-                                        break;
+                                    // we are arrived to the value, get it
+                                    JsonValue *value = dynamic_cast<JsonValue *>(node);
+                                    if (value != NULL)
+                                    {
+                                        switch (type)
+                                        {
+                                        case JsonValue::INTEGER:
+                                            // convert double into integer
+                                            retval = JsonValue(static_cast<std::int32_t>(value->GetDouble()));
+                                            break;
+                                        default:
+                                            retval = *value; // copy value
+                                            break;
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            // Not found
-                            node = NULL;
+                            else
+                            {
+                                // Not found
+                                node = NULL;
+                            }
                         }
                     }
                 }
@@ -312,6 +324,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
         {
             case '\0':
                 continue;
+                break;
             case '-':
                 if (!isdigit(*s) && *s != '.')
                 {
@@ -341,7 +354,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
 #ifdef JSON_READER_D
                 std::cout << "JSON_TAG_STRING" << std::endl;
 #endif
-                while (*s)
+                while(*s)
                 {
                     //int c = *it = *s;
                     int c = *s;
@@ -427,7 +440,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                     }
                     else
                     {
-                        temp.push_back(c);
+                       temp.push_back(c);
                     }
                     s++;
                 }
@@ -569,16 +582,16 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                     mRootType = IJsonNode::JSON_ARRAY;
                     nodes[pos] = mRootArray;
                 }
-                else if (tags[pos - 1] == IJsonNode::JSON_OBJECT)
+                else if (tags[pos-1] == IJsonNode::JSON_OBJECT)
                 {
                     // if previous node was an object, then we create a new array
-                    JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos - 1]);
-                    nodes[pos] = obj->CreateArrayPair(keys[pos - 1]);
+                    JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos-1]);
+                    nodes[pos] = obj->CreateArrayPair(keys[pos-1]);
                 }
                 else
                 {
                     // array in an array?
-                    JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos - 1]);
+                    JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos-1]);
                     nodes[pos] = array->CreateArray();
                 }
 
@@ -599,16 +612,16 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                     mRootType = IJsonNode::JSON_OBJECT;
                     nodes[pos] = mRootObject;
                 }
-                else if (tags[pos - 1] == IJsonNode::JSON_OBJECT)
+                else if (tags[pos-1] == IJsonNode::JSON_OBJECT)
                 {
                     // if previous node was an object, then we create a new object
-                    JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos - 1]);
-                    nodes[pos] = obj->CreateObjectPair(keys[pos - 1]);
+                    JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos-1]);
+                    nodes[pos] = obj->CreateObjectPair(keys[pos-1]);
                 }
                 else
                 {
                     // Object in an array? ==> no tag
-                    JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos - 1]);
+                    JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos-1]);
                     nodes[pos] = array->CreateObject();
                 }
 

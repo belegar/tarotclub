@@ -34,11 +34,12 @@
 #include "Log.h"
 
 /*****************************************************************************/
-TarotWidget::TarotWidget(QWidget *parent)
-    : QWidget(parent)
-    , mClient(*this)
-    , mConnectionType(NO_CONNECTION)
-    , mAutoPlay(false)
+TarotWidget::TarotWidget(QWidget* parent)
+  : QWidget(parent)
+  , mClient(*this)
+  , mConnectionType(NO_CONNECTION)
+  , mAutoPlay(false)
+  , mGameMode(Tarot::ONE_DEAL)
 {
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
 
@@ -138,7 +139,7 @@ void TarotWidget::slotCreateNetworkGame()
 bool TarotWidget::HasLocalConnection()
 {
     if ((mConnectionType == LOCAL) &&
-            (mClient.IsConnected() == true))
+        (mClient.IsConnected() == true))
     {
         return true;
     }
@@ -239,7 +240,7 @@ void TarotWidget::slotAcceptDiscard()
     {
         Card *c = (*i);
         mCanvas->HideCard(c);
-    }
+    }    
 
     TLogInfo("Hide discard: " + mDiscard.GetCardList());
 
@@ -676,7 +677,7 @@ void TarotWidget::slotEndOfGame(Place winner)
     QMessageBox::information(this, trUtf8("Game result"),
                              trUtf8("The winner is ") + QString(winner.ToString().c_str()),
                              QMessageBox::Ok);
-    */
+*/
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
 }
