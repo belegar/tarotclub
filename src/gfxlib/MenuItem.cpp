@@ -83,7 +83,8 @@ int MenuItem::type() const
 /*****************************************************************************/
 void MenuItem::Initialize()
 {
-    QString labels[] = {
+    QString labels[] =
+    {
         QObject::tr(Contract::STR_PASS.c_str()),
         QObject::tr(Contract::STR_TAKE.c_str()),
         QObject::tr(Contract::STR_GUARD.c_str()),

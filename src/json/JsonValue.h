@@ -59,7 +59,10 @@ public:
     virtual ~JsonArray();
 
     // Implemented virtual methods
-    IJsonNode::Tag GetTag() { return IJsonNode::JSON_ARRAY; }
+    IJsonNode::Tag GetTag()
+    {
+        return IJsonNode::JSON_ARRAY;
+    }
     std::string ToString();
 
     // JsonArray
@@ -81,7 +84,10 @@ public:
     virtual ~JsonObject();
 
     // Implemented virtual methods
-    IJsonNode::Tag GetTag() { return IJsonNode::JSON_OBJECT; }
+    IJsonNode::Tag GetTag()
+    {
+        return IJsonNode::JSON_OBJECT;
+    }
     std::string ToString();
 
     // JsonObject
@@ -111,7 +117,10 @@ public:
     JsonValue() : Value() {}
 
     // Implemented virtual methods from IJsonNode
-    IJsonNode::Tag GetTag() { return IJsonNode::JSON_VALUE; }
+    IJsonNode::Tag GetTag()
+    {
+        return IJsonNode::JSON_VALUE;
+    }
     std::string ToString();
 };
 

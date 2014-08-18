@@ -64,65 +64,65 @@ void Sha1::Update(std::istream &is)
 
 std::string Sha1::Final(bool ascii)
 {
-	/* Total number of hashed bits */
-	std::uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
+    /* Total number of hashed bits */
+    std::uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
 
-	/* Padding */
-	buffer += (char)0x80;
-	size_t orig_size = buffer.size();
-	while (buffer.size() < BLOCK_BYTES)
-	{
-		buffer += (char)0x00;
-	}
+    /* Padding */
+    buffer += (char)0x80;
+    size_t orig_size = buffer.size();
+    while (buffer.size() < BLOCK_BYTES)
+    {
+        buffer += (char)0x00;
+    }
 
-	std::uint32_t block[BLOCK_INTS];
-	BufferToBlock(buffer, block);
+    std::uint32_t block[BLOCK_INTS];
+    BufferToBlock(buffer, block);
 
-	if (orig_size > BLOCK_BYTES - 8)
-	{
-		Transform(block);
-		for (unsigned int i = 0; i < BLOCK_INTS - 2; i++)
-		{
-			block[i] = 0;
-		}
-	}
+    if (orig_size > BLOCK_BYTES - 8)
+    {
+        Transform(block);
+        for (unsigned int i = 0; i < BLOCK_INTS - 2; i++)
+        {
+            block[i] = 0;
+        }
+    }
 
-	/* Append total_bits, split this std::uint64_t into two std::uint32_t */
-	block[BLOCK_INTS - 1] = static_cast<std::uint32_t>(total_bits);
-	block[BLOCK_INTS - 2] = (total_bits >> 32);
-	Transform(block);
+    /* Append total_bits, split this std::uint64_t into two std::uint32_t */
+    block[BLOCK_INTS - 1] = static_cast<std::uint32_t>(total_bits);
+    block[BLOCK_INTS - 2] = (total_bits >> 32);
+    Transform(block);
 
-	/* Hex std::string */
-	std::string output;
+    /* Hex std::string */
+    std::string output;
 
-	if (ascii)
-	{
-		std::ostringstream result;
-		for (unsigned int i = 0; i < DIGEST_INTS; i++)
-		{
-			result << std::hex << std::setfill('0') << std::setw(8);
-			result << (digest[i] & 0xffffffff);
-		}
-		output = result.str();
-	}
-	else
-	{
-		for (unsigned int i = 0; i < DIGEST_INTS; i++)
-		{
-			std::uint8_t byte;
-			std::uint32_t mask = 0xFF000000U;
-			std::uint32_t pos = 24U;
-			std::uint32_t data = digest[i];
+    if (ascii)
+    {
+        std::ostringstream result;
+        for (unsigned int i = 0; i < DIGEST_INTS; i++)
+        {
+            result << std::hex << std::setfill('0') << std::setw(8);
+            result << (digest[i] & 0xffffffff);
+        }
+        output = result.str();
+    }
+    else
+    {
+        for (unsigned int i = 0; i < DIGEST_INTS; i++)
+        {
+            std::uint8_t byte;
+            std::uint32_t mask = 0xFF000000U;
+            std::uint32_t pos = 24U;
+            std::uint32_t data = digest[i];
 
-			for (std::uint8_t j = 0U; j < 4U; j++)
-			{
-				byte = (data & mask) >> pos;
-				output.push_back(byte);
-				pos -= 8;
-				mask >>= 8;
-			}
-		}
-	}
+            for (std::uint8_t j = 0U; j < 4U; j++)
+            {
+                byte = (data & mask) >> pos;
+                output.push_back(byte);
+                pos -= 8;
+                mask >>= 8;
+            }
+        }
+    }
 
     /* Reset for next run */
     Reset();
@@ -289,7 +289,7 @@ void Sha1::Read(std::istream &is, std::string &s, int max)
     char *sbuf = new char[max];
     is.read(sbuf, max);
     s.assign(sbuf, static_cast<unsigned>(is.gcount()));
-	delete[] sbuf;
+    delete[] sbuf;
 }
 
 //=============================================================================

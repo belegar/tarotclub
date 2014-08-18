@@ -28,7 +28,8 @@
 #include <QString>
 #include <QtWidgets>
 
-static const QPoint labelPos[5] = {
+static const QPoint labelPos[5] =
+{
     {10, 2},
     {60, 2},
     {110, 2},
@@ -36,7 +37,8 @@ static const QPoint labelPos[5] = {
     {210, 2}
 };
 
-static const QString iconName[5] = {
+static const QString iconName[5] =
+{
     ":/icons/spade.svg",
     ":/icons/heart.svg",
     ":/icons/diamond.svg",
@@ -44,7 +46,8 @@ static const QString iconName[5] = {
     ":/icons/trump.svg"
 };
 
-static const Card::Suit suitList[5] = {
+static const Card::Suit suitList[5] =
+{
     Card::SPADES,
     Card::HEARTS,
     Card::DIAMONDS,
@@ -92,7 +95,8 @@ void DragWidget::SetOrder(const std::string &order)
     {
         for (int i = 0; i < 5; i++)
         {
-            std::string letter; letter.push_back(order[i]);
+            std::string letter;
+            letter.push_back(order[i]);
             Card::Suit suit = Card::ToSuit(letter);
             mIcons[i].icon = iconName[suit];
             mIcons[i].suit = suit;
@@ -199,7 +203,7 @@ void DragWidget::dropEvent(QDropEvent *event)
 /*****************************************************************************/
 void DragWidget::mousePressEvent(QMouseEvent *event)
 {
-    QLabel *child = static_cast<QLabel*>(childAt(event->pos()));
+    QLabel *child = static_cast<QLabel *>(childAt(event->pos()));
     if (!child)
     {
         return;
@@ -235,7 +239,7 @@ int DragWidget::DetectLabel(int x)
     for (int i = 4; i >= 0; i--)
     {
         if ((x >= labelPos[i].x()) &&
-            (x < (labelPos[i].x() + labelSize.width())))
+                (x < (labelPos[i].x() + labelSize.width())))
         {
             selected = i;
         }

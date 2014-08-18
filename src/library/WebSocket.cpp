@@ -24,7 +24,7 @@
  */
 
 #include "WebSocket.h"
- 
+
 /*****************************************************************************/
 void WebSocketRequest::Parse(const std::string &msg)
 {
@@ -48,9 +48,9 @@ bool WebSocketRequest::IsProtocol(const std::string &proto)
 std::string WebSocketRequest::Accept()
 {
     /*
-        The client sends a Sec-WebSocket-Key which is a random value that has been base64 encoded. 
-        To form a response, the magic string 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 is appended to this (undecoded) key. 
-        The resulting string is then hashed with SHA-1, then base64 encoded. Finally, the resulting reply occurs in 
+        The client sends a Sec-WebSocket-Key which is a random value that has been base64 encoded.
+        To form a response, the magic string 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 is appended to this (undecoded) key.
+        The resulting string is then hashed with SHA-1, then base64 encoded. Finally, the resulting reply occurs in
         the header Sec-WebSocket-Accept.
     */
     std::string magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -81,10 +81,10 @@ bool WebSocketRequest::IsValid()
 {
     bool valid = false;
     if ((resource.size() != 0) &&
-        (host.size() != 0) &&
-        (origin.size() != 0) &&
-        (key.size() != 0) &&
-        (protocol.size() != 0))
+            (host.size() != 0) &&
+            (origin.size() != 0) &&
+            (key.size() != 0) &&
+            (protocol.size() != 0))
     {
         valid = true;
     }

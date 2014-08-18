@@ -54,14 +54,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
 
     // TarotWidget events
-    connect (tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
-    connect (tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);

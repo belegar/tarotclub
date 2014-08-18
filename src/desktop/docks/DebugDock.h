@@ -50,8 +50,14 @@ private:
 public:
     DebugDock(QWidget *parent);
 
-    void Update(const std::string &info) { emit sigMessage(QString(info.data())); }
-    void Initialize() { Log::RegisterListener(*this); }
+    void Update(const std::string &info)
+    {
+        emit sigMessage(QString(info.data()));
+    }
+    void Initialize()
+    {
+        Log::RegisterListener(*this);
+    }
 
 protected:
     void closeEvent(QCloseEvent *e);

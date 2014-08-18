@@ -64,15 +64,36 @@ public:
 
     Value &operator = (Value const &rhs);
 
-    bool IsValid() { return mType != INVALID; }
-    Type GetType() { return mType; }
+    bool IsValid()
+    {
+        return mType != INVALID;
+    }
+    Type GetType()
+    {
+        return mType;
+    }
 
-    std::int32_t    GetInteger(){ return mIntegerValue; }
-    double          GetDouble() { return mDoubleValue; }
-    bool            GetBool()   { return mBoolValue; }
-    std::string     GetString() { return mStringValue; }
+    std::int32_t    GetInteger()
+    {
+        return mIntegerValue;
+    }
+    double          GetDouble()
+    {
+        return mDoubleValue;
+    }
+    bool            GetBool()
+    {
+        return mBoolValue;
+    }
+    std::string     GetString()
+    {
+        return mStringValue;
+    }
 
-    void SetNull() { mType = NULL_VAL; }
+    void SetNull()
+    {
+        mType = NULL_VAL;
+    }
 
 private:
     Type mType;

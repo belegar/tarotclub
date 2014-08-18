@@ -184,21 +184,21 @@ bool Util::Mkdir(const std::string &fullPath)
         {
 #ifdef USE_WINDOWS_OS
             if ((current_level.size() == 2) &&
-                (current_level[1] == ':'))
+                    (current_level[1] == ':'))
             {
                 // Do nothing, skip disk name
             }
             else
 #endif
-            if (current_level.size() > 2)
-            {
-                // create current level
-                if (my_mkdir(current_level.c_str()) != 0)
+                if (current_level.size() > 2)
                 {
-                    ret = false;
-                    break;
+                    // create current level
+                    if (my_mkdir(current_level.c_str()) != 0)
+                    {
+                        ret = false;
+                        break;
+                    }
                 }
-            }
         }
         current_level += Util::DIR_SEPARATOR; // don't forget to append a slash
     }

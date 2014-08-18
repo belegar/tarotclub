@@ -38,7 +38,7 @@ GfxCard::GfxCard(const QString &fileName, ICardEvent *event, std::uint8_t id, QG
 
     shadow.setBlurRadius(15.0);
     shadow.setColor(Qt::black);
-    shadow.setOffset(0,0);
+    shadow.setOffset(0, 0);
     setGraphicsEffect(&shadow);
 }
 /*****************************************************************************/

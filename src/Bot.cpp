@@ -271,7 +271,7 @@ void Bot::NewGame()
 {
     // (re)inititialize script context
     if (InitializeScriptContext() == true)
-    {  
+    {
         JSEngine::StringList args;
         args.push_back(mClient.GetPlace().ToString());
         Tarot::GameMode mode = mClient.GetGameMode();

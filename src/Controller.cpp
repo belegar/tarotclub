@@ -158,9 +158,9 @@ bool Controller::DoAction(const ByteArray &data)
                 {
                     // New player connected, ask for its identity
                     mEventHandler.SendData(Protocol::ServerRequestIdentity(
-                                   assigned,
-                                   engine.GetNbPlayers(),
-                                   newplayer_uuid));
+                                               assigned,
+                                               engine.GetNbPlayers(),
+                                               newplayer_uuid));
 
                     // If it is the first player, then it is an admin
                     if (mAdmins.empty())
@@ -315,7 +315,7 @@ bool Controller::DoAction(const ByteArray &data)
             break;
         }
 
-    case Protocol::CLIENT_SYNC_ALL_PASSED:
+        case Protocol::CLIENT_SYNC_ALL_PASSED:
         {
             // Check if the uuid exists
             if (engine.GetPlayerPlace(uuid) != Place::NOWHERE)

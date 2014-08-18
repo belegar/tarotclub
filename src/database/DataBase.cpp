@@ -82,7 +82,7 @@ bool DataBase::Open(const std::string &fileName)
     return mValid;
 }
 /*****************************************************************************/
-std::vector<std::vector<Value> > DataBase::Query(const char* query)
+std::vector<std::vector<Value> > DataBase::Query(const char *query)
 {
     sqlite3_stmt *statement;
     std::vector<std::vector<Value> > results;
@@ -110,7 +110,7 @@ std::vector<std::vector<Value> > DataBase::Query(const char* query)
                     }
                     else if (type == SQLITE_TEXT)
                     {
-                        std::string strVal((char*)sqlite3_column_text(statement, col));
+                        std::string strVal((char *)sqlite3_column_text(statement, col));
                         values.push_back(strVal);
                     }
                     else

@@ -58,7 +58,10 @@ public:
 
     static void AddEntry(Event event, const std::string &file, const int line, const std::string &message);
     static void RegisterListener(Observer<std::string> &listener);
-    static void SetLogPath(const std::string &path) { mLogPath = path; }
+    static void SetLogPath(const std::string &path)
+    {
+        mLogPath = path;
+    }
 
 private:
     static void Save(const std::string &line);

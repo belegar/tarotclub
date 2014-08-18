@@ -44,7 +44,7 @@ Value::Value(double value)
 
 }
 /*****************************************************************************/
-Value::Value(const char * value)
+Value::Value(const char *value)
     : mType(STRING)
     , mIntegerValue(0)
     , mDoubleValue(0.0F)

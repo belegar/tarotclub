@@ -39,7 +39,10 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     void SetText(const QString &text);
-    void SetBorder(const QRectF &border) { mBorder = border; }
+    void SetBorder(const QRectF &border)
+    {
+        mBorder = border;
+    }
 
 private:
     QGraphicsTextItem mText;

@@ -84,7 +84,9 @@ void EditorWindow::AddToList(int id, QListWidget *list, QListWidgetItem *item)
 void EditorWindow::slotToSouth()
 {
     if (ui.southList->count() == 18)
+    {
         return;
+    }
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
@@ -95,7 +97,9 @@ void EditorWindow::slotToSouth()
 void EditorWindow::slotToNorth()
 {
     if (ui.northList->count() == 18)
+    {
         return;
+    }
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
@@ -106,7 +110,9 @@ void EditorWindow::slotToNorth()
 void EditorWindow::slotToWest()
 {
     if (ui.westList->count() == 18)
+    {
         return;
+    }
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
@@ -117,7 +123,9 @@ void EditorWindow::slotToWest()
 void EditorWindow::slotToEast()
 {
     if (ui.eastList->count() == 18)
+    {
         return;
+    }
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
@@ -176,7 +184,9 @@ void EditorWindow::slotSaveDeal()
             ui.northList->count() != 18 ||
             ui.westList->count() != 18 ||
             ui.eastList->count() != 18)
+    {
         return;
+    }
 
     QString fileName = QFileDialog::getSaveFileName(this);
     if (fileName.isEmpty())

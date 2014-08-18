@@ -36,8 +36,14 @@ public:
 
     void HighLight(bool state);
 
-    std::uint8_t GetId() { return mId; }
-    std::uint8_t GetMenu() { return mMenu; }
+    std::uint8_t GetId()
+    {
+        return mId;
+    }
+    std::uint8_t GetMenu()
+    {
+        return mMenu;
+    }
 
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);

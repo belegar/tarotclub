@@ -40,8 +40,8 @@ public:
     Sha1();
     void Update(const std::string &s);
     void Update(std::istream &is);
-	std::string Final(bool ascii);
-	static std::string FromFile(const std::string &filename, bool ascii);
+    std::string Final(bool ascii);
+    static std::string FromFile(const std::string &filename, bool ascii);
 
 private:
     static const unsigned int DIGEST_INTS = 5;  /* number of 32bit integers per SHA1 digest */

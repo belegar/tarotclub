@@ -38,7 +38,7 @@ class JSEngine : public IScriptEngine
 public:
     JSEngine();
     ~JSEngine();
-    
+
     void Initialize();
     bool Evaluate(const std::string &fileName);
     Value Call(const std::string &function, const IScriptEngine::StringList &args);

@@ -66,12 +66,30 @@ public:
     void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
 
     // Getters about various current game information, external usage
-    QMap<Place, Identity> GetPlayersList() { return mPlayers; }
-    Tarot::Bid GetBid() { return mClient.GetBid(); }
-    Tarot::Shuffle GetShuffle() { return mClient.GetShuffle(); }
-    Score GetScore() { return mClient.GetScore(); }
-    Deal GetDeal() { return deal; }
-    Deck GetDeck() { return mClient.GetMyDeck(); }
+    QMap<Place, Identity> GetPlayersList()
+    {
+        return mPlayers;
+    }
+    Tarot::Bid GetBid()
+    {
+        return mClient.GetBid();
+    }
+    Tarot::Shuffle GetShuffle()
+    {
+        return mClient.GetShuffle();
+    }
+    Score GetScore()
+    {
+        return mClient.GetScore();
+    }
+    Deal GetDeal()
+    {
+        return deal;
+    }
+    Deck GetDeck()
+    {
+        return mClient.GetMyDeck();
+    }
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
@@ -117,8 +135,14 @@ private:
     bool HasLocalConnection();
 
     // Client events
-    virtual void Message(const std::string &message) { emit sigMessage(message); }
-    virtual void AssignedPlace() { emit sigAssignedPlace(); }
+    virtual void Message(const std::string &message)
+    {
+        emit sigMessage(message);
+    }
+    virtual void AssignedPlace()
+    {
+        emit sigAssignedPlace();
+    }
     virtual void PlayersList()
     {
         std::map<Place, Identity>::iterator iter;
@@ -126,7 +150,7 @@ private:
 
         // Transform a std::map into a QMap
         mPlayers.clear();
-        for(iter = pl.begin(); iter != pl.end(); ++iter)
+        for (iter = pl.begin(); iter != pl.end(); ++iter)
         {
             mPlayers[iter->first] = iter->second;
         }
@@ -134,38 +158,89 @@ private:
         emit sigPlayersList();
     }
 
-    virtual void AdminGameFull() { emit sigGameFull(); }
-    virtual void NewGame() { emit sigNewGame(); }
-    virtual void NewDeal() { emit sigNewDeal(); }
-    virtual void SelectPlayer(Place p) { emit sigSelectPlayer(p); }
-    virtual void RequestBid(Contract highestBid) { emit sigRequestBid(highestBid); }
-    virtual void ShowBid(Place p, bool slam, Contract c) { emit sigShowBid(p, slam, c); }
-    virtual void StartDeal() { emit sigStartDeal(); }
-    virtual void ShowDog() { emit sigShowDog(); }
-    virtual void AskForHandle() { emit sigAskForHandle(); }
-    virtual void ShowHandle() { emit sigShowHandle(); }
-    virtual void BuildDiscard() { emit sigBuildDiscard(); }
-    virtual void AllPassed()  { emit sigAllPassed(); }
-    virtual void PlayCard()  { emit sigPlayCard(); }
-    virtual void ShowCard(Place p, const std::string &name)  { emit sigShowCard(p, name); }
-    virtual void WaitTrick(Place winner) { emit sigWaitTrick(winner); }
-    virtual void EndOfDeal() { emit sigEndOfDeal(); }
-    virtual void EndOfGame(Place winner) { emit sigEndOfGame(winner); }
+    virtual void AdminGameFull()
+    {
+        emit sigGameFull();
+    }
+    virtual void NewGame()
+    {
+        emit sigNewGame();
+    }
+    virtual void NewDeal()
+    {
+        emit sigNewDeal();
+    }
+    virtual void SelectPlayer(Place p)
+    {
+        emit sigSelectPlayer(p);
+    }
+    virtual void RequestBid(Contract highestBid)
+    {
+        emit sigRequestBid(highestBid);
+    }
+    virtual void ShowBid(Place p, bool slam, Contract c)
+    {
+        emit sigShowBid(p, slam, c);
+    }
+    virtual void StartDeal()
+    {
+        emit sigStartDeal();
+    }
+    virtual void ShowDog()
+    {
+        emit sigShowDog();
+    }
+    virtual void AskForHandle()
+    {
+        emit sigAskForHandle();
+    }
+    virtual void ShowHandle()
+    {
+        emit sigShowHandle();
+    }
+    virtual void BuildDiscard()
+    {
+        emit sigBuildDiscard();
+    }
+    virtual void AllPassed()
+    {
+        emit sigAllPassed();
+    }
+    virtual void PlayCard()
+    {
+        emit sigPlayCard();
+    }
+    virtual void ShowCard(Place p, const std::string &name)
+    {
+        emit sigShowCard(p, name);
+    }
+    virtual void WaitTrick(Place winner)
+    {
+        emit sigWaitTrick(winner);
+    }
+    virtual void EndOfDeal()
+    {
+        emit sigEndOfDeal();
+    }
+    virtual void EndOfGame(Place winner)
+    {
+        emit sigEndOfGame(winner);
+    }
 
     // Private signals, not accessible to external entities
 signals:
-   void sigAssignedPlace();
-   void sigSelectPlayer(Place);
-   void sigRequestBid(Contract);
-   void sigShowBid(Place, bool, Contract);
-   void sigShowDog();
-   void sigAskForHandle();
-   void sigShowHandle();
-   void sigBuildDiscard();
-   void sigAllPassed();
-   void sigPlayCard();
-   void sigEndOfDeal();
-   void sigEndOfGame(Place winner);
+    void sigAssignedPlace();
+    void sigSelectPlayer(Place);
+    void sigRequestBid(Contract);
+    void sigShowBid(Place, bool, Contract);
+    void sigShowDog();
+    void sigAskForHandle();
+    void sigShowHandle();
+    void sigBuildDiscard();
+    void sigAllPassed();
+    void sigPlayCard();
+    void sigEndOfDeal();
+    void sigEndOfGame(Place winner);
 
 private slots:
     // Client events

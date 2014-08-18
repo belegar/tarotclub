@@ -47,7 +47,10 @@ public:
 
     // Getters
     std::uint16_t GetTcpPort();
-    bool IsCreated() { return mCreated; }
+    bool IsCreated()
+    {
+        return mCreated;
+    }
 
     // Setters
     void SaveConfiguration(const ServerOptions &opt);

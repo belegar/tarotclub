@@ -97,7 +97,7 @@ public:
     Card *Play();
     bool IsValid(Card *c);
     bool IsConnected();
-    Deck AutoDiscard();    
+    Deck AutoDiscard();
 
     // Getters
     Deck::Statistics &GetStatistics();

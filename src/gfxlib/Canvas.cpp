@@ -170,7 +170,7 @@ void Canvas::SetBackground(const std::string &code)
 
     QRectF size = scene.sceneRect();
 
-    QRadialGradient gradient(size.width()/2, size.height()/2, size.width()*1.5);
+    QRadialGradient gradient(size.width() / 2, size.height() / 2, size.width() * 1.5);
 
     if (color.isValid())
     {
@@ -267,7 +267,7 @@ void Canvas::mousePressEvent(QMouseEvent *e)
     else if (mFilter != BLOCK_ALL)
     {
         // Broadcast the event for all the canvas items
-        QGraphicsView::mousePressEvent( e );
+        QGraphicsView::mousePressEvent(e);
     }
 }
 /*****************************************************************************/
@@ -415,7 +415,7 @@ void Canvas::DrawSouthCards(const Deck &cards)
     for (Deck::ConstIterator i = cards.Begin(); i != cards.End(); ++i)
     {
         std::string name = (*i)->GetName();
-//        std::cout << name << ", ";
+        //        std::cout << name << ", ";
         GfxCard *cgfx = cardsPics.at(TarotDeck::GetIndex(name));
         cgfx->setPos(x, y);
         cgfx->setZValue(z++);

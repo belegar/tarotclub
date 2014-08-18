@@ -4,7 +4,8 @@
 
 QString ContractToString(Contract c)
 {
-    QString labels[] = {
+    QString labels[] =
+    {
         QObject::tr("Pass"),
         QObject::tr("Take"),
         QObject::tr("Guard"),
@@ -12,7 +13,7 @@ QString ContractToString(Contract c)
         QObject::tr("Guard against")
     };
 
-   return labels[c.Value()];
+    return labels[c.Value()];
 }
 
 
@@ -20,7 +21,8 @@ QString ContractToString(Contract c)
 
 QString PlaceToString(Place p)
 {
-    QString labels[] = {
+    QString labels[] =
+    {
         QObject::tr("South"),
         QObject::tr("East"),
         QObject::tr("North"),
