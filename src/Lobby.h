@@ -51,6 +51,7 @@ private:
     virtual void NewConnection(int socket);
     virtual void ReadData(int socket, const std::string &data);
     virtual void ClientClosed(int socket);
+    virtual void ServerTerminated(CloseType type);
 
     TcpServer mTcpServer;
     Saloon  saloons[SERVER_MAX_SALOONS];

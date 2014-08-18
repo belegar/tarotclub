@@ -34,7 +34,7 @@ Client::Client(IEvent &handler)
     , mInitialized(false)
     , mConnected(false)
 {
-
+    score.Reset();
 }
 /*****************************************************************************/
 void Client::Initialize()

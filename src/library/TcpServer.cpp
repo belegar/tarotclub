@@ -24,6 +24,7 @@
  */
 
 #include <algorithm>
+#include <cstring>
 #include "TcpServer.h"
 
 /*****************************************************************************/
@@ -130,7 +131,7 @@ void TcpServer::Run()
         /**********************************************************/
         /* Copy the master fd_set over to the working fd_set.     */
         /**********************************************************/
-        memcpy(&working_set, &mMasterSet, sizeof(mMasterSet));
+        std::memcpy(&working_set, &mMasterSet, sizeof(mMasterSet));
 
         /**********************************************************/
         /* Call select() and wait N minutes for it to complete.   */
@@ -231,32 +232,33 @@ void TcpServer::IncommingConnection()
         /* failure on accept will cause us to end the */
         /* server.                                    */
         /**********************************************/
-        if (!Accept(new_sd))
+        new_sd = Accept();
+
+        if (new_sd > 0)
         {
-            break;
+            // Save socket descriptor
+            mClients.push_back(new_sd);
+
+            /**********************************************/
+            /* Add the new incoming connection to the     */
+            /* master read set                            */
+            /**********************************************/
+            //     printf("  New incoming connection - %d\n", new_sd);
+            FD_SET(new_sd, &mMasterSet);
+
+            // Update the maximum socket file identifier
+            UpdateMaxSocket();
+
+            // Signal a new client
+            mEventHandler.NewConnection(new_sd);
         }
-
-        mClients.push_back(new_sd);
-
-        /**********************************************/
-        /* Add the new incoming connection to the     */
-        /* master read set                            */
-        /**********************************************/
-        //     printf("  New incoming connection - %d\n", new_sd);
-        FD_SET(new_sd, &mMasterSet);
-
-        // Update the maximum socket file identifier
-        UpdateMaxSocket();
-
-        // Signal a new client
-        mEventHandler.NewConnection(new_sd);
 
         /**********************************************/
         /* Loop back up and accept another incoming   */
         /* connection                                 */
         /**********************************************/
     }
-    while (new_sd != -1);
+    while (new_sd > 0);
 }
 /*****************************************************************************/
 bool TcpServer::IncommingData(int in_sock)

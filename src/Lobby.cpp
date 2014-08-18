@@ -79,6 +79,12 @@ void Lobby::ClientClosed(int socket)
     (void)socket;
 }
 /*****************************************************************************/
+void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
+{
+    (void) type;
+    // FIXME: log an error
+}
+/*****************************************************************************/
 void Lobby::ReadData(int socket, const std::string &data)
 {
     // This slot is called when the client sent data to the server. The
