@@ -36,6 +36,9 @@
 TarotEngine::TarotEngine()
     : mNbPlayers(4U)
     , mSequence(STOPPED)
+    , mPosition(0U)
+    , mTrickCounter(0U)
+    , mGameMode(Tarot::ONE_DEAL)
     , mAttackHandle(Tarot::NO_HANDLE)
     , mDefenseHandle(Tarot::NO_HANDLE)
 {
