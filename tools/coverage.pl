@@ -1,6 +1,8 @@
 #!/usr/local/bin/perl
 # =========================================================
 # TarotClub coverage report generation
+# Perl Packages used:
+#   Text-TabularDisplay
 # =========================================================
 use IO::Handle;
 use IO::String;
@@ -12,6 +14,7 @@ use File::Basename;
 use integer;
 use Cwd;
 use Getopt::Long;
+use Text::TabularDisplay;
 
 # =========================================================
 # Definitions
@@ -30,6 +33,9 @@ my $SCRIPT_DIR	= cwd();
 "sqlite3"
 );
 
+my @Header  = ( "Source file", "Completion", "Total lines" );
+my $table = Text::TabularDisplay->new(@Header);
+
 # =========================================================
 # Main
 # =========================================================		
@@ -45,8 +51,6 @@ foreach my $File  (@Files)
 
 # Then open the summary file and print a general summary
 my @Files 		= GetFileList (".", $GCOV_SUMMARY_EXT);
-print("\t\tSource file\t\t\t|\tCompletion\t|\tTotal lines\t|\r\n");
-print("------------------------------------------------------------------------------------------------------\r\n");
 foreach my $File  (@Files) 
 {
     ParseSummary($File);
@@ -61,6 +65,9 @@ foreach my $File  (@Files)
 {
     move($File, "gen/$File");
 }
+
+# Print result in a table
+print $table->render;
 
 # =========================================================
 # @sub 	RunGcov
@@ -116,11 +123,13 @@ sub ParseSummary
                     my $nextLine = <SUMMARY_FILE_IN>;
                     if (($executed, $lines) = ($nextLine =~ m/Lines executed:(.+) of (\d+)/g))
                     {
-                        print "$sourceFile\t\t\t|\t$toPrint$executed\t\t|\t$lines\t\t|\r\n";
+                        my @row = ($sourceFile, $executed, $lines);
+                        $table->add(@row);
+                        # print "$sourceFile\t\t\t|\t$toPrint$executed\t\t|\t$lines\t\t|\r\n";
                     }
                 }
             }
-        }        
+        }
     }
     close(SUMMARY_FILE_IN);
 }
