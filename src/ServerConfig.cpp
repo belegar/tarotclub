@@ -35,9 +35,10 @@ static const std::string SERVER_CONFIG_FILE     = "tcds.json";
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
+    : mOptions(GetDefault())
+    , mLoaded(false)
 {
-    mOptions = GetDefault();
-    mLoaded = false;
+
 }
 /*****************************************************************************/
 ServerOptions &ServerConfig::GetOptions()

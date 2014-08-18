@@ -102,7 +102,6 @@ void TcpServer::Join()
 /*****************************************************************************/
 void TcpServer::Run()
 {
-    int rc;
     bool end_server = false;
     //   struct timeval timeout;
     fd_set working_set;
@@ -137,7 +136,7 @@ void TcpServer::Run()
         /* Call select() and wait N minutes for it to complete.   */
         /**********************************************************/
         //    printf("Waiting on select()...\n");
-        rc = select(mMaxSd + 1, &working_set, NULL, NULL, NULL); // &timeout);
+        int rc = select(mMaxSd + 1, &working_set, NULL, NULL, NULL); // &timeout);
 
         if (rc < 0)
         {
@@ -213,7 +212,7 @@ void TcpServer::EntryPoint(void *pthis)
 /*****************************************************************************/
 void TcpServer::IncommingConnection()
 {
-    int new_sd = -1;
+    int new_sd;
 
     //    printf("  Listening socket is readable\n");
     /*************************************************/
