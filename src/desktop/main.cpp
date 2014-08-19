@@ -64,13 +64,19 @@ int main(int argc, char **argv)
     QTranslator translator;
     QString locale = GetLocale();
 
-    // Install language translation files
-    QString langPath = QString(System::LocalePath().c_str()) + QString("tarotclub_") + locale;
-    if (translator.load(langPath) == false)
+    // Install language translation files, except if locale is english (native software language)
+    if (locale != "en")
     {
-        TLogError("Cannot load translation file: tarotclub_xx.");
+        QString langPath = QString(System::LocalePath().c_str()) + QString("tarotclub_") + locale;
+        if (translator.load(langPath))
+        {
+            app.installTranslator(&translator);
+        }
+        else
+        {
+            TLogError("Cannot load translation file: tarotclub_xx.");
+        }
     }
-    app.installTranslator(&translator);
 
     MainWindow tarot;
     tarot.Initialize(); // Init internal stuff before showing the interface
