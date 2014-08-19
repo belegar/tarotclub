@@ -198,6 +198,7 @@ Some parts of the game are not easy to test automatically. Here is a check list 
   * Check handle creation using predefined deals
   * Check game modes (tournament ==> play two or more consecutive games, one deal)
   * Check option change, game exit
+  * Check menus (help, options ...)
   * Finally, check the generated log and debug output to look for problems especially bot related errors
 
 ## Delivery process
@@ -214,8 +215,16 @@ and the delivery process must be executed again from the beginning).
   * Create the setup executables or install packages
   * Install the packages on all the supported platforms, execute manual tests (criteria: all passed)
   * Save the code quality checker results for this version (criteria: create a delivery report)
+  * Tag the new version (format: VERSION_2_1_3), push the Mercurial depot
   * Upload the setup executables on Bitbucket
   * Update the website versions
+  * Make an announcement
+  
+## Announcement list
+
+  * Twitter
+  * Ubuntu-fr forum
+  * Canard-PC forum
   
 # Glossary and translations
 
