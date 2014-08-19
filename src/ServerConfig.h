@@ -36,12 +36,12 @@ static const std::uint16_t DEFAULT_DELAY        = 500U;     // in ms
 static const std::uint16_t DEFAULT_TCP_PORT     = 4269U;
 
 /*****************************************************************************/
-typedef struct
+struct ServerOptions
 {
     std::uint16_t   timer;      // between players, in milliseconds
     std::uint16_t   tcp_port;   // TCP/IP port
     std::map<Place, Identity>   bots;
-} ServerOptions;
+};
 
 /*****************************************************************************/
 class ServerConfig

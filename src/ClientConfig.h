@@ -38,7 +38,7 @@
 #define AVATARS_DEF         true
 #define CLIENT_TIMER_DEF    1500
 
-typedef struct
+struct ClientOptions
 {
     std::string     deckFilePath;
     bool            showAvatars;
@@ -48,7 +48,7 @@ typedef struct
     std::uint16_t   delayBeforeCleaning;  // in milliseconds
     bool            clickToClean;
     std::string     cardsOrder;
-} ClientOptions;
+};
 
 
 /*****************************************************************************/

@@ -743,10 +743,12 @@ double JsonReader::StringToDouble(char *s, char **endptr)
 
         double power = 1;
         for (; exponent; exponent >>= 1, base *= base)
+        {
             if (exponent & 1)
             {
                 power *= base;
             }
+        }
 
         result *= power;
     }
@@ -783,8 +785,6 @@ std::vector<std::string> JsonReader::Split(const std::string &obj)
     while (found != std::string::npos);
     return path;
 }
-
-
 
 //=============================================================================
 // End of file JsonReader.cpp
