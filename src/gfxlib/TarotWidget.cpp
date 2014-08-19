@@ -240,7 +240,7 @@ void TarotWidget::slotAcceptDiscard()
     {
         Card *c = (*i);
         mCanvas->HideCard(c);
-    }    
+    }
 
     TLogInfo("Hide discard: " + mDiscard.GetCardList());
 

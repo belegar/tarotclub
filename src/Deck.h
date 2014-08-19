@@ -156,25 +156,25 @@ public:
         return s;
     }
 
-    Deck &operator = (const Deck &l)
+    Deck &operator = (const Deck &d)
     {
-        mDeck = l.mDeck;
-        mOwner = l.mOwner;
+        mDeck = d.mDeck;
+        mOwner = d.mOwner;
         return *this;
     }
 
-    Deck operator += (const Deck &l)
+    Deck operator += (const Deck &d)
     {
-        this->Append(l);
+        this->Append(d);
         return *this;
     }
 
-    Deck operator + (Deck &l) const
+    Deck operator + (Deck &d) const
     {
-        Deck d;
-        d.Append(*this);
-        d.Append(l);
-        return d;
+        Deck deck;
+        deck.Append(*this);
+        deck.Append(d);
+        return deck;
     }
 
 private:

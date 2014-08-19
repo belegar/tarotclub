@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _PLAYER_BOX_H
-#define _PLAYER_BOX_H
+#ifndef PLAYER_BOX_H
+#define PLAYER_BOX_H
 
 // Qt includes
 #include "TextBox.h"
@@ -100,7 +100,7 @@ private:
     QRectF mCardSize;
 };
 
-#endif // _PLAYER_BOX_H
+#endif // PLAYER_BOX_H
 
 //=============================================================================
 // End of file PlayerBox.h

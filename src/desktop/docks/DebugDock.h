@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _DEBUG_DOCK_H
-#define _DEBUG_DOCK_H
+#ifndef DEBUG_DOCK_H
+#define DEBUG_DOCK_H
 
 // Includes Qt
 #include <QDockWidget>
@@ -72,7 +72,7 @@ public slots:
     void clear();
 };
 
-#endif // _DEBUG_DOCK_H
+#endif // DEBUG_DOCK_H
 
 //=============================================================================
 // Fin du fichier DebugDock.h

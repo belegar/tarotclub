@@ -133,4 +133,3 @@ ByteStreamWriter &ByteStreamWriter::operator << (const std::string &s)
 //=============================================================================
 // End of file ByteStreamWriter.cpp
 //=============================================================================
-
