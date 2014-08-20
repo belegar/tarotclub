@@ -161,14 +161,16 @@ void Utilities::TestByteStream()
 {
     std::uint8_t val8_in, val8_out;
     std::uint32_t val32_in, val32_out;
+    std::uint16_t val16_in, val16_out;
 
     ByteArray block;
     ByteStreamReader stream_rd(block);
     ByteStreamWriter stream_wr(block);
 
-    // Step 1 ---------------------------------------
-    // Basic test: serialize a byte and deserialize it
+    // ------------------------------------------------------------------------
+    // Step 1: Basic test, serialize a byte and deserialize it
     val8_in = 0x42U;
+    val8_out = 0U;
     stream_wr << val8_in;
     std::uint32_t size = 1U;
 
@@ -177,28 +179,48 @@ void Utilities::TestByteStream()
 
     QCOMPARE(val8_in, val8_out);
 
+    block.Clear();
+    stream_rd.Seek(0U);
+    stream_wr.Seek(0U);
 
-    // Step 2 ---------------------------------------
+    val16_in = 0xABCD;
+    val16_out = 0U;
+    stream_wr << val16_in;
+    size = 2U;
+    QCOMPARE(block.Size(), size);
+    stream_rd >> val16_out;
+
+    QCOMPARE(val16_in, val16_out);
+
+    // ------------------------------------------------------------------------
+    // Step 2: Serialize some integers
     stream_rd.Seek(0U);
     stream_wr.Seek(0U);
 
     val32_in = 0xAABBCCDD;
     stream_wr << val32_in;
 
-    std::cout << stream_rd.ToString();
+    std::string expected_string = "[dd, cc, bb, aa]";
+    std::string actual_string = stream_rd.ToString();
+    std::cout << actual_string << std::endl;
+    QCOMPARE(expected_string, actual_string);
 
     val8_in = 0x23;
     stream_wr.Seek(1U);
     stream_wr << val8_in;
 
-    std::cout << stream_rd.ToString();
+    expected_string = "[dd, 23, bb, aa]";
+    actual_string = stream_rd.ToString();
+    std::cout << actual_string << std::endl;
+    QCOMPARE(expected_string, actual_string);
 
     stream_rd >> val32_out;
     val32_in = 0xAABB23DD;
     QCOMPARE(val32_in, val32_out);
 
 
-    // Step 3 ---------------------------------------
+    // ------------------------------------------------------------------------
+    // Step 3 string serialization
     stream_rd.Seek(0U);
     stream_wr.Seek(0U);
 
@@ -215,8 +237,55 @@ void Utilities::TestByteStream()
 
     ByteArray sub = block.SubArray(7, 6);
 
-    std::string substr = sub.ToSring();
-    std::cout << "Subarray output: " << substr << std::endl;
+    expected_string = "lo, wo";
+    actual_string = sub.ToSring();
+    std::cout << "Subarray output: " << actual_string << std::endl;
+    QCOMPARE(expected_string, actual_string);
+
+    // ------------------------------------------------------------------------
+    // Step 4 boolean serialization
+    stream_rd.Seek(0U);
+    stream_wr.Seek(0U);
+    bool expected_bool = true;
+    stream_wr << expected_bool;
+    bool actual_bool;
+    stream_rd >> actual_bool;
+    QCOMPARE(expected_bool, actual_bool);
+
+    block.Clear();
+    stream_rd.Seek(0U);
+    stream_wr.Seek(0U);
+    expected_bool = false;
+    stream_wr << expected_bool;
+    stream_rd >> actual_bool;
+    QCOMPARE(expected_bool, actual_bool);
+
+    // ------------------------------------------------------------------------
+    // Step 5: try seeking out of block size
+
+    block.Clear();
+    stream_wr.Seek(28U);
+    expected_string = "notmodified";
+    actual_string = "tatuto";
+    stream_wr << actual_string;
+    // Here, the stream reader is not reset: the string is not touched
+    actual_string = expected_string; // both are equal
+    stream_rd >> actual_string;
+    QCOMPARE(expected_string, actual_string);
+
+    // Seek to valid offset
+    expected_string = "tatuto";
+    actual_string.clear();
+    stream_rd.Seek(0U);
+    stream_rd >> actual_string;
+    QCOMPARE(expected_string, actual_string);
+
+    // Read again with an offset out of bounds
+    stream_rd.Seek(37U);
+    expected_string = "notmodified";
+    actual_string = expected_string;
+    stream_rd >> actual_string;
+    QCOMPARE(expected_string, actual_string);
 }
 
 void Utilities::TestUtilFunctions()
