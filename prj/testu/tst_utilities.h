@@ -51,6 +51,7 @@ public:
 private Q_SLOTS:
     void AttachAndNotify();
     void DetachAndNotify();
+    void TestByteArray();
     void TestByteStream();
     void TestUtilFunctions();
 

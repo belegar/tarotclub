@@ -73,6 +73,90 @@ void Utilities::DetachAndNotify()
 }
 
 
+void Utilities::TestByteArray()
+{
+    // Test 1: test constructors
+    char initArray[] = { 42, 28, (char)255, 0, (char)203, 107, 4, (char)189, 95 };
+    std::string initString = "abcdef";
+
+    std::uint32_t expected_size = sizeof(initArray);
+    ByteArray array(initArray, expected_size);
+
+    // Check if the ByteArray and init arrays contents are equals
+    QCOMPARE(array.Size(), expected_size);
+    for (std::uint32_t i = 0U; i < expected_size; i++)
+    {
+        QCOMPARE(static_cast<std::uint8_t>(initArray[i]), array.Get(i));
+    }
+
+    expected_size = initString.size();
+    ByteArray array2(initString);
+
+    QCOMPARE(array2.Size(), expected_size);
+    for (std::uint32_t i = 0U; i < expected_size; i++)
+    {
+        QCOMPARE(static_cast<std::uint8_t>(initString.at(i)), array2.Get(i));
+    }
+
+    // Test 2: try to access data out of the array boundaries: default behavior is to return zero
+    std::uint8_t value = array.Get(807);
+    std::uint8_t expected_value = 0U;
+    QCOMPARE(expected_value, value);
+
+    // Write out of bounds (not failing but in a dummy area)
+    value = 7U;
+    expected_value = 0U;
+    array.Put(25U, value);
+    QCOMPARE(static_cast<std::uint32_t>(expected_value), static_cast<std::uint32_t>(array.Get(25U)));
+
+    array.Clear();
+    expected_value = 0U;
+    value = array.Get(4);
+    QCOMPARE(expected_value, value);
+
+    // Test 3: clear and erase some data
+    expected_size = 0U;
+    QCOMPARE(array.Size(), expected_size);
+
+    // Should not work
+    expected_size = array2.Size();
+    array2.Erase(3, 7);
+    QCOMPARE(array2.Size(), expected_size);
+
+    // Should work
+    expected_size = 3U;
+    array2.Erase(3, 3);
+    QCOMPARE(array2.Size(), expected_size);
+
+    // Test 4: append operator
+    // Before appending, the array size is 3 bytes length
+    std::string coucou = "coucou";
+    ByteArray array3(coucou);
+    array2 += array3;
+    expected_size = 3 + coucou.size();
+    QCOMPARE(array2.Size(), expected_size);
+
+    // We verify that the resulted string is correct
+    QCOMPARE(coucou, array2.SubArray(3, coucou.size()).ToSring());
+    std::string expected_string = "abc";
+    QCOMPARE(expected_string, array2.SubArray(0, expected_string.size()).ToSring());
+
+    // Test 4: word and dword random access
+    ByteArray packet;
+    packet.PushBack(0x21);
+    packet.PushBack(0xB2);
+    std::uint16_t expected_word = 45601U;
+    QCOMPARE(expected_word, packet.GetUint16(0U));
+
+    packet.PushBack(0xD8);
+    packet.PushBack(0x60);
+    packet.PushBack(0xF2);
+    packet.PushBack(0x86);
+    std::uint32_t expected_dword = 2264031448UL;
+    QCOMPARE(expected_dword, packet.GetUint32(2U));
+
+}
+
 void Utilities::TestByteStream()
 {
     std::uint8_t val8_in, val8_out;
