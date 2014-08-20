@@ -25,6 +25,10 @@ void TarotBase::TestCardClass()
     for (std::uint32_t i = 0U; i < 78U; i++)
     {
         Card *c = TarotDeck::GetCard(i);
+        Place p(2U);
+        c->SetOwner(p);
+        QCOMPARE(p.Value(), c->GetOwner().Value());
+
         std::cout << c->GetName() << " ";
         if (c->GetValue() == 14 && c->GetSuit() != Card::TRUMPS)
         {
