@@ -55,12 +55,16 @@ void ByteStreamReader::Seek(std::uint32_t pos)
 std::string ByteStreamReader::ToString()
 {
     std::stringstream array;
-    array << "Array: ";
+    array << "[";
     for (std::uint32_t i = 0; i < mArray.Size(); i++)
     {
-        array << std::hex << (std::uint32_t)mArray.Get(i) << ", ";
+        if (i != 0)
+        {
+            array << ", ";
+        }
+        array << std::hex << (std::uint32_t)mArray.Get(i);
     }
-    array << std::endl;
+    array << "]";
 
     return array.str();
 }
@@ -132,11 +136,20 @@ ByteStreamReader &ByteStreamReader::operator >> (std::string &s)
     std::uint32_t size;
     std::uint8_t byte;
 
+    // The first 32-bit value indicates the size of the followed string
     *this >> size;
-    for (std::uint32_t i = 0U; i < size; i++)
+
+    // Robustness: the size must not be higher than the ByteArray remaining bytes
+    // If the test fails, you have a bad synchronization between your
+    // stream reader and your ByteArray
+    std::uint32_t remainingBytes = mArray.Size() - mIndex;
+    if (size <= remainingBytes)
     {
-        *this >> byte;
-        s.push_back(static_cast<char>(byte));
+        for (std::uint32_t i = 0U; i < size; i++)
+        {
+            *this >> byte;
+            s.push_back(static_cast<char>(byte));
+        }
     }
     return *this;
 }
