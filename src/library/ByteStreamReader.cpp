@@ -58,7 +58,7 @@ std::string ByteStreamReader::ToString()
     array << "Array: ";
     for (std::uint32_t i = 0; i < mArray.Size(); i++)
     {
-        array << std::hex << (std::uint32_t)mArray[i] << ", ";
+        array << std::hex << (std::uint32_t)mArray.Get(i) << ", ";
     }
     array << std::endl;
 
@@ -69,7 +69,7 @@ ByteStreamReader &ByteStreamReader::operator >> (std::uint8_t &d)
 {
     if (mIndex < mArray.Size())
     {
-        d = mArray[mIndex];
+        d = mArray.Get(mIndex);
         mIndex++;
     }
     return *this;

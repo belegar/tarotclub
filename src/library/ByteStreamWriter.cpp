@@ -63,7 +63,7 @@ ByteStreamWriter &ByteStreamWriter::operator << (const std::uint8_t &d)
     else
     {
         // Overwrite data
-        mArray[mIndex] = d;
+        mArray.Put(mIndex, d);
     }
     mIndex++;
     return *this;

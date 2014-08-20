@@ -92,7 +92,7 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
                     blockSize >= HEADER_SIZE)
             {
                 // Get the protocol version
-                std::uint8_t version = data[offset + 2U];
+                std::uint8_t version = data.Get(offset + 2U);
                 if (version == Protocol::VERSION)
                 {
                     // Valid packet found
