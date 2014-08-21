@@ -175,6 +175,7 @@ SOURCES += TarotDeck.cpp \
 # ------------------------------------------------------------------------------
 
 HEADERS +=  tst_tarot_base.h \
+            tst_tarot_rules.h \
             tst_utilities.h \
             tst_json.h \
             tst_hash.h \
@@ -184,6 +185,7 @@ HEADERS +=  tst_tarot_base.h \
 SOURCES +=  main.cpp \
             tst_utilities.cpp \
             tst_tarot_base.cpp \
+            tst_tarot_rules.cpp \
             tst_json.cpp \
             tst_hash.cpp \
             tst_websocket.cpp \

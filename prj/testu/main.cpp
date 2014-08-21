@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "tst_tarot_base.h"
+#include "tst_tarot_rules.h"
 #include "tst_utilities.h"
 #include "tst_json.h"
 #include "tst_hash.h"
@@ -30,6 +31,16 @@ int main(int argc, char *argv[])
 
     TarotBase tst_base;
     if (QTest::qExec(&tst_base, argc, argv) == 0)
+    {
+        testSuccesses++;
+    }
+    else
+    {
+        testFailures++;
+    }
+
+    TarotRules tst_rules;
+    if (QTest::qExec(&tst_rules, argc, argv) == 0)
     {
         testSuccesses++;
     }
