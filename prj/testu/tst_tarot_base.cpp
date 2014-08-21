@@ -78,6 +78,11 @@ void TarotBase::TestDeckClass()
     myDeck.SetCards(listOfCards);
     QCOMPARE(myDeck.Size(), 78U);
 
+    // Default is no team
+    QCOMPARE(myDeck.GetOwner(), NO_TEAM);
+    myDeck.SetOwner(DEFENSE);
+    QCOMPARE(myDeck.GetOwner(), DEFENSE);
+
     // ------------------------------------------------------------------------
     // Test 3: sorting and shuffling tests
     // Spades, Diamonds, Trumps, Clubs, Hearts
@@ -160,8 +165,151 @@ void TarotBase::TestDeckClass()
     QCOMPARE(three.Count(TarotDeck::GetCard("12-T")), 1U);
     QCOMPARE(three.Count(TarotDeck::GetCard("14-C")), 0U);
 
+    Card *c = three.GetCardByName("12-T");
+    if (c == NULL)
+    {
+        QFAIL("Card must exist");
+    }
+    QCOMPARE(three.HasCard(c), true);
+
+    c = three.GetCardByName("14-C");
+    if (c != NULL)
+    {
+        QFAIL("Card must not exist");
+    }
+
+    QCOMPARE(three.HasCard(TarotDeck::GetCard("12-H")), false);
+
     // ------------------------------------------------------------------------
     // Test 7: Deck contents analysis
+
+    // Has specific cards?
+    one.SetCards("00-T;01-T");
+    QCOMPARE(one.HasFool(), true);
+    QCOMPARE(one.HasOneOfTrump(), true);
+
+    one.SetCards("02-T;21-T");
+    QCOMPARE(one.HasFool(), false);
+    QCOMPARE(one.HasOneOfTrump(), false);
+
+    one.SetCards("00-T;04-T;12-S;14-H;12-T;02-C;20-T");
+    c = one.HighestTrump();
+    if (c != NULL)
+    {
+        expected_string = "20-T";
+        QCOMPARE(c->GetName(), expected_string);
+    }
+    else
+    {
+        QFAIL("Cannot be NULL");
+    }
+
+    one.SetCards("12-S;14-H;02-C;10-D");
+    c = one.HighestTrump();
+    if (c != NULL)
+    {
+        QFAIL("Must be NULL (no trump)");
+    }
+
+    one.SetCards("12-S;14-H;00-T;02-C;10-D");
+    c = one.HighestTrump();
+    if (c != NULL)
+    {
+        QFAIL("Must be NULL (no trump other than the fool)");
+    }
+
+    // Highest suit, used to detect the winner of a trick
+    // The suit used to detect it is the first one played
+    one.SetCards("01-T;02-T;03-T;04-T;05-T");
+    c = one.HighestSuit();
+    if (c != NULL)
+    {
+        QFAIL("Must be NULL (no any suits)");
+    }
+
+    // Highest suit, used to detect the winner of a trick
+    // The suit used to detect it is the first one played after any trump
+    one.SetCards("00-T;01-T;03-D;04-D;05-C;12-C;02-T;01-D");
+    c = one.HighestSuit();
+    if (c != NULL)
+    {
+        expected_string = "04-D";
+        QCOMPARE(c->GetName(), expected_string);
+    }
+    else
+    {
+        QFAIL("Cannot be NULL (there is a result!)");
+    }
+
+    // ------------------------------------------------------------------------
+    // Test 8: Deck statistics
+
+    Deck::Statistics stats;
+
+    // Full Tarot deck
+    expected_string = "05-H;07-D;14-H;04-T;12-S;14-T;12-T;06-H;06-D;00-T;14-D;14-S;12-C;08-C;13-D;13-C;09-S;10-S;11-T;03-S;17-T;03-D;09-C;11-H;10-D;11-C;08-D;05-S;16-T;04-C;06-C;06-T;01-H;10-T;07-H;20-T;15-T;08-S;04-D;10-C;19-T;11-S;01-C;07-C;01-S;11-D;06-S;03-H;04-H;02-S;12-H;12-D;02-T;09-D;03-T;07-S;05-T;02-H;05-D;09-H;05-C;08-H;02-C;03-C;14-C;09-T;13-T;01-D;18-T;07-T;04-S;02-D;01-T;21-T;13-S;13-H;10-H;08-T";
+    one.SetCards(expected_string);
+
+    stats.Reset();
+    one.AnalyzeSuits(stats);
+    one.AnalyzeTrumps(stats);
+
+    QCOMPARE(stats.nbCards, (std::uint8_t)78U);
+    QCOMPARE(stats.trumps, (std::uint8_t)22U);
+    QCOMPARE(stats.oudlers, (std::uint8_t)3U);
+    QCOMPARE(stats.majorTrumps, (std::uint8_t)7U);
+    QCOMPARE(stats.kings, (std::uint8_t)4U);
+    QCOMPARE(stats.queens, (std::uint8_t)4U);
+    QCOMPARE(stats.knights, (std::uint8_t)4U);
+    QCOMPARE(stats.jacks, (std::uint8_t)4U);
+    QCOMPARE(stats.weddings, (std::uint8_t)4U);
+    QCOMPARE(stats.longSuits, (std::uint8_t)4U);
+    QCOMPARE(stats.cuts, (std::uint8_t)0U);
+    QCOMPARE(stats.singletons, (std::uint8_t)0U);
+    QCOMPARE(stats.sequences, (std::uint8_t)4U);
+    QCOMPARE(stats.suits[0], (std::uint8_t)14U);
+    QCOMPARE(stats.suits[1], (std::uint8_t)14U);
+    QCOMPARE(stats.suits[2], (std::uint8_t)14U);
+    QCOMPARE(stats.suits[3], (std::uint8_t)14U);
+    QCOMPARE(stats.littleTrump, true);
+    QCOMPARE(stats.bigTrump, true);
+    QCOMPARE(stats.fool, true);
+    QCOMPARE(stats.points, 91.0F);
+
+    // Specific test of the sequence detection: we can have two sequences per suit!!
+    // Test singleton and cut
+
+    // Cut: no spades
+    // singleton: one heart
+    // sequence: two sequences in diamond
+    // Insert various cards (trumps, clubs), to make the detection more difficult
+    expected_string = "07-D;07-C;05-H;01-D;11-D;01-T;08-D;11-T;09-D;14-C;12-C;02-D;03-D;04-D;05-D;10-C;10-D";
+    one.SetCards(expected_string);
+    stats.Reset();
+    one.AnalyzeSuits(stats);
+    one.AnalyzeTrumps(stats);
+
+    QCOMPARE(stats.nbCards, (std::uint8_t)17U);
+    QCOMPARE(stats.trumps, (std::uint8_t)2U);
+    QCOMPARE(stats.oudlers, (std::uint8_t)1U);
+    QCOMPARE(stats.majorTrumps, (std::uint8_t)0U);
+    QCOMPARE(stats.kings, (std::uint8_t)1U);
+    QCOMPARE(stats.queens, (std::uint8_t)0U);
+    QCOMPARE(stats.knights, (std::uint8_t)1U);
+    QCOMPARE(stats.jacks, (std::uint8_t)1U);
+    QCOMPARE(stats.weddings, (std::uint8_t)0U);
+    QCOMPARE(stats.longSuits, (std::uint8_t)1U);
+    QCOMPARE(stats.cuts, (std::uint8_t)1U);
+    QCOMPARE(stats.singletons, (std::uint8_t)1U);
+    QCOMPARE(stats.sequences, (std::uint8_t)2U);
+    QCOMPARE(stats.suits[Card::SPADES], (std::uint8_t)0U);
+    QCOMPARE(stats.suits[Card::HEARTS], (std::uint8_t)1U);
+    QCOMPARE(stats.suits[Card::DIAMONDS], (std::uint8_t)10U);
+    QCOMPARE(stats.suits[Card::CLUBS], (std::uint8_t)4U);
+    QCOMPARE(stats.littleTrump, true);
+    QCOMPARE(stats.bigTrump, false);
+    QCOMPARE(stats.fool, false);
+    QCOMPARE(stats.points, 19.5F);
 
 }
 
