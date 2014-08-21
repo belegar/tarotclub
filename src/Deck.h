@@ -47,27 +47,24 @@ public:
             Reset();
         }
 
-        std::uint32_t   nbCards;
+        std::uint8_t   nbCards;
 
-        std::uint32_t   trumps;  // nombres d'atouts , en comptant les bouts et l'excuse
-        std::uint32_t   oudlers;   // 0, 1, 2 ou 3
-        std::uint32_t   majorTrumps; // atouts >= 15
+        std::uint8_t   trumps;      ///< Total of trumps, including oudlers
+        std::uint8_t   oudlers;     ///< 0, 1, 2 or 3
+        std::uint8_t   majorTrumps; ///< trumps >= 15
 
-        std::uint32_t   kings;
-        std::uint32_t   queens;
-        std::uint32_t   knights;
-        std::uint32_t   jacks;
+        std::uint8_t   kings;
+        std::uint8_t   queens;
+        std::uint8_t   knights;
+        std::uint8_t   jacks;
 
-        std::uint32_t   weddings;   // nombre de mariages dans la main
-        std::uint32_t   longSuits;
-        std::uint32_t   cuts;     // aucune carte dans une couleur
-        std::uint32_t   singletons; // une seule carte dans une couleur
-        std::uint32_t   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+        std::uint8_t   weddings;    ///< Number of weddings (king + queen)
+        std::uint8_t   longSuits;   ///< Suit with more than 5 cards
+        std::uint8_t   cuts;        ///< No cards in a suit
+        std::uint8_t   singletons;  ///< Only one card in a suit
+        std::uint8_t   sequences;   ///< At least 5 cards in a row
 
-        std::uint32_t   clubs;
-        std::uint32_t   spades;
-        std::uint32_t   hearts;
-        std::uint32_t   diamonds;
+        std::uint8_t   suits[4];    ///< Number of cards in each suit
 
         bool  littleTrump;
         bool  bigTrump;
