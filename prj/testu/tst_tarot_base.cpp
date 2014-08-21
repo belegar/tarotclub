@@ -48,17 +48,19 @@ void TarotBase::TestDeckClass()
 {
     Deck myDeck;
 
-    // Add all tarot cards into the deck
+    // ------------------------------------------------------------------------
+    // Test 1: Add all tarot cards into the deck
     for (std::uint32_t i = 0U; i < 78U; i++)
     {
         Card *c = TarotDeck::GetCard(i);
         myDeck.Append(c);
     }
-
     QCOMPARE(myDeck.Size(), 78U);
 
-    myDeck.Clear();
 
+    // ------------------------------------------------------------------------
+    // Test 2: Add a list of cards (string format)
+    myDeck.Clear();
     QCOMPARE(myDeck.Size(), 0U);
 
     // Build a string list of cards
@@ -72,32 +74,94 @@ void TarotBase::TestDeckClass()
             listOfCards += ";";
         }
     }
-
+    // Then add them to the deck
     myDeck.SetCards(listOfCards);
-
     QCOMPARE(myDeck.Size(), 78U);
 
+    // ------------------------------------------------------------------------
+    // Test 3: sorting and shuffling tests
     // Spades, Diamonds, Trumps, Clubs, Hearts
+
+    myDeck.Shuffle(1); // Use always the same seed so that the result is always the same
+
+    std::string expected_string = "05-H;07-D;14-H;04-T;12-S;14-T;12-T;06-H;06-D;00-T;14-D;14-S;12-C;08-C;13-D;13-C;09-S;10-S;11-T;03-S;17-T;03-D;09-C;11-H;10-D;11-C;08-D;05-S;16-T;04-C;06-C;06-T;01-H;10-T;07-H;20-T;15-T;08-S;04-D;10-C;19-T;11-S;01-C;07-C;01-S;11-D;06-S;03-H;04-H;02-S;12-H;12-D;02-T;09-D;03-T;07-S;05-T;02-H;05-D;09-H;05-C;08-H;02-C;03-C;14-C;09-T;13-T;01-D;18-T;07-T;04-S;02-D;01-T;21-T;13-S;13-H;10-H;08-T";
+    std::cout << "Deck shuffled: \n";
+    std::string actual_string =  myDeck.GetCardList();
+    std::cout << actual_string << std::endl;
+    QCOMPARE(expected_string, actual_string);
+
     myDeck.Sort("SDTCH");
 
+    expected_string = "14-S;13-S;12-S;11-S;10-S;09-S;08-S;07-S;06-S;05-S;04-S;03-S;02-S;01-S;14-D;13-D;12-D;11-D;10-D;09-D;08-D;07-D;06-D;05-D;04-D;03-D;02-D;01-D;21-T;20-T;19-T;18-T;17-T;16-T;15-T;14-T;13-T;12-T;11-T;10-T;09-T;08-T;07-T;06-T;05-T;04-T;03-T;02-T;01-T;00-T;14-C;13-C;12-C;11-C;10-C;09-C;08-C;07-C;06-C;05-C;04-C;03-C;02-C;01-C;14-H;13-H;12-H;11-H;10-H;09-H;08-H;07-H;06-H;05-H;04-H;03-H;02-H;01-H";
     std::cout << "Deck ordered: \n";
-    std::cout << myDeck.GetCardList() << std::endl;
+    actual_string =  myDeck.GetCardList();
+    std::cout << actual_string << std::endl;
+    QCOMPARE(expected_string, actual_string);
 
-    myDeck.Shuffle(1);
-
-    std::cout << "Deck shuffled: \n";
-    std::cout << myDeck.GetCardList() << std::endl;
-
-    // Testing overloaded operators
+    // ------------------------------------------------------------------------
+    // Test 4: set non-valid cards
     Deck one, two, three;
+    std::uint32_t expected_size = 0U;
 
-    one.SetCards("1-T;2-T;3-T");
-    two.SetCards("4-T;5-T;6-T");
+    one.SetCards(";;;;;;;;;");
+    QCOMPARE(one.Size(), expected_size);
+    one.SetCards("00T;00T00;T00T0;0T0;000T00F0D;hjfkqskl;00;,:://^^$ù*7893728074208àç)('à(ç'é)(-_(_'çà;");
+    QCOMPARE(one.Size(), expected_size);
+    one.SetCards("15-D;22-T;7-C");
+    QCOMPARE(one.Size(), expected_size);
+    one.SetCards("08-s;14-t");
+    QCOMPARE(one.Size(), expected_size);
+    one.SetCards("10-D;15-T;01-D;04-C;;;18-H;38-T;0009-D;"); // mixed valid and non-valid cards
+    expected_size = 4U;
+    QCOMPARE(one.Size(), expected_size);
+
+    // ------------------------------------------------------------------------
+    // Test 5: Testing overloaded operators
+
+    expected_size = 3U;
+    std::string str_one = "01-T;02-T;03-T";
+    one.SetCards(str_one);
+    QCOMPARE(one.Size(), expected_size);
+
+    std::string str_two = "04-T;05-T;06-T";
+    two.SetCards(str_two);
+    QCOMPARE(two.Size(), expected_size);
 
     three = one + two;
+    expected_size = 6U;
+    QCOMPARE(three.Size(), expected_size);
 
-    std::cout << "Added deck: \n";
-    std::cout << three.GetCardList() << std::endl;
+    // ------------------------------------------------------------------------
+    // Test 6: Deck specific access and manipulation
+
+    actual_string = three.Mid(3U).GetCardList(); // gets the 3 last cards
+    QCOMPARE(actual_string, str_two);
+    three += Deck("05-H;07-D;14-H;04-T;12-S;14-T;12-T"); // add 7 cards
+    QCOMPARE(three.Size(), 6U + 7U);
+    expected_string = "06-T;05-H;07-D;14-H";
+    actual_string = three.Mid(5U, 4U).GetCardList(); // gets some cards in the middle
+    QCOMPARE(actual_string, expected_string);
+
+    // Test with bad offset, outside the allowed range
+    expected_string = "01-T;02-T;03-T;04-T;05-T;06-T;05-H;07-D;14-H;04-T;12-S;14-T;12-T";
+    actual_string = three.Mid(57U, 109U).GetCardList();
+    QCOMPARE(actual_string, expected_string);
+
+    // Remove 3 cards
+    three.Remove(TarotDeck::GetCard("05-T"));
+    three.Remove(TarotDeck::GetCard("05-H"));
+    three.Remove(TarotDeck::GetCard("12-S"));
+    QCOMPARE(three.Size(), 10U);
+    three.Remove(TarotDeck::GetCard("14-C")); // non existing card
+    QCOMPARE(three.Size(), 10U);
+
+    // Count the number of cards in the deck
+    QCOMPARE(three.Count(TarotDeck::GetCard("04-T")), 2U);
+    QCOMPARE(three.Count(TarotDeck::GetCard("12-T")), 1U);
+    QCOMPARE(three.Count(TarotDeck::GetCard("14-C")), 0U);
+
+    // ------------------------------------------------------------------------
+    // Test 7: Deck contents analysis
 
 }
 
@@ -121,106 +185,6 @@ void TarotBase::TestCommon()
     actual = sizeof(Contract);
     expected = 1U;
     QCOMPARE(actual, expected);
-}
-
-void TarotBase::TestCard(const std::string &card, bool expected)
-{
-    Card *c = TarotDeck::GetCard(card);
-    bool actual = player.CanPlayCard(c, currentTrick);
-    QCOMPARE(actual, expected);
-}
-
-
-void TarotBase::TestCanPlayCard()
-{
-    player.SetCards("12-C;12-H;10-H;02-H;03-H;11-C;11-T;07-D;03-T;09-C;13-C;05-H;00-T");
-
-    // ===================================
-    // Test 1: the player must cut (he does not have the requested suit)
-    // ===================================
-    currentTrick.SetCards("13-S;03-S;06-S");
-    // A trump is valid
-    TestCard("11-T", true);
-    TestCard("03-T", true);
-    TestCard("00-T", true); // the fool is ok
-    TestCard("05-T", false); // not this one! he does not have it
-    // A suit is not valid (because he must cut)
-    TestCard("02-H", false);
-    TestCard("12-C", false);
-    TestCard("07-D", false);
-    // The requested suit is not valid (because he has not this card)
-    TestCard("02-S", false);
-
-    // ===================================
-    // Test 2: the player is the first to play, all the cards are valid
-    // ===================================
-    currentTrick.Clear();
-    TestCard("11-T", true);
-    TestCard("03-T", true);
-    TestCard("05-T", false); // not this one! he does not have it
-    TestCard("02-H", true);
-    TestCard("12-C", true);
-    TestCard("07-D", true);
-    TestCard("00-T", true); // the fool is ok
-    TestCard("02-S", false);  // not this one! he does not have it
-
-    // ===================================
-    // Test 3: the player is the second to play, after a played fool: all the cards are valid
-    // ===================================
-    currentTrick.SetCards("00-T");
-    TestCard("11-T", true);
-    TestCard("03-T", true);
-    TestCard("05-T", false); // not this one! he does not have it
-    TestCard("02-H", true);
-    TestCard("12-C", true);
-    TestCard("07-D", true);
-    TestCard("02-S", false);  // not this one! he does not have it
-
-    // ===================================
-    // Test 3: plays the fool after different cards (first, after a suit, after a trump ...), must cut, has the suit
-    // ===================================
-    // He has the suit but he can play the fool
-    currentTrick.SetCards("01-D;02-D;03-D");
-    TestCard("00-T", true); // the fool is ok
-
-    // he does not have to overcut
-    currentTrick.SetCards("05-T;06-T;07-T");
-    TestCard("00-T", true); // the fool is ok
-
-    // ===================================
-    // Test 4: The player must over-cut
-    // ===================================
-    // We remove the fool from its hand
-    player.SetCards("12-C;12-H;10-H;02-H;03-H;11-C;11-T;07-D;03-T;09-C;13-C;05-H");
-
-    currentTrick.SetCards("05-T;06-T;07-T");
-    TestCard("00-T", false); // he does not have this card
-    TestCard("03-T", false); // too little
-    TestCard("02-H", false); // not a trump!
-    TestCard("11-T", true);
-
-    // The player does not have higher trump, he can't overcut but it still needs to play a trump
-    player.SetCards("12-C;12-H;10-H;02-H;03-H;11-C;07-D;03-T;09-C;13-C;05-H");
-    TestCard("00-T", false); // he does not have this card
-    TestCard("03-T", true); // the only trump he has
-    TestCard("02-H", false); // not a trump!
-    TestCard("11-T", false);// he does not have this card
-
-    // ===================================
-    // Test 5: The player does not have the requested suit and no any trumps
-    // ===================================
-    player.SetCards("12-C;12-H;10-H;02-H;03-H;11-C;07-D;09-C;13-C;05-H"); // not spades and trumps
-    currentTrick.SetCards("13-S;03-S;06-S");
-
-    TestCard("11-T", false);// he does not have this card
-    TestCard("05-S", false);// he does not have this card
-
-    // Any card is correct
-    TestCard("12-C", true);
-    TestCard("10-H", true);
-    TestCard("07-D", true);
-    TestCard("13-C", true);
-
 }
 
 

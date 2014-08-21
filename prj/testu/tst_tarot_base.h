@@ -7,6 +7,11 @@
 #include <cstdint>
 #include "Player.h"
 
+/**
+ * @brief The TarotBase class
+ *
+ * This clas tests all the base classes of the game
+ */
 class TarotBase : public QObject
 {
     Q_OBJECT
@@ -19,14 +24,9 @@ private Q_SLOTS:
     void TestDeckClass();
     void TestConfig();
     void TestCommon();
-    void TestCanPlayCard();
 
 private:
 
-    Player player;
-    Deck currentTrick;
-
-    void TestCard(const std::string &card, bool expected);
 };
 
 #endif // TST_TAROT_BASE_H
