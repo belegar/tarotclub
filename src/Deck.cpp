@@ -30,8 +30,15 @@
 
 /*****************************************************************************/
 Deck::Deck()
+    : mOwner(NO_TEAM)
 {
-    mOwner = NO_TEAM;
+
+}
+/*****************************************************************************/
+Deck::Deck(const std::string &cards)
+    : mOwner(NO_TEAM)
+{
+    SetCards(cards);
 }
 /*****************************************************************************/
 void Deck::Append(const Deck &deck)
@@ -52,11 +59,6 @@ void Deck::Append(const Deck &deck)
  */
 Deck Deck::Mid(std::uint32_t from_pos)
 {
-    // Protection regarding the starting position
-    if (from_pos >= Size())
-    {
-        from_pos = 0U;
-    }
     return Mid(from_pos, Size() - from_pos);
 }
 /*****************************************************************************/

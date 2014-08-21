@@ -79,6 +79,7 @@ public:
     };
 
     Deck();
+    Deck(const std::string &cards);
 
     // STL-compatible iterator types
     typedef std::list<Card *>::iterator Iterator;
