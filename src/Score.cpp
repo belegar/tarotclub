@@ -24,11 +24,12 @@
  */
 
 #include "Score.h"
+#include "Common.h"
 
 /*****************************************************************************/
 Team Score::Winner() const
 {
-    if (pointsAttack >= pointsToDo)
+    if (pointsAttack >= Tarot::PointsToDo(oudlers))
     {
         return ATTACK;
     }
@@ -40,58 +41,14 @@ Team Score::Winner() const
 /*****************************************************************************/
 void Score::Reset()
 {
-    pointsAttack = 0;
-    scoreAttack = 0;
-    pointsToDo = 0;
-    difference = 0;
-    multiplier = 0;
-    littleEndianPoints = 0;
-    handlePoints = 0;
-    slamPoints = 0;
-}
-/*****************************************************************************/
-int Score::GetNumberOfOudlers() const
-{
-    int oudlers;
-
-    if (pointsToDo == 36)
-    {
-        oudlers = 3;
-    }
-    else if (pointsToDo == 41)
-    {
-        oudlers = 2;
-    }
-    else if (pointsToDo == 51)
-    {
-        oudlers = 1;
-    }
-    else
-    {
-        oudlers = 0;
-    }
-
-    return oudlers;
-}
-/*****************************************************************************/
-void Score::SetPointsToDo(int oudlers)
-{
-    if (oudlers == 0)
-    {
-        pointsToDo = 56;
-    }
-    else if (oudlers == 1)
-    {
-        pointsToDo = 51;
-    }
-    else if (oudlers == 2)
-    {
-        pointsToDo = 41;
-    }
-    else // 3 oudlers
-    {
-        pointsToDo = 36;
-    }
+    pointsAttack        = 0U;
+    scoreAttack         = 0U;
+    oudlers             = 0U;
+    difference          = 0U;
+    multiplier          = 0U;
+    littleEndianPoints  = 0U;
+    handlePoints        = 0U;
+    slamPoints          = 0U;
 }
 /*****************************************************************************/
 int Score::GetAttackScore() const

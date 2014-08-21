@@ -345,7 +345,7 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
     }
 
     // 5. The number of oudler(s) decides the points to do
-    score.SetPointsToDo(statsAttack.oudlers);
+    score.oudlers = statsAttack.oudlers;
 
     // 6. We save the points done by the attacker
     score.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma
@@ -425,7 +425,7 @@ void Deal::CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Ha
         }
     }
 
-    score.difference = score.pointsAttack - score.pointsToDo;
+    score.difference = score.pointsAttack - Tarot::PointsToDo(score.oudlers);
     // Final scoring
     score.scoreAttack = (25 + abs(score.difference) + score.littleEndianPoints) * score.multiplier + score.handlePoints + score.slamPoints;
 }
@@ -485,14 +485,14 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
 
     // ========================== Score calculation ==========================
     JsonObject *scoreObj = obj->CreateObjectPair("score");
-    scoreObj->CreateValuePair("attacker_points", score.pointsAttack);
-    scoreObj->CreateValuePair("attacker_score", score.scoreAttack);
-    scoreObj->CreateValuePair("attacker_goal", score.pointsToDo);
-    scoreObj->CreateValuePair("difference", score.difference);
-    scoreObj->CreateValuePair("multiplier", score.multiplier);
-    scoreObj->CreateValuePair("one_of_trump_bonus", score.littleEndianPoints);
-    scoreObj->CreateValuePair("handle_bonus", score.handlePoints);
-    scoreObj->CreateValuePair("slam_bonus", score.slamPoints);
+    scoreObj->CreateValuePair("attacker_points", static_cast<std::int32_t>(score.pointsAttack));
+    scoreObj->CreateValuePair("attacker_score", static_cast<std::int32_t>(score.scoreAttack));
+    scoreObj->CreateValuePair("attacker_goal", static_cast<std::int32_t>(score.oudlers));
+    scoreObj->CreateValuePair("difference", static_cast<std::int32_t>(score.difference));
+    scoreObj->CreateValuePair("multiplier", static_cast<std::int32_t>(score.multiplier));
+    scoreObj->CreateValuePair("one_of_trump_bonus", static_cast<std::int32_t>(score.littleEndianPoints));
+    scoreObj->CreateValuePair("handle_bonus", static_cast<std::int32_t>(score.handlePoints));
+    scoreObj->CreateValuePair("slam_bonus", static_cast<std::int32_t>(score.slamPoints));
 
     // ========================== Played cards ==========================
     JsonArray *obj3 = json.CreateArrayPair("tricks");

@@ -34,55 +34,43 @@ class Score
 {
 public:
 
-    int pointsAttack;   // Points of cards
-    int scoreAttack;    // Final score calculated, including all bonuses
-    int pointsToDo;
-    int difference;
-    int multiplier;
-    int littleEndianPoints; // positive if attack bonus, otherwise negative
-    int handlePoints;
-    int slamPoints;
+    std::uint32_t pointsAttack;   // Points of cards
+    std::uint32_t scoreAttack;    // Final score calculated, including all bonuses
+    std::uint32_t oudlers;
+    std::uint32_t difference;
+    std::uint32_t multiplier;
+    std::uint32_t littleEndianPoints; // positive if attack bonus, otherwise negative
+    std::uint32_t handlePoints;
+    std::uint32_t slamPoints;
 
     Team Winner() const;
     void Reset();
-    int GetNumberOfOudlers() const;
-    void SetPointsToDo(int oudlers);
     int GetAttackScore() const;
     int GetDefenseScore() const;
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
     {
-        out << (std::uint32_t)info.pointsAttack
-            << (std::uint32_t)info.scoreAttack
-            << (std::uint32_t)info.pointsToDo
-            << (std::uint32_t)info.difference
-            << (std::uint32_t)info.multiplier
-            << (std::uint32_t)info.littleEndianPoints
-            << (std::uint32_t)info.handlePoints
-            << (std::uint32_t)info.slamPoints;
+        out << info.pointsAttack
+            << info.scoreAttack
+            << info.oudlers
+            << info.difference
+            << info.multiplier
+            << info.littleEndianPoints
+            << info.handlePoints
+            << info.slamPoints;
         return out;
     }
 
     friend ByteStreamReader &operator>>(ByteStreamReader &in, Score &info)
     {
-        std::uint32_t val;
-
-        in >> val;
-        info.pointsAttack = val;
-        in >> val;
-        info.scoreAttack = val;
-        in >> val;
-        info.pointsToDo = val;
-        in >> val;
-        info.difference = val;
-        in >> val;
-        info.multiplier = val;
-        in >> val;
-        info.littleEndianPoints = val;
-        in >> val;
-        info.handlePoints = val;
-        in >> val;
-        info.slamPoints = val;
+        in >> info.pointsAttack;
+        in >> info.scoreAttack;
+        in >> info.oudlers;
+        in >> info.difference;
+        in >> info.multiplier;
+        in >> info.littleEndianPoints;
+        in >> info.handlePoints;
+        in >> info.slamPoints;
         return in;
     }
 
