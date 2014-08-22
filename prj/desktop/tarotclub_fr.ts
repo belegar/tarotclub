@@ -410,7 +410,7 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
     <message>
         <location filename="../../src/desktop/forms/LobbyUI.ui" line="82"/>
         <source>Connect</source>
-        <translation>Connextion</translation>
+        <translation>Connexion</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/LobbyUI.ui" line="106"/>
@@ -671,7 +671,7 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
     <message>
         <location filename="../../src/desktop/MainWindow.cpp" line="329"/>
         <source>Ctrl+H</source>
-        <translation>Ctrl+D</translation>
+        <translation>Ctrl+H</translation>
     </message>
     <message>
         <location filename="../../src/desktop/MainWindow.cpp" line="330"/>

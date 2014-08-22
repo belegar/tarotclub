@@ -275,6 +275,30 @@ int Tarot::GetHandlePoints(Tarot::Handle handle)
     }
     return points;
 }
+/*****************************************************************************/
+std::uint32_t Tarot::PointsToDo(std::uint8_t numberOfOudlers)
+{
+    std::uint32_t pointsToDo;
+
+    if (numberOfOudlers == 0U)
+    {
+        pointsToDo = 56U;
+    }
+    else if (numberOfOudlers == 1U)
+    {
+        pointsToDo = 51U;
+    }
+    else if (numberOfOudlers == 2U)
+    {
+        pointsToDo = 41U;
+    }
+    else // 3 oudlers
+    {
+        pointsToDo = 36U;
+    }
+
+    return pointsToDo;
+}
 
 //=============================================================================
 // End of file Common.cpp

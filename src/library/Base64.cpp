@@ -153,4 +153,3 @@ std::string Base64::Decode(const std::string &encoded_string)
 
     return ret;
 }
-

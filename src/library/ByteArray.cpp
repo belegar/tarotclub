@@ -28,6 +28,7 @@
 #include <iostream>
 #include "ByteArray.h"
 
+
 /*****************************************************************************/
 ByteArray::ByteArray(const char *data, std::uint32_t size)
 {
@@ -78,31 +79,28 @@ ByteArray ByteArray::SubArray(std::uint32_t index, std::uint32_t len)
 /*****************************************************************************/
 void ByteArray::Erase(std::uint32_t index, std::uint32_t len)
 {
-    mData.erase(mData.begin() + index, mData.begin() + index + len);
-}
-/*****************************************************************************/
-std::uint8_t &ByteArray::operator[](std::uint32_t i)
-{
-    if (i >= mData.size())
+    if ((index + len) <= mData.size())
     {
-        return mData[0];
-    }
-    else
-    {
-        return mData[i];
+        mData.erase(mData.begin() + index, mData.begin() + index + len);
     }
 }
 /*****************************************************************************/
-std::uint8_t ByteArray::operator[](std::uint32_t i) const
+void ByteArray::Put(std::uint32_t index, std::uint8_t value)
 {
-    if (i >= mData.size())
+    if (index < mData.size())
     {
-        return mData[0];
+        mData[index] = value;
     }
-    else
+}
+/*****************************************************************************/
+std::uint8_t ByteArray::Get(std::uint32_t index) const
+{
+    std::uint8_t value = 0U;
+    if (index < mData.size())
     {
-        return mData[i];
+        value = mData[index];
     }
+    return value;
 }
 /*****************************************************************************/
 ByteArray &ByteArray::operator=(const ByteArray &rhs)
@@ -152,7 +150,7 @@ std::uint32_t ByteArray::GetUint32(std::uint32_t index) const
     {
         if (index <= (mData.size() - sizeof(std::uint32_t)))
         {
-            for (std::uint8_t i = 0U; i < 2U; i++)
+            for (std::uint8_t i = 0U; i < 4U; i++)
             {
                 std::uint32_t word = mData[index + i];
                 data = data + (word << (i * 8U));

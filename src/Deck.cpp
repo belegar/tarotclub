@@ -25,13 +25,21 @@
 
 #include <algorithm>
 #include <random>
+#include <array>
 #include "Deck.h"
 
 
 /*****************************************************************************/
 Deck::Deck()
+    : mOwner(NO_TEAM)
 {
-    mOwner = NO_TEAM;
+
+}
+/*****************************************************************************/
+Deck::Deck(const std::string &cards)
+    : mOwner(NO_TEAM)
+{
+    SetCards(cards);
 }
 /*****************************************************************************/
 void Deck::Append(const Deck &deck)
@@ -52,11 +60,6 @@ void Deck::Append(const Deck &deck)
  */
 Deck Deck::Mid(std::uint32_t from_pos)
 {
-    // Protection regarding the starting position
-    if (from_pos >= Size())
-    {
-        from_pos = 0U;
-    }
     return Mid(from_pos, Size() - from_pos);
 }
 /*****************************************************************************/
@@ -214,7 +217,7 @@ bool Deck::HasFool() const
 /**
  * @brief Deck::HighestTrump
  *
- * This algorithm volontary eliminates the fool, which as a value of zero.
+ * This algorithm voluntary eliminates the fool, which as a value of zero.
  * It is not considered as the highest trump, even if it is alone in the deck.
  *
  * @return The highest trump in the deck
@@ -284,37 +287,25 @@ Card *Deck::HighestSuit() const
  */
 void Deck::Sort(const std::string &order)
 {
-    std::uint16_t weight[5];
-
-    if (order.size() == 5)
-    {
-        // Generate a weight for each suit
-        for (int i = 0; i < 5; i++)
-        {
-            std::string letter;
-            letter.push_back(order[4 - i]);
-            weight[Card::ToSuit(letter)] = 100 * i;
-        }
-
-        // Depending of the sorting contents, give a weight to each card
-        for (Deck::ConstIterator i = Begin(); i != End(); ++i)
-        {
-            Card *c = (*i);
-
-            std::uint16_t id = weight[c->GetSuit()] + c->GetValue();
-            c->SetId(id);
-        }
-    }
-
     if (Size() != 0)
     {
-        mDeck.sort(&Deck::LessThanCards);
+        Sorter sorter(order);
+        mDeck.sort(sorter);
     }
 }
 /*****************************************************************************/
-bool Deck::LessThanCards(Card *c1, Card *c2)
+/**
+ * @brief Deck::Sort
+ *
+ * Sort cards by Place
+ */
+void Deck::Sort()
 {
-    return c1->GetId() > c2->GetId();
+    if (Size() != 0)
+    {
+        Sorter sorter;
+        mDeck.sort(sorter);
+    }
 }
 /*****************************************************************************/
 void Deck::SetOwner(Team team)
@@ -366,33 +357,29 @@ Team Deck::GetOwner()
 /*****************************************************************************/
 void Deck::Statistics::Reset()
 {
-    nbCards = 0;
+    nbCards     = 0U;
+    oudlers     = 0U;
+    trumps      = 0U;
+    majorTrumps = 0U;
+    kings       = 0U;
+    queens      = 0U;
+    knights     = 0U;
+    jacks       = 0U;
+    weddings    = 0U;
+    longSuits   = 0U;
+    cuts        = 0U;
+    singletons  = 0U;
+    sequences   = 0U;
 
-    oudlers = 0;
-    trumps = 0;
-    majorTrumps = 0;
-
-    kings = 0;
-    queens = 0;
-    knights = 0;
-    jacks = 0;
-
-    weddings = 0;
-    longSuits = 0;
-    cuts = 0;
-    singletons = 0;
-    sequences = 0;
-
-    clubs = 0;
-    spades = 0;
-    hearts = 0;
-    diamonds = 0;
+    for (std::uint8_t i = 0U; i < 4U; i++)
+    {
+        suits[i] = 0U;
+    }
 
     littleTrump = false;
-    bigTrump = false;
-    fool = false;
-
-    points = 0.0;
+    bigTrump    = false;
+    fool        = false;
+    points      = 0.0F;
 }
 /*****************************************************************************/
 void Deck::AnalyzeTrumps(Statistics &stats) const
@@ -436,134 +423,90 @@ void Deck::AnalyzeTrumps(Statistics &stats) const
 /*****************************************************************************/
 void Deck::AnalyzeSuits(Statistics &stats)
 {
-    Card::Suit suit;
     Card *c;
-    int i, k;
+    std::uint8_t k;
 
-    int distr[14] = {0}; // test of a distribution
+    // true if the card is available in the deck
+    std::array<bool, 14U> distr;
 
     // Normal suits
-    for (i = 0; i < 4; i++)
+    for (std::uint8_t suit = 0U; suit < 4U; suit++)
     {
-        int count = 0; // Generic counter
-
-        if (i == 0)
-        {
-            suit = Card::SPADES;
-        }
-        else if (i == 1)
-        {
-            suit = Card::HEARTS;
-        }
-        else if (i == 2)
-        {
-            suit = Card::CLUBS;
-        }
-        else
-        {
-            suit = Card::DIAMONDS;
-        }
-
-        for (k = 0; k < 14; k++)
-        {
-            distr[k] = 0;
-        }
-        count = 0;
+        std::uint8_t count = 0U; // Generic purpose counter
+        distr.fill(false);
 
         for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
         {
             c = (*iter);
-            if (c->GetSuit() == suit)
+            if (c != NULL)
             {
-                count++;
-                int val = c->GetValue();
-                distr[val - 1] = 1;
-                if (val == 11)
+                if (c->GetSuit() == suit)
                 {
-                    stats.jacks++;
-                }
-                if (val == 12)
-                {
-                    stats.knights++;
+                    count++;
+                    std::uint8_t val = c->GetValue();
+                    distr[val - 1U] = true;
+                    if (val == 11U)
+                    {
+                        stats.jacks++;
+                    }
+                    if (val == 12U)
+                    {
+                        stats.knights++;
+                    }
+                    if (val == 13U)
+                    {
+                        stats.queens++;
+                    }
+                    if (val == 14U)
+                    {
+                        stats.kings++;
+                    }
                 }
             }
         }
 
-        if (count == 1)
+        stats.suits[suit] = count;
+
+        if (count >= 5U)
+        {
+            stats.longSuits++;
+        }
+        if (count == 1U)
         {
             stats.singletons++;
         }
-        if (count == 0)
+        if (count == 0U)
         {
             stats.cuts++;
         }
-
-        // Number of cards in each normal suit
-        if (i == 0)
+        if (distr[13] && distr[12])
         {
-            stats.spades = count;
-        }
-        else if (i == 1)
-        {
-            stats.hearts = count;
-        }
-        else if (i == 2)
-        {
-            stats.clubs = count;
-        }
-        else
-        {
-            stats.diamonds = count;
+            stats.weddings++; // king + queen
         }
 
-        if ((distr[13] == 1) && (distr[12] == 1))
+        // Sequence detection
+        count = 0U; // sequence length
+        bool detected = false; // sequence detected
+        for (k = 0U; k < 14U; k++)
         {
-            stats.weddings++; // mariage (king + queen)
-        }
-        if (distr[13] == 1)
-        {
-            stats.kings++;     // king without queen
-        }
-        if (distr[12] == 1)
-        {
-            stats.queens++;    // queen without kings
-        }
-
-        // test des séquences :
-        count = 0;  // longueur de la séquence
-        int flag = 0;   // couleur trouvée : on est dans la séquence
-        int longue = 0;
-
-        for (k = 0; k < 14; k++)
-        {
-            if (distr[k] == 1)
+            if (distr[k])
             {
-                longue++;
-                // début d'une séquence
-                if (flag == 0)
+                count++;
+                if (!detected)
                 {
-                    flag = 1;
-                    count++;
-                }
-                else
-                {
-                    count++;
+                    if (count >= 5U)
+                    {
+                        // Ok, found sequence, enough for it
+                        stats.sequences++;
+                        detected = true;
+                    }
                 }
             }
-            else if (flag == 1)
+            else
             {
-                if (count >= 5)
-                {
-                    stats.sequences++;
-                }
-                count = 0;
-                flag = 0;
+                count = 0U;
+                detected = false;
             }
-        }
-
-        if (longue >= 5)
-        {
-            stats.longSuits++;
         }
     }
 }

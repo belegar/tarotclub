@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _MAINWINDOW_H
-#define _MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 // Qt includes
 #include <QMainWindow>
@@ -128,7 +128,7 @@ private:
 
 };
 
-#endif // _MAINWINDOW_H
+#endif // MAIN_WINDOW_H
 
 //=============================================================================
 // End of file MainWindow.h

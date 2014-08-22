@@ -39,6 +39,77 @@
 class Deck
 {
 public:
+
+    /**
+     * @brief The Comparator class
+     *
+     * Custom comparator helper class to allow various forms of sorting
+     */
+    class Sorter
+    {
+    public:
+        Sorter()
+            : mSortByPlace(true)
+        {
+
+        }
+
+
+        Sorter(const std::string &sorting)
+            : mSortByPlace(false)
+        {
+            std::string order;
+            if (sorting.size() == 5)
+            {
+                order = sorting;
+            }
+            else
+            {
+                order = "TCSDH";
+            }
+
+            // Generate a weight for each suit
+            for (int i = 0; i < 5; i++)
+            {
+                std::string letter;
+                letter.push_back(order[4 - i]);
+                mWeight[Card::ToSuit(letter)] = 100U * i;
+            }
+        }
+
+        bool operator() (Card *c1, Card *c2)
+        {
+            bool result;
+
+            if (mSortByPlace)
+            {
+                result = c1->GetOwner().Value() < c2->GetOwner().Value();
+            }
+            else
+            {
+                std::uint16_t id1 = GetWeight(c1);
+                std::uint16_t id2 = GetWeight(c2);
+                result = id1 > id2;
+            }
+
+            return result;
+        }
+
+        std::uint16_t GetWeight(Card *c)
+        {
+            return(mWeight[c->GetSuit()] + c->GetValue());
+        }
+
+    private:
+        std::uint16_t mWeight[5];
+        bool mSortByPlace;
+    };
+
+    /**
+     * @brief The Statistics class
+     *
+     * Helper class to store various deck statistics
+     */
     class Statistics
     {
     public:
@@ -47,27 +118,24 @@ public:
             Reset();
         }
 
-        std::uint32_t   nbCards;
+        std::uint8_t   nbCards;
 
-        std::uint32_t   trumps;  // nombres d'atouts , en comptant les bouts et l'excuse
-        std::uint32_t   oudlers;   // 0, 1, 2 ou 3
-        std::uint32_t   majorTrumps; // atouts >= 15
+        std::uint8_t   trumps;      ///< Total of trumps, including oudlers
+        std::uint8_t   oudlers;     ///< 0, 1, 2 or 3
+        std::uint8_t   majorTrumps; ///< trumps >= 15
 
-        std::uint32_t   kings;
-        std::uint32_t   queens;
-        std::uint32_t   knights;
-        std::uint32_t   jacks;
+        std::uint8_t   kings;
+        std::uint8_t   queens;
+        std::uint8_t   knights;
+        std::uint8_t   jacks;
 
-        std::uint32_t   weddings;   // nombre de mariages dans la main
-        std::uint32_t   longSuits;
-        std::uint32_t   cuts;     // aucune carte dans une couleur
-        std::uint32_t   singletons; // une seule carte dans une couleur
-        std::uint32_t   sequences;  // cartes qui se suivent (au moins 5 cartes pour être comptées)
+        std::uint8_t   weddings;    ///< Number of weddings (king + queen)
+        std::uint8_t   longSuits;   ///< Suit with more than 5 cards
+        std::uint8_t   cuts;        ///< No cards in a suit
+        std::uint8_t   singletons;  ///< Only one card in a suit
+        std::uint8_t   sequences;   ///< At least 5 cards in a row
 
-        std::uint32_t   clubs;
-        std::uint32_t   spades;
-        std::uint32_t   hearts;
-        std::uint32_t   diamonds;
+        std::uint8_t   suits[4];    ///< Number of cards in each suit
 
         bool  littleTrump;
         bool  bigTrump;
@@ -79,6 +147,7 @@ public:
     };
 
     Deck();
+    Deck(const std::string &cards);
 
     // STL-compatible iterator types
     typedef std::list<Card *>::iterator Iterator;
@@ -126,7 +195,8 @@ public:
     void AnalyzeTrumps(Statistics &stats) const;
     void AnalyzeSuits(Statistics &stats);
     void Shuffle(int seed);
-    void Sort(const std::string &order = "TCHDS");
+    void Sort(const std::string &order);
+    void Sort();
     bool HasOneOfTrump() const;
     bool HasFool() const;
     Card *HighestTrump() const;
@@ -156,30 +226,28 @@ public:
         return s;
     }
 
-    Deck &operator = (const Deck &l)
+    Deck &operator = (const Deck &d)
     {
-        mDeck = l.mDeck;
-        mOwner = l.mOwner;
+        mDeck = d.mDeck;
+        mOwner = d.mOwner;
         return *this;
     }
 
-    Deck operator += (const Deck &l)
+    Deck operator += (const Deck &d)
     {
-        this->Append(l);
+        this->Append(d);
         return *this;
     }
 
-    Deck operator + (Deck &l) const
+    Deck operator + (Deck &d) const
     {
-        Deck d;
-        d.Append(*this);
-        d.Append(l);
-        return d;
+        Deck deck;
+        deck.Append(*this);
+        deck.Append(d);
+        return deck;
     }
 
 private:
-    static bool LessThanCards(Card *carte1, Card *carte2);
-
     /**
      * @brief This variable can be use to store a deck owner
      * information, tricks won for example

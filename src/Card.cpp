@@ -46,8 +46,6 @@ std::string Card::GetName()
 /*****************************************************************************/
 Card::Card()
     : mSuit(Card::CLUBS)
-    , mPoints(0.0F)
-    , mId(0)
     , mValue(0U)
 {
 }
@@ -55,16 +53,6 @@ Card::Card()
 void Card::SetSuit(Card::Suit s)
 {
     mSuit = s;
-}
-/*****************************************************************************/
-void Card::SetPoints(float p)
-{
-    mPoints = p;
-}
-/*****************************************************************************/
-void Card::SetId(int i)
-{
-    mId = i;
 }
 /*****************************************************************************/
 void Card::SetOwner(Place p)
@@ -84,12 +72,26 @@ Card::Suit Card::GetSuit()
 /*****************************************************************************/
 float Card::GetPoints()
 {
-    return mPoints;
-}
-/*****************************************************************************/
-int Card::GetId()
-{
-    return mId;
+    float points = 0.5F;
+
+    if (mSuit == TRUMPS)
+    {
+        // More points for the oudlers
+        if ((mValue == 0) ||    // Fool
+            (mValue == 1) ||    // 1
+            (mValue == 21))      // 21
+        {
+            points = 4.5F;
+        }
+    }
+    else
+    {
+        if (mValue > 10U)
+        {
+            points = 0.5F + (mValue - 10U);
+        }
+    }
+    return points;
 }
 /*****************************************************************************/
 Place Card::GetOwner()

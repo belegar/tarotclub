@@ -8,9 +8,12 @@ HISTORY OF TAROTCLUB VERSIONS
   -------------------------------
     ~ Added "codename" string in the AboutBox
     ~ Correction of tournament score initialization (server and client sides)
-    ~ CppCheck, Coverity Scan, Simian (duplicate code) and MISRA C++ corrections
+    ~ CppCheck, Coverity Scan, Simian (duplicate code), Vera++ and MISRA C++ corrections
     ~ CanPlayCard() algorithm correction in one test case
-    ~ Added unit tests (Player class, CanPlayCard())
+    ~ Added unit test (Player class, CanPlayCard())
+    ~ Ticket #21: Ctrl+D is used for two menu entries
+    ~ Ticket #22: Lobby French translation "Connextion"
+    ~ Removed English translation file (native language)
     + New hand-made makefile do build the TCDS executable
     + New code coverage script
 

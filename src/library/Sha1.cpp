@@ -289,7 +289,7 @@ void Sha1::Read(std::istream &is, std::string &s, int max)
     char *sbuf = new char[max];
     is.read(sbuf, max);
     s.assign(sbuf, static_cast<unsigned>(is.gcount()));
-    delete[] sbuf;
+    delete [] sbuf;
 }
 
 //=============================================================================

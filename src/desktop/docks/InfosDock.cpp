@@ -133,10 +133,10 @@ void InfosDock::PrintStats(const Deck::Statistics &stats)
     buffer += "\n" + trUtf8("Sequences: ") + tmp.setNum(stats.sequences);
     buffer += "\n" + trUtf8("Singletons: ") + tmp.setNum(stats.singletons);
 
-    buffer += "\n" + trUtf8("Clubs: ") + tmp.setNum(stats.clubs);
-    buffer += "\n" + trUtf8("Diamonds: ") + tmp.setNum(stats.diamonds);
-    buffer += "\n" + trUtf8("Spades: ") + tmp.setNum(stats.spades);
-    buffer += "\n" + trUtf8("Hearts: ") + tmp.setNum(stats.hearts);
+    buffer += "\n" + trUtf8("Clubs: ") + tmp.setNum(stats.suits[Card::CLUBS]);
+    buffer += "\n" + trUtf8("Diamonds: ") + tmp.setNum(stats.suits[Card::DIAMONDS]);
+    buffer += "\n" + trUtf8("Spades: ") + tmp.setNum(stats.suits[Card::SPADES]);
+    buffer += "\n" + trUtf8("Hearts: ") + tmp.setNum(stats.suits[Card::HEARTS]);
 
     buffer += "\n" + trUtf8("Kings: ") + tmp.setNum(stats.kings);
     buffer += "\n" + trUtf8("Voids: ") + tmp.setNum(stats.cuts);

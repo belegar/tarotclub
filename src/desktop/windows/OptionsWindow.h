@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _OPTIONSWINDOW_H
-#define _OPTIONSWINDOW_H
+#ifndef OPTIONS_WINDOW_H
+#define OPTIONS_WINDOW_H
 
 // Includes Qt
 #include <QDialog>
@@ -112,7 +112,7 @@ private:
 
 };
 
-#endif // _OPTIONSWINDOW_H
+#endif // OPTIONS_WINDOW_H
 
 //=============================================================================
 // Fin du fichier OptionsWindow.h

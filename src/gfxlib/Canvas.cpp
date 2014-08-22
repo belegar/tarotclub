@@ -560,9 +560,9 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
     result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Summary") + QString("</b><td /></tr>");
     result_str += QString("<tr><td>") + tr("Taker") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + PlaceToString(bid.taker) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + ContractToString(bid.contract) + QString("</td>");
-    result_str += QString("<tr><td>") + tr("Number of oudlers") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.GetNumberOfOudlers()) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Number of oudlers") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.oudlers) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Points") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Points to do") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)score.pointsToDo) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Points to do") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(Tarot::PointsToDo(score.oudlers)) + QString("</td></tr>");
     result_str += "</table></td>";
 
     result_str += "<td width=50%><table>";

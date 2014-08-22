@@ -61,27 +61,9 @@ void EditorWindow::Initialize()
 
     for (int i = 0; i < 78; i++)
     {
-        ui.mainCardList->addItem(new CardListItem(TarotDeck::GetCard(i)));
+        Card *c = TarotDeck::GetCard(i);
+        ui.mainCardList->addItem(new QListWidgetItem(c->GetName().data()));
     }
-}
-/*****************************************************************************/
-void EditorWindow::AddToList(int id, QListWidget *list, QListWidgetItem *item)
-{
-    int i = 0;
-
-    // find the best row to insert it
-    for (i = 0; i < list->count(); i++)
-    {
-        CardListItem *el = dynamic_cast<CardListItem *>(list->item(i));
-        if (el != NULL)
-        {
-            if (id < el->GetCard()->GetId())
-            {
-                break;
-            }
-        }
-    }
-    list->insertItem(i, item);
 }
 /*****************************************************************************/
 void EditorWindow::slotToSouth()
@@ -93,11 +75,7 @@ void EditorWindow::slotToSouth()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.southList, element);
-    }
+    ui.southList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotToNorth()
@@ -109,11 +87,7 @@ void EditorWindow::slotToNorth()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.northList, element);
-    }
+    ui.northList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotToWest()
@@ -125,11 +99,7 @@ void EditorWindow::slotToWest()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.westList, element);
-    }
+    ui.westList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotToEast()
@@ -141,11 +111,7 @@ void EditorWindow::slotToEast()
 
     int row = ui.mainCardList->currentRow();
     QListWidgetItem *element = ui.mainCardList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.eastList, element);
-    }
+    ui.eastList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveSouthCard(QListWidgetItem *item)
@@ -154,11 +120,7 @@ void EditorWindow::slotRemoveSouthCard(QListWidgetItem *item)
 
     int row = ui.southList->currentRow();
     QListWidgetItem *element = ui.southList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.mainCardList, element);
-    }
+    ui.mainCardList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveNorthCard(QListWidgetItem *item)
@@ -167,11 +129,7 @@ void EditorWindow::slotRemoveNorthCard(QListWidgetItem *item)
 
     int row = ui.northList->currentRow();
     QListWidgetItem *element = ui.northList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.mainCardList, element);
-    }
+    ui.mainCardList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveWestCard(QListWidgetItem *item)
@@ -180,11 +138,7 @@ void EditorWindow::slotRemoveWestCard(QListWidgetItem *item)
 
     int row = ui.westList->currentRow();
     QListWidgetItem *element = ui.westList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.mainCardList, element);
-    }
+    ui.mainCardList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotRemoveEastCard(QListWidgetItem *item)
@@ -193,11 +147,7 @@ void EditorWindow::slotRemoveEastCard(QListWidgetItem *item)
 
     int row = ui.eastList->currentRow();
     QListWidgetItem *element = ui.eastList->takeItem(row);
-    Card *c = (dynamic_cast<CardListItem *>(element))->GetCard();
-    if (c != NULL)
-    {
-        AddToList(c->GetId(), ui.mainCardList, element);
-    }
+    ui.mainCardList->addItem(element);
 }
 /*****************************************************************************/
 void EditorWindow::slotOpenDeal()
@@ -215,7 +165,9 @@ void EditorWindow::slotSaveDeal()
         return;
     }
 
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save deal"),
+                                                    "tarot.json",
+                                                    tr("JSON (*json)"));
     if (fileName.isEmpty())
     {
         return;
@@ -227,46 +179,46 @@ void EditorWindow::slotSaveDeal()
     // Chien
     for (int i = 0; i < ui.mainCardList->count(); i++)
     {
-        CardListItem *el = dynamic_cast<CardListItem *>(ui.mainCardList->item(i));
-        if (el != NULL)
+        QListWidgetItem *item = ui.mainCardList->item(i);
+        if (item != NULL)
         {
-            editor.GetDogDeck().Append(el->GetCard());
+            editor.GetDogDeck().Append(item->text().toStdString());
         }
     }
     // East
     for (int i = 0; i < ui.eastList->count(); i++)
     {
-        CardListItem *el = dynamic_cast<CardListItem *>(ui.eastList->item(i));
-        if (el != NULL)
+        QListWidgetItem *item = ui.eastList->item(i);
+        if (item != NULL)
         {
-            editor.GetEastDeck().Append(el->GetCard());
+            editor.GetEastDeck().Append(item->text().toStdString());
         }
     }
     // West
     for (int i = 0; i < ui.westList->count(); i++)
     {
-        CardListItem *el = dynamic_cast<CardListItem *>(ui.westList->item(i));
-        if (el != NULL)
+        QListWidgetItem *item = ui.westList->item(i);
+        if (item != NULL)
         {
-            editor.GetWestDeck().Append(el->GetCard());
+            editor.GetWestDeck().Append(item->text().toStdString());
         }
     }
     // South
     for (int i = 0; i < ui.southList->count(); i++)
     {
-        CardListItem *el = dynamic_cast<CardListItem *>(ui.southList->item(i));
-        if (el != NULL)
+        QListWidgetItem *item = ui.southList->item(i);
+        if (item != NULL)
         {
-            editor.GetSouthDeck().Append(el->GetCard());
+            editor.GetSouthDeck().Append(item->text().toStdString());
         }
     }
     // North
     for (int i = 0; i < ui.northList->count(); i++)
     {
-        CardListItem *el = dynamic_cast<CardListItem *>(ui.northList->item(i));
-        if (el != NULL)
+        QListWidgetItem *item = ui.northList->item(i);
+        if (item != NULL)
         {
-            editor.GetNorthDeck().Append(el->GetCard());
+            editor.GetNorthDeck().Append(item->text().toStdString());
         }
     }
 

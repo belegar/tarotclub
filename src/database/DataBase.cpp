@@ -29,37 +29,17 @@
 
 #include "DataBase.h"
 
-/*
-static int callback(void *NotUsed, int argc, char **argv, char **azColName)
-{
-   int i;
-
-   (void) NotUsed;
-   (void) argv;
-   (void) azColName;
-
-   for (i=0; i<argc; i++)
-   {
-      //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-   }
-   printf("\n");
-   return 0;
-}
-*/
-
 /*****************************************************************************/
 DataBase::DataBase()
     : mDb(NULL)
     , mValid(false)
 {
 
-
 }
 /*****************************************************************************/
 DataBase::~DataBase()
 {
     Close();
-
 }
 /*****************************************************************************/
 void DataBase::Close()
@@ -138,8 +118,6 @@ std::vector<std::vector<Value> > DataBase::Query(const char *query)
     return results;
 
 }
-
-
 
 //=============================================================================
 // End of file DataBase.cpp

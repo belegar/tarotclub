@@ -103,66 +103,69 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
         cLeader = trick.HighestTrump();
         if (cLeader == NULL)
         {
-            // lead color is the first one, expect if the first card is a fool. In that case, the second player plays the lead color
+            // lead color is the first one, except if the first card is a fool. In that case, the second player plays the lead color
             cLeader = trick.HighestSuit();
         }
+
         if (cLeader == NULL)
         {
             TLogError("cLeader cannot be null!");
         }
-
-        // The trick winner is the card leader owner
-        winner = cLeader->GetOwner();
-
-        if (tricks[turn].HasFool())
+        else
         {
-            Card *cFool = tricks[turn].GetCardByName("00-T");
-            if (cFool == NULL)
+            // The trick winner is the card leader owner
+            winner = cLeader->GetOwner();
+
+            if (tricks[turn].HasFool())
             {
-                TLogError("Card pointer cannot be NULL");
-            }
-            else
-            {
-                if (Tarot::IsDealFinished(trickCounter, numberOfPlayers) == true)
+                Card *cFool = tricks[turn].GetCardByName("00-T");
+                if (cFool == NULL)
                 {
-                    // Special case of the fool: if played at last turn with a slam realized, it wins the trick
-                    if ((tricksWon == (numberOfTricks - 1)) &&
-                            (cFool->GetOwner() == bid.taker))
-                    {
-                        winner = bid.taker;
-                    }
-                    // Otherwise, the fool is _always_ lost if played at the last trick, even if the
-                    // fool belongs to the same team than the winner of the trick.
-                    else
-                    {
-                        foolSwap = true;
-                        if (cFool->GetOwner() == bid.taker)
-                        {
-                            foolOwner = DEFENSE;
-                        }
-                        else
-                        {
-                            foolOwner = ATTACK;
-                        }
-                    }
+                    TLogError("Card pointer cannot be NULL");
                 }
                 else
                 {
-                    // In all other cases, the fool is kept by the owner. If the trick is won by a
-                    // different team than the fool owner, they must exchange 1 low card with the fool.
-                    if (winner != cFool->GetOwner())
+                    if (Tarot::IsDealFinished(trickCounter, numberOfPlayers) == true)
                     {
-                        foolSwap = true;
-                        if (winner == bid.taker)
+                        // Special case of the fool: if played at last turn with a slam realized, it wins the trick
+                        if ((tricksWon == (numberOfTricks - 1)) &&
+                                (cFool->GetOwner() == bid.taker))
                         {
-                            foolOwner = DEFENSE;
+                            winner = bid.taker;
                         }
+                        // Otherwise, the fool is _always_ lost if played at the last trick, even if the
+                        // fool belongs to the same team than the winner of the trick.
                         else
                         {
-                            foolOwner = ATTACK;
+                            foolSwap = true;
+                            if (cFool->GetOwner() == bid.taker)
+                            {
+                                foolOwner = DEFENSE;
+                            }
+                            else
+                            {
+                                foolOwner = ATTACK;
+                            }
                         }
                     }
-                    // else, the trick is won by the attacker, it keeps the fool
+                    else
+                    {
+                        // In all other cases, the fool is kept by the owner. If the trick is won by a
+                        // different team than the fool owner, they must exchange 1 low card with the fool.
+                        if (winner != cFool->GetOwner())
+                        {
+                            foolSwap = true;
+                            if (winner == bid.taker)
+                            {
+                                foolOwner = DEFENSE;
+                            }
+                            else
+                            {
+                                foolOwner = ATTACK;
+                            }
+                        }
+                        // else, the trick is won by the attacker, it keeps the fool
+                    }
                 }
             }
         }
@@ -342,7 +345,7 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
     }
 
     // 5. The number of oudler(s) decides the points to do
-    score.SetPointsToDo(statsAttack.oudlers);
+    score.oudlers = statsAttack.oudlers;
 
     // 6. We save the points done by the attacker
     score.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma
@@ -422,11 +425,20 @@ void Deal::CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Ha
         }
     }
 
-    score.difference = score.pointsAttack - score.pointsToDo;
+    score.difference = score.pointsAttack - Tarot::PointsToDo(score.oudlers);
     // Final scoring
     score.scoreAttack = (25 + abs(score.difference) + score.littleEndianPoints) * score.multiplier + score.handlePoints + score.slamPoints;
 }
 /*****************************************************************************/
+/**
+ * @brief Deal::GetSortedTrick
+ *
+ * Sort a trick so that the card are in the Place order (first is always south, second is east ...)
+ * instead of the native order (first card of the trick is the first card played).
+ *
+ * @param trick
+ * @return
+ */
 std::list<std::string> Deal::GetSortedTrick(int trick)
 {
     std::list<std::string> list;
@@ -457,7 +469,7 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     JsonWriter json;
     std::uint8_t numberOfPlayers = players.size();
 
-    std::string fileName = System::GamePath() + "deal_result_" + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json" ;
+    std::string fileName = System::GamePath() + "deal_result_" + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
 
     json.CreateValuePair("version", DEAL_RESULT_FILE_VERSION);
     json.CreateValuePair("generator", "Generated by TarotClub " + TAROT_VERSION);
@@ -465,12 +477,12 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     // ========================== Game information ==========================
     JsonObject *obj = json.CreateObjectPair("deal_info");
 
-    JsonObject *obj2 = obj->CreateObjectPair("players");
+    // Players are sorted from south to north-west, anti-clockwise (see Place class)
+    JsonArray *obj2 = json.CreateArrayPair("players");
     std::map<Place, Identity>::const_iterator it;
     for (it = players.begin(); it != players.end(); ++it)
     {
-        // Example: "North": "Bender"
-        obj2->CreateValuePair((it->first).ToString(), (it->second).name);
+        obj2->CreateValue((it->second).name);
     }
 
     obj->CreateValuePair("taker", bid.taker.ToString());
@@ -482,14 +494,14 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
 
     // ========================== Score calculation ==========================
     JsonObject *scoreObj = obj->CreateObjectPair("score");
-    scoreObj->CreateValuePair("attacker_points", score.pointsAttack);
-    scoreObj->CreateValuePair("attacker_score", score.scoreAttack);
-    scoreObj->CreateValuePair("attacker_goal", score.pointsToDo);
-    scoreObj->CreateValuePair("difference", score.difference);
-    scoreObj->CreateValuePair("multiplier", score.multiplier);
-    scoreObj->CreateValuePair("one_of_trump_bonus", score.littleEndianPoints);
-    scoreObj->CreateValuePair("handle_bonus", score.handlePoints);
-    scoreObj->CreateValuePair("slam_bonus", score.slamPoints);
+    scoreObj->CreateValuePair("attacker_points", static_cast<std::int32_t>(score.pointsAttack));
+    scoreObj->CreateValuePair("attacker_score", static_cast<std::int32_t>(score.scoreAttack));
+    scoreObj->CreateValuePair("oudlers", static_cast<std::int32_t>(score.oudlers));
+    scoreObj->CreateValuePair("difference", static_cast<std::int32_t>(score.difference));
+    scoreObj->CreateValuePair("multiplier", static_cast<std::int32_t>(score.multiplier));
+    scoreObj->CreateValuePair("one_of_trump_bonus", static_cast<std::int32_t>(score.littleEndianPoints));
+    scoreObj->CreateValuePair("handle_bonus", static_cast<std::int32_t>(score.handlePoints));
+    scoreObj->CreateValuePair("slam_bonus", static_cast<std::int32_t>(score.slamPoints));
 
     // ========================== Played cards ==========================
     JsonArray *obj3 = json.CreateArrayPair("tricks");
@@ -509,8 +521,6 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
             }
             cards += (*it);
         }
-
-        //FIXME: add the trick number? create an array of objects?
         obj3->CreateValue(cards);
     }
 
@@ -518,6 +528,31 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     {
         TLogError("Saving deal game result failed.");
     }
+}
+/*****************************************************************************/
+bool Deal::LoadGameDealLog(const std::string &fileName)
+{
+    bool ret = false;
+    JsonReader json;
+
+    if (json.Open(fileName))
+    {
+        std::int32_t numberOfPlayers;
+        std::vector<JsonValue> players = json.GetArray("deal_info:players", JsonValue::STRING);
+        numberOfPlayers = players.size();
+        if ((numberOfPlayers == 3U) ||
+            (numberOfPlayers == 4U) ||
+            (numberOfPlayers == 5U))
+        {
+            // Load played cards
+            std::vector<JsonValue> tricks = json.GetArray("tricks", JsonValue::STRING);
+            if (tricks.size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
+            {
+
+            }
+        }
+    }
+    return ret;
 }
 
 //=============================================================================

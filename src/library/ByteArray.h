@@ -51,9 +51,11 @@ public:
     std::uint32_t GetUint32(std::uint32_t index) const;
     std::string ToSring() const;
     std::uint32_t Size() const;
+    std::uint8_t Get(std::uint32_t index) const;
 
     // Setters
     void PushBack(std::uint8_t byte);
+    void Put(std::uint32_t index, std::uint8_t value);
 
     // Helpers
     void Clear();
@@ -61,8 +63,6 @@ public:
     void Erase(std::uint32_t index, std::uint32_t len);
 
     // Operators
-    std::uint8_t &operator[](std::uint32_t i);
-    std::uint8_t operator[](std::uint32_t i) const;
     ByteArray &operator=(const ByteArray &rhs);
     ByteArray &operator += (const ByteArray &rhs);
     ByteArray operator+(const ByteArray &rhs) const;

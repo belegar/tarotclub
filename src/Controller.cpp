@@ -248,7 +248,7 @@ bool Controller::DoAction(const ByteArray &data)
             break;
         }
 
-        case::Protocol::CLIENT_SYNC_NEW_DEAL:
+        case Protocol::CLIENT_SYNC_NEW_DEAL:
         {
             // Check if the uuid exists
             if (engine.GetPlayerPlace(uuid) != Place::NOWHERE)

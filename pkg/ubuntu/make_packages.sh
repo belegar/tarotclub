@@ -60,7 +60,6 @@ cp ${TAROT_ROOT}/assets/ai/tarotlib/game.js ./ai/tarotlib
 cp ${TAROT_ROOT}/assets/ai/beginner.js ./ai
 cp ${TAROT_ROOT}/assets/ai/conf.json ./ai
 cp ${TAROT_ROOT}/assets/icons/icon256x256.png .
-cp ${TAROT_ROOT}/prj/desktop/tarotclub_en.qm .
 cp ${TAROT_ROOT}/prj/desktop/tarotclub_fr.qm .
 
 # copy install script
@@ -80,7 +79,6 @@ PACKAGE_ROOT="./deb_temp"
 INSTALL_DIR="${PACKAGE_ROOT}/usr/share/tarotclub"
 FONTS_DIR="${PACKAGE_ROOT}/usr/share/fonts"
 DESKTOP_ENTRY="${PACKAGE_ROOT}/usr/share/applications"
-MENU_ENTRY="${PACKAGE_ROOT}/usr/share/menu"
 DEBIAN_DIR="${PACKAGE_ROOT}/DEBIAN"
 
 # ---------------------------------
@@ -116,7 +114,6 @@ mkdir -p ${INSTALL_DIR}
 mkdir -p ${FONTS_DIR}
 mkdir -p ${DEBIAN_DIR}
 mkdir -p ${DESKTOP_ENTRY}
-mkdir -p ${MENU_ENTRY}
 
 # move TarotClub where it must be installed
 mv ${TEMP_DIR}/kanzlei.ttf ${FONTS_DIR} 
@@ -126,7 +123,6 @@ mv ${TEMP_DIR}/* ${INSTALL_DIR}
 cp ./control.txt ${DEBIAN_DIR}/control
 cp ./postinst ${DEBIAN_DIR}
 cp ./tarotclub.desktop ${DESKTOP_ENTRY}
-cp ./tarotclub.menu ${MENU_ENTRY}
 
 echo "Package tree created."
 echo "Making all files root owner..."

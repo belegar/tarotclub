@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef _TEXT_BOX_H
-#define _TEXT_BOX_H
+#ifndef TEXT_BOX_H
+#define TEXT_BOX_H
 
 // Qt includes
 #include <QGraphicsRectItem>
@@ -68,7 +68,7 @@ private:
 };
 
 
-#endif // _TEXT_BOX_H
+#endif // TEXT_BOX_H
 
 //=============================================================================
 // End of file TextBox.h

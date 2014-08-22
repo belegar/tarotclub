@@ -132,12 +132,12 @@ clean:
 .PHONY: lint    
 lint: run_lint
 	@echo Filtering Lint results to keep project files only...
-	@$(PERL) tools/pclint/parse_output.pl
+	@$(PERL) quality/pclint/parse_output.pl
 
 .PHONY: run_lint
 run_lint:
 	@echo Linting files...
-	@$(LINT) -itools/pclint $(LINT_FLAGS) co-gcc.lnt $(DEFINES) $(INCPATH) $(CPP_FILES) > out.txt
+	@$(LINT) -iquality/pclint $(LINT_FLAGS) co-gcc.lnt $(DEFINES) $(INCPATH) $(CPP_FILES) > out.txt
     
 # ==============================================================================
 # Explicit rules

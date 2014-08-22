@@ -38,19 +38,19 @@ ButtonItem::ButtonItem(IButtonEvent *event, std::uint8_t id, std::uint8_t menu)
     setAcceptHoverEvents(true);
     setAcceptTouchEvents(true);
 }
-
+/*****************************************************************************/
 void ButtonItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     (void)event;
     setBrush(mBrushSelected);
 }
-
+/*****************************************************************************/
 void ButtonItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     (void)event;
     setBrush(mBrushNormal);
 }
-
+/*****************************************************************************/
 void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     (void)event;
@@ -59,7 +59,7 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         mEvent->ButtonClicked(mId, mMenu);
     }
 }
-
+/*****************************************************************************/
 void ButtonItem::HighLight(bool state)
 {
     if (state)

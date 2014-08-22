@@ -32,26 +32,6 @@
 #include "Card.h"
 #include <ui_DealEditorUI.h>
 
-/*****************************************************************************/
-class CardListItem : public QListWidgetItem
-{
-public:
-    CardListItem(Card *ref)
-        : QListWidgetItem()
-        , c(ref)
-    {
-        c = ref;
-        setText(QString(c->GetName().data()));
-    }
-
-    Card *GetCard()
-    {
-        return c;
-    }
-private:
-    Card *c;
-};
-
 
 /*****************************************************************************/
 class EditorWindow : public QDialog
@@ -88,5 +68,3 @@ public slots:
 //=============================================================================
 // End of file EditorWindow.h
 //=============================================================================
-
-

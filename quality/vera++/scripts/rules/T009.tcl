@@ -9,8 +9,10 @@ foreach f [getSourceFileNames] {
         if {$preceding == {}} {
             report $f $line "comma should not be preceded by whitespace"
         } else {
+            set sizeList [llength $preceding]
             set lastPreceding [lindex [lindex $preceding end] 3]
-            if {$lastPreceding == "space"} {
+            # if there are only spaces (number of preceding token equal to one), we do not detect an error
+            if {$lastPreceding == "space" && $sizeList != 1} {
                 report $f $line "comma should not be preceded by whitespace"
             }
         }

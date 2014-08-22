@@ -130,8 +130,7 @@ OTHER_FILES = beginner.js \
 # ------------------------------------------------------------------------------
 # Translation files
 # ------------------------------------------------------------------------------
-TRANSLATIONS = $$BASE_DIR/prj/desktop/tarotclub_fr.ts \
-               $$BASE_DIR/prj/desktop/tarotclub_en.ts
+TRANSLATIONS = $$BASE_DIR/prj/desktop/tarotclub_fr.ts
 
 # ------------------------------------------------------------------------------
 # Library files

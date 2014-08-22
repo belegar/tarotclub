@@ -1,7 +1,0 @@
-?package(tarotclub):\
-    needs="X11"\
-    section="Applications/Games/Card"\
-    title="TarotClub"\
-    command="/usr/share/tarotclub/TarotClub"\
-    hints="Tarot"\
-    icon="/usr/share/tarotclub/icon256x256.png"
