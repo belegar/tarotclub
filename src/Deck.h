@@ -39,6 +39,58 @@
 class Deck
 {
 public:
+
+    /**
+     * @brief The Comparator class
+     *
+     * Custom comparator helper class to allow various forms of sorting
+     */
+    class Sorter
+    {
+    public:
+        Sorter(const std::string &sorting)
+        {
+            std::string order;
+            if (sorting.size() == 5)
+            {
+                order = sorting;
+            }
+            else
+            {
+                order = "TCSDH";
+            }
+
+            // Generate a weight for each suit
+            for (int i = 0; i < 5; i++)
+            {
+                std::string letter;
+                letter.push_back(order[4 - i]);
+                weight[Card::ToSuit(letter)] = 100U * i;
+            }
+        }
+
+        bool operator() (Card *c1, Card *c2)
+        {
+            std::uint16_t id1 = GetWeight(c1);
+            std::uint16_t id2 = GetWeight(c2);
+
+            return id1 > id2;
+        }
+
+        std::uint16_t GetWeight(Card *c)
+        {
+            return(weight[c->GetSuit()] + c->GetValue());
+        }
+
+    private:
+        std::uint16_t weight[5];
+    };
+
+    /**
+     * @brief The Statistics class
+     *
+     * Helper class to store various deck statistics
+     */
     class Statistics
     {
     public:
@@ -176,8 +228,6 @@ public:
     }
 
 private:
-    static bool LessThanCards(Card *carte1, Card *carte2);
-
     /**
      * @brief This variable can be use to store a deck owner
      * information, tricks won for example

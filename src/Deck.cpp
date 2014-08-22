@@ -287,37 +287,11 @@ Card *Deck::HighestSuit() const
  */
 void Deck::Sort(const std::string &order)
 {
-    std::uint16_t weight[5];
-
-    if (order.size() == 5)
-    {
-        // Generate a weight for each suit
-        for (int i = 0; i < 5; i++)
-        {
-            std::string letter;
-            letter.push_back(order[4 - i]);
-            weight[Card::ToSuit(letter)] = 100 * i;
-        }
-
-        // Depending of the sorting contents, give a weight to each card
-        for (Deck::ConstIterator i = Begin(); i != End(); ++i)
-        {
-            Card *c = (*i);
-
-            std::uint16_t id = weight[c->GetSuit()] + c->GetValue();
-            c->SetId(id);
-        }
-    }
-
     if (Size() != 0)
     {
-        mDeck.sort(&Deck::LessThanCards);
+        Sorter suitSorter(order);
+        mDeck.sort(suitSorter);
     }
-}
-/*****************************************************************************/
-bool Deck::LessThanCards(Card *c1, Card *c2)
-{
-    return c1->GetId() > c2->GetId();
 }
 /*****************************************************************************/
 void Deck::SetOwner(Team team)
