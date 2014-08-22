@@ -50,6 +50,7 @@ public:
     void AnalyzeGame(std::uint8_t numberOfPlayers);
     void CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Handle defense);
     void GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Identity> &players);
+    bool LoadGameDealLog(const std::string &fileName);
     bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 
     // Getters

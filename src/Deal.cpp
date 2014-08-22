@@ -430,6 +430,15 @@ void Deal::CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Ha
     score.scoreAttack = (25 + abs(score.difference) + score.littleEndianPoints) * score.multiplier + score.handlePoints + score.slamPoints;
 }
 /*****************************************************************************/
+/**
+ * @brief Deal::GetSortedTrick
+ *
+ * Sort a trick so that the card are in the Place order (first is always south, second is east ...)
+ * instead of the native order (first card of the trick is the first card played).
+ *
+ * @param trick
+ * @return
+ */
 std::list<std::string> Deal::GetSortedTrick(int trick)
 {
     std::list<std::string> list;
@@ -468,12 +477,12 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     // ========================== Game information ==========================
     JsonObject *obj = json.CreateObjectPair("deal_info");
 
-    JsonObject *obj2 = obj->CreateObjectPair("players");
+    // Players are sorted from south to north-west, anti-clockwise (see Place class)
+    JsonArray *obj2 = json.CreateArrayPair("players");
     std::map<Place, Identity>::const_iterator it;
     for (it = players.begin(); it != players.end(); ++it)
     {
-        // Example: "North": "Bender"
-        obj2->CreateValuePair((it->first).ToString(), (it->second).name);
+        obj2->CreateValue((it->second).name);
     }
 
     obj->CreateValuePair("taker", bid.taker.ToString());
@@ -487,7 +496,7 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     JsonObject *scoreObj = obj->CreateObjectPair("score");
     scoreObj->CreateValuePair("attacker_points", static_cast<std::int32_t>(score.pointsAttack));
     scoreObj->CreateValuePair("attacker_score", static_cast<std::int32_t>(score.scoreAttack));
-    scoreObj->CreateValuePair("attacker_goal", static_cast<std::int32_t>(score.oudlers));
+    scoreObj->CreateValuePair("oudlers", static_cast<std::int32_t>(score.oudlers));
     scoreObj->CreateValuePair("difference", static_cast<std::int32_t>(score.difference));
     scoreObj->CreateValuePair("multiplier", static_cast<std::int32_t>(score.multiplier));
     scoreObj->CreateValuePair("one_of_trump_bonus", static_cast<std::int32_t>(score.littleEndianPoints));
@@ -512,8 +521,6 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
             }
             cards += (*it);
         }
-
-        //FIXME: add the trick number? create an array of objects?
         obj3->CreateValue(cards);
     }
 
@@ -521,6 +528,31 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     {
         TLogError("Saving deal game result failed.");
     }
+}
+/*****************************************************************************/
+bool Deal::LoadGameDealLog(const std::string &fileName)
+{
+    bool ret = false;
+    JsonReader json;
+
+    if (json.Open(fileName))
+    {
+        std::int32_t numberOfPlayers;
+        std::vector<JsonValue> players = json.GetArray("deal_info:players", JsonValue::STRING);
+        numberOfPlayers = players.size();
+        if ((numberOfPlayers == 3U) ||
+            (numberOfPlayers == 4U) ||
+            (numberOfPlayers == 5U))
+        {
+            // Load played cards
+            std::vector<JsonValue> tricks = json.GetArray("tricks", JsonValue::STRING);
+            if (tricks.size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
+            {
+
+            }
+        }
+    }
+    return ret;
 }
 
 //=============================================================================
