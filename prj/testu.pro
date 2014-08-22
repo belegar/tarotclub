@@ -160,7 +160,9 @@ HEADERS += TarotDeck.h \
     Player.h \
     ServerConfig.h \
     Common.h \
-    System.h
+    System.h \
+    Deal.h \
+    Score.h
 
 SOURCES += TarotDeck.cpp \
     Deck.cpp \
@@ -168,7 +170,9 @@ SOURCES += TarotDeck.cpp \
     Player.cpp \
     ServerConfig.cpp \
     Common.cpp \
-    System.cpp
+    System.cpp \
+    Deal.cpp \
+    Score.cpp
 
 # ------------------------------------------------------------------------------
 # Unit test files
