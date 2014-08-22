@@ -289,8 +289,22 @@ void Deck::Sort(const std::string &order)
 {
     if (Size() != 0)
     {
-        Sorter suitSorter(order);
-        mDeck.sort(suitSorter);
+        Sorter sorter(order);
+        mDeck.sort(sorter);
+    }
+}
+/*****************************************************************************/
+/**
+ * @brief Deck::Sort
+ *
+ * Sort cards by Place
+ */
+void Deck::Sort()
+{
+    if (Size() != 0)
+    {
+        Sorter sorter;
+        mDeck.sort(sorter);
     }
 }
 /*****************************************************************************/
