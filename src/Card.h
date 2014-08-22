@@ -55,30 +55,24 @@ public:
 
     //  Setters
     void  SetSuit(Suit s);
-    void  SetPoints(float p);
-    void  SetId(int);
-    void  SetOwner(Place);
+    void  SetOwner(Place p);
     void  SetValue(std::uint8_t v);
 
     // Getters
     Suit    GetSuit();
     float   GetPoints();
-    int     GetId();
     Place   GetOwner();
     std::uint8_t     GetValue();
     std::string GetName();
 
 private:
     Suit    mSuit;      //!< Trumps, Hearts, Spades, Diamonds or Clubs
-    float   mPoints;    //!< Points for scoring
-    int     mId;        //!< Unique identifier, used for deck sorting
     Place   mOwner;     //!< Original owner of the card
 
     /**
      * @brief The value is the number written on the card
      *
-     * Fool: not significant
-     * Trumps: [1..21]
+     * Trumps: [0..21] (Fool is zero)
      * Other cards: [1..14] with:
      *      King    = 14
      *      Queen   = 13
@@ -86,7 +80,6 @@ private:
      *      Jack    = 11
      */
     std::uint8_t mValue;
-
 };
 
 #endif // CARD_H
