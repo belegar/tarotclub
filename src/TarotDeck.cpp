@@ -46,27 +46,6 @@ void TarotDeck::Initialize()
             n = i * 14 + j;
             mCards[n].SetSuit(i);
             mCards[n].SetValue(j + 1);  // [1..14]
-
-            if (j == 10) // Valet
-            {
-                mCards[n].SetPoints(1.5);
-            }
-            else if (j == 11)   // Cavalier
-            {
-                mCards[n].SetPoints(2.5);
-            }
-            else if (j == 12)   // Dame
-            {
-                mCards[n].SetPoints(3.5);
-            }
-            else if (j == 13)   // Roi
-            {
-                mCards[n].SetPoints(4.5);
-            }
-            else
-            {
-                mCards[n].SetPoints(0.5);
-            }
         }
     }
 
@@ -75,18 +54,6 @@ void TarotDeck::Initialize()
     {
         mCards[i].SetValue(i - 56); // [0..21]
         mCards[i].SetSuit(Card::TRUMPS);
-
-        // More points for the oudlers
-        if ((i == 56) ||    // Fool
-                (i == 57) ||    // 1
-                (i == 77))      // 21
-        {
-            mCards[i].SetPoints(4.5);
-        }
-        else
-        {
-            mCards[i].SetPoints(0.5);
-        }
     }
 }
 /*****************************************************************************/
