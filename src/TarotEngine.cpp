@@ -73,7 +73,7 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mNbPlayers = nbPlayers;
 
     // 1. Initialize internal states
-    mDeal.Initialize();
+    mDeal.NewGame();
     mBid.Initialize();
 
     for (std::uint32_t i = 0U; i < 5U; i++)
@@ -96,7 +96,7 @@ void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s)
 {
     mShuffle = s;
     mGameMode = mode;
-    mDeal.Initialize();
+    mDeal.NewGame();
     mSequence = WAIT_FOR_READY;
 }
 /*****************************************************************************/
