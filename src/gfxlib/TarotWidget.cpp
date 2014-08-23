@@ -94,7 +94,7 @@ void TarotWidget::Initialize()
 {
     mTable.Initialize();
     mClient.Initialize();
-    deal.Initialize();
+    deal.NewGame();
     mCanvas->Initialize();
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
@@ -467,7 +467,7 @@ void TarotWidget::slotPlayersList()
 /*****************************************************************************/
 void TarotWidget::slotNewGame()
 {
-    deal.Initialize();
+    deal.NewGame();
     deal.NewDeal();
     mClient.SendSyncNewGame();
 }
