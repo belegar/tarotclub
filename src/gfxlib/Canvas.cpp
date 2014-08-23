@@ -552,7 +552,7 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
         result_str = QString("<h2><center><font color=\"darkred\">") + tr("Contract failed by ");
     }
 
-    result_str += QString().setNum(abs(score.difference)) + QString(" ") + tr("points") + QString("</font></center></h2><hr />");
+    result_str += QString().setNum(abs(score.Difference())) + QString(" ") + tr("points") + QString("</font></center></h2><hr />");
     result_str += "<table><tr>";
 
     // Deal caracteristics
@@ -568,9 +568,9 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
     result_str += "<td width=50%><table>";
     result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Calculation") + QString("</b><td /></tr>");
     result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;25</td></tr>");
-    result_str += QString("<tr><td>") + tr("Earn / loss") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(abs(score.difference)) + QString("</td>");
+    result_str += QString("<tr><td>") + tr("Earn / loss") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(abs(score.Difference())) + QString("</td>");
     result_str += QString("<tr><td>") + tr("Little endian bonus") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.littleEndianPoints) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Contract multiplier") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.multiplier) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Contract multiplier") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(Tarot::GetMultiplier(score.oudlers)) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Handle") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.handlePoints) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Slam") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.slamPoints) + QString("</td></tr>");
     result_str += "</table></td>";
