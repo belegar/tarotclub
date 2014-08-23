@@ -299,6 +299,33 @@ std::uint32_t Tarot::PointsToDo(std::uint8_t numberOfOudlers)
 
     return pointsToDo;
 }
+/*****************************************************************************/
+std::uint32_t Tarot::GetMultiplier(Contract c)
+{
+    std::uint32_t multiplier;
+
+    if (c == Contract::TAKE)
+    {
+        multiplier = 1U;
+    }
+    else if (c == Contract::GUARD)
+    {
+        multiplier = 2U;
+    }
+    else if (c == Contract::GUARD_WITHOUT)
+    {
+        multiplier = 4U;
+    }
+    else if (c == Contract::GUARD_AGAINST)
+    {
+        multiplier = 6U;
+    }
+    else     // GUARD_AGAINST
+    {
+        multiplier = 0U;
+    }
+    return multiplier;
+}
 
 //=============================================================================
 // End of file Common.cpp
