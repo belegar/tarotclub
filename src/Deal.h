@@ -45,7 +45,7 @@ public:
     Deal();
 
     // Helpers
-    void Initialize();
+    void NewGame();
     void NewDeal();
     void AnalyzeGame(std::uint8_t numberOfPlayers);
     void CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Handle defense);

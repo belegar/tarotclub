@@ -36,11 +36,11 @@ static const std::string DEAL_RESULT_FILE_VERSION  = "2.0";
 /*****************************************************************************/
 Deal::Deal()
 {
-    Initialize();
+    NewGame();
     NewDeal();
 }
 /*****************************************************************************/
-void Deal::Initialize()
+void Deal::NewGame()
 {
     for (std::uint32_t i = 0U; i < MAX_ROUNDS; i++)
     {
@@ -82,6 +82,7 @@ void Deal::NewDeal()
  * This methods does not verify if the trick is consistent with the rules; this
  * is supposed to have been previously verified.
  *
+ * @param[in] trickCounter Must begin at 1 (first trick of the deal)
  * @return The place of the winner of this trick
  */
 Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t trickCounter)
@@ -366,23 +367,6 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
  */
 void Deal::CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Handle defense)
 {
-    if (bid.contract == Contract::TAKE)
-    {
-        score.multiplier = 1;
-    }
-    else if (bid.contract == Contract::GUARD)
-    {
-        score.multiplier = 2;
-    }
-    else if (bid.contract == Contract::GUARD_WITHOUT)
-    {
-        score.multiplier = 4;
-    }
-    else     // GUARD_AGAINST
-    {
-        score.multiplier = 6;
-    }
-
     // Handle bonus: Ces primes gardent la même valeur quel que soit le contrat.
     // La prime est acquise au camp vainqueur de la donne.
     score.handlePoints += Tarot::GetHandlePoints(attack);
@@ -425,9 +409,8 @@ void Deal::CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Ha
         }
     }
 
-    score.difference = score.pointsAttack - Tarot::PointsToDo(score.oudlers);
     // Final scoring
-    score.scoreAttack = (25 + abs(score.difference) + score.littleEndianPoints) * score.multiplier + score.handlePoints + score.slamPoints;
+    score.scoreAttack = (25 + abs(score.Difference()) + score.littleEndianPoints) * Tarot::GetMultiplier(bid.contract) + score.handlePoints + score.slamPoints;
 }
 /*****************************************************************************/
 /**
@@ -478,7 +461,7 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     JsonObject *obj = json.CreateObjectPair("deal_info");
 
     // Players are sorted from south to north-west, anti-clockwise (see Place class)
-    JsonArray *obj2 = json.CreateArrayPair("players");
+    JsonArray *obj2 = obj->CreateArrayPair("players");
     std::map<Place, Identity>::const_iterator it;
     for (it = players.begin(); it != players.end(); ++it)
     {
@@ -487,6 +470,7 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
 
     obj->CreateValuePair("taker", bid.taker.ToString());
     obj->CreateValuePair("contract", bid.contract.ToString());
+    obj->CreateValuePair("slam", bid.slam);
 
     Deck::ConstIterator firstPlayer = tricks[0].Begin();
     obj->CreateValuePair("first_trick_lead", (*firstPlayer)->GetOwner().ToString());
@@ -497,8 +481,6 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     scoreObj->CreateValuePair("attacker_points", static_cast<std::int32_t>(score.pointsAttack));
     scoreObj->CreateValuePair("attacker_score", static_cast<std::int32_t>(score.scoreAttack));
     scoreObj->CreateValuePair("oudlers", static_cast<std::int32_t>(score.oudlers));
-    scoreObj->CreateValuePair("difference", static_cast<std::int32_t>(score.difference));
-    scoreObj->CreateValuePair("multiplier", static_cast<std::int32_t>(score.multiplier));
     scoreObj->CreateValuePair("one_of_trump_bonus", static_cast<std::int32_t>(score.littleEndianPoints));
     scoreObj->CreateValuePair("handle_bonus", static_cast<std::int32_t>(score.handlePoints));
     scoreObj->CreateValuePair("slam_bonus", static_cast<std::int32_t>(score.slamPoints));
@@ -535,6 +517,9 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
     bool ret = false;
     JsonReader json;
 
+    NewGame();
+    NewDeal();
+
     if (json.Open(fileName))
     {
         std::int32_t numberOfPlayers;
@@ -544,11 +529,30 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
             (numberOfPlayers == 4U) ||
             (numberOfPlayers == 5U))
         {
+            std::uint8_t trickCounter = 1U;
+            Tarot::Bid bid;
+
+            std::string str_value;
+            if (json.GetValue("deal_info:taker", str_value))
+            {
+                bid.taker = str_value;
+            }
+/*
+            bid.contract = ;
+            bid.slam = ;
+             = ;
+*/
             // Load played cards
             std::vector<JsonValue> tricks = json.GetArray("tricks", JsonValue::STRING);
             if (tricks.size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
             {
+                for (std::uint32_t i = 0U; i < tricks.size(); i++)
+                {
+                    Deck trick(tricks[i].GetString());
 
+                    // FIXME: add checkers
+                    SetTrick(trick, bid, trickCounter);
+                }
             }
         }
     }
