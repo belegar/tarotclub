@@ -44,8 +44,6 @@ void Score::Reset()
     pointsAttack        = 0U;
     scoreAttack         = 0U;
     oudlers             = 0U;
-    difference          = 0U;
-    multiplier          = 0U;
     littleEndianPoints  = 0U;
     handlePoints        = 0U;
     slamPoints          = 0U;
@@ -71,6 +69,11 @@ int Score::GetDefenseScore() const
         sign = -1;
     }
     return (scoreAttack * sign);
+}
+/*****************************************************************************/
+std::int32_t Score::Difference() const
+{
+    return pointsAttack - Tarot::PointsToDo(oudlers);
 }
 
 //=============================================================================

@@ -37,8 +37,6 @@ public:
     std::uint32_t pointsAttack;   // Points of cards
     std::uint32_t scoreAttack;    // Final score calculated, including all bonuses
     std::uint32_t oudlers;
-    std::uint32_t difference;
-    std::uint32_t multiplier;
     std::uint32_t littleEndianPoints; // positive if attack bonus, otherwise negative
     std::uint32_t handlePoints;
     std::uint32_t slamPoints;
@@ -47,14 +45,13 @@ public:
     void Reset();
     int GetAttackScore() const;
     int GetDefenseScore() const;
+    std::int32_t Difference() const;
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
     {
         out << info.pointsAttack
             << info.scoreAttack
             << info.oudlers
-            << info.difference
-            << info.multiplier
             << info.littleEndianPoints
             << info.handlePoints
             << info.slamPoints;
@@ -66,8 +63,6 @@ public:
         in >> info.pointsAttack;
         in >> info.scoreAttack;
         in >> info.oudlers;
-        in >> info.difference;
-        in >> info.multiplier;
         in >> info.littleEndianPoints;
         in >> info.handlePoints;
         in >> info.slamPoints;
