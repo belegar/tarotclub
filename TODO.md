@@ -24,6 +24,11 @@
   
   * Add unit tests on trick winner detection
   * Add unit tests on score calculation
+
+## Engine improvements
+
+  * Delete TarotDeck static class, not compatible with muti tables TCDS egine
+  * Deck class: change the list of Card pointers into a list of Card objects (3 bytes instead of 4, and resolve the above problem)
   
 ## New features
   
