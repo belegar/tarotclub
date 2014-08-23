@@ -136,11 +136,10 @@ The following tools are used:
 
   * CppCheck
   * Simian (http://www.harukizaemon.com/simian/)
-  * STACK (http://css.csail.mit.edu/stack/) (TODO)
   * Coverity Scan (https://scan.coverity.com/projects/2732)
   * MISRA C++ 2008
   * GCC AddressSanitizer (TODO)
-  * Code coverage on unit tests key algorithm
+  * Code coverage on unit tests key algorithms
 
 Each tool has its own way to run.
 
@@ -201,6 +200,25 @@ Some parts of the game are not easy to test automatically. Here is a check list 
   * Check menus (help, options ...)
   * Finally, check the generated log and debug output to look for problems especially bot related errors
 
+## Delivery report contents
+
+First page (summary)
+
+  * Date-time
+  * Version delivered
+  * Author
+  * ChangeLog
+
+Second page (tests results)
+
+  * Number of tests
+  * Coverage summary (FIXME, to be created) + details
+  * Not tested files (FIXME, to be created)
+  * Coverity summary
+  * Vera++ results
+  * CppCheck results
+  * MISRA C++ results
+
 ## Delivery process
 
 The delivery process must be performed in the following order. If one step is failing the acceptance criteria, the correction must be performed 
@@ -214,7 +232,8 @@ and the delivery process must be executed again from the beginning).
   * Build the unit test project under each of the supported platform (criteria: all passed)
   * Create the setup executables or install packages
   * Install the packages on all the supported platforms, execute manual tests (criteria: all passed)
-  * Save the code quality checker results for this version (criteria: create a delivery report)
+  * Save the code quality checker results for this version
+  * Create a delivery report
   * Tag the new version (format: VERSION_2_1_3), push the Mercurial depot
   * Upload the setup executables on Bitbucket
   * Update the website versions
