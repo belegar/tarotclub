@@ -132,7 +132,7 @@ public:
 private:
     Player  mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
     std::map<Place, Identity> mPlayersIdent;
-    Deck    currentTrick;   // the main deck of cards
+    Deck    currentTrick;   // store the current trick cards played
     Deal    mDeal;
     Deck    mDog;   // The remaining cards (dog)
 

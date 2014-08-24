@@ -141,6 +141,8 @@ void TarotEngine::StartDeal()
     {
         mCurrentPlayer = mDealer.Next(mNbPlayers); // The first player on the dealer's right
     }
+
+    mDeal.StartDeal(mCurrentPlayer);
 }
 /*****************************************************************************/
 Tarot::Shuffle TarotEngine::GetShuffle()
@@ -228,7 +230,6 @@ bool TarotEngine::SetCard(Card *c, Place p)
 
     if (mPlayers[p.Value()].CanPlayCard(c, currentTrick))
     {
-        c->SetOwner(p);
         currentTrick.Append(c);
         mPlayers[p.Value()].Remove(c);
 
