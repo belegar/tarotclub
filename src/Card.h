@@ -55,19 +55,16 @@ public:
 
     //  Setters
     void  SetSuit(Suit s);
-    void  SetOwner(Place p);
     void  SetValue(std::uint8_t v);
 
     // Getters
     Suit    GetSuit();
     float   GetPoints();
-    Place   GetOwner();
     std::uint8_t     GetValue();
     std::string GetName();
 
 private:
     Suit    mSuit;      //!< Trumps, Hearts, Spades, Diamonds or Clubs
-    Place   mOwner;     //!< Original owner of the card
 
     /**
      * @brief The value is the number written on the card
