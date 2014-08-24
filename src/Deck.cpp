@@ -294,20 +294,6 @@ void Deck::Sort(const std::string &order)
     }
 }
 /*****************************************************************************/
-/**
- * @brief Deck::Sort
- *
- * Sort cards by Place
- */
-void Deck::Sort()
-{
-    if (Size() != 0)
-    {
-        Sorter sorter;
-        mDeck.sort(sorter);
-    }
-}
-/*****************************************************************************/
 void Deck::SetOwner(Team team)
 {
     mOwner = team;

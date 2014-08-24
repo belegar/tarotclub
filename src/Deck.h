@@ -48,15 +48,7 @@ public:
     class Sorter
     {
     public:
-        Sorter()
-            : mSortByPlace(true)
-        {
-
-        }
-
-
         Sorter(const std::string &sorting)
-            : mSortByPlace(false)
         {
             std::string order;
             if (sorting.size() == 5)
@@ -81,16 +73,9 @@ public:
         {
             bool result;
 
-            if (mSortByPlace)
-            {
-                result = c1->GetOwner().Value() < c2->GetOwner().Value();
-            }
-            else
-            {
-                std::uint16_t id1 = GetWeight(c1);
-                std::uint16_t id2 = GetWeight(c2);
-                result = id1 > id2;
-            }
+            std::uint16_t id1 = GetWeight(c1);
+            std::uint16_t id2 = GetWeight(c2);
+            result = id1 > id2;
 
             return result;
         }
@@ -102,7 +87,6 @@ public:
 
     private:
         std::uint16_t mWeight[5];
-        bool mSortByPlace;
     };
 
     /**
@@ -196,7 +180,6 @@ public:
     void AnalyzeSuits(Statistics &stats);
     void Shuffle(int seed);
     void Sort(const std::string &order);
-    void Sort();
     bool HasOneOfTrump() const;
     bool HasFool() const;
     Card *HighestTrump() const;
