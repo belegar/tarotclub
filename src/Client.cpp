@@ -478,7 +478,7 @@ bool Client::DoAction(const ByteArray &data)
         case Protocol::SERVER_SHOW_DOG:
         {
             in >> mDog;
-            mDog.Sort();
+            mDog.Sort("TDSCH");
             mSequence = SHOW_DOG;
             mEventHandler.ShowDog();
             break;
