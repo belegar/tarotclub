@@ -47,6 +47,7 @@ public:
     // Helpers
     void NewGame();
     void NewDeal();
+    void StartDeal(Place firstPlayer);
     void AnalyzeGame(std::uint8_t numberOfPlayers);
     void CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Handle defense);
     void GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Identity> &players);
@@ -67,13 +68,15 @@ public:
     Place SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t trickCounter);
 
 private:
-    std::list<std::string> GetSortedTrick(int trick);
+    Place GetOwner(Place firstPlayer, Card *c, int turn);
 
     // We store played cards to count points
     Deck mDiscard;
     Deck attackHandleDeck;
     Deck defenseHandleDeck;
     Deck tricks[24];    // 24 tricks max with 3 players
+    Place mPreviousWinner;
+    Place mFirstPlayer;
     int tricksWon;
     Deck::Statistics statsAttack;
 
