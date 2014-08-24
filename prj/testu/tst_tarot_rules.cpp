@@ -11,6 +11,7 @@
 #include "TarotDeck.h"
 #include "ServerConfig.h"
 #include "Player.h"
+#include "Deal.h"
 
 TarotRules::TarotRules()
 {
@@ -113,6 +114,16 @@ void TarotRules::TestCanPlayCard()
     TestCard("10-H", true);
     TestCard("07-D", true);
     TestCard("13-C", true);
+
+}
+
+void TarotRules::TestScoreCalculation()
+{
+    Deal deal;
+
+    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/deal_result_2014-08-24.145333.json");
+
+    QCOMPARE(actual_bool, true);
 
 }
 
