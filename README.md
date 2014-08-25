@@ -244,6 +244,7 @@ and the delivery process must be executed again from the beginning).
   * Twitter
   * Ubuntu-fr forum
   * Canard-PC forum
+  * TODO: fedora, arch, suse, slackware, Mac
   
 # Glossary and translations
 
