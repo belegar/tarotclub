@@ -480,9 +480,7 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     obj->CreateValuePair("taker", bid.taker.ToString());
     obj->CreateValuePair("contract", bid.contract.ToString());
     obj->CreateValuePair("slam", bid.slam);
-
     obj->CreateValuePair("first_trick_lead", mFirstPlayer.ToString());
-    obj->CreateValuePair("discard", mDiscard.GetCardList());
 
     // ========================== Score calculation ==========================
     JsonObject *scoreObj = obj->CreateObjectPair("score");
@@ -531,14 +529,26 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
             {
                 bid.taker = str_value;
             }
+            else
+            {
+                ret = false;
+            }
             if (json.GetValue("deal_info:contract", str_value))
             {
                 bid.contract = str_value;
             }
+            else
+            {
+                ret = false;
+            }
             bool slam;
-            if (json.GetValue("deal_info:taker", slam))
+            if (json.GetValue("deal_info:slam", slam))
             {
                 bid.slam = slam;
+            }
+            else
+            {
+                ret = false;
             }
             if (json.GetValue("deal_info:first_trick_lead", str_value))
             {
@@ -547,12 +557,18 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
 #endif
                 StartDeal(str_value);
             }
+            else
+            {
+                ret = false;
+            }
 
             // Load played cards
             std::vector<JsonValue> tricks = json.GetArray("tricks", JsonValue::STRING);
             if (tricks.size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
             {
                 std::uint8_t trickCounter = 1U;
+                mDiscard.CreateTarotDeck();
+
                 for (std::uint32_t i = 0U; i < tricks.size(); i++)
                 {
                     Deck trick(tricks[i].GetString());
@@ -564,6 +580,12 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                         std::cout << "Cards: " << trick.GetCardList() << std::endl;
                         std::cout << "Trick: " << (int)trickCounter << ", Winner: " << winner.ToString() << std::endl;
 #endif
+                        // Remove played cards from this deck
+                        if (mDiscard.RemoveDuplicates(trick) != numberOfPlayers)
+                        {
+                            TLogError("Bad deal contents");
+                            ret = false;
+                        }
                         trickCounter++;
                     }
                     else
@@ -571,19 +593,42 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                         ret = false;
                     }
                 }
+
+                // Now that we have removed all the played cards from the mDiscard deck,
+                // it should contains only the discard cards
+                if (mDiscard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
+                {
+                    // Give the cards to the right team owner
+                    if (bid.contract == Contract::GUARD_AGAINST)
+                    {
+                        mDiscard.SetOwner(DEFENSE);
+                    }
+                    else
+                    {
+                        mDiscard.SetOwner(ATTACK);
+                    }
+                }
+                else
+                {
+                    TLogError("Bad number of tricks");
+                    ret = false;
+                }
             }
             else
             {
+                TLogError("Bad deal contents");
                 ret = false;
             }
         }
         else
         {
+            TLogError("Bad number of players in the array");
             ret = false;
         }
     }
     else
     {
+        TLogError("Cannot open deal JSON file");
         ret = false;
     }
     return ret;
