@@ -120,10 +120,27 @@ void TarotRules::TestCanPlayCard()
 void TarotRules::TestScoreCalculation()
 {
     Deal deal;
+    Tarot::Handle attack;
+    Tarot::Handle defense;
+    Tarot::Bid bid;
+    Score score;
 
-    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/deal_result_2014-08-24.145333.json");
-
+    // --------------------------------------------------------------------
+    // Test 1: Load the TarotMag issue 17 example deal
+    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/tarotmag_17.json");
     QCOMPARE(actual_bool, true);
 
+    // Launch score calculation
+    attack = Tarot::NO_HANDLE;
+    defense = Tarot::NO_HANDLE;
+    bid.contract = Contract::TAKE;
+    bid.taker = Place::SOUTH;
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore(bid, attack, defense);
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), DEFENSE);
+    QCOMPARE(score.GetAttackScore(), -34);
 }
 
