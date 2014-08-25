@@ -43,8 +43,8 @@ public:
 
     Team Winner() const;
     void Reset();
-    int GetAttackScore() const;
-    int GetDefenseScore() const;
+    int32_t GetAttackScore() const;
+    int32_t GetDefenseScore() const;
     std::int32_t Difference() const;
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
