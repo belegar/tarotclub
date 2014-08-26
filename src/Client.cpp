@@ -499,6 +499,7 @@ bool Client::DoAction(const ByteArray &data)
             in >> mShuffle;
 
             currentTrick.Clear();
+            UpdateStatistics(); // cards in hand can have changed due to the dog
             mSequence = SYNC_START;
             mEventHandler.StartDeal();
             break;
