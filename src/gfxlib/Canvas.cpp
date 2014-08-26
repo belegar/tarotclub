@@ -265,41 +265,39 @@ void Canvas::mousePressEvent(QMouseEvent *e)
         // We catch the event for us and forbid any sub item to receive it
         emit sigViewportClicked();
     }
-    else if (mFilter != BLOCK_ALL)
-    {
-        // Broadcast the event for all the canvas items
-        QGraphicsView::mousePressEvent(e);
-    }
+    // Broadcast the event for all the canvas items
+    QGraphicsView::mousePressEvent(e);
 }
 /*****************************************************************************/
 void Canvas::ButtonClicked(std::uint8_t id, std::uint8_t menu)
 {
-    if (mFilter == BLOCK_ALL)
+    if (TestFilter(MENU))
     {
-        return;
-    }
-
-    if (menu == MenuItem::BIDS_MENU)
-    {
-        emit sigContract(Contract(id));
-    }
-    else if (menu == MenuItem::HANDLE_MENU)
-    {
-        emit sigAcceptHandle();
-    }
-    else if (menu == MenuItem::DISCARD_MENU)
-    {
-        emit sigAcceptDiscard();
-    }
-    else if (menu == MenuItem::MAIN_MENU)
-    {
-        emit sigStartGame();
+        if (menu == MenuItem::BIDS_MENU)
+        {
+            emit sigContract(Contract(id));
+        }
+        else if (menu == MenuItem::HANDLE_MENU)
+        {
+            emit sigAcceptHandle();
+        }
+        else if (menu == MenuItem::DISCARD_MENU)
+        {
+            emit sigAcceptDiscard();
+        }
+        else if (menu == MenuItem::MAIN_MENU)
+        {
+            emit sigStartGame();
+        }
     }
 }
 /*****************************************************************************/
 void Canvas::CardClicked(std::uint8_t card, bool selected)
 {
-    emit sigClickCard(card, selected);
+    if (TestFilter(CARDS))
+    {
+        emit sigClickCard(card, selected);
+    }
 }
 /*****************************************************************************/
 void Canvas::CardHoverEnter(std::uint8_t card)

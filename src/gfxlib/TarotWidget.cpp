@@ -287,25 +287,32 @@ void TarotWidget::slotClickBoard()
     {
         mCanvas->HidePopup();
         mClient.SendSyncDog(); // We have seen the dog, let's inform the server about that
+        // Forbid any further clicks
+        mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
     else if (mClient.GetSequence() == Client::SHOW_HANDLE)
     {
         mCanvas->HidePopup();
         ShowSouthCards(); // refresh our cards if the handle displayed is our own one
         mClient.SendSyncHandle(); // We have seen the handle, let's inform the server about that
+        // Forbid any further clicks
+        mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
     else if (mClient.GetSequence() == Client::SYNC_TRICK)
     {
         HideTrick();
         mClient.SendSyncTrick();
+        // Forbid any further clicks
+        mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
     else if (mClient.GetSequence() == Client::SHOW_SCORE)
     {
         mCanvas->HideMessageBox();
         mClient.SendSyncEndOfDeal();
+        // Forbid any further clicks
+        mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
-    // Forbid any further clicks
-    mCanvas->SetFilter(Canvas::BLOCK_ALL);
+
 }
 /*****************************************************************************/
 /**
