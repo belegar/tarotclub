@@ -141,6 +141,37 @@ void TarotRules::TestScoreCalculation()
     score = deal.GetScore();
 
     QCOMPARE(score.Winner(), DEFENSE);
-    QCOMPARE(score.GetAttackScore(), -34);
+    QCOMPARE(score.GetAttackScore(), -102); // -34 multiple 3 players
+    QCOMPARE(score.oudlers, 1U);
+    QCOMPARE(score.handlePoints, 0U);
+    QCOMPARE(score.slamPoints, 0U);
+    QCOMPARE(score.littleEndianPoints, 0U);
+
+    // --------------------------------------------------------------------
+    // Test 2: The taker loses some oudlers
+    // On a pris le petit du preneur, et le preneur joue son excuse au dernier pli.
+    // Malgré cela, au calcul des points, le logiciel lui conserve les 3 bouts
+
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/taker_loses_two_oudlers.json");
+    QCOMPARE(actual_bool, true);
+
+    // Launch score calculation
+    attack = Tarot::TRIPLE_HANDLE;
+    defense = Tarot::NO_HANDLE;
+    bid.contract = Contract::GUARD_WITHOUT;
+    bid.taker = Place::SOUTH;
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore(bid, attack, defense);
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), ATTACK);
+    QCOMPARE(score.pointsAttack, 67U);
+    QCOMPARE(score.GetAttackScore(), 612);
+    QCOMPARE(score.oudlers, 1U);
+    QCOMPARE(score.handlePoints, 40U);
+    QCOMPARE(score.slamPoints, 0U);
+    QCOMPARE(score.littleEndianPoints, 0U);
+
 }
 
