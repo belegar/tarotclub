@@ -67,8 +67,6 @@ void Deal::NewDeal()
     littleEndianOwner = NO_TEAM;
     slamDone = false;
     slamOwner = NO_TEAM;
-    foolSwap = false;
-    foolOwner = NO_TEAM;
     tricksWon = 0;
     statsAttack.Reset();
     score.Reset();
@@ -96,6 +94,9 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
     Place winner;
     std::uint8_t numberOfPlayers = trick.Size();
     Place firstPlayer;
+    // Bonus: Fool
+    bool foolSwap = false;  // true if the fool has been swaped of teams
+    Team foolOwner = NO_TEAM; // the final owner of the fool
 
     if (turn == 0U)
     {
@@ -192,6 +193,20 @@ Place Deal::SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t tric
             tricks[turn].SetOwner(ATTACK);
             tricks[turn].AnalyzeTrumps(statsAttack);
             tricksWon++;
+
+            if (foolSwap == true)
+            {
+                if (foolOwner == DEFENSE)
+                {
+                    statsAttack.points -= 4; // defense keeps its points
+                    statsAttack.oudlers--; // attack looses an oudler! what a pity!
+                }
+                else
+                {
+                    statsAttack.points += 4; // get back the points
+                    statsAttack.oudlers++; // hey, it was MY oudler!
+                }
+            }
         }
         else
         {
@@ -332,38 +347,23 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
         slamDone = true;
         slamOwner = ATTACK;
     }
-
-    if (tricksWon == 0)
+    else if (tricksWon == 0)
     {
         slamDone = true;
         slamOwner = DEFENSE;
+    }
+    else
+    {
+        slamDone = false;
     }
 
     // 2. Attacker points, we add the dog if needed
     if (mDiscard.GetOwner() == ATTACK)
     {
         mDiscard.AnalyzeTrumps(statsAttack);
-    }
+    }   
 
-    // 3. Fool owner. If the attacker has lost a fool, it changes some key elements such as:
-    //    - The number of oudlers
-    //    - The points realized
-
-    if (foolSwap == true)
-    {
-        if (foolOwner == DEFENSE)
-        {
-            statsAttack.points -= 4; // defense keeps its points
-            statsAttack.oudlers--; // attack looses an oudler! what a pity!
-        }
-        else
-        {
-            statsAttack.points += 4; // get back the points
-            statsAttack.oudlers++; // hey, it was MY oudler!
-        }
-    }
-
-    // 4. One of trumps in the last trick bonus detection
+    // 3. One of trumps in the last trick bonus detection
     if (slamDone)
     {
         // With a slam, the 1 of Trump bonus is valid if played
@@ -379,10 +379,10 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
         littleEndianOwner = tricks[lastTrick].GetOwner();
     }
 
-    // 5. The number of oudler(s) decides the points to do
+    // 4. The number of oudler(s) decides the points to do
     score.oudlers = statsAttack.oudlers;
 
-    // 6. We save the points done by the attacker
+    // 5. We save the points done by the attacker
     score.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma
 }
 /*****************************************************************************/
@@ -480,9 +480,7 @@ void Deal::GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Ident
     obj->CreateValuePair("taker", bid.taker.ToString());
     obj->CreateValuePair("contract", bid.contract.ToString());
     obj->CreateValuePair("slam", bid.slam);
-
     obj->CreateValuePair("first_trick_lead", mFirstPlayer.ToString());
-    obj->CreateValuePair("discard", mDiscard.GetCardList());
 
     // ========================== Score calculation ==========================
     JsonObject *scoreObj = obj->CreateObjectPair("score");
@@ -531,14 +529,26 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
             {
                 bid.taker = str_value;
             }
+            else
+            {
+                ret = false;
+            }
             if (json.GetValue("deal_info:contract", str_value))
             {
                 bid.contract = str_value;
             }
+            else
+            {
+                ret = false;
+            }
             bool slam;
-            if (json.GetValue("deal_info:taker", slam))
+            if (json.GetValue("deal_info:slam", slam))
             {
                 bid.slam = slam;
+            }
+            else
+            {
+                ret = false;
             }
             if (json.GetValue("deal_info:first_trick_lead", str_value))
             {
@@ -547,12 +557,18 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
 #endif
                 StartDeal(str_value);
             }
+            else
+            {
+                ret = false;
+            }
 
             // Load played cards
             std::vector<JsonValue> tricks = json.GetArray("tricks", JsonValue::STRING);
             if (tricks.size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
             {
                 std::uint8_t trickCounter = 1U;
+                mDiscard.CreateTarotDeck();
+
                 for (std::uint32_t i = 0U; i < tricks.size(); i++)
                 {
                     Deck trick(tricks[i].GetString());
@@ -561,9 +577,14 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                     {
                         Place winner = SetTrick(trick, bid, trickCounter);
 #ifdef TAROT_DEBUG
-                        std::cout << "Cards: " << trick.GetCardList() << std::endl;
-                        std::cout << "Trick: " << (int)trickCounter << ", Winner: " << winner.ToString() << std::endl;
+                        std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.GetCardList() << ", Winner: " << winner.ToString() << std::endl;
 #endif
+                        // Remove played cards from this deck
+                        if (mDiscard.RemoveDuplicates(trick) != numberOfPlayers)
+                        {
+                            TLogError("Bad deal contents");
+                            ret = false;
+                        }
                         trickCounter++;
                     }
                     else
@@ -571,19 +592,42 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                         ret = false;
                     }
                 }
+
+                // Now that we have removed all the played cards from the mDiscard deck,
+                // it should contains only the discard cards
+                if (mDiscard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
+                {
+                    // Give the cards to the right team owner
+                    if (bid.contract == Contract::GUARD_AGAINST)
+                    {
+                        mDiscard.SetOwner(DEFENSE);
+                    }
+                    else
+                    {
+                        mDiscard.SetOwner(ATTACK);
+                    }
+                }
+                else
+                {
+                    TLogError("Bad number of tricks");
+                    ret = false;
+                }
             }
             else
             {
+                TLogError("Bad deal contents");
                 ret = false;
             }
         }
         else
         {
+            TLogError("Bad number of players in the array");
             ret = false;
         }
     }
     else
     {
+        TLogError("Cannot open deal JSON file");
         ret = false;
     }
     return ret;

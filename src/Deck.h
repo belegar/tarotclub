@@ -184,6 +184,8 @@ public:
     bool HasFool() const;
     Card *HighestTrump() const;
     Card *HighestSuit() const;
+    void CreateTarotDeck();
+    std::uint32_t RemoveDuplicates(const Deck &deck);
 
     // Getters
     Card *GetCardByName(const std::string &i_name);

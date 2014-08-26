@@ -42,6 +42,39 @@ Deck::Deck(const std::string &cards)
     SetCards(cards);
 }
 /*****************************************************************************/
+void Deck::CreateTarotDeck()
+{
+    Clear();
+    for (std::uint8_t i = 0U; i < 78U; i++)
+    {
+        Append(TarotDeck::GetCard(i));
+    }
+}
+/*****************************************************************************/
+/**
+ * @brief Deck::RemoveDuplicates
+ *
+ * This method removes all the cards of the current deck that are common
+ * with the deck passed in parameters.
+ *
+ * @param deck
+ * @return The number of duplicate cards removed
+ */
+std::uint32_t Deck::RemoveDuplicates(const Deck &deck)
+{
+    std::uint32_t cardsRemoved = 0U;
+
+    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
+    {
+        if (HasCard((*it)))
+        {
+            Remove((*it));
+            cardsRemoved++;
+        }
+    }
+    return cardsRemoved;
+}
+/*****************************************************************************/
 void Deck::Append(const Deck &deck)
 {
     for (Deck::ConstIterator i = deck.Begin(); i != deck.End(); ++i)

@@ -573,11 +573,7 @@ void TarotEngine::CreateDeal()
     }
     else
     {
-        for (int i = 0; i < 78; i++)
-        {
-            currentTrick.Append(TarotDeck::GetCard(i));
-        }
-
+        currentTrick.CreateTarotDeck();
         if (mShuffle.type == Tarot::Shuffle::RANDOM_DEAL)
         {
             std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long

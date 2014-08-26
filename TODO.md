@@ -44,6 +44,7 @@
   * Ability of seeing current players in a room (server connection wizard)
   * Serait possible d'ajouter une partie reseau ouvert ? genre qui se connecterait sur un serveur qui servirait à ca et qui nous ajouterait directement dans une nouvelle partie ?
   * Add title in popup window (to show the dog or handle)
+  * Add new window: list the previous played deals (in .tarotclub directory), and display the players cards (Use QML ?! Plug-in engine ?!)
 
 ## IA strategy
 

@@ -120,10 +120,58 @@ void TarotRules::TestCanPlayCard()
 void TarotRules::TestScoreCalculation()
 {
     Deal deal;
+    Tarot::Handle attack;
+    Tarot::Handle defense;
+    Tarot::Bid bid;
+    Score score;
 
-    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/deal_result_2014-08-24.145333.json");
-
+    // --------------------------------------------------------------------
+    // Test 1: Load the TarotMag issue 17 example deal
+    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/tarotmag_17.json");
     QCOMPARE(actual_bool, true);
+
+    // Launch score calculation
+    attack = Tarot::NO_HANDLE;
+    defense = Tarot::NO_HANDLE;
+    bid.contract = Contract::TAKE;
+    bid.taker = Place::SOUTH;
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore(bid, attack, defense);
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), DEFENSE);
+    QCOMPARE(score.GetAttackScore(), -102); // -34 multiple 3 players
+    QCOMPARE(score.oudlers, 1U);
+    QCOMPARE(score.handlePoints, 0U);
+    QCOMPARE(score.slamPoints, 0U);
+    QCOMPARE(score.littleEndianPoints, 0U);
+
+    // --------------------------------------------------------------------
+    // Test 2: The taker loses some oudlers
+    // On a pris le petit du preneur, et le preneur joue son excuse au dernier pli.
+    // Malgré cela, au calcul des points, le logiciel lui conserve les 3 bouts
+
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/taker_loses_two_oudlers.json");
+    QCOMPARE(actual_bool, true);
+
+    // Launch score calculation
+    attack = Tarot::TRIPLE_HANDLE;
+    defense = Tarot::NO_HANDLE;
+    bid.contract = Contract::GUARD_WITHOUT;
+    bid.taker = Place::SOUTH;
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore(bid, attack, defense);
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), ATTACK);
+    QCOMPARE(score.pointsAttack, 67U);
+    QCOMPARE(score.GetAttackScore(), 612);
+    QCOMPARE(score.oudlers, 1U);
+    QCOMPARE(score.handlePoints, 40U);
+    QCOMPARE(score.slamPoints, 0U);
+    QCOMPARE(score.littleEndianPoints, 0U);
 
 }
 
