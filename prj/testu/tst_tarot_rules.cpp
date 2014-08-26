@@ -173,5 +173,29 @@ void TarotRules::TestScoreCalculation()
     QCOMPARE(score.slamPoints, 0U);
     QCOMPARE(score.littleEndianPoints, 0U);
 
+    // --------------------------------------------------------------------
+    // Test 3:  Load the TarotMag issue 18 example deal
+
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/tarotmag_18.json");
+    QCOMPARE(actual_bool, true);
+
+    // Launch score calculation
+    attack = Tarot::NO_HANDLE;
+    defense = Tarot::NO_HANDLE;
+    bid.contract = Contract::GUARD;
+    bid.taker = Place::SOUTH;
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore(bid, attack, defense);
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), ATTACK);
+    QCOMPARE(score.GetAttackScore(), 54 * 3);
+    QCOMPARE(score.oudlers, 2U);
+    QCOMPARE(score.handlePoints, 0U);
+    QCOMPARE(score.slamPoints, 0U);
+    QCOMPARE(score.littleEndianPoints, 0U);
+
+
 }
 
