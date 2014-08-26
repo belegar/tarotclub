@@ -1,11 +1,9 @@
 # Planned for 2.3.7
 
 ## Bugs
-  * Game is freezing if: Game menu > Exit (==> Linux only)
-  * On a pris le petit du preneur, et le preneur joue son excuse au dernier pli. Malgré cela, au calcul des points, le logiciel lui conserve les 3 bouts
-  * Peux-tu aussi regarder pourquoi il faut soit un clic soit un double clic pour jouer une carte ? (==> to reproduce it, click after the auto-clean at the end of a trick)
+  * Game is freezing if: Game menu > Exit (==> Linux only, not a freeze but very slow)
+  * Peux-tu aussi regarder pourquoi il faut soit un clic soit un double clic pour jouer une carte ? (==> to reproduce it: Si je laisse le programme faire, à la fin d'un tour, il ramasse les cartes et je peux jouer avec un seul clic. Par contre si je clique sur la table pour ramasser plus vite les cartes, alors j'ai pratiquement toujours besoin d'un double clic pour jouer ma carte suivante)
   * Edit : 12 atouts mais on ne me demande pas si je veux déclarer une poignée, il compte bien le nombre d'atout apres avoir eu le chien ? car avant le chien je n'en avais que 9...
-  * Si je laisse le programme faire, à la fin d'un tour, il ramasse les cartes et je peux jouer avec un seul clic. Par contre si je clique sur la table pour ramasser plus vite les cartes, alors j'ai pratiquement toujours besoin d'un double clic pour jouer ma carte suivante.
 
 # Planned for 2.4.0 (Target date: October 2014)
 

@@ -15,6 +15,7 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Ticket #22: Lobby French translation "Connextion"
     ~ Removed English translation file (native language)
     ~ Corrected/optimized deal log generation
+    ~ Corrected fool owner if played at last trick
     + New hand-made makefile do build the TCDS executable
     + New code coverage script
     + New deal reading facility
