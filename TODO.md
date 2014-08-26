@@ -5,7 +5,7 @@
   * Peux-tu aussi regarder pourquoi il faut soit un clic soit un double clic pour jouer une carte ? (==> to reproduce it: Si je laisse le programme faire, à la fin d'un tour, il ramasse les cartes et je peux jouer avec un seul clic. Par contre si je clique sur la table pour ramasser plus vite les cartes, alors j'ai pratiquement toujours besoin d'un double clic pour jouer ma carte suivante)
   * Edit : 12 atouts mais on ne me demande pas si je veux déclarer une poignée, il compte bien le nombre d'atout apres avoir eu le chien ? car avant le chien je n'en avais que 9...
 
-# Planned for 2.4.0 (Target date: October 2014)
+# Planned for 2.4.0 (Target date: November 2014)
 
 ## Debian source package
 
@@ -28,8 +28,18 @@
   * Delete TarotDeck static class, not compatible with muti tables TCDS egine
   * Deck class: change the list of Card pointers into a list of Card objects (3 bytes instead of 4, and resolve the above problem)
   
+## TarotWidget Engine
+  * Use an HTML5 canvas and JavaScript to allow an easy porting on all platforms
+  
+## UI improvements
+  * Try wrap Qt UI elements to allow easy porting
+  * Move cards played by the players at the middle of the table, with fancy arrangement (random position, as in a real game)
+  * Add animation when player cards are played
+  * Dog / Handle: grey not allowed cards
+  
 ## New features
   
+  * Use the Canvas to propose Handle (with the menu)
   * Use a command line TCDS configuration file
   * Change the Lobby protocol into JSON-RPC
   * Use a dynamic-table creation thanks to the JSON configuration file
@@ -54,7 +64,7 @@ Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant
   * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
   * Encore une excuse en fin de jeu (mais il m'est donné a priori)
   
-# Planned for 2.5.0 (Target date: December 2014)
+# Planned for 2.5.0 (Target date: January 2014)
 
   * Display the dog / discard at the end of the deal
   * Display all the played cards at the end of the deal
