@@ -1,0 +1,32 @@
+<html>
+<head>
+<script type="text/javascript">
+    function Init() 
+    {
+        // Set up our canvas on the page before doing anything.
+        var c = document.getElementById("myCanvas");
+        // Get drawing context for the Canvas
+        var myCanvasContext = c.getContext("2d");
+        // Load up our image.
+        var source = new Image();
+        source.src = '../../assets/cards/default/00-T.svg';
+        source.width = '100';
+        source.height = '100';
+        // Render our SVG image to the canvas once it loads.
+        source.onload = function(){
+            myCanvasContext.drawImage(source,0,0);
+        }
+    }
+    
+    window.onload = Init;
+    
+</script>
+
+
+</head>
+
+<body>
+	<canvas id="myCanvas" width="200" height="100"></canvas>
+
+</body>
+</html>
