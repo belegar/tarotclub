@@ -10,12 +10,14 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Correction of tournament score initialization (server and client sides)
     ~ CppCheck, Coverity Scan, Simian (duplicate code), Vera++ and MISRA C++ corrections
     ~ CanPlayCard() algorithm correction in one test case
-    ~ Added unit test (Player class, CanPlayCard())
+    ~ Added unit tests (Player class, CanPlayCard(), scoring)
     ~ Ticket #21: Ctrl+D is used for two menu entries
     ~ Ticket #22: Lobby French translation "Connextion"
     ~ Removed English translation file (native language)
-    ~ Corrected/optimized deal log generation
+    ~ Corrected and optimized deal log generation (less unused information generated)
     ~ Corrected fool owner if played at last trick
+    ~ Corrected handle detection after building the discard
+    ~ Corrected the need of card double-click if the previous trick flushing was not automatic (Qt event problem)
     + New hand-made makefile do build the TCDS executable
     + New code coverage script
     + New deal reading facility
