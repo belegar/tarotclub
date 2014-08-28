@@ -121,7 +121,7 @@ void TcpServer::Run()
     /* close the socket and finally exit the thread              */
     /*************************************************************/
     int pipefd[2];
-    if (pipe(pipefd) == 0)
+    if (pipe(pipefd) != 0)
     {
         std::cout << "Pipe creation error, exiting ..." << std::endl;
         return;
