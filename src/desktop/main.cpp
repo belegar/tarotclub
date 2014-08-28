@@ -80,11 +80,6 @@ int main(int argc, char **argv)
 
     MainWindow tarot;
     tarot.Initialize(); // Init internal stuff before showing the interface
-
-    tarot.resize(1280, 770);
-    QRect r = tarot.geometry();
-    r.moveCenter(QApplication::desktop()->availableGeometry().center());
-    tarot.setGeometry(r);
     tarot.show();
 
     splash.finish(&tarot);
