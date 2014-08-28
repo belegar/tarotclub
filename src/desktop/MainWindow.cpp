@@ -75,7 +75,17 @@ MainWindow::MainWindow(QWidget *parent)
     connect(chatDock, &ChatDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendChatMessage);
 
     // Exit catching to terminate the game properly
-    connect(qApp, &QApplication::aboutToQuit, tarotWidget, &TarotWidget::slotCleanBeforeExit);
+    connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
+}
+/*****************************************************************************/
+void MainWindow::slotAboutToQuit()
+{
+    tarotWidget->slotCleanBeforeExit();
+
+    // Save QMainWindow settings
+    QSettings settings("TarotCorp.", "TarotClub");
+    settings.setValue("mainWindowGeometry", saveGeometry());
+    settings.setValue("mainWindowState", saveState());
 }
 /*****************************************************************************/
 void MainWindow::slotNewNumberedDeal()
@@ -168,6 +178,18 @@ void MainWindow::Initialize()
                               mServerConfig.GetOptions());
 
     debugDock->Initialize();
+
+    // Load previously saved settings
+    QSettings settings("TarotCorp.", "TarotClub");
+    restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
+    restoreState(settings.value("mainWindowState").toByteArray());
+
+
+
+    //  tarot.resize(1280, 770);
+    //  QRect r = tarot.geometry();
+   //   r.moveCenter(QApplication::desktop()->availableGeometry().center());
+   //   tarot.setGeometry(r);
 }
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
@@ -205,6 +227,7 @@ void MainWindow::SetupDocks()
 
     // Debug, for scripts and Qt error redirection
     debugDock = new DebugDock(this);
+    debugDock->setObjectName("DebugDock"); // for dock saving
     addDockWidget(Qt::BottomDockWidgetArea, debugDock);
     debugDock->hide();
 
@@ -212,14 +235,17 @@ void MainWindow::SetupDocks()
 
     // Scores
     scoresDock = new ScoresDock(this);
+    scoresDock->setObjectName("ScoresDock"); // for dock saving
     addDockWidget(Qt::RightDockWidgetArea, scoresDock);
 
     // Information
     infosDock = new InfosDock(this);
+    infosDock->setObjectName("InfosDock"); // for dock saving
     addDockWidget(Qt::RightDockWidgetArea, infosDock);
 
     // Chat
     chatDock = new ChatDock(this);
+    chatDock->setObjectName("ChatDock"); // for dock saving
     addDockWidget(Qt::RightDockWidgetArea, chatDock);
 
     // Right area belongs to right docks

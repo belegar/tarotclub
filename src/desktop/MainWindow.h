@@ -66,6 +66,7 @@ private slots:
     void slotShowOptions();
     void slotLaunchHelp();
     void slotNewAutoPlay();
+    void slotAboutToQuit();
 
     // Events from TarotWidget
     void slotNewGameEvent();
