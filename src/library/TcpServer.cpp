@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cstring>
 #include "TcpServer.h"
+#include <iostream>
 
 /*****************************************************************************/
 TcpServer::TcpServer(IEvent &handler)
@@ -87,6 +88,7 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
 /*****************************************************************************/
 void TcpServer::Stop()
 {
+    write(mSendFd,"1",1);
     Close();
     Join();
 }
@@ -112,6 +114,25 @@ void TcpServer::Run()
     FD_ZERO(&mMasterSet);
     mMaxSd = GetSocket();
     FD_SET(mMaxSd, &mMasterSet);
+
+#ifdef USE_UNIX_OS
+    /*************************************************************/
+    /* Use a pipe on Unix to gracefully quit the select(),       */
+    /* close the socket and finally exit the thread              */
+    /*************************************************************/
+    int pipefd[2];
+    if (pipe(pipefd) == 0)
+    {
+        std::cout << "Pipe creation error, exiting ..." << std::endl;
+        return;
+    }
+
+    mReceiveFd = pipefd[0];
+    mSendFd = pipefd[1];
+    fcntl(mSendFd, F_SETFL, O_NONBLOCK);
+    mMaxSd = (mMaxSd > mReceiveFd) ? mMaxSd : mReceiveFd;
+    FD_SET(mReceiveFd, &mMasterSet);
+#endif
 
     /*************************************************************/
     /* Initialize the timeval struct to N minutes.  If no        */
@@ -162,7 +183,13 @@ void TcpServer::Run()
             /**********************************************************/
             for (int i = 0; i < rc; i++)
             {
-                if (FD_ISSET(GetSocket(), &working_set))
+                if (FD_ISSET(mReceiveFd, &working_set))
+                {
+                    end_server = true;
+                    mEventHandler.ServerTerminated(IEvent::CLOSED);
+                    break;
+                }
+                else if (FD_ISSET(GetSocket(), &working_set))
                 {
                     /****************************************************/
                     /* This is the listening socket                     */

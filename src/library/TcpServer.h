@@ -49,7 +49,8 @@ public:
         enum CloseType
         {
             WAIT_SOCK_FAILED,
-            TIMEOUT
+            TIMEOUT,
+            CLOSED
         };
 
         /**
@@ -96,6 +97,10 @@ private:
     std::vector<int> mClients;
     bool mInitialized;
     IEvent     &mEventHandler;
+
+    // Pipes on Linux to properly close the socket and quit select()
+    int mReceiveFd;
+    int mSendFd;
 
     static void EntryPoint(void *pthis);
     void Run();
