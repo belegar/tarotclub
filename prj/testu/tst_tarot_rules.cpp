@@ -196,6 +196,13 @@ void TarotRules::TestScoreCalculation()
     QCOMPARE(score.slamPoints, 0U);
     QCOMPARE(score.littleEndianPoints, 0U);
 
+    // FIXME: add test cases:
+      // Slam done by the attack
+      // Slam done by the defense and declared by the attack, and the reverse situation
+      // Little endian at the last trick
+      // Generate end of deal log
+      // bad End of deal log format (error use cases)
+
 
 }
 
