@@ -188,8 +188,8 @@ void MainWindow::Initialize()
 
     //  tarot.resize(1280, 770);
     //  QRect r = tarot.geometry();
-   //   r.moveCenter(QApplication::desktop()->availableGeometry().center());
-   //   tarot.setGeometry(r);
+    //   r.moveCenter(QApplication::desktop()->availableGeometry().center());
+    //   tarot.setGeometry(r);
 }
 /*****************************************************************************/
 void MainWindow::SetupDialogs()

@@ -88,7 +88,7 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
 /*****************************************************************************/
 void TcpServer::Stop()
 {
-    write(mSendFd,"1",1);
+    write(mSendFd, "1", 1);
     Close();
     Join();
 }
