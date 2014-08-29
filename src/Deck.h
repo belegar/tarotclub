@@ -69,7 +69,7 @@ public:
             }
         }
 
-        bool operator() (Card *c1, Card *c2)
+        bool operator()(Card *c1, Card *c2)
         {
             bool result;
 
@@ -82,7 +82,7 @@ public:
 
         std::uint16_t GetWeight(Card *c)
         {
-            return(mWeight[c->GetSuit()] + c->GetValue());
+            return (mWeight[c->GetSuit()] + c->GetValue());
         }
 
     private:
@@ -184,6 +184,8 @@ public:
     bool HasFool() const;
     Card *HighestTrump() const;
     Card *HighestSuit() const;
+    void CreateTarotDeck();
+    std::uint32_t RemoveDuplicates(const Deck &deck);
 
     // Getters
     Card *GetCardByName(const std::string &i_name);

@@ -51,7 +51,7 @@ VPATH += $$BASE_DIR/src/database
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
-VPATH += $$BASE_DIR/prj/testu
+VPATH += $$BASE_DIR/tests/src
 
 # ------------------------------------------------------------------------------
 # Where to find header files
@@ -61,7 +61,7 @@ INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/database
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
-INCLUDEPATH += $$BASE_DIR/prj/testu
+INCLUDEPATH += $$BASE_DIR/tests/src
 
 
 QT       += testlib

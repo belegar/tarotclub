@@ -73,8 +73,8 @@ float Card::GetPoints()
     {
         // More points for the oudlers
         if ((mValue == 0) ||    // Fool
-            (mValue == 1) ||    // 1
-            (mValue == 21))      // 21
+                (mValue == 1) ||    // 1
+                (mValue == 21))      // 21
         {
             points = 4.5F;
         }

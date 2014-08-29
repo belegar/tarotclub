@@ -88,10 +88,6 @@ private:
     bool slamDone;  // true if the slam has been successfully done
     Team slamOwner; // the defense can also perform a slam if everything goes wrong
 
-    // Bonus: Fool
-    bool foolSwap;  // true if the fool has been swaped of teams
-    Team foolOwner; // the final owner of the fool
-
     // Last score
     Score  score;
 

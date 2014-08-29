@@ -49,9 +49,9 @@ void Score::Reset()
     slamPoints          = 0U;
 }
 /*****************************************************************************/
-int Score::GetAttackScore() const
+std::int32_t Score::GetAttackScore() const
 {
-    int sign = -1;
+    std::int32_t sign = -1;
 
     if (Winner() == ATTACK)
     {
@@ -60,9 +60,9 @@ int Score::GetAttackScore() const
     return (scoreAttack * sign * 3);
 }
 /*****************************************************************************/
-int Score::GetDefenseScore() const
+std::int32_t Score::GetDefenseScore() const
 {
-    int sign = 1;
+    std::int32_t sign = 1;
 
     if (Winner() == ATTACK)
     {

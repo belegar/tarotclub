@@ -47,15 +47,11 @@ public:
 
     // Getters
     std::uint16_t GetTcpPort();
-    bool IsCreated()
-    {
-        return mCreated;
-    }
 
     // Setters
-    void SaveConfiguration(const ServerOptions &opt);
     void SetTcpPort(std::uint16_t port);
 
+private:
     // Fom TcpServer interface
     virtual void NewConnection(int socket);
     virtual void ReadData(int socket, const std::string &data);
@@ -65,7 +61,6 @@ public:
     // From Controller
     virtual void SendData(const ByteArray &block);
 
-private:
     void StopServer();
     void CloseClients();
 

@@ -1,31 +1,42 @@
-HISTORY OF TAROTCLUB VERSIONS
+# HISTORY OF TAROTCLUB VERSIONS
+
+## Introduction
+
+The following ChangeLog is using specific signs to quickly identify the nature of the change:
 
 + new feature
 ~ bug corrected
 - feature removed
 
-* version 2.3.7 <Snowboard>
-  -------------------------------
+# Branch 2.3.x - Codename <Snowboard>
+
+## version 2.3.7 (30/08/2014)
+
     ~ Added "codename" string in the AboutBox
     ~ Correction of tournament score initialization (server and client sides)
     ~ CppCheck, Coverity Scan, Simian (duplicate code), Vera++ and MISRA C++ corrections
     ~ CanPlayCard() algorithm correction in one test case
-    ~ Added unit test (Player class, CanPlayCard())
+    ~ Added unit tests (Player class, CanPlayCard(), scoring)
     ~ Ticket #21: Ctrl+D is used for two menu entries
     ~ Ticket #22: Lobby French translation "Connextion"
     ~ Removed English translation file (native language)
-    ~ Corrected/optimized deal log generation
+    ~ Corrected and optimized deal log generation (less unused information generated)
+    ~ Corrected fool owner if played at last trick
+    ~ Corrected handle detection after building the discard
+    ~ Corrected the need of card double-click if the previous trick flushing was not automatic (Qt event problem)
+    ~ Corrected game freeze under Linux (Menu game > quit after first launch)
     + New hand-made makefile do build the TCDS executable
     + New code coverage script
     + New deal reading facility
+    + Window and docks geometry is now memorized on exit and applied on start
 
-* version 2.3.6 <Snowboard>
-  -------------------------------
+## version 2.3.6 (01/08/2014)
+
     ~ Still missing some translations, added factorization of texts to simplify the translation process
     ~ Corrected the Mkdir() method under windows
 
-* version 2.3.5 <Snowboard>
-  -------------------------------
+## version 2.3.5 (31/07/2014)
+
     ~ About box was too large (switched to a text edit control)   
     ~ Various defense AI corrections and function bugs
     ~ JS script context is now reloaded at each new game with a proper heap cleaning
@@ -35,8 +46,8 @@ HISTORY OF TAROTCLUB VERSIONS
     + Change in the network protocol: clear separation between a game and a deal (preparation for network game enhencements)
     + New AI attack, basic version, with discard build   
     
-* version 2.3.4 <Snowboard>
-  -------------------------------
+## version 2.3.4 (19/07/2014)
+
     ~ Correction: little endian bonus in case of slam and fool in last trick was not detected
     ~ Correction: translated deal result text in french
     ~ Correction of the highest suit dection (trick winner)
@@ -44,14 +55,14 @@ HISTORY OF TAROTCLUB VERSIONS
     + New drop shadow effect on cards
     + New radial gradient effect for the background color
 
-* version 2.3.3 <Snowboard>
-  -------------------------------
+## version 2.3.3 (17/07/2014)
+
     ~ Correction: show handle sequence was not managed well
     ~ Correction: the dog cards was hidden in the player's hand
     ~ Correction: the slam tick was not cleared between two deals
     
-* version 2.3.2 <Snowboard>
-  -------------------------------
+## version 2.3.2 (14/07/2014)
+
     ~ Correction: the user does not send the discard to the server
     ~ Correction: the deal JSON output was not JSON compliant
     ~ Removed winner message box (no sense for one deal)
@@ -59,13 +70,13 @@ HISTORY OF TAROTCLUB VERSIONS
     + JSON reader now uses its own parser instead of the Duktape's one
     + New JSON configuration file for AI scripts
 
-* version 2.3.1 <Snowboard>
-  -------------------------------
+## version 2.3.1 (05/07/2014)
+
     ~ Corrected french translation, bug in translation file loading and in Canvas item texts
     ~ Make the debian package dependant of QtSvg
 
-* version 2.3.0 <Snowboard>
-  -------------------------------
+## version 2.3.0 (05/07/2014)
+
     + Show south cards with a constant padding, middle alignment
     + Use JSON instead of XML for client/server configuration and various generated files (deals, statistics ...)
     + Advanced logging system in files and in the DebugDock window
@@ -82,8 +93,10 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Modified the JavaScript engine: use of Duktape 0.10
     - Removed integrated help system. Replace by the launch of a web browser showing provided HTML help pages
 
-* version 2.2.0 <Juliette>
-  -------------------------------
+# Branch 2.2.x - Codename <Juliette>
+
+## version 2.2.0 (04/10/2013)
+
     + Dedicated server with multi game rooms, independent executable
     + Connection to a server, server hosting inside the graphical client
     + Resize cards and canvas contents with the window size
@@ -93,8 +106,10 @@ HISTORY OF TAROTCLUB VERSIONS
     + Show declared handles on the screen
 	~ Updated code style and translation into English
 
-* version 2.1.0 <GLaDOS>
-  -------------------------------
+# Branch 2.1.x - Codename <GLaDOS>
+    
+## version 2.1.0 (10/08/2013)
+
     + Script Engine for AI using QtScript, first version of Javascript API
     + Rework options and config files (separation between server and client)
     + Qt 5.0 version
@@ -110,8 +125,10 @@ HISTORY OF TAROTCLUB VERSIONS
     + Debian/Ubuntu installation packages
     + On each platform, store the configuration files in HOME_DIR/.tarotclub/
 
-* version 2.0.0 <Kritzkrieg>
-  -------------------------------
+# Branch 2.0.x - Codename <Kritzkrieg>
+    
+## version 2.0.0 (13/08/2010)
+
     + Configure time between players and at the end of a turn
     + Windows installer with Innosetup
     + Tournament mode (10 rounds) and one shot round
@@ -124,22 +141,26 @@ HISTORY OF TAROTCLUB VERSIONS
     + Show the total of points in the score table
     + Server-side tournament mode and result UI
 
-* version 1.3.0 <Dragon Ball>
-  -------------------------------
+# Branch 1.3.x - Codename <Dragon Ball>
+    
+## version 1.3.0 (04/10/2006)
+
     + Nouveau système de dock windows pour afficher des informations
     + Dock window pour le chat durant les parties réseau
     + Compatible complètement avec Qt 4.3.0 (plus de Q3Support)
     + Architecture client/serveur complète avec serveur dédié indépendant
     + Support de bots prévu dès la conception
 
-* version 1.2.1 <Tschaď>
-  -------------------------------
+# Branch 1.2.x - Codename <Tschaï>
+    
+## version 1.2.1
+
     + Traduction anglaise
     + Sélection de la langue dans les options
     + Exécutable plus petit grâce à UPX (http://upx.sourceforge.net/)
 
-* version 1.2.0 <Tschaď>
-  -------------------------------
+## version 1.2.0
+
     + Le jeu en réseau
     + Splash screen au démarrage
     + Choix du tapis de jeu
@@ -150,8 +171,10 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Modification du choix des avatars
     - Abandon (temporaire) des scripts Lua
 
-* version 1.1.3 <Winnie>
-  -------------------------------
+# Branch 1.1.x - Codename <Winnie>
+    
+## version 1.1.3
+
     + Nouvelle donnée de l'API : cartesJoueurs[]
     + Nouveau fichier d'IA : contribution de Hervé BENOIT
     ~ Correction de l'appartenance des cartes
@@ -162,8 +185,8 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Changements dans le menu
     ~ Bug de sauvegarde des avatars corrigé
 
-* version 1.1.2 <Winnie>
-  -------------------------------
+## version 1.1.2
+
     + Le Chien s'affiche rangé par couleur
     + Portage du code de Qt 2.3 à Qt 3.2.1
     + Changements des Id des cartes
@@ -172,16 +195,16 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Console Lua améliorée
     ~ L'ordinateur produit un chien valide (sans Roi ni atouts)
 
-* version 1.1.1 <Winnie>
-  -------------------------------
+## version 1.1.1
+
     + Nouvelles fonctions de l'API :
     + println() : affiche un message dans la console
     + maitre() : retourne la position du maitre
     + place() : (retourne : nord, sud, etc.)
     + des variables globales pour accéder cartes déjà jouées etc.
 
-* version 1.1 <Winnie>
-  -------------------------------
+## version 1.1.0
+
     + Une console Lua permet de visualiser les messages d'erreurs
     + Nouvelle option : visualisation du pli précédent
     + Indication du joueur qui joue : plus de boule mais la boite du joueur est cerclées de rouge
@@ -195,8 +218,10 @@ HISTORY OF TAROTCLUB VERSIONS
     ~ Quelques bugs corrigés et des simplifications de code
     ~ Classe Deck complètement refondue : + simple et ne fait plus planter le jeu
 
-* version 1.0 <Teddy>
-  -------------------------------
+# Branch 1.0.x - Codename <Teddy>
+
+## version 1.0.0 (03/12/2003)
+
 	+ Version initiale
 
 (end of HISTORY)
