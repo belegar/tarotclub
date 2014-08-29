@@ -1,8 +1,5 @@
 # Planned for 2.3.7
 
-## Bugs
-  * Game is freezing if: Game menu > Exit (==> Linux only, not a freeze but very slow)
-
 # Planned for 2.4.0 (Target date: November 2014)
 
 ## Debian source package
@@ -87,7 +84,6 @@ The goal is to focus on the GUI optimizations/corrections and new features.
   * Show a tournament podium at the end
   * Allow to display HTTP avatars
   * Show the discard at the end of the deal (and the points)
-  * Automatically save the QMainWindow state before closing (size, position …)
   * Allow domain names instead and IP fields
   * Statistic graphs (points at each round)
   * Save and load game
