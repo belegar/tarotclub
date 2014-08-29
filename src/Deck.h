@@ -69,7 +69,7 @@ public:
             }
         }
 
-        bool operator() (Card *c1, Card *c2)
+        bool operator()(Card *c1, Card *c2)
         {
             bool result;
 
@@ -82,7 +82,7 @@ public:
 
         std::uint16_t GetWeight(Card *c)
         {
-            return(mWeight[c->GetSuit()] + c->GetValue());
+            return (mWeight[c->GetSuit()] + c->GetValue());
         }
 
     private:

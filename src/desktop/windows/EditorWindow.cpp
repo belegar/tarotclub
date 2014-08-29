@@ -166,8 +166,8 @@ void EditorWindow::slotSaveDeal()
     }
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save deal"),
-                                                    "tarot.json",
-                                                    tr("JSON (*json)"));
+                       "tarot.json",
+                       tr("JSON (*json)"));
     if (fileName.isEmpty())
     {
         return;

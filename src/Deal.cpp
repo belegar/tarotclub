@@ -361,7 +361,7 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
     if (mDiscard.GetOwner() == ATTACK)
     {
         mDiscard.AnalyzeTrumps(statsAttack);
-    }   
+    }
 
     // 3. One of trumps in the last trick bonus detection
     if (slamDone)
@@ -519,8 +519,8 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
         std::vector<JsonValue> players = json.GetArray("deal_info:players", JsonValue::STRING);
         numberOfPlayers = players.size();
         if ((numberOfPlayers == 3U) ||
-            (numberOfPlayers == 4U) ||
-            (numberOfPlayers == 5U))
+                (numberOfPlayers == 4U) ||
+                (numberOfPlayers == 5U))
         {
             Tarot::Bid bid;
 
