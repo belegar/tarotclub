@@ -18,7 +18,7 @@ void JsonTest::ParseFile()
 {
     JsonReader json;
 
-    std::string path = Util::ExecutablePath() + "/../../prj/testu/test.json";
+    std::string path = Util::ExecutablePath() + "/../../tests/json/test.json";
 
     if (!json.Open(path))
     {

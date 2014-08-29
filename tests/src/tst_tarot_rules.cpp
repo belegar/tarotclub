@@ -127,7 +127,7 @@ void TarotRules::TestScoreCalculation()
 
     // --------------------------------------------------------------------
     // Test 1: Load the TarotMag issue 17 example deal
-    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/tarotmag_17.json");
+    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/tarotmag_17.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -152,7 +152,7 @@ void TarotRules::TestScoreCalculation()
     // On a pris le petit du preneur, et le preneur joue son excuse au dernier pli.
     // Malgré cela, au calcul des points, le logiciel lui conserve les 3 bouts
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/taker_loses_two_oudlers.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/taker_loses_two_oudlers.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -176,7 +176,7 @@ void TarotRules::TestScoreCalculation()
     // --------------------------------------------------------------------
     // Test 3:  Load the TarotMag issue 18 example deal
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../prj/testu/deals/tarotmag_18.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/tarotmag_18.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
