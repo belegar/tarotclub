@@ -14,8 +14,8 @@
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{66E297AA-D2C9-4060-851F-3B8B9383ACF2}
-AppName=TarotClub-{#TAROT_VERSION}
-AppVerName=TarotClub-{#TAROT_VERSION}
+AppName=TarotClub-{#VERSION_STRING}
+AppVerName=TarotClub-{#VERSION_STRING}
 AppPublisher=TarotClub Corp.
 AppPublisherURL=http://www.tarotclub.fr
 AppSupportURL=http://www.tarotclub.fr
@@ -24,7 +24,7 @@ DefaultDirName={pf}\TarotClub
 DefaultGroupName=TarotClub
 LicenseFile=..\COPYING
 OutputDir=.
-OutputBaseFilename=TarotClub-{#TAROT_VERSION}-Setup
+OutputBaseFilename=TarotClub-{#VERSION_STRING}-Setup
 Compression=lzma
 SolidCompression=true
 WizardImageFile=compiler:wizmodernimage-IS.bmp
