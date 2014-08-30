@@ -78,6 +78,7 @@ private:
     static void EntryPoint(void *pthis);
 
     void NewDeal();
+     void StartDeal();
     bool DoAction(const ByteArray &data);
     void BidSequence();
     void GameSequence();

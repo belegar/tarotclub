@@ -370,7 +370,7 @@ bool Controller::DoAction(const ByteArray &data)
                         if (engine.SetDiscard(discard))
                         {
                             // Then start the deal
-                            mEventHandler.SendData(Protocol::ServerStartDeal(engine.GetBid(), engine.GetShuffle()));
+                            StartDeal();
                         }
                         else
                         {
@@ -389,7 +389,6 @@ bool Controller::DoAction(const ByteArray &data)
             {
                 if (engine.Sync(TarotEngine::WAIT_FOR_START_DEAL, uuid))
                 {
-                    engine.StartDeal();
                     GameSequence();
                 }
             }
@@ -534,10 +533,7 @@ bool Controller::DoAction(const ByteArray &data)
                     }
                     else
                     {
-                        std::map<int, Place> podium = engine.GetPodium();
-
-                        Place winner = podium.rbegin()->second;
-                        mEventHandler.SendData(Protocol::ServerEndOfGame(winner));
+                        mEventHandler.SendData(Protocol::ServerEndOfGame(engine.GetWinner()));
                     }
                 }
             }
@@ -570,6 +566,12 @@ void Controller::NewDeal()
     }
 }
 /*****************************************************************************/
+void Controller::StartDeal()
+{
+    Place first = engine.StartDeal();
+    mEventHandler.SendData(Protocol::ServerStartDeal(first, engine.GetBid(), engine.GetShuffle()));
+}
+/*****************************************************************************/
 void Controller::BidSequence()
 {
     // Launch/continue the bid sequence
@@ -587,7 +589,7 @@ void Controller::BidSequence()
             break;
 
         case TarotEngine::WAIT_FOR_START_DEAL:
-            mEventHandler.SendData(Protocol::ServerStartDeal(engine.GetBid(), engine.GetShuffle()));
+            StartDeal();
             break;
 
         case TarotEngine::WAIT_FOR_SHOW_DOG:
