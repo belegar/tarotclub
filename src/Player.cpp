@@ -226,18 +226,12 @@ bool Player::TestHandle(const Deck &handle)
     Deck::Statistics stats;
 
     // Check if the handle size is correct
-    if ((handle.Size() == 10U) ||
-            (handle.Size() == 13U) ||
-            (handle.Size() == 15U))
-    {
-        ret = true;
-    }
-    else
+    if (Tarot::GetHandleType(handle.Size()) == Tarot::NO_HANDLE)
     {
         ret = false;
     }
 
-    // Test if the handle contains only trumpts
+    // Test if the handle contains only trumps
     stats.Reset();
     handle.AnalyzeTrumps(stats);
 
