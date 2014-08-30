@@ -452,13 +452,14 @@ ByteArray Protocol::ServerEndOfTrick(Place winner)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ServerStartDeal(const Tarot::Bid &bid, const Tarot::Shuffle &sh)
+ByteArray Protocol::ServerStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Shuffle &sh)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::SERVER_START_DEAL, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
+    out << firstPlayer;     // first player to play
     out << bid.taker;       // taker
     out << bid.contract;    // bid declared
     out << bid.slam;        // slame declared

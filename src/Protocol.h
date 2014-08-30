@@ -151,7 +151,7 @@ public:
     static ByteArray ServerShowCard(Card *c, Place p);
     static ByteArray ServerShowHandle(Deck &handle, Place p);
     static ByteArray ServerNewDeal(Player *player);
-    static ByteArray ServerStartDeal(const Tarot::Bid &bid, const Tarot::Shuffle &sh);
+    static ByteArray ServerStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Shuffle &sh);
     static ByteArray ServerPlayCard(Place p);
     static ByteArray ServerBidRequest(Contract c, Place p);
     static ByteArray ServerShowDog(const Deck &dog);
