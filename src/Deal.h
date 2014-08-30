@@ -47,10 +47,10 @@ public:
     // Helpers
     void NewGame();
     void NewDeal();
-    void StartDeal(Place firstPlayer);
+    void StartDeal(Place firstPlayer, const Tarot::Bid &bid);
     void AnalyzeGame(std::uint8_t numberOfPlayers);
-    void CalculateScore(const Tarot::Bid &bid, Tarot::Handle attack, Tarot::Handle defense);
-    void GenerateEndDealLog(const Tarot::Bid &bid, const std::map<Place, Identity> &players);
+    void CalculateScore();
+    void GenerateEndDealLog(const std::map<Place, Identity> &players);
     bool LoadGameDealLog(const std::string &fileName);
     bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 
@@ -65,20 +65,21 @@ public:
     void SetHandle(const Deck &handle, Team team);
     void SetScore(const Score &score);
     void SetDiscard(const Deck &discard, Team owner);
-    Place SetTrick(const Deck &trick, const Tarot::Bid &bid, std::uint8_t trickCounter);
+    Place SetTrick(const Deck &trick, std::uint8_t trickCounter);
 
 private:
     Place GetOwner(Place firstPlayer, Card *c, int turn);
 
     // We store played cards to count points
     Deck mDiscard;
-    Deck attackHandleDeck;
-    Deck defenseHandleDeck;
-    Deck tricks[24];    // 24 tricks max with 3 players
+    Deck mAttackHandle;
+    Deck mDefenseHandle;
+    Deck mTricks[24];    // 24 tricks max with 3 players
     Place mPreviousWinner;
     Place mFirstPlayer;
-    int tricksWon;
+    int mTricksWon;
     Deck::Statistics statsAttack;
+    Tarot::Bid mBid;
 
     // Bonus: little oudler (1 of trump) played at the last trick
     bool littleEndianOudler;     // true if the little oudler has been played at the last trick
