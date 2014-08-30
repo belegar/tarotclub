@@ -276,6 +276,29 @@ int Tarot::GetHandlePoints(Tarot::Handle handle)
     return points;
 }
 /*****************************************************************************/
+Tarot::Handle Tarot::GetHandleType(std::uint32_t size)
+{
+    Tarot::Handle type;
+
+    if (size == 10U)
+    {
+        type = Tarot::SIMPLE_HANDLE;
+    }
+    else if (size == 13U)
+    {
+        type = Tarot::DOUBLE_HANDLE;
+    }
+    else if (size == 15U)
+    {
+        type = Tarot::TRIPLE_HANDLE;
+    }
+    else
+    {
+        type = Tarot::NO_HANDLE;
+    }
+    return type;
+}
+/*****************************************************************************/
 std::uint32_t Tarot::PointsToDo(std::uint8_t numberOfOudlers)
 {
     std::uint32_t pointsToDo;

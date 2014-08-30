@@ -210,6 +210,26 @@ public:
             Initialize();
         }
 
+        Bid(const Bid &other)
+            : taker(other.taker)
+            , contract(other.contract)
+            , slam(other.slam)
+        {
+
+        }
+
+        Bid & operator= (const Bid & other)
+        {
+            if (this != &other) // protect against invalid self-assignment
+            {
+                this->contract = other.contract;
+                this->taker = other.taker;
+                this->slam = other.slam;
+            }
+            // by convention, always return *this
+            return *this;
+        }
+
         void Initialize()
         {
             contract = Contract::PASS;
@@ -267,6 +287,7 @@ public:
     static std::uint8_t NumberOfCardsInHand(std::uint8_t numberOfPlayers);
     static bool IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers);
     static int GetHandlePoints(Tarot::Handle handle);
+    static Tarot::Handle GetHandleType(std::uint32_t size);
     static std::uint32_t PointsToDo(std::uint8_t numberOfOudlers);
     static std::uint32_t GetMultiplier(Contract c);
 };
