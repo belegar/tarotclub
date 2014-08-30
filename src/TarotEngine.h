@@ -67,7 +67,7 @@ public:
     void CreateTable(std::uint8_t nbPlayers);
     void NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s);
     void NewDeal();
-    void StartDeal();
+    Place StartDeal();
     void EndOfDeal();
     bool NextDeal();
 
@@ -81,6 +81,7 @@ public:
     Player *GetPlayer(Place p);
     Player *GetPlayer(std::uint32_t uuid);
     Place GetPlayerPlace(std::uint32_t uuid);
+    Place GetWinner();
     Place GetCurrentPlayer()
     {
         return mCurrentPlayer;
@@ -112,11 +113,6 @@ public:
     }
     Tarot::Shuffle GetShuffle();
 
-    std::map<int, Place> GetPodium()
-    {
-        return mDeal.GetPodium();
-    }
-
     bool IsLastTrick()
     {
         return Tarot::IsDealFinished(mTrickCounter, mNbPlayers);
@@ -147,8 +143,6 @@ private:
     Place           mCurrentPlayer;
     unsigned        mSeed;
     Tarot::GameMode mGameMode;
-    Tarot::Handle   mAttackHandle;
-    Tarot::Handle   mDefenseHandle;
     bool            mHandleAsked[5U];
 
     bool AckFromAllPlayers();
