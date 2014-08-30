@@ -105,7 +105,7 @@ public:
     Deck &GetDogDeck();
     Deck &GetHandleDeck();
     Deck GetMyDeck();
-    Score GetScore();
+    Deal GetDeal();
     Place GetPlace();
     std::uint8_t GetNumberOfPlayers()
     {
@@ -181,7 +181,7 @@ private:
     Tarot::Bid  mBid;
     Tarot::Shuffle mShuffle;
 
-    Score       score;
+    Deal        mDeal;
     Deck        mDog;
     Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;

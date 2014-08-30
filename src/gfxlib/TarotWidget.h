@@ -80,11 +80,11 @@ public:
     }
     Score GetScore()
     {
-        return mClient.GetScore();
+        return mClient.GetDeal().GetScore();
     }
     Deal GetDeal()
     {
-        return deal;
+        return mClient.GetDeal();
     }
     Deck GetDeck()
     {
@@ -118,7 +118,6 @@ private:
     ServerOptions   mServerOptions;
     Client          mClient; // The human player
     QMap<Place, Identity> mPlayers;
-    Deal            deal;
     Deck            mDiscard;
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;

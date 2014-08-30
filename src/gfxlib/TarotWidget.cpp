@@ -94,7 +94,6 @@ void TarotWidget::Initialize()
 {
     mTable.Initialize();
     mClient.Initialize();
-    deal.NewGame();
     mCanvas->Initialize();
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
@@ -474,8 +473,6 @@ void TarotWidget::slotPlayersList()
 /*****************************************************************************/
 void TarotWidget::slotNewGame()
 {
-    deal.NewGame();
-    deal.NewDeal();
     mClient.SendSyncNewGame();
 }
 /*****************************************************************************/
@@ -665,14 +662,11 @@ void TarotWidget::slotEndOfDeal()
 {
     mCanvas->InitBoard();
     mCanvas->ResetCards();
-    mCanvas->SetResult(mClient.GetScore(), mClient.GetBid());
+    mCanvas->SetResult(mClient.GetDeal().GetScore(), mClient.GetBid());
     mCanvas->SetFilter(Canvas::BOARD);
 
     if (mClient.GetGameMode() == Tarot::TOURNAMENT)
     {
-        deal.SetScore(mClient.GetScore());
-        (void)deal.AddScore(mClient.GetBid(), mClient.GetNumberOfPlayers());
-
         emit sigAddScore();
     }
 }

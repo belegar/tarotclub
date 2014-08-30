@@ -36,12 +36,11 @@ Client::Client(IEvent &handler)
     , mInitialized(false)
     , mConnected(false)
 {
-    score.Reset();
+
 }
 /*****************************************************************************/
 void Client::Initialize()
 {
-    score.Reset();
     mSequence = STOPPED;
 
     if (!mInitialized)
@@ -104,9 +103,9 @@ void Client::SetMyDeck(const Deck &deck)
     mPlayer.Append(deck);
 }
 /*****************************************************************************/
-Score Client::GetScore()
+Deal Client::GetDeal()
 {
-    return score;
+    return mDeal;
 }
 /*****************************************************************************/
 Place Client::GetPlace()
@@ -417,6 +416,8 @@ bool Client::DoAction(const ByteArray &data)
             std::uint8_t mode;
             in >> mode;
             in >> mShuffle;
+
+            mDeal.NewGame();
             mGameMode = (Tarot::GameMode)mode;
             mEventHandler.NewGame();
             break;
@@ -429,7 +430,7 @@ bool Client::DoAction(const ByteArray &data)
 
             if (mPlayer.Size() == Tarot::NumberOfCardsInHand(mNbPlayers))
             {
-                score.Reset();
+                mDeal.NewDeal();
                 UpdateStatistics();
                 mEventHandler.NewDeal();
                 SendSyncCards();
@@ -493,6 +494,8 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_START_DEAL:
         {
+            Place first;
+            in >> first;
             in >> mBid.taker;
             in >> mBid.contract;
             in >> mBid.slam;
@@ -500,6 +503,7 @@ bool Client::DoAction(const ByteArray &data)
 
             currentTrick.Clear();
             UpdateStatistics(); // cards in hand can have changed due to the dog
+            mDeal.StartDeal(first, mBid);
             mSequence = SYNC_START;
             mEventHandler.StartDeal();
             break;
@@ -570,7 +574,15 @@ bool Client::DoAction(const ByteArray &data)
 
         case Protocol::SERVER_END_OF_DEAL:
         {
+            Score score;
             in >> score;
+
+            mDeal.SetScore(score);
+            if (mGameMode == Tarot::TOURNAMENT)
+            {
+                (void)mDeal.AddScore(mBid, mNbPlayers);
+            }
+
             mSequence = SHOW_SCORE;
             mEventHandler.EndOfDeal();
             break;
