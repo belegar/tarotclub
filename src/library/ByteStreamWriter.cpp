@@ -97,6 +97,12 @@ ByteStreamWriter &ByteStreamWriter::operator << (const std::uint32_t &d)
     return *this;
 }
 /*****************************************************************************/
+ByteStreamWriter &ByteStreamWriter::operator << (const std::int32_t &d)
+{
+    *this << static_cast<std::uint32_t>(d);
+    return *this;
+}
+/*****************************************************************************/
 ByteStreamWriter &ByteStreamWriter::operator << (const bool &d)
 {
     std::uint8_t byte = 0U;

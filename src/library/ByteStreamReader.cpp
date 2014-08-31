@@ -115,6 +115,14 @@ ByteStreamReader &ByteStreamReader::operator >> (std::uint32_t &d)
     return *this;
 }
 /*****************************************************************************/
+ByteStreamReader &ByteStreamReader::operator >> (std::int32_t &d)
+{
+    std::uint32_t value;
+    *this >> value;
+    d = static_cast<std::int32_t>(value);
+    return *this;
+}
+/*****************************************************************************/
 ByteStreamReader &ByteStreamReader::operator >> (bool &d)
 {
     std::uint8_t byte;

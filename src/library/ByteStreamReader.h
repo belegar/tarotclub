@@ -49,6 +49,7 @@ public:
     ByteStreamReader &operator >> (std::uint8_t &d);
     ByteStreamReader &operator >> (std::uint16_t &d);
     ByteStreamReader &operator >> (std::uint32_t &d);
+    ByteStreamReader &operator >> (std::int32_t &d);
     ByteStreamReader &operator >> (bool &d);
     ByteStreamReader &operator >> (std::string &s);
 

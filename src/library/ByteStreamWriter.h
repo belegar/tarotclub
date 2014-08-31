@@ -48,6 +48,7 @@ public:
     ByteStreamWriter &operator << (const std::uint8_t &d);
     ByteStreamWriter &operator << (const std::uint16_t &d);
     ByteStreamWriter &operator << (const std::uint32_t &d);
+    ByteStreamWriter &operator << (const std::int32_t &d);
     ByteStreamWriter &operator << (const bool &d);
     /**
      * @brief Overloaded operator to add a string to a byte stream
