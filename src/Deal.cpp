@@ -416,7 +416,7 @@ void Deal::CalculateScore()
     // multipliable selon le contrat, quel que soit le résultat de la donne.
     if (littleEndianOudler == true)
     {
-        if (littleEndianOwner == score.Winner())
+        if (littleEndianOwner == ATTACK)
         {
             score.littleEndianPoints = 10;
         }
