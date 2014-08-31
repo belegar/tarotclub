@@ -288,7 +288,7 @@ public:
     static bool IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers);
     static int GetHandlePoints(Tarot::Handle handle);
     static Tarot::Handle GetHandleType(std::uint32_t size);
-    static std::uint32_t PointsToDo(std::uint8_t numberOfOudlers);
+    static std::int32_t PointsToDo(std::uint8_t numberOfOudlers);
     static std::uint32_t GetMultiplier(Contract c);
 };
 

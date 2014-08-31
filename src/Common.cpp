@@ -299,25 +299,25 @@ Tarot::Handle Tarot::GetHandleType(std::uint32_t size)
     return type;
 }
 /*****************************************************************************/
-std::uint32_t Tarot::PointsToDo(std::uint8_t numberOfOudlers)
+std::int32_t Tarot::PointsToDo(std::uint8_t numberOfOudlers)
 {
     std::uint32_t pointsToDo;
 
     if (numberOfOudlers == 0U)
     {
-        pointsToDo = 56U;
+        pointsToDo = 56;
     }
     else if (numberOfOudlers == 1U)
     {
-        pointsToDo = 51U;
+        pointsToDo = 51;
     }
     else if (numberOfOudlers == 2U)
     {
-        pointsToDo = 41U;
+        pointsToDo = 41;
     }
     else // 3 oudlers
     {
-        pointsToDo = 36U;
+        pointsToDo = 36;
     }
 
     return pointsToDo;
