@@ -34,17 +34,17 @@ class Score
 {
 public:
 
-    std::uint32_t pointsAttack;   // Points of cards
-    std::uint32_t scoreAttack;    // Final score calculated, including all bonuses
-    std::uint32_t oudlers;
-    std::uint32_t littleEndianPoints; // positive if attack bonus, otherwise negative
-    std::uint32_t handlePoints;
-    std::uint32_t slamPoints;
+    std::int32_t pointsAttack;   // Points of cards
+    std::int32_t scoreAttack;    // Final score calculated, including all bonuses
+    std::int32_t oudlers;
+    std::int32_t littleEndianPoints; // positive if attack bonus, otherwise negative
+    std::int32_t handlePoints;
+    std::int32_t slamPoints;
 
     Team Winner() const;
     void Reset();
-    int32_t GetAttackScore() const;
-    int32_t GetDefenseScore() const;
+    std::int32_t GetAttackScore() const;
+    std::int32_t GetDefenseScore() const;
     std::int32_t Difference() const;
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
