@@ -120,32 +120,27 @@ void TarotRules::TestCanPlayCard()
 void TarotRules::TestScoreCalculation()
 {
     Deal deal;
-    Tarot::Handle attack;
-    Tarot::Handle defense;
-    Tarot::Bid bid;
+    Deck handle;
     Score score;
 
     // --------------------------------------------------------------------
     // Test 1: Load the TarotMag issue 17 example deal
+
     bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/tarotmag_17.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
-    attack = Tarot::NO_HANDLE;
-    defense = Tarot::NO_HANDLE;
-    bid.contract = Contract::TAKE;
-    bid.taker = Place::SOUTH;
     deal.AnalyzeGame(4U);
-    deal.CalculateScore(bid, attack, defense);
+    deal.CalculateScore();
 
     score = deal.GetScore();
 
     QCOMPARE(score.Winner(), DEFENSE);
     QCOMPARE(score.GetAttackScore(), -102); // -34 multiple 3 players
-    QCOMPARE(score.oudlers, 1U);
-    QCOMPARE(score.handlePoints, 0U);
-    QCOMPARE(score.slamPoints, 0U);
-    QCOMPARE(score.littleEndianPoints, 0U);
+    QCOMPARE(score.oudlers, 1);
+    QCOMPARE(score.handlePoints, 0);
+    QCOMPARE(score.slamPoints, 0);
+    QCOMPARE(score.littleEndianPoints, 0);
 
     // --------------------------------------------------------------------
     // Test 2: The taker loses some oudlers
@@ -156,22 +151,20 @@ void TarotRules::TestScoreCalculation()
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
-    attack = Tarot::TRIPLE_HANDLE;
-    defense = Tarot::NO_HANDLE;
-    bid.contract = Contract::GUARD_WITHOUT;
-    bid.taker = Place::SOUTH;
+    handle.SetCards("00-T;01-T;02-T;03-T;04-T;05-T;06-T;07-T;08-T;09-T;10-T;11-T;12-T;13-T;14-T"); // fake handle (the size must be correct)
+    deal.SetHandle(handle, ATTACK);
     deal.AnalyzeGame(4U);
-    deal.CalculateScore(bid, attack, defense);
+    deal.CalculateScore();
 
     score = deal.GetScore();
 
     QCOMPARE(score.Winner(), ATTACK);
-    QCOMPARE(score.pointsAttack, 67U);
+    QCOMPARE(score.pointsAttack, 67);
     QCOMPARE(score.GetAttackScore(), 612);
-    QCOMPARE(score.oudlers, 1U);
-    QCOMPARE(score.handlePoints, 40U);
-    QCOMPARE(score.slamPoints, 0U);
-    QCOMPARE(score.littleEndianPoints, 0U);
+    QCOMPARE(score.oudlers, 1);
+    QCOMPARE(score.handlePoints, 40);
+    QCOMPARE(score.slamPoints, 0);
+    QCOMPARE(score.littleEndianPoints, 0);
 
     // --------------------------------------------------------------------
     // Test 3:  Load the TarotMag issue 18 example deal
@@ -180,21 +173,38 @@ void TarotRules::TestScoreCalculation()
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
-    attack = Tarot::NO_HANDLE;
-    defense = Tarot::NO_HANDLE;
-    bid.contract = Contract::GUARD;
-    bid.taker = Place::SOUTH;
     deal.AnalyzeGame(4U);
-    deal.CalculateScore(bid, attack, defense);
+    deal.CalculateScore();
 
     score = deal.GetScore();
 
     QCOMPARE(score.Winner(), ATTACK);
-    QCOMPARE(score.GetAttackScore(), 54 * 3);
-    QCOMPARE(score.oudlers, 2U);
-    QCOMPARE(score.handlePoints, 0U);
-    QCOMPARE(score.slamPoints, 0U);
-    QCOMPARE(score.littleEndianPoints, 0U);
+    QCOMPARE(score.GetAttackScore(), 27 * 3);
+    QCOMPARE(score.oudlers, 2);
+    QCOMPARE(score.handlePoints, 0);
+    QCOMPARE(score.slamPoints, 0);
+    QCOMPARE(score.littleEndianPoints, 0);
+
+
+    // --------------------------------------------------------------------
+    // Test 4:  Little trump at the last trick
+
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/one_trump_last_trick.json");
+    QCOMPARE(actual_bool, true);
+
+    // Launch score calculation
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore();
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), DEFENSE);
+    QCOMPARE(score.GetAttackScore(), -43 * 3);
+    QCOMPARE(score.oudlers, 1);
+    QCOMPARE(score.handlePoints, 0);
+    QCOMPARE(score.slamPoints, 0);
+    QCOMPARE(score.littleEndianPoints, 10);
+
 
     // FIXME: add test cases:
       // Slam done by the attack
