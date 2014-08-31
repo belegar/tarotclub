@@ -25,6 +25,7 @@ The following ChangeLog is using specific signs to quickly identify the nature o
     ~ Corrected handle detection after building the discard
     ~ Corrected the need of card double-click if the previous trick flushing was not automatic (Qt event problem)
     ~ Corrected game freeze under Linux (Menu game > quit after first launch)
+    + Added Tarot rules in the Ubuntu package and Windows setup
     + New hand-made makefile do build the TCDS executable
     + New code coverage script
     + New deal reading facility

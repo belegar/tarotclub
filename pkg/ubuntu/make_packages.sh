@@ -40,6 +40,7 @@ rm *.bz2
 
 # create directory tree
 mkdir -p ${TEMP_DIR}/ai/tarotlib
+mkdir -p ${TEMP_DIR}/doc
 cd ${TEMP_DIR}
 
 # copy files
@@ -61,6 +62,10 @@ cp ${TAROT_ROOT}/assets/ai/beginner.js ./ai
 cp ${TAROT_ROOT}/assets/ai/conf.json ./ai
 cp ${TAROT_ROOT}/assets/icons/icon256x256.png .
 cp ${TAROT_ROOT}/prj/desktop/tarotclub_fr.qm .
+cp ${TAROT_ROOT}/doc/index.html ./doc
+cp ${TAROT_ROOT}/doc/rules_en.html ./doc
+cp ${TAROT_ROOT}/doc/rules_fr.html ./doc
+cp -r ${TAROT_ROOT}/doc/images/ ./doc
 
 # copy install script
 cp ${TAROT_ROOT}/pkg/ubuntu/install.sh .
