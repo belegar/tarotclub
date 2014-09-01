@@ -26,14 +26,14 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#define VERSION_STRING "2.3.7"
+#define VERSION_STRING "2.4.0-alpha.0"
 
 #ifndef ISPP_INVOKED
 /// @brief The version string uses Semantic Versioning format
 /// @see http://semver.org
 static const std::string TAROT_VERSION  = VERSION_STRING;
 static const std::string TAROT_TITLE    = "TarotClub";
-static const std::string TAROT_VNAME    = "Snowboard";
+static const std::string TAROT_VNAME    = "Pirate!";
 
 static const std::uint32_t NB_LANGUAGE  = 2U;
 static const std::uint32_t MAX_ROUNDS   = 5U;

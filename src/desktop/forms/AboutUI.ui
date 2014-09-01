@@ -57,14 +57,14 @@ along with TarotClub.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</string
        </property>
        <property name="minimumSize">
         <size>
-         <width>16</width>
-         <height>16</height>
+         <width>64</width>
+         <height>64</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>64</width>
-         <height>61</height>
+         <height>64</height>
         </size>
        </property>
        <property name="text">

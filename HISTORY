@@ -8,6 +8,13 @@ The following ChangeLog is using specific signs to quickly identify the nature o
 ~ bug corrected
 - feature removed
 
+# Branch 2.4.x - Codename <>
+
+## Version 2.4.0 (??/??/????)
+
+    ~ Mkdir utility did not manage the disk name separator properly (Windows only)
+    + NEW command line dedicated server configuration file
+
 # Branch 2.3.x - Codename <Snowboard>
 
 ## version 2.3.7 (30/08/2014)
