@@ -80,7 +80,7 @@ DEFINES += DUK_OPT_SELF_TESTS
 
 # Specific OS stuff
 win32 {
-    LIBS +=  libws2_32 libgcov
+    LIBS +=  libws2_32 libgcov -lpsapi
     DEFINES += USE_WINDOWS_OS
 }
 unix {

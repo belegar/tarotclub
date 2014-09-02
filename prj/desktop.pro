@@ -87,7 +87,7 @@ TARGET = TarotClub # name of the output executable
 # Specific OS stuff
 win32 {
     RC_FILE = desktop/icon.rc
-    LIBS +=  libws2_32
+    LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
     # Let's make everything's static so that we don't need any DLL
     QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
