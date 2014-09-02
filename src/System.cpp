@@ -87,10 +87,7 @@ void System::Initialize()
     {
         Util::Mkdir(LogPath());
     }
-
-    TarotDeck::Initialize();
 }
-
 /*****************************************************************************/
 System::System()
 {
