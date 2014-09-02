@@ -32,69 +32,20 @@
 /*****************************************************************************/
 Controller::Controller(IEvent &handler)
     : mEventHandler(handler)
-    , mInitialized(false)
     , mFull(false)
 {
 
 }
 /*****************************************************************************/
-void Controller::Start()
+void Controller::Initialize()
 {
     engine.Initialize();
-    if (!mInitialized)
-    {
-        mInitialized = true;
-        mThread = std::thread(Controller::EntryPoint, this);
-    }
-}
-/*****************************************************************************/
-void Controller::Stop()
-{
-    mQueue.Push(Protocol::SystemQuitGame());
-    mThread.join();
 }
 /*****************************************************************************/
 void Controller::ExecuteRequest(const ByteArray &packet)
 {
-    mQueue.Push(packet);
-}
-/*****************************************************************************/
-void Controller::EntryPoint(void *pthis)
-{
-    Controller *pt = static_cast<Controller *>(pthis);
-    pt->Run();
-}
-/*****************************************************************************/
-/**
- * @brief Controller::Run
- *
- * This is the main controller thread; It manages the network (or not) packets
- * sent by client, system or an admin. All the packets are serialized to ensure
- * that they are treated in a queue, one at a time.
- *
- */
-void Controller::Run()
-{
-    ByteArray data;
-    while (true)
-    {
-        mQueue.WaitAndPop(data);
-
-        std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
-
-        // Execute all packets
-        for (std::uint16_t i = 0U; i < packets.size(); i++)
-        {
-            Protocol::PacketInfo inf = packets[i];
-
-            ByteArray subArray = data.SubArray(inf.offset, inf.size);
-            if (!DoAction(subArray))
-            {
-                // Quit thread
-                return;
-            }
-        }
-    }
+    mQueue.Push(packet); // Add packet to the queue
+    Protocol::GetInstance().Execute(this); // Actually decode the packet
 }
 /*****************************************************************************/
 bool Controller::DoAction(const ByteArray &data)
@@ -546,6 +497,16 @@ bool Controller::DoAction(const ByteArray &data)
     }
 
     return ret;
+}
+/*****************************************************************************/
+ByteArray Controller::GetPacket()
+{
+    ByteArray data;
+    if (!mQueue.TryPop(data))
+    {
+        TLogError("Work item called without any data in the queue!");
+    }
+    return data;
 }
 /*****************************************************************************/
 void Controller::NewDeal()
