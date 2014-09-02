@@ -39,11 +39,14 @@ public:
     Table();
 
     // Helpers
-    void SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay);
     void CreateTable(std::uint8_t nbPlayers);
     void Initialize();
     void Stop();
-    void ConnectBots();
+
+    // Bots management
+    bool AddBot(Place p, const Identity &ident, std::uint16_t delay);
+    bool SetBotParameters(Place p, Identity &ident, std::uint16_t delay);
+    bool RemoveBot(Place p);
 
     // Getters
     std::uint16_t GetTcpPort();
@@ -66,11 +69,14 @@ private:
 
     int             mTcpPort;
     Controller      mController;
-    Bot             mBots[3];
     UniqueId        mIdManager;
     TcpServer       mTcpServer;
     bool            mCreated;   ///< True if the table has been created
     bool            mIsFull;
+
+    // Bots management
+    std::map<Place, Bot *> mBots;
+    std::mutex mBotsMutex;
 
     // Pair of UUID and socket
     std::map<std::uint32_t, std::int32_t> mUsers;

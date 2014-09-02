@@ -108,34 +108,7 @@ void Table::CloseClients()
     }
 
     mUsers.clear();
-
     mUsersMutex.unlock();
-}
-/*****************************************************************************/
-/**
- * @brief Table::SetBotParameters
- * @param ident Identity of each bot. Size must be 3
- * @param delay delay between players
- */
-void Table::SetBotParameters(std::map<Place, Identity> &ident, std::uint16_t delay)
-{
-    if (ident.size() == 3U)
-    {
-        for (std::uint32_t i = 0U; i < 3U; i++)
-        {
-            Place place(i + 1U);
-            if (ident.count(place) > 0U)
-            {
-                Identity bot = ident[place];
-                mBots[i].SetIdentity(bot);
-                mBots[i].SetTimeBeforeSend(delay);
-            }
-            else
-            {
-                TLogError("Bad bot parameters!");
-            }
-        }
-    }
 }
 /*****************************************************************************/
 void Table::SetTcpPort(std::uint16_t port)
@@ -168,12 +141,8 @@ void Table::Initialize()
         TLogError("Cannot initialize TCP context");
     }
 
+    mController.Initialize();
     mTcpServer.Start(mTcpPort, 10U);
-    mController.Start();
-    for (int i = 0; i < 3; i++)
-    {
-        mBots[i].Initialize();
-    }
 }
 /*****************************************************************************/
 void Table::Stop()
@@ -182,29 +151,93 @@ void Table::Stop()
     mTcpServer.Stop();
 
     // Close local bots
-    for (int i = 0; i < 3; i++)
+    for (std::map<Place, Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
     {
-        mBots[i].Close();
+        (iter->second)->Close();
+    }
+}
+/*****************************************************************************/
+/**
+ * @brief Table::AddBot
+ *
+ * Add a bot player to a table. Each bot is a Tcp client that connects to the
+ * table immediately.
+ *
+ * @param p
+ * @param ident
+ * @param delay
+ * @return
+ */
+bool Table::AddBot(Place p, const Identity &ident, std::uint16_t delay)
+{
+    bool ret = false;
+    mBotsMutex.lock();
+
+    if (mBots.find(p) == mBots.end())
+    {
+        // Place is free (not found), we dynamically add our bot here
+        Bot *bot = new Bot();
+        // Add it to the list (save the pointer to the allocated object)
+        mBots[p] = bot;
+        // Initialize the bot
+        bot->SetIdentity(ident);
+        bot->SetTimeBeforeSend(delay);
+        bot->Initialize();
+        // Connect the bot to the server
+        bot->ConnectToHost("127.0.0.1", mTcpPort);
+        ret = true;
     }
 
-    mController.Stop();
+    mBotsMutex.unlock();
+    return ret;
+}
+/*****************************************************************************/
+/**
+ * @brief Table::SetBotParameters
+ *
+ * @param ident Identity of a bot
+ * @param delay delay between players
+ */
+bool Table::SetBotParameters(Place p, Identity &ident, std::uint16_t delay)
+{
+    bool ret = false;
+    mBotsMutex.lock();
+
+    std::map<Place, Bot *>::iterator iter = mBots.find(p);
+    if (iter != mBots.end())
+    {
+        iter->second->SetIdentity(ident);
+        iter->second->SetTimeBeforeSend(delay);
+        ret = true;
+    }
+    mBotsMutex.unlock();
+    return ret;
+}
+/*****************************************************************************/
+bool Table::RemoveBot(Place p)
+{
+    bool ret = false;
+    mBotsMutex.lock();
+
+    std::map<Place, Bot *>::iterator iter = mBots.find(p);
+    if (iter != mBots.end())
+    {
+        // Gracefully close the bot from the server
+        iter->second->Close();
+        // delete the object
+        delete iter->second;
+        // Remove it from the list
+        mBots.erase(iter);
+        ret = true;
+    }
+
+    mBotsMutex.unlock();
+    return ret;
 }
 /*****************************************************************************/
 std::uint16_t Table::GetTcpPort()
 {
     return mTcpPort;
-}
-/*****************************************************************************/
-void Table::ConnectBots()
-{
-    int i;
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50U));
-    for (i = 0; i < 3; i++)
-    {
-        mBots[i].ConnectToHost("127.0.0.1", mTcpPort);
-        std::this_thread::sleep_for(std::chrono::milliseconds(50U));
-    }
 }
 
 //=============================================================================
