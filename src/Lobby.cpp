@@ -43,11 +43,13 @@ Lobby::Lobby()
 Lobby::~Lobby()
 {
     mTcpServer.Close();
+    Protocol::GetInstance().Stop();
 }
 /*****************************************************************************/
 void Lobby::Initialize()
 {
     TarotDeck::Initialize();
+    Protocol::GetInstance().Initialize();
 
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
