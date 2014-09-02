@@ -35,6 +35,21 @@ const std::uint32_t Protocol::SYSTEM_UID    = 10U;
 
 static const std::uint16_t HEADER_SIZE = 8U;
 
+//std::thread Protocol::mThread;
+//ThreadQueue<std::pair<bool, Protocol::WorkItem*> > Protocol::mQueue;
+//bool Protocol::mInitialized = false;
+/*****************************************************************************/
+Protocol::Protocol()
+    : mInitialized(false)
+{
+
+
+}
+/*****************************************************************************/
+Protocol::~Protocol()
+{
+    Stop();
+}
 /*****************************************************************************/
 void Protocol::BuildHeader(ByteArray &packet, Command cmd, std::uint32_t uuid)
 {
@@ -71,6 +86,85 @@ ByteArray Protocol::BuildCommand(Command cmd, std::uint32_t uuid)
     out << (std::uint16_t)(HEADER_SIZE) << (std::uint8_t)Protocol::VERSION << uuid << (std::uint8_t)cmd;
 
     return packet;
+}
+/*****************************************************************************/
+Protocol &Protocol::GetInstance()
+{
+    static Protocol mProtocol;
+    return mProtocol;
+}
+/*****************************************************************************/
+void Protocol::Initialize()
+{
+    if (!mInitialized)
+    {
+        mInitialized = true;
+        mThread = std::thread(Protocol::EntryPoint, this);
+    }
+}
+/*****************************************************************************/
+void Protocol::Stop()
+{
+    mQueue.Push(std::pair<bool, Protocol::WorkItem*>(false, NULL));
+    mThread.join();
+}
+/*****************************************************************************/
+void Protocol::Execute(WorkItem *item)
+{
+    mQueue.Push(std::pair<bool, Protocol::WorkItem*>(true, item));
+}
+/*****************************************************************************/
+void Protocol::EntryPoint(void *pthis)
+{
+    Protocol *pt = static_cast<Protocol *>(pthis);
+    pt->Run();
+}
+/*****************************************************************************/
+/**
+ * @brief Controller::Run
+ *
+ * This is the main controller thread; It manages the network (or not) packets
+ * sent by client, system or an admin. All the packets are serialized to ensure
+ * that they are treated in a queue, one at a time.
+ *
+ */
+void Protocol::Run()
+{
+   // (void) pthis;
+    std::pair<bool, WorkItem *> request;
+    bool continueThread = true;
+
+    while (continueThread)
+    {
+        mQueue.WaitAndPop(request);
+
+        if (request.first)
+        {
+            WorkItem *item = request.second;
+            if (item != NULL)
+            {
+                ByteArray data = item->GetPacket();
+                std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
+
+                // Execute all packets
+                for (std::uint16_t i = 0U; i < packets.size(); i++)
+                {
+                    Protocol::PacketInfo inf = packets[i];
+
+                    ByteArray subArray = data.SubArray(inf.offset, inf.size);
+                    if (!item->DoAction(subArray))
+                    {
+                        // Quit thread
+                        return;
+                    }
+                }
+            }
+        }
+        else
+        {
+            continueThread = false;
+        }
+    }
 }
 /*****************************************************************************/
 std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)

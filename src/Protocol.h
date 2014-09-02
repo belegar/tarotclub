@@ -28,10 +28,12 @@
 #include <cstdint>
 #include <string>
 #include <list>
+#include <thread>
 #include <map>
 #include "Player.h"
 #include "Identity.h"
 #include "ByteArray.h"
+#include "ThreadQueue.h"
 #include "Score.h"
 
 class Protocol
@@ -108,6 +110,22 @@ public:
 
     };
 
+    class WorkItem
+    {
+    public:
+          virtual bool DoAction(const ByteArray &data) = 0;
+          virtual ByteArray GetPacket() = 0;
+    };
+
+    Protocol();
+    ~Protocol();
+
+    static Protocol &GetInstance();
+
+    void Initialize();
+    void Stop();
+    void Execute(WorkItem *item);
+
     /**
      * @brief DecodePacket
      *
@@ -171,6 +189,12 @@ public:
 private:
 
     /**
+     * @brief Protocol executor shared thread
+     */
+    static void EntryPoint(void *pthis);
+    void Run();
+
+    /**
      * @brief BuildCommand
      * @param packet
      * @param cmd
@@ -180,6 +204,11 @@ private:
     static void BuildHeader(ByteArray &packet, Command cmd, std::uint32_t uuid);
     static void UpdateHeader(ByteArray &packet);
     static ByteArray BuildCommand(Command cmd, std::uint32_t uuid);
+
+    // Work thread that can execute work items
+    std::thread mThread;
+    ThreadQueue<std::pair<bool, WorkItem*> > mQueue; //!< Queue of network packets received
+    bool mInitialized;
 };
 
 #endif // PROTOCOL_H
