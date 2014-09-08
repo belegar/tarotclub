@@ -175,8 +175,8 @@ bool TarotEngine::SetDiscard(const Deck &discard)
         mPlayers[mBid.taker.Value()].RemoveDuplicates(discard);
 
         std::stringstream ss;
-        ss << "Received discard: " << discard.GetCardList() << " / ";
-        ss << "Taker's deck after the discard: " << mPlayers[mBid.taker.Value()].GetCardList();
+        ss << "Received discard: " << discard.ToString() << " / ";
+        ss << "Taker's deck after the discard: " << mPlayers[mBid.taker.Value()].ToString();
         TLogInfo(ss.str());
 
         mDeal.SetDiscard(discard, ATTACK);
@@ -216,7 +216,7 @@ bool TarotEngine::SetHandle(const Deck &handle, Place p)
     return valid;
 }
 /*****************************************************************************/
-bool TarotEngine::SetCard(Card *c, Place p)
+bool TarotEngine::SetCard(const Card &c, Place p)
 {
     bool ret = false;
 
@@ -226,7 +226,7 @@ bool TarotEngine::SetCard(Card *c, Place p)
         mPlayers[p.Value()].Remove(c);
 
         std::stringstream ss;
-        ss << "Player " << p.ToString() << " played " << c->GetName() << " Engine player deck is: " << mPlayers[p.Value()].GetCardList();
+        ss << "Player " << p.ToString() << " played " << c.GetName() << " Engine player deck is: " << mPlayers[p.Value()].ToString();
         TLogInfo(ss.str());
 
         // ------- PREPARE NEXT ONE
@@ -239,8 +239,8 @@ bool TarotEngine::SetCard(Card *c, Place p)
     else
     {
         std::stringstream ss;
-        ss << "The player cannot play the card: " << c->GetName()
-           << " Engine deck is: " << mPlayers[p.Value()].GetCardList();
+        ss << "The player cannot play the card: " << c.GetName()
+           << " Engine deck is: " << mPlayers[p.Value()].ToString();
 
         TLogError(ss.str());
     }
@@ -582,7 +582,7 @@ void TarotEngine::CreateDeal()
 
         std::stringstream message;
         Place p(i);
-        message << "Player " << p.ToString() << " deck: " << mPlayers[i].GetCardList();
+        message << "Player " << p.ToString() << " deck: " << mPlayers[i].ToString();
         TLogInfo(message.str());
     }
 
@@ -591,7 +591,7 @@ void TarotEngine::CreateDeal()
     mDog.Append(currentTrick.Mid(mNbPlayers * n));
 
     std::stringstream message;
-    message << "Dog deck: " << mDog.GetCardList();
+    message << "Dog deck: " << mDog.ToString();
     TLogInfo(message.str());
 
     currentTrick.Clear();

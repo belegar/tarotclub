@@ -116,19 +116,22 @@ bool Canvas::Initialize()
     bool ret = true;
     QString image;
     QString path(System::DeckPath().c_str());
+    Deck deck;
+
+    deck.CreateTarotDeck();
 
     mMenuItem.Initialize();
     cardsPics.clear();
 
-    for (std::uint8_t i = 0U; i < 78U; i++)
+    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
     {
-        image = path + TarotDeck::GetCard(i)->GetName().c_str() + ".svg";
+        image = path + (*it).GetName().c_str() + ".svg";
 
         // Test if file exists
         QFile fileTest(image);
         if (fileTest.exists())
         {
-            GfxCard *item = new GfxCard(image, this, i);
+            GfxCard *item = new GfxCard(image, this, *it);
             item->hide();
             item->setScale(SCALE_FACTOR);
             cardsPics.append(item);
@@ -181,13 +184,28 @@ void Canvas::SetBackground(const std::string &code)
     }
 }
 /*****************************************************************************/
-void Canvas::HideCard(Card *c)
+void Canvas::HideCard(const Card &c)
 {
-    std::uint8_t index = TarotDeck::GetIndex(c->GetName());
-    if (index < cardsPics.size())
+    GfxCard *gfx = FindGfxCard(c);
+    if (gfx != NULL)
     {
-        cardsPics.at(index)->setVisible(false);
+        gfx->setVisible(false);
     }
+}
+/*****************************************************************************/
+GfxCard *Canvas::FindGfxCard(const Card &c)
+{
+    GfxCard *card = NULL;
+    QVector<GfxCard *>::iterator iter;
+
+    for (iter = cardsPics.begin(); iter != cardsPics.end(); ++iter)
+    {
+        if ((*iter)->IsEqual(c))
+        {
+            card = *iter;
+        }
+    }
+    return card;
 }
 /*****************************************************************************/
 void Canvas::ToggleCardSelection(std::uint8_t index)
@@ -292,22 +310,23 @@ void Canvas::ButtonClicked(std::uint8_t id, std::uint8_t menu)
     }
 }
 /*****************************************************************************/
-void Canvas::CardClicked(std::uint8_t card, bool selected)
+void Canvas::CardClicked(std::uint8_t value, std::uint8_t suit, bool selected)
 {
     if (TestFilter(CARDS))
     {
-        emit sigClickCard(card, selected);
+        emit sigClickCard(value, suit, selected);
     }
 }
 /*****************************************************************************/
-void Canvas::CardHoverEnter(std::uint8_t card)
+void Canvas::CardHoverEnter(std::uint8_t value, std::uint8_t suit)
 {
-    emit sigCursorOverCard(card);
+    emit sigCursorOverCard(value, suit);
 }
 /*****************************************************************************/
-void Canvas::CardHoverLeave(std::uint8_t card)
+void Canvas::CardHoverLeave(std::uint8_t value, std::uint8_t suit)
 {
-    (void)card;
+    (void)value;
+    (void)suit;
     SetCursorType(ARROW);
 }
 /*****************************************************************************/
@@ -375,13 +394,13 @@ void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
  * @arg[in] c The graphics card to show
  * @arg[in] p = NORTH, WEST, SOUTH, EAST
  */
-void Canvas::DrawCard(std::uint8_t index, Place p, Place myPlace)
+void Canvas::DrawCard(const Card &c, Place p, Place myPlace)
 {
-    if (index < cardsPics.size())
+    Place rel = SwapPlace(myPlace, p);  // relative place
+    GfxCard *gfx = FindGfxCard(c);
+    if (gfx != NULL)
     {
-        GfxCard *c = cardsPics.at(index);
-        Place rel = SwapPlace(myPlace, p);  // relative place
-        playerBox.value(rel)->DrawCard(c);
+        playerBox.value(rel)->DrawCard(gfx);
     }
 }
 /*****************************************************************************/
@@ -411,25 +430,31 @@ void Canvas::DrawSouthCards(const Deck &cards)
     }
 
     qreal z = 0.0;
-    for (Deck::ConstIterator i = cards.Begin(); i != cards.End(); ++i)
+    for (Deck::ConstIterator it = cards.Begin(); it != cards.End(); ++it)
     {
-        std::string name = (*i)->GetName();
         //        std::cout << name << ", ";
-        GfxCard *cgfx = cardsPics.at(TarotDeck::GetIndex(name));
-        cgfx->setPos(x, y);
-        cgfx->setZValue(z++);
-        cgfx->show();
-        x = x + step;
+        GfxCard *cgfx = FindGfxCard(*it);
+        if (cgfx != NULL)
+        {
+            cgfx->setPos(x, y);
+            cgfx->setZValue(z++);
+            cgfx->show();
+            x = x + step;
+        }
     }
 }
 /*****************************************************************************/
-void Canvas::DrawCardsInPopup(const QList<Card *> &cards)
+void Canvas::DrawCardsInPopup(const Deck &deck)
 {
     QList<QGraphicsItem *> items;
 
-    for (int i = 0; i < cards.size(); i++)
+    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
     {
-        items.append(cardsPics.at(TarotDeck::GetIndex(cards.at(i)->GetName())));
+        GfxCard *gfx = FindGfxCard(*it);
+        if (gfx != NULL)
+        {
+            items.append(gfx);
+        }
     }
 
     popupItem.DrawItems(items);

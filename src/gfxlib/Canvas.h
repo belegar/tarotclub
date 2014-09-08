@@ -75,9 +75,9 @@ public:
     bool Initialize();
     void ShowTaker(Place taker, Place myPlace);
     void ShowSelection(Place p, Place myPlace);
-    void DrawCard(std::uint8_t index, Place p, Place myPlace);
+    void DrawCard(const Card &c, Place p, Place myPlace);
     void DrawSouthCards(const Deck &cards);
-    void DrawCardsInPopup(const QList<Card *> &cards);
+    void DrawCardsInPopup(const Deck &deck);
     void HidePopup();
     void HideMessageBox();
     void ShowBidsChoice(Contract contract);
@@ -90,7 +90,7 @@ public:
     void DisplayDiscardMenu(bool visible);
     void DisplayHandleMenu(bool visible);
     void DisplayMainMenu(bool visible);
-    void HideCard(Card *c);
+    void HideCard(const Card &c);
     void ToggleCardSelection(std::uint8_t index);
 
     // Getters
@@ -107,14 +107,14 @@ public:
     void ButtonClicked(std::uint8_t id, std::uint8_t menu);
 
     // From ICardEvent
-    void CardClicked(std::uint8_t card, bool selected);
-    void CardHoverEnter(std::uint8_t card);
-    void CardHoverLeave(std::uint8_t card);
+    void CardClicked(std::uint8_t value, std::uint8_t suit, bool selected);
+    void CardHoverEnter(std::uint8_t value, std::uint8_t suit);
+    void CardHoverLeave(std::uint8_t value, std::uint8_t suit);
 
 signals:
     void sigViewportClicked();
-    void sigClickCard(std::uint8_t index, bool selected);
-    void sigCursorOverCard(std::uint8_t index);
+    void sigClickCard(std::uint8_t value, std::uint8_t suit, bool selected);
+    void sigCursorOverCard(std::uint8_t value, std::uint8_t suit);
     void sigContract(Contract c);
     void sigAcceptDiscard();
     void sigAcceptHandle();
@@ -127,6 +127,7 @@ protected:
 private:
     void DrawCardShadows();
     bool TestFilter(quint8 mask);
+    GfxCard *FindGfxCard(const Card &c);
 
     quint8 mFilter;
     bool mShowAvatars;

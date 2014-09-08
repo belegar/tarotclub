@@ -166,7 +166,7 @@ public:
     static ByteArray ServerChatMessage(const std::string &message);
     static ByteArray ServerShowBid(Contract c, bool slam, Place p);
     static ByteArray ServerPlayersList(std::map<Place, Identity> players);
-    static ByteArray ServerShowCard(Card *c, Place p);
+    static ByteArray ServerShowCard(const Card &c, Place p);
     static ByteArray ServerShowHandle(Deck &handle, Place p);
     static ByteArray ServerNewDeal(Player *player);
     static ByteArray ServerStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Shuffle &sh);

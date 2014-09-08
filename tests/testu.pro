@@ -154,8 +154,7 @@ SOURCES += duktape.c \
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-HEADERS += TarotDeck.h \
-    Deck.h \
+HEADERS += Deck.h \
     Card.h \
     Player.h \
     ServerConfig.h \
@@ -164,8 +163,7 @@ HEADERS += TarotDeck.h \
     Deal.h \
     Score.h
 
-SOURCES += TarotDeck.cpp \
-    Deck.cpp \
+SOURCES += Deck.cpp \
     Card.cpp \
     Player.cpp \
     ServerConfig.cpp \

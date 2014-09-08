@@ -36,7 +36,7 @@ public:
     Player();
 
     // Helpers
-    bool CanPlayCard(Card *, Deck &trick);
+    bool CanPlayCard(const Card &card, Deck &trick);
     bool IsFree();
     bool TestHandle(const Deck &handle);
     bool TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numberOfPlayers);
@@ -88,7 +88,7 @@ private:
     bool mAck;
 
 
-    bool TestPlayTrump(Card *cVerif, const PlayerStats &stats);
+    bool TestPlayTrump(const Card &card, const PlayerStats &stats);
 };
 
 #endif // PLAYER_H

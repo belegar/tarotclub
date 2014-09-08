@@ -92,6 +92,8 @@ TarotWidget::TarotWidget(QWidget *parent)
  */
 void TarotWidget::Initialize()
 {
+    Protocol::GetInstance().Initialize();
+
     mTable.Initialize();
     mClient.Initialize();
     mCanvas->Initialize();
@@ -178,7 +180,12 @@ void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh
         // Connect us to the server
         mClient.ConnectToHost("127.0.0.1", DEFAULT_TCP_PORT);
         // Connect the other players
-        mTable.ConnectBots();
+        // mTable.ConnectBots();
+        std::map<Place, Identity>::iterator iter;
+        for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
+        {
+             mTable.AddBot(iter->first, iter->second, mServerOptions.timer);
+        }
     }
     else
     {
@@ -207,7 +214,13 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
 
     // Initialize all the objects with the user preferences
     mClient.SetMyIdentity(mClientOptions.identity);
-    mTable.SetBotParameters(mServerOptions.bots, mServerOptions.timer);
+
+    std::map<Place, Identity>::iterator iter;
+    for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
+    {
+         mTable.SetBotParameters(iter->first, iter->second, mServerOptions.timer);
+    }
+
     mCanvas->ShowAvatars(mClientOptions.showAvatars);
     mCanvas->SetBackground(mClientOptions.backgroundColor);
 }
@@ -216,10 +229,9 @@ void TarotWidget::HideTrick()
 {
     Deck trick = mClient.GetCurrentTrick();
 
-    for (Deck::ConstIterator i = trick.Begin(); i != trick.End(); ++i)
+    for (Deck::ConstIterator it = trick.Begin(); it != trick.End(); ++it)
     {
-        Card *c = (*i);
-        mCanvas->HideCard(c);
+        mCanvas->HideCard(*it);
     }
 }
 /*****************************************************************************/
@@ -235,13 +247,12 @@ void TarotWidget::slotAcceptDiscard()
     mCanvas->DisplayDiscardMenu(false);
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-    for (Deck::ConstIterator i = mDiscard.Begin(); i != mDiscard.End(); ++i)
+    for (Deck::ConstIterator it = mDiscard.Begin(); it != mDiscard.End(); ++it)
     {
-        Card *c = (*i);
-        mCanvas->HideCard(c);
+        mCanvas->HideCard(*it);
     }
 
-    TLogInfo("Hide discard: " + mDiscard.GetCardList());
+    TLogInfo("Hide discard: " + mDiscard.ToString());
 
 
     mClient.SetMyDeck(mMySavedDeck); // Re-set previous player deck
@@ -321,9 +332,9 @@ void TarotWidget::slotClickBoard()
  *
  * @param index is the card index under the mouse cursor
  */
-void TarotWidget::slotMoveCursor(std::uint8_t index)
+void TarotWidget::slotMoveCursor(std::uint8_t value, std::uint8_t suit)
 {
-    Card *c = TarotDeck::GetCard(index);
+    Card c(value, suit);
 
     if (mClient.GetMyDeck().HasCard(c) == false)
     {
@@ -332,8 +343,8 @@ void TarotWidget::slotMoveCursor(std::uint8_t index)
 
     if (mClient.GetSequence() == Client::BUILD_DISCARD)
     {
-        if ((c->GetSuit() == Card::TRUMPS) ||
-                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+        if ((c.GetSuit() == Card::TRUMPS) ||
+                ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() == 14)))
         {
             mCanvas->SetCursorType(Canvas::FORBIDDEN);
         }
@@ -344,7 +355,7 @@ void TarotWidget::slotMoveCursor(std::uint8_t index)
     }
     else if (mClient.GetSequence() == Client::BUILD_HANDLE)
     {
-        if (c->GetSuit() == Card::TRUMPS)
+        if (c.GetSuit() == Card::TRUMPS)
         {
             mCanvas->SetCursorType(Canvas::ARROW);
         }
@@ -366,9 +377,9 @@ void TarotWidget::slotMoveCursor(std::uint8_t index)
     }
 }
 /*****************************************************************************/
-void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
+void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool selected)
 {
-    Card *c = TarotDeck::GetCard(index);
+    Card c(value, suit);
 
     if (mClient.GetMyDeck().HasCard(c) == false)
     {
@@ -391,8 +402,8 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
     else if (mClient.GetSequence() == Client::BUILD_DISCARD)
     {
 
-        if ((c->GetSuit() == Card::TRUMPS) ||
-                ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+        if ((c.GetSuit() == Card::TRUMPS) ||
+                ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() == 14)))
         {
             return;
         }
@@ -420,11 +431,11 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
             mDiscard.Remove(c);
             mCanvas->DisplayDiscardMenu(false);
         }
-        mCanvas->ToggleCardSelection(index);
+        mCanvas->ToggleCardSelection(value);
     }
     else if (mClient.GetSequence() == Client::BUILD_HANDLE)
     {
-        if (c->GetSuit() == Card::TRUMPS)
+        if (c.GetSuit() == Card::TRUMPS)
         {
             // select one card
             if (!selected)
@@ -445,7 +456,7 @@ void TarotWidget::slotClickCard(std::uint8_t index, bool selected)
                 mCanvas->SetFilter(Canvas::CARDS);
                 mCanvas->DisplayHandleMenu(false);
             }
-            mCanvas->ToggleCardSelection(index);
+            mCanvas->ToggleCardSelection(value);
         }
     }
 }
@@ -534,26 +545,14 @@ void TarotWidget::slotShowDog()
     }
     else
     {
-        QList<Card *> cards;
-
-        for (Deck::ConstIterator i = mClient.GetDogDeck().Begin(); i != mClient.GetDogDeck().End(); ++i)
-        {
-            cards.append((*i));
-        }
-        mCanvas->DrawCardsInPopup(cards);
+        mCanvas->DrawCardsInPopup(mClient.GetDogDeck());
         mCanvas->SetFilter(Canvas::BOARD);
     }
 }
 /*****************************************************************************/
 void TarotWidget::slotShowHandle()
 {
-    QList<Card *> cards;
-
-    for (Deck::ConstIterator i = mMyHandle.Begin(); i != mMyHandle.End(); ++i)
-    {
-        cards.append((*i));
-    }
-    mCanvas->DrawCardsInPopup(cards);
+    mCanvas->DrawCardsInPopup(mMyHandle);
     mCanvas->SetFilter(Canvas::BOARD);
 }
 /*****************************************************************************/
@@ -616,7 +615,7 @@ void TarotWidget::slotPlayCard()
     {
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-        Card *c = mClient.Play();
+        Card c = mClient.Play();
         mClient.SetPlayedCard(c);
         mClient.SendCard(c);
         ShowSouthCards();
@@ -634,7 +633,7 @@ void TarotWidget::slotPlayCard()
  */
 void TarotWidget::slotShowCard(Place p, std::string name)
 {
-    mCanvas->DrawCard(TarotDeck::GetIndex(name), p, mClient.GetPlace());
+    mCanvas->DrawCard(Card(name), p, mClient.GetPlace());
 
     // We have seen the card, let's inform the server about that
     mClient.SendSyncShowCard();

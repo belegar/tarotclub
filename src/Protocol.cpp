@@ -464,7 +464,7 @@ ByteArray Protocol::ServerPlayersList(std::map<Place, Identity> players)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ServerShowCard(Card *c, Place p)
+ByteArray Protocol::ServerShowCard(const Card &c, Place p)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -472,7 +472,7 @@ ByteArray Protocol::ServerShowCard(Card *c, Place p)
     BuildHeader(packet, Protocol::SERVER_SHOW_CARD, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
     out << p
-        << c->GetName();
+        << c.GetName();
     UpdateHeader(packet);
 
     return packet;

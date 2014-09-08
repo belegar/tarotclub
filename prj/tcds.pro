@@ -141,7 +141,6 @@ SOURCES += duktape.c \
 # -------------------------------------------------------------
 HEADERS += ServerConfig.h \
     DealFile.h \
-    TarotDeck.h \
     Deck.h \
     Card.h \
     Player.h \
@@ -159,7 +158,6 @@ HEADERS += ServerConfig.h \
 
 SOURCES += ServerConfig.cpp \
     DealFile.cpp \
-    TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
     Player.cpp \

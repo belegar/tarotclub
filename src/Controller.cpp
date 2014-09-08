@@ -325,7 +325,7 @@ bool Controller::DoAction(const ByteArray &data)
                         }
                         else
                         {
-                            TLogError("Not a valid discard" + discard.GetCardList());
+                            TLogError("Not a valid discard" + discard.ToString());
                         }
                     }
                 }
@@ -397,14 +397,13 @@ bool Controller::DoAction(const ByteArray &data)
 
         case Protocol::CLIENT_CARD:
         {
-            std::string card;
-            Card *c;
+            std::string cardName;
 
-            in >> card;
-            c = TarotDeck::GetCard(card);
+            in >> cardName;
+            Card c(cardName);
 
             // Check if the card name exists
-            if (c != NULL)
+            if (c.IsValid())
             {
                 Place p = engine.GetPlayerPlace(uuid);
 

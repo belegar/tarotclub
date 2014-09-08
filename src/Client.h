@@ -94,8 +94,8 @@ public:
     bool TestDiscard(const Deck &discard);
     Contract CalculateBid();
     void UpdateStatistics();
-    Card *Play();
-    bool IsValid(Card *c);
+    Card Play();
+    bool IsValid(const Card &c);
     bool IsConnected();
     Deck AutoDiscard();
 
@@ -135,7 +135,7 @@ public:
     // Setters
     void SetMyIdentity(const Identity &ident);
     void SetDiscard(const Deck &discard);
-    void SetPlayedCard(Card *c);
+    void SetPlayedCard(const Card &c);
     void SetMyDeck(const Deck &deck);
 
     // Network
@@ -149,7 +149,7 @@ public:
     void SendDiscard(const Deck &discard);
     void SendSyncNewGame();
     void SendError();
-    void SendCard(Card *c);
+    void SendCard(const Card &c);
     void SendSyncTrick();
     void SendHandle(const Deck &handle);
     void SendSyncStart();

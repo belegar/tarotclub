@@ -38,19 +38,19 @@ public:
      * @brief CardClicked
      * @param card
      */
-    virtual void CardClicked(std::uint8_t card, bool selected) = 0;
+    virtual void CardClicked(std::uint8_t value, std::uint8_t suit, bool selected) = 0;
 
     /**
      * @brief CardHoverEnter
      * @param card
      */
-    virtual void CardHoverEnter(std::uint8_t card) = 0;
+    virtual void CardHoverEnter(std::uint8_t value, std::uint8_t suit) = 0;
 
     /**
      * @brief CardHoverLeave
      * @param card
      */
-    virtual void CardHoverLeave(std::uint8_t card) = 0;
+    virtual void CardHoverLeave(std::uint8_t value, std::uint8_t suit) = 0;
 };
 
 #endif // ICARDEVENT_H

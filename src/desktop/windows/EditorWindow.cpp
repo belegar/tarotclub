@@ -59,10 +59,11 @@ void EditorWindow::Initialize()
     ui.southList->clear();
     ui.westList->clear();
 
-    for (int i = 0; i < 78; i++)
+    Deck deck;
+    deck.CreateTarotDeck();
+    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
     {
-        Card *c = TarotDeck::GetCard(i);
-        ui.mainCardList->addItem(new QListWidgetItem(c->GetName().data()));
+        ui.mainCardList->addItem(new QListWidgetItem((*it).GetName().data()));
     }
 }
 /*****************************************************************************/
@@ -182,7 +183,7 @@ void EditorWindow::slotSaveDeal()
         QListWidgetItem *item = ui.mainCardList->item(i);
         if (item != NULL)
         {
-            editor.GetDogDeck().Append(item->text().toStdString());
+            editor.GetDogDeck().Append(Card(item->text().toStdString()));
         }
     }
     // East
@@ -191,7 +192,7 @@ void EditorWindow::slotSaveDeal()
         QListWidgetItem *item = ui.eastList->item(i);
         if (item != NULL)
         {
-            editor.GetEastDeck().Append(item->text().toStdString());
+            editor.GetEastDeck().Append(Card(item->text().toStdString()));
         }
     }
     // West
@@ -200,7 +201,7 @@ void EditorWindow::slotSaveDeal()
         QListWidgetItem *item = ui.westList->item(i);
         if (item != NULL)
         {
-            editor.GetWestDeck().Append(item->text().toStdString());
+            editor.GetWestDeck().Append(Card(item->text().toStdString()));
         }
     }
     // South
@@ -209,7 +210,7 @@ void EditorWindow::slotSaveDeal()
         QListWidgetItem *item = ui.southList->item(i);
         if (item != NULL)
         {
-            editor.GetSouthDeck().Append(item->text().toStdString());
+            editor.GetSouthDeck().Append(Card(item->text().toStdString()));
         }
     }
     // North
@@ -218,7 +219,7 @@ void EditorWindow::slotSaveDeal()
         QListWidgetItem *item = ui.northList->item(i);
         if (item != NULL)
         {
-            editor.GetNorthDeck().Append(item->text().toStdString());
+            editor.GetNorthDeck().Append(Card(item->text().toStdString()));
         }
     }
 

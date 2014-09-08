@@ -62,7 +62,7 @@ private:
     {
         QLabel *label;
         QString icon;
-        Card::Suit suit;
+        std::uint8_t suit;
     };
 
     DragIcon mIcons[5];

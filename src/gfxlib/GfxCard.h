@@ -27,6 +27,7 @@
 #define GFXCARD_H
 
 #include <QtSvg>
+#include "Card.h"
 #include "CustomTypes.h"
 #include "ICardEvent.h"
 
@@ -44,7 +45,7 @@ public:
 class GfxCard : public QGraphicsSvgItem
 {
 public:
-    GfxCard(const QString &fileName, ICardEvent *event, std::uint8_t id, QGraphicsItem *parent = 0);
+    GfxCard(const QString &fileName, ICardEvent *event, const Card &card, QGraphicsItem *parent = 0);
 
     // Reimplemented methods
     enum { Type = UserType + CARD_TYPE_ITEM };
@@ -54,6 +55,8 @@ public:
     void SetSelected(bool s);
     void ToggleSelection();
 
+    bool IsEqual(const Card &c);
+
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
@@ -62,7 +65,7 @@ protected:
 private:
     bool mSelected;
     ICardEvent *mEvent;
-    std::uint8_t mId;
+    Card mCard;
     QGraphicsDropShadowEffect shadow;
 };
 
