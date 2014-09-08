@@ -29,7 +29,6 @@
 #include "Deck.h"
 #include "Deal.h"
 #include "Player.h"
-#include "TarotDeck.h"
 #include "Common.h"
 #include "ServerConfig.h"
 #include "Observer.h"

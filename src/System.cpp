@@ -30,7 +30,6 @@
 
 #include "System.h"
 #include "Util.h"
-#include "TarotDeck.h"
 
 /*****************************************************************************/
 std::string System::mHomePath;

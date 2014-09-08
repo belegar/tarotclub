@@ -28,7 +28,6 @@
 #include "JsonWriter.h"
 #include "DealFile.h"
 #include "Common.h"
-#include "TarotDeck.h"
 #include "Log.h"
 
 static const std::string DEAL_FILE_VERSION  = "2.0";

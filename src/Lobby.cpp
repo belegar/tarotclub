@@ -48,7 +48,6 @@ Lobby::~Lobby()
 /*****************************************************************************/
 void Lobby::Initialize()
 {
-    TarotDeck::Initialize();
     Protocol::GetInstance().Initialize();
 
     Tarot::Shuffle sh;

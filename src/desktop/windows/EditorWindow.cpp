@@ -27,7 +27,6 @@
 #include <QObject>
 #include <QFileDialog>
 #include "DealFile.h"
-#include "TarotDeck.h"
 
 /*****************************************************************************/
 EditorWindow::EditorWindow(QWidget *parent)

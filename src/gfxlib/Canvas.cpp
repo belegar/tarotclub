@@ -31,7 +31,6 @@
 
 // Game includes
 #include "Common.h"
-#include "TarotDeck.h"
 #include "Log.h"
 #include "System.h"
 #include "Translations.h"

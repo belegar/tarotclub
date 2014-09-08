@@ -33,7 +33,6 @@
 #include "Card.h"
 #include "Deck.h"
 #include "Player.h"
-#include "TarotDeck.h"
 #include "Protocol.h"
 #include "Common.h"
 #include "Score.h"
