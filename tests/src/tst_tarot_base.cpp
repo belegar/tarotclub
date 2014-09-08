@@ -18,22 +18,22 @@ TarotBase::TarotBase()
 
 void TarotBase::TestCardClass()
 {
-    TarotDeck::Initialize();
     float total = 0.0f;
+    Deck myDeck;
+    myDeck.CreateTarotDeck();
 
     std::cout << "Card names: \n";
-    for (std::uint32_t i = 0U; i < 78U; i++)
+    for (Deck::Iterator it = myDeck.Begin(); it != myDeck.End(); ++it)
     {
-        Card *c = TarotDeck::GetCard(i);
-        Place p(2U);
+        Card c = (*it);
 
-        std::cout << c->GetName() << " ";
-        if (c->GetValue() == 14 && c->GetSuit() != Card::TRUMPS)
+        std::cout << c.GetName() << " ";
+        if (c.GetValue() == 14U && c.GetSuit() != Card::TRUMPS)
         {
             std::cout << "\n";
         }
 
-        total += c->GetPoints();
+        total += c.GetPoints();
     }
 
     // A Tarot deck has a total of 91 points
@@ -48,33 +48,12 @@ void TarotBase::TestDeckClass()
 
     // ------------------------------------------------------------------------
     // Test 1: Add all tarot cards into the deck
-    for (std::uint32_t i = 0U; i < 78U; i++)
-    {
-        Card *c = TarotDeck::GetCard(i);
-        myDeck.Append(c);
-    }
+    myDeck.CreateTarotDeck();
     QCOMPARE(myDeck.Size(), 78U);
 
 
     // ------------------------------------------------------------------------
-    // Test 2: Add a list of cards (string format)
-    myDeck.Clear();
-    QCOMPARE(myDeck.Size(), 0U);
-
-    // Build a string list of cards
-    std::string listOfCards;
-    for (std::uint32_t i = 0U; i < 78U; i++)
-    {
-        Card *c = TarotDeck::GetCard(i);
-        listOfCards += c->GetName();
-        if (i != 77)
-        {
-            listOfCards += ";";
-        }
-    }
-    // Then add them to the deck
-    myDeck.SetCards(listOfCards);
-    QCOMPARE(myDeck.Size(), 78U);
+    // Test 2: Deck owner
 
     // Default is no team
     QCOMPARE(myDeck.GetOwner(), NO_TEAM);
@@ -89,7 +68,7 @@ void TarotBase::TestDeckClass()
 
     std::string expected_string = "05-H;07-D;14-H;04-T;12-S;14-T;12-T;06-H;06-D;00-T;14-D;14-S;12-C;08-C;13-D;13-C;09-S;10-S;11-T;03-S;17-T;03-D;09-C;11-H;10-D;11-C;08-D;05-S;16-T;04-C;06-C;06-T;01-H;10-T;07-H;20-T;15-T;08-S;04-D;10-C;19-T;11-S;01-C;07-C;01-S;11-D;06-S;03-H;04-H;02-S;12-H;12-D;02-T;09-D;03-T;07-S;05-T;02-H;05-D;09-H;05-C;08-H;02-C;03-C;14-C;09-T;13-T;01-D;18-T;07-T;04-S;02-D;01-T;21-T;13-S;13-H;10-H;08-T";
     std::cout << "Deck shuffled: \n";
-    std::string actual_string =  myDeck.GetCardList();
+    std::string actual_string =  myDeck.ToString();
     std::cout << actual_string << std::endl;
     QCOMPARE(expected_string, actual_string);
 
@@ -97,7 +76,7 @@ void TarotBase::TestDeckClass()
 
     expected_string = "14-S;13-S;12-S;11-S;10-S;09-S;08-S;07-S;06-S;05-S;04-S;03-S;02-S;01-S;14-D;13-D;12-D;11-D;10-D;09-D;08-D;07-D;06-D;05-D;04-D;03-D;02-D;01-D;21-T;20-T;19-T;18-T;17-T;16-T;15-T;14-T;13-T;12-T;11-T;10-T;09-T;08-T;07-T;06-T;05-T;04-T;03-T;02-T;01-T;00-T;14-C;13-C;12-C;11-C;10-C;09-C;08-C;07-C;06-C;05-C;04-C;03-C;02-C;01-C;14-H;13-H;12-H;11-H;10-H;09-H;08-H;07-H;06-H;05-H;04-H;03-H;02-H;01-H";
     std::cout << "Deck ordered: \n";
-    actual_string =  myDeck.GetCardList();
+    actual_string =  myDeck.ToString();
     std::cout << actual_string << std::endl;
     QCOMPARE(expected_string, actual_string);
 
@@ -137,46 +116,46 @@ void TarotBase::TestDeckClass()
     // ------------------------------------------------------------------------
     // Test 6: Deck specific access and manipulation
 
-    actual_string = three.Mid(3U).GetCardList(); // gets the 3 last cards
+    actual_string = three.Mid(3U).ToString(); // gets the 3 last cards
     QCOMPARE(actual_string, str_two);
     three += Deck("05-H;07-D;14-H;04-T;12-S;14-T;12-T"); // add 7 cards
     QCOMPARE(three.Size(), 6U + 7U);
     expected_string = "06-T;05-H;07-D;14-H";
-    actual_string = three.Mid(5U, 4U).GetCardList(); // gets some cards in the middle
+    actual_string = three.Mid(5U, 4U).ToString(); // gets some cards in the middle
     QCOMPARE(actual_string, expected_string);
 
     // Test with bad offset, outside the allowed range
     expected_string = "01-T;02-T;03-T;04-T;05-T;06-T;05-H;07-D;14-H;04-T;12-S;14-T;12-T";
-    actual_string = three.Mid(57U, 109U).GetCardList();
+    actual_string = three.Mid(57U, 109U).ToString();
     QCOMPARE(actual_string, expected_string);
 
     // Remove 3 cards
-    three.Remove(TarotDeck::GetCard("05-T"));
-    three.Remove(TarotDeck::GetCard("05-H"));
-    three.Remove(TarotDeck::GetCard("12-S"));
+    three.Remove(Card("05-T"));
+    three.Remove(Card("05-H"));
+    three.Remove(Card("12-S"));
     QCOMPARE(three.Size(), 10U);
-    three.Remove(TarotDeck::GetCard("14-C")); // non existing card
+    three.Remove(Card("14-C")); // non existing card
     QCOMPARE(three.Size(), 10U);
 
     // Count the number of cards in the deck
-    QCOMPARE(three.Count(TarotDeck::GetCard("04-T")), 2U);
-    QCOMPARE(three.Count(TarotDeck::GetCard("12-T")), 1U);
-    QCOMPARE(three.Count(TarotDeck::GetCard("14-C")), 0U);
+    QCOMPARE(three.Count(Card("04-T")), 2U);
+    QCOMPARE(three.Count(Card("12-T")), 1U);
+    QCOMPARE(three.Count(Card("14-C")), 0U);
 
-    Card *c = three.GetCardByName("12-T");
-    if (c == NULL)
+    Card c = three.GetCard("12-T");
+    if (!c.IsValid())
     {
         QFAIL("Card must exist");
     }
     QCOMPARE(three.HasCard(c), true);
 
-    c = three.GetCardByName("14-C");
-    if (c != NULL)
+    c = three.GetCard("14-C");
+    if (c.IsValid())
     {
         QFAIL("Card must not exist");
     }
 
-    QCOMPARE(three.HasCard(TarotDeck::GetCard("12-H")), false);
+    QCOMPARE(three.HasCard(Card("12-H")), false);
 
     // ------------------------------------------------------------------------
     // Test 7: Deck contents analysis
@@ -192,51 +171,51 @@ void TarotBase::TestDeckClass()
 
     one.SetCards("00-T;04-T;12-S;14-H;12-T;02-C;20-T");
     c = one.HighestTrump();
-    if (c != NULL)
+    if (c.IsValid())
     {
         expected_string = "20-T";
-        QCOMPARE(c->GetName(), expected_string);
+        QCOMPARE(c.GetName(), expected_string);
     }
     else
     {
-        QFAIL("Cannot be NULL");
+        QFAIL("Cannot be invalid");
     }
 
     one.SetCards("12-S;14-H;02-C;10-D");
     c = one.HighestTrump();
-    if (c != NULL)
+    if (c.IsValid())
     {
-        QFAIL("Must be NULL (no trump)");
+        QFAIL("Must be invalid (no trump)");
     }
 
     one.SetCards("12-S;14-H;00-T;02-C;10-D");
     c = one.HighestTrump();
-    if (c != NULL)
+    if (c.IsValid())
     {
-        QFAIL("Must be NULL (no trump other than the fool)");
+        QFAIL("Must be invalid (no trump other than the fool)");
     }
 
     // Highest suit, used to detect the winner of a trick
     // The suit used to detect it is the first one played
     one.SetCards("01-T;02-T;03-T;04-T;05-T");
     c = one.HighestSuit();
-    if (c != NULL)
+    if (c.IsValid())
     {
-        QFAIL("Must be NULL (no any suits)");
+        QFAIL("Must be invalid (no any suits)");
     }
 
     // Highest suit, used to detect the winner of a trick
     // The suit used to detect it is the first one played after any trump
     one.SetCards("00-T;01-T;03-D;04-D;05-C;12-C;02-T;01-D");
     c = one.HighestSuit();
-    if (c != NULL)
+    if (c.IsValid())
     {
         expected_string = "04-D";
-        QCOMPARE(c->GetName(), expected_string);
+        QCOMPARE(c.GetName(), expected_string);
     }
     else
     {
-        QFAIL("Cannot be NULL (there is a result!)");
+        QFAIL("Cannot be invalid (there is a result!)");
     }
 
     // ------------------------------------------------------------------------

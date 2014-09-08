@@ -68,7 +68,7 @@ public:
     Place SetTrick(const Deck &trick, std::uint8_t trickCounter);
 
 private:
-    Place GetOwner(Place firstPlayer, Card *c, int turn);
+    Place GetOwner(Place firstPlayer, const Card &c, int turn);
 
     // We store played cards to count points
     Deck mDiscard;

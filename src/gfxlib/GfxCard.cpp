@@ -26,11 +26,11 @@
 #include "GfxCard.h"
 
 /*****************************************************************************/
-GfxCard::GfxCard(const QString &fileName, ICardEvent *event, std::uint8_t id, QGraphicsItem *parent)
+GfxCard::GfxCard(const QString &fileName, ICardEvent *event, const Card &card, QGraphicsItem *parent)
     : QGraphicsSvgItem(fileName, parent)
     , mSelected(false)
     , mEvent(event)
-    , mId(id)
+    , mCard(card)
 {
     setAcceptHoverEvents(true);
     setAcceptTouchEvents(true);
@@ -85,12 +85,17 @@ void GfxCard::ToggleSelection()
     }
 }
 /*****************************************************************************/
+bool GfxCard::IsEqual(const Card &c)
+{
+    return (c == mCard);
+}
+/*****************************************************************************/
 void GfxCard::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     (void)event;
     if (mEvent != NULL)
     {
-        mEvent->CardHoverEnter(mId);
+        mEvent->CardHoverEnter(mCard.GetValue(), mCard.GetSuit());
     }
 }
 /*****************************************************************************/
@@ -99,7 +104,7 @@ void GfxCard::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     (void)event;
     if (mEvent != NULL)
     {
-        mEvent->CardHoverLeave(mId);
+        mEvent->CardHoverLeave(mCard.GetValue(), mCard.GetSuit());
     }
 }
 /*****************************************************************************/
@@ -108,7 +113,7 @@ void GfxCard::mousePressEvent(QGraphicsSceneMouseEvent *event)
     (void)event;
     if (mEvent != NULL)
     {
-        mEvent->CardClicked(mId, mSelected);
+        mEvent->CardClicked(mCard.GetValue(), mCard.GetSuit(), mSelected);
     }
 }
 

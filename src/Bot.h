@@ -36,7 +36,7 @@ class Bot : public Client::IEvent
 
 public:
     Bot();
-    ~Bot();
+    virtual ~Bot();
 
     void SetTimeBeforeSend(std::uint16_t t);
     void SetIdentity(const Identity &ident);

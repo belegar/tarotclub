@@ -45,9 +45,21 @@ Deck::Deck(const std::string &cards)
 void Deck::CreateTarotDeck()
 {
     Clear();
-    for (std::uint8_t i = 0U; i < 78U; i++)
+
+    // The 4 suits
+    for (std::uint8_t i = 0U; i < 4U; i++)
     {
-        Append(TarotDeck::GetCard(i));
+        // From ace to the king, 14 cards
+        for (std::uint8_t j = 1; j <= 14; j++)
+        {
+            mDeck.push_back(Card(j, i));
+        }
+    }
+
+    // The 22 trumps, including the fool
+    for (std::uint8_t i = 0U; i <= 21U; i++)
+    {
+        mDeck.push_back(Card(i, Card::TRUMPS));
     }
 }
 /*****************************************************************************/
@@ -137,9 +149,32 @@ Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t size)
     return deck;
 }
 /*****************************************************************************/
-void Deck::Remove(Card *c)
+/**
+ * @brief Deck::Remove
+ * @param c
+ * @return The number of cards removed from the deck
+ */
+std::uint32_t Deck::Remove(const Card &card)
 {
-    mDeck.remove(c);
+    std::uint32_t counter = 0U;
+
+    Deck::Iterator it = Begin();
+
+    while (it != End())
+    {
+        Card c = *(it);
+        if (c == card)
+        {
+            counter++;
+            it = mDeck.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    return counter;
 }
 /*****************************************************************************/
 /**
@@ -150,13 +185,13 @@ void Deck::Remove(Card *c)
  * @param c
  * @return
  */
-std::uint32_t Deck::Count(Card *c) const
+std::uint32_t Deck::Count(const Card &c) const
 {
     std::uint32_t counter = 0U;
 
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        if (c == (*i))
+        if (c == (*it))
         {
             counter++;
         }
@@ -164,17 +199,17 @@ std::uint32_t Deck::Count(Card *c) const
     return counter;
 }
 /*****************************************************************************/
-std::string Deck::GetCardList() const
+std::string Deck::ToString() const
 {
     std::string list;
 
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        if (i != Begin())
+        if (it != Begin())
         {
             list += ";";
         }
-        list += (*i)->GetName();
+        list += (*it).GetName();
     }
     return list;
 }
@@ -185,7 +220,7 @@ void Deck::Shuffle(int seed)
 
     // Since the STL random does not work on lists, we have to copy the data
     // into a vector, shuffle the vector, and copy it back into a list.
-    std::vector<Card *> myVector(Size());
+    std::vector<Card> myVector(Size());
     std::copy(Begin(), End(), myVector.begin());
 
     // Actually shuffle the cards
@@ -195,24 +230,28 @@ void Deck::Shuffle(int seed)
     mDeck.assign(myVector.begin(), myVector.end());
 }
 /*****************************************************************************/
-Card *Deck::GetCardByName(const std::string &i_name)
+Card Deck::GetCard(const std::string &i_name)
 {
+    Card card;
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
-        if ((*i)->GetName() == i_name)
+        if ((*i).GetName() == i_name)
         {
-            return (*i);
+            card = (*i);
         }
     }
-    return NULL;
+    return card;
 }
 /*****************************************************************************/
-bool Deck::HasCard(Card *c) const
+bool Deck::HasCard(const Card &c) const
 {
     bool ret = false;
-    if (std::count(Begin(), End(), c) > 0)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        ret = true;
+        if (*it == c)
+        {
+            ret = true;
+        }
     }
     return ret;
 }
@@ -220,10 +259,10 @@ bool Deck::HasCard(Card *c) const
 bool Deck::HasOneOfTrump() const
 {
     bool ret = false;
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        if (((*i)->GetSuit() == Card::TRUMPS) &&
-                ((*i)->GetValue() == 1))
+        if (((*it).GetSuit() == Card::TRUMPS) &&
+                ((*it).GetValue() == 1U))
         {
             ret = true;
             break;
@@ -235,10 +274,10 @@ bool Deck::HasOneOfTrump() const
 bool Deck::HasFool() const
 {
     bool ret = false;
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        if (((*i)->GetSuit() == Card::TRUMPS) &&
-                ((*i)->GetValue() == 0))
+        if (((*it).GetSuit() == Card::TRUMPS) &&
+                ((*it).GetValue() == 0U))
         {
             ret = true;
             break;
@@ -255,18 +294,18 @@ bool Deck::HasFool() const
  *
  * @return The highest trump in the deck
  */
-Card *Deck::HighestTrump() const
+Card Deck::HighestTrump() const
 {
-    Card *c = NULL;
-    int value = 0;
+    Card c;
+    std::uint32_t value = 0U;
 
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        if (((*i)->GetSuit() == Card::TRUMPS) &&
-                ((*i)->GetValue() > value))
+        if (((*it).GetSuit() == Card::TRUMPS) &&
+                ((*it).GetValue() > value))
         {
-            value = (*i)->GetValue();
-            c = (*i);
+            value = (*it).GetValue();
+            c = (*it);
         }
     }
     return c;
@@ -279,29 +318,29 @@ Card *Deck::HighestTrump() const
  *
  * @return the card leader, null if not found
  */
-Card *Deck::HighestSuit() const
+Card Deck::HighestSuit() const
 {
-    Card *c = NULL;
-    int value = 0;
-    Card::Suit suit; // leading suit
+    Card c;
+    std::uint32_t value = 0U;
+    std::uint8_t suit; // leading suit
     bool hasLead = false;
 
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        if (((*i)->GetSuit() != Card::TRUMPS) &&
-                ((*i)->GetValue() > value))
+        if (((*it).GetSuit() != Card::TRUMPS) &&
+                ((*it).GetValue() > value))
         {
             if (!hasLead)
             {
                 hasLead = true;
-                suit = (*i)->GetSuit();
-                value = (*i)->GetValue();
-                c = (*i);
+                suit = (*it).GetSuit();
+                value = (*it).GetValue();
+                c = (*it);
             }
-            else if ((*i)->GetSuit() == suit)
+            else if ((*it).GetSuit() == suit)
             {
-                value = (*i)->GetValue();
-                c = (*i);
+                value = (*it).GetValue();
+                c = (*it);
             }
         }
     }
@@ -358,11 +397,11 @@ std::uint8_t Deck::SetCards(const std::string &cards)
 
         std::string cardName = cards.substr(pos, size);
         pos = found + 1;
-        Card *c = TarotDeck::GetCard(cardName);
-        if (c != NULL)
+        count++;
+        Card card(cardName);
+        if (card.IsValid())
         {
-            count++;
-            mDeck.push_back(c);
+            mDeck.push_back(card);
         }
     }
     while (found != std::string::npos);
@@ -404,7 +443,7 @@ void Deck::Statistics::Reset()
 void Deck::AnalyzeTrumps(Statistics &stats) const
 {
     int val;
-    Card *c;
+    Card c;
 
     stats.nbCards = Size();
 
@@ -412,10 +451,10 @@ void Deck::AnalyzeTrumps(Statistics &stats) const
     for (Deck::ConstIterator i = Begin(); i != End(); ++i)
     {
         c = (*i);
-        if (c->GetSuit() == Card::TRUMPS)
+        if (c.GetSuit() == Card::TRUMPS)
         {
             stats.trumps++;
-            val = c->GetValue();
+            val = c.GetValue();
             if (val >= 15)
             {
                 stats.majorTrumps++;
@@ -436,13 +475,13 @@ void Deck::AnalyzeTrumps(Statistics &stats) const
                 stats.oudlers++;
             }
         }
-        stats.points += c->GetPoints();
+        stats.points += c.GetPoints();
     }
 }
 /*****************************************************************************/
 void Deck::AnalyzeSuits(Statistics &stats)
 {
-    Card *c;
+    Card c;
     std::uint8_t k;
 
     // true if the card is available in the deck
@@ -457,29 +496,26 @@ void Deck::AnalyzeSuits(Statistics &stats)
         for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
         {
             c = (*iter);
-            if (c != NULL)
+            if (c.GetSuit() == suit)
             {
-                if (c->GetSuit() == suit)
+                count++;
+                std::uint8_t val = c.GetValue();
+                distr[val - 1U] = true;
+                if (val == 11U)
                 {
-                    count++;
-                    std::uint8_t val = c->GetValue();
-                    distr[val - 1U] = true;
-                    if (val == 11U)
-                    {
-                        stats.jacks++;
-                    }
-                    if (val == 12U)
-                    {
-                        stats.knights++;
-                    }
-                    if (val == 13U)
-                    {
-                        stats.queens++;
-                    }
-                    if (val == 14U)
-                    {
-                        stats.kings++;
-                    }
+                    stats.jacks++;
+                }
+                if (val == 12U)
+                {
+                    stats.knights++;
+                }
+                if (val == 13U)
+                {
+                    stats.queens++;
+                }
+                if (val == 14U)
+                {
+                    stats.kings++;
                 }
             }
         }

@@ -77,7 +77,7 @@ TARGET = tcds # name of the output executable
 # Specific OS stuff
 win32 {
     RC_FILE = tcds/icon.rc
-    LIBS +=  libws2_32
+    LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
     # Let's make everything's static so that we don't need any DLL
     QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
@@ -142,7 +142,6 @@ SOURCES += duktape.c \
 # -------------------------------------------------------------
 HEADERS += ServerConfig.h \
     DealFile.h \
-    TarotDeck.h \
     Deck.h \
     Card.h \
     Player.h \
@@ -161,7 +160,6 @@ HEADERS += ServerConfig.h \
 
 SOURCES += ServerConfig.cpp \
     DealFile.cpp \
-    TarotDeck.cpp \
     Deck.cpp \
     Card.cpp \
     Player.cpp \

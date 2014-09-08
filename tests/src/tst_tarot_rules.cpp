@@ -19,8 +19,7 @@ TarotRules::TarotRules()
 
 void TarotRules::TestCard(const std::string &card, bool expected)
 {
-    Card *c = TarotDeck::GetCard(card);
-    bool actual = player.CanPlayCard(c, currentTrick);
+    bool actual = player.CanPlayCard(Card(card), currentTrick);
     QCOMPARE(actual, expected);
 }
 

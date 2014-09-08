@@ -101,7 +101,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
 
     if (turn == 0U)
     {
-        firstPlayer = mFirstPlayer;
+        firstPlayer = mFirstPlayer; // First trick, we take the first player after the dealer
     }
     else
     {
@@ -114,20 +114,20 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     if (turn < 24U)
     {
         mTricks[turn] = trick;
-        Card *cLeader = NULL;
+        Card cLeader;
 
         // Each trick is won by the highest trump in it, or the highest card
         // of the suit led if no trumps were played.
         cLeader = trick.HighestTrump();
-        if (cLeader == NULL)
+        if (!cLeader.IsValid())
         {
             // lead color is the first one, except if the first card is a fool. In that case, the second player plays the lead color
             cLeader = trick.HighestSuit();
         }
 
-        if (cLeader == NULL)
+        if (!cLeader.IsValid())
         {
-            TLogError("cLeader cannot be null!");
+            TLogError("cLeader cannot be invalid!");
         }
         else
         {
@@ -136,10 +136,10 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
 
             if (mTricks[turn].HasFool())
             {
-                Card *cFool = mTricks[turn].GetCardByName("00-T");
-                if (cFool == NULL)
+                Card cFool = mTricks[turn].GetCard("00-T");
+                if (!cFool.IsValid())
                 {
-                    TLogError("Card pointer cannot be NULL");
+                    TLogError("Card cannot be invalid");
                 }
                 else
                 {
@@ -224,7 +224,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     return winner;
 }
 /*****************************************************************************/
-Place Deal::GetOwner(Place firstPlayer, Card *c, int turn)
+Place Deal::GetOwner(Place firstPlayer,const Card &c, int turn)
 {
     Place p = firstPlayer;
     std::uint8_t numberOfPlayers = mTricks[turn].Size();
@@ -500,7 +500,7 @@ void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players)
 
     for (std::uint32_t i = 0U; i < Tarot::NumberOfCardsInHand(numberOfPlayers); i++)
     {
-        obj3->CreateValue(mTricks[i].GetCardList());
+        obj3->CreateValue(mTricks[i].ToString());
     }
 
     if (!json.SaveToFile(fileName))
@@ -581,7 +581,7 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                         {
                             Place winner = SetTrick(trick, trickCounter);
     #ifdef TAROT_DEBUG
-                            std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.GetCardList() << ", Winner: " << winner.ToString() << std::endl;
+                            std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.ToString() << ", Winner: " << winner.ToString() << std::endl;
     #endif
                             // Remove played cards from this deck
                             if (mDiscard.RemoveDuplicates(trick) != numberOfPlayers)
@@ -619,7 +619,7 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                     else
                     {
                         std::stringstream msg;
-                        msg << "Bad discard size: " << (int)mDiscard.Size() << ", contents: " << mDiscard.GetCardList();
+                        msg << "Bad discard size: " << (int)mDiscard.Size() << ", contents: " << mDiscard.ToString();
                         TLogError(msg.str());
                         ret = false;
                     }

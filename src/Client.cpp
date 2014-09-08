@@ -92,7 +92,7 @@ void Client::SetDiscard(const Deck &discard)
     mPlayer.RemoveDuplicates(discard);
 }
 /*****************************************************************************/
-void Client::SetPlayedCard(Card *c)
+void Client::SetPlayedCard(const Card &c)
 {
     mPlayer.Remove(c);
 }
@@ -205,8 +205,8 @@ Deck Client::AutoDiscard()
     // We're looking valid discard cards to put in the discard
     for (Deck::ConstIterator iter = mPlayer.Begin(); iter != mPlayer.End(); ++iter)
     {
-        Card *c = (*iter);
-        if ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() != 14U))
+        Card c = (*iter);
+        if ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() != 14U))
         {
             mPlayer.Remove(c);
             discard.Append(c);
@@ -219,17 +219,17 @@ Deck Client::AutoDiscard()
         }
     }
 
-    TLogInfo("Auto discard: " + discard.GetCardList());
+    TLogInfo("Auto discard: " + discard.ToString());
     return discard;
 }
 /*****************************************************************************/
-Card *Client::Play()
+Card Client::Play()
 {
-    Card *c = NULL;
+    Card c;
 
-    for (Deck::ConstIterator i = mPlayer.Begin(); i != mPlayer.End(); ++i)
+    for (Deck::ConstIterator it = mPlayer.Begin(); it != mPlayer.End(); ++it)
     {
-        c = (*i);
+        c = (*it);
         if (IsValid(c) == true)
         {
             break;
@@ -238,7 +238,7 @@ Card *Client::Play()
     return c;
 }
 /*****************************************************************************/
-bool Client::IsValid(Card *c)
+bool Client::IsValid(const Card &c)
 {
     return mPlayer.CanPlayCard(c, currentTrick);
 }
@@ -542,7 +542,7 @@ bool Client::DoAction(const ByteArray &data)
             in >> player;
             in >> name;
 
-            currentTrick.Append(TarotDeck::GetCard(name));
+            currentTrick.Append(Card(name));
             mSequence = SYNC_CARD;
             mEventHandler.ShowCard(player, name);
             break;
@@ -651,11 +651,11 @@ void Client::SendHandle(const Deck &handle)
     SendPacket(Protocol::ClientHandle(handle, mPlayer.GetUuid()));
 }
 /*****************************************************************************/
-void Client::SendCard(Card *c)
+void Client::SendCard(const Card &c)
 {
-    if (c != NULL)
+    if (c.IsValid())
     {
-        ByteArray packet = Protocol::ClientCard(c->GetName(), mPlayer.GetUuid());
+        ByteArray packet = Protocol::ClientCard(c.GetName(), mPlayer.GetUuid());
         SendPacket(packet);
     }
     else

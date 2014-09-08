@@ -32,50 +32,53 @@
 #include <cstdint>
 
 /*****************************************************************************/
+/**
+ * @brief Card class
+ *
+ * This class represents a Tarot card in memory
+ *
+ * Trumps: [0..21] (Fool is zero)
+ * Other cards: [1..14] with:
+ *      King    = 14
+ *      Queen   = 13
+ *      Knight  = 12
+ *      Jack    = 11
+ */
 class Card
 {
 
 public:
-
-    typedef std::uint8_t Suit; //!< The Suit enum, lowest value to highest
-
     static const std::uint8_t SPADES;
     static const std::uint8_t HEARTS;
     static const std::uint8_t DIAMONDS;
     static const std::uint8_t CLUBS;
     static const std::uint8_t TRUMPS;
 
-    // Constructor/destructor
+    // Constructors/destructor
     Card();
+    Card(std::uint8_t value, std::uint8_t suit);
+    Card(const std::string &name);
+    Card(const char *name);
+    ~Card();
+
+    // Overloaded operators
+    Card &operator = (const Card &c);
+    bool operator ==  (const Card &c) const;
 
     // helpers
-    bool IsFool();
-    static Suit ToSuit(const std::string &name);
-    static std::string ToString(Suit suit);
-
-    //  Setters
-    void  SetSuit(Suit s);
-    void  SetValue(std::uint8_t v);
+    bool IsValid() const;
+    bool IsFool() const;
+    static std::uint8_t SuitFromName(const std::string &name);
+    static std::string SuitName(std::uint8_t suit);
 
     // Getters
-    Suit    GetSuit();
-    float   GetPoints();
-    std::uint8_t     GetValue();
-    std::string GetName();
+    std::uint8_t    GetSuit() const;
+    float           GetPoints();
+    std::uint8_t    GetValue() const;
+    std::string     GetName() const;
 
 private:
-    Suit    mSuit;      //!< Trumps, Hearts, Spades, Diamonds or Clubs
-
-    /**
-     * @brief The value is the number written on the card
-     *
-     * Trumps: [0..21] (Fool is zero)
-     * Other cards: [1..14] with:
-     *      King    = 14
-     *      Queen   = 13
-     *      Knight  = 12
-     *      Jack    = 11
-     */
+    std::uint8_t mSuit;      //!< Trumps, Hearts, Spades, Diamonds or Clubs
     std::uint8_t mValue;
 };
 

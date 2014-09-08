@@ -62,7 +62,7 @@ void Bot::PlayersList()
 void Bot::NewDeal()
 {
     JSEngine::StringList args;
-    args.push_back(mClient.GetMyDeck().GetCardList());
+    args.push_back(mClient.GetMyDeck().ToString());
     mBotEngine.Call("ReceiveCards", args);
 }
 /*****************************************************************************/
@@ -192,7 +192,7 @@ void Bot::AskForHandle()
     }
     else
     {
-        TLogInfo("Invalid handle is: " + handle.GetCardList());
+        TLogInfo("Invalid handle is: " + handle.ToString());
     }
 }
 /*****************************************************************************/
@@ -201,7 +201,7 @@ void Bot::ShowHandle()
     JSEngine::StringList args;
 
     // Send the handle to the bot
-    args.push_back(mClient.GetHandleDeck().GetCardList());
+    args.push_back(mClient.GetHandleDeck().ToString());
     if (mClient.GetHandleDeck().GetOwner() == ATTACK)
     {
         args.push_back("0");
@@ -222,7 +222,7 @@ void Bot::BuildDiscard()
     JSEngine::StringList args;
     Deck discard;
 
-    args.push_back(mClient.GetDogDeck().GetCardList());
+    args.push_back(mClient.GetDogDeck().ToString());
     Value ret = mBotEngine.Call("BuildDiscard", args);
 
     if (ret.IsValid())
@@ -253,12 +253,12 @@ void Bot::BuildDiscard()
     {
         mClient.SetDiscard(discard);
 
-        TLogInfo("Player deck: " + mClient.GetMyDeck().GetCardList());
-        TLogInfo("Discard: " + discard.GetCardList());
+        TLogInfo("Player deck: " + mClient.GetMyDeck().ToString());
+        TLogInfo("Discard: " + discard.ToString());
     }
     else
     {
-        TLogInfo("Invalid discard is: " + discard.GetCardList());
+        TLogInfo("Invalid discard is: " + discard.ToString());
 
         discard = mClient.AutoDiscard(); // build a random valid deck
         NewDeal(); // Resend cards to the bot!
@@ -297,7 +297,7 @@ void Bot::NewGame()
 /*****************************************************************************/
 void Bot::PlayCard()
 {
-    Card *c = NULL;
+    Card c;
 
     // Wait some time before playing
     std::this_thread::sleep_for(std::chrono::milliseconds(mTimeBeforeSend));
@@ -311,18 +311,18 @@ void Bot::PlayCard()
     }
 
     // Test validity of card
-    c = mClient.GetMyDeck().GetCardByName(ret.GetString());
-    if (c != NULL)
+    c = mClient.GetMyDeck().GetCard(ret.GetString());
+    if (c.IsValid())
     {
-        if (mClient.IsValid(c) == false)
+        if (!mClient.IsValid(c))
         {
             std::stringstream message;
-            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.GetMyDeck().GetCardList();
+            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.GetMyDeck().ToString();
             TLogInfo(message.str());
             // The show must go on, play a random card
             c = mClient.Play();
 
-            if (c == NULL)
+            if (!c.IsValid())
             {
                 TLogError("Panic!");
             }
@@ -332,14 +332,14 @@ void Bot::PlayCard()
     {
         std::stringstream message;
         message << mClient.GetPlace().ToString() << " played an unknown card: " << ret.GetString()
-                << " Client deck is: " << mClient.GetMyDeck().GetCardList();
+                << " Client deck is: " << mClient.GetMyDeck().ToString();
 
         // The show must go on, play a random card
         c = mClient.Play();
 
-        if (c != NULL)
+        if (c.IsValid())
         {
-            message << " Randomly chosen card is: " << c->GetName();
+            message << " Randomly chosen card is: " << c.GetName();
             TLogInfo(message.str());
         }
         else

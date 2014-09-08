@@ -46,7 +46,7 @@ static const QString iconName[5] =
     ":/icons/trump.svg"
 };
 
-static const Card::Suit suitList[5] =
+static const std::uint8_t suitList[5] =
 {
     Card::SPADES,
     Card::HEARTS,
@@ -84,7 +84,7 @@ std::string DragWidget::GetOrder()
     std::string order;
     for (int i = 0; i < 5; i++)
     {
-        order += Card::ToString(mIcons[i].suit);
+        order += Card::SuitName(mIcons[i].suit);
     }
     return order;
 }
@@ -97,7 +97,7 @@ void DragWidget::SetOrder(const std::string &order)
         {
             std::string letter;
             letter.push_back(order[i]);
-            Card::Suit suit = Card::ToSuit(letter);
+            std::uint8_t suit = Card::SuitFromName(letter);
             mIcons[i].icon = iconName[suit];
             mIcons[i].suit = suit;
 

@@ -25,13 +25,10 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <thread>
-#include <map>
+#include <vector>
 #include "Protocol.h"
 #include "TarotEngine.h"
 #include "Observer.h"
-#include "ByteArray.h"
-#include "ThreadQueue.h"
 
 /*****************************************************************************/
 /**
@@ -46,7 +43,7 @@
  * calls within the thread context. This mechanism allow a protection by design against
  * multi-threaded application.
  */
-class Controller
+class Controller : public Protocol::WorkItem
 {
 
 public:
@@ -58,28 +55,22 @@ public:
 
     Controller(IEvent &handler);
 
-    void Start();
-    void Stop();
+    void Initialize();
     void ExecuteRequest(const ByteArray &packet);
 
 private:
     IEvent     &mEventHandler;
     TarotEngine engine;
-    std::thread mThread;
-    ThreadQueue<ByteArray> mQueue; //!< Queue of network packets received
-    bool mInitialized;
+    ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
     bool mFull;
     std::vector<std::uint32_t> mAdmins; //!< A list of admin players (default is the first player to be connected
 
-    /**
-     * @brief Main server thread loop
-     */
-    void Run();
-    static void EntryPoint(void *pthis);
+    // From Protocol::WorkItem
+    bool DoAction(const ByteArray &data);
+    ByteArray GetPacket();
 
     void NewDeal();
-     void StartDeal();
-    bool DoAction(const ByteArray &data);
+    void StartDeal();
     void BidSequence();
     void GameSequence();
     bool IsAdmin(std::uint32_t unique_id);

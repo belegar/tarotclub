@@ -29,7 +29,6 @@
 #include "Deck.h"
 #include "Deal.h"
 #include "Player.h"
-#include "TarotDeck.h"
 #include "Common.h"
 #include "ServerConfig.h"
 #include "Observer.h"
@@ -122,7 +121,7 @@ public:
     bool SetIdentity(std::uint32_t uuid, const Identity &ident);
     bool SetDiscard(const Deck &discard);
     bool SetHandle(const Deck &handle, Place p);
-    bool SetCard(Card *c, Place p);
+    bool SetCard(const Card &c, Place p);
     Contract SetBid(Contract c, bool slam, Place p);
 
 private:

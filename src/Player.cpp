@@ -55,15 +55,14 @@ void Player::SetUuid(std::uint32_t value)
  * @param nbPlayers
  * @return true if the card can be played
  */
-bool Player::CanPlayCard(Card *cVerif, Deck &trick)
+bool Player::CanPlayCard(const Card &card, Deck &trick)
 {
-    Card::Suit   suit; // required suit
+    std::uint8_t   suit; // required suit
     bool ret = false;
     PlayerStats stats;
-    Card *c = NULL;
 
     // Check if the player has the card in hand
-    if (!this->HasCard(cVerif))
+    if (!HasCard(card))
     {
         return false;
     }
@@ -75,15 +74,15 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     }
 
     // Simple use case, the excuse can always be played
-    if (cVerif->IsFool())
+    if (card.IsFool())
     {
         return true;
     }
 
     // We retreive the requested suit by looking at the first card played
-    c = *(trick.Begin());
+    Card c = *(trick.Begin());
 
-    if (c->IsFool())
+    if (c.IsFool())
     {
         // The first card is a Excuse...
         if (trick.Size() == 1)
@@ -94,37 +93,37 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
         // The requested suit is the second card
         c = *(++trick.Begin());
     }
-    suit = c->GetSuit();
+    suit = c.GetSuit();
 
     // Some indications about previous played cards
-    for (Deck::ConstIterator i = trick.Begin(); i != trick.End(); ++i)
+    for (Deck::ConstIterator it = trick.Begin(); it != trick.End(); ++it)
     {
-        c = *(i);
-        if (c->GetSuit() == Card::TRUMPS)
+        c = *(it);
+        if (c.GetSuit() == Card::TRUMPS)
         {
             stats.previousTrump = true;
-            if (c->GetValue() > stats.maxPreviousTrump)
+            if (c.GetValue() > stats.maxPreviousTrump)
             {
-                stats.maxPreviousTrump = c->GetValue();
+                stats.maxPreviousTrump = c.GetValue();
             }
         }
     }
 
     // Some indications on the player cards in hand
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
     {
-        c = *(i);
-        if (c->GetSuit() == Card::TRUMPS)
+        c = *(it);
+        if (c.GetSuit() == Card::TRUMPS)
         {
             stats.hasTrump = true;
-            if (c->GetValue() > stats.highestTrumpValue)
+            if (c.GetValue() > stats.highestTrumpValue)
             {
-                stats.highestTrumpValue = c->GetValue();
+                stats.highestTrumpValue = c.GetValue();
             }
         }
         else
         {
-            if (c->GetSuit() == suit)
+            if (c.GetSuit() == suit)
             {
                 stats.hasSuit = true;
             }
@@ -134,13 +133,13 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
     // Card type requested is a trump
     if (suit == Card::TRUMPS)
     {
-        ret = TestPlayTrump(cVerif, stats);
+        ret = TestPlayTrump(card, stats);
     }
     // Card type requested is a standard card
     else
     {
         // The card is the required suit
-        if (cVerif->GetSuit() == suit)
+        if (card.GetSuit() == suit)
         {
             ret = true;
         }
@@ -153,7 +152,7 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
         else
         {
             // We are here if the player has not the requested suit
-            ret = TestPlayTrump(cVerif, stats);
+            ret = TestPlayTrump(card, stats);
         }
     }
     return ret;
@@ -169,18 +168,18 @@ bool Player::CanPlayCard(Card *cVerif, Deck &trick)
  * @param maxPreviousTrump
  * @return
  */
-bool Player::TestPlayTrump(Card *cVerif, const PlayerStats &stats)
+bool Player::TestPlayTrump(const Card &card, const PlayerStats &stats)
 {
     bool ret = false;
 
     // He must play a trump if he has some, higher than the highest previous played trump,
     // or any other cards in other case
-    if (cVerif->GetSuit() == Card::TRUMPS)
+    if (card.GetSuit() == Card::TRUMPS)
     {
         // He may have to play a higher trump
         if (stats.previousTrump == true)
         {
-            if (cVerif->GetValue() > stats.maxPreviousTrump)
+            if (card.GetValue() > stats.maxPreviousTrump)
             {
                 // higher card, ok!
                 ret = true;
@@ -241,10 +240,10 @@ bool Player::TestHandle(const Deck &handle)
     }
 
     // Test if the player has all the cards of the declared handle
-    for (Deck::ConstIterator i = handle.Begin(); i != handle.End(); ++i)
+    for (Deck::ConstIterator it = handle.Begin(); it != handle.End(); ++it)
     {
-        Card *c = (*i);
-        if (!this->HasCard(c))
+        Card c = (*it);
+        if (!HasCard(c))
         {
             ret = false;
         }
@@ -268,20 +267,20 @@ bool Player::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numb
     {
         for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
         {
-            Card *c = (*i);
+            Card c = (*i);
 
             // Look if the card belongs to the dog or the player's deck
-            if (this->HasCard(c) || dog.HasCard(c))
+            if (HasCard(c) || dog.HasCard(c))
             {
                 // Look the card value against the Tarot rules
-                if ((c->GetSuit() == Card::TRUMPS) ||
-                        ((c->GetSuit() != Card::TRUMPS) && (c->GetValue() == 14)))
+                if ((c.GetSuit() == Card::TRUMPS) ||
+                        ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() == 14U)))
                 {
                     valid = false;
                 }
 
                 // Look if this card is unique
-                if (discard.Count(c) != 1)
+                if (discard.Count(c) != 1U)
                 {
                     valid = false;
                 }
@@ -303,9 +302,9 @@ bool Player::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numb
 void Player::RemoveDuplicates(const Deck &cards)
 {
     // remove cards in the player's deck that are similar to the discard
-    for (Deck::ConstIterator i = cards.Begin(); i != cards.End(); ++i)
+    for (Deck::ConstIterator it = cards.Begin(); it != cards.End(); ++it)
     {
-        Card *c = (*i);
+        Card c = (*it);
         if (HasCard(c))
         {
             Remove(c);

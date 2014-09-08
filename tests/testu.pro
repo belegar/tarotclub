@@ -80,7 +80,7 @@ DEFINES += DUK_OPT_SELF_TESTS
 
 # Specific OS stuff
 win32 {
-    LIBS +=  libws2_32 libgcov
+    LIBS +=  libws2_32 libgcov -lpsapi
     DEFINES += USE_WINDOWS_OS
 }
 unix {
@@ -154,8 +154,7 @@ SOURCES += duktape.c \
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-HEADERS += TarotDeck.h \
-    Deck.h \
+HEADERS += Deck.h \
     Card.h \
     Player.h \
     ServerConfig.h \
@@ -164,8 +163,7 @@ HEADERS += TarotDeck.h \
     Deal.h \
     Score.h
 
-SOURCES += TarotDeck.cpp \
-    Deck.cpp \
+SOURCES += Deck.cpp \
     Card.cpp \
     Player.cpp \
     ServerConfig.cpp \

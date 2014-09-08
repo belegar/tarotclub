@@ -48,6 +48,8 @@ public:
     static void ReplaceCharacter(std::string &theString, const std::string &toFind, const std::string &toReplace);
     static std::vector<std::string> Split(const std::string &theString, const std::string &delimiter);
     static std::string Join(const std::vector<std::string> &tokens, const std::string &delimiter);
+    static std::int32_t GetCurrentMemoryUsage();
+    static std::int32_t GetMaximumMemoryUsage();
 };
 
 #endif // UTIL_H

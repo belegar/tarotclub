@@ -31,7 +31,6 @@
 // Game includes
 #include "Card.h"
 #include "Common.h"
-#include "TarotDeck.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
 
@@ -65,11 +64,11 @@ public:
             {
                 std::string letter;
                 letter.push_back(order[4 - i]);
-                mWeight[Card::ToSuit(letter)] = 100U * i;
+                mWeight[Card::SuitFromName(letter)] = 100U * i;
             }
         }
 
-        bool operator()(Card *c1, Card *c2)
+        bool operator()(const Card &c1, const Card &c2)
         {
             bool result;
 
@@ -80,9 +79,9 @@ public:
             return result;
         }
 
-        std::uint16_t GetWeight(Card *c)
+        std::uint16_t GetWeight(const Card &c)
         {
-            return (mWeight[c->GetSuit()] + c->GetValue());
+            return (mWeight[c.GetSuit()] + c.GetValue());
         }
 
     private:
@@ -134,8 +133,8 @@ public:
     Deck(const std::string &cards);
 
     // STL-compatible iterator types
-    typedef std::list<Card *>::iterator Iterator;
-    typedef std::list<Card *>::const_iterator ConstIterator;
+    typedef std::list<Card>::iterator Iterator;
+    typedef std::list<Card>::const_iterator ConstIterator;
 
     // STL-compatible begin/end functions for iterating over the deck cards
     inline Iterator Begin()
@@ -164,16 +163,16 @@ public:
     {
         mDeck.clear();
     }
-    inline void Append(Card *c)
+    inline void Append(const Card &c)
     {
         mDeck.push_back(c);
     }
     void Append(const Deck &deck);
     Deck Mid(std::uint32_t from_pos);
     Deck Mid(std::uint32_t from_pos, std::uint32_t size);
-    void Remove(Card *c);
-    std::uint32_t Count(Card *c) const;
-    bool HasCard(Card *c) const;
+    std::uint32_t Remove(const Card &card);
+    std::uint32_t Count(const Card &c) const;
+    bool HasCard(const Card &c) const;
 
     // Helpers
     void AnalyzeTrumps(Statistics &stats) const;
@@ -182,14 +181,14 @@ public:
     void Sort(const std::string &order);
     bool HasOneOfTrump() const;
     bool HasFool() const;
-    Card *HighestTrump() const;
-    Card *HighestSuit() const;
+    Card HighestTrump() const;
+    Card HighestSuit() const;
     void CreateTarotDeck();
     std::uint32_t RemoveDuplicates(const Deck &deck);
 
     // Getters
-    Card *GetCardByName(const std::string &i_name);
-    std::string GetCardList() const;
+    Card GetCard(const std::string &i_name);
+    std::string ToString() const;
     Team GetOwner();
 
     // Setters
@@ -198,7 +197,7 @@ public:
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Deck &deck)
     {
-        std::string cards = deck.GetCardList();
+        std::string cards = deck.ToString();
         out << cards;
         return out;
     }
@@ -238,7 +237,7 @@ private:
      * information, tricks won for example
      */
     Team mOwner;
-    std::list<Card *> mDeck; //!< Container to store the cards
+    std::list<Card> mDeck; //!< Container to store the cards
 };
 
 #endif // DECK_H
