@@ -8,7 +8,6 @@
 #include "tst_tarot_rules.h"
 #include "Card.h"
 #include "Deck.h"
-#include "TarotDeck.h"
 #include "ServerConfig.h"
 #include "Player.h"
 #include "Deal.h"

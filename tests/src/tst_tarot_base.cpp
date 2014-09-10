@@ -8,9 +8,9 @@
 #include "tst_tarot_base.h"
 #include "Card.h"
 #include "Deck.h"
-#include "TarotDeck.h"
 #include "ServerConfig.h"
 #include "Player.h"
+#include "System.h"
 
 TarotBase::TarotBase()
 {
@@ -297,7 +297,7 @@ void TarotBase::TestConfig()
 
     options = ServerConfig::GetDefault();
     conf.SetOptions(options);
-    conf.Save();
+    conf.Save(System::HomePath() + DEFAULT_SERVER_CONFIG_FILE);
 }
 
 void TarotBase::TestCommon()
