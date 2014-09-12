@@ -31,7 +31,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string DEAL_RESULT_FILE_VERSION  = "2.0";
+static const std::string DEAL_RESULT_FILE_VERSION  = "2.1"; // should be backward compatible with the 2.0 ...
 
 /*****************************************************************************/
 Deal::Deal()
@@ -286,7 +286,18 @@ std::map<int, Place> Deal::GetPodium()
 /*****************************************************************************/
 Deck Deal::GetDog()
 {
-    return mDiscard;
+    return mDog;
+}
+/*****************************************************************************/
+void Deal::SetDiscard(const Deck &discard, Team owner)
+{
+    mDiscard = discard;
+    mDiscard.SetOwner(owner);
+}
+/*****************************************************************************/
+void Deal::SetDog(const Deck &dog)
+{
+    mDog = dog;
 }
 /*****************************************************************************/
 Score &Deal::GetScore()
@@ -436,12 +447,6 @@ void Deal::CalculateScore()
     score.scoreAttack = (25 + abs(score.Difference()) + score.littleEndianPoints) * Tarot::GetMultiplier(mBid.contract) + score.handlePoints + score.slamPoints;
 }
 /*****************************************************************************/
-void Deal::SetDiscard(const Deck &discard, Team owner)
-{
-    mDiscard = discard;
-    mDiscard.SetOwner(owner);
-}
-/*****************************************************************************/
 /**
  * @brief Generate a file with all played cards of the deal
  */
@@ -470,15 +475,9 @@ void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players)
     obj->CreateValuePair("contract", mBid.contract.ToString());
     obj->CreateValuePair("slam", mBid.slam);
     obj->CreateValuePair("first_trick_lead", mFirstPlayer.ToString());
-
-    // ========================== Score calculation ==========================
-    JsonObject *scoreObj = obj->CreateObjectPair("score");
-    scoreObj->CreateValuePair("attacker_points", static_cast<std::int32_t>(score.pointsAttack));
-    scoreObj->CreateValuePair("attacker_score", static_cast<std::int32_t>(score.scoreAttack));
-    scoreObj->CreateValuePair("oudlers", static_cast<std::int32_t>(score.oudlers));
-    scoreObj->CreateValuePair("one_of_trump_bonus", static_cast<std::int32_t>(score.littleEndianPoints));
-    scoreObj->CreateValuePair("handle_bonus", static_cast<std::int32_t>(score.handlePoints));
-    scoreObj->CreateValuePair("slam_bonus", static_cast<std::int32_t>(score.slamPoints));
+    obj->CreateValuePair("dog", mDog.ToString());
+    obj->CreateValuePair("attack_handle", mAttackHandle.ToString());
+    obj->CreateValuePair("defense_handle", mDefenseHandle.ToString());
 
     // ========================== Played cards ==========================
     JsonArray *obj3 = json.CreateArrayPair("tricks");

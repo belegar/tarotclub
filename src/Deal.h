@@ -65,13 +65,14 @@ public:
     void SetHandle(const Deck &handle, Team team);
     void SetScore(const Score &score);
     void SetDiscard(const Deck &discard, Team owner);
+    void SetDog(const Deck &dog);
     Place SetTrick(const Deck &trick, std::uint8_t trickCounter);
 
 private:
     Place GetOwner(Place firstPlayer, const Card &c, int turn);
 
-    // We store played cards to count points
     Deck mDiscard;
+    Deck mDog;
     Deck mAttackHandle;
     Deck mDefenseHandle;
     Deck mTricks[24];    // 24 tricks max with 3 players
