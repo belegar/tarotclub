@@ -98,6 +98,10 @@ module.RunCardAndDeckTests = function()
 
 	systemPrint(TarotLib.Contract.toString(TarotLib.Contract.GUARD));
 	systemPrint(""); // empty string = skip line
+	
+	deck.clear();
+	deck.makeTarotDeck();
+	deck.printHtml();
 };
 
 /*****************************************************************************/
