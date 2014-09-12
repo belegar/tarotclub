@@ -1,0 +1,30 @@
+Source: tarotclub
+Section: games
+Priority: optional
+Maintainer: Marshall Banana <djcj@gmx.de>
+Build-Depends:
+   debhelper (>= 9),
+   imagemagick,
+   libgl1-mesa-dev | libgl-dev,
+   libglu1-mesa-dev | libglu-dev,
+   libegl1-mesa-dev,
+   qt5-default,
+   qttools5-dev-tools,
+   qttools5-doc,
+   libqt5svg5-dev
+Standards-Version: 3.9.5
+Homepage: http://www.tarotclub.fr/
+Vcs-Browser: https://bitbucket.org/tarotclub/tarotclub
+
+Package: tarotclub
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Tarot card game
+ TarotClub is a Tarot card game (not the divination one) playable
+ on any computer with Mac OS X, Windows or Linux. The Tarot card game
+ is mostly played in french-spoken countries. It uses a specific deck
+ of cards including standard card figures plus the Knight and 22 trumps.
+ The complete rules of the Tarot card game is available in Wikipedia.
+ .
+ This project is a tentative to create a nice open source version of this game,
+ playable in various operating system and with a modular design.

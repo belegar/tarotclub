@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+
+
+%:
+	dh ${@} --parallel
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf build-desktop converted_icons tarotclub.png
+
+override_dh_auto_configure:
+	qmake prj/desktop.pro
+
+override_dh_auto_build:
+	dh_auto_build
+	
+	# create icons
+	cp assets/icons/icon256x256.png tarotclub.png
+	$(CURDIR)/debian/make-icons.sh tarotclub.png
+
+override_dh_installchangelogs:
+	dh_installchangelogs HISTORY
+
+override_dh_builddeb:
+	dh_builddeb -- -Zxz -z9
