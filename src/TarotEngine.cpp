@@ -166,12 +166,13 @@ Place TarotEngine::GetWinner()
 /*****************************************************************************/
 bool TarotEngine::SetDiscard(const Deck &discard)
 {
-    bool valid = mPlayers[mBid.taker.Value()].TestDiscard(discard, mDog, mNbPlayers);
+    Deck dog = mDeal.GetDog();
+    bool valid = mPlayers[mBid.taker.Value()].TestDiscard(discard, dog, mNbPlayers);
 
     if (valid)
     {
         // Add the dog to the player's deck, and then filter the discard
-        mPlayers[mBid.taker.Value()] += mDog;
+        mPlayers[mBid.taker.Value()] += dog;
         mPlayers[mBid.taker.Value()].RemoveDuplicates(discard);
 
         std::stringstream ss;
@@ -495,12 +496,12 @@ void TarotEngine::BidSequence()
                 // No discard is made, set the owner of the dog
                 if (mBid.contract != Contract::GUARD_AGAINST)
                 {
-                    mDeal.SetDiscard(mDog, ATTACK);
+                    mDeal.SetDiscard(mDeal.GetDog(), ATTACK);
                 }
                 else
                 {
                     // Guard _against_, the dog belongs to the defense
-                    mDeal.SetDiscard(mDog, DEFENSE);
+                    mDeal.SetDiscard(mDeal.GetDog(), DEFENSE);
                 }
 
                 // We do not display the dog and start the deal immediatly
@@ -587,11 +588,11 @@ void TarotEngine::CreateDeal()
     }
 
     // Remaining cards go to the dog
-    mDog.Clear();
-    mDog.Append(currentTrick.Mid(mNbPlayers * n));
+    Deck dog(currentTrick.Mid(mNbPlayers * n));
+    mDeal.SetDog(dog);
 
     std::stringstream message;
-    message << "Dog deck: " << mDog.ToString();
+    message << "Dog deck: " << dog.ToString();
     TLogInfo(message.str());
 
     currentTrick.Clear();

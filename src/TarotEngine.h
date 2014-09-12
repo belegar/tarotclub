@@ -108,7 +108,7 @@ public:
     }
     Deck GetDog()
     {
-        return mDog;
+        return mDeal.GetDog();
     }
     Tarot::Shuffle GetShuffle();
 
@@ -129,7 +129,6 @@ private:
     std::map<Place, Identity> mPlayersIdent;
     Deck    currentTrick;   // store the current trick cards played
     Deal    mDeal;
-    Deck    mDog;   // The remaining cards (dog)
 
     // Game state variables
     std::uint8_t    mNbPlayers;
