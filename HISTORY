@@ -12,9 +12,16 @@ The following ChangeLog is using specific signs to quickly identify the nature o
 
 ## Version 2.4.0 (??/??/????)
 
+### Internal modifications
+
     ~ Mkdir utility did not manage the disk name separator properly (Windows only)
     + NEW command line dedicated server configuration file
+	+ Deck class: change the list of Card pointers into a list of Card objects (2 bytes instead of 4), deleted TarotDeck files
 
+### Desktop improvements
+
+	
+	
 # Branch 2.3.x - Codename <Snowboard>
 
 ## version 2.3.7 (30/08/2014)
