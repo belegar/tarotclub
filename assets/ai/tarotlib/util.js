@@ -335,6 +335,9 @@ this.TarotLib = this.TarotLib || {};
         return value;
     };
 
+	/**
+     * int suit --> String suit
+     */
 	Suit.toString = function(intValue)
 	{
 		var suit;

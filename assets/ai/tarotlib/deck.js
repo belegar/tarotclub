@@ -60,6 +60,28 @@ var p = Deck.prototype;
 		}
 		return buffer;
 	};
+		
+    p.makeTarotDeck = function()
+	{
+		this.clear();
+		// The 4 suits
+		for (var i = 0; i < 4; i++)
+		{
+			// From ace to the king, 14 cards
+			for (var j = 1; j <= 14; j++)
+			{
+				var name = ("00" + j).slice(-2) + "-" + TarotLib.Suit.toString(i);
+				this.addOneCard(name);
+			}
+		}
+
+		// The 22 trumps, including the fool
+		for (var i = 0; i <= 21; i++)
+		{
+			var name = ("00" + i).slice(-2) + "-T";	
+			this.addOneCard(name);
+		}
+   };
 
 	p.toHtmlString = function()
 	{
