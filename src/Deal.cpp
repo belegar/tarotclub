@@ -97,7 +97,6 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     Place firstPlayer;
     // Bonus: Fool
     bool foolSwap = false;  // true if the fool has been swaped of teams
-    Team foolOwner = NO_TEAM; // the final owner of the fool
 
     if (turn == 0U)
     {
@@ -144,7 +143,10 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
                 else
                 {
                     Place foolPlace = GetOwner(firstPlayer, cFool, turn);
-                    if (Tarot::IsDealFinished(trickCounter, numberOfPlayers) == true)
+                    Team winnerTeam = (winner == mBid.taker) ? ATTACK : DEFENSE;
+                    Team foolTeam = (foolPlace == mBid.taker) ? ATTACK : DEFENSE;
+
+                    if (Tarot::IsDealFinished(trickCounter, numberOfPlayers))
                     {
                         // Special case of the fool: if played at last turn with a slam realized, it wins the trick
                         if ((mTricksWon == (numberOfTricks - 1)) &&
@@ -156,14 +158,9 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
                         // fool belongs to the same team than the winner of the trick.
                         else
                         {
-                            foolSwap = true;
-                            if (foolPlace == mBid.taker)
+                            if (winnerTeam == foolTeam)
                             {
-                                foolOwner = DEFENSE;
-                            }
-                            else
-                            {
-                                foolOwner = ATTACK;
+                                foolSwap = true;
                             }
                         }
                     }
@@ -171,19 +168,10 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
                     {
                         // In all other cases, the fool is kept by the owner. If the trick is won by a
                         // different team than the fool owner, they must exchange 1 low card with the fool.
-                        if (winner != foolPlace)
+                        if (winnerTeam != foolTeam)
                         {
                             foolSwap = true;
-                            if (winner == mBid.taker)
-                            {
-                                foolOwner = DEFENSE;
-                            }
-                            else
-                            {
-                                foolOwner = ATTACK;
-                            }
                         }
-                        // else, the trick is won by the attacker, it keeps the fool
                     }
                 }
             }
@@ -195,23 +183,20 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
             mTricks[turn].AnalyzeTrumps(statsAttack);
             mTricksWon++;
 
-            if (foolSwap == true)
+            if (foolSwap)
             {
-                if (foolOwner == DEFENSE)
-                {
-                    statsAttack.points -= 4; // defense keeps its points
-                    statsAttack.oudlers--; // attack looses an oudler! what a pity!
-                }
-                else
-                {
-                    statsAttack.points += 4; // get back the points
-                    statsAttack.oudlers++; // hey, it was MY oudler!
-                }
+                statsAttack.points -= 4; // defense keeps its points
+                statsAttack.oudlers--; // attack looses an oudler! what a pity!
             }
         }
         else
         {
             mTricks[turn].SetOwner(DEFENSE);
+            if (foolSwap)
+            {
+                statsAttack.points += 4; // get back the points
+                statsAttack.oudlers++; // hey, it was MY oudler!
+            }
         }
     }
     else
@@ -562,6 +547,7 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
             if (ret)
             {
 #ifdef TAROT_DEBUG
+                std::cout << "File: " << fileName << std::endl;
                 std::cout << "First player: " << str_value << std::endl;
 #endif
                 StartDeal(str_value, bid);
@@ -606,6 +592,10 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                     // it should contains only the discard cards
                     if (mDiscard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
                     {
+#ifdef TAROT_DEBUG
+                        std::cout << "Discard: " << mDiscard.ToString() << std::endl;
+#endif
+
                         // Give the cards to the right team owner
                         if (bid.contract == Contract::GUARD_AGAINST)
                         {
