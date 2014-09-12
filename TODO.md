@@ -2,26 +2,7 @@
 
 # Planned for 2.4.0 (Target date: November 2014)
 
-## Debian source package
-
-  * Remove ImageMagick script creation
-  * update control / rules / changelog
-  * add postinst script to refresh fonts cache
-  * review links made in /usr/lib, necessary?
-
-## Arch package
-  
-  * Add initial version
-
-## Unit tests
-  
-  * Add unit tests on trick winner detection
-  * Add unit tests on score calculation
-
 ## Engine improvements
-
-  * Delete TarotDeck static class, not compatible with muti tables TCDS egine
-  * Deck class: change the list of Card pointers into a list of Card objects (3 bytes instead of 4, and resolve the above problem)
   
 ## TarotWidget Engine
   * Use an HTML5 canvas and JavaScript to allow an easy porting on all platforms
