@@ -9,7 +9,7 @@
             "Ouest"
         ],
         "taker": "South",
-        "contract": "Take",
+        "contract": "Guard",
         "slam": false,
         "first_trick_lead": "South",
         "score": {
