@@ -1,9 +1,0 @@
-debian/bin/tarotclub              /usr/games
-build-desktop/release/TarotClub   /usr/lib/tarotclub
-converted_icons/icons             /usr/share
-debian/tarotclub.desktop          /usr/share/applications
-assets/ai                         /usr/share/tarotclub
-assets/cards/default              /usr/share/tarotclub
-assets/fonts/kanzlei.ttf          /usr/share/tarotclub
-assets/icons/icon256x256.png      /usr/share/tarotclub
-prj/desktop/tarotclub_fr.qm       /usr/share/tarotclub

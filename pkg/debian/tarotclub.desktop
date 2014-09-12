@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=TarotClub
-Comment=Le jeu de Tarot libre!
-Exec=tarotclub
-TryExec=/usr/share/tarotclub/TarotClub
-Icon=tarotclub
-Categories=Game;CardGame;
-Terminal=false
