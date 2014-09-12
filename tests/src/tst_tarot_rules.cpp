@@ -177,7 +177,7 @@ void TarotRules::TestScoreCalculation()
     score = deal.GetScore();
 
     QCOMPARE(score.Winner(), ATTACK);
-    QCOMPARE(score.GetAttackScore(), 27 * 3);
+    QCOMPARE(score.GetAttackScore(), 54 * 3);
     QCOMPARE(score.oudlers, 2);
     QCOMPARE(score.handlePoints, 0);
     QCOMPARE(score.slamPoints, 0);
@@ -202,6 +202,26 @@ void TarotRules::TestScoreCalculation()
     QCOMPARE(score.handlePoints, 0);
     QCOMPARE(score.slamPoints, 0);
     QCOMPARE(score.littleEndianPoints, 10);
+
+
+    // --------------------------------------------------------------------
+    // Test 5:  3 oudlers at the end of the game
+
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/3_oudlers.json");
+    QCOMPARE(actual_bool, true);
+
+    // Launch score calculation
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore();
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), ATTACK);
+    QCOMPARE(score.GetAttackScore(), 216);
+    QCOMPARE(score.oudlers, 3);
+    QCOMPARE(score.handlePoints, 0);
+    QCOMPARE(score.slamPoints, 0);
+    QCOMPARE(score.littleEndianPoints, 0);
 
 
     // FIXME: add test cases:
