@@ -1,71 +1,18 @@
 <html>
 <head>
-
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<script type="text/javascript" src="system.js"></script>
 	<script type="text/javascript" src="../../assets/ai/tarotlib/util.js"></script>
 	<script type="text/javascript" src="../../assets/ai/tarotlib/card.js"></script>
 	<script type="text/javascript" src="../../assets/ai/tarotlib/deck.js"></script>
 	
-<script type="text/javascript">
-
-	function loadImages(sources, callback) {
-        var images = [];
-        var loadedImages = 0;
-
-        for(var i = 0; i < sources.length; i++) {
-          images[i] = new Image();
-          images[i].onload = function() {
-            if(++loadedImages >= sources.length) {
-              callback(images);
-            }
-          };
-          images[i].src = sources[i];
-        }
-      }
-	  
-	function LoadTarotCards(context)
-	{
-		var deck = new TarotLib.Deck();
-		deck.makeTarotDeck();
-		
-		// sources is our list of image files
-		var sources = [];
-		for (var i = 0; i < deck.size(); i++)
-		{
-			var card = deck.get(i);
-			sources[i] = "../../assets/cards/default/" + card.getName() + ".svg";
-		}	
-		
-		loadImages(sources, function(images) {
-			context.shadowOffsetX = 4;
-			context.shadowOffsetY = 4;
-			context.shadowColor = "rgba( 0, 0, 0, 0.3 )";
-			context.shadowBlur = 3;
-			
-			for(var i = 0; i < images.length; i++) {
-				context.drawImage(images[i], 50 + 10*i, 0, 61, 112);
-			}
-		});
-	}
- 
-	//resize calculates dimensions then calls draw canvas
-	function resizeCanvas()
-	{
-		var canvasWidth = window.innerWidth;
-		var canvasHeight = window.innerHeight;
-		drawCanvas(canvasWidth,canvasHeight);
-	}
-	 
-	//this initializes the canvas for the first time
-	resizeCanvas();
-	 
-	function drawCanvas(canvasWidth, canvasHeight)
-	{
-		//draw your canvas elements here
-	 
-	}
+	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="jquery-ui.min.js"></script>
+	<script type="text/javascript" src="jcanvas.min.js"></script>
 	
-    function Init() 
+<script type="text/javascript">
+	
+	function init() 
     {
         // Set up our canvas on the page before doing anything.
         var canvas = document.getElementById("myCanvas");
@@ -82,19 +29,80 @@
 		context.fillStyle = grd;
 		context.fill();
 		
+		// Draw a circle on the canvas
+		$('canvas').drawArc({
+		  fillStyle: 'black',
+		  x: 100, y: 100,
+		  radius: 50
+		});
+		
 		LoadTarotCards(context);
     }
 	
-	//event handler for window resize
-	window.addEventListener('resize', resizeCanvas, false);
-    window.onload = Init;
-    
+	function LoadTarotCards(context)
+	{
+		var deck = new TarotLib.Deck();
+		deck.makeTarotDeck();
+		
+		// sources is our list of image files
+		var sources = [];
+		for (var i = 0; i < deck.size(); i++)
+		{
+			var card = deck.get(i);
+			sources[i] = "../../assets/cards/default/" + card.getName() + ".svg";
+		}	
+		
+		function getFileName(path) {
+			var fileNameIndex = path.lastIndexOf("/") + 1;
+			var filename = path.substr(fileNameIndex, 4);
+			return filename;
+		}
+		
+		loadImages(sources, function(images) {
+			//draw your canvas elements here
+			context.shadowOffsetX = 4;
+			context.shadowOffsetY = 4;
+			context.shadowColor = "rgba( 0, 0, 0, 0.3 )";
+			context.shadowBlur = 3;
+			
+			for(var i = 0; i < images.length; i++) {
+//				context.drawImage(images[i], 50 + 10*i, 0, 61, 112);
+				
+				var layerName = getFileName(images[i].src);
+				console.log(layerName);
+				$('canvas').drawImage({
+					layer: true,
+					name: layerName,
+				  source: images[i],
+				  x: 50 + 10*i, y: 150,
+				//  scale: 0.5
+				});
+
+			}			
+		});
+	}
+	
+	function loadImages(sources, callback) {
+        var images = [];
+        var loadedImages = 0;
+
+        for(var i = 0; i < sources.length; i++) {
+			images[i] = new Image();
+			images[i].onload = function() {
+				if(++loadedImages >= sources.length) {
+					callback(images);
+				}
+			};
+			images[i].src = sources[i];
+        }
+    }
+ 
 </script>
 
 
 </head>
 
-<body>
+<body onload="init()">
 	<canvas id="myCanvas" width="800" height="400"></canvas>
 
 </body>
