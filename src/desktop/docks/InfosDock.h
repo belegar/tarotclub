@@ -53,7 +53,7 @@ public:
     void SetTaker(const QString &name, Place place);
     void SetDealNumber(std::uint32_t n);
     void PrintStats(const Deck::Statistics &stats);
-    void AddRound(std::uint8_t trickCounter, Place p, const QString &txt);
+    void AddRound(std::uint8_t trickCounter, Place p, const std::string &cardName);
     void SelectWinner(std::uint8_t trickCounter, Place p);
     void SelectFirstPlayer(int turn, Place p);
 };

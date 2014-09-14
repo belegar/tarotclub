@@ -10,7 +10,7 @@ The following ChangeLog is using specific signs to quickly identify the nature o
 
 # Branch 2.4.x - Codename <>
 
-## Version 2.4.0 (??/??/????)
+## Version 2.4 (??/??/????)
 
 ### Internal modifications
 
@@ -19,7 +19,8 @@ The following ChangeLog is using specific signs to quickly identify the nature o
 	+ Deck class: change the list of Card pointers into a list of Card objects (2 bytes instead of 4), deleted TarotDeck files
 
 ### Desktop improvements
-
+    
+    + Display a more comprehensive card name in the history of tricks dock window (eg: 13-D ==> display D with a diamond icon)
 	
 	
 # Branch 2.3.x - Codename <Snowboard>
