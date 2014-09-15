@@ -112,7 +112,8 @@ unix {
 
 
 # Duktape defines
-DEFINES += DUK_OPT_NO_JSONX
+DEFINES += DUK_OPT_NO_JX
+DEFINES += DUK_OPT_NO_JC
 
 # ------------------------------------------------------------------------------
 # JavaScript files

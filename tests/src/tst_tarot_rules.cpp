@@ -223,6 +223,21 @@ void TarotRules::TestScoreCalculation()
     QCOMPARE(score.slamPoints, 0);
     QCOMPARE(score.littleEndianPoints, 0);
 
+    // --------------------------------------------------------------------
+    // Test 6:  4 oudlers (bug) at the end of the game
+
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/4_oudlers_bug.json");
+    QCOMPARE(actual_bool, true);
+
+    // Launch score calculation
+    deal.AnalyzeGame(4U);
+    deal.CalculateScore();
+
+    score = deal.GetScore();
+
+    QCOMPARE(score.Winner(), ATTACK);
+    QCOMPARE(score.oudlers, 3);
+
 
     // FIXME: add test cases:
       // Slam done by the attack

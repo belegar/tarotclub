@@ -384,7 +384,7 @@ void MainWindow::slotNewGameEvent()
 /*****************************************************************************/
 void MainWindow::slotShowCardEvent(Place p, std::string cardName)
 {
-    infosDock->AddRound(mTrickCounter, p, QString(cardName.data()));
+    infosDock->AddRound(mTrickCounter, p, cardName);
 
     if (mFirstPlayer)
     {

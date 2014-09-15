@@ -147,8 +147,18 @@ void InfosDock::PrintStats(const Deck::Statistics &stats)
     ui.statsEdit->setPlainText(buffer);
 }
 /*****************************************************************************/
-void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const QString &txt)
+void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &cardName)
 {
+    QString txt;
+
+   // U+2660 (9824dec) 	U+2665 (9829dec) 	U+2666 (9830dec) 	U+2663 (9827dec)
+   // ♠ 	♥ 	♦ 	♣
+    Card card(cardName);
+    QString suits[5] = { " \u2660", " \u2665", " \u2666", " \u2663", " A" };
+
+    txt.setNum((int)card.GetValue());
+    txt += suits[card.GetSuit()];
+
     QTableWidgetItem *item = ui.tableWidget->item(trickCounter, p.Value());
     if (item != NULL)
     {
