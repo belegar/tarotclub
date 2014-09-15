@@ -29,13 +29,6 @@
 		context.fillStyle = grd;
 		context.fill();
 		
-		// Draw a circle on the canvas
-		$('canvas').drawArc({
-		  fillStyle: 'black',
-		  x: 100, y: 100,
-		  radius: 50
-		});
-		
 		LoadTarotCards(context);
     }
 	
@@ -46,11 +39,14 @@
 		
 		// sources is our list of image files
 		var sources = [];
-		for (var i = 0; i < deck.size(); i++)
+		
+//		for (var i = 0; i < deck.size(); i++)
 		{
-			var card = deck.get(i);
-			sources[i] = "../../assets/cards/default/" + card.getName() + ".svg";
+//			var card = deck.get(i);
+//			sources[i] = "../../assets/cards/default/" + card.getName() + ".svg";
 		}	
+		
+		sources[0] = "../../assets/cards/default/" + deck.get(0).getName() + ".svg";
 		
 		function getFileName(path) {
 			var fileNameIndex = path.lastIndexOf("/") + 1;
@@ -60,25 +56,28 @@
 		
 		loadImages(sources, function(images) {
 			//draw your canvas elements here
-			context.shadowOffsetX = 4;
-			context.shadowOffsetY = 4;
-			context.shadowColor = "rgba( 0, 0, 0, 0.3 )";
-			context.shadowBlur = 3;
+//			context.shadowOffsetX = 4;
+	//		context.shadowOffsetY = 4;
+//			context.shadowColor = "rgba( 0, 0, 0, 0.3 )";
+//			context.shadowBlur = 3;
 			
 			for(var i = 0; i < images.length; i++) {
 //				context.drawImage(images[i], 50 + 10*i, 0, 61, 112);
 				
 				var layerName = getFileName(images[i].src);
-				console.log(layerName);
 				$('canvas').drawImage({
 					layer: true,
+					draggable: true,
 					name: layerName,
-				  source: images[i],
-				  x: 50 + 10*i, y: 150,
-				//  scale: 0.5
+					source: images[i],
+					
+					shadowColor: "rgba( 0, 0, 0, 0.3 )",
+					shadowBlur: 3,
+					shadowX: 4, shadowY: 4,
+					x: 200 + 20*i, y: 150,
+					scale: 2.0
 				});
-
-			}			
+			}
 		});
 	}
 	
