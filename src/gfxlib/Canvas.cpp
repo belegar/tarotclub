@@ -188,6 +188,7 @@ void Canvas::HideCard(const Card &c)
     GfxCard *gfx = FindGfxCard(c);
     if (gfx != NULL)
     {
+        gfx->setRotation(0);
         gfx->setVisible(false);
     }
 }
@@ -207,11 +208,13 @@ GfxCard *Canvas::FindGfxCard(const Card &c)
     return card;
 }
 /*****************************************************************************/
-void Canvas::ToggleCardSelection(std::uint8_t index)
+void Canvas::ToggleCardSelection(const Card &c)
 {
-    if (index < cardsPics.size())
+    GfxCard *gfx = FindGfxCard(c);
+
+    if (gfx != NULL)
     {
-        cardsPics.at(index)->ToggleSelection();
+        gfx->ToggleSelection();
     }
 }
 /*****************************************************************************/
@@ -437,6 +440,7 @@ void Canvas::DrawSouthCards(const Deck &cards)
         {
             cgfx->setPos(x, y);
             cgfx->setZValue(z++);
+            cgfx->setRotation(0);
             cgfx->show();
             x = x + step;
         }

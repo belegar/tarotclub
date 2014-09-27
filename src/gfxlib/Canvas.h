@@ -91,7 +91,7 @@ public:
     void DisplayHandleMenu(bool visible);
     void DisplayMainMenu(bool visible);
     void HideCard(const Card &c);
-    void ToggleCardSelection(std::uint8_t index);
+    void ToggleCardSelection(const Card &c);
 
     // Getters
     bool GetSlamOption();
