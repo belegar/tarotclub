@@ -245,6 +245,13 @@ and the delivery process must be executed again from the beginning).
   * Ubuntu-fr forum
   * Canard-PC forum
   * TODO: fedora, arch, suse, slackware, Mac
+
+## Propaganda
+
+  * Framasoft
+  * http://jeuxlibres.net/
+  * http://www.jesuislibre.org/
+  * http://www.lebottindesjeuxlinux.tuxfamily.org/
   
 # Glossary and translations
 
