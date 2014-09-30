@@ -29,14 +29,13 @@
 #include "Log.h"
 
 #define SPACE_BETWEEN_ITEMS 10
-#define PLAYER_BOX_WIDTH    240
-#define PLAYER_BOX_HEIGHT   (TEXT_BOX_WIDTH+2*TEXT_BOX_HEIGHT+4*SPACE_BETWEEN_ITEMS)
+#define PLAYER_BOX_WIDTH    ((2 * SPACE_BETWEEN_ITEMS) + TEXT_BOX_WIDTH)
+#define PLAYER_BOX_HEIGHT   (TEXT_BOX_WIDTH + (2 * TEXT_BOX_HEIGHT) + (4 * SPACE_BETWEEN_ITEMS))
 
 /*****************************************************************************/
-PlayerBox::PlayerBox(const QRectF &cardSize)
+PlayerBox::PlayerBox()
     : name(QPointF(0, 0))
     , bid(QPointF(0, 0))
-    , mCardSize(cardSize)
 {
     setRect(0, 0, PLAYER_BOX_WIDTH, PLAYER_BOX_HEIGHT);
 
@@ -59,14 +58,6 @@ PlayerBox::PlayerBox(const QRectF &cardSize)
     bid.SetTextColor(Qt::white);
     bid.show();
     SetBackgroundColor(Qt::red, BID_BOX);
-
-    // The card shadow is located on the right side of the player box
-    mCardShadow.setParentItem(this);
-    mCardShadow.setRect(mCardSize);
-
-    mCardShadow.setPos(name.boundingRect().width() + 2 * SPACE_BETWEEN_ITEMS, (PLAYER_BOX_HEIGHT - mCardShadow.boundingRect().height()) / 2);
-    mCardShadow.show();
-    mCardShadow.setZValue(0);
 }
 /*****************************************************************************/
 void PlayerBox::SetBackgroundColor(Qt::GlobalColor color, Box box)
@@ -134,20 +125,6 @@ void PlayerBox::EnableAvatar(bool enable)
     else
     {
         avatar.hide();
-    }
-}
-/*****************************************************************************/
-void PlayerBox::DrawCard(GfxCard *c)
-{
-    if (c)
-    {
-        c->setPos(mapToScene(mCardShadow.pos()));
-        c->setZValue(1);
-        c->show();
-    }
-    else
-    {
-        TLogError("Card is null, cannot display it!");
     }
 }
 /*****************************************************************************/

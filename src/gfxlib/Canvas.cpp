@@ -43,7 +43,15 @@ static const QRectF border(10, 10, 925, 700);
 #define MENU_POS_X  30
 #define MENU_POS_Y  350
 
-static const qreal SCALE_FACTOR = 1.5f;
+// Cards played in the center of the board
+static const QPointF coordCards[5] =
+{
+    QPointF(300, 130),  // SOUTH
+    QPointF(330, 150),  // EAST
+    QPointF(300, 160),  // NORTH
+    QPointF(270, 150),  // WEST
+    QPointF(0, 0)       // NORTH-WEST
+};
 
 static const QPointF coordPlayerBox[5] =
 {
@@ -132,7 +140,6 @@ bool Canvas::Initialize()
         {
             GfxCard *item = new GfxCard(image, this, *it);
             item->hide();
-            item->setScale(SCALE_FACTOR);
             cardsPics.append(item);
             scene.addItem(item);
         }
@@ -145,14 +152,10 @@ bool Canvas::Initialize()
 
     if (ret)
     {
-        QRectF cardSize = cardsPics.at(0)->boundingRect();
-        cardSize.setWidth(cardSize.width() * SCALE_FACTOR);
-        cardSize.setHeight(cardSize.height() * SCALE_FACTOR);
-
         // 4 players by default
         for (std::uint32_t i = 0U; i < 4U; i++)
         {
-            PlayerBox *pb = new PlayerBox(cardSize);
+            PlayerBox *pb = new PlayerBox();
             pb->setPos(coordPlayerBox[i]);
             pb->show();
             playerBox.insert((Place)i, pb);
@@ -160,7 +163,7 @@ bool Canvas::Initialize()
         }
 
         // Give canvas element sizes to the popup to allow dynamic resizing
-        popupItem.SetSizes(border, cardSize);
+        popupItem.SetSizes(border, cardsPics.at(0)->GetRealSize());
         mMsgBoxItem.SetBorder(border);
     }
 
@@ -402,7 +405,14 @@ void Canvas::DrawCard(const Card &c, Place p, Place myPlace)
     GfxCard *gfx = FindGfxCard(c);
     if (gfx != NULL)
     {
-        playerBox.value(rel)->DrawCard(gfx);
+        gfx->setPos(coordCards[rel.Value()]);
+        gfx->setZValue(1);
+        gfx->show();
+        gfx->setRotation((qrand() % 40) - 20);
+    }
+    else
+    {
+        TLogError("Card is null, cannot display it!");
     }
 }
 /*****************************************************************************/
