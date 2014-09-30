@@ -55,7 +55,7 @@ public:
     void PrintStats(const Deck::Statistics &stats);
     void AddRound(std::uint8_t trickCounter, Place p, const std::string &cardName);
     void SelectWinner(std::uint8_t trickCounter, Place p);
-    void SelectFirstPlayer(int turn, Place p);
+    void SelectFirstPlayer(std::uint8_t trickCounter, Place p);
 };
 
 #endif // INFOSDOCK_H

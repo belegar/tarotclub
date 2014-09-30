@@ -156,8 +156,15 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
     Card card(cardName);
     QString suits[5] = { " \u2660", " \u2665", " \u2666", " \u2663", " A" };
 
-    txt.setNum((int)card.GetValue());
-    txt += suits[card.GetSuit()];
+    if (cardName == "00-T")
+    {
+        txt = "Ex";
+    }
+    else
+    {
+        txt.setNum((int)card.GetValue());
+        txt += suits[card.GetSuit()];
+    }
 
     QTableWidgetItem *item = ui.tableWidget->item(trickCounter, p.Value());
     if (item != NULL)
@@ -168,15 +175,14 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
 /*****************************************************************************/
 void InfosDock::SelectWinner(std::uint8_t trickCounter, Place p)
 {
-    QBrush brush(Qt::darkGreen);
+    QBrush brush(Qt::green);
     ui.tableWidget->item(trickCounter, p.Value())->setBackground(brush);
 }
 /*****************************************************************************/
-void InfosDock::SelectFirstPlayer(int turn, Place p)
+void InfosDock::SelectFirstPlayer(std::uint8_t trickCounter, Place p)
 {
-    QFont font = ui.tableWidget->item(turn, p.Value())->font();
-    font.setBold(true);
-    ui.tableWidget->item(turn, p.Value())->setFont(font);
+    QBrush brush(Qt::lightGray);
+    ui.tableWidget->item(trickCounter, p.Value())->setBackground(brush);
 }
 
 //=============================================================================
