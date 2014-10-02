@@ -25,6 +25,8 @@
 
 #include "GfxCard.h"
 
+static const qreal SCALE_FACTOR = 1.5f;
+
 /*****************************************************************************/
 GfxCard::GfxCard(const QString &fileName, ICardEvent *event, const Card &card, QGraphicsItem *parent)
     : QGraphicsSvgItem(fileName, parent)
@@ -35,24 +37,21 @@ GfxCard::GfxCard(const QString &fileName, ICardEvent *event, const Card &card, Q
     setAcceptHoverEvents(true);
     setAcceptTouchEvents(true);
 
+    setScale(SCALE_FACTOR);
 
-    shadow.setBlurRadius(15.0);
-    shadow.setColor(Qt::black);
-    shadow.setOffset(0, 0);
-    setGraphicsEffect(&shadow);
-}
-/*****************************************************************************/
-void CardShadow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    // Create a drop-shadow under the card
+    mShadow.setBlurRadius(15.0);
+    mShadow.setColor(Qt::black);
+    mShadow.setOffset(0, 0);
+    setGraphicsEffect(&mShadow);
 
-    // Paint with specified color and pen
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->setBrush(QBrush(QColor(149, 149, 149, 127)));
-    painter->setPen(Qt::NoPen);
-    painter->drawRoundRect(rect(), (int)(15 * rect().height()
-                                         / rect().width()), 15);
+    // Create a radial gradient to make the cards old-style
+    QRectF size = GetRealSize();
+
+    mGradient.setCenter(size.width() / 2, size.height() / 2);
+    mGradient.setRadius(size.width() * 1.5);
+    mGradient.setColorAt( 0, Qt::white );
+    mGradient.setColorAt( 1, QColor(244, 238, 215));
 }
 /*****************************************************************************/
 int GfxCard::type() const
@@ -83,6 +82,14 @@ void GfxCard::ToggleSelection()
         mSelected = false;
         this->moveBy(0.0, 20.0);
     }
+}
+/*****************************************************************************/
+QRectF GfxCard::GetRealSize()
+{
+    QRectF cardSize = boundingRect();
+    cardSize.setWidth(cardSize.width() * SCALE_FACTOR);
+    cardSize.setHeight(cardSize.height() * SCALE_FACTOR);
+    return cardSize;
 }
 /*****************************************************************************/
 bool GfxCard::IsEqual(const Card &c)

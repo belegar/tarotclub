@@ -32,16 +32,6 @@
 #include "ICardEvent.h"
 
 /*****************************************************************************/
-/**
- * @brief Card shadow item to show the positions of cards on the play board
- */
-class CardShadow : public QGraphicsRectItem
-{
-
-public:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-};
-/*****************************************************************************/
 class GfxCard : public QGraphicsSvgItem
 {
 public:
@@ -54,6 +44,7 @@ public:
     bool IsSelected();
     void SetSelected(bool s);
     void ToggleSelection();
+    QRectF GetRealSize();
 
     bool IsEqual(const Card &c);
 
@@ -66,7 +57,8 @@ private:
     bool mSelected;
     ICardEvent *mEvent;
     Card mCard;
-    QGraphicsDropShadowEffect shadow;
+    QGraphicsDropShadowEffect mShadow;
+    QRadialGradient mGradient;
 };
 
 #endif // GFXCARD_H

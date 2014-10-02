@@ -431,7 +431,7 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
             mDiscard.Remove(c);
             mCanvas->DisplayDiscardMenu(false);
         }
-        mCanvas->ToggleCardSelection(value);
+        mCanvas->ToggleCardSelection(c);
     }
     else if (mClient.GetSequence() == Client::BUILD_HANDLE)
     {
@@ -456,7 +456,7 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
                 mCanvas->SetFilter(Canvas::CARDS);
                 mCanvas->DisplayHandleMenu(false);
             }
-            mCanvas->ToggleCardSelection(value);
+            mCanvas->ToggleCardSelection(c);
         }
     }
 }

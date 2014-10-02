@@ -72,13 +72,12 @@ class PlayerBox : public QGraphicsRectItem
 {
 
 public:
-    PlayerBox(const QRectF &cardSize);
+    PlayerBox();
 
     // Helpers
     void SelectPlayer(bool selected);
     void HighlightPlayer(bool highlighted);
     void EnableAvatar(bool enable);
-    void DrawCard(GfxCard *c);
 
     // Setters
     void SetAvatar(const QString &avatar);
@@ -96,8 +95,6 @@ private:
     AvatarItem avatar;
     TextBox name;
     TextBox bid;
-    CardShadow mCardShadow;
-    QRectF mCardSize;
 };
 
 #endif // PLAYER_BOX_H
