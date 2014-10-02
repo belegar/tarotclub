@@ -1,9 +1,5 @@
-# Planned for 2.3.7
+# Planned for 2.4 (Target date: November 2014)
 
-# Planned for 2.4.0 (Target date: November 2014)
-
-## Engine improvements
-  
 ## TarotWidget Engine
   * Use an HTML5 canvas and JavaScript to allow an easy porting on all platforms
   
@@ -18,12 +14,11 @@
   * Use the Canvas to propose Handle (with the menu)
   * Use a command line TCDS configuration file
   * Change the Lobby protocol into JSON-RPC
-  * Use a dynamic-table creation thanks to the JSON configuration file
+  * Use a dynamic-table creation thanks to the JSON configuration file (name, number of tables, parameters)
   * Add a name on each table
-  * Display a more comprehensive card name in the history of tricks dock window (eg: 13-D ==> display D with a diamond icon)
   * Allow to choose the AI script configuration file (user customization)
   * Advanced rooms in the Lobby: see status, number of connected players, scores, player names
-  * Update Duktape version to 0.11, correct dedicated server build in release with VC++
+  * Correct dedicated server build in release with VC++
   * New network commands: change nick, change avatar
   * Ability of seeing current players in a room (server connection wizard)
   * Serait possible d'ajouter une partie reseau ouvert ? genre qui se connecterait sur un serveur qui servirait à ca et qui nous ajouterait directement dans une nouvelle partie ?
@@ -39,6 +34,13 @@ Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant
   * De même qu'ils n'essaient jamais de jouer leur 21 pour essayer de sauver le 1 d'un equipier. 
   * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
   * Encore une excuse en fin de jeu (mais il m'est donné a priori)
+  
+# BACKLOG
+
+## Gfx engine
+
+  * Dynamically create SVG images (usage of one card "background" for all the cards, and a set of illustrations for all the cards)
+
   
 # Planned for 2.5.0 (Target date: January 2014)
 

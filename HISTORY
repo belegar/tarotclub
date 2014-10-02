@@ -8,20 +8,22 @@ The following ChangeLog is using specific signs to quickly identify the nature o
 ~ bug corrected
 - feature removed
 
-# Branch 2.4.x - Codename <>
+# Version 2.4 - Codename <> (??/??/2014)
 
-## Version 2.4 (??/??/????)
-
-### Internal modifications
+## Internal modifications
 
     ~ Mkdir utility did not manage the disk name separator properly (Windows only)
-    + NEW command line dedicated server configuration file
+	~ Excuse (fool) card was not correctly assigned at the end of a deal
 	+ Deck class: change the list of Card pointers into a list of Card objects (2 bytes instead of 4), deleted TarotDeck files
-
-### Desktop improvements
+	+ Update Duktape version to 0.11
+	
+## Desktop improvements
     
     + Display a more comprehensive card name in the history of tricks dock window (eg: 13-D ==> display D with a diamond icon)
 	
+## Dedicated server changes
+
+    + Use a command line TCDS configuration file
 	
 # Branch 2.3.x - Codename <Snowboard>
 
