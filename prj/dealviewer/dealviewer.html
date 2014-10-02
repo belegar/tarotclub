@@ -1,5 +1,12 @@
 <html>
 <head>
+	<title>TarotClub deal viewer</title>
+        <style media="screen">
+        body {
+            background: #030 url("bg.png");
+        }
+        </style>
+
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<script type="text/javascript" src="system.js"></script>
 	<script type="text/javascript" src="../../assets/ai/tarotlib/util.js"></script>
@@ -12,11 +19,83 @@
 	
 <script type="text/javascript">
 	
+	var dealFile;
+	var snap;
+	// file:///U:/tarotclub/prj/dealviewer/dealviewer.html?file=U:/tarotclub/tests/played_deals/3_oudlers.json
+	
 	function init() 
     {
-		var snap = Snap("#svg");
+		snap = Snap("#svg");
 		
 		CreateTarotDeck(snap);
+		
+		var a = window.location.toString();
+		var index = a.indexOf("=");
+		if (index > -1)
+		{
+			dealFile = a.substring(index + 1);
+			console.log("query: " + dealFile);
+		}	
+
+
+		var dropzone = document.getElementById("dropzone");
+		dropzone.ondragover = dropzone.ondragenter = function(event)
+		{
+			event.stopPropagation();
+			event.preventDefault();
+		}
+    
+		dropzone.ondrop = function(event)
+		{
+			event.stopPropagation();
+			event.preventDefault();
+
+			var filesArray = event.dataTransfer.files;
+			
+			if (filesArray.length > 0)
+			{
+				DisplayDeal(filesArray[0]);
+			}
+		}	
+	}
+	
+	function DisplayDeal(file)
+	{
+		var reader = new FileReader();
+		reader.onload = function() {
+			//alert('File contents:\n\n' + reader.result);
+			var deal;
+			try {
+				deal = JSON.parse(reader.result);
+			} catch (e) {
+				console.error("Parsing error:", e); 
+				alert('Parsing error');
+				deal = undefined;
+			}
+			
+			if (deal != undefined)
+			{
+				var x = 0;
+				var y = 0;
+				for (var i = 0; i < deal.tricks.length; i++) {
+					var deck = new TarotLib.Deck();
+					deck.setCards(deal.tricks[i]);
+					
+					for (var j = 0; j < deck.size(); j++) {
+						var card = deck.get(j);
+						g = snap.select("#c" + card.getName());
+						g.attr({
+							transform: "translate(" + x + ", " + y + ")"
+						});
+						
+						x += 65;
+					}
+					x = 0;
+					y += 115;
+				}
+			}
+		};
+		reader.readAsText(file);
 	}
 	
 	function CreateTarotDeck(snap)
@@ -32,7 +111,7 @@
 			var cardSvg = CreateCard(card, snap);
 			
 			cardSvg.attr({
-				id: card.getName(),
+				id: "c" + card.getName(),
 				transform: "translate(" + x + ", " + y + ")"
 			});
 			
@@ -92,6 +171,7 @@
 		
 		return cardSvg;
 	}
+	
  
 </script>
 
@@ -100,13 +180,22 @@
 
 <body onload="init()">
 	
+	<div>
+        <div id="dropzone" style="margin:30px; width:500px; height:100px; border:4px dotted grey;">Drag & drop your deal file here...</div>
+    </div>
+	
 	<svg
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    version="1.1"
    width="920"
-   height="700"
+   height="2100"
    id="svg">
+   
+   <pattern id="pattern" patternUnits="userSpaceOnUse" x="0" y="0" width="10" height="10" viewBox="0 0 10 10">
+                <path d="M-5,0,10,15M0-5,15,10" stroke="white" stroke-width="5"/>
+            </pattern>
+   
    <style>
     .valueText {
 	  font-size: 25;
@@ -332,47 +421,7 @@
     
 	</g>
 	
-	
 	</defs>
-  
-  
-  
-  
-
-  <!--
-
-<text
-       x="2.5160134"
-       y="1002.6628"
-       transform="scale(1.0539234,0.9488356)"
-       id="text7838"
-       xml:space="preserve"
-       class="valueText">1</text>
-    <text
-       x="49.957794"
-       y="1002.6628"
-       transform="scale(1.0539234,0.9488356)"
-       id="text7842"
-       xml:space="preserve"
-       class="valueText">1</text>
-    <text
-       x="-7.9211779"
-       y="-1097.516"
-       transform="scale(-1.0539234,-0.9488356)"
-       id="text7846"
-       xml:space="preserve"
-       class="valueText">1</text>
-    <text
-       x="-55.362961"
-       y="-1097.516"
-       transform="scale(-1.0539234,-0.9488356)"
-       id="text7850"
-       xml:space="preserve"
-       class="valueText">1</text>
-
-
-
-  <use x="0" y="0" width="61" height="112" xlink:href="#background" /> -->
   
 	
 </svg>
