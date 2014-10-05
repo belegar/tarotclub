@@ -30,6 +30,8 @@
 #include "TextBox.h"
 #include "GfxCard.h"
 
+#define SPACE_BETWEEN_ITEMS 10
+
 /*****************************************************************************/
 class AvatarItem: public QGraphicsPixmapItem
 {
@@ -72,7 +74,18 @@ class PlayerBox : public QGraphicsRectItem
 {
 
 public:
-    PlayerBox();
+    enum Layout
+    {
+        VERTICAL,
+        HORIZONTAL
+    };
+
+    static const std::uint32_t PLAYER_BOX_WIDTH_VERT = ((2 * SPACE_BETWEEN_ITEMS) + TEXT_BOX_WIDTH);
+    static const std::uint32_t PLAYER_BOX_HEIGHT_VERT = (TEXT_BOX_WIDTH + (2 * TEXT_BOX_HEIGHT) + (4 * SPACE_BETWEEN_ITEMS));
+    static const std::uint32_t PLAYER_BOX_WIDTH_HOR = ((3 * SPACE_BETWEEN_ITEMS) + (2 * TEXT_BOX_WIDTH));
+    static const std::uint32_t PLAYER_BOX_HEIGHT_HOR = ((2 * SPACE_BETWEEN_ITEMS) + TEXT_BOX_WIDTH);
+
+    PlayerBox(Layout layout);
 
     // Helpers
     void SelectPlayer(bool selected);
@@ -80,7 +93,7 @@ public:
     void EnableAvatar(bool enable);
 
     // Setters
-    void SetAvatar(const QString &avatar);
+    void SetAvatar(const QString &mAvatar);
     void SetBidText(const QString &text);
     void SetPlayerName(const QString &text);
 
@@ -91,10 +104,13 @@ private:
         BID_BOX
     };
 
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     void SetBackgroundColor(Qt::GlobalColor color, Box box);
-    AvatarItem avatar;
-    TextBox name;
-    TextBox bid;
+    AvatarItem mAvatar;
+    TextBox mName;
+    TextBox mBid;
+    Layout mLayout;
+    QGraphicsDropShadowEffect mShadow;
 };
 
 #endif // PLAYER_BOX_H
