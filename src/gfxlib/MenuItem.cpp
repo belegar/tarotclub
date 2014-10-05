@@ -32,6 +32,7 @@
 // Game includes
 #include "Common.h"
 #include "MenuItem.h"
+#include "PlayerBox.h"
 
 static const std::uint32_t SPACE = 10;
 
@@ -61,7 +62,12 @@ MenuItem::MenuItem(IButtonEvent *event)
     : color(149, 149, 149, 127)
     , checkBox(this, SPACE)
 {
-    setRect(0, 0, 260, 130);
+    setRect(0, 0, PlayerBox::PLAYER_BOX_WIDTH_HOR, 130);
+
+#ifdef TAROT_DEBUG
+    setFlag(QGraphicsItem::ItemIsSelectable);
+    setFlag(QGraphicsItem::ItemIsMovable);
+#endif
 
     // This menu manages N buttons
     for (std::uint8_t i = 0U; i < sizeof(buttonMenu); i++)
@@ -110,10 +116,10 @@ void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     // Paint with specified color and pen
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setBrush(QBrush(color));
-    painter->setPen(Qt::NoPen);
+    painter->setPen(QPen(Qt::white));
     painter->drawRoundRect(rect(), (int)(25 * rect().height()
                                          / rect().width()), 25);
-}
+ }
 /*****************************************************************************/
 void MenuItem::DisplayMenu(std::uint8_t menu)
 {
