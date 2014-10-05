@@ -226,7 +226,7 @@ ClientOptions ClientConfig::GetDefault()
     ClientOptions opt;
 
     opt.showAvatars = AVATARS_DEF;
-    opt.backgroundColor = "#008000";
+    opt.backgroundColor = "#004f00";
     opt.language = 0;
     opt.deckFilePath = "default";
     opt.cardsOrder = "TCHDS";
