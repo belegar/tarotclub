@@ -175,7 +175,7 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
 /*****************************************************************************/
 void InfosDock::SelectWinner(std::uint8_t trickCounter, Place p)
 {
-    QBrush brush(Qt::green);
+    QBrush brush(QColor("#6D9D26"));
     ui.tableWidget->item(trickCounter, p.Value())->setBackground(brush);
 }
 /*****************************************************************************/
