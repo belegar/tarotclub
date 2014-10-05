@@ -57,7 +57,7 @@ void MessageBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 /*****************************************************************************/
 void MessageBoxItem::SetText(const QString &text)
 {
-    qreal width = 500;
+    qreal width = 480;
     qreal height = 300;
 
     qreal x = mBorder.x() + ((mBorder.width() - width) / 2);
