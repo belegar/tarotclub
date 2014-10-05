@@ -35,30 +35,30 @@
 #include "System.h"
 #include "Translations.h"
 
-static const QRectF border(10, 10, 925, 700);
+static const QRectF border(10, 10, 800, 700);
 
 #define BORDER_WIDTH        3
-#define SOUTH_CARDS_POS     522
+#define SOUTH_CARDS_POS     480
 
-#define MENU_POS_X  30
-#define MENU_POS_Y  350
+#define MENU_POS_X  300
+#define MENU_POS_Y  190
 
 // Cards played in the center of the board
 static const QPointF coordCards[5] =
 {
-    QPointF(300, 130),  // SOUTH
-    QPointF(330, 150),  // EAST
-    QPointF(300, 160),  // NORTH
-    QPointF(270, 150),  // WEST
+    QPointF(400, 300),  // SOUTH
+    QPointF(450, 250),  // EAST
+    QPointF(400, 200),  // NORTH
+    QPointF(300, 250),  // WEST
     QPointF(0, 0)       // NORTH-WEST
 };
 
 static const QPointF coordPlayerBox[5] =
 {
-    QPointF(300, 280),  // SOUTH
-    QPointF(570, 100),  // EAST
+    QPointF(border.topLeft().x() + 20, border.bottomLeft().y() - 10 - PlayerBox::PLAYER_BOX_HEIGHT_HOR),  // SOUTH
+    QPointF(border.width() - PlayerBox::PLAYER_BOX_WIDTH_VERT - 10, 150),  // EAST
     QPointF(300, 20),   // NORTH
-    QPointF(30, 100),   // WEST
+    QPointF(border.topLeft().x() + 20, 150),   // WEST
     QPointF(0, 0)       // NORTH-WEST
 };
 
@@ -155,9 +155,16 @@ bool Canvas::Initialize()
         // 4 players by default
         for (std::uint32_t i = 0U; i < 4U; i++)
         {
-            PlayerBox *pb = new PlayerBox();
+            PlayerBox::Layout layout = PlayerBox::VERTICAL;
+            if ((i == Place::SOUTH) || (i == Place::NORTH))
+            {
+                layout = PlayerBox::HORIZONTAL;
+            }
+
+            PlayerBox *pb = new PlayerBox(layout);
             pb->setPos(coordPlayerBox[i]);
             pb->show();
+            pb->setZValue(50.0);
             playerBox.insert((Place)i, pb);
             scene.addItem(pb);
         }
@@ -176,7 +183,7 @@ void Canvas::SetBackground(const std::string &code)
 
     QRectF size = scene.sceneRect();
 
-    QRadialGradient gradient(size.width() / 2, size.height() / 2, size.width() * 1.5);
+    QRadialGradient gradient(size.width() / 2, size.height() / 2, size.width() * 0.8);
 
     if (color.isValid())
     {
@@ -231,10 +238,12 @@ void Canvas::DisplayDiscardMenu(bool visible)
     if (visible)
     {
         mMenuItem.DisplayMenu(MenuItem::DISCARD_MENU);
+        mMenuItem.show();
     }
     else
     {
         mMenuItem.DisplayMenu(MenuItem::NO_MENU);
+        mMenuItem.hide();
     }
 }
 /*****************************************************************************/
@@ -243,10 +252,12 @@ void Canvas::DisplayHandleMenu(bool visible)
     if (visible)
     {
         mMenuItem.DisplayMenu(MenuItem::HANDLE_MENU);
+        mMenuItem.show();
     }
     else
     {
         mMenuItem.DisplayMenu(MenuItem::NO_MENU);
+        mMenuItem.hide();
     }
 }
 /*****************************************************************************/
@@ -255,10 +266,12 @@ void Canvas::DisplayMainMenu(bool visible)
     if (visible)
     {
         mMenuItem.DisplayMenu(MenuItem::MAIN_MENU);
+        mMenuItem.show();
     }
     else
     {
         mMenuItem.DisplayMenu(MenuItem::NO_MENU);
+        mMenuItem.hide();
     }
 }
 /*****************************************************************************/
@@ -288,6 +301,14 @@ void Canvas::mousePressEvent(QMouseEvent *e)
         // We catch the event for us and forbid any sub item to receive it
         emit sigViewportClicked();
     }
+
+#ifdef TAROT_DEBUG
+    QString text;
+    QPointF point = mMenuItem.pos();
+    text = "Menu: x: " + QString().setNum((int)point.x()) + " y: " + QString().setNum((int)point.y());
+    std::cout << text.toStdString() << std::endl;
+#endif
+
     // Broadcast the event for all the canvas items
     QGraphicsView::mousePressEvent(e);
 }
@@ -408,7 +429,7 @@ void Canvas::DrawCard(const Card &c, Place p, Place myPlace)
         gfx->setPos(coordCards[rel.Value()]);
         gfx->setZValue(1);
         gfx->show();
-        gfx->setRotation((qrand() % 40) - 20);
+        gfx->setRotation((qrand() % 30) - 15);
     }
     else
     {
@@ -514,11 +535,13 @@ void Canvas::ShowBidsChoice(Contract contract)
 {
     mMenuItem.ClearSlamOption();
     mMenuItem.DisplayMenu(contract);
+    mMenuItem.show();
 }
 /*****************************************************************************/
 void Canvas::HideBidsChoice()
 {
     mMenuItem.DisplayMenu(MenuItem::NO_MENU);
+    mMenuItem.hide();
 }
 /*****************************************************************************/
 void Canvas::ShowAvatars(bool b)
