@@ -58,7 +58,6 @@ private:
     ICardEvent *mEvent;
     Card mCard;
     QGraphicsDropShadowEffect mShadow;
-    QRadialGradient mGradient;
 };
 
 #endif // GFXCARD_H

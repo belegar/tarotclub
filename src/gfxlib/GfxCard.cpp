@@ -44,14 +44,6 @@ GfxCard::GfxCard(const QString &fileName, ICardEvent *event, const Card &card, Q
     mShadow.setColor(Qt::black);
     mShadow.setOffset(0, 0);
     setGraphicsEffect(&mShadow);
-
-    // Create a radial gradient to make the cards old-style
-    QRectF size = GetRealSize();
-
-    mGradient.setCenter(size.width() / 2, size.height() / 2);
-    mGradient.setRadius(size.width() * 1.5);
-    mGradient.setColorAt( 0, Qt::white );
-    mGradient.setColorAt( 1, QColor(244, 238, 215));
 }
 /*****************************************************************************/
 int GfxCard::type() const
