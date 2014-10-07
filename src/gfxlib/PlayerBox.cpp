@@ -62,7 +62,7 @@ PlayerBox::PlayerBox(Layout layout)
 
     // Init with defaut image
     mAvatar.setParentItem(this);
-    mAvatar.setPixmap(QPixmap(":/images/vide.png"));
+    mAvatar.setPixmap(QPixmap()); // empty pixmap
     mAvatar.setPos(SPACE_BETWEEN_ITEMS, SPACE_BETWEEN_ITEMS);
     mAvatar.hide();
 
