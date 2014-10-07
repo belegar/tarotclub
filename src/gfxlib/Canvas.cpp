@@ -97,25 +97,26 @@ Canvas::Canvas(QWidget *parent)
     , mFilter(BLOCK_ALL)
     , mShowAvatars(true)
     , mMenuItem(this)
+    , mDisplayCard(0.0F)
 {
-    setScene(&scene);
+    setScene(&mScene);
 
     // Ok, we lose the pointer but we don't care as it is only decorative
     BorderLine *line = new BorderLine();
-    scene.addItem(line);
+    mScene.addItem(line);
 
     setRenderHint(QPainter::Antialiasing);
     setCacheMode(QGraphicsView::CacheBackground);
 
     mMenuItem.setPos(MENU_POS_X, MENU_POS_Y);
     mMenuItem.show();
-    scene.addItem(&mMenuItem);
+    mScene.addItem(&mMenuItem);
 
-    popupItem.hide();
-    scene.addItem(&popupItem);
+    mPopupItem.hide();
+    mScene.addItem(&mPopupItem);
 
     mMsgBoxItem.hide();
-    scene.addItem(&mMsgBoxItem);
+    mScene.addItem(&mMsgBoxItem);
 }
 /*****************************************************************************/
 bool Canvas::Initialize()
@@ -128,7 +129,7 @@ bool Canvas::Initialize()
     deck.CreateTarotDeck();
 
     mMenuItem.Initialize();
-    cardsPics.clear();
+    mCardsPics.clear();
 
     for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
     {
@@ -140,8 +141,8 @@ bool Canvas::Initialize()
         {
             GfxCard *item = new GfxCard(image, this, *it);
             item->hide();
-            cardsPics.append(item);
-            scene.addItem(item);
+            mCardsPics.append(item);
+            mScene.addItem(item);
         }
         else
         {
@@ -165,12 +166,12 @@ bool Canvas::Initialize()
             pb->setPos(coordPlayerBox[i]);
             pb->show();
             pb->setZValue(50.0);
-            playerBox.insert((Place)i, pb);
-            scene.addItem(pb);
+            mPlayerBox.insert((Place)i, pb);
+            mScene.addItem(pb);
         }
 
         // Give canvas element sizes to the popup to allow dynamic resizing
-        popupItem.SetSizes(border, cardsPics.at(0)->GetRealSize());
+        mPopupItem.SetSizes(border, mCardsPics.at(0)->GetRealSize());
         mMsgBoxItem.SetBorder(border);
     }
 
@@ -181,15 +182,15 @@ void Canvas::SetBackground(const std::string &code)
 {
     QColor color(code.c_str());
 
-    QRectF size = scene.sceneRect();
+    QRectF size = mScene.sceneRect();
 
-    QRadialGradient gradient(size.width() / 2, size.height() / 2, size.width() * 0.8);
+    QRadialGradient gradient(size.width() / 2, size.height() / 2, size.width() * 1.0);
 
     if (color.isValid())
     {
         gradient.setColorAt(0, color);
         gradient.setColorAt(1, Qt::black);
-        scene.setBackgroundBrush(gradient);
+        mScene.setBackgroundBrush(gradient);
     }
 }
 /*****************************************************************************/
@@ -208,7 +209,7 @@ GfxCard *Canvas::FindGfxCard(const Card &c)
     GfxCard *card = NULL;
     QVector<GfxCard *>::iterator iter;
 
-    for (iter = cardsPics.begin(); iter != cardsPics.end(); ++iter)
+    for (iter = mCardsPics.begin(); iter != mCardsPics.end(); ++iter)
     {
         if ((*iter)->IsEqual(c))
         {
@@ -377,7 +378,7 @@ void Canvas::SetCursorType(CursorType t)
 void Canvas::ShowTaker(Place taker, Place myPlace)
 {
     Place rel = SwapPlace(myPlace, taker);  // relative place
-    playerBox.value(rel)->HighlightPlayer(true);
+    mPlayerBox.value(rel)->HighlightPlayer(true);
 }
 /*****************************************************************************/
 /**
@@ -409,8 +410,8 @@ void Canvas::SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace)
         i.next();
         Place rel = SwapPlace(myPlace, i.key());  // relative place
 
-        playerBox.value(rel)->SetPlayerName(i.value().name.data());
-        playerBox.value(rel)->SetAvatar(QString(i.value().avatar.data()));
+        mPlayerBox.value(rel)->SetPlayerName(i.value().name.data());
+        mPlayerBox.value(rel)->SetAvatar(QString(i.value().avatar.data()));
     }
 }
 /*****************************************************************************/
@@ -426,10 +427,17 @@ void Canvas::DrawCard(const Card &c, Place p, Place myPlace)
     GfxCard *gfx = FindGfxCard(c);
     if (gfx != NULL)
     {
+        mDisplayCard++;
         gfx->setPos(coordCards[rel.Value()]);
-        gfx->setZValue(1);
+        gfx->setZValue(mDisplayCard);
         gfx->show();
         gfx->setRotation((qrand() % 30) - 15);
+
+        // FIXME: does not work for 3 or 5 players
+        if (mDisplayCard >= 4.0)
+        {
+            mDisplayCard = 0.0;
+        }
     }
     else
     {
@@ -445,7 +453,7 @@ void Canvas::DrawSouthCards(const Deck &cards)
     // Calculate the step needed between each card.
     // It depends on the number of the cards to be displayed within the border line
     qreal max_width = border.width() - 20; // leave a 10px space on left and right
-    qreal card_width = cardsPics.at(0)->boundingRect().width();
+    qreal card_width = mCardsPics.at(0)->boundingRect().width();
 
     // Try the fixed step, cards are centered
     qreal step = 40.0;
@@ -491,14 +499,14 @@ void Canvas::DrawCardsInPopup(const Deck &deck)
         }
     }
 
-    popupItem.DrawItems(items);
-    popupItem.show();
+    mPopupItem.DrawItems(items);
+    mPopupItem.show();
 }
 /*****************************************************************************/
 void Canvas::HidePopup()
 {
-    popupItem.HideAll();
-    popupItem.hide();
+    mPopupItem.HideAll();
+    mPopupItem.hide();
 }
 /*****************************************************************************/
 void Canvas::HideMessageBox()
@@ -508,7 +516,7 @@ void Canvas::HideMessageBox()
 /*****************************************************************************/
 void Canvas::ShowSelection(Place p, Place myPlace)
 {
-    QMapIterator<Place, PlayerBox *> i(playerBox);
+    QMapIterator<Place, PlayerBox *> i(mPlayerBox);
     while (i.hasNext())
     {
         i.next();
@@ -528,7 +536,7 @@ void Canvas::ShowSelection(Place p, Place myPlace)
 void Canvas::ShowBid(Place p, Contract contract, Place myPlace)
 {
     Place rel = SwapPlace(myPlace, p);  // relative place
-    playerBox.value(rel)->SetBidText(ContractToString(contract));
+    mPlayerBox.value(rel)->SetBidText(ContractToString(contract));
 }
 /*****************************************************************************/
 void Canvas::ShowBidsChoice(Contract contract)
@@ -547,7 +555,7 @@ void Canvas::HideBidsChoice()
 void Canvas::ShowAvatars(bool b)
 {
     mShowAvatars = b;
-    QMapIterator<Place, PlayerBox *> i(playerBox);
+    QMapIterator<Place, PlayerBox *> i(mPlayerBox);
     while (i.hasNext())
     {
         i.next();
@@ -557,7 +565,7 @@ void Canvas::ShowAvatars(bool b)
 /*****************************************************************************/
 void Canvas::InitBoard()
 {
-    QMapIterator<Place, PlayerBox *> i(playerBox);
+    QMapIterator<Place, PlayerBox *> i(mPlayerBox);
     while (i.hasNext())
     {
         i.next();
@@ -574,11 +582,11 @@ void Canvas::InitBoard()
 /*****************************************************************************/
 void Canvas::ResetCards()
 {
-    for (int i = 0; i < cardsPics.size(); i++)
+    for (int i = 0; i < mCardsPics.size(); i++)
     {
-        cardsPics.at(i)->hide();
-        cardsPics.at(i)->setParentItem(0); // top level item
-        cardsPics.at(i)->SetSelected(false);
+        mCardsPics.at(i)->hide();
+        mCardsPics.at(i)->setParentItem(0); // top level item
+        mCardsPics.at(i)->SetSelected(false);
     }
 }
 /*****************************************************************************/

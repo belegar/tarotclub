@@ -131,13 +131,13 @@ private:
 
     quint8 mFilter;
     bool mShowAvatars;
-    QVector<GfxCard *> cardsPics;
-    QGraphicsScene scene;
-
-    QMap<Place, PlayerBox *> playerBox;
+    QVector<GfxCard *> mCardsPics;
+    QGraphicsScene mScene;
+    QMap<Place, PlayerBox *> mPlayerBox;
     MenuItem    mMenuItem;
-    PopupItem   popupItem;
+    PopupItem   mPopupItem;
     MessageBoxItem mMsgBoxItem;
+    qreal mDisplayCard;
 };
 
 #endif // CANVAS_H
