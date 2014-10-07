@@ -46,9 +46,9 @@ static const QRectF border(10, 10, 800, 700);
 // Cards played in the center of the board
 static const QPointF coordCards[5] =
 {
-    QPointF(400, 300),  // SOUTH
+    QPointF(370, 300),  // SOUTH
     QPointF(450, 250),  // EAST
-    QPointF(400, 200),  // NORTH
+    QPointF(370, 200),  // NORTH
     QPointF(300, 250),  // WEST
     QPointF(0, 0)       // NORTH-WEST
 };
@@ -651,7 +651,7 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
 
     result_str += "</body></html>";
 
-    mMsgBoxItem.SetText(result_str);
+    mMsgBoxItem.SetText(result_str, QSize(480, 300));
     mMsgBoxItem.show();
 }
 
