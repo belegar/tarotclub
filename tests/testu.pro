@@ -48,6 +48,7 @@ VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/database
+VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
@@ -59,12 +60,13 @@ VPATH += $$BASE_DIR/tests/src
 INCLUDEPATH += $$BASE_DIR/src
 INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/database
+INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/tests/src
 
 
-QT       += testlib
+QT       += testlib xml
 QT       -= gui
 
 TARGET = tst_utilities
@@ -72,6 +74,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
+RESOURCES = $$BASE_DIR/assets/testu.qrc
 
 QMAKE_CXXFLAGS += -std=c++11  -fprofile-arcs -ftest-coverage
 
@@ -125,6 +128,12 @@ SOURCES += Log.cpp \
     Sha1.cpp \
     WebSocket.cpp \
     Value.cpp
+
+# ------------------------------------------------------------------------------
+# UI utility classes
+# ------------------------------------------------------------------------------
+HEADERS += MiniDeck.h
+SOURCES += MiniDeck.cpp
 
 # ------------------------------------------------------------------------------
 # Database management files
