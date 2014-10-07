@@ -31,5 +31,6 @@
         <file>avatars/18.svg</file>
         <file>avatars/19.svg</file>
         <file>avatars/20.svg</file>
+        <file>cards/minideck.svg</file>
     </qresource>
 </RCC>
