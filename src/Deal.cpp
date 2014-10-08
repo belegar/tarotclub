@@ -104,7 +104,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     }
     else
     {
-        firstPlayer = mPreviousWinner;
+        firstPlayer = mWinner[turn - 1U];
     }
 
     // Get the number of tricks we must play, it depends of the number of players
@@ -205,7 +205,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     }
 
     // Save the current winner for the next turn
-    mPreviousWinner = winner;
+    mWinner[turn] = winner;
     return winner;
 }
 /*****************************************************************************/
@@ -225,13 +225,27 @@ Place Deal::GetOwner(Place firstPlayer,const Card &c, int turn)
     return p;
 }
 /*****************************************************************************/
-Deck Deal::GetTrick(int turn)
+/**
+ * @brief Deal::GetTrick
+ * @param turn
+ * @return
+ */
+Deck Deal::GetTrick(std::uint8_t turn, std::uint8_t numberOfPlayers)
 {
-    if ((turn < 0) || (turn >= 24))
+    if (turn >= Tarot::NumberOfCardsInHand(numberOfPlayers))
     {
-        turn = 0;
+        turn = 0U;
     }
     return mTricks[turn];
+}
+/*****************************************************************************/
+Place Deal::GetWinner(std::uint8_t turn, std::uint8_t numberOfPlayers)
+{
+    if (turn >= Tarot::NumberOfCardsInHand(numberOfPlayers))
+    {
+        turn = 0U;
+    }
+    return mWinner[turn];
 }
 /*****************************************************************************/
 void Deal::SetHandle(const Deck &handle, Team team)
@@ -567,6 +581,8 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                             Place winner = SetTrick(trick, trickCounter);
     #ifdef TAROT_DEBUG
                             std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.ToString() << ", Winner: " << winner.ToString() << std::endl;
+    #else
+                            (void) winner;
     #endif
                             // Remove played cards from this deck
                             if (mDiscard.RemoveDuplicates(trick) != numberOfPlayers)

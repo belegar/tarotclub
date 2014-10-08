@@ -55,7 +55,8 @@ public:
     bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 
     // Getters
-    Deck GetTrick(int turn);
+    Deck GetTrick(std::uint8_t turn, std::uint8_t numberOfPlayers);
+    Place GetWinner(std::uint8_t turn, std::uint8_t numberOfPlayers);
     int  GetTotalPoints(Place p) const;
     Score  &GetScore();
     std::map<int, Place> GetPodium();
@@ -76,6 +77,7 @@ private:
     Deck mAttackHandle;
     Deck mDefenseHandle;
     Deck mTricks[24];    // 24 tricks max with 3 players
+    Place mWinner[24];
     Place mPreviousWinner;
     Place mFirstPlayer;
     int mTricksWon;
