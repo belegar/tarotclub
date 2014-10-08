@@ -44,6 +44,7 @@
 #include "DebugDock.h"
 #include "LobbyWindow.h"
 #include "ui_QuickJoin.h"
+#include "DealsWindow.h"
 
 /*****************************************************************************/
 class MainWindow : public QMainWindow
@@ -67,6 +68,7 @@ private slots:
     void slotLaunchHelp();
     void slotNewAutoPlay();
     void slotAboutToQuit();
+    void slotDisplayDeals();
 
     // Events from TarotWidget
     void slotNewGameEvent();
@@ -110,6 +112,7 @@ private:
     // Menu Paramètres
     QAction *dealEditorAct;
     QAction *optionsAct;
+    QAction *dealsAct;
 
     TarotWidget *tarotWidget;
 
@@ -120,6 +123,7 @@ private:
     LobbyWindow *lobbyWindow;
     QDialog *quickJoinWindow;
     Ui::quickJoin uiQuickJoin;
+    DealsWindow *dealsWindow;
 
     // Dock windows
     ScoresDock *scoresDock;

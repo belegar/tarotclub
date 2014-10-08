@@ -70,7 +70,7 @@ INCLUDEPATH += $$BASE_DIR/src/gfxlib
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += svg network
+QT += svg network webkitwidgets
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
@@ -148,7 +148,8 @@ HEADERS += Log.h \
     TcpClient.h \
     UniqueId.h \
     System.h \
-    Value.h
+    Value.h \
+    DealsWindow.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -160,7 +161,8 @@ SOURCES += Log.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
     System.cpp \
-    Value.cpp
+    Value.cpp \
+    DealsWindow.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
