@@ -22,7 +22,7 @@ ifeq ($(ARCH), mingw)
     SOURCES         = icon.rc
     USER_DEFINES    = -DUSE_WINDOWS_OS -mthreads
     LFLAGS          = -static-libgcc -static-libstdc++ -static -lpthread -Wl,-s -Wl,-subsystem,console 
-    LIBS            = -lws2_32 -mthreads
+    LIBS            = -lws2_32 -mthreads -lpsapi
     DESTDIR_TARGET  = build-server/release/tcds.exe
 else 
    USER_DEFINES     = -DUSE_UNIX_OS
@@ -86,7 +86,6 @@ SOURCES += Log.cpp \
 		JsonValue.cpp \
 		ServerConfig.cpp \
 		DealFile.cpp \
-		TarotDeck.cpp \
 		Deck.cpp \
 		Card.cpp \
 		Player.cpp \
@@ -156,7 +155,7 @@ $(OBJECTS_DIR)/%.o: %.c
 
 $(OBJECTS_DIR)/%.o: %.rc
 	@echo Creating $(notdir $@) from RC file
-	@windres -i $< -o $@ --include-dir=./prj/tcds $(DEFINES)
+	windres -i $< -o $@ --include-dir=./prj/tcds
 
 # ==============================================================================
 # Dependency inclusion
