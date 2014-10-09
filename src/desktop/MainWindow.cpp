@@ -45,10 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     SetupMenus();
 
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
-    tarotWidget = new TarotWidget(this);
-    tarotWidget->show();
-    setCentralWidget(tarotWidget);
-
     // Game menu to TarotWidget
     connect(newQuickGameAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewQuickGame);
     connect(newTournamentAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewTournamentGame);
@@ -71,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
     connect(optionsAct, &QAction::triggered, this, &MainWindow::slotShowOptions);
     connect(newAutoPlayAct, &QAction::triggered, this, &MainWindow::slotNewAutoPlay);
+    connect(dealsAct, &QAction::triggered, this, &MainWindow::slotDisplayDeals);
 
     // Network chat
     connect(chatDock, &ChatDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendChatMessage);
@@ -87,6 +84,11 @@ void MainWindow::slotAboutToQuit()
     QSettings settings("TarotCorp.", "TarotClub");
     settings.setValue("mainWindowGeometry", saveGeometry());
     settings.setValue("mainWindowState", saveState());
+}
+/*****************************************************************************/
+void MainWindow::slotDisplayDeals()
+{
+    dealsWindow->show();
 }
 /*****************************************************************************/
 void MainWindow::slotNewNumberedDeal()
@@ -195,6 +197,15 @@ void MainWindow::Initialize()
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
 {
+    // Main central widget
+    tarotWidget = new TarotWidget(this);
+    tarotWidget->show();
+    setCentralWidget(tarotWidget);
+
+    // Deals Window
+    dealsWindow = new DealsWindow(this);
+    dealsWindow->hide();
+
     // About Window
     about = new AboutWindow(this);
     about->hide();
@@ -332,9 +343,14 @@ void MainWindow::SetupMenus()
     dealEditorAct->setStatusTip(tr("Create a pre-defined deal by choosing the cards of each player"));
     connect(dealEditorAct, &QAction::triggered, this, &MainWindow::slotDealEditor);
 
+    dealsAct = new QAction(tr("&Deals viewer"), this);
+    dealsAct->setShortcut(tr("Ctrl+D"));
+    dealsAct->setStatusTip(tr("Display previously played deals"));
+
     paramsMenu = menuBar()->addMenu(tr("Parameters"));
     paramsMenu->addAction(optionsAct);
     paramsMenu->addAction(dealEditorAct);
+    paramsMenu->addAction(dealsAct);
     paramsMenu->addSeparator();
 
     // Dock windows

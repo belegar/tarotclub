@@ -150,6 +150,7 @@ HEADERS += Log.h \
     System.h \
     Value.h \
     ../src/gfxlib/MiniDeck.h
+    DealsWindow.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -163,6 +164,7 @@ SOURCES += Log.cpp \
     System.cpp \
     Value.cpp \
     ../src/gfxlib/MiniDeck.cpp
+    DealsWindow.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
