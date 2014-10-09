@@ -252,6 +252,50 @@ OptionsWindow::OptionsWindow(QWidget *parent)
 {
     ui.setupUi(this);
 
+    // Build the Avatar window
+    mAvatarsDiag = new QDialog(this);
+    mAvatarsUi.setupUi(mAvatarsDiag);
+
+    QDir dir(":/avatars");
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    QFileInfoList list = dir.entryInfoList();
+
+    // Create the scroll area widget
+    QWidget *contents = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout();
+    contents->setLayout(layout);
+
+    mAvatarsUi.avatarsList->setContentsMargins(0, 0, 0, 0);
+    mAvatarsUi.avatarsList->setAlignment(Qt::AlignCenter);
+    mAvatarsUi.avatarsList->setFrameStyle(0);
+
+    // On affiche la liste des avatars
+    for (int i = 0; i < list.size();)
+    {
+        QHBoxLayout *hLayout = new QHBoxLayout();
+        layout->addLayout(hLayout);
+
+        for (int j = 0; j < 4; j++)
+        {
+            if (i < list.size())
+            {
+                QFileInfo fileInfo = list.at(i);
+
+                QLabel *item = new QLabel();
+                QImage image(fileInfo.absoluteFilePath());
+                item->setPixmap(QPixmap::fromImage(image.scaled(160, 160)));
+                item->setScaledContents(false);
+
+                hLayout->addWidget(item);
+                i++;
+            }
+        }
+    }
+
+    // We must call the set widget _after_ adding elements
+    mAvatarsUi.avatarsList->setWidget(contents);
+    mAvatarsUi.avatarsList->show();
+
     connect(ui.btnDefaut, SIGNAL(clicked()), this, SLOT(slotBtnDefaut()));
     connect(ui.btnOk, SIGNAL(clicked()), this, SLOT(slotBtnOk()));
 
@@ -272,7 +316,7 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     connect(ui.clic, SIGNAL(stateChanged(int)), this, SLOT(slotClickOptionChanged(int)));
 
     QStringList listeNiveaux;
-    listeNiveaux.append("Amibe");
+    listeNiveaux.append(tr("Beginner"));
 
     ui.niveauEst->addItems(listeNiveaux);
     ui.niveauNord->addItems(listeNiveaux);
@@ -402,31 +446,11 @@ void OptionsWindow::slotClickOptionChanged(int state)
 /*****************************************************************************/
 QString OptionsWindow::choixAvatar(QString defaultAvatar)
 {
-    Ui::Avatars ui;
-    QDialog *diag = new QDialog(this);
-    ui.setupUi(diag);
-
-    // populate the list with internal avatar
-    ui.avatarsList->clear();
-    QDir dir(":/images/avatars");
-    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-    QFileInfoList list = dir.entryInfoList();
-
-    // On affiche la liste des avatars
-    for (int i = 0; i < list.size(); ++i)
-    {
-        QFileInfo fileInfo = list.at(i);
-        QListWidgetItem *item = new QListWidgetItem(ui.avatarsList);
-        item->setText(fileInfo.baseName());
-        item->setIcon(QIcon(fileInfo.absoluteFilePath()));
-        item->setData(Qt::UserRole, fileInfo.absoluteFilePath());
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    }
-
-    if (diag->exec() == QDialog::Rejected)
+    if (mAvatarsDiag->exec() == QDialog::Rejected)
     {
         return (defaultAvatar);
     }
+    /*
     else if (ui.avatarsList->currentItem() != NULL)
     {
         // On retourne le nom de l'image
@@ -436,6 +460,8 @@ QString OptionsWindow::choixAvatar(QString defaultAvatar)
     {
         return (defaultAvatar);
     }
+    */
+    return (defaultAvatar);
 }
 /*****************************************************************************/
 void OptionsWindow::slotBtnPixSud()

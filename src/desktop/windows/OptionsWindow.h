@@ -101,6 +101,8 @@ public slots:
 
 private:
     Ui::OptionsUI  ui;
+    Ui::Avatars mAvatarsUi;
+    QDialog *mAvatarsDiag;
     ClientOptions    clientOptions;
     ServerOptions    serverOptions;
     int     indexLangue; // Detect any language change to inform that a reboot is needed
