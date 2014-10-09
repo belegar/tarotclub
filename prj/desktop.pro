@@ -148,9 +148,7 @@ HEADERS += Log.h \
     TcpClient.h \
     UniqueId.h \
     System.h \
-    Value.h \
-    ../src/gfxlib/MiniDeck.h
-    DealsWindow.h
+    Value.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -162,9 +160,7 @@ SOURCES += Log.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
     System.cpp \
-    Value.cpp \
-    ../src/gfxlib/MiniDeck.cpp
-    DealsWindow.cpp
+    Value.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -236,7 +232,8 @@ HEADERS += Canvas.h \
     MessageBoxItem.h \
     IButtonEvent.h \
     ICardEvent.h \
-    Translations.h
+    Translations.h \
+    MiniDeck.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
@@ -248,7 +245,8 @@ SOURCES += Canvas.cpp \
     CheckBoxItem.cpp \
     ButtonItem.cpp \
     MessageBoxItem.cpp \
-    Translations.cpp
+    Translations.cpp \
+    MiniDeck.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files
@@ -270,7 +268,8 @@ HEADERS += AboutWindow.h \
     InfosDock.h \
     ChatDock.h \
     DebugDock.h \
-    LobbyWindow.h
+    LobbyWindow.h \
+    DealsWindow.h
 
 SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
@@ -281,6 +280,7 @@ SOURCES += AboutWindow.cpp \
     ChatDock.cpp \
     DebugDock.cpp \    
     LobbyWindow.cpp \
+    DealsWindow.cpp \
     main.cpp
 
 # End of project file
