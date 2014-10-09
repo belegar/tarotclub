@@ -4,33 +4,31 @@ MiniDeck::MiniDeck()
 {
 }
 
-void MiniDeck::BuildDeck()
+QString MiniDeck::BuildDeck()
 {
     QDomDocument doc;
     QFile file(":cards/minideck.svg");
-    if (!file.open(QIODevice::ReadOnly))
+    if (file.open(QIODevice::ReadOnly))
     {
-        return;
+        if (doc.setContent(&file))
+        {
+            Deck deck;
+            deck.CreateTarotDeck();
+
+            QDomElement root = doc.documentElement();
+            for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
+            {
+                QDomElement node = CreateCard((*iter), doc);
+                root.appendChild(node);
+            }
+        }
+        else
+        {
+            file.close();
+        }
     }
-    if (!doc.setContent(&file))
-    {
-        file.close();
-        return;
-    }
 
-
-    Deck deck;
-    deck.CreateTarotDeck();
-
-    QDomElement root = doc.documentElement();
-    for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
-    {
-        QDomElement node = CreateCard((*iter), doc);
-        root.appendChild(node);
-    }
-
-    std::cout << doc.toString().toStdString();
-
+    return doc.toString();
 }
 
 /*

@@ -10,12 +10,11 @@ class MiniDeck
 public:
     MiniDeck();
 
-    void BuildDeck();
+    QString BuildDeck();
 
     QString GetDeck();
 
 private:
-    QString mSvgString;
     QDomElement CreateCard(const Card &card, QDomDocument &doc);
 };
 
