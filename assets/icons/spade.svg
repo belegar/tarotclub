@@ -13,7 +13,7 @@
    height="160.7942"
    id="svg3182">
   <defs
-     id="defs3184">
+     id="spadedefs">
     <linearGradient
        id="linearGradient4034">
       <stop
@@ -68,7 +68,7 @@
   </metadata>
   <g
      transform="matrix(3.8796112,0,0,3.8796112,-728.56485,-241.92117)"
-     id="g6206">
+     id="spade">
     <g
        transform="matrix(1.25,0,0,1.25,98.691737,-68.034253)"
        id="g3246"
