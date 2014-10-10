@@ -1,0 +1,20 @@
+	<svg
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   width="920"
+   height="2100"
+   id="svg">
+
+  <defs>  
+   <g
+     id="card">
+    <rect
+       width="61"
+       height="112"
+       ry="4.6"       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:79.19999695;stroke-opacity:1;stroke-dasharray:none" />
+	</g>
+	
+	</defs>
+	
+</svg>
