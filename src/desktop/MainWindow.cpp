@@ -173,6 +173,8 @@ void MainWindow::slotShowOptions()
 /*****************************************************************************/
 void MainWindow::Initialize()
 {
+    dealsWindow->Initialize();
+
     mClientConfig.Load();
     mServerConfig.Load(System::HomePath() + DEFAULT_SERVER_CONFIG_FILE);
 
