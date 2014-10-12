@@ -32,6 +32,5 @@
         <file>avatars/19.svg</file>
         <file>avatars/20.svg</file>
         <file>cards/minideck.svg</file>
-        <file>qml/DealViewer.qml</file>
     </qresource>
 </RCC>
