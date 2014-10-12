@@ -33,6 +33,8 @@ TcpServer::TcpServer(IEvent &handler)
     : mMaxSd(0)
     , mInitialized(false)
     , mEventHandler(handler)
+    , mReceiveFd(-1)
+    , mSendFd(-1)
 {
 }
 /*****************************************************************************/
@@ -88,7 +90,10 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
 /*****************************************************************************/
 void TcpServer::Stop()
 {
-    write(mSendFd, "1", 1);
+    if (mSendFd > 0)
+    {
+        write(mSendFd, "1", 1);
+    }
     Close();
     Join();
 }
