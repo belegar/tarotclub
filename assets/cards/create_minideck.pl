@@ -40,19 +40,7 @@ $svg->setAttribute( "height", "2100" );
 $svg->setAttribute( "id", "svg" );
 
 # -------------- Add some root types
-my $styleNode = $minideck->createElement("style");
-my $stylestring = ".valueText {
-	  font-size: 25;
-	  font-style:normal;
-	  font-weight:normal;
-	  fill:#000000;
-	  fill-opacity:1;
-	  stroke:none;
-	  font-family: 'kanzlei', 'Times New Roman';
-    }";
-my $style = $minideck->createTextNode($stylestring);
-$styleNode->addChild($style);
-$svg->addChild($styleNode);
+
 
 # -------------- Add SVG icons templates
 my $defsNode = $minideck->createElement("defs");
@@ -145,7 +133,7 @@ sub BuildCard()
 	my $value =  $minideck->createElement("text");
 	$value->setAttribute( "x", "5");
 	$value->setAttribute( "y", "30");
-	$value->setAttribute( "class", "valueText");
+	$value->setAttribute( "style", "font-size: 25; font-family: 'kanzlei';");
 	$value->appendText("$_[1]");
 		
 	$cardNode->addChild($background);
