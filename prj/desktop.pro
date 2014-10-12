@@ -53,6 +53,7 @@ VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
+VPATH += $$BASE_DIR/assets/qml
 
 # ------------------------------------------------------------------------------
 # Where to find header files
@@ -70,7 +71,7 @@ INCLUDEPATH += $$BASE_DIR/src/gfxlib
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += svg network qml quickwidgets
+QT += svg network
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
@@ -127,6 +128,11 @@ OTHER_FILES = beginner.js \
               player.js \
               bot.js \
               unit_test.js
+
+# ------------------------------------------------------------------------------
+# QML files
+# ------------------------------------------------------------------------------
+OTHER_FILES = DealViewer.qml
 
 # ------------------------------------------------------------------------------
 # Translation files
@@ -232,8 +238,7 @@ HEADERS += Canvas.h \
     MessageBoxItem.h \
     IButtonEvent.h \
     ICardEvent.h \
-    Translations.h \
-    MiniDeck.h
+    Translations.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
@@ -245,8 +250,7 @@ SOURCES += Canvas.cpp \
     CheckBoxItem.cpp \
     ButtonItem.cpp \
     MessageBoxItem.cpp \
-    Translations.cpp \
-    MiniDeck.cpp
+    Translations.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files
