@@ -28,7 +28,7 @@ Rectangle {
         Image {
             sourceSize.width: 61
             sourceSize.height: 112
-            source: "image://minideck/01-T"
+            source: "image://minideck/c01-T"
         }
 
 	}
