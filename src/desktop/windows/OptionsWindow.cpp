@@ -256,10 +256,6 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     mAvatarsDiag = new QDialog(this);
     mAvatarsUi.setupUi(mAvatarsDiag);
 
-    QDir dir(":/avatars");
-    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-    QFileInfoList list = dir.entryInfoList();
-
     // Create the scroll area widget
     QWidget *contents = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout();
@@ -269,7 +265,10 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     mAvatarsUi.avatarsList->setAlignment(Qt::AlignCenter);
     mAvatarsUi.avatarsList->setFrameStyle(0);
 
-    // On affiche la liste des avatars
+    // Show the avatars
+    QDir dir(":/avatars");
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    QFileInfoList list = dir.entryInfoList();
     for (int i = 0; i < list.size();)
     {
         QHBoxLayout *hLayout = new QHBoxLayout();
