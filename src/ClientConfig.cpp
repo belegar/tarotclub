@@ -234,7 +234,7 @@ ClientOptions ClientConfig::GetDefault()
     opt.clickToClean = true;
 
     opt.identity.name = "Fry";
-    opt.identity.avatar = ":/images/avatars/fry.png";
+    opt.identity.avatar = ":/avatars/01.svg";
     opt.identity.quote = "But existing is practically all I do!";
     opt.identity.gender = Identity::MALE;
 

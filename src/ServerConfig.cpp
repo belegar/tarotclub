@@ -200,19 +200,19 @@ ServerOptions ServerConfig::GetDefault()
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
 
     opt.bots[Place::WEST].name     = "Leela";
-    opt.bots[Place::WEST].avatar   = ":/images/avatars/leela.png";
+    opt.bots[Place::WEST].avatar   = ":/avatars/14.svg";
     opt.bots[Place::WEST].quote    = "No, this isn't mutant language. We use a lot more profanity.";
     opt.bots[Place::WEST].gender   = Identity::FEMALE;
 
     opt.bots[Place::NORTH].name    = "Bender";
-    opt.bots[Place::NORTH].avatar  = ":/images/avatars/bender.png";
+    opt.bots[Place::NORTH].avatar  = ":/avatars/03.svg";
     opt.bots[Place::NORTH].quote   = "Afterlife? If I'd thought I had to go through a whole another life, I'd kill myself right now.";
     opt.bots[Place::NORTH].gender  = Identity::MALE;
 
-    opt.bots[Place::EAST].name     = "Zoidberg";
-    opt.bots[Place::EAST].avatar   = ":/images/avatars/zoidberg.png";
-    opt.bots[Place::EAST].quote    = "A buffet... oh if only I'd brought my wallet with me...";
-    opt.bots[Place::EAST].gender   = Identity::MALE;
+    opt.bots[Place::EAST].name     = "Amy";
+    opt.bots[Place::EAST].avatar   = ":/avatars/18.svg";
+    opt.bots[Place::EAST].quote    = "oooh! nice boots! Do they come in women's sizes?";
+    opt.bots[Place::EAST].gender   = Identity::FEMALE;
 
     return opt;
 }
