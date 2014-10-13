@@ -266,6 +266,7 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     mAvatarsUi.avatarsList->setFrameStyle(0);
 
     // Show the avatars
+    mSelectedAvatar = -1;
     QDir dir(":/avatars");
     dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
     QFileInfoList list = dir.entryInfoList();
@@ -279,11 +280,14 @@ OptionsWindow::OptionsWindow(QWidget *parent)
             if (i < list.size())
             {
                 QFileInfo fileInfo = list.at(i);
+                QString fileName = fileInfo.absoluteFilePath();
 
-                QLabel *item = new QLabel();
-                QImage image(fileInfo.absoluteFilePath());
+                AvatarLabel *item = new AvatarLabel(i, fileName);
+                mAvatarFiles[i] = item;
+                QImage image(fileName);
                 item->setPixmap(QPixmap::fromImage(image.scaled(160, 160)));
                 item->setScaledContents(false);
+                connect(item, &AvatarLabel::sigClicked, this, &OptionsWindow::slotAvatarSelected);
 
                 hLayout->addWidget(item);
                 i++;
@@ -443,24 +447,49 @@ void OptionsWindow::slotClickOptionChanged(int state)
     }
 }
 /*****************************************************************************/
-QString OptionsWindow::choixAvatar(QString defaultAvatar)
+QString OptionsWindow::ChooseAvatar(const QString &defaultAvatar)
 {
-    if (mAvatarsDiag->exec() == QDialog::Rejected)
+    mSelectedAvatar = -1;
+    QString avatar = defaultAvatar;
+    if (mAvatarsDiag->exec() == QDialog::Accepted)
     {
-        return (defaultAvatar);
+        if (mAvatarFiles.contains(mSelectedAvatar))
+        {
+            AvatarLabel *label = mAvatarFiles.value(mSelectedAvatar);
+            if (label != NULL)
+            {
+                avatar = label->GetFileName();
+            }
+        }
     }
-    /*
-    else if (ui.avatarsList->currentItem() != NULL)
+    return (avatar);
+}
+/*****************************************************************************/
+void OptionsWindow::slotAvatarSelected(int id)
+{
+    mSelectedAvatar  = id;
+
+    for (int i = 0; i < mAvatarFiles.size(); i++)
     {
-        // On retourne le nom de l'image
-        return (ui.avatarsList->currentItem()->data(Qt::UserRole).toString());
+        if (mAvatarFiles.contains(i))
+        {
+            AvatarLabel *label = mAvatarFiles.value(i);
+            if (label != NULL)
+            {
+                if (i == id)
+                {
+                    // Select it
+                    label->setFrameStyle(QFrame::Box);
+                    label->setLineWidth(4);
+                }
+                else
+                {
+                    // deselect it
+                    label->setFrameStyle(QFrame::NoFrame);
+                }
+            }
+        }
     }
-    else
-    {
-        return (defaultAvatar);
-    }
-    */
-    return (defaultAvatar);
 }
 /*****************************************************************************/
 void OptionsWindow::slotBtnPixSud()
@@ -468,7 +497,7 @@ void OptionsWindow::slotBtnPixSud()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(QString(clientOptions.identity.avatar.data()));
+    s = ChooseAvatar(QString(clientOptions.identity.avatar.data()));
     if (im.load(s) == false)
     {
         return;
@@ -482,7 +511,7 @@ void OptionsWindow::slotBtnPixEst()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(QString(serverOptions.bots[Place::EAST].avatar.data()));
+    s = ChooseAvatar(QString(serverOptions.bots[Place::EAST].avatar.data()));
     if (im.load(s) == false)
     {
         return;
@@ -496,7 +525,7 @@ void OptionsWindow::slotBtnPixNord()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(QString(serverOptions.bots[Place::NORTH].avatar.data()));
+    s = ChooseAvatar(QString(serverOptions.bots[Place::NORTH].avatar.data()));
     if (im.load(s) == false)
     {
         return;
@@ -510,7 +539,7 @@ void OptionsWindow::slotBtnPixOuest()
     QString s;
     QPixmap im;
 
-    s = choixAvatar(QString(serverOptions.bots[Place::WEST].avatar.data()));
+    s = ChooseAvatar(QString(serverOptions.bots[Place::WEST].avatar.data()));
     if (im.load(s) == false)
     {
         return;

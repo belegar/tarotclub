@@ -67,7 +67,34 @@ private:
 
     DragIcon mIcons[5];
 };
+/*****************************************************************************/
+// Specialized label to store file name of displayed image
+class AvatarLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    AvatarLabel(int id, const QString &fileName) : QLabel()
+    {
+        mId = id;
+        mFileName = fileName;
+        setTextInteractionFlags(Qt::TextSelectableByMouse);
+    }
 
+    void mousePressEvent(QMouseEvent * event)
+    {
+        (void) event;
+        emit sigClicked(mId);
+    }
+
+    QString GetFileName() { return mFileName; }
+
+signals:
+    void sigClicked(int id);
+
+private:
+    int mId;
+    QString mFileName;
+};
 /*****************************************************************************/
 class OptionsWindow : public QDialog
 {
@@ -87,7 +114,7 @@ public:
 public slots:
     void slotBtnOk();
     void slotBtnDefaut();
-
+    void slotAvatarSelected(int id);
     void slotClickOptionChanged(int state);
 
     // Widgets
@@ -108,8 +135,10 @@ private:
     int     indexLangue; // Detect any language change to inform that a reboot is needed
     QString colorName;
     DragWidget *dragWidget;
+    QMap<int, AvatarLabel *> mAvatarFiles;
+    int mSelectedAvatar;
 
-    QString choixAvatar(QString defaultAvatar);
+    QString ChooseAvatar(const QString &defaultAvatar);
     void    refresh();
 
 };
