@@ -5,21 +5,30 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QLayout>
-#include <QtWebKitWidgets/QWebView>
+#include <QGraphicsView>
+#include <QtSvg>
 
 class DealsWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DealsWindow(QWidget *parent = 0);
+    DealsWindow(QWidget *parent = 0);
     ~DealsWindow();
+
+    void Initialize();
+
+    void RefreshDeals();
 
 private:
     QVBoxLayout *mLayout;
     QComboBox *mComboBox;
     QPushButton *mOkButton;
-    QWebView *mWebView;
+    QGraphicsView *mView;
+    QGraphicsScene mScene;
+    QSvgRenderer mDeck;
+    QVector<QGraphicsSvgItem *> mCardsPics;
+
 };
 
 #endif // DEALSWINDOW_H

@@ -88,6 +88,7 @@ void MainWindow::slotAboutToQuit()
 /*****************************************************************************/
 void MainWindow::slotDisplayDeals()
 {
+    dealsWindow->RefreshDeals();
     dealsWindow->show();
 }
 /*****************************************************************************/
