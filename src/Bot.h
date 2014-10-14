@@ -47,6 +47,8 @@ public:
         mClient.Close();
     }
 
+    bool IsConnected() { return mClient.IsConnected(); }
+
 private:
     Client  mClient;
     std::uint16_t  mTimeBeforeSend;
