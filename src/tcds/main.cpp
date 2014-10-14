@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     if (fileName.size() == 0)
     {
         // No specific configuration file, try to open the default one
-        fileName = System::HomePath() + DEFAULT_SERVER_CONFIG_FILE;
+        fileName = System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE;
     }
     ServerConfig conf;
     conf.Load(fileName);
