@@ -9,7 +9,6 @@
 #include "ByteStreamWriter.h"
 #include "tst_utilities.h"
 #include "Util.h"
-#include "MiniDeck.h"
 
 std::uint32_t Obs::gCounter = 0U;
 
@@ -319,9 +318,4 @@ void Utilities::TestUtilFunctions()
     std::cout << "Current date-time: " << Util::CurrentDateTime("%Y-%m-%d.%X")  << std::endl;
 }
 
-void Utilities::TestMiniDeck()
-{
-    MiniDeck deck;
-    deck.BuildDeck();
-}
 

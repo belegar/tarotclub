@@ -54,7 +54,6 @@ private Q_SLOTS:
     void TestByteArray();
     void TestByteStream();
     void TestUtilFunctions();
-    void TestMiniDeck();
 
 private:
     Subj mySubject;

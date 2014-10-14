@@ -24,8 +24,7 @@ private Q_SLOTS:
     void TestDeckClass();
     void TestConfig();
     void TestCommon();
-
-private:
+    void TestUniqueId();
 
 };
 

@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <list>
+#include <mutex>
 
 /*****************************************************************************/
 class UniqueId
@@ -36,12 +37,16 @@ public:
     UniqueId(std::uint32_t min, std::uint32_t max);
 
     std::uint32_t TakeId();
-    void ReleaseId(std::uint32_t id);
+    bool ReleaseId(std::uint32_t id);
+    bool IsTaken(std::uint32_t id);
+    std::uint32_t GetMin() { return mMin; }
+    std::uint32_t GetMax() { return mMax; }
 
 private:
     std::uint32_t mMin;
     std::uint32_t mMax;
     std::list<std::uint32_t> mUsedIds;
+    std::mutex mMutex;
 };
 
 #endif // UNIQUE_ID_H

@@ -11,6 +11,7 @@
 #include "ServerConfig.h"
 #include "Player.h"
 #include "System.h"
+#include "UniqueId.h"
 
 TarotBase::TarotBase()
 {
@@ -297,7 +298,7 @@ void TarotBase::TestConfig()
 
     options = ServerConfig::GetDefault();
     conf.SetOptions(options);
-    conf.Save(System::HomePath() + DEFAULT_SERVER_CONFIG_FILE);
+    conf.Save(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
 }
 
 void TarotBase::TestCommon()
@@ -312,4 +313,48 @@ void TarotBase::TestCommon()
     QCOMPARE(actual, expected);
 }
 
+void TarotBase::TestUniqueId()
+{
+    UniqueId idManager(0U, 0U);
+    std::uint32_t expected, actual;
+
+    expected = 1U;
+    actual = idManager.GetMin();
+    QCOMPARE(actual, expected);
+
+    expected = 2U;
+    actual = idManager.GetMax();
+    QCOMPARE(actual, expected);
+
+    UniqueId idManager2(4U, 2U);
+    expected = 4U;
+    actual = idManager2.GetMin();
+    QCOMPARE(actual, expected);
+
+    expected = 5U;
+    actual = idManager2.GetMax();
+    QCOMPARE(actual, expected);
+
+    UniqueId idManager3(1U, 20U);
+
+    std::uint32_t id1 = idManager3.TakeId();
+    std::uint32_t id2 = idManager3.TakeId();
+    std::uint32_t id3 = idManager3.TakeId();
+    std::uint32_t id4 = idManager3.TakeId();
+
+    std::uint32_t id5 = id4 + 1U;
+
+    QCOMPARE(idManager3.IsTaken(id1), true);
+    QCOMPARE(idManager3.IsTaken(id2), true);
+    QCOMPARE(idManager3.IsTaken(id3), true);
+    QCOMPARE(idManager3.IsTaken(id4), true);
+    QCOMPARE(idManager3.IsTaken(id5), false);
+
+    QCOMPARE(idManager3.ReleaseId(id3), true);
+    QCOMPARE(idManager3.ReleaseId(id4), true);
+
+    QCOMPARE(idManager3.IsTaken(id3), false);
+    QCOMPARE(idManager3.IsTaken(id4), false);
+
+}
 

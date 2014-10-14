@@ -28,16 +28,41 @@
 
 
 /*****************************************************************************/
+/**
+ * @brief UniqueId::UniqueId
+ *
+ * 0 is a reserved id (not valid)
+ * Max is strictly superior than min
+ * The constructor will correct the input parameters according to these rules
+ *
+ * @param min
+ * @param max
+ */
 UniqueId::UniqueId(std::uint32_t min, std::uint32_t max)
-    : mMin(min)
-    , mMax(max)
 {
+    if (min == 0U)
+    {
+        mMin = 1U;
+    }
+    else
+    {
+        mMin = min;
+    }
 
+    if (max <= mMin)
+    {
+        mMax = mMin + 1U;
+    }
+    else
+    {
+        mMax = max;
+    }
 }
 /*****************************************************************************/
 std::uint32_t UniqueId::TakeId()
 {
-    std::uint32_t id;
+    std::uint32_t id = 0U;
+    std::lock_guard<std::mutex> lock(mMutex);
 
     for (id = mMin; id <= mMax; id++)
     {
@@ -51,9 +76,25 @@ std::uint32_t UniqueId::TakeId()
     return id;
 }
 /*****************************************************************************/
-void UniqueId::ReleaseId(std::uint32_t id)
+// Return true if the id has been found AND successfully erased
+bool UniqueId::ReleaseId(std::uint32_t id)
 {
-    (void)id;
+    bool ret = false;
+    std::lock_guard<std::mutex> lock(mMutex);
+
+    if (std::find(mUsedIds.begin(), mUsedIds.end(), id) != mUsedIds.end())
+    {
+        mUsedIds.erase(std::find(mUsedIds.begin(), mUsedIds.end(), id));
+
+        ret = (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end());
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool UniqueId::IsTaken(std::uint32_t id)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    return (std::find(mUsedIds.begin(), mUsedIds.end(), id) != mUsedIds.end());
 }
 
 //=============================================================================
