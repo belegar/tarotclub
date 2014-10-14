@@ -43,7 +43,7 @@ QString GetLocale()
 {
     ClientConfig conf;
 
-    conf.Load();
+    conf.Load(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
     return conf.GetLocale().c_str();
 }
 /*****************************************************************************/

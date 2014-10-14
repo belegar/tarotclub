@@ -165,8 +165,8 @@ void MainWindow::slotShowOptions()
         mClientConfig.SetOptions(optionsWindow->GetClientOptions());
         mServerConfig.SetOptions(optionsWindow->GetServerOptions());
 
-        mClientConfig.Save();
-        mServerConfig.Save(System::HomePath() + DEFAULT_SERVER_CONFIG_FILE);
+        mClientConfig.Save(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
+        mServerConfig.Save(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
         tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
                                   mServerConfig.GetOptions());
     }
@@ -176,8 +176,8 @@ void MainWindow::Initialize()
 {
     dealsWindow->Initialize();
 
-    mClientConfig.Load();
-    mServerConfig.Load(System::HomePath() + DEFAULT_SERVER_CONFIG_FILE);
+    mClientConfig.Load(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
+    mServerConfig.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
 
     tarotWidget->Initialize();
     tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
