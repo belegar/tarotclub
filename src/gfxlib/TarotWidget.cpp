@@ -134,7 +134,7 @@ void TarotWidget::slotCreateNetworkGame()
 
     mTable.CreateTable(4U);
     // Connect us to the server
-    mClient.ConnectToHost("127.0.0.1", DEFAULT_TABLE_TCP_PORT);
+    mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_TABLE_TCP_PORT);
 }
 /*****************************************************************************/
 bool TarotWidget::HasLocalConnection()
@@ -178,7 +178,7 @@ void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh
 
         mConnectionType = LOCAL;
         // Connect us to the server
-        mClient.ConnectToHost("127.0.0.1", DEFAULT_TABLE_TCP_PORT);
+        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_TABLE_TCP_PORT);
         // Connect the other players
         // mTable.ConnectBots();
         std::map<Place, Identity>::iterator iter;
