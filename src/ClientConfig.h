@@ -35,8 +35,9 @@
 #include "Identity.h"
 
 // default values
-#define AVATARS_DEF         true
-#define CLIENT_TIMER_DEF    1500
+
+
+
 
 struct ClientOptions
 {
@@ -55,10 +56,14 @@ struct ClientOptions
 class ClientConfig
 {
 public:
+    static const bool           AVATARS_DEF                 = true;
+    static const std::uint16_t  CLIENT_TIMER_DEF            = 1500U;
+    static const std::string    DEFAULT_CLIENT_CONFIG_FILE;
+
     ClientConfig();
 
-    bool     Load();
-    bool     Save();
+    bool     Load(const std::string &fileName);
+    bool     Save(const std::string &fileName);
 
     // Getters
     ClientOptions   GetOptions();

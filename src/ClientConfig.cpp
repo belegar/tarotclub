@@ -31,7 +31,7 @@
 #include "System.h"
 
 static const std::string CLIENT_CONFIG_VERSION  = "2.0";
-static const std::string CLIENT_CONFIG_FILE     = "tarotclub.json";
+const std::string    ClientConfig::DEFAULT_CLIENT_CONFIG_FILE  = "tarotclub.json";
 
 /*****************************************************************************/
 ClientConfig::ClientConfig()
@@ -47,7 +47,7 @@ ClientOptions ClientConfig::GetOptions()
 {
     if (!mLoaded)
     {
-        Load();
+        mOptions = GetDefault();
     }
     return mOptions;
 }
@@ -56,11 +56,11 @@ std::string ClientConfig::GetLocale()
 {
     if (!mLoaded)
     {
-        Load();
+        mOptions = GetDefault();
     }
     if (mOptions.language >= mLang.size())
     {
-        mOptions.language = 0;
+        mOptions.language = 0U;
     }
     return mLang[mOptions.language];
 }
@@ -70,11 +70,11 @@ void ClientConfig::SetOptions(const ClientOptions &newOptions)
     mOptions = newOptions;
 }
 /*****************************************************************************/
-bool ClientConfig::Load()
+bool ClientConfig::Load(const std::string &fileName)
 {
     JsonReader json;
 
-    bool ret = json.Open(System::HomePath() + CLIENT_CONFIG_FILE);
+    bool ret = json.Open(fileName);
     if (ret)
     {
         std::string stringval;
@@ -111,9 +111,9 @@ bool ClientConfig::Load()
                 if (json.GetValue("delay_before_cleaning", intval))
                 {
                     mOptions.delayBeforeCleaning = intval;
-                    if (mOptions.delayBeforeCleaning > 5000)
+                    if (mOptions.delayBeforeCleaning > 5000U)
                     {
-                        mOptions.delayBeforeCleaning = 5000;
+                        mOptions.delayBeforeCleaning = 5000U;
                     }
                 }
 
@@ -174,14 +174,14 @@ bool ClientConfig::Load()
     {
         // Overwrite old file with default value
         mOptions = GetDefault();
-        ret = Save();
+        ret = Save(fileName);
     }
 
     mLoaded = true;
     return ret;
 }
 /*****************************************************************************/
-bool ClientConfig::Save()
+bool ClientConfig::Save(const std::string &fileName)
 {
     bool ret = true;
 
@@ -213,7 +213,7 @@ bool ClientConfig::Save()
     obj->CreateValuePair("gender", text);
     obj->CreateValuePair("quote", mOptions.identity.quote);
 
-    if (!json.SaveToFile(System::HomePath() + CLIENT_CONFIG_FILE))
+    if (!json.SaveToFile(fileName))
     {
         ret = false;
         TLogError("Saving client's configuration failed.");
