@@ -28,6 +28,7 @@
 
 #include <thread>
 #include <vector>
+#include <mutex>
 #include "TcpSocket.h"
 #include "Observer.h"
 
@@ -89,12 +90,14 @@ public:
     bool Start(std::uint16_t port, std::int32_t maxConnections);
     void Stop();
     void Join();
+    std::string GetPeerName(int s);
 
 private:
     std::thread mThread;
     int  mMaxSd;
     fd_set mMasterSet;
     std::vector<int> mClients;
+    std::mutex mMutex; // To protect mClients
     bool mInitialized;
     IEvent     &mEventHandler;
 
