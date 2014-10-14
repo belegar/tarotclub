@@ -31,6 +31,7 @@
 #include "System.h"
 
 static const std::string SERVER_CONFIG_VERSION  = "2.0";
+const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
