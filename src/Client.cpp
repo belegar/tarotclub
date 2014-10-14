@@ -326,7 +326,9 @@ void Client::Run()
                 else
                 {
                     // Error!
+                    mConnected = false;
                     TLogError("Rev() socket read error.");
+                    mTcpClient.Close();
                 }
             }
         }
