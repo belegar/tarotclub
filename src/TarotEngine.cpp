@@ -161,7 +161,16 @@ Place TarotEngine::GetWinner()
 //    if (mGameMode == Tarot::TOURNAMENT)
 //    {
 //        return mDeal.GetPodium();
-//    }
+    //    }
+}
+/*****************************************************************************/
+Identity TarotEngine::GetIdentity(Place p)
+{
+    if (mPlayersIdent.find(p) == mPlayersIdent.end())
+    {
+        TLogError("Player does not exists");
+    }
+    return mPlayersIdent[p];
 }
 /*****************************************************************************/
 bool TarotEngine::SetDiscard(const Deck &discard)

@@ -81,6 +81,7 @@ public:
     Player *GetPlayer(std::uint32_t uuid);
     Place GetPlayerPlace(std::uint32_t uuid);
     Place GetWinner();
+    Identity GetIdentity(Place p);
     Place GetCurrentPlayer()
     {
         return mCurrentPlayer;
