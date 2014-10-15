@@ -15,8 +15,8 @@ DealsWindow::DealsWindow(QWidget *parent)
 
     QHBoxLayout *layout1 = new QHBoxLayout();
     layout1->addWidget(new QLabel(tr("Choose a previously played deal to display.")));
-    layout1->addStretch();
     layout1->addWidget(mComboBox);
+    layout1->addStretch();
 
     QHBoxLayout *layout2 = new QHBoxLayout();
     layout2->addStretch();
@@ -27,10 +27,17 @@ DealsWindow::DealsWindow(QWidget *parent)
     mLayout->addLayout(layout2);
 
     connect(mOkButton, &QPushButton::clicked, this, &QDialog::accept);
+    connect(mComboBox, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::activated), this, &DealsWindow::slotActivated);
 }
 
 DealsWindow::~DealsWindow()
 {
+
+}
+
+void DealsWindow::slotActivated(const QString &text)
+{
+    mDeal.LoadGameDealLog(System::GamePath() + "/deal_result_" + text.toStdString() + ".json");
 
 }
 

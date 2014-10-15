@@ -8,6 +8,8 @@
 #include <QGraphicsView>
 #include <QtSvg>
 
+#include "Deal.h"
+
 class DealsWindow : public QDialog
 {
     Q_OBJECT
@@ -20,6 +22,9 @@ public:
 
     void RefreshDeals();
 
+public slots:
+    void slotActivated(const QString & text);
+
 private:
     QVBoxLayout *mLayout;
     QComboBox *mComboBox;
@@ -28,6 +33,7 @@ private:
     QGraphicsScene mScene;
     QSvgRenderer mDeck;
     QVector<QGraphicsSvgItem *> mCardsPics;
+    Deal mDeal;
 
 };
 
