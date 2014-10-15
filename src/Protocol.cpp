@@ -35,9 +35,6 @@ const std::uint32_t Protocol::SYSTEM_UID    = 10U;
 
 static const std::uint16_t HEADER_SIZE = 8U;
 
-//std::thread Protocol::mThread;
-//ThreadQueue<std::pair<bool, Protocol::WorkItem*> > Protocol::mQueue;
-//bool Protocol::mInitialized = false;
 /*****************************************************************************/
 Protocol::Protocol()
     : mInitialized(false)
