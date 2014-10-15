@@ -100,7 +100,8 @@ public:
         // system -> server
         SYSTEM_CREATE_TABLE     = 0xA0, //!< Ask the server to start a new table with N players
         SYSTEM_ADD_PLAYER       = 0xA1, //!< A new player is entering the game
-        SYSTEM_QUIT_GAME        = 0xA2,
+        SYSTEM_REMOVE_PLAYER    = 0xA2, //!< Remove player
+        SYSTEM_QUIT_GAME        = 0xA3,
 
         // admin -> server
         ADMIN_NEW_GAME          = 0xB0, //!< Start a new game with a specified mode
@@ -179,6 +180,7 @@ public:
 
     // System to controller packets
     static ByteArray SystemAddPlayer(std::uint32_t new_player_uuid);
+    static ByteArray SystemRemovePlayer(std::uint32_t player_uuid);
     static ByteArray SystemCreateTable(std::uint8_t nbPlayers);
     static ByteArray SystemQuitGame();
 

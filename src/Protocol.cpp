@@ -321,6 +321,19 @@ ByteArray Protocol::SystemAddPlayer(std::uint32_t new_player_uuid)
     return packet;
 }
 /*****************************************************************************/
+ByteArray Protocol::SystemRemovePlayer(std::uint32_t player_uuid)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::SYSTEM_REMOVE_PLAYER, Protocol::SYSTEM_UID);
+    out.Seek(HEADER_SIZE);
+    out << player_uuid;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
 ByteArray Protocol::ServerRequestIdentity(Place p, std::uint8_t nbPlayers, std::uint32_t uuid)
 {
     ByteArray packet;
