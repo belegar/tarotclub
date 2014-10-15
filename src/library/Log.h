@@ -48,10 +48,7 @@ public:
     {
         Error = 0,
         Info = 1,
-        Engine = 2,
-        Bot = 3,
-        Protocol = 4,
-        Message = 5
+        Network = 2
     };
 
     Log();
@@ -74,7 +71,7 @@ private:
 // Macros definitions
 #define TLogInfo(message)   Log::AddEntry(Log::Info, __FILE__, __LINE__, (message))
 #define TLogError(message)  Log::AddEntry(Log::Error, __FILE__, __LINE__, (message))
-
+#define TLogNetwork(message)  Log::AddEntry(Log::Network, __FILE__, __LINE__, (message))
 
 #endif // LOG_H
 

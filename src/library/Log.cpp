@@ -51,10 +51,7 @@ void Log::AddEntry(Event event, const std::string &file, const int line, const s
     std::vector<std::string> eventString;
     eventString.push_back("Error");
     eventString.push_back("Info");
-    eventString.push_back("Engine");
-    eventString.push_back("Bot");
-    eventString.push_back("Protocol");
-    eventString.push_back("Error");
+    eventString.push_back("Network");
 
     std::stringstream ss;
     ss << eventString[event] << ", " <<
