@@ -53,7 +53,6 @@ public:
     bool IsCreated() { return mCreated; }
 
     // Setters
-    void SaveConfiguration(const ServerOptions &opt);
     void SetTcpPort(std::uint16_t port);
 
 private:

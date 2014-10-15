@@ -46,6 +46,9 @@ void Table::NewConnection(int socket)
     mUsersMutex.unlock();
     // send the information to the Tarot engine
     mController.ExecuteRequest(Protocol::SystemAddPlayer(uuid));
+    std::stringstream ss;
+    ss << "New connection: socket=" << socket << ", IP=" << mTcpServer.GetPeerName(socket) << ", UUID=" << uuid;
+    TLogNetwork(ss.str());
 }
 /*****************************************************************************/
 void Table::ReadData(int socket, const std::string &data)
@@ -56,11 +59,25 @@ void Table::ReadData(int socket, const std::string &data)
 /*****************************************************************************/
 void Table::ClientClosed(int socket)
 {
-    (void)socket;
-    // FIXME: manage client disconnection
-    // FIXME: if a player has quit during a game, replace it by a bot
-    //SendChatMessage("The player " + engine.GetPlayer(p).GetIdentity().name + " has quit the game.");
-    //SendPlayersList();
+    mUsersMutex.lock();
+    TcpSocket peer;
+    for (std::map<std::uint32_t, std::int32_t>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        if (iter->second == socket)
+        {
+            std::uint32_t uuid = iter->first;
+            std::stringstream ss;
+            ss << "Player has quit the server. UUID: " << uuid << ", socket=" << socket;
+            TLogNetwork(ss.str());
+            mIdManager.ReleaseId(uuid);
+            peer.SetSocket(iter->second);
+            peer.Close();
+            mController.ExecuteRequest(Protocol::SystemRemovePlayer(uuid));
+
+            // FIXME: replace the player by a bot
+        }
+    }
+    mUsersMutex.unlock();
 }
 /*****************************************************************************/
 void Table::ServerTerminated(TcpServer::IEvent::CloseType type)
@@ -136,11 +153,6 @@ void Table::CreateTable(std::uint8_t nbPlayers)
 /*****************************************************************************/
 void Table::Initialize()
 {
-    if (!TcpSocket::Initialize())
-    {
-        TLogError("Cannot initialize TCP context");
-    }
-
     mController.Initialize();
     mTcpServer.Start(mTcpPort, 10U);
 }
