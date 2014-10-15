@@ -46,6 +46,7 @@ VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/tcds
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
+VPATH += $$BASE_DIR/src/http
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
@@ -58,6 +59,7 @@ INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/tcds
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
+INCLUDEPATH += $$BASE_DIR/src/http
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -137,6 +139,14 @@ SOURCES += duktape.c \
     JSEngine.cpp \
     JsonValue.cpp
 
+# ------------------------------------------------------------------------------
+# Web server files
+# ------------------------------------------------------------------------------
+
+HEADERS += mongoose.h
+SOURCES += mongoose.c
+
+
 # -------------------------------------------------------------
 # TarotClub core files
 # -------------------------------------------------------------
@@ -155,7 +165,6 @@ HEADERS += ServerConfig.h \
     Score.h \
     Protocol.h \
     Controller.h \
-    Table.h \
     System.h
 
 SOURCES += ServerConfig.cpp \
@@ -170,7 +179,6 @@ SOURCES += ServerConfig.cpp \
     Deal.cpp \
     Protocol.cpp \
     Controller.cpp \
-    Table.cpp \
     Score.cpp \
     System.cpp
 
