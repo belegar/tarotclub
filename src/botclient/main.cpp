@@ -68,14 +68,19 @@ int main(int argc, char *argv[])
     bot.SetTimeBeforeSend(0U);
     bot.Initialize();
     // Connect the bot to the server
+    std::cout << "Connecting to " << address << ":" << port << std::endl;
     bot.ConnectToHost(address, std::stoi(port));
-
+    if (bot.IsConnected())
+    {
+        std::cout << "Bot is connected to the server" << std::endl;
+    }
 
     std::cout << "Hit the enter button to exit the client" << std::endl;
 
     std::cin.get();
     bot.Close();
 
+    std::cout << "Bot client is closed, exiting..." << std::endl;
     return 0;
 }
 
