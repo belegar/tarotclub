@@ -128,6 +128,24 @@ bool Controller::DoAction(const ByteArray &data)
             break;
         }
 
+        case Protocol::SYSTEM_REMOVE_PLAYER:
+        {
+            std::uint32_t kicked_player;
+            in >> kicked_player;
+            // Check if the uuid exists
+             Place place = engine.GetPlayerPlace(kicked_player);
+            if (place != Place::NOWHERE)
+            {
+                // Warn all the player
+                std::string message = "The player " + engine.GetIdentity(place).name + " has quit the game.";
+                mEventHandler.SendData(Protocol::ServerChatMessage(message));
+
+                // FIXME: put the game in "pause" mode
+                // Ask for a new player to continue
+            }
+            break;
+        }
+
         case Protocol::CLIENT_INFOS:
         {
             Identity ident;
@@ -162,9 +180,7 @@ bool Controller::DoAction(const ByteArray &data)
             Place place = engine.GetPlayerPlace(uuid);
             if (place != Place::NOWHERE)
             {
-                std::map<Place, Identity> list = engine.GetPlayersList();
-                std::string name = list[place].name;
-                message = name + "> " + message;
+                message = engine.GetIdentity(place).name + "> " + message;
                 mEventHandler.SendData(Protocol::ServerChatMessage(message));
             }
             break;
