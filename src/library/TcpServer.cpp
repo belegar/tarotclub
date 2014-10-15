@@ -112,42 +112,28 @@ void TcpServer::Join()
 std::string TcpServer::GetPeerName(int s)
 {
     std::stringstream ss;
-    bool peerFound = false;
+    socklen_t len;
+    struct sockaddr_storage addr;
+    char ipv6str[INET6_ADDRSTRLEN];
+    std::memset(ipv6str, 0, INET6_ADDRSTRLEN);
+    char *ipstr = ipv6str;
+    int port;
 
-    mMutex.lock();
-    for (std::vector<int>::iterator iter = mClients.begin(); iter != mClients.begin(); iter++)
+    len = sizeof(addr);
+    getpeername(s, (struct sockaddr*)&addr, &len);
+
+    // deal with IPv4
+    if (addr.ss_family == AF_INET)
     {
-        if (*iter == s)
-        {
-            peerFound = true;
-        }
+        struct sockaddr_in *s = (struct sockaddr_in *)&addr;
+        port = ntohs(s->sin_port);
+        ipstr = inet_ntoa(s->sin_addr); // point to an internal static buffer
     }
-    mMutex.unlock();
+    // FIXME: inet_ntoa is deprecated. Use inet_ntop instead, with IPv6 support
+    // See the Boost implementation for Windows
 
-    if (peerFound)
-    {
-        socklen_t len;
-        struct sockaddr_storage addr;
-        char ipv6str[INET6_ADDRSTRLEN];
-        std::memset(ipv6str, 0, INET6_ADDRSTRLEN);
-        char *ipstr = ipv6str;
-        int port;
+    ss << ipstr << ":" << port;
 
-        len = sizeof(addr);
-        getpeername(s, (struct sockaddr*)&addr, &len);
-
-        // deal with both IPv4 and IPv6:
-        if (addr.ss_family == AF_INET)
-        {
-            struct sockaddr_in *s = (struct sockaddr_in *)&addr;
-            port = ntohs(s->sin_port);
-            ipstr = inet_ntoa(s->sin_addr); // point to an internal static buffer
-        }
-        // FIXME: inet_ntoa is deprecated. Use inet_ntop instead, with IPv6 support
-        // See the Boost implementation for Windows
-
-        ss << ipstr << ":" << port;
-    }
     return ss.str();
 }
 /*****************************************************************************/
