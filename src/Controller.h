@@ -43,7 +43,7 @@
  * calls within the thread context. This mechanism allow a protection by design against
  * multi-threaded application.
  */
-class Controller : public Protocol::WorkItem
+class Controller : public Protocol::IWorkItem
 {
 
 public:
@@ -54,9 +54,16 @@ public:
     };
 
     Controller(IEvent &handler);
+    virtual ~Controller () { /* nothing to do */ }
 
     void Initialize();
     void ExecuteRequest(const ByteArray &packet);
+
+    std::string GetName() { return mName; }
+    void SetName(const std::string &name) { mName = name; }
+
+    std::uint32_t GetId() { return mId; }
+    void SetId(std::uint32_t id) { mId = id; }
 
 private:
     IEvent     &mEventHandler;
@@ -64,9 +71,11 @@ private:
     ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
     bool mFull;
     std::vector<std::uint32_t> mAdmins; //!< A list of admin players (default is the first player to be connected
+    std::string mName; //!< Name of this table
+    std::uint32_t mId; //!< Table ID
 
     // From Protocol::WorkItem
-    bool DoAction(const ByteArray &data);
+    bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
     ByteArray GetPacket();
 
     void NewDeal();
