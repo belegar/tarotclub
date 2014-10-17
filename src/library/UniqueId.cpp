@@ -26,7 +26,6 @@
 #include <algorithm>
 #include "UniqueId.h"
 
-
 /*****************************************************************************/
 /**
  * @brief UniqueId::UniqueId
@@ -62,7 +61,6 @@ UniqueId::UniqueId(std::uint32_t min, std::uint32_t max)
 std::uint32_t UniqueId::TakeId()
 {
     std::uint32_t id = 0U;
-    std::lock_guard<std::mutex> lock(mMutex);
 
     for (id = mMin; id <= mMax; id++)
     {
@@ -80,12 +78,10 @@ std::uint32_t UniqueId::TakeId()
 bool UniqueId::ReleaseId(std::uint32_t id)
 {
     bool ret = false;
-    std::lock_guard<std::mutex> lock(mMutex);
 
     if (std::find(mUsedIds.begin(), mUsedIds.end(), id) != mUsedIds.end())
     {
         mUsedIds.erase(std::find(mUsedIds.begin(), mUsedIds.end(), id));
-
         ret = (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end());
     }
     return ret;
@@ -93,7 +89,6 @@ bool UniqueId::ReleaseId(std::uint32_t id)
 /*****************************************************************************/
 bool UniqueId::IsTaken(std::uint32_t id)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
     return (std::find(mUsedIds.begin(), mUsedIds.end(), id) != mUsedIds.end());
 }
 

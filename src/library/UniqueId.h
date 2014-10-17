@@ -46,7 +46,6 @@ private:
     std::uint32_t mMin;
     std::uint32_t mMax;
     std::list<std::uint32_t> mUsedIds;
-    std::mutex mMutex;
 };
 
 #endif // UNIQUE_ID_H
