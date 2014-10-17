@@ -66,7 +66,7 @@ void ByteArray::Clear()
     mData.clear();
 }
 /*****************************************************************************/
-ByteArray ByteArray::SubArray(std::uint32_t index, std::uint32_t len)
+ByteArray ByteArray::SubArray(std::uint32_t index, std::uint32_t len) const
 {
     ByteArray array;
 

@@ -59,7 +59,7 @@ public:
 
     // Helpers
     void Clear();
-    ByteArray SubArray(std::uint32_t index, std::uint32_t len);
+    ByteArray SubArray(std::uint32_t index, std::uint32_t len) const;
     void Erase(std::uint32_t index, std::uint32_t len);
 
     // Operators
