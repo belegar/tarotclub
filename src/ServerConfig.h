@@ -37,6 +37,7 @@ struct ServerOptions
     std::uint16_t lobby_tcp_port;
     std::int32_t lobby_max_conn;    // Max number of simultaneous connected clients
     std::map<Place, Identity>   bots;
+    std::vector<std::string> tables; // table list names
 };
 
 /*****************************************************************************/

@@ -121,6 +121,19 @@ bool ServerConfig::Load(const std::string &fileName)
                         mOptions.bots[i].quote = value;
                     }
                 }
+
+                std::vector<JsonValue> tables = json.GetArray("tables", JsonValue::STRING);
+                if (tables.size() > 0U)
+                {
+                    for (std::vector<JsonValue>::iterator iter = tables.begin(); iter != tables.end(); ++iter)
+                    {
+                        mOptions.tables.push_back(iter->GetString());
+                    }
+                }
+                else
+                {
+                    mOptions.tables.push_back("Default");
+                }
             }
             else
             {
@@ -183,6 +196,12 @@ bool ServerConfig::Save(const std::string &fileName)
         obj->CreateValuePair("quote", mOptions.bots[i].quote);
     }
 
+    JsonArray *array = json.CreateArrayPair("tables");
+    for (std::vector<std::string>::iterator iter =  mOptions.tables.begin(); iter !=  mOptions.tables.end(); ++iter)
+    {
+        array->CreateValue(*iter);
+    }
+
     if (!json.SaveToFile(fileName))
     {
         ret = false;
@@ -199,6 +218,7 @@ ServerOptions ServerConfig::GetDefault()
     opt.table_tcp_port  = DEFAULT_TABLE_TCP_PORT;
     opt.lobby_tcp_port  = DEFAULT_LOBBY_TCP_PORT;
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
+    opt.tables.push_back("Default"); // default table name (one table minimum)
 
     opt.bots[Place::WEST].name     = "Leela";
     opt.bots[Place::WEST].avatar   = ":/avatars/14.svg";
