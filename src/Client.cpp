@@ -302,21 +302,7 @@ void Client::Run()
                 if (ret > 0)
                 {
                     ByteArray data(buffer);
-
-                    std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
-
-                    // Execute all packets
-                    for (std::uint16_t i = 0U; i < packets.size(); i++)
-                    {
-                        Protocol::PacketInfo inf = packets[i];
-
-                        ByteArray subArray = data.SubArray(inf.offset, inf.size);
-                        if (DoAction(subArray) == false)
-                        {
-                            // Exit from thread
-                            return;
-                        }
-                    }
+                    mConnected = Protocol::DataManagement(this, data);
                 }
                 else if (ret == 0)
                 {
@@ -339,269 +325,275 @@ void Client::Run()
     }
 }
 /*****************************************************************************/
-bool Client::DoAction(const ByteArray &data)
+ByteArray Client::GetPacket()
 {
+    // Not implemented for the client, return an empty array
+    return ByteArray();
+}
+/*****************************************************************************/
+bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
+{
+    (void) dest_uuid;
     bool ret = true;
     ByteStreamReader in(data);
 
-    // Jump over some header bytes
-    in.Seek(3U);
-
-    // Get the user id
-    std::uint32_t uuid;
-    in >> uuid;
-
-    // Get the command
-    std::uint8_t cmd;
-    in >> cmd;
-
     switch (cmd)
     {
-        case Protocol::ADMIN_GAME_FULL:
+    case Protocol::ADMIN_GAME_FULL:
+    {
+        bool full;
+        in >> full;
+        mEventHandler.AdminGameFull();
+        break;
+    }
+
+    case Protocol::SERVER_CHAT_MESSAGE:
+    {
+        std::string message;
+        in >> message;
+        mEventHandler.Message(message);
+        break;
+    }
+
+    case Protocol::SERVER_DISCONNECT:
+    {
+        mTcpClient.Close();
+        ret = false;
+        break;
+    }
+
+    case Protocol::SERVER_REQUEST_LOGIN:
+    {
+        SendIdentity();
+        break;
+    }
+
+    case Protocol::SERVER_LOGIN_RESULT:
+    {
+        bool accepted;
+        std::uint32_t myUuid;
+        in >> accepted;
+        in >> myUuid;
+        mPlayer.SetUuid(myUuid);
+        break;
+    }
+
+    case Protocol::TABLE_JOIN_REPLY:
+    {
+        in >> mPlace;
+        in >> mNbPlayers;
+        mEventHandler.AssignedPlace();
+        break;
+    }
+
+    case Protocol::TABLE_PLAYERS_LIST:
+    {
+        std::uint8_t size;
+        in >> size;
+
+        mPlayersIdent.clear();
+        for (int i = 0; i < size; i++)
         {
-            bool full;
-            in >> full;
-            mEventHandler.AdminGameFull();
-            break;
+            Identity ident;
+            Place place;
+
+            in >> place;
+            in >> ident;
+            mPlayersIdent[place] = ident;
+        }
+        mEventHandler.PlayersList();
+        break;
+    }
+
+    case Protocol::TABLE_NEW_GAME:
+    {
+        std::uint8_t mode;
+        in >> mode;
+        in >> mShuffle;
+
+        mDeal.NewGame();
+        mGameMode = (Tarot::GameMode)mode;
+        mEventHandler.NewGame();
+        break;
+    }
+
+    case Protocol::TABLE_NEW_DEAL:
+    {
+        mPlayer.Clear();
+        in >> mPlayer;
+
+        if (mPlayer.Size() == Tarot::NumberOfCardsInHand(mNbPlayers))
+        {
+            mDeal.NewDeal();
+            UpdateStatistics();
+            mEventHandler.NewDeal();
+            SendSyncCards();
+        }
+        else
+        {
+            TLogError("Wrong number of cards received!");
+        }
+        break;
+    }
+
+    case Protocol::TABLE_REQUEST_BID:
+    {
+        std::uint8_t c;
+        Place p;
+
+        in >> c; // Most important contract announced before
+        in >> p;
+        mEventHandler.SelectPlayer(p);
+        if (p == mPlace)
+        {
+            // The request bid is for us! We must declare something
+            mEventHandler.RequestBid((Contract)c);
+        }
+        break;
+    }
+
+    case Protocol::TABLE_SHOW_PLAYER_BID:
+    {
+        std::uint8_t c, slam;
+        Place p;
+
+        in >> p;
+        in >> c;
+        in >> slam;
+        mEventHandler.ShowBid(p, (slam == 1 ? true : false), (Contract)c);
+        break;
+    }
+
+    case Protocol::TABLE_ALL_PASSED:
+    {
+        mEventHandler.AllPassed();
+        break;
+    }
+
+    case Protocol::TABLE_SHOW_DOG:
+    {
+        in >> mDog;
+        mDog.Sort("TDSCH");
+        mSequence = SHOW_DOG;
+        mEventHandler.ShowDog();
+        break;
+    }
+
+    case Protocol::TABLE_ASK_FOR_DISCARD:
+    {
+        mSequence = BUILD_DISCARD;
+        mEventHandler.BuildDiscard();
+        break;
+    }
+
+    case Protocol::TABLE_START_DEAL:
+    {
+        Place first;
+        in >> first;
+        in >> mBid.taker;
+        in >> mBid.contract;
+        in >> mBid.slam;
+        in >> mShuffle;
+
+        currentTrick.Clear();
+        UpdateStatistics(); // cards in hand can have changed due to the dog
+        mDeal.StartDeal(first, mBid);
+        mSequence = SYNC_START;
+        mEventHandler.StartDeal();
+        break;
+    }
+
+    case Protocol::TABLE_ASK_FOR_HANDLE:
+    {
+        mSequence = BUILD_HANDLE;
+        mEventHandler.AskForHandle();
+        break;
+    }
+
+    case Protocol::TABLE_SHOW_HANDLE:
+    {
+        Place p;
+        in >> p;
+        in >> handleDeck;
+        if (mBid.taker == p)
+        {
+            handleDeck.SetOwner(ATTACK);
+        }
+        else
+        {
+            handleDeck.SetOwner(DEFENSE);
+        }
+        mSequence = SHOW_HANDLE;
+        mEventHandler.ShowHandle();
+        break;
+    }
+
+    case Protocol::TABLE_SHOW_CARD:
+    {
+        std::string name;
+        Place player;
+
+        in >> player;
+        in >> name;
+
+        currentTrick.Append(Card(name));
+        mSequence = SYNC_CARD;
+        mEventHandler.ShowCard(player, name);
+        break;
+    }
+
+    case Protocol::TABLE_PLAY_CARD:
+    {
+        Place p;
+        in >> p;
+
+        mEventHandler.SelectPlayer(p);
+        if (p == mPlace)
+        {
+            // Our turn to play a card
+            mSequence = PLAY_TRICK;
+            mEventHandler.PlayCard();
+        }
+        break;
+    }
+
+    case Protocol::TABLE_END_OF_TRICK:
+    {
+        Place winner;
+        in >> winner;
+        mSequence = SYNC_TRICK;
+        mEventHandler.WaitTrick(winner);
+        break;
+    }
+
+    case Protocol::TABLE_END_OF_DEAL:
+    {
+        Score score;
+        in >> score;
+
+        mDeal.SetScore(score);
+        if (mGameMode == Tarot::TOURNAMENT)
+        {
+            (void)mDeal.AddScore(mBid, mNbPlayers);
         }
 
-        case Protocol::SERVER_MESSAGE:
-        {
-            std::string message;
-            in >> message;
-            mEventHandler.Message(message);
-            break;
-        }
+        mSequence = SHOW_SCORE;
+        mEventHandler.EndOfDeal();
+        break;
+    }
 
-        case Protocol::SERVER_DISCONNECT:
-        {
-            mTcpClient.Close();
-            ret = false;
-            break;
-        }
+    case Protocol::TABLE_END_OF_GAME:
+    {
+        Place winner;
+        in >> winner;
+        mEventHandler.EndOfGame(winner);
+        break;
+    }
 
-        case Protocol::SERVER_REQUEST_IDENTITY:
-        {
-            std::uint32_t myUuid;
-
-            in >> mPlace;
-            in >> myUuid;
-            in >> mNbPlayers;
-
-            mPlayer.SetUuid(myUuid);
-            SendIdentity();
-            mEventHandler.AssignedPlace();
-            break;
-        }
-
-        case Protocol::SERVER_PLAYERS_LIST:
-        {
-            std::uint8_t size;
-            in >> size;
-
-            mPlayersIdent.clear();
-            for (int i = 0; i < size; i++)
-            {
-                Identity ident;
-                Place place;
-
-                in >> place;
-                in >> ident;
-                mPlayersIdent[place] = ident;
-            }
-            mEventHandler.PlayersList();
-            break;
-        }
-
-        case Protocol::SERVER_NEW_GAME:
-        {
-            std::uint8_t mode;
-            in >> mode;
-            in >> mShuffle;
-
-            mDeal.NewGame();
-            mGameMode = (Tarot::GameMode)mode;
-            mEventHandler.NewGame();
-            break;
-        }
-
-        case Protocol::SERVER_NEW_DEAL:
-        {
-            mPlayer.Clear();
-            in >> mPlayer;
-
-            if (mPlayer.Size() == Tarot::NumberOfCardsInHand(mNbPlayers))
-            {
-                mDeal.NewDeal();
-                UpdateStatistics();
-                mEventHandler.NewDeal();
-                SendSyncCards();
-            }
-            else
-            {
-                TLogError("Wrong number of cards received!");
-            }
-            break;
-        }
-
-        case Protocol::SERVER_REQUEST_BID:
-        {
-            std::uint8_t c;
-            Place p;
-
-            in >> c; // Most important contract announced before
-            in >> p;
-            mEventHandler.SelectPlayer(p);
-            if (p == mPlace)
-            {
-                // The request bid is for us! We must declare something
-                mEventHandler.RequestBid((Contract)c);
-            }
-            break;
-        }
-
-        case Protocol::SERVER_SHOW_PLAYER_BID:
-        {
-            std::uint8_t c, slam;
-            Place p;
-
-            in >> p;
-            in >> c;
-            in >> slam;
-            mEventHandler.ShowBid(p, (slam == 1 ? true : false), (Contract)c);
-            break;
-        }
-
-        case Protocol::SERVER_ALL_PASSED:
-        {
-            mEventHandler.AllPassed();
-            break;
-        }
-
-        case Protocol::SERVER_SHOW_DOG:
-        {
-            in >> mDog;
-            mDog.Sort("TDSCH");
-            mSequence = SHOW_DOG;
-            mEventHandler.ShowDog();
-            break;
-        }
-
-        case Protocol::SERVER_ASK_FOR_DISCARD:
-        {
-            mSequence = BUILD_DISCARD;
-            mEventHandler.BuildDiscard();
-            break;
-        }
-
-        case Protocol::SERVER_START_DEAL:
-        {
-            Place first;
-            in >> first;
-            in >> mBid.taker;
-            in >> mBid.contract;
-            in >> mBid.slam;
-            in >> mShuffle;
-
-            currentTrick.Clear();
-            UpdateStatistics(); // cards in hand can have changed due to the dog
-            mDeal.StartDeal(first, mBid);
-            mSequence = SYNC_START;
-            mEventHandler.StartDeal();
-            break;
-        }
-
-        case Protocol::SERVER_ASK_FOR_HANDLE:
-        {
-            mSequence = BUILD_HANDLE;
-            mEventHandler.AskForHandle();
-            break;
-        }
-
-        case Protocol::SERVER_SHOW_HANDLE:
-        {
-            Place p;
-            in >> p;
-            in >> handleDeck;
-            if (mBid.taker == p)
-            {
-                handleDeck.SetOwner(ATTACK);
-            }
-            else
-            {
-                handleDeck.SetOwner(DEFENSE);
-            }
-            mSequence = SHOW_HANDLE;
-            mEventHandler.ShowHandle();
-            break;
-        }
-
-        case Protocol::SERVER_SHOW_CARD:
-        {
-            std::string name;
-            Place player;
-
-            in >> player;
-            in >> name;
-
-            currentTrick.Append(Card(name));
-            mSequence = SYNC_CARD;
-            mEventHandler.ShowCard(player, name);
-            break;
-        }
-
-        case Protocol::SERVER_PLAY_CARD:
-        {
-            Place p;
-            in >> p;
-
-            mEventHandler.SelectPlayer(p);
-            if (p == mPlace)
-            {
-                // Our turn to play a card
-                mSequence = PLAY_TRICK;
-                mEventHandler.PlayCard();
-            }
-            break;
-        }
-
-        case Protocol::SERVER_END_OF_TRICK:
-        {
-            Place winner;
-            in >> winner;
-            mSequence = SYNC_TRICK;
-            mEventHandler.WaitTrick(winner);
-            break;
-        }
-
-        case Protocol::SERVER_END_OF_DEAL:
-        {
-            Score score;
-            in >> score;
-
-            mDeal.SetScore(score);
-            if (mGameMode == Tarot::TOURNAMENT)
-            {
-                (void)mDeal.AddScore(mBid, mNbPlayers);
-            }
-
-            mSequence = SHOW_SCORE;
-            mEventHandler.EndOfDeal();
-            break;
-        }
-
-        case Protocol::SERVER_END_OF_GAME:
-        {
-            Place winner;
-            in >> winner;
-            mEventHandler.EndOfGame(winner);
-            break;
-        }
-
-        default:
-            std::string msg = mIdentity.name + ": Unknown packet received.";
-            TLogInfo(msg);
-            break;
+    default:
+        std::string msg = mIdentity.name + ": Unknown packet received.";
+        TLogInfo(msg);
+        break;
     }
     return ret;
 }
@@ -614,7 +606,7 @@ void Client::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffl
 /*****************************************************************************/
 void Client::SendIdentity()
 {
-    ByteArray packet = Protocol::ClientReplyIdentity(mIdentity, mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientReplyLogin(mIdentity);
     SendPacket(packet);
 }
 /*****************************************************************************/

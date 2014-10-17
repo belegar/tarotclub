@@ -40,7 +40,7 @@
 #include "ThreadQueue.h"
 
 /*****************************************************************************/
-class Client
+class Client : public Protocol::IWorkItem
 {
 
 public:
@@ -197,10 +197,13 @@ private:
     static void EntryPoint(void *pthis);
     void Run();
 
+    // From Protocol::WorkItem
+    bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
+    ByteArray GetPacket();
+
     // TarotClub Protocol methods
     void SendIdentity();
     void SendPacket(const ByteArray &packet);
-    bool DoAction(const ByteArray &data);
 
 };
 
