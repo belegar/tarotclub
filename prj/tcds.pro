@@ -165,7 +165,8 @@ HEADERS += ServerConfig.h \
     Score.h \
     Protocol.h \
     Controller.h \
-    System.h
+    System.h \
+    Users.h
 
 SOURCES += ServerConfig.cpp \
     DealFile.cpp \
@@ -180,7 +181,8 @@ SOURCES += ServerConfig.cpp \
     Protocol.cpp \
     Controller.cpp \
     Score.cpp \
-    System.cpp
+    System.cpp \
+    Users.cpp
 
 # -------------------------------------------------------------
 # Server files
