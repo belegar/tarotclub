@@ -31,7 +31,7 @@
 // Game includes
 #include "Client.h"
 #include "Common.h"
-#include "Table.h"
+#include "Lobby.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
 #include "GfxCard.h"
