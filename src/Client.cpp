@@ -333,6 +333,7 @@ ByteArray Client::GetPacket()
 /*****************************************************************************/
 bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
 {
+    (void) src_uuid;
     (void) dest_uuid;
     bool ret = true;
     ByteStreamReader in(data);
