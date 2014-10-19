@@ -30,10 +30,11 @@
 const std::uint8_t  Protocol::VERSION       = 1U;
 
 // Specific static UUID
-const std::uint32_t Protocol::ALL_PLAYERS   = 0U;
-const std::uint32_t Protocol::SERVER_UID    = 1U;
-const std::uint32_t Protocol::STAGING_UID   = 2U;
-const std::uint32_t Protocol::SYSTEM_UID    = 3U;
+const std::uint32_t Protocol::INVALID_UID   = 0U;
+const std::uint32_t Protocol::ALL_PLAYERS   = 1U;
+const std::uint32_t Protocol::SERVER_UID    = 2U;
+const std::uint32_t Protocol::STAGING_UID   = 3U;
+const std::uint32_t Protocol::SYSTEM_UID    = 4U;
 
 const std::uint32_t Protocol::USERS_UID     = 10U;
 
@@ -103,9 +104,14 @@ Protocol &Protocol::GetInstance()
     return mProtocol;
 }
 /*****************************************************************************/
-std::uint32_t Protocol::GetSourceUuid(ByteArray &packet)
+std::uint32_t Protocol::GetSourceUuid(const ByteArray &packet)
 {
     return packet.GetUint32(SRC_UUID_OFFSET);
+}
+/*****************************************************************************/
+std::uint32_t Protocol::GetDestUuid(const ByteArray &packet)
+{
+    return packet.GetUint32(DEST_UUID_OFFSET);
 }
 /*****************************************************************************/
 void Protocol::Initialize()
@@ -646,9 +652,9 @@ ByteArray Protocol::SystemRemovePlayer(std::uint32_t player_uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ServerRequestLogin()
+ByteArray Protocol::ServerRequestLogin(std::uint32_t uuid)
 {
-    return BuildCommand(Protocol::SERVER_REQUEST_LOGIN, SERVER_UID, STAGING_UID);
+    return BuildCommand(Protocol::SERVER_REQUEST_LOGIN, SERVER_UID, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::ServerLoginResult(bool accepted, std::uint32_t uuid)

@@ -44,6 +44,7 @@ public:
     static const std::uint8_t   VERSION;        //!< Protocol version
 
     // Reserved UUIDs: [0..9]
+    static const std::uint32_t  INVALID_UID;
     static const std::uint32_t  ALL_PLAYERS;   //!< Broadcast UUID (send the packet to all players)
     static const std::uint32_t  SERVER_UID;    //!< Server
     static const std::uint32_t  STAGING_UID;   //!< A staging client
@@ -131,7 +132,8 @@ public:
     ~Protocol();
 
     static Protocol &GetInstance();
-    static std::uint32_t GetSourceUuid(ByteArray &packet);
+    static std::uint32_t GetSourceUuid(const ByteArray &packet);
+    static std::uint32_t GetDestUuid(const ByteArray &packet);
     static bool DataManagement(IWorkItem *item, const ByteArray &data);
 
     void Initialize();
@@ -201,8 +203,8 @@ public:
     static ByteArray AdminGameFull(bool full, std::uint32_t uuid);
 
     // Server -> client
+    static ByteArray ServerRequestLogin(std::uint32_t uuid);
     static ByteArray ServerLoginResult(bool accepted, std::uint32_t uuid);
-    static ByteArray ServerRequestLogin();
     static ByteArray ServerDisconnect(std::uint32_t uuid);
 
 private:
