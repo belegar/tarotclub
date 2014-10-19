@@ -18,7 +18,7 @@ Users::Users()
  * @param uuid
  * @return
  */
-std::uint32_t Users::PlayerTable(std::uint32_t uuid)
+std::uint32_t Users::GetPlayerTable(std::uint32_t uuid)
 {
    std::lock_guard<std::mutex> lock(mMutex);
    std::uint32_t tableId = 0U;
@@ -29,6 +29,58 @@ std::uint32_t Users::PlayerTable(std::uint32_t uuid)
    }
 
    return tableId;
+}
+/*****************************************************************************/
+// Fixme: change the API, return a bool
+std::int32_t Users::GetSocket(std::uint32_t uuid)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    std::int32_t socket = -1;
+    if (mUsers.find(uuid) != mUsers.end())
+    {
+        socket = mUsers[uuid].socket;
+    }
+    return socket;
+}
+/*****************************************************************************/
+// Fixme: change the API, return a bool
+Identity Users::GetIdentity(std::uint32_t uuid)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    Identity ident;
+    if (mUsers.find(uuid) != mUsers.end())
+    {
+        ident = mUsers[uuid].identity;
+    }
+    return ident;
+}
+/*****************************************************************************/
+std::uint32_t Users::GetUuid(std::int32_t socket)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    std::uint32_t uuid = Protocol::INVALID_UID;
+    for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        if (iter->second.socket == socket)
+        {
+            uuid = iter->first;
+        }
+    }
+    return uuid;
+}
+/*****************************************************************************/
+std::list<std::uint32_t> Users::GetUsersOfTable(std::uint32_t tableId)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    std::list<std::uint32_t> theList;
+    for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        if (iter->second.tableId == tableId)
+        {
+            theList.push_back(iter->second.socket);
+        }
+    }
+    return theList;
 }
 /*****************************************************************************/
 bool Users::IsValid(std::uint32_t uuid, int socket)
@@ -54,107 +106,45 @@ bool Users::IsValid(std::uint32_t uuid, int socket)
  * @param socket
  * @return
  */
-void Users::NewStagingUser(int socket)
+std::uint32_t Users::NewStagingUser(int socket)
 {
     std::lock_guard<std::mutex> lock(mMutex);
-    // Add the player to the list
-    mStaging.push_back(socket);
-}
-/*****************************************************************************/
-void Users::AccessGranted(std::int32_t socket)
-{
-    std::lock_guard<std::mutex> lock(mMutex);
-
     std::uint32_t uuid = mIdManager.TakeId();
     // Add the user to the main users list
     mUsers[uuid].socket = socket;
     mUsers[uuid].tableId = 0U;
+    mUsers[uuid].staging = true;
 
-    if (std::find(mStaging.begin(), mStaging.end(), socket) != mStaging.end())
+    return uuid;
+}
+/*****************************************************************************/
+void Users::AccessGranted(std::uint32_t uuid, const Identity &ident)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+
+    if (mUsers.find(uuid) != mUsers.end())
     {
-        mStaging.erase(std::find(mStaging.begin(), mStaging.end(), socket));
+        mUsers[uuid].staging = false;
+        mUsers[uuid].identity = ident;
     }
     else
     {
-        TLogError("User must be present in staging list");
+        TLogError("User must be present");
     }
 }
 /*****************************************************************************/
-void Users::RemoveUser(int socket)
+void Users::RemoveUser(std::uint32_t uuid)
 {
     std::lock_guard<std::mutex> lock(mMutex);
 
     // Remove it if he belongs to the staging list
-    if (std::find(mStaging.begin(), mStaging.end(), socket) != mStaging.end())
+    if (mUsers.find(uuid) != mUsers.end())
     {
-        mStaging.erase(std::find(mStaging.begin(), mStaging.end(), socket));
+        mUsers.erase(uuid);
     }
-
-    for (std::map<std::uint32_t, std::int32_t>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    else
     {
-        if (iter->second == socket)
-        {
-            mUsers.erase(iter->first);
-            break;
-        }
+        TLogError("Bad UUID");
     }
 }
-/*****************************************************************************/
-/**
- * @brief Table::AddBot
- *
- * Add a bot player to a table. Each bot is a Tcp client that connects to the
- * table immediately.
- *
- * @param p
- * @param ident
- * @param delay
- * @return
- */
-bool Users::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay)
-{
-    std::lock_guard<std::mutex> lock(mBotsMutex);
-    bool ret = false;
 
-    if (mBots.find(p) == mBots.end())
-    {
-        // Place is free (not found), we dynamically add our bot here
-        Bot *bot = new Bot();
-        // Add it to the list (save the pointer to the allocated object)
-        mBots[p] = bot;
-        // Initialize the bot
-        bot->SetIdentity(ident);
-        bot->SetTimeBeforeSend(delay);
-        bot->SetTableToJoin(tableToJoin);
-        bot->Initialize();
-        // Connect the bot to the server
-        bot->ConnectToHost("127.0.0.1", mTcpPort);
-        ret = true;
-    }
-
-    return ret;
-}
-/*****************************************************************************/
-
-// FIXME: how to identity the bot (id? identity? name?)
-bool Users::RemoveBot(Place p)
-{
-    std::lock_guard<std::mutex> lock(mBotsMutex);
-    bool ret = false;
-
-    /*
-
-    std::map<Place, Bot *>::iterator iter = mBots.find(p);
-    if (iter != mBots.end())
-    {
-        // Gracefully close the bot from the server
-        iter->second->Close();
-        // delete the object
-        delete iter->second;
-        // Remove it from the list
-        mBots.erase(iter);
-        ret = true;
-    }
-    */
-    return ret;
-}
