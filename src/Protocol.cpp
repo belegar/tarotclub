@@ -39,13 +39,13 @@ const std::uint32_t Protocol::SYSTEM_UID    = 4U;
 const std::uint32_t Protocol::USERS_UID     = 10U;
 
 // Variables to parse the packet
-static const std::uint16_t HEADER_SIZE      = 8U;
+static const std::uint16_t HEADER_SIZE      = 12U;
 
 // Offsets (in bytes) from the start of one packet
 static const std::uint32_t VERSION_OFFSET   = 2U;
 static const std::uint32_t SRC_UUID_OFFSET  = 3U;
-static const std::uint32_t DEST_UUID_OFFSET = 5U;
-static const std::uint32_t COMMAND_OFFSET   = 7U;
+static const std::uint32_t DEST_UUID_OFFSET = 7U;
+static const std::uint32_t COMMAND_OFFSET   = 11U;
 
 /*****************************************************************************/
 Protocol::Protocol()
