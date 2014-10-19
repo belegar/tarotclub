@@ -122,6 +122,7 @@ bool ServerConfig::Load(const std::string &fileName)
                     }
                 }
 
+                mOptions.tables.clear();
                 std::vector<JsonValue> tables = json.GetArray("tables", JsonValue::STRING);
                 if (tables.size() > 0U)
                 {
