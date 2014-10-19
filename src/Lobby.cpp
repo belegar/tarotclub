@@ -24,26 +24,26 @@
 
 /*****************************************************************************/
 Lobby::Lobby()
-    : mTcpServer(*this)
+    : mTcpPort(ServerConfig::DEFAULT_LOBBY_TCP_PORT)
+    , mTcpServer(*this)
 {
-    saloons[0].name = "Noobs";
-    saloons[1].name = "Normal";
 
-    for (int j = 0; j < SERVER_MAX_SALOONS; j++)
-    {
-        for (int i = 0; i < SERVER_MAX_TABLES; i++)
-        {
-            std::stringstream ss;
-            ss << (i + 1);
-            saloons[j].tables[i].name = "Table " + ss.str();
-        }
-    }
 }
 /*****************************************************************************/
 Lobby::~Lobby()
 {
-    mTcpServer.Close();
+    Stop();
+
+    // Stop before killing clients in case of remaining work items to run
     Protocol::GetInstance().Stop();
+
+    // Kill tables
+    for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    {
+        delete (*iter);
+    }
+
+    // FIXME: kill bots
 }
 /*****************************************************************************/
 void Lobby::Initialize(const ServerOptions &opt)
@@ -54,17 +54,17 @@ void Lobby::Initialize(const ServerOptions &opt)
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
     // Initialize all the tables, starting with the TCP port indicated
-    int tcpPort = opt.table_tcp_port;
-    for (int j = 0; j < SERVER_MAX_SALOONS; j++)
+    mTcpPort = opt.table_tcp_port;
+    for (std::uint32_t i = 0U; i < opt.tables.size(); i++)
     {
-        for (int i = 0; i < SERVER_MAX_TABLES; i++)
-        {
-            saloons[j].tables[i].table.SetTcpPort(tcpPort); // Set the port before starting the TCP server
-            saloons[j].tables[i].table.Initialize(); // Start all threads and TCP sockets
-            saloons[j].tables[i].table.CreateTable(4U);
-            // Each table has a unique port
-            tcpPort++;
-        }
+        std::uint32_t id = i + 1U; // Id zero is not valid (means "no table")
+        std::cout << "Creating table: id=" << id << std::endl;
+        Controller *table = new Controller(*this);
+        table->SetId(id);
+        table->SetName(opt.tables[i]);
+        table->Initialize(); // Start all threads and TCP sockets
+        table->ExecuteRequest(Protocol::SystemCreateTable(4U));
+        mTables.push_back(table);
     }
 
     // Lobby TCP server
@@ -76,9 +76,113 @@ void Lobby::WaitForEnd()
     mTcpServer.Join();
 }
 /*****************************************************************************/
+void Lobby::NewConnection(int socket)
+{
+    std::stringstream ss;
+    ss << "New connection: socket=" << socket << ", IP=" << mTcpServer.GetPeerName(socket) << std::endl;
+    TLogNetwork(ss.str());
+
+    std::uint32_t uuid = mUsers.NewStagingUser(socket);
+
+    TcpSocket peer;
+    peer.SetSocket(socket);
+    peer.Send(Protocol::ServerRequestLogin(uuid).ToSring());
+}
+/*****************************************************************************/
+void Lobby::ReadData(int socket, const std::string &data)
+{
+    ByteArray packet(data);
+    std::uint32_t uuid = Protocol::GetSourceUuid(packet);
+
+    if (mUsers.IsValid(uuid, socket))
+    {
+        // Filter using the socket:
+        //   if the player is playing in a table, forward the data to the controller
+        //   Otherwise, parse it, and treat chat messages only
+        std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
+        if (tableId != 0U)
+        {
+            // forward it to the suitable controller
+            for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+            {
+                if ((*iter)->GetId() == tableId)
+                {
+                    (*iter)->ExecuteRequest(packet);
+                }
+            }
+        }
+        else
+        {
+            // Parse commands by the Lobby
+            ExecuteRequest(packet);
+        }
+    }
+}
+/*****************************************************************************/
+void Lobby::ExecuteRequest(const ByteArray &packet)
+{
+    mQueue.Push(packet); // Add packet to the queue
+    Protocol::GetInstance().Execute(this); // Actually decode the packet
+}
+/*****************************************************************************/
+bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
+{
+    (void) dest_uuid;
+    bool ret = true;
+    ByteStreamReader in(data);
+
+    switch (cmd)
+    {
+        case Protocol::CLIENT_MESSAGE:
+        {
+            std::string message;
+            in >> message;
+
+            message = mUsers.GetIdentity(src_uuid).name + "> " + message;
+            SendData(Protocol::TableChatMessage(message));
+            break;
+        }
+
+        case Protocol::CLIENT_REPLY_LOGIN:
+        {
+            Identity ident;
+            in >> ident;
+
+            mUsers.AccessGranted(src_uuid, ident);
+
+            std::string message = "The player " + ident.name + " has joined the game.";
+            SendData(Protocol::TableChatMessage(message));
+            break;
+        }
+
+    default:
+        TLogNetwork("Lobby received a bad packet");
+        break;
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+ByteArray Lobby::GetPacket()
+{
+    ByteArray data;
+    if (!mQueue.TryPop(data))
+    {
+        TLogError("Lobby: work item called without any data in the queue!");
+    }
+    return data;
+}
+/*****************************************************************************/
 void Lobby::ClientClosed(int socket)
 {
-    (void)socket;
+    std::stringstream ss;
+    std::uint32_t uuid = mUsers.GetUuid(socket);
+
+    ss << "Player " << mUsers.GetIdentity(uuid).name << " has quit the server. UUID: " << uuid << ", socket=" << socket;
+    TLogNetwork(ss.str());
+    mUsers.RemoveUser(uuid);
+
+    // Fixme: remove the player from the table
 }
 /*****************************************************************************/
 void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
@@ -87,32 +191,80 @@ void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
     // FIXME: log an error
 }
 /*****************************************************************************/
-void Lobby::ReadData(int socket, const std::string &data)
+void Lobby::SendData(const ByteArray &block)
+{
+    std::uint32_t src_uuid = Protocol::GetSourceUuid(block);
+
+    std::list<std::uint32_t> peers; // list of users to send the data
+
+    // If the player is connected to a table, send data to the table only
+    std::uint32_t tableId = mUsers.GetPlayerTable(src_uuid);
+    if (tableId != Controller::NO_TABLE)
+    {
+        peers = mUsers.GetUsersOfTable(tableId);
+    }
+
+
+
+    // Otherwise, send the data to the lobby users only
+
+    // Send the data to a(all) peer(s)
+
+    for (std::list<std::uint32_t>::iterator iter = peers.begin(); iter != peers.end(); ++iter)
+    {
+        TcpSocket peer;
+        peer.SetSocket(mUsers.GetSocket(*iter));
+        peer.Send(block.ToSring());
+        std::this_thread::sleep_for(std::chrono::milliseconds(20U));
+    }
+}
+/*****************************************************************************/
+void Lobby::CloseClients()
+{
+    /*
+    std::map<std::uint32_t, std::int32_t>::iterator iter;
+    TcpSocket peer;
+
+    mUsersMutex.lock();
+
+    // Send the data to a(all) peer(s)
+    for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        peer.SetSocket(iter->second);
+        peer.Close();
+    }
+
+    mUsers.clear();
+    mUsersMutex.unlock();
+    */
+}
+/*****************************************************************************/
+void Lobby::Stop()
+{
+    /*
+    CloseClients();
+    mTcpServer.Stop();
+
+    // Close local bots
+    for (std::map<Place, Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    {
+        (iter->second)->Close();
+    }
+    */
+}
+/*****************************************************************************/
+void Lobby::RestApiRequest(int socket, const std::string &data)
 {
     // This slot is called when the client sent data to the server. The
     // server looks if it was a get request and sends a very simple ASCII
 
+    /*
     // Remove trailing \n
     std::string command = data;
     command.pop_back();
 
     std::vector<std::string> tokens = Util::Split(command, ":");
     std::stringstream ss;
-
-    /**
-        std::string request = data.substr(0, 3);
-        if (request == "GET")
-        {
-            std::cout << data << std::endl;
-
-            ss << "HTTP/1.1 101 Switching Protocols"
-               "Upgrade: websocket"
-               "Connection: Upgrade"
-               "Access-Control-Allow-Origin: http://example.com"
-               "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
-               "Sec-WebSocket-Protocol: appProtocol-v2"
-        }
-        */
 
     if (tokens[0] == "GET")
     {
@@ -169,7 +321,6 @@ void Lobby::ReadData(int socket, const std::string &data)
             }
         }
     }
-    TcpSocket sock(socket);
 
     // If there is something to reply, do it
     if (ss.str().size() > 0)
@@ -181,11 +332,61 @@ void Lobby::ReadData(int socket, const std::string &data)
         // Or reply an error
         sock.Send("ERROR");
     }
+    */
 }
 /*****************************************************************************/
-void Lobby::NewConnection(int socket)
+/**
+ * @brief Table::AddBot
+ *
+ * Add a bot player to a table. Each bot is a Tcp client that connects to the
+ * table immediately.
+ *
+ * @param p
+ * @param ident
+ * @param delay
+ * @return
+ */
+bool Lobby::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay)
 {
-    (void)socket;
+    std::lock_guard<std::mutex> lock(mBotsMutex);
+
+    // Place is free (not found), we dynamically add our bot here
+    Bot *bot = new Bot();
+    // Add it to the list (save the pointer to the allocated object)
+    mBots.push_back(bot);
+    // Initialize the bot
+    bot->SetIdentity(ident);
+    bot->SetTimeBeforeSend(delay);
+    bot->SetTableToJoin(tableToJoin);
+    bot->Initialize();
+    // Connect the bot to the server
+    bot->ConnectToHost("127.0.0.1", mTcpPort);
+
+    return true;
+}
+/*****************************************************************************/
+
+// FIXME: how to identity the bot (id? identity? name?)
+bool Lobby::RemoveBot(Place p)
+{
+    std::lock_guard<std::mutex> lock(mBotsMutex);
+    bool ret = false;
+
+    /*
+
+    std::map<Place, Bot *>::iterator iter = mBots.find(p);
+    if (iter != mBots.end())
+    {
+        // Gracefully close the bot from the server
+        iter->second->Close();
+        // delete the object
+        delete iter->second;
+        // Remove it from the list
+        mBots.erase(iter);
+        ret = true;
+    }
+    */
+    return ret;
 }
 
 //=============================================================================
