@@ -58,7 +58,7 @@ void Lobby::Initialize(const ServerOptions &opt)
     for (std::uint32_t i = 0U; i < opt.tables.size(); i++)
     {
         std::uint32_t id = i + 1U; // Id zero is not valid (means "no table")
-        std::cout << "Creating table: id=" << id << std::endl;
+        std::cout << "Creating table " << opt.tables[i] << ": id=" << id << std::endl;
         Controller *table = new Controller(*this);
         table->SetId(id);
         table->SetName(opt.tables[i]);
