@@ -26,6 +26,32 @@
 #include "Lobby.h"
 #include "System.h"
 #include "GetOptions.h"
+#include "mongoose.h"
+
+Lobby *lobbyPtr = NULL;
+
+static int ev_handler(struct mg_connection *conn, enum mg_event ev)
+{
+    int result = MG_FALSE;
+
+    if (ev == MG_REQUEST)
+    {
+        if (strcmp(conn->uri, "/") != 0)
+        {
+            if (lobbyPtr != NULL)
+            {
+                mg_printf_data(conn, "%s", lobbyPtr->ParseUri(conn->uri).c_str());
+                result = MG_TRUE;
+            }
+        }
+    }
+    else if (ev == MG_AUTH)
+    {
+        result = MG_TRUE;
+    }
+
+    return result;
+}
 
 /*****************************************************************************/
 /**
@@ -62,7 +88,34 @@ int main(int argc, char *argv[])
     std::cout << "TarotClub server " << TAROT_VERSION << " is ready." << std::endl;
 
     Lobby lobby;
+    lobbyPtr = &lobby;
     lobby.Initialize(conf.GetOptions());
+
+    // Run the web server on background
+    struct mg_server *server;
+
+    // Create and configure the server
+    server = mg_create_server(NULL, ev_handler);
+    mg_set_option(server, "listening_port", "8080");
+
+#ifdef TAROT_DEBUG
+    static const char* root = "../../assets/html";
+#else
+    static const char* root = "";
+#endif
+    mg_set_option(server, "document_root", root);
+
+    // Serve request. Hit Ctrl-C to terminate the program
+    printf("Starting HTTP server on port %s\n", mg_get_option(server, "listening_port"));
+    for (;;)
+    {
+        mg_poll_server(server, 1000);
+    }
+
+    // Cleanup, and free server instance
+    mg_destroy_server(&server);
+
+    lobby.Stop();
     lobby.WaitForEnd();
 
     return 0;
