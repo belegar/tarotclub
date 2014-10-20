@@ -63,7 +63,7 @@ void Lobby::Initialize(const ServerOptions &opt)
         table->SetId(id);
         table->SetName(opt.tables[i]);
         table->Initialize(); // Start all threads and TCP sockets
-        table->ExecuteRequest(Protocol::SystemCreateTable(4U));
+        table->ExecuteRequest(Protocol::LobbyCreateTable(4U));
         mTables.push_back(table);
     }
 
@@ -86,7 +86,7 @@ void Lobby::NewConnection(int socket)
 
     TcpSocket peer;
     peer.SetSocket(socket);
-    peer.Send(Protocol::ServerRequestLogin(uuid).ToSring());
+    peer.Send(Protocol::LobbyRequestLogin(uuid).ToSring());
 }
 /*****************************************************************************/
 void Lobby::ReadData(int socket, const std::string &data)
@@ -133,27 +133,42 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
 
     switch (cmd)
     {
-        case Protocol::CLIENT_MESSAGE:
+    case Protocol::CLIENT_MESSAGE:
+    {
+        std::string message;
+        in >> message;
+
+        message = mUsers.GetIdentity(src_uuid).name + "> " + message;
+        SendData(Protocol::TableChatMessage(message));
+        break;
+    }
+
+    case Protocol::CLIENT_REPLY_LOGIN:
+    {
+        Identity ident;
+        in >> ident;
+
+        mUsers.AccessGranted(src_uuid, ident);
+
+        std::string message = "The player " + ident.name + " has joined the game.";
+        SendData(Protocol::TableChatMessage(message));
+        break;
+    }
+
+    case Protocol::CLIENT_JOIN_TABLE:
+    {
+        std::uint32_t tableId;
+        in >> tableId;
+        // Forward it to the table controller
+        for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
         {
-            std::string message;
-            in >> message;
-
-            message = mUsers.GetIdentity(src_uuid).name + "> " + message;
-            SendData(Protocol::TableChatMessage(message));
-            break;
+            if ((*iter)->GetId() == tableId)
+            {
+                (*iter)->ExecuteRequest(Protocol::LobbyAddPlayer(src_uuid, mUsers.GetIdentity(src_uuid)));
+            }
         }
-
-        case Protocol::CLIENT_REPLY_LOGIN:
-        {
-            Identity ident;
-            in >> ident;
-
-            mUsers.AccessGranted(src_uuid, ident);
-
-            std::string message = "The player " + ident.name + " has joined the game.";
-            SendData(Protocol::TableChatMessage(message));
-            break;
-        }
+        break;
+    }
 
     default:
         TLogNetwork("Lobby received a bad packet");
@@ -189,6 +204,11 @@ void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
 {
     (void) type;
     // FIXME: log an error
+}
+/*****************************************************************************/
+void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
+{
+    mUsers.SetPlayingTable(uuid, tableId);
 }
 /*****************************************************************************/
 void Lobby::SendData(const ByteArray &block)

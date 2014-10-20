@@ -69,6 +69,16 @@ std::uint32_t Users::GetUuid(std::int32_t socket)
     return uuid;
 }
 /*****************************************************************************/
+void Users::SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+
+    if (mUsers.find(uuid) != mUsers.end())
+    {
+        mUsers[uuid].tableId = tableId;
+    }
+}
+/*****************************************************************************/
 std::list<std::uint32_t> Users::GetUsersOfTable(std::uint32_t tableId)
 {
     std::lock_guard<std::mutex> lock(mMutex);

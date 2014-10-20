@@ -58,7 +58,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
 
     switch (cmd)
     {
-        case Protocol::SYSTEM_QUIT_GAME:
+        case Protocol::LOBBY_QUIT_GAME:
         {
             if (src_uuid == Protocol::SYSTEM_UID)
             {
@@ -73,7 +73,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
             break;
         }
 
-        case Protocol::SYSTEM_CREATE_TABLE:
+        case Protocol::LOBBY_CREATE_TABLE:
         {
             if (src_uuid == Protocol::SYSTEM_UID)
             {
@@ -88,33 +88,40 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
             break;
         }
 
-        case Protocol::CLIENT_JOIN_TABLE:
+        case Protocol::LOBBY_ADD_PLAYER:
         {
+            std::uint32_t uuid;
+            Identity ident;
+            in >> uuid;
+            in >> ident;
             // Look for free Place and assign the uuid to this player
-            Place assigned = engine.AddPlayer(src_uuid);
+            Place assigned = engine.AddPlayer(uuid);
             if (assigned.Value() != Place::NOWHERE)
             {
                 // New player connected, send table information
                 mEventHandler.SendData(Protocol::TableJoinReply(
                                            assigned,
                                            engine.GetNbPlayers(),
-                                           src_uuid));
+                                           uuid));
+
+                // Warn upper layers
+                mEventHandler.AcceptPlayer(uuid, mId);
 
                 // If it is the first player, then it is an admin
                 if (mAdmins.empty())
                 {
-                    mAdmins.push_back(src_uuid);
+                    mAdmins.push_back(uuid);
                 }
             }
             else
             {
                 // Server is full, send an error message
-                mEventHandler.SendData(Protocol::TableFullMessage(src_uuid));
+                mEventHandler.SendData(Protocol::TableFullMessage(uuid));
             }
             break;
         }
 
-        case Protocol::SYSTEM_REMOVE_PLAYER:
+        case Protocol::LOBBY_REMOVE_PLAYER:
         {
             std::uint32_t kicked_player;
             in >> kicked_player;

@@ -308,9 +308,17 @@ ByteArray Protocol::ClientError(std::uint32_t client_uuid)
     return BuildCommand(Protocol::CLIENT_ERROR, client_uuid, SERVER_UID);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientJoinTable(std::uint32_t client_uuid)
+ByteArray Protocol::ClientJoinTable(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_JOIN_TABLE, client_uuid, SERVER_UID);
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::CLIENT_JOIN_TABLE, client_uuid, SERVER_UID);
+    out.Seek(HEADER_SIZE);
+    out << tableId;
+    UpdateHeader(packet);
+
+    return packet;
 }
 /*****************************************************************************/
 // Client does not have yet any UUID, so we use a generic one
@@ -432,7 +440,7 @@ ByteArray Protocol::TableChatMessage(const std::string &message)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::SERVER_CHAT_MESSAGE, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::LOBBY_CHAT_MESSAGE, SERVER_UID, Protocol::ALL_PLAYERS);
     out.Seek(HEADER_SIZE);
     out << message;
     UpdateHeader(packet);
@@ -629,22 +637,22 @@ ByteArray Protocol::TableNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle 
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ServerDisconnect(std::uint32_t uuid)
+ByteArray Protocol::LobbyDisconnect(std::uint32_t uuid)
 {
-    return BuildCommand(Protocol::SERVER_DISCONNECT, SERVER_UID, uuid);
+    return BuildCommand(Protocol::LOBBY_DISCONNECT, SERVER_UID, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::SystemQuitGame()
+ByteArray Protocol::LobbyQuitGame()
 {
-    return BuildCommand(Protocol::SYSTEM_QUIT_GAME, Protocol::SYSTEM_UID, SERVER_UID);
+    return BuildCommand(Protocol::LOBBY_QUIT_GAME, Protocol::SYSTEM_UID, SERVER_UID);
 }
 /*****************************************************************************/
-ByteArray Protocol::SystemRemovePlayer(std::uint32_t player_uuid)
+ByteArray Protocol::LobbyRemovePlayer(std::uint32_t player_uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::SYSTEM_REMOVE_PLAYER, Protocol::SYSTEM_UID, SERVER_UID);
+    BuildHeader(packet, Protocol::LOBBY_REMOVE_PLAYER, Protocol::SYSTEM_UID, SERVER_UID);
     out.Seek(HEADER_SIZE);
     out << player_uuid;
     UpdateHeader(packet);
@@ -652,17 +660,31 @@ ByteArray Protocol::SystemRemovePlayer(std::uint32_t player_uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ServerRequestLogin(std::uint32_t uuid)
-{
-    return BuildCommand(Protocol::SERVER_REQUEST_LOGIN, SERVER_UID, uuid);
-}
-/*****************************************************************************/
-ByteArray Protocol::ServerLoginResult(bool accepted, std::uint32_t uuid)
+ByteArray Protocol::LobbyAddPlayer(std::uint32_t player_uuid, const Identity &ident)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::SERVER_LOGIN_RESULT, SERVER_UID, uuid);
+    BuildHeader(packet, Protocol::LOBBY_ADD_PLAYER, Protocol::SYSTEM_UID, SERVER_UID);
+    out.Seek(HEADER_SIZE);
+    out << player_uuid;
+    out << ident;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::LobbyRequestLogin(std::uint32_t uuid)
+{
+    return BuildCommand(Protocol::LOBBY_REQUEST_LOGIN, SERVER_UID, uuid);
+}
+/*****************************************************************************/
+ByteArray Protocol::LobbyLoginResult(bool accepted, std::uint32_t uuid)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::LOBBY_LOGIN_RESULT, SERVER_UID, uuid);
     out.Seek(HEADER_SIZE);
     out << accepted;                // true if we are accepted to the server
     out << uuid;                    // assigned unique id
@@ -671,12 +693,12 @@ ByteArray Protocol::ServerLoginResult(bool accepted, std::uint32_t uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::SystemCreateTable(std::uint8_t nbPlayers)
+ByteArray Protocol::LobbyCreateTable(std::uint8_t nbPlayers)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::SYSTEM_CREATE_TABLE, Protocol::SYSTEM_UID, SERVER_UID);
+    BuildHeader(packet, Protocol::LOBBY_CREATE_TABLE, Protocol::SYSTEM_UID, SERVER_UID);
     out.Seek(HEADER_SIZE);
     out << nbPlayers; // number of players in the current game
     UpdateHeader(packet);

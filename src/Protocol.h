@@ -81,11 +81,17 @@ public:
         CLIENT_JOIN_TABLE       = 0x21, //!< A user wants to join the table
 
         // server -> client (player)
-        SERVER_CHAT_MESSAGE     = 0x40, //!< chat message broadcasted to all clients
-        SERVER_REQUEST_LOGIN    = 0x41, //!< Server assigns a place to a client and he must reply back the identity
-        SERVER_LOGIN_RESULT     = 0x42,
+        LOBBY_CHAT_MESSAGE     = 0x40, //!< chat message broadcasted to all clients
+        LOBBY_REQUEST_LOGIN    = 0x41, //!< Server assigns a place to a client and he must reply back the identity
+        LOBBY_LOGIN_RESULT     = 0x42,
         // FIXME: Not implemented in the server side
-        SERVER_DISCONNECT       = 0x43, //!< Ask a client to quit the game
+        LOBBY_DISCONNECT       = 0x43, //!< Ask a client to quit the game
+
+        // system -> server
+        LOBBY_CREATE_TABLE     = 0x50, //!< Ask the server to start a new table with N players
+        LOBBY_ADD_PLAYER       = 0x51, //!< Add a player
+        LOBBY_REMOVE_PLAYER    = 0x52, //!< Remove player
+        LOBBY_QUIT_GAME        = 0x53,
 
         // table -> client (player)
         TABLE_JOIN_REPLY        = 0x70, //!< Player join to the table
@@ -108,17 +114,11 @@ public:
         TABLE_END_OF_GAME       = 0x81, //!< end of the game mode (tournament ...)
         TABLE_ERROR_FULL        = 0x82, //!< Server is full, cannot join game
 
-        // system -> server
-        SYSTEM_CREATE_TABLE     = 0xA0, //!< Ask the server to start a new table with N players
-        SYSTEM_REMOVE_PLAYER    = 0xA2, //!< Remove player
-        SYSTEM_QUIT_GAME        = 0xA3,
-
         // admin -> server
         ADMIN_NEW_GAME          = 0xB0, //!< Start a new game with a specified mode
 
         // server -> admin
         ADMIN_GAME_FULL         = 0xC0  //!< Game is full, the admin can start a game
-
     };
 
     class IWorkItem
@@ -168,7 +168,7 @@ public:
     static ByteArray ClientDiscard(const Deck &discard, std::uint32_t client_uuid);
     static ByteArray ClientHandle(const Deck &handle, std::uint32_t client_uuid);
     static ByteArray ClientCard(const std::string &card, std::uint32_t client_uuid);
-    static ByteArray ClientJoinTable(std::uint32_t client_uuid);
+    static ByteArray ClientJoinTable(std::uint32_t client_uuid, std::uint32_t tableId);
 
     // table -> client (player): manage the Tarot game protocol and all the table related stuff
     static ByteArray TableJoinReply(Place p, std::uint8_t nbPlayers, std::uint32_t uuid);
@@ -191,21 +191,22 @@ public:
     static ByteArray TableEndOfDeal(Score &score);
     static ByteArray TableEndOfGame(Place winner);
 
-    // System to controller packets
-    static ByteArray SystemRemovePlayer(std::uint32_t player_uuid);
-    static ByteArray SystemCreateTable(std::uint8_t nbPlayers);
-    static ByteArray SystemQuitGame();
-
     // Admin -> controller
     static ByteArray AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint32_t uuid);
 
     // Controller -> Admin
     static ByteArray AdminGameFull(bool full, std::uint32_t uuid);
 
-    // Server -> client
-    static ByteArray ServerRequestLogin(std::uint32_t uuid);
-    static ByteArray ServerLoginResult(bool accepted, std::uint32_t uuid);
-    static ByteArray ServerDisconnect(std::uint32_t uuid);
+    // Lobby -> client
+    static ByteArray LobbyRequestLogin(std::uint32_t uuid);
+    static ByteArray LobbyLoginResult(bool accepted, std::uint32_t uuid);
+    static ByteArray LobbyDisconnect(std::uint32_t uuid);
+
+    // Lobby -> Controller
+    static ByteArray LobbyAddPlayer(std::uint32_t player_uuid, const Identity &ident);
+    static ByteArray LobbyRemovePlayer(std::uint32_t player_uuid);
+    static ByteArray LobbyCreateTable(std::uint8_t nbPlayers);
+    static ByteArray LobbyQuitGame();
 
 private:
 

@@ -348,7 +348,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         break;
     }
 
-    case Protocol::SERVER_CHAT_MESSAGE:
+    case Protocol::LOBBY_CHAT_MESSAGE:
     {
         std::string message;
         in >> message;
@@ -356,20 +356,20 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         break;
     }
 
-    case Protocol::SERVER_DISCONNECT:
+    case Protocol::LOBBY_DISCONNECT:
     {
         mTcpClient.Close();
         ret = false;
         break;
     }
 
-    case Protocol::SERVER_REQUEST_LOGIN:
+    case Protocol::LOBBY_REQUEST_LOGIN:
     {
         SendIdentity();
         break;
     }
 
-    case Protocol::SERVER_LOGIN_RESULT:
+    case Protocol::LOBBY_LOGIN_RESULT:
     {
         bool accepted;
         std::uint32_t myUuid;
