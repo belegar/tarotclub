@@ -23,8 +23,9 @@
  *=============================================================================
  */
 
-#include "Lobby.h"
 #include "System.h"
+#include "Log.h"
+#include "Bot.h"
 #include "GetOptions.h"
 #include "ClientConfig.h"
 
@@ -46,6 +47,7 @@ int main(int argc, char *argv[])
         std::cout << "\t" << "-f" << "\tSpecifies a JSON client configuration file" << std::endl;
         std::cout << "\t" << "-c" << "\tConnect to the specified server IP address" << std::endl;
         std::cout << "\t" << "-p" << "\tSpecifies the server TCP port number" << std::endl;
+        std::cout << "\t" << "-t" << "\tSpecifies the table number to join" << std::endl;
         return 0;
     }
 
@@ -53,6 +55,20 @@ int main(int argc, char *argv[])
     std::string fileName(GetCmdOption(argv, argv + argc, "-f"));
     std::string address(GetCmdOption(argv, argv + argc, "-c"));
     std::string port(GetCmdOption(argv, argv + argc, "-p"));
+    std::string table(GetCmdOption(argv, argv + argc, "-t"));
+
+    std::cout << "Using configuration file: " << fileName << std::endl;
+
+    std::uint32_t tableId = 1U;
+    if (table.size() > 0)
+    {
+        tableId = std::stoi(table);
+    }
+    else
+    {
+         std::cout << "No table specified, using default one (1)" << std::endl;
+    }
+    std::cout << "Join table ID: " << tableId << std::endl;
 
     ClientConfig conf;
     conf.Load(fileName); // will load default settings if fileName is not valid
@@ -64,6 +80,7 @@ int main(int argc, char *argv[])
 
     Bot bot;
 
+    bot.SetTableToJoin(tableId);
     bot.SetIdentity(conf.GetOptions().identity);
     bot.SetTimeBeforeSend(0U);
     bot.Initialize();

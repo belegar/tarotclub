@@ -93,6 +93,20 @@ std::list<std::uint32_t> Users::GetUsersOfTable(std::uint32_t tableId)
     return theList;
 }
 /*****************************************************************************/
+std::list<std::uint32_t> Users::GetLobbyUsers()
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    std::list<std::uint32_t> theList;
+    for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        if (iter->second.tableId == Protocol::NO_TABLE)
+        {
+            theList.push_back(iter->second.socket);
+        }
+    }
+    return theList;
+}
+/*****************************************************************************/
 bool Users::IsValid(std::uint32_t uuid, int socket)
 {
     std::lock_guard<std::mutex> lock(mMutex);
@@ -128,19 +142,22 @@ std::uint32_t Users::NewStagingUser(int socket)
     return uuid;
 }
 /*****************************************************************************/
-void Users::AccessGranted(std::uint32_t uuid, const Identity &ident)
+bool Users::AccessGranted(std::uint32_t uuid, const Identity &ident)
 {
     std::lock_guard<std::mutex> lock(mMutex);
-
+    bool ret = false;
     if (mUsers.find(uuid) != mUsers.end())
     {
         mUsers[uuid].staging = false;
         mUsers[uuid].identity = ident;
+        ret = true;
     }
     else
     {
         TLogError("User must be present");
     }
+
+    return ret;
 }
 /*****************************************************************************/
 void Users::RemoveUser(std::uint32_t uuid)

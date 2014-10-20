@@ -51,6 +51,7 @@ public:
     static const std::uint32_t  SYSTEM_UID;    //!< System user
 
     static const std::uint32_t  USERS_UID;    //!< Start of users UUID
+    static const std::uint32_t  NO_TABLE;       //!< Identifier for "no table"
 
     struct PacketInfo
     {
@@ -151,7 +152,7 @@ public:
     static std::vector<PacketInfo> DecodePacket(const ByteArray &data);
 
     // Client to server packets
-    static ByteArray ClientReplyLogin(const Identity &ident);
+    static ByteArray ClientReplyLogin(std::uint32_t client_uuid, const Identity &ident);
     static ByteArray ClientChatMessage(const std::string &message, std::uint32_t client_uuid);
     static ByteArray ClientSyncNewGame(std::uint32_t client_uuid);
     static ByteArray ClientError(std::uint32_t client_uuid);

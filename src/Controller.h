@@ -47,8 +47,6 @@ class Controller : public Protocol::IWorkItem
 {
 
 public:
-    static const std::uint32_t NO_TABLE = 0U;
-
     class IEvent
     {
     public:

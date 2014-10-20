@@ -78,11 +78,14 @@ void Lobby::WaitForEnd()
 /*****************************************************************************/
 void Lobby::NewConnection(int socket)
 {
-    std::stringstream ss;
-    ss << "New connection: socket=" << socket << ", IP=" << mTcpServer.GetPeerName(socket) << std::endl;
-    TLogNetwork(ss.str());
-
     std::uint32_t uuid = mUsers.NewStagingUser(socket);
+
+    std::stringstream ss;
+    ss << "New connection: socket=" << socket
+       << ", IP=" << mTcpServer.GetPeerName(socket)
+       << ", UUID=" << uuid
+       << std::endl;
+    TLogNetwork(ss.str());
 
     TcpSocket peer;
     peer.SetSocket(socket);
@@ -148,10 +151,13 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
         Identity ident;
         in >> ident;
 
-        mUsers.AccessGranted(src_uuid, ident);
-
-        std::string message = "The player " + ident.name + " has joined the game.";
-        SendData(Protocol::TableChatMessage(message));
+        if (mUsers.AccessGranted(src_uuid, ident))
+        {
+            SendData(Protocol::LobbyLoginResult(true, src_uuid));
+            std::string message = "The player " + ident.name + " has joined the game.";
+            TLogNetwork(message);
+            SendData(Protocol::TableChatMessage(message));
+        }
         break;
     }
 
@@ -208,28 +214,36 @@ void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
 /*****************************************************************************/
 void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
 {
+    std::stringstream ss;
+    ss << "Player " << mUsers.GetIdentity(uuid).name << "is entering on table: " << tableId;
+    TLogNetwork(ss.str());
     mUsers.SetPlayingTable(uuid, tableId);
 }
 /*****************************************************************************/
 void Lobby::SendData(const ByteArray &block)
 {
-    std::uint32_t src_uuid = Protocol::GetSourceUuid(block);
+    std::uint32_t dest_uuid = Protocol::GetDestUuid(block);
 
     std::list<std::uint32_t> peers; // list of users to send the data
 
-    // If the player is connected to a table, send data to the table only
-    std::uint32_t tableId = mUsers.GetPlayerTable(src_uuid);
-    if (tableId != Controller::NO_TABLE)
+    std::uint32_t tableId = mUsers.GetPlayerTable(dest_uuid);
+    if (tableId != Protocol::NO_TABLE)
     {
+        // If the player is connected to a table, send data to the table players only
         peers = mUsers.GetUsersOfTable(tableId);
     }
-
-
-
-    // Otherwise, send the data to the lobby users only
+    else if (dest_uuid == Protocol::ALL_PLAYERS)
+    {
+        // Otherwise, send the data to the lobby users only
+        peers = mUsers.GetLobbyUsers();
+    }
+    else
+    {
+        // Only send the data to one connected client
+        peers.push_back(dest_uuid);
+    }
 
     // Send the data to a(all) peer(s)
-
     for (std::list<std::uint32_t>::iterator iter = peers.begin(); iter != peers.end(); ++iter)
     {
         TcpSocket peer;

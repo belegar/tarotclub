@@ -34,11 +34,6 @@
 #include "Common.h"
 #include "Identity.h"
 
-// default values
-
-
-
-
 struct ClientOptions
 {
     std::string     deckFilePath;
@@ -56,6 +51,7 @@ struct ClientOptions
 class ClientConfig
 {
 public:
+    // default values
     static const bool           AVATARS_DEF                 = true;
     static const std::uint16_t  CLIENT_TIMER_DEF            = 1500U;
     static const std::string    DEFAULT_CLIENT_CONFIG_FILE;

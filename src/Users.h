@@ -21,7 +21,7 @@ public:
     // Players management
     bool IsValid(std::uint32_t uuid, int socket);
     std::uint32_t NewStagingUser(int socket);
-    void AccessGranted(std::uint32_t uuid, const Identity &ident);
+    bool AccessGranted(std::uint32_t uuid, const Identity &ident);
     void RemoveUser(std::uint32_t uuid);
     std::uint32_t GetPlayerTable(std::uint32_t uuid);
     std::int32_t GetSocket(std::uint32_t uuid);
@@ -32,7 +32,7 @@ public:
 
     // Get some lists of specific group
     std::list<std::uint32_t> GetUsersOfTable(std::uint32_t tableId);
-
+    std::list<std::uint32_t> GetLobbyUsers();
 private:
     UniqueId mIdManager;
     std::mutex mMutex;

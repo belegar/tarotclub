@@ -33,10 +33,10 @@ const std::uint8_t  Protocol::VERSION       = 1U;
 const std::uint32_t Protocol::INVALID_UID   = 0U;
 const std::uint32_t Protocol::ALL_PLAYERS   = 1U;
 const std::uint32_t Protocol::SERVER_UID    = 2U;
-const std::uint32_t Protocol::STAGING_UID   = 3U;
-const std::uint32_t Protocol::SYSTEM_UID    = 4U;
+const std::uint32_t Protocol::SYSTEM_UID    = 3U;
 
 const std::uint32_t Protocol::USERS_UID     = 10U;
+const std::uint32_t Protocol::NO_TABLE      = 0U;
 
 // Variables to parse the packet
 static const std::uint16_t HEADER_SIZE      = 12U;
@@ -322,12 +322,12 @@ ByteArray Protocol::ClientJoinTable(std::uint32_t client_uuid, std::uint32_t tab
 }
 /*****************************************************************************/
 // Client does not have yet any UUID, so we use a generic one
-ByteArray Protocol::ClientReplyLogin(const Identity &ident)
+ByteArray Protocol::ClientReplyLogin(std::uint32_t client_uuid, const Identity &ident)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::CLIENT_REPLY_LOGIN, STAGING_UID, SERVER_UID);
+    BuildHeader(packet, Protocol::CLIENT_REPLY_LOGIN, client_uuid, SERVER_UID);
     out.Seek(HEADER_SIZE);
     out << ident;
     UpdateHeader(packet);
@@ -676,7 +676,15 @@ ByteArray Protocol::LobbyAddPlayer(std::uint32_t player_uuid, const Identity &id
 /*****************************************************************************/
 ByteArray Protocol::LobbyRequestLogin(std::uint32_t uuid)
 {
-    return BuildCommand(Protocol::LOBBY_REQUEST_LOGIN, SERVER_UID, uuid);
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::LOBBY_REQUEST_LOGIN, SERVER_UID, uuid);
+    out.Seek(HEADER_SIZE);
+    out << uuid;                    // assigned unique id
+    UpdateHeader(packet);
+
+    return packet;
 }
 /*****************************************************************************/
 ByteArray Protocol::LobbyLoginResult(bool accepted, std::uint32_t uuid)
@@ -687,7 +695,6 @@ ByteArray Protocol::LobbyLoginResult(bool accepted, std::uint32_t uuid)
     BuildHeader(packet, Protocol::LOBBY_LOGIN_RESULT, SERVER_UID, uuid);
     out.Seek(HEADER_SIZE);
     out << accepted;                // true if we are accepted to the server
-    out << uuid;                    // assigned unique id
     UpdateHeader(packet);
 
     return packet;

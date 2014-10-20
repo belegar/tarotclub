@@ -365,6 +365,9 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
     case Protocol::LOBBY_REQUEST_LOGIN:
     {
+        std::uint32_t myUuid;
+        in >> myUuid;
+        mPlayer.SetUuid(myUuid);
         SendIdentity();
         break;
     }
@@ -372,10 +375,15 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     case Protocol::LOBBY_LOGIN_RESULT:
     {
         bool accepted;
-        std::uint32_t myUuid;
         in >> accepted;
-        in >> myUuid;
-        mPlayer.SetUuid(myUuid);
+        if (accepted)
+        {
+            mEventHandler.EnteredLobby();
+        }
+        else
+        {
+            TLogError("Lobby has rejected the login.");
+        }
         break;
     }
 
@@ -605,9 +613,15 @@ void Client::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffl
     SendPacket(packet);
 }
 /*****************************************************************************/
+void Client::SendJoinTable(std::uint32_t tableId)
+{
+    ByteArray packet = Protocol::ClientJoinTable(mPlayer.GetUuid(), tableId);
+    SendPacket(packet);
+}
+/*****************************************************************************/
 void Client::SendIdentity()
 {
-    ByteArray packet = Protocol::ClientReplyLogin(mIdentity);
+    ByteArray packet = Protocol::ClientReplyLogin(mPlayer.GetUuid(), mIdentity);
     SendPacket(packet);
 }
 /*****************************************************************************/

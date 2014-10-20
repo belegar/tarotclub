@@ -63,6 +63,7 @@ public:
     class IEvent
     {
     public:
+        virtual void EnteredLobby() = 0;
         virtual void AdminGameFull() = 0;
         virtual void Message(const std::string &message) = 0;
         virtual void AssignedPlace() = 0;
@@ -143,6 +144,7 @@ public:
 
     // Protocol methods
     void AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
+    void SendJoinTable(std::uint32_t tableId);
     void SendBid(Contract c, bool slam);
     void SendSyncDog();
     void SendDiscard(const Deck &discard);
