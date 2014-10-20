@@ -369,6 +369,26 @@ void Lobby::RestApiRequest(int socket, const std::string &data)
     */
 }
 /*****************************************************************************/
+std::string Lobby::ParseUri(const std::string &uri)
+{
+    std::string reply;
+    if (uri == "/tables")
+    {
+        for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+        {
+            if (iter != mTables.begin())
+            {
+                reply += ",";
+            }
+            std::stringstream ss;
+            ss << (*iter)->GetName() << "(" << (*iter)->GetId() << ")";
+            reply += ss.str();
+        }
+    }
+
+    return reply;
+}
+/*****************************************************************************/
 /**
  * @brief Table::AddBot
  *
