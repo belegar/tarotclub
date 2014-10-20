@@ -47,9 +47,12 @@ class Controller : public Protocol::IWorkItem
 {
 
 public:
+    static const std::uint32_t NO_TABLE = 0U;
+
     class IEvent
     {
     public:
+        virtual void AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId) = 0;
         virtual void SendData(const ByteArray &block) = 0;
     };
 
