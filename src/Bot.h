@@ -46,17 +46,19 @@ public:
     {
         mClient.Close();
     }
-
+    void SetTableToJoin(std::uint32_t table) { mTableToJoin = table; }
     bool IsConnected() { return mClient.IsConnected(); }
 
 private:
     Client  mClient;
     std::uint16_t  mTimeBeforeSend;
     JSEngine mBotEngine;
+    std::uint32_t mTableToJoin;
 
     bool InitializeScriptContext();
 
     // Client events
+    virtual void EnteredLobby();
     virtual void AdminGameFull();
     virtual void Message(const std::string &message);
     virtual void AssignedPlace();

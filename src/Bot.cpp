@@ -34,6 +34,7 @@
 Bot::Bot()
     : mClient(*this)
     , mTimeBeforeSend(0U)
+    , mTableToJoin(0U)
 {
 
 }
@@ -453,6 +454,12 @@ bool Bot::InitializeScriptContext()
     }
 
     return retCode;
+}
+/*****************************************************************************/
+void Bot::EnteredLobby()
+{
+    // As soon as we have entered into the lobby, join the assigned table
+    mClient.SendJoinTable(mTableToJoin);
 }
 /*****************************************************************************/
 void Bot::AdminGameFull()
