@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
         // No specific configuration file, try to open the default one
         fileName = System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE;
     }
+    std::cout << "Using configuration file: " << fileName << std::endl;
     ServerConfig conf;
     conf.Load(fileName);
 
