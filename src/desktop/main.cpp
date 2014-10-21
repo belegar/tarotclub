@@ -47,6 +47,20 @@ QString GetLocale()
     return conf.GetLocale().c_str();
 }
 /*****************************************************************************/
+#ifdef TAROT_DEBUG
+/**
+ * The following code overwrite the library function "abort" and voluntary
+ * generates an exception. In that case, it could be possible to backtrace
+ * where the initial exception occured.
+ */
+extern "C" void __cdecl abort (void)
+{
+    volatile int a = 0;
+    a = 1/a;
+    for(;;);
+}
+#endif
+/*****************************************************************************/
 /**
  * Entry point of the game
  */
