@@ -47,6 +47,7 @@ public:
         mClient.Close();
     }
     void SetTableToJoin(std::uint32_t table) { mTableToJoin = table; }
+    std::uint32_t GetUuid() { return mClient.GetUuid(); }
     bool IsConnected() { return mClient.IsConnected(); }
 
 private:

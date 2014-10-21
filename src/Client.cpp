@@ -307,16 +307,17 @@ void Client::Run()
                 else if (ret == 0)
                 {
                     mConnected = false;
-                    TLogInfo("Lost connection! Place: " + mPlace.ToString());
+                    TLogNetwork("Lost connection! Place: " + mPlace.ToString());
                 }
                 else
                 {
                     // Error!
                     mConnected = false;
-                    TLogError("Rev() socket read error.");
+                    TLogNetwork("Rev() socket read error.");
                     mTcpClient.Close();
                 }
             }
+            mPlayer.SetUuid(Protocol::INVALID_UID);
         }
         else if (cmd == EXIT)
         {

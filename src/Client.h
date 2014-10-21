@@ -131,6 +131,7 @@ public:
     {
         return mShuffle;
     }
+    std::uint32_t GetUuid() { return mPlayer.GetUuid(); }
 
     // Setters
     void SetMyIdentity(const Identity &ident);
