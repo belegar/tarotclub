@@ -202,9 +202,10 @@ HEADERS += ServerConfig.h \
     Score.h \
     Protocol.h \
     Controller.h \
-    Table.h \
+    Lobby.h \
     Common.h \
-    Defines.h
+    Defines.h \
+    Users.h
 
 SOURCES += ServerConfig.cpp \
     ClientConfig.cpp \
@@ -218,9 +219,10 @@ SOURCES += ServerConfig.cpp \
     Deal.cpp \
     Protocol.cpp \
     Controller.cpp \
-    Table.cpp \
+    Lobby.cpp \
     Score.cpp \
-    Common.cpp
+    Common.cpp \
+    Users.cpp
 
 # ------------------------------------------------------------------------------
 # Gfx library files
