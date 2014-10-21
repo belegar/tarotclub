@@ -85,8 +85,6 @@ int main(int argc, char *argv[])
     System::Initialize();
     Log::SetLogPath(System::LogPath());
 
-    std::cout << "TarotClub server " << TAROT_VERSION << " is ready." << std::endl;
-
     Lobby lobby;
     lobbyPtr = &lobby;
     lobby.Initialize(conf.GetOptions());
@@ -107,6 +105,8 @@ int main(int argc, char *argv[])
 
     // Serve request. Hit Ctrl-C to terminate the program
     printf("Starting HTTP server on port %s\n", mg_get_option(server, "listening_port"));
+    std::cout << "TarotClub dedicated server " << TAROT_VERSION << " is ready." << std::endl;
+
     for (;;)
     {
         mg_poll_server(server, 1000);
