@@ -43,7 +43,11 @@ Lobby::~Lobby()
         delete (*iter);
     }
 
-    // FIXME: kill bots
+    // Kill bots
+    for (std::list<Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    {
+        delete (*iter);
+    }
 }
 /*****************************************************************************/
 void Lobby::Initialize(const ServerOptions &opt)
@@ -54,7 +58,7 @@ void Lobby::Initialize(const ServerOptions &opt)
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
     // Initialize all the tables, starting with the TCP port indicated
-    mTcpPort = opt.table_tcp_port;
+    mTcpPort = opt.lobby_tcp_port;
     for (std::uint32_t i = 0U; i < opt.tables.size(); i++)
     {
         std::uint32_t id = i + 1U; // Id zero is not valid (means "no table")
@@ -83,8 +87,7 @@ void Lobby::NewConnection(int socket)
     std::stringstream ss;
     ss << "New connection: socket=" << socket
        << ", IP=" << mTcpServer.GetPeerName(socket)
-       << ", UUID=" << uuid
-       << std::endl;
+       << ", UUID=" << uuid;
     TLogNetwork(ss.str());
 
     TcpSocket peer;
@@ -215,7 +218,7 @@ void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
 void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
 {
     std::stringstream ss;
-    ss << "Player " << mUsers.GetIdentity(uuid).name << "is entering on table: " << tableId;
+    ss << "Player " << mUsers.GetIdentity(uuid).name << " is entering on table: " << tableId;
     TLogNetwork(ss.str());
     mUsers.SetPlayingTable(uuid, tableId);
 }
@@ -253,120 +256,16 @@ void Lobby::SendData(const ByteArray &block)
     }
 }
 /*****************************************************************************/
-void Lobby::CloseClients()
-{
-    /*
-    std::map<std::uint32_t, std::int32_t>::iterator iter;
-    TcpSocket peer;
-
-    mUsersMutex.lock();
-
-    // Send the data to a(all) peer(s)
-    for (iter = mUsers.begin(); iter != mUsers.end(); ++iter)
-    {
-        peer.SetSocket(iter->second);
-        peer.Close();
-    }
-
-    mUsers.clear();
-    mUsersMutex.unlock();
-    */
-}
-/*****************************************************************************/
 void Lobby::Stop()
 {
-    /*
-    CloseClients();
+    mUsers.CloseClients();
     mTcpServer.Stop();
 
     // Close local bots
-    for (std::map<Place, Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    for (std::list<Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
     {
-        (iter->second)->Close();
+        (*iter)->Close();
     }
-    */
-}
-/*****************************************************************************/
-void Lobby::RestApiRequest(int socket, const std::string &data)
-{
-    // This slot is called when the client sent data to the server. The
-    // server looks if it was a get request and sends a very simple ASCII
-
-    /*
-    // Remove trailing \n
-    std::string command = data;
-    command.pop_back();
-
-    std::vector<std::string> tokens = Util::Split(command, ":");
-    std::stringstream ss;
-
-    if (tokens[0] == "GET")
-    {
-        if (tokens[1] == "INFOS")
-        {
-            std::vector<std::string> list;
-
-            for (int i = 0; i < SERVER_MAX_SALOONS; i++)
-            {
-                list.push_back(saloons[i].name);
-            }
-
-            ss << "SALOON:";
-            ss << Util::Join(list, ",");
-            ss << "\n";
-        }
-        else if (tokens[1] == "TABLES")
-        {
-            std::vector<std::string> list;
-
-            for (int i = 0; i < SERVER_MAX_SALOONS; i++)
-            {
-                if (saloons[i].name == tokens[2])
-                {
-                    for (int j = 0; j < SERVER_MAX_TABLES; j++)
-                    {
-                        list.push_back(saloons[i].tables[j].name);
-                    }
-                }
-            }
-
-            ss << "TABLES:";
-            ss << Util::Join(list, ",");
-            ss << "\n";
-        }
-        else if (tokens[1] == "PORT")
-        {
-            std::vector<std::string> param = Util::Split(tokens[2], ",");
-
-            for (int i = 0; i < SERVER_MAX_SALOONS; i++)
-            {
-                if (saloons[i].name == param[0])
-                {
-                    for (int j = 0; j < SERVER_MAX_TABLES; j++)
-                    {
-                        if (saloons[i].tables[j].name == param[1])
-                        {
-                            ss << "PORT:";
-                            ss << saloons[i].tables[j].table.GetTcpPort();
-                            ss << "\n";
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // If there is something to reply, do it
-    if (ss.str().size() > 0)
-    {
-        sock.Send(ss.str());
-    }
-    else
-    {
-        // Or reply an error
-        sock.Send("ERROR");
-    }
-    */
 }
 /*****************************************************************************/
 std::string Lobby::ParseUri(const std::string &uri)
@@ -417,6 +316,30 @@ bool Lobby::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16
     bot->ConnectToHost("127.0.0.1", mTcpPort);
 
     return true;
+}
+/*****************************************************************************/
+std::uint32_t Lobby::GetNumberOfBots(std::uint32_t tableId)
+{
+    std::lock_guard<std::mutex> lock(mBotsMutex);
+    std::uint32_t counter = 0U;
+    std::list<std::uint32_t> bots;
+
+    // Look for connected bots
+    for (std::list<Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    {
+        bots.push_back((*iter)->GetUuid());
+    }
+
+    // Look for connected bots that are playing
+    for (std::list<std::uint32_t>::iterator iter = bots.begin(); iter != bots.end(); ++iter)
+    {
+        if (mUsers.GetPlayerTable(*iter) == tableId)
+        {
+            counter++;
+        }
+    }
+
+    return counter;
 }
 /*****************************************************************************/
 

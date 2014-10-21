@@ -40,12 +40,12 @@ public:
     void Stop();
     void WaitForEnd();
 
-    // HTTP / Console API
-    void RestApiRequest(int socket, const std::string &data);
+    // HTTP / REST API
     std::string ParseUri(const std::string &uri);
 
     // Bots management
     bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay);
+    std::uint32_t GetNumberOfBots(std::uint32_t tableId);
     bool RemoveBot(Place p);
 
     void CloseClients();
