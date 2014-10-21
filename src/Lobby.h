@@ -30,9 +30,6 @@ class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Contr
 {
 
 public:
-    static const std::uint32_t DEFAULT_TABLES   = 1U;
-    static const std::uint32_t DEFAULT_ROOMS  = 1U;
-
     Lobby();
     ~Lobby();
 
