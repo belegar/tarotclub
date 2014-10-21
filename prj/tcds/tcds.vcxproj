@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)/../../src;$(SolutionDir)/../../src/library;$(SolutionDir)/../../src/json;$(SolutionDir)/../../src/jsengine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/../../src;$(SolutionDir)/../../src/library;$(SolutionDir)/../../src/json;$(SolutionDir)/../../src/jsengine;$(SolutionDir)/../../src/http;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -91,9 +91,9 @@
     <ClCompile Include="..\..\src\Deal.cpp" />
     <ClCompile Include="..\..\src\DealFile.cpp" />
     <ClCompile Include="..\..\src\Deck.cpp" />
+    <ClCompile Include="..\..\src\http\mongoose.c" />
     <ClCompile Include="..\..\src\jsengine\duktape.c" />
     <ClCompile Include="..\..\src\jsengine\JSEngine.cpp" />
-    <ClCompile Include="..\..\src\jsengine\JSValue.cpp" />
     <ClCompile Include="..\..\src\json\JsonReader.cpp" />
     <ClCompile Include="..\..\src\json\JsonValue.cpp" />
     <ClCompile Include="..\..\src\json\JsonWriter.cpp" />
@@ -106,16 +106,16 @@
     <ClCompile Include="..\..\src\library\TcpSocket.cpp" />
     <ClCompile Include="..\..\src\library\UniqueId.cpp" />
     <ClCompile Include="..\..\src\library\Util.cpp" />
+    <ClCompile Include="..\..\src\library\Value.cpp" />
     <ClCompile Include="..\..\src\Lobby.cpp" />
     <ClCompile Include="..\..\src\Player.cpp" />
     <ClCompile Include="..\..\src\Protocol.cpp" />
     <ClCompile Include="..\..\src\Score.cpp" />
     <ClCompile Include="..\..\src\ServerConfig.cpp" />
     <ClCompile Include="..\..\src\System.cpp" />
-    <ClCompile Include="..\..\src\Table.cpp" />
-    <ClCompile Include="..\..\src\TarotDeck.cpp" />
     <ClCompile Include="..\..\src\TarotEngine.cpp" />
     <ClCompile Include="..\..\src\tcds\main.cpp" />
+    <ClCompile Include="..\..\src\Users.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Bot.h" />
@@ -131,7 +131,6 @@
     <ClInclude Include="..\..\src\jsengine\duktape.h" />
     <ClInclude Include="..\..\src\jsengine\IScriptEngine.h" />
     <ClInclude Include="..\..\src\jsengine\JSEngine.h" />
-    <ClInclude Include="..\..\src\jsengine\JSValue.h" />
     <ClInclude Include="..\..\src\json\JsonReader.h" />
     <ClInclude Include="..\..\src\json\JsonValue.h" />
     <ClInclude Include="..\..\src\json\JsonWriter.h" />
@@ -146,15 +145,15 @@
     <ClInclude Include="..\..\src\library\ThreadQueue.h" />
     <ClInclude Include="..\..\src\library\UniqueId.h" />
     <ClInclude Include="..\..\src\library\Util.h" />
+    <ClInclude Include="..\..\src\library\Value.h" />
     <ClInclude Include="..\..\src\Lobby.h" />
     <ClInclude Include="..\..\src\Player.h" />
     <ClInclude Include="..\..\src\Protocol.h" />
     <ClInclude Include="..\..\src\Score.h" />
     <ClInclude Include="..\..\src\ServerConfig.h" />
     <ClInclude Include="..\..\src\System.h" />
-    <ClInclude Include="..\..\src\Table.h" />
-    <ClInclude Include="..\..\src\TarotDeck.h" />
     <ClInclude Include="..\..\src\TarotEngine.h" />
+    <ClInclude Include="..\..\src\Users.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
