@@ -117,7 +117,7 @@ std::string TcpServer::GetPeerName(int s)
     char ipv6str[INET6_ADDRSTRLEN];
     std::memset(ipv6str, 0, INET6_ADDRSTRLEN);
     char *ipstr = ipv6str;
-    int port;
+    int port = 0;
 
     len = sizeof(addr);
     getpeername(s, (struct sockaddr*)&addr, &len);
