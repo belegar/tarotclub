@@ -1,6 +1,7 @@
 #include "Users.h"
 #include "Log.h"
 #include "Protocol.h"
+#include "TcpSocket.h"
 
 static const std::uint32_t MAXIMUM_USERS    = 1000U;
 
@@ -87,7 +88,7 @@ std::list<std::uint32_t> Users::GetUsersOfTable(std::uint32_t tableId)
     {
         if (iter->second.tableId == tableId)
         {
-            theList.push_back(iter->second.socket);
+            theList.push_back(iter->first);
         }
     }
     return theList;
@@ -101,10 +102,23 @@ std::list<std::uint32_t> Users::GetLobbyUsers()
     {
         if (iter->second.tableId == Protocol::NO_TABLE)
         {
-            theList.push_back(iter->second.socket);
+            theList.push_back(iter->first);
         }
     }
     return theList;
+}
+/*****************************************************************************/
+void Users::CloseClients()
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    TcpSocket peer;
+
+    for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        peer.SetSocket(iter->second.socket);
+        peer.Close();
+    }
+    mUsers.clear();
 }
 /*****************************************************************************/
 bool Users::IsValid(std::uint32_t uuid, int socket)

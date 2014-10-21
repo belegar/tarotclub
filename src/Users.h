@@ -33,6 +33,10 @@ public:
     // Get some lists of specific group
     std::list<std::uint32_t> GetUsersOfTable(std::uint32_t tableId);
     std::list<std::uint32_t> GetLobbyUsers();
+
+
+    void CloseClients();
+
 private:
     UniqueId mIdManager;
     std::mutex mMutex;
