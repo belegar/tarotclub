@@ -189,13 +189,6 @@ void MainWindow::Initialize()
     QSettings settings("TarotCorp.", "TarotClub");
     restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
     restoreState(settings.value("mainWindowState").toByteArray());
-
-
-
-    //  tarot.resize(1280, 770);
-    //  QRect r = tarot.geometry();
-    //   r.moveCenter(QApplication::desktop()->availableGeometry().center());
-    //   tarot.setGeometry(r);
 }
 /*****************************************************************************/
 void MainWindow::SetupDialogs()

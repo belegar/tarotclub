@@ -38,15 +38,7 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
     ui.ipAddress->setText("127.0.0.1");
 #endif
 
-    connect(ui.roomList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(slotRoomSelected(QListWidgetItem *)));
     connect(ui.tableList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(slotTableSelected(QListWidgetItem *)));
-
-    // socket events
-    connect(&socket, SIGNAL(readyRead()), this, SLOT(socketReadData()));
-    connect(&socket, SIGNAL(disconnected()), this, SLOT(socketClosed()));
-    connect(&socket, SIGNAL(connected()), this, SLOT(socketConnected()));
-    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)));
-    connect(&socket, SIGNAL(hostFound()), this, SLOT(socketHostFound()));
 
     connect(ui.connectButton, &QPushButton::clicked, this, &LobbyWindow::slotConnect);
     connect(ui.joinButton, &QPushButton::clicked, this, &LobbyWindow::slotJoin);
@@ -58,25 +50,17 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
 void LobbyWindow::slotRoomSelected(QListWidgetItem *item)
 {
     selectedTable.isValid = false;
-    // get list of tables in this room
-    QTextStream os(&socket);
-    os << "GET:TABLES:" << item->text() << "\n";
-    os.flush();
+
 }
 /*****************************************************************************/
 void LobbyWindow::slotTableSelected(QListWidgetItem *item)
 {
     selectedTable.isValid = false;
-    // get the tcp/ip port of this table
-    QTextStream os(&socket);
-    os << "GET:PORT:" << ui.roomList->selectedItems().at(0)->text() << "," << item->text() << "\n";
-    os.flush();
+
 }
 /*****************************************************************************/
 void LobbyWindow::slotConnect()
 {
-    socket.close();
-    socket.connectToHost(ui.ipAddress->text(), ui.portNumber->value());
     selectedTable.isValid = false;
 }
 /*****************************************************************************/
@@ -87,13 +71,11 @@ LobbyWindow::Connection LobbyWindow::GetTableConnection()
 /*****************************************************************************/
 void LobbyWindow::slotJoin()
 {
-    socket.close();
     this->accept();
 }
 /*****************************************************************************/
 void LobbyWindow::slotClose()
 {
-    socket.close();
     this->reject();
 }
 /*****************************************************************************/
@@ -103,41 +85,10 @@ void LobbyWindow::Initialize()
     QString txt = trUtf8("Not connected.");
     ui.infoLabel->setText(txt);
     ui.tableList->clear();
-    ui.roomList->clear();
 }
 /*****************************************************************************/
 void LobbyWindow::socketReadData()
 {
-    QTcpSocket *s = (QTcpSocket *)sender();
-    if (s->canReadLine())
-    {
-        QString line = s->readLine();
-        // remove new line character
-        line.remove('\n');
-        QStringList tokens = line.split(':', QString::SkipEmptyParts, Qt::CaseSensitive);
-
-        if (tokens.size() == 2)
-        {
-            if (tokens[0] == "SALOON")
-            {
-                QStringList list = tokens[1].split(',');
-                ui.roomList->clear();
-                ui.roomList->addItems(list);
-            }
-            else if (tokens[0] == "TABLES")
-            {
-                QStringList list = tokens[1].split(',');
-                ui.tableList->clear();
-                ui.tableList->addItems(list);
-            }
-            else if (tokens[0] == "PORT")
-            {
-                selectedTable.port = tokens[1].toUInt();
-                selectedTable.ip = ui.ipAddress->text();
-                selectedTable.isValid = true;
-            }
-        }
-    }
 }
 /*****************************************************************************/
 void LobbyWindow::socketConnected()
@@ -145,10 +96,6 @@ void LobbyWindow::socketConnected()
     QString txt = trUtf8("Connected to the server.");
     ui.infoLabel->setText(txt);
 
-    // get list of playing rooms
-    QTextStream os(&socket);
-    os << "GET:INFOS\n";
-    os.flush();
 }
 /*****************************************************************************/
 void LobbyWindow::socketHostFound()

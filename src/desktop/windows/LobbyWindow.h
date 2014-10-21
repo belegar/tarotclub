@@ -66,7 +66,6 @@ public slots:
 private:
     Ui::LobbyUI  ui;
 
-    QTcpSocket  socket;
     Connection  selectedTable;
 };
 
