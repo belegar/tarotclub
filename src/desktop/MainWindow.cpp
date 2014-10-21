@@ -179,7 +179,7 @@ void MainWindow::Initialize()
     mClientConfig.Load(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
     mServerConfig.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
 
-    tarotWidget->Initialize();
+    tarotWidget->Initialize(mServerConfig.GetOptions());
     tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
                               mServerConfig.GetOptions());
 
