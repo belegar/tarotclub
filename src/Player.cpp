@@ -24,10 +24,11 @@
  */
 
 #include "Player.h"
+#include "Protocol.h"
 
 /*****************************************************************************/
 Player::Player()
-    : mUuid(0U)
+    : mUuid(Protocol::INVALID_UID)
     , mAck(false)
 {
 
