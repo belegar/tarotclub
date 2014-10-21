@@ -85,16 +85,26 @@ TarotWidget::TarotWidget(QWidget *parent)
     connect(this, &TarotWidget::sigShowHandle, this, &TarotWidget::slotShowHandle, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigWaitTrick, this, &TarotWidget::slotWaitTrick, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigGameFull, this, &TarotWidget::slotStartGame, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigAutoJoinTable, this, &TarotWidget::slotAutoJoinTable, Qt::QueuedConnection);
+
 }
 /*****************************************************************************/
 /**
  * @brief One time game initialization
  */
-void TarotWidget::Initialize()
+void TarotWidget::Initialize(const ServerOptions &opt)
 {
     Protocol::GetInstance().Initialize();
 
-    mTable.Initialize();
+    // Ensure that we only have one table (embedded lobby, not the dedicated one!)
+    ServerOptions defaultOpt = opt;
+    if (defaultOpt.tables.size() != 1)
+    {
+        defaultOpt.tables.clear();
+        defaultOpt.tables.push_back("Default");
+    }
+
+    mLobby.Initialize(defaultOpt);
     mClient.Initialize();
     mCanvas->Initialize();
     mCanvas->SetFilter(Canvas::MENU);
@@ -108,7 +118,7 @@ void TarotWidget::slotCleanBeforeExit()
 {
     // Close ourself
     mClient.Close();
-    mTable.Stop();
+    mLobby.Stop();
 }
 /*****************************************************************************/
 void TarotWidget::slotNewTournamentGame()
@@ -132,9 +142,8 @@ void TarotWidget::slotCreateNetworkGame()
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
-    mTable.CreateTable(4U);
     // Connect us to the server
-    mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_TABLE_TCP_PORT);
+    mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_LOBBY_TCP_PORT);
 }
 /*****************************************************************************/
 bool TarotWidget::HasLocalConnection()
@@ -147,6 +156,33 @@ bool TarotWidget::HasLocalConnection()
     else
     {
         return false;
+    }
+}
+/*****************************************************************************/
+void TarotWidget::slotAutoJoinTable()
+{
+    if (HasLocalConnection())
+    {
+        // Auto join the embedded server in case of local game only
+        mClient.SendJoinTable(1U);
+    }
+}
+/*****************************************************************************/
+void TarotWidget::slotAssignedPlace()
+{
+    if (HasLocalConnection())
+    {
+        // Now that we have joined the table, we can connect the bots
+        // FIXME: add/remove bots depending of the number of players (3, 4 or 5)
+        if (mLobby.GetNumberOfBots(1U) == 0U)
+        {
+            std::map<Place, Identity>::iterator iter;
+            for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
+            {
+                QThread::msleep(50U);
+                mLobby.AddBot(1U, iter->second, mServerOptions.timer);
+            }
+        }
     }
 }
 /*****************************************************************************/
@@ -174,18 +210,9 @@ void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh
 
     if (!HasLocalConnection())
     {
-        mTable.CreateTable(4U);
-
         mConnectionType = LOCAL;
         // Connect us to the server
-        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_TABLE_TCP_PORT);
-        // Connect the other players
-        // mTable.ConnectBots();
-        std::map<Place, Identity>::iterator iter;
-        for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
-        {
-             mTable.AddBot(iter->first, iter->second, mServerOptions.timer);
-        }
+        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_LOBBY_TCP_PORT);
     }
     else
     {
@@ -214,13 +241,6 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
 
     // Initialize all the objects with the user preferences
     mClient.SetMyIdentity(mClientOptions.identity);
-
-    std::map<Place, Identity>::iterator iter;
-    for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
-    {
-         mTable.SetBotParameters(iter->first, iter->second, mServerOptions.timer);
-    }
-
     mCanvas->ShowAvatars(mClientOptions.showAvatars);
     mCanvas->SetBackground(mClientOptions.backgroundColor);
 }
@@ -470,11 +490,6 @@ void TarotWidget::slotMessage(std::string message)
 {
     // Nothing to do here!
     (void) message;
-}
-/*****************************************************************************/
-void TarotWidget::slotAssignedPlace()
-{
-    // Nothing to do here!
 }
 /*****************************************************************************/
 void TarotWidget::slotPlayersList()

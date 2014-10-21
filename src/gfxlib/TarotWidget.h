@@ -58,7 +58,7 @@ public:
 
     TarotWidget(QWidget *parent = 0);
 
-    void Initialize();
+    void Initialize(const ServerOptions &opt);
     void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
 
@@ -93,7 +93,7 @@ public:
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
-    void sigGameFull();
+    void sigEnteredLobby();
     void sigNewGame();
     void sigPlayersList();
     void sigShowCard(Place, std::string);
@@ -113,7 +113,7 @@ public slots:
     void slotStartGame();
 
 private:
-    Table           mTable;    // A Tarot table, owns a thread, bots and a Tarot network engine game
+    Lobby           mLobby;    // Embedded lobby into this executable
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
     Client          mClient; // The human player
@@ -134,6 +134,12 @@ private:
     bool HasLocalConnection();
 
     // Client events
+    virtual void EnteredLobby()
+    {
+        emit sigEnteredLobby();
+        emit sigAutoJoinTable();
+    }
+
     virtual void Message(const std::string &message)
     {
         emit sigMessage(message);
@@ -228,6 +234,8 @@ private:
 
     // Private signals, not accessible to external entities
 signals:
+    void sigAutoJoinTable();
+    void sigGameFull();
     void sigAssignedPlace();
     void sigSelectPlayer(Place);
     void sigRequestBid(Contract);
@@ -243,6 +251,7 @@ signals:
 
 private slots:
     // Client events
+    void slotAutoJoinTable();
     void slotNewGame();
     void slotNewDeal();
     void slotAssignedPlace();
