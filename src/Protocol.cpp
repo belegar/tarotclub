@@ -126,8 +126,12 @@ void Protocol::Initialize()
 /*****************************************************************************/
 void Protocol::Stop()
 {
-    mQueue.Push(std::pair<bool, Protocol::IWorkItem*>(false, NULL));
-    mThread.join();
+    if (mInitialized)
+    {
+        mQueue.Push(std::pair<bool, Protocol::IWorkItem*>(false, NULL));
+        mThread.join();
+        mInitialized = false;
+    }
 }
 /*****************************************************************************/
 void Protocol::Execute(IWorkItem *item)
