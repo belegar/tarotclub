@@ -31,9 +31,10 @@ const std::uint8_t  Protocol::VERSION       = 1U;
 
 // Specific static UUID
 const std::uint32_t Protocol::INVALID_UID   = 0U;
-const std::uint32_t Protocol::ALL_PLAYERS   = 1U;
-const std::uint32_t Protocol::SERVER_UID    = 2U;
-const std::uint32_t Protocol::SYSTEM_UID    = 3U;
+const std::uint32_t Protocol::ALL_LOBBY     = 1U;
+const std::uint32_t Protocol::ALL_TABLE     = 2U;
+const std::uint32_t Protocol::SERVER_UID    = 3U;
+const std::uint32_t Protocol::SYSTEM_UID    = 4U;
 
 const std::uint32_t Protocol::USERS_UID     = 10U;
 const std::uint32_t Protocol::NO_TABLE      = 0U;
@@ -335,6 +336,32 @@ ByteArray Protocol::ClientReplyLogin(std::uint32_t client_uuid, const Identity &
     return packet;
 }
 /*****************************************************************************/
+ByteArray Protocol::ClientLobbyMessage(const std::string &message, std::uint32_t client_uuid)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::CLIENT_LOBBY_MESSAGE, client_uuid, SERVER_UID);
+    out.Seek(HEADER_SIZE);
+    out << message;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::ClientTableMessage(const std::string &message, std::uint32_t client_uuid)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::CLIENT_TABLE_MESSAGE, client_uuid, SERVER_UID);
+    out.Seek(HEADER_SIZE);
+    out << message;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
 ByteArray Protocol::ClientDiscard(const Deck &discard, std::uint32_t client_uuid)
 {
     ByteArray packet;
@@ -374,19 +401,6 @@ ByteArray Protocol::ClientCard(const std::string &card, std::uint32_t client_uui
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientChatMessage(const std::string &message, std::uint32_t client_uuid)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::CLIENT_MESSAGE, client_uuid, SERVER_UID);
-    out.Seek(HEADER_SIZE);
-    out << message;
-    UpdateHeader(packet);
-
-    return packet;
-}
-/*****************************************************************************/
 ByteArray Protocol::ClientBid(Contract c, bool slam, std::uint32_t client_uuid)
 {
     ByteArray packet;
@@ -408,7 +422,7 @@ ByteArray Protocol::TableFullMessage(std::uint32_t uuid)
 /*****************************************************************************/
 ByteArray Protocol::TableAllPassed()
 {
-    return BuildCommand(Protocol::TABLE_ALL_PASSED, SERVER_UID, ALL_PLAYERS);
+    return BuildCommand(Protocol::TABLE_ALL_PASSED, SERVER_UID, ALL_TABLE);
 }
 /*****************************************************************************/
 ByteArray Protocol::TableAskForHandle(std::uint32_t uuid)
@@ -440,7 +454,7 @@ ByteArray Protocol::TableChatMessage(const std::string &message)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::LOBBY_CHAT_MESSAGE, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_CHAT_MESSAGE, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << message;
     UpdateHeader(packet);
@@ -453,7 +467,7 @@ ByteArray Protocol::TableShowBid(Contract c, bool slam, Place p)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_SHOW_PLAYER_BID, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_SHOW_PLAYER_BID, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << p; // current player bid
     out << c; // contract to show
@@ -468,7 +482,7 @@ ByteArray Protocol::TablePlayersList(std::map<Place, Identity> players)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_PLAYERS_LIST, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_PLAYERS_LIST, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)players.size();
     std::map<Place, Identity>::iterator iter;
@@ -489,7 +503,7 @@ ByteArray Protocol::TableShowCard(const Card &c, Place p)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_SHOW_CARD, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_SHOW_CARD, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << p
         << c.GetName();
@@ -503,7 +517,7 @@ ByteArray Protocol::TableShowHandle(Deck &handle, Place p)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_SHOW_HANDLE, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_SHOW_HANDLE, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << p;
     out << handle;
@@ -532,7 +546,7 @@ ByteArray Protocol::TableEndOfDeal(Score &score)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_END_OF_DEAL, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_END_OF_DEAL, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << score;
     UpdateHeader(packet);
@@ -545,7 +559,7 @@ ByteArray Protocol::TableEndOfGame(Place winner)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_END_OF_GAME, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_END_OF_GAME, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << winner;
     UpdateHeader(packet);
@@ -558,7 +572,7 @@ ByteArray Protocol::TableEndOfTrick(Place winner)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_END_OF_TRICK, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_END_OF_TRICK, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << winner;
     UpdateHeader(packet);
@@ -571,7 +585,7 @@ ByteArray Protocol::TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, con
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_START_DEAL, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_START_DEAL, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << firstPlayer;     // first player to play
     out << bid.taker;       // taker
@@ -588,7 +602,7 @@ ByteArray Protocol::TablePlayCard(Place p)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_PLAY_CARD, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_PLAY_CARD, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << p; // this player has to play a card
     UpdateHeader(packet);
@@ -601,7 +615,7 @@ ByteArray Protocol::TableBidRequest(Contract c, Place p)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_REQUEST_BID, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_REQUEST_BID, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << c; // previous bid
     out << p; // player to declare something
@@ -615,7 +629,7 @@ ByteArray Protocol::TableShowDog(const Deck &dog)
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_SHOW_DOG, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_SHOW_DOG, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << dog;
     UpdateHeader(packet);
@@ -628,10 +642,23 @@ ByteArray Protocol::TableNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle 
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_NEW_GAME, SERVER_UID, Protocol::ALL_PLAYERS);
+    BuildHeader(packet, Protocol::TABLE_NEW_GAME, SERVER_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)gameMode;
     out << shuffle;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::LobbyChatMessage(const std::string &message)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::LOBBY_CHAT_MESSAGE, SERVER_UID, Protocol::ALL_LOBBY);
+    out.Seek(HEADER_SIZE);
+    out << message;
     UpdateHeader(packet);
 
     return packet;

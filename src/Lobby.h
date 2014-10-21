@@ -59,7 +59,7 @@ private:
 
     // From Controller
     virtual void AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId);
-    virtual void SendData(const ByteArray &block);
+    virtual void SendData(const ByteArray &block, std::uint32_t tableId);
 
     int             mTcpPort;
     TcpServer       mTcpServer;

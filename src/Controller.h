@@ -51,7 +51,7 @@ public:
     {
     public:
         virtual void AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId) = 0;
-        virtual void SendData(const ByteArray &block) = 0;
+        virtual void SendData(const ByteArray &block, std::uint32_t tableId) = 0;
     };
 
     Controller(IEvent &handler);
@@ -84,7 +84,7 @@ private:
     void BidSequence();
     void GameSequence();
     bool IsAdmin(std::uint32_t unique_id);
-
+    void Send(const ByteArray &block);
 };
 
 #endif // CONTROLLER_H

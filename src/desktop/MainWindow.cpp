@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent, Qt::QueuedConnection);
-    connect(tarotWidget, &TarotWidget::sigMessage, this, &MainWindow::slotMessageEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigTableMessage, this, &MainWindow::slotMessageEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);

@@ -44,7 +44,13 @@ Bot::~Bot()
 
 }
 /*****************************************************************************/
-void Bot::Message(const std::string &message)
+void Bot::TableMessage(const std::string &message)
+{
+    (void)(message);
+    // A bot cannot reply (yet :)
+}
+/*****************************************************************************/
+void Bot::LobbyMessage(const std::string &message)
 {
     (void)(message);
     // A bot cannot reply (yet :)

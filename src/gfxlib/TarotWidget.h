@@ -99,7 +99,8 @@ signals:
     void sigShowCard(Place, std::string);
     void sigWaitTrick(Place);
     void sigStartDeal();
-    void sigMessage(std::string);
+    void sigTableMessage(std::string);
+    void sigLobbyMessage(std::string);
     void sigAddScore();
     void sigNewDeal();
 
@@ -140,10 +141,15 @@ private:
         emit sigAutoJoinTable();
     }
 
-    virtual void Message(const std::string &message)
+    virtual void TableMessage(const std::string &message)
     {
-        emit sigMessage(message);
+        emit sigTableMessage(message);
     }
+    virtual void LobbyMessage(const std::string &message)
+    {
+        emit sigLobbyMessage(message);
+    }
+
     virtual void AssignedPlace()
     {
         emit sigAssignedPlace();

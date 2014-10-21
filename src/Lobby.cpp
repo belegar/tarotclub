@@ -139,13 +139,13 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
 
     switch (cmd)
     {
-    case Protocol::CLIENT_MESSAGE:
+    case Protocol::CLIENT_LOBBY_MESSAGE:
     {
         std::string message;
         in >> message;
 
         message = mUsers.GetIdentity(src_uuid).name + "> " + message;
-        SendData(Protocol::TableChatMessage(message));
+        SendData(Protocol::LobbyChatMessage(message), 0U);
         break;
     }
 
@@ -156,10 +156,10 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
 
         if (mUsers.AccessGranted(src_uuid, ident))
         {
-            SendData(Protocol::LobbyLoginResult(true, src_uuid));
-            std::string message = "The player " + ident.name + " has joined the game.";
+            SendData(Protocol::LobbyLoginResult(true, src_uuid), 0U);
+            std::string message = "The player " + ident.name + " has joined the server.";
             TLogNetwork(message);
-            SendData(Protocol::TableChatMessage(message));
+            SendData(Protocol::LobbyChatMessage(message), 0U);
         }
         break;
     }
@@ -223,19 +223,25 @@ void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
     mUsers.SetPlayingTable(uuid, tableId);
 }
 /*****************************************************************************/
-void Lobby::SendData(const ByteArray &block)
+void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
 {
     std::uint32_t dest_uuid = Protocol::GetDestUuid(block);
 
     std::list<std::uint32_t> peers; // list of users to send the data
 
-    std::uint32_t tableId = mUsers.GetPlayerTable(dest_uuid);
-    if (tableId != Protocol::NO_TABLE)
+    if (dest_uuid == Protocol::ALL_TABLE)
     {
-        // If the player is connected to a table, send data to the table players only
-        peers = mUsers.GetUsersOfTable(tableId);
+        if (tableId != 0U)
+        {
+            // If the player is connected to a table, send data to the table players only
+            peers = mUsers.GetUsersOfTable(tableId);
+        }
+        else
+        {
+            TLogError("Cannot send the packet to table ID zero! (reserved)");
+        }
     }
-    else if (dest_uuid == Protocol::ALL_PLAYERS)
+    else if (dest_uuid == Protocol::ALL_LOBBY)
     {
         // Otherwise, send the data to the lobby users only
         peers = mUsers.GetLobbyUsers();
@@ -244,6 +250,12 @@ void Lobby::SendData(const ByteArray &block)
     {
         // Only send the data to one connected client
         peers.push_back(dest_uuid);
+    }
+
+    // Debug: peers list cannot be null, or it is very strange ...
+    if (peers.size() == 0)
+    {
+        TLogError("Peers list cannot be null");
     }
 
     // Send the data to a(all) peer(s)

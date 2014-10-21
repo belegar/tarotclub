@@ -349,11 +349,19 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         break;
     }
 
+    case Protocol::TABLE_CHAT_MESSAGE:
+    {
+        std::string message;
+        in >> message;
+        mEventHandler.TableMessage(message);
+        break;
+    }
+
     case Protocol::LOBBY_CHAT_MESSAGE:
     {
         std::string message;
         in >> message;
-        mEventHandler.Message(message);
+        mEventHandler.LobbyMessage(message);
         break;
     }
 
@@ -626,9 +634,15 @@ void Client::SendIdentity()
     SendPacket(packet);
 }
 /*****************************************************************************/
-void Client::SendChatMessage(const std::string &message)
+void Client::SendTableMessage(const std::string &message)
 {
-    ByteArray packet = Protocol::ClientChatMessage(message, mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientTableMessage(message, mPlayer.GetUuid());
+    SendPacket(packet);
+}
+/*****************************************************************************/
+void Client::SendLobbyMessage(const std::string &message)
+{
+    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid());
     SendPacket(packet);
 }
 /*****************************************************************************/

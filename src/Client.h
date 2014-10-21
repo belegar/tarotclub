@@ -65,7 +65,8 @@ public:
     public:
         virtual void EnteredLobby() = 0;
         virtual void AdminGameFull() = 0;
-        virtual void Message(const std::string &message) = 0;
+        virtual void TableMessage(const std::string &message) = 0;
+        virtual void LobbyMessage(const std::string &message) = 0;
         virtual void AssignedPlace() = 0;
         virtual void PlayersList() = 0;
         virtual void NewGame() = 0;
@@ -161,7 +162,8 @@ public:
     void SendSyncAllPassed();
     void SendSyncHandle();
     void SendSyncEndOfDeal();
-    void SendChatMessage(const std::string &message);
+    void SendTableMessage(const std::string &message);
+    void SendLobbyMessage(const std::string &message);
 
 private:
     enum Command

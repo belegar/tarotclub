@@ -69,7 +69,7 @@ TarotWidget::TarotWidget(QWidget *parent)
     connect(this, &TarotWidget::sigNewDeal, this, &TarotWidget::slotNewDeal, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigAssignedPlace, this, &TarotWidget::slotAssignedPlace, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigPlayersList, this, &TarotWidget::slotPlayersList, Qt::QueuedConnection);
-    connect(this, &TarotWidget::sigMessage, this, &TarotWidget::slotMessage, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigTableMessage, this, &TarotWidget::slotMessage, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigSelectPlayer, this, &TarotWidget::slotSelectPlayer, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigRequestBid, this, &TarotWidget::slotRequestBid, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigShowBid, this, &TarotWidget::slotShowBid, Qt::QueuedConnection);
@@ -483,7 +483,7 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
 /*****************************************************************************/
 void TarotWidget::slotSendChatMessage(const QString &message)
 {
-    mClient.SendChatMessage(message.toStdString());
+    mClient.SendTableMessage(message.toStdString());
 }
 /*****************************************************************************/
 void TarotWidget::slotMessage(std::string message)

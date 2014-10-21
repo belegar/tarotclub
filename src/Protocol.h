@@ -45,12 +45,13 @@ public:
 
     // Reserved UUIDs: [0..9]
     static const std::uint32_t  INVALID_UID;
-    static const std::uint32_t  ALL_PLAYERS;   //!< Broadcast UUID (send the packet to all players)
-    static const std::uint32_t  SERVER_UID;    //!< Server
-    static const std::uint32_t  STAGING_UID;   //!< A staging client
-    static const std::uint32_t  SYSTEM_UID;    //!< System user
+    static const std::uint32_t  ALL_LOBBY;      //!< Send the packet to all clients in the lobby (ie, chat message)
+    static const std::uint32_t  ALL_TABLE;      //!< Send the packet to all players of a table
+    static const std::uint32_t  SERVER_UID;     //!< Server
+    static const std::uint32_t  STAGING_UID;    //!< A staging client
+    static const std::uint32_t  SYSTEM_UID;     //!< System user
 
-    static const std::uint32_t  USERS_UID;    //!< Start of users UUID
+    static const std::uint32_t  USERS_UID;      //!< Start of users UUID
     static const std::uint32_t  NO_TABLE;       //!< Identifier for "no table"
 
     struct PacketInfo
@@ -62,7 +63,8 @@ public:
     enum Command
     {
         // client (player) -> server
-        CLIENT_MESSAGE          = 0x10, //!< Chat message
+        CLIENT_TABLE_MESSAGE    = 0x09, //!< Chat message in the table
+        CLIENT_LOBBY_MESSAGE    = 0x10, //!< Chat message in the lobby
         CLIENT_REPLY_LOGIN      = 0x11, //!< Client sends its identity to the server
         CLIENT_BID              = 0x12,
         CLIENT_DISCARD          = 0x13, //!< Client send the discard
@@ -151,9 +153,12 @@ public:
      */
     static std::vector<PacketInfo> DecodePacket(const ByteArray &data);
 
-    // Client to server packets
+    // Client -> Lobby
     static ByteArray ClientReplyLogin(std::uint32_t client_uuid, const Identity &ident);
-    static ByteArray ClientChatMessage(const std::string &message, std::uint32_t client_uuid);
+    static ByteArray ClientLobbyMessage(const std::string &message, std::uint32_t client_uuid);
+
+    // Client -> Controller
+    static ByteArray ClientTableMessage(const std::string &message, std::uint32_t client_uuid);
     static ByteArray ClientSyncNewGame(std::uint32_t client_uuid);
     static ByteArray ClientError(std::uint32_t client_uuid);
     static ByteArray ClientBid(Contract c, bool slam, std::uint32_t client_uuid);
@@ -198,10 +203,11 @@ public:
     // Controller -> Admin
     static ByteArray AdminGameFull(bool full, std::uint32_t uuid);
 
-    // Lobby -> client
+    // Lobby -> client(s)
     static ByteArray LobbyRequestLogin(std::uint32_t uuid);
     static ByteArray LobbyLoginResult(bool accepted, std::uint32_t uuid);
     static ByteArray LobbyDisconnect(std::uint32_t uuid);
+    static ByteArray LobbyChatMessage(const std::string &message);
 
     // Lobby -> Controller
     static ByteArray LobbyAddPlayer(std::uint32_t player_uuid, const Identity &ident);

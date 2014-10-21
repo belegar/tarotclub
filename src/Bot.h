@@ -61,7 +61,8 @@ private:
     // Client events
     virtual void EnteredLobby();
     virtual void AdminGameFull();
-    virtual void Message(const std::string &message);
+    virtual void TableMessage(const std::string &message);
+    virtual void LobbyMessage(const std::string &message);
     virtual void AssignedPlace();
     virtual void PlayersList();
     virtual void NewDeal();
