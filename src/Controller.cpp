@@ -112,6 +112,21 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                 {
                     mAdmins.push_back(uuid);
                 }
+
+                mFull = engine.SetIdentity(uuid, ident);
+                std::string message = "The player " + ident.name + " has joined the game.";
+                mEventHandler.SendData(Protocol::TableChatMessage(message));
+
+                // Update player list
+                mEventHandler.SendData(Protocol::TablePlayersList(engine.GetPlayersList()));
+                if (mFull)
+                {
+                    // Warn table admin that the game is full, so it can start
+                    for (std::vector<std::uint32_t>::iterator iter = mAdmins.begin(); iter != mAdmins.end(); ++iter)
+                    {
+                        mEventHandler.SendData(Protocol::AdminGameFull(true, *iter));
+                    }
+                }
             }
             else
             {
