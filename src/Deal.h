@@ -61,6 +61,7 @@ public:
     Score  &GetScore();
     std::map<int, Place> GetPodium();
     Deck GetDog();
+    Deck GetDiscard();
 
     // Setters
     void SetHandle(const Deck &handle, Team team);

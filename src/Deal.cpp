@@ -303,6 +303,11 @@ Deck Deal::GetDog()
     return mDog;
 }
 /*****************************************************************************/
+Deck Deal::GetDiscard()
+{
+    return mDiscard;
+}
+/*****************************************************************************/
 void Deal::SetDiscard(const Deck &discard, Team owner)
 {
     mDiscard = discard;
@@ -552,6 +557,16 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
             {
                 ret = false;
             }
+
+            if (json.GetValue("deal_info:dog", str_value))
+            {
+                mDog.SetCards(str_value);
+            }
+            else
+            {
+                ret = false;
+            }
+
             if (!json.GetValue("deal_info:first_trick_lead", str_value))
             {
                 ret = false;
