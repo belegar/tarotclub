@@ -1,8 +1,34 @@
+/*=============================================================================
+ * TarotClub - DealsWindow.cpp
+ *=============================================================================
+ * Display previously played deals
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
+
 #include "DealsWindow.h"
 #include "Deck.h"
 #include "System.h"
 #include "time.h"
 
+/*****************************************************************************/
 DealsWindow::DealsWindow(QWidget *parent)
     : QDialog(parent)
 {
@@ -29,18 +55,61 @@ DealsWindow::DealsWindow(QWidget *parent)
     connect(mOkButton, &QPushButton::clicked, this, &QDialog::accept);
     connect(mComboBox, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::activated), this, &DealsWindow::slotActivated);
 }
-
+/*****************************************************************************/
 DealsWindow::~DealsWindow()
 {
 
 }
-
+/*****************************************************************************/
 void DealsWindow::slotActivated(const QString &text)
 {
     mDeal.LoadGameDealLog(System::GamePath() + "/deal_result_" + text.toStdString() + ".json");
 
-}
+    qreal x = 0;
+    qreal y = 0;
+    qreal limit_x = 700;
 
+    // Show discard
+    DisplayDeck(mDeal.GetDiscard(), x, y);
+
+    y = 115;
+    // Show played tricks
+    for (std::uint8_t i = 0U; i < Tarot::NumberOfCardsInHand(4U); i++)
+    {
+         Deck trick = mDeal.GetTrick(i, 4U);
+         DisplayDeck(trick, x, y);
+
+         // Space between horizontal tricks
+         x += 60;
+
+         if (x >= limit_x)
+         {
+             x = 0;
+             y += 115;
+         }
+    }
+}
+/*****************************************************************************/
+void DealsWindow::DisplayDeck(const Deck &deck, qreal x, qreal y)
+{
+    qreal z = 0;
+    for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
+    {
+       std::string name = "c" + iter->GetName();
+       for (int j = 0U; j < mCardsPics.size(); j++)
+       {
+           QGraphicsSvgItem *item = mCardsPics[j];
+           if (item->elementId().toStdString() == name)
+           {
+               item->setPos(x, y);
+               item->setZValue(z++);
+           }
+       }
+       x += 35;
+    }
+
+}
+/*****************************************************************************/
 void DealsWindow::Initialize()
 {
     mDeck.load(QString(":cards/minideck.svg"));
@@ -48,8 +117,16 @@ void DealsWindow::Initialize()
     deck.CreateTarotDeck();
     mCardsPics.clear();
 
+    mScene.setBackgroundBrush(QColor("#004f00"));
+
+    mText = new QGraphicsSimpleTextItem();
+    mScene.addItem(mText);
+    mText->setX(0);
+    mText->setY(0);
+    mText->setText("Discard:");
+
     qreal x = 0;
-    qreal y = 0;
+    qreal y = 115;
     for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
     {
         QGraphicsSvgItem *item = new QGraphicsSvgItem();
@@ -78,7 +155,7 @@ void DealsWindow::Initialize()
         }
     }
 }
-
+/*****************************************************************************/
 void DealsWindow::RefreshDeals()
 {
     QDir dir(QString(System::GamePath().c_str()));
@@ -87,7 +164,6 @@ void DealsWindow::RefreshDeals()
 
     for (int i = 0; i < list.size(); i++)
     {
-
         // Filename format is: deal_result_2014-10-12.153826.json
         // We have to extract the date and time "%Y-%m-%d.%H%M%S"
 
@@ -99,3 +175,7 @@ void DealsWindow::RefreshDeals()
         mComboBox->addItem(dateTime.right(17));
     }
 }
+
+//=============================================================================
+// Fin du fichier DealsWindow.cpp
+//=============================================================================
