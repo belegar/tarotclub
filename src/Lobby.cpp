@@ -34,9 +34,6 @@ Lobby::~Lobby()
 {
     Stop();
 
-    // Stop before killing clients in case of remaining work items to run
-    Protocol::GetInstance().Stop();
-
     // Kill tables
     for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
     {
@@ -270,6 +267,9 @@ void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
 /*****************************************************************************/
 void Lobby::Stop()
 {
+	// Stop work item thread
+	Protocol::GetInstance().Stop();
+
     mUsers.CloseClients();
     mTcpServer.Stop();
 

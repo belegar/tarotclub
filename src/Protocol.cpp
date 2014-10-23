@@ -58,7 +58,7 @@ Protocol::Protocol()
 /*****************************************************************************/
 Protocol::~Protocol()
 {
-    Stop();
+
 }
 /*****************************************************************************/
 void Protocol::BuildHeader(ByteArray &packet, Command cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid)
@@ -99,9 +99,9 @@ ByteArray Protocol::BuildCommand(Command cmd, std::uint32_t src_uuid, std::uint3
     return packet;
 }
 /*****************************************************************************/
+static Protocol mProtocol;
 Protocol &Protocol::GetInstance()
 {
-    static Protocol mProtocol;
     return mProtocol;
 }
 /*****************************************************************************/
