@@ -407,17 +407,17 @@ void TcpServer::UpdateMaxSocket()
 {
     std::vector<int>::iterator pos;
 
-    // find the maximum socket file descriptor
+    // find the maximum socket file descriptor with the clients
     pos = std::max_element(mClients.begin(), mClients.end());
+	mMaxSd = GetSocket();
 
-    if (*pos > GetSocket())
-    {
-        mMaxSd = *pos;
-    }
-    else
-    {
-        mMaxSd = GetSocket();
-    }
+	if (pos != mClients.end())
+	{
+		if (*pos > mMaxSd)
+		{
+			mMaxSd = *pos;
+		}
+	}
 }
 
 //=============================================================================
