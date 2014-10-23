@@ -55,7 +55,8 @@ private slots:
 private:
     Ui::LobbyUI  ui;
 
-    QMap<QString, std::uint32_t> mTableList;
+    QMap<QString, std::uint32_t> mTableList;    // key = table name, value = table ID
+    QMap<QString, std::uint32_t> mPlayerList; // key = user name, value = uuid
     bool RequestHttp(const QString &request, QString &reply);
 };
 

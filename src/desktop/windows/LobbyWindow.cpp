@@ -68,17 +68,18 @@ void LobbyWindow::slotConnect()
         for (QList<QHostAddress>::iterator iter = addresses.begin(); iter != addresses.end(); ++iter)
         {
             QString reply;
-            QString request = QString("http://") + iter->toString() + QString(":8080/tables");
-            if (RequestHttp(request, reply))
+            QString request = QString("http://") + iter->toString() + QString(":8080");
+            if (RequestHttp(request + "/tables", reply))
             {
                 // found something interesting
-                QStringList tables = reply.split(",");
+                QStringList strList = reply.split(",");
                 ui.tableList->clear();
+                mTableList.clear();
 
-                for (int i = 0; i < tables.size(); i++)
+                QRegExp rex("^(\\w+)\\((\\d+)\\)");
+                for (int i = 0; i < strList.size(); i++)
                 {
-                    QRegExp rex("^(\\w+)\\((\\d+)\\)");
-                    int pos = rex.indexIn(tables[i]);
+                    int pos = rex.indexIn(strList[i]);
                     if ((pos > -1) && (rex.captureCount() == 2))
                     {
                         QString name = rex.cap(1);
@@ -90,8 +91,31 @@ void LobbyWindow::slotConnect()
                     }
                 }
 
-                // It seems that we have found a valid server, try to connect
-                emit sigConnect(iter->toString(), (std::uint16_t)ui.serverPort->value());
+                // Now try to get currently connected players
+                if (RequestHttp(request + "/tables", reply))
+                {
+                    QStringList strList = reply.split(",");
+                    ui.playerList->clear();
+                    mPlayerList.clear();
+
+                    for (int i = 0; i < strList.size(); i++)
+                    {
+                        int pos = rex.indexIn(strList[i]);
+                        if ((pos > -1) && (rex.captureCount() == 2))
+                        {
+                            QString name = rex.cap(1);
+                            std::uint32_t uuid = rex.cap(2).toULong();
+                            mPlayerList[name] = uuid;
+
+                            // Update the table list
+                            ui.playerList->addItem(name);
+                        }
+                    }
+
+
+                    // It seems that we have found a valid server, try to connect
+                    emit sigConnect(iter->toString(), (std::uint16_t)ui.serverPort->value());
+                }
             }
             else
             {
