@@ -190,6 +190,22 @@ bool Users::AccessGranted(std::uint32_t uuid, const Identity &ident)
     {
         mUsers[uuid].connected = true;
         mUsers[uuid].identity = ident;
+
+        // We change its name if equal to an already connected player
+        for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+        {
+            if (iter->first != uuid)
+            {
+                if (iter->second.identity.name == ident.name)
+                {
+                    // Append the uuid to the name to make it unique within the server
+                    std::stringstream ss;
+                    ss << ident.name << uuid;
+                    mUsers[uuid].identity.name =  ss.str();
+                }
+            }
+        }
+
         ret = true;
     }
     else
