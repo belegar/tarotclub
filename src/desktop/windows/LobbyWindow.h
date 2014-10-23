@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - JoinWizard.h
+ * TarotClub - LobbyWindow.h
  *=============================================================================
- * Wizard pages to join a network server
+ * Lobby window, includes a chat area and the tables available on the server
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,10 +23,11 @@
  *=============================================================================
  */
 
-#ifndef JOINWIZARD_H
-#define JOINWIZARD_H
+#ifndef LOBBY_WINDOW_H
+#define LOBBY_WINDOW_H
 
 #include <QTcpSocket>
+#include <QMap>
 #include "ui_LobbyUI.h"
 
 /*****************************************************************************/
@@ -35,43 +36,32 @@ class LobbyWindow : public QDialog
     Q_OBJECT
 
 public:
-
-    struct Connection
-    {
-        QString ip;
-        quint16 port;
-        bool isValid;
-    };
-
     LobbyWindow(QWidget *parent);
 
     void Initialize();
-    Connection GetTableConnection();
+
+signals:
+    void sigConnect(QString, std::uint16_t);
+    void sigJoinTable(std::uint32_t);
 
 public slots:
-    void slotRoomSelected(QListWidgetItem *item);
-    void slotTableSelected(QListWidgetItem *item);
+    void slotMessage(std::string message);
 
+private slots:
     void slotConnect();
     void slotJoin();
     void slotClose();
 
-    // socket
-    void socketReadData();
-    void socketConnected();
-    void socketHostFound();
-    void socketClosed();
-    void socketError(QAbstractSocket::SocketError code);
-
 private:
     Ui::LobbyUI  ui;
 
-    Connection  selectedTable;
+    QMap<QString, std::uint32_t> mTableList;
+    bool RequestHttp(const QString &request, QString &reply);
 };
 
 
-#endif // JOINWIZARD_H
+#endif // LOBBY_WINDOW_H
 
 //=============================================================================
-// End of file JoinWizard.h
+// End of file LobbyWindow.h
 //=============================================================================
