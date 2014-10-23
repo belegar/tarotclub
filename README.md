@@ -334,7 +334,7 @@ A deck of cards is a character string of cards separated by semi-colons. Example
 10-S;12-D;01-S;05-T;11-D;13-C;12-H;04-H;07-C;04-T;03-S;02-T;11-H;13-D;08-D;09-D;12-C;10-D
 ```
 
-# JavaScript IA interface
+# JavaScript artificial intelligence API
 
 The artificial intelligence of bot players is programmed using the JavaScript language. It is the same than the one for the Web 
 except that some global objects specific to the browser are not available such as "window". This JavaScript engine follows the ECMA Script standard 5.1.
@@ -367,7 +367,21 @@ must be loaded during the initialization of the game. The order is important bec
 
 The path of the file must be relative to the root of the configuration file.
 
-## Game interface
+## Game API
+
+TODO
+
+# Dedicated Server usage
+
+## JSON Configuration file
+
+TODO
+
+## Web management interface
+
+TODO
+
+## REST API
 
 TODO
 

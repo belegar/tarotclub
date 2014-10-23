@@ -22,13 +22,17 @@ The following ChangeLog is using specific signs to quickly identify the nature o
     + Display a more comprehensive card name in the history of tricks dock window (eg: 13-D ==> display D with a diamond icon)
 	+ Improved board organization and graphics, cards are showed in the middle of the screen
 	+ New avatars and avatar chooser
+	+ New window to display the previously played deals
 	
 ## Dedicated server changes
-
-    + Use a command line TCDS configuration file
+    
+	- Removed the rooms, a Tarot server now simply has some tables
+    + Use a command line TCDS configuration file, new dynamic creation of tables (number, names)
 	+ Usage of a work thread to share packets analysis
 	+ Dynamic bot creation (per table)
-	
+	+ New experimental embedded HTTP server on port 8080, REST API available
+	~ Corrected build and some crashes under Visual C++ 2013
+
 # Branch 2.3.x - Codename <Snowboard>
 
 ## version 2.3.7 (30/08/2014)
