@@ -1,3 +1,28 @@
+/*=============================================================================
+ * TarotClub - Users.cpp
+ *=============================================================================
+ * Management of connected users in the lobby, provide utility methods
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
+
 #include "Users.h"
 #include "Log.h"
 #include "Protocol.h"
@@ -100,7 +125,8 @@ std::list<std::uint32_t> Users::GetLobbyUsers()
     std::list<std::uint32_t> theList;
     for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
-        if (iter->second.tableId == Protocol::NO_TABLE)
+        // Do not include users in login process
+        if (iter->second.connected)
         {
             theList.push_back(iter->first);
         }
@@ -151,7 +177,7 @@ std::uint32_t Users::NewStagingUser(int socket)
     // Add the user to the main users list
     mUsers[uuid].socket = socket;
     mUsers[uuid].tableId = 0U;
-    mUsers[uuid].staging = true;
+    mUsers[uuid].connected = false;
 
     return uuid;
 }
@@ -162,7 +188,7 @@ bool Users::AccessGranted(std::uint32_t uuid, const Identity &ident)
     bool ret = false;
     if (mUsers.find(uuid) != mUsers.end())
     {
-        mUsers[uuid].staging = false;
+        mUsers[uuid].connected = true;
         mUsers[uuid].identity = ident;
         ret = true;
     }
@@ -189,3 +215,6 @@ void Users::RemoveUser(std::uint32_t uuid)
     }
 }
 
+//=============================================================================
+// End of file Users.cpp
+//=============================================================================
