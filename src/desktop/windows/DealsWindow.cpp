@@ -65,13 +65,13 @@ void DealsWindow::slotActivated(const QString &text)
 {
     mDeal.LoadGameDealLog(System::GamePath() + "/deal_result_" + text.toStdString() + ".json");
 
-    qreal x = 0;
     qreal y = 0;
     qreal limit_x = 700;
 
     // Show discard
-    DisplayDeck(mDeal.GetDiscard(), x, y);
+    DisplayDeck(mDeal.GetDiscard(), 100, 0);
 
+    qreal x = 0;
     y = 115;
     // Show played tricks
     for (std::uint8_t i = 0U; i < Tarot::NumberOfCardsInHand(4U); i++)
@@ -80,7 +80,7 @@ void DealsWindow::slotActivated(const QString &text)
          DisplayDeck(trick, x, y);
 
          // Space between horizontal tricks
-         x += 60;
+         x += 60 + 35 * trick.Size();
 
          if (x >= limit_x)
          {
@@ -173,6 +173,15 @@ void DealsWindow::RefreshDeals()
 
         // 3. Fill the combo box
         mComboBox->addItem(dateTime.right(17));
+    }
+
+    // Display the last deal, if available
+    int count = mComboBox->count();
+    if (count > 0)
+    {
+        mComboBox->setCurrentIndex(count-1);
+        // Manually call the combo box event to display the deal
+        slotActivated(mComboBox->currentText());
     }
 }
 
