@@ -297,6 +297,22 @@ std::string Lobby::ParseUri(const std::string &uri)
             reply += ss.str();
         }
     }
+    else if (uri == "/players")
+    {
+        std::list<std::uint32_t> users = mUsers.GetLobbyUsers();
+        for (std::list<std::uint32_t>::iterator iter = users.begin(); iter != users.end(); ++iter)
+        {
+            Identity ident = mUsers.GetIdentity(*iter);
+
+            if (iter != users.begin())
+            {
+                reply += ",";
+            }
+            std::stringstream ss;
+            ss << ident.name << "(" << *iter << ")";
+            reply += ss.str();
+        }
+    }
 
     return reply;
 }
