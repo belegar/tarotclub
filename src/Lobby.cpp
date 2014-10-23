@@ -218,6 +218,7 @@ void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
     ss << "Player " << mUsers.GetIdentity(uuid).name << " is entering on table: " << tableId;
     TLogNetwork(ss.str());
     mUsers.SetPlayingTable(uuid, tableId);
+    SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
 }
 /*****************************************************************************/
 void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
@@ -240,7 +241,7 @@ void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
     }
     else if (dest_uuid == Protocol::ALL_LOBBY)
     {
-        // Otherwise, send the data to the lobby users only
+        // Otherwise, send the data to the players connected in the lobby
         peers = mUsers.GetLobbyUsers();
     }
     else
@@ -354,27 +355,33 @@ std::uint32_t Lobby::GetNumberOfBots(std::uint32_t tableId)
     return counter;
 }
 /*****************************************************************************/
-
-// FIXME: how to identity the bot (id? identity? name?)
-bool Lobby::RemoveBot(Place p)
+/**
+ * @brief Lobby::RemoveBot
+ *
+ * Removes a bot that belongs to a table. Also specify a place (south, north ...)
+ *
+ * @param tableId
+ * @param p
+ * @return
+ */
+bool Lobby::RemoveBot(std::uint32_t uuid)
 {
     std::lock_guard<std::mutex> lock(mBotsMutex);
     bool ret = false;
 
-    /*
-
-    std::map<Place, Bot *>::iterator iter = mBots.find(p);
-    if (iter != mBots.end())
+    for (std::list<Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
     {
-        // Gracefully close the bot from the server
-        iter->second->Close();
-        // delete the object
-        delete iter->second;
-        // Remove it from the list
-        mBots.erase(iter);
-        ret = true;
+        if ((*iter)->GetUuid() == uuid)
+        {
+            // Gracefully close the bot from the server
+            (*iter)->Close();
+            // delete the object
+            delete (*iter);
+            // Remove it from the list
+            mBots.erase(iter);
+            ret = true;
+        }
     }
-    */
     return ret;
 }
 

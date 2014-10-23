@@ -43,7 +43,7 @@ public:
     // Bots management
     bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay);
     std::uint32_t GetNumberOfBots(std::uint32_t tableId);
-    bool RemoveBot(Place p);
+    bool RemoveBot(std::uint32_t uuid);
 
     void CloseClients();
 private:
