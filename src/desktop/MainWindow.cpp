@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigLobbyMessage, lobbyWindow, &LobbyWindow::slotMessage, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
@@ -69,8 +70,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(newAutoPlayAct, &QAction::triggered, this, &MainWindow::slotNewAutoPlay);
     connect(dealsAct, &QAction::triggered, this, &MainWindow::slotDisplayDeals);
 
-    // Network chat
+    // Table chat
     connect(chatDock, &ChatDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendChatMessage);
+
+    // Lobby
+    connect(lobbyWindow, &LobbyWindow::sigConnect, this, &MainWindow::slotConnectToLobby);
+    connect(lobbyWindow, &LobbyWindow::sigJoinTable, this, &MainWindow::slotJoinTable);
 
     // Exit catching to terminate the game properly
     connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
@@ -132,15 +137,20 @@ void MainWindow::slotNewCustomDeal()
 void MainWindow::slotJoinNetworkGame()
 {
     lobbyWindow->Initialize();
-    if (lobbyWindow->exec() == QDialog::Accepted)
+    lobbyWindow->show();
+}
+/*****************************************************************************/
+void MainWindow::slotConnectToLobby(QString server, std::uint16_t port)
+{
+    tarotWidget->LaunchRemoteGame(server.toStdString(), port);
+}
+/*****************************************************************************/
+void MainWindow::slotJoinTable(std::uint32_t tableId)
+{
+    // connect to table
+    if (tableId > 0U)
     {
-        // connect to table
-        LobbyWindow::Connection cn = lobbyWindow->GetTableConnection();
-
-        if (cn.isValid)
-        {
-            tarotWidget->LaunchRemoteGame(cn.ip.toStdString(), cn.port);
-        }
+        tarotWidget->JoinTable(tableId);
     }
 }
 /*****************************************************************************/

@@ -61,6 +61,7 @@ public:
     void Initialize(const ServerOptions &opt);
     void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
+    void JoinTable(std::uint32_t tableId);
 
     // Configuration management
     void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);

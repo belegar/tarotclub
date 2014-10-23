@@ -57,7 +57,6 @@ public:
     void Initialize();
 
 private slots:
-
     // Events from MainWindow
     void slotDealEditor();
     void slotNewNumberedDeal();
@@ -79,6 +78,10 @@ private slots:
     void slotMessageEvent(std::string message);
     void slotEndOfDeal();
     void slotNewDealEvent();
+
+    // Events from LobbyWindow
+    void slotConnectToLobby(QString server, std::uint16_t port);
+    void slotJoinTable(std::uint32_t tableId);
 
 private:
     void SetupDialogs();

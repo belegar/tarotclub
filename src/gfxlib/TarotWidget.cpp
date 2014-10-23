@@ -199,6 +199,11 @@ void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
     mConnectionType = REMOTE;
 }
 /*****************************************************************************/
+void TarotWidget::JoinTable(std::uint32_t tableId)
+{
+    mClient.SendJoinTable(tableId);
+}
+/*****************************************************************************/
 void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
 {
     // Save game config

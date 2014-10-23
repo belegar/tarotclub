@@ -33,23 +33,20 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Server IP address:</string>
+             <string>Server address:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="ipAddress">
-            <property name="inputMask">
-             <string>000.000.000.000</string>
-            </property>
+           <widget class="QLineEdit" name="serverAddress">
             <property name="text">
-             <string>...</string>
+             <string notr="true">127.0.0.1</string>
             </property>
             <property name="maxLength">
-             <number>15</number>
+             <number>32767</number>
             </property>
             <property name="cursorPosition">
-             <number>15</number>
+             <number>9</number>
             </property>
            </widget>
           </item>
@@ -60,14 +57,17 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Port:</string>
+             <string>Server port:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="portNumber">
+           <widget class="QSpinBox" name="serverPort">
             <property name="maximum">
              <number>65535</number>
+            </property>
+            <property name="value">
+             <number>4269</number>
             </property>
            </widget>
           </item>
@@ -135,7 +135,6 @@
        </layout>
       </item>
      </layout>
-     <zorder>label_2</zorder>
     </widget>
    </item>
    <item row="1" column="0">
@@ -194,14 +193,14 @@
         <widget class="QWidget" name="layoutWidget">
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QTextBrowser" name="textBrowser"/>
+           <widget class="QTextBrowser" name="textArea"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit"/>
+           <widget class="QLineEdit" name="chatText"/>
           </item>
          </layout>
         </widget>
-        <widget class="QListWidget" name="listWidget">
+        <widget class="QListWidget" name="playerList">
          <property name="maximumSize">
           <size>
            <width>200</width>
