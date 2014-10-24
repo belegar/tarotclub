@@ -46,7 +46,7 @@ class ServerConfig
 public:
     static const std::uint16_t  DEFAULT_DELAY               = 500U;     // in ms
     static const std::uint16_t  DEFAULT_LOBBY_TCP_PORT      = 4269U;
-    static const std::uint32_t  DEFAULT_LOBBY_MAX_CONN      = 20U;
+    static const std::uint32_t  DEFAULT_LOBBY_MAX_CONN      = 250U;
     static const std::string    DEFAULT_SERVER_CONFIG_FILE;
 
     ServerConfig();
