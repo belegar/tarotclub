@@ -39,7 +39,7 @@
 
 /*****************************************************************************/
 LobbyWindow::LobbyWindow(QWidget *parent = 0)
-    : QDialog(parent)
+    : QDialog(parent, Qt::Window)
 {
     setModal(false);
     ui.setupUi(this);
@@ -52,6 +52,7 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
 
     connect(ui.connectButton, &QPushButton::clicked, this, &LobbyWindow::slotConnect);
     connect(ui.joinButton, &QPushButton::clicked, this, &LobbyWindow::slotJoin);
+    connect(ui.quitButton, &QPushButton::clicked, this, &LobbyWindow::slotQuit);
     connect(ui.closeButton, &QPushButton::clicked, this, &LobbyWindow::slotClose);
 
     Initialize();
@@ -91,31 +92,9 @@ void LobbyWindow::slotConnect()
                     }
                 }
 
-                // Now try to get currently connected players
-                if (RequestHttp(request + "/tables", reply))
-                {
-                    QStringList strList = reply.split(",");
-                    ui.playerList->clear();
-                    mPlayerList.clear();
+                // It seems that we have found a valid server, try to connect
+                emit sigConnect(iter->toString(), (std::uint16_t)ui.serverPort->value());
 
-                    for (int i = 0; i < strList.size(); i++)
-                    {
-                        int pos = rex.indexIn(strList[i]);
-                        if ((pos > -1) && (rex.captureCount() == 2))
-                        {
-                            QString name = rex.cap(1);
-                            std::uint32_t uuid = rex.cap(2).toULong();
-                            mPlayerList[name] = uuid;
-
-                            // Update the table list
-                            ui.playerList->addItem(name);
-                        }
-                    }
-
-
-                    // It seems that we have found a valid server, try to connect
-                    emit sigConnect(iter->toString(), (std::uint16_t)ui.serverPort->value());
-                }
             }
             else
             {
@@ -137,10 +116,23 @@ void LobbyWindow::slotJoin()
     if (item != NULL)
     {
         QString name = item->text();
-
         if (mTableList.contains(name))
         {
             emit sigJoinTable(mTableList[name]);
+        }
+    }
+}
+/*****************************************************************************/
+void LobbyWindow::slotQuit()
+{
+    // Gets the table name
+    QListWidgetItem * item = ui.tableList->currentItem();
+    if (item != NULL)
+    {
+        QString name = item->text();
+        if (mTableList.contains(name))
+        {
+            emit sigQuitTable(mTableList[name]);
         }
     }
 }

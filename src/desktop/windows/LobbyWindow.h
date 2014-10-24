@@ -43,6 +43,7 @@ public:
 signals:
     void sigConnect(QString, std::uint16_t);
     void sigJoinTable(std::uint32_t);
+    void sigQuitTable(std::uint32_t);
 
 public slots:
     void slotMessage(std::string message);
@@ -50,6 +51,7 @@ public slots:
 private slots:
     void slotConnect();
     void slotJoin();
+    void slotQuit();
     void slotClose();
 
 private:
