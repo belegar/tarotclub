@@ -82,6 +82,7 @@ private slots:
     // Events from LobbyWindow
     void slotConnectToLobby(QString server, std::uint16_t port);
     void slotJoinTable(std::uint32_t tableId);
+    void slotQuitTable(std::uint32_t tableId);
 
 private:
     void SetupDialogs();

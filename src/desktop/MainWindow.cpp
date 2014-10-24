@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
 
     // TarotWidget events
-    connect(tarotWidget, &TarotWidget::sigPlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigTablePlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigStartDeal, this, &MainWindow::slotStartDealEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigWaitTrick, this, &MainWindow::slotWaitTrickEvent, Qt::QueuedConnection);
@@ -76,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Lobby
     connect(lobbyWindow, &LobbyWindow::sigConnect, this, &MainWindow::slotConnectToLobby);
     connect(lobbyWindow, &LobbyWindow::sigJoinTable, this, &MainWindow::slotJoinTable);
+    connect(lobbyWindow, &LobbyWindow::sigQuitTable, this, &MainWindow::slotQuitTable);
 
     // Exit catching to terminate the game properly
     connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
@@ -147,10 +148,19 @@ void MainWindow::slotConnectToLobby(QString server, std::uint16_t port)
 /*****************************************************************************/
 void MainWindow::slotJoinTable(std::uint32_t tableId)
 {
-    // connect to table
+    // join the game table
     if (tableId > 0U)
     {
         tarotWidget->JoinTable(tableId);
+    }
+}
+/*****************************************************************************/
+void MainWindow::slotQuitTable(std::uint32_t tableId)
+{
+    // quit the game
+    if (tableId > 0U)
+    {
+        tarotWidget->QuitTable(tableId);
     }
 }
 /*****************************************************************************/
@@ -393,7 +403,7 @@ void MainWindow::slotLaunchHelp()
 /*****************************************************************************/
 void MainWindow::slotPlayersListEvent()
 {
-    QMap<Place, Identity> players = tarotWidget->GetPlayersList();
+    std::map<Place, Identity> players = tarotWidget->GetTablePlayersList();
     scoresDock->SetPlayers(players);
     infosDock->SetPlayers(players);
 }
@@ -448,16 +458,17 @@ void MainWindow::slotStartDealEvent()
     mFirstPlayer = true;
     Tarot::Bid bid = tarotWidget->GetBid();
     Tarot::Shuffle shuffle = tarotWidget->GetShuffle();
-    QMap<Place, Identity> players = tarotWidget->GetPlayersList();
+    std::map<Place, Identity> players = tarotWidget->GetTablePlayersList();
 
     infosDock->Clear();
     infosDock->SetContract(bid.contract);
 
     QString name = "ERROR";
 
-    if (players.contains(bid.taker))
+    std::map<Place, Identity>::const_iterator iter = players.find(bid.taker);
+    if (iter != players.end())
     {
-        name = QString(players.value(bid.taker).name.data());
+        name = QString(iter->second.name.data());
     }
     infosDock->SetTaker(name, bid.taker);
 
