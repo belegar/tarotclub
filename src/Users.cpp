@@ -28,7 +28,7 @@
 #include "Protocol.h"
 #include "TcpSocket.h"
 
-static const std::uint32_t MAXIMUM_USERS    = 1000U;
+static const std::uint32_t MAXIMUM_USERS    = 250U;
 
 /*****************************************************************************/
 Users::Users()
