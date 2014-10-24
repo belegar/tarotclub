@@ -113,6 +113,16 @@ Place Client::GetPlace()
     return mPlace;
 }
 /*****************************************************************************/
+std::string Client::GetTablePlayerName(Place p)
+{
+    std::string name;
+    if (mPlayersIdent.find(p) != mPlayersIdent.end())
+    {
+        name = mPlayersIdent[p].name;
+    }
+    return name;
+}
+/*****************************************************************************/
 void Client::SetMyIdentity(const Identity &ident)
 {
     mIdentity = ident;
@@ -341,21 +351,6 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
     switch (cmd)
     {
-    case Protocol::ADMIN_GAME_FULL:
-    {
-        bool full;
-        in >> full;
-        mEventHandler.AdminGameFull();
-        break;
-    }
-
-    case Protocol::TABLE_CHAT_MESSAGE:
-    {
-        std::string message;
-        in >> message;
-        mEventHandler.TableMessage(message);
-        break;
-    }
 
     case Protocol::LOBBY_CHAT_MESSAGE:
     {
@@ -396,6 +391,41 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         break;
     }
 
+    case Protocol::LOBBY_PLAYERS_LIST:
+    {
+        std::uint8_t size;
+        in >> size;
+
+        mLobbyUsers.clear();
+        for (int i = 0; i < size; i++)
+        {
+            std::string name;
+            std::uint32_t uuid;
+
+            in >> uuid;
+            in >> name;
+            mLobbyUsers[uuid] = name;
+        }
+        mEventHandler.LobbyPlayersList();
+        break;
+    }
+
+    case Protocol::ADMIN_GAME_FULL:
+    {
+        bool full;
+        in >> full;
+        mEventHandler.AdminGameFull();
+        break;
+    }
+
+    case Protocol::TABLE_CHAT_MESSAGE:
+    {
+        std::string message;
+        in >> message;
+        mEventHandler.TableMessage(message);
+        break;
+    }
+
     case Protocol::TABLE_JOIN_REPLY:
     {
         in >> mPlace;
@@ -419,7 +449,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
             in >> ident;
             mPlayersIdent[place] = ident;
         }
-        mEventHandler.PlayersList();
+        mEventHandler.TablePlayersList();
         break;
     }
 
@@ -625,6 +655,12 @@ void Client::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffl
 void Client::SendJoinTable(std::uint32_t tableId)
 {
     ByteArray packet = Protocol::ClientJoinTable(mPlayer.GetUuid(), tableId);
+    SendPacket(packet);
+}
+/*****************************************************************************/
+void Client::SendQuitTable(std::uint32_t tableId)
+{
+    ByteArray packet = Protocol::ClientQuitTable(mPlayer.GetUuid(), tableId);
     SendPacket(packet);
 }
 /*****************************************************************************/

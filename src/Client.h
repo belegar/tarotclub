@@ -68,7 +68,8 @@ public:
         virtual void TableMessage(const std::string &message) = 0;
         virtual void LobbyMessage(const std::string &message) = 0;
         virtual void AssignedPlace() = 0;
-        virtual void PlayersList() = 0;
+        virtual void TablePlayersList() = 0;
+        virtual void LobbyPlayersList() = 0;
         virtual void NewGame() = 0;
         virtual void NewDeal() = 0;
         virtual void SelectPlayer(Place p) = 0;
@@ -112,10 +113,16 @@ public:
     {
         return mNbPlayers;
     }
-    std::map<Place, Identity> GetPlayersList()
+    std::map<Place, Identity> GetTablePlayersList()
     {
         return mPlayersIdent;
     }
+
+    std::map<std::uint32_t, std::string> GetLobbyPlayersList()
+    {
+        return mLobbyUsers;
+    }
+
     Tarot::GameMode GetGameMode()
     {
         return mGameMode;
@@ -134,6 +141,8 @@ public:
     }
     std::uint32_t GetUuid() { return mPlayer.GetUuid(); }
 
+    std::string GetTablePlayerName(Place p);
+
     // Setters
     void SetMyIdentity(const Identity &ident);
     void SetDiscard(const Deck &discard);
@@ -147,6 +156,7 @@ public:
     // Protocol methods
     void AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
     void SendJoinTable(std::uint32_t tableId);
+    void SendQuitTable(std::uint32_t tableId);
     void SendBid(Contract c, bool slam);
     void SendSyncDog();
     void SendDiscard(const Deck &discard);
@@ -180,7 +190,8 @@ private:
 
     // Memorized game states and parameters
     Tarot::GameMode mGameMode;
-    std::map<Place, Identity> mPlayersIdent;
+    std::map<Place, Identity> mPlayersIdent;  // players around the table
+    std::map<std::uint32_t, std::string> mLobbyUsers; // pair of uuid, names
     std::uint8_t mNbPlayers;
     Tarot::Bid  mBid;
     Tarot::Shuffle mShuffle;
