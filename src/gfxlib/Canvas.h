@@ -100,7 +100,7 @@ public:
     void SetCursorType(CursorType t);
     void SetFilter(quint8 f);
     void SetBackground(const std::string &code);
-    void SetPlayerIdentity(QMap<Place, Identity> &players, Place myPlace);
+    void SetPlayerIdentity(const std::map<Place, Identity> &players, Place myPlace);
     void SetResult(const Score &score, const Tarot::Bid &bid);
 
     // From IButtonEvent
