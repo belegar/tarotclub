@@ -95,29 +95,42 @@ void Lobby::NewConnection(int socket)
 void Lobby::ReadData(int socket, const std::string &data)
 {
     ByteArray packet(data);
-    std::uint32_t uuid = Protocol::GetSourceUuid(packet);
+    std::uint32_t src_uuid = Protocol::GetSourceUuid(packet);
+    std::uint32_t dest_uuid = Protocol::GetDestUuid(packet);
 
-    if (mUsers.IsValid(uuid, socket))
+    if (mUsers.IsValid(src_uuid, socket))
     {
-        // Filter using the socket:
-        //   if the player is playing in a table, forward the data to the controller
-        //   Otherwise, parse it, and treat chat messages only
-        std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
-        if (tableId != 0U)
+        // Filter using the destination uuid (table or lobby?)
+        if (dest_uuid == Protocol::TABLE_UID)
         {
-            // forward it to the suitable controller
-            for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+            // gets the table of the sender
+            std::uint32_t tableId = mUsers.GetPlayerTable(src_uuid);
+            if (tableId != 0U)
             {
-                if ((*iter)->GetId() == tableId)
+                // forward it to the suitable table controller
+                for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
                 {
-                    (*iter)->ExecuteRequest(packet);
+                    if ((*iter)->GetId() == tableId)
+                    {
+                        (*iter)->ExecuteRequest(packet);
+                    }
                 }
             }
+            else
+            {
+                TLogNetwork("Packet received for an invalid table, or player is not connected to the table");
+            }
         }
-        else
+        else if (dest_uuid == Protocol::LOBBY_UID)
         {
             // Parse commands by the Lobby
             ExecuteRequest(packet);
+        }
+        else
+        {
+            std::stringstream ss;
+            ss << "Packet destination must be the table or the lobby, nothing else; received UID: " << dest_uuid;
+            TLogNetwork(ss.str());
         }
     }
 }
@@ -176,6 +189,12 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
         break;
     }
 
+    case Protocol::CLIENT_QUIT_TABLE:
+    {
+
+        break;
+    }
+
     default:
         TLogNetwork("Lobby received a bad packet");
         break;
@@ -201,9 +220,9 @@ void Lobby::ClientClosed(int socket)
 
     ss << "Player " << mUsers.GetIdentity(uuid).name << " has quit the server. UUID: " << uuid << ", socket=" << socket;
     TLogNetwork(ss.str());
-    mUsers.RemoveUser(uuid);
 
-    // Fixme: remove the player from the table
+    //FIXME: remove the player first from the table
+    mUsers.RemoveUser(uuid);
 }
 /*****************************************************************************/
 void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
