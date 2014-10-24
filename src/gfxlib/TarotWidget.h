@@ -62,15 +62,22 @@ public:
     void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
     void JoinTable(std::uint32_t tableId);
+    void QuitTable(std::uint32_t tableId);
 
     // Configuration management
     void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
 
     // Getters about various current game information, external usage
-    QMap<Place, Identity> GetPlayersList()
+    std::map<Place, Identity> GetTablePlayersList()
     {
-        return mPlayers;
+        return mClient.GetTablePlayersList();
     }
+
+    std::map<std::uint32_t, std::string> GetLobbyPlayersList()
+    {
+        return mClient.GetLobbyPlayersList();
+    }
+
     Tarot::Bid GetBid()
     {
         return mClient.GetBid();
@@ -96,7 +103,8 @@ signals:
     // These signals are used internally and made accessible in public for any external entity
     void sigEnteredLobby();
     void sigNewGame();
-    void sigPlayersList();
+    void sigTablePlayersList();
+    void sigLobbyPlayersList();
     void sigShowCard(Place, std::string);
     void sigWaitTrick(Place);
     void sigStartDeal();
@@ -119,7 +127,6 @@ private:
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
     Client          mClient; // The human player
-    QMap<Place, Identity> mPlayers;
     Deck            mDiscard;
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;
@@ -155,19 +162,14 @@ private:
     {
         emit sigAssignedPlace();
     }
-    virtual void PlayersList()
+    virtual void TablePlayersList()
     {
-        std::map<Place, Identity>::iterator iter;
-        std::map<Place, Identity> pl = mClient.GetPlayersList();
+        emit sigTablePlayersList();
+    }
 
-        // Transform a std::map into a QMap
-        mPlayers.clear();
-        for (iter = pl.begin(); iter != pl.end(); ++iter)
-        {
-            mPlayers[iter->first] = iter->second;
-        }
-
-        emit sigPlayersList();
+    virtual void LobbyPlayersList()
+    {
+        emit sigLobbyPlayersList();
     }
 
     virtual void AdminGameFull()

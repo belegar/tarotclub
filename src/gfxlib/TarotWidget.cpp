@@ -68,7 +68,7 @@ TarotWidget::TarotWidget(QWidget *parent)
     connect(this, &TarotWidget::sigNewGame, this, &TarotWidget::slotNewGame, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigNewDeal, this, &TarotWidget::slotNewDeal, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigAssignedPlace, this, &TarotWidget::slotAssignedPlace, Qt::QueuedConnection);
-    connect(this, &TarotWidget::sigPlayersList, this, &TarotWidget::slotPlayersList, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigTablePlayersList, this, &TarotWidget::slotPlayersList, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigTableMessage, this, &TarotWidget::slotMessage, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigSelectPlayer, this, &TarotWidget::slotSelectPlayer, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigRequestBid, this, &TarotWidget::slotRequestBid, Qt::QueuedConnection);
@@ -202,6 +202,11 @@ void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
 void TarotWidget::JoinTable(std::uint32_t tableId)
 {
     mClient.SendJoinTable(tableId);
+}
+/*****************************************************************************/
+void TarotWidget::QuitTable(std::uint32_t tableId)
+{
+    mClient.SendQuitTable(tableId);
 }
 /*****************************************************************************/
 void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
@@ -499,7 +504,7 @@ void TarotWidget::slotMessage(std::string message)
 /*****************************************************************************/
 void TarotWidget::slotPlayersList()
 {
-    mCanvas->SetPlayerIdentity(mPlayers, mClient.GetPlace());
+    mCanvas->SetPlayerIdentity(mClient.GetTablePlayersList(), mClient.GetPlace());
 }
 /*****************************************************************************/
 void TarotWidget::slotNewGame()
@@ -542,13 +547,7 @@ void TarotWidget::slotShowBid(Place p, bool slam, Contract c)
 /*****************************************************************************/
 void TarotWidget::slotStartDeal()
 {
-    QString name = "ERROR";
     Place taker = mClient.GetBid().taker;
-
-    if (mPlayers.contains(taker))
-    {
-        name = QString(mPlayers.value(taker).name.data());
-    }
 
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
     mCanvas->ShowTaker(taker, mClient.GetPlace());
