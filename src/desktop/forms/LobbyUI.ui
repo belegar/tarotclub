@@ -168,6 +168,13 @@
          </spacer>
         </item>
         <item>
+         <widget class="QPushButton" name="quitButton">
+          <property name="text">
+           <string>Quit</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="joinButton">
           <property name="text">
            <string>Join</string>
