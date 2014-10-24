@@ -47,9 +47,9 @@ public:
     static const std::uint32_t  INVALID_UID;
     static const std::uint32_t  ALL_LOBBY;      //!< Send the packet to all clients in the lobby (ie, chat message)
     static const std::uint32_t  ALL_TABLE;      //!< Send the packet to all players of a table
-    static const std::uint32_t  SERVER_UID;     //!< Server
+    static const std::uint32_t  LOBBY_UID;      //!< The lobby itself
+    static const std::uint32_t  TABLE_UID;      //!< The table itself
     static const std::uint32_t  STAGING_UID;    //!< A staging client
-    static const std::uint32_t  SYSTEM_UID;     //!< System user
 
     static const std::uint32_t  USERS_UID;      //!< Start of users UUID
     static const std::uint32_t  NO_TABLE;       //!< Identifier for "no table"
@@ -62,10 +62,8 @@ public:
 
     enum Command
     {
-        // client (player) -> server
+        // client -> table
         CLIENT_TABLE_MESSAGE    = 0x09, //!< Chat message in the table
-        CLIENT_LOBBY_MESSAGE    = 0x10, //!< Chat message in the lobby
-        CLIENT_REPLY_LOGIN      = 0x11, //!< Client sends its identity to the server
         CLIENT_BID              = 0x12,
         CLIENT_DISCARD          = 0x13, //!< Client send the discard
         CLIENT_CARD             = 0x14,
@@ -81,23 +79,29 @@ public:
         CLIENT_SYNC_NEW_DEAL    = 0x1E, //!< Used to synchronize all clients that have received their cards in hand
         CLIENT_SYNC_ALL_PASSED  = 0x1F, //!< All the players have passed, new deal will be played
         CLIENT_SYNC_END_OF_DEAL = 0x20, //!< The score has been displayed, all players must ack to go to the next deal or terminate
-        CLIENT_JOIN_TABLE       = 0x21, //!< A user wants to join the table
+
+        // client -> lobby
+        CLIENT_LOBBY_MESSAGE    = 0x30, //!< Chat message in the lobby
+        CLIENT_JOIN_TABLE       = 0x31, //!< A user wants to join the table
+        CLIENT_QUIT_TABLE       = 0x32, //!< A user wants to quit the table
+        CLIENT_REPLY_LOGIN      = 0x33, //!< Client sends its identity to the server
 
         // server -> client (player)
-        LOBBY_CHAT_MESSAGE     = 0x40, //!< chat message broadcasted to all clients
-        LOBBY_REQUEST_LOGIN    = 0x41, //!< Server assigns a place to a client and he must reply back the identity
-        LOBBY_LOGIN_RESULT     = 0x42,
+        LOBBY_CHAT_MESSAGE      = 0x40, //!< chat message broadcasted to all clients
+        LOBBY_REQUEST_LOGIN     = 0x41, //!< Server assigns a place to a client and he must reply back the identity
+        LOBBY_LOGIN_RESULT      = 0x42,
         // FIXME: Not implemented in the server side
-        LOBBY_DISCONNECT       = 0x43, //!< Ask a client to quit the game
+        LOBBY_DISCONNECT        = 0x43, //!< Ask a client to quit the game
+        LOBBY_PLAYERS_LIST      = 0x44,
 
         // system -> server
-        LOBBY_CREATE_TABLE     = 0x50, //!< Ask the server to start a new table with N players
-        LOBBY_ADD_PLAYER       = 0x51, //!< Add a player
-        LOBBY_REMOVE_PLAYER    = 0x52, //!< Remove player
-        LOBBY_QUIT_GAME        = 0x53,
+        LOBBY_CREATE_TABLE      = 0x50, //!< Ask the server to start a new table with N players
+        LOBBY_ADD_PLAYER        = 0x51, //!< Add a player
+        LOBBY_REMOVE_PLAYER     = 0x52, //!< Remove player
 
         // table -> client (player)
-        TABLE_JOIN_REPLY        = 0x70, //!< Player join to the table
+        TABLE_JOIN_REPLY        = 0x6F, //!< Player joins the table (accepted or rejected)
+        TABLE_QUIT_REPLY        = 0x70, //!< Player quit the table (accepted or rejected)
         TABLE_CHAT_MESSAGE      = 0x71,
         TABLE_PLAYERS_LIST      = 0x72, //!< Once the players list has been received, players must indicate if they are ready
         TABLE_NEW_GAME          = 0x73, //!< New game mode, and shuffle type
@@ -175,6 +179,7 @@ public:
     static ByteArray ClientHandle(const Deck &handle, std::uint32_t client_uuid);
     static ByteArray ClientCard(const std::string &card, std::uint32_t client_uuid);
     static ByteArray ClientJoinTable(std::uint32_t client_uuid, std::uint32_t tableId);
+    static ByteArray ClientQuitTable(std::uint32_t client_uuid, std::uint32_t tableId);
 
     // table -> client (player): manage the Tarot game protocol and all the table related stuff
     static ByteArray TableJoinReply(Place p, std::uint8_t nbPlayers, std::uint32_t uuid);
@@ -185,7 +190,7 @@ public:
     static ByteArray TableNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
     static ByteArray TableChatMessage(const std::string &message);
     static ByteArray TableShowBid(Contract c, bool slam, Place p);
-    static ByteArray TablePlayersList(std::map<Place, Identity> players);
+    static ByteArray TablePlayersList(const std::map<Place, Identity> &players);
     static ByteArray TableShowCard(const Card &c, Place p);
     static ByteArray TableShowHandle(Deck &handle, Place p);
     static ByteArray TableNewDeal(Player *player);
@@ -208,12 +213,12 @@ public:
     static ByteArray LobbyLoginResult(bool accepted, std::uint32_t uuid);
     static ByteArray LobbyDisconnect(std::uint32_t uuid);
     static ByteArray LobbyChatMessage(const std::string &message);
+    static ByteArray LobbyPlayersList(const std::map<std::uint32_t, std::string> &players);
 
     // Lobby -> Controller
     static ByteArray LobbyAddPlayer(std::uint32_t player_uuid, const Identity &ident);
     static ByteArray LobbyRemovePlayer(std::uint32_t player_uuid);
     static ByteArray LobbyCreateTable(std::uint8_t nbPlayers);
-    static ByteArray LobbyQuitGame();
 
 private:
 
