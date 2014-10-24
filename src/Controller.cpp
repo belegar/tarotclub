@@ -58,440 +58,431 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
 
     switch (cmd)
     {
-        case Protocol::LOBBY_QUIT_GAME:
+    case Protocol::CLIENT_ERROR:
+    {
+        TLogError("Client has sent an error code");
+        break;
+    }
+
+    case Protocol::LOBBY_CREATE_TABLE:
+    {
+        if (src_uuid == Protocol::LOBBY_UID)
         {
-            if (src_uuid == Protocol::SYSTEM_UID)
+            std::uint8_t nbPlayers;
+
+            in >> nbPlayers;
+
+            engine.CreateTable(nbPlayers);
+            mFull = false;
+            mAdmins.clear();
+        }
+        break;
+    }
+
+    case Protocol::LOBBY_ADD_PLAYER:
+    {
+        std::uint32_t uuid;
+        Identity ident;
+        in >> uuid;
+        in >> ident;
+        // Look for free Place and assign the uuid to this player
+        Place assigned = engine.AddPlayer(uuid);
+        if (assigned.Value() != Place::NOWHERE)
+        {
+            // New player connected, send table information
+            Send(Protocol::TableJoinReply(
+                                       assigned,
+                                       engine.GetNbPlayers(),
+                                       uuid));
+
+            // Warn upper layers
+            mEventHandler.AcceptPlayer(uuid, mId);
+
+            // If it is the first player, then it is an admin
+            if (mAdmins.empty())
             {
-                ret = false;
+                mAdmins.push_back(uuid);
             }
-            break;
-        }
 
-        case Protocol::CLIENT_ERROR:
-        {
-            TLogError("Client has sent an error code");
-            break;
-        }
+            mFull = engine.SetIdentity(uuid, ident);
+            std::string message = "The player " + ident.name + " has joined the game.";
+            Send(Protocol::TableChatMessage(message));
 
-        case Protocol::LOBBY_CREATE_TABLE:
-        {
-            if (src_uuid == Protocol::SYSTEM_UID)
+            // Update player list
+            Send(Protocol::TablePlayersList(engine.GetPlayersList()));
+            if (mFull)
             {
-                std::uint8_t nbPlayers;
-
-                in >> nbPlayers;
-
-                engine.CreateTable(nbPlayers);
-                mFull = false;
-                mAdmins.clear();
-            }
-            break;
-        }
-
-        case Protocol::LOBBY_ADD_PLAYER:
-        {
-            std::uint32_t uuid;
-            Identity ident;
-            in >> uuid;
-            in >> ident;
-            // Look for free Place and assign the uuid to this player
-            Place assigned = engine.AddPlayer(uuid);
-            if (assigned.Value() != Place::NOWHERE)
-            {
-                // New player connected, send table information
-                Send(Protocol::TableJoinReply(
-                                           assigned,
-                                           engine.GetNbPlayers(),
-                                           uuid));
-
-                // Warn upper layers
-                mEventHandler.AcceptPlayer(uuid, mId);
-
-                // If it is the first player, then it is an admin
-                if (mAdmins.empty())
+                // Warn table admin that the game is full, so it can start
+                for (std::vector<std::uint32_t>::iterator iter = mAdmins.begin(); iter != mAdmins.end(); ++iter)
                 {
-                    mAdmins.push_back(uuid);
-                }
-
-                mFull = engine.SetIdentity(uuid, ident);
-                std::string message = "The player " + ident.name + " has joined the game.";
-                Send(Protocol::TableChatMessage(message));
-
-                // Update player list
-                Send(Protocol::TablePlayersList(engine.GetPlayersList()));
-                if (mFull)
-                {
-                    // Warn table admin that the game is full, so it can start
-                    for (std::vector<std::uint32_t>::iterator iter = mAdmins.begin(); iter != mAdmins.end(); ++iter)
-                    {
-                        Send(Protocol::AdminGameFull(true, *iter));
-                    }
+                    Send(Protocol::AdminGameFull(true, *iter));
                 }
             }
-            else
-            {
-                // Server is full, send an error message
-                Send(Protocol::TableFullMessage(uuid));
-            }
-            break;
         }
-
-        case Protocol::LOBBY_REMOVE_PLAYER:
+        else
         {
-            std::uint32_t kicked_player;
-            in >> kicked_player;
-            // Check if the uuid exists
-             Place place = engine.GetPlayerPlace(kicked_player);
-            if (place != Place::NOWHERE)
-            {
-                // Warn all the player
-                std::string message = "The player " + engine.GetIdentity(place).name + " has quit the game.";
-                Send(Protocol::TableChatMessage(message));
-
-                // FIXME: put the game in "pause" mode
-                // Ask for a new player to continue
-            }
-            break;
+            // Server is full, send an error message
+            Send(Protocol::TableFullMessage(uuid));
         }
+        break;
+    }
 
-        case Protocol::CLIENT_TABLE_MESSAGE:
+    case Protocol::LOBBY_REMOVE_PLAYER:
+    {
+        std::uint32_t kicked_player;
+        in >> kicked_player;
+        // Check if the uuid exists
+         Place place = engine.GetPlayerPlace(kicked_player);
+        if (place != Place::NOWHERE)
         {
-            std::string message;
-            in >> message;
+            // Warn all the player
+            std::string message = "The player " + engine.GetIdentity(place).name + " has quit the game.";
+            Send(Protocol::TableChatMessage(message));
 
-            // Check if the uuid exists
-            Place place = engine.GetPlayerPlace(src_uuid);
-            if (place != Place::NOWHERE)
-            {
-                message = engine.GetIdentity(place).name + "> " + message;
-                Send(Protocol::TableChatMessage(message));
-            }
-            break;
+            // FIXME: put the game in "pause" mode
+            // Ask for a new player to continue
         }
+        break;
+    }
 
-        case Protocol::ADMIN_NEW_GAME:
+    case Protocol::CLIENT_TABLE_MESSAGE:
+    {
+        std::string message;
+        in >> message;
+
+        // Check if the uuid exists
+        Place place = engine.GetPlayerPlace(src_uuid);
+        if (place != Place::NOWHERE)
         {
-            if (IsAdmin(src_uuid))
-            {
-                std::uint8_t gameMode;
-                Tarot::Shuffle shuffle;
-
-                in >> gameMode;
-                in >> shuffle;
-
-                engine.NewGame((Tarot::GameMode)gameMode, shuffle);
-                Send(Protocol::TableNewGame((Tarot::GameMode)gameMode, shuffle));
-            }
-            break;
+            message = engine.GetIdentity(place).name + "> " + message;
+            Send(Protocol::TableChatMessage(message));
         }
+        break;
+    }
 
-        case Protocol::CLIENT_SYNC_NEW_GAME:
+    case Protocol::ADMIN_NEW_GAME:
+    {
+        if (IsAdmin(src_uuid))
         {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+            std::uint8_t gameMode;
+            Tarot::Shuffle shuffle;
+
+            in >> gameMode;
+            in >> shuffle;
+
+            engine.NewGame((Tarot::GameMode)gameMode, shuffle);
+            Send(Protocol::TableNewGame((Tarot::GameMode)gameMode, shuffle));
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_NEW_GAME:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_READY, src_uuid))
             {
-                if (engine.Sync(TarotEngine::WAIT_FOR_READY, src_uuid))
+                NewDeal();
+            }
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_NEW_DEAL:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_CARDS, src_uuid))
+            {
+                // All the players have received their cards, launch the bid sequence
+                BidSequence();
+            }
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_BID:
+    {
+        std::uint8_t c;
+        std::uint8_t slam;
+
+        in >> c;
+        in >> slam;
+
+        // Check if the uuid exists
+        Place p = engine.GetPlayerPlace(src_uuid);
+        if (p != Place::NOWHERE)
+        {
+            // Check if this is the right player
+            if (p == engine.GetCurrentPlayer())
+            {
+                // Check if we are in the good sequence
+                if (engine.GetSequence() == TarotEngine::WAIT_FOR_BID)
                 {
-                    NewDeal();
-                }
-            }
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_NEW_DEAL:
-        {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
-            {
-                if (engine.Sync(TarotEngine::WAIT_FOR_CARDS, src_uuid))
-                {
-                    // All the players have received their cards, launch the bid sequence
-                    BidSequence();
-                }
-            }
-            break;
-        }
-
-        case Protocol::CLIENT_BID:
-        {
-            std::uint8_t c;
-            std::uint8_t slam;
-
-            in >> c;
-            in >> slam;
-
-            // Check if the uuid exists
-            Place p = engine.GetPlayerPlace(src_uuid);
-            if (p != Place::NOWHERE)
-            {
-                // Check if this is the right player
-                if (p == engine.GetCurrentPlayer())
-                {
-                    // Check if we are in the good sequence
-                    if (engine.GetSequence() == TarotEngine::WAIT_FOR_BID)
-                    {
-                        Contract cont = engine.SetBid((Contract)c, (slam == 1U ? true : false), p);
-                        // Broadcast player's bid, and wait for all acknowlegements
-                        Send(Protocol::TableShowBid(cont, (slam == 1U ? true : false), p));
-                    }
-                    else
-                    {
-                        TLogError("Wrong sequence");
-                    }
+                    Contract cont = engine.SetBid((Contract)c, (slam == 1U ? true : false), p);
+                    // Broadcast player's bid, and wait for all acknowlegements
+                    Send(Protocol::TableShowBid(cont, (slam == 1U ? true : false), p));
                 }
                 else
                 {
-                    TLogError("Wrong player to bid");
+                    TLogError("Wrong sequence");
                 }
             }
             else
             {
-                TLogError("Cannot get player place from UUID");
+                TLogError("Wrong player to bid");
             }
-            break;
         }
-
-        case Protocol::CLIENT_SYNC_SHOW_BID:
+        else
         {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+            TLogError("Cannot get player place from UUID");
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_SHOW_BID:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_BID, src_uuid))
             {
-                if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_BID, src_uuid))
+                // Continue/finish the bid sequence
+                BidSequence();
+            }
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_ALL_PASSED:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_ALL_PASSED, src_uuid))
+            {
+                NewDeal();
+            }
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_SHOW_DOG:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_DOG, src_uuid))
+            {
+                // When all the players have seen the dog, ask to the taker to build a discard
+                Player *player = engine.GetPlayer(engine.GetBid().taker);
+                if (player != NULL)
                 {
-                    // Continue/finish the bid sequence
-                    BidSequence();
+                    engine.DiscardSequence();
+                    std::uint32_t id = player->GetUuid();
+                    Send(Protocol::TableAskForDiscard(id));
+                }
+                else
+                {
+                    TLogError("Cannot get player pointer!");
                 }
             }
-            break;
         }
+        break;
+    }
 
-        case Protocol::CLIENT_SYNC_ALL_PASSED:
-        {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
-            {
-                if (engine.Sync(TarotEngine::WAIT_FOR_ALL_PASSED, src_uuid))
-                {
-                    NewDeal();
-                }
-            }
-            break;
-        }
+    case Protocol::CLIENT_DISCARD:
+    {
+        Deck discard;
+        in >> discard;
 
-        case Protocol::CLIENT_SYNC_SHOW_DOG:
+        // Check if the uuid exists
+        Place p = engine.GetPlayerPlace(src_uuid);
+        if (p != Place::NOWHERE)
         {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+            // Check sequence
+            if (engine.GetSequence() == TarotEngine::WAIT_FOR_DISCARD)
             {
-                if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_DOG, src_uuid))
+                // Check if right player
+                if (engine.GetBid().taker == p)
                 {
-                    // When all the players have seen the dog, ask to the taker to build a discard
-                    Player *player = engine.GetPlayer(engine.GetBid().taker);
-                    if (player != NULL)
+                    if (engine.SetDiscard(discard))
                     {
-                        engine.DiscardSequence();
-                        std::uint32_t id = player->GetUuid();
-                        Send(Protocol::TableAskForDiscard(id));
+                        // Then start the deal
+                        StartDeal();
                     }
                     else
                     {
-                        TLogError("Cannot get player pointer!");
+                        TLogError("Not a valid discard" + discard.ToString());
                     }
                 }
             }
-            break;
         }
+        break;
+    }
 
-        case Protocol::CLIENT_DISCARD:
+    case Protocol::CLIENT_SYNC_START:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
         {
-            Deck discard;
-            in >> discard;
-
-            // Check if the uuid exists
-            Place p = engine.GetPlayerPlace(src_uuid);
-            if (p != Place::NOWHERE)
+            if (engine.Sync(TarotEngine::WAIT_FOR_START_DEAL, src_uuid))
             {
-                // Check sequence
-                if (engine.GetSequence() == TarotEngine::WAIT_FOR_DISCARD)
+                GameSequence();
+            }
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_HANDLE:
+    {
+        Deck handle;
+        in >> handle;
+
+        Place p = engine.GetPlayerPlace(src_uuid);
+
+        // Check if the uuid exists
+        if (p.Value() != Place::NOWHERE)
+        {
+            // Check sequence
+            if (engine.GetSequence() == TarotEngine::WAIT_FOR_HANDLE)
+            {
+                // Check if right player
+                if (engine.GetCurrentPlayer() == p)
                 {
-                    // Check if right player
-                    if (engine.GetBid().taker == p)
+                    if (engine.SetHandle(handle, p))
                     {
-                        if (engine.SetDiscard(discard))
-                        {
-                            // Then start the deal
-                            StartDeal();
-                        }
-                        else
-                        {
-                            TLogError("Not a valid discard" + discard.ToString());
-                        }
+                        // Handle is valid, show it to all players
+                        Send(Protocol::TableShowHandle(handle, p));
+                    }
+                    else
+                    {
+                        // Invalid or no handle, continue game (player has to play a card)
+                        GameSequence();
                     }
                 }
             }
-            break;
         }
-
-        case Protocol::CLIENT_SYNC_START:
+        else
         {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+            TLogError("Cannot get player place from UUID");
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_HANDLE:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_HANDLE, src_uuid))
             {
-                if (engine.Sync(TarotEngine::WAIT_FOR_START_DEAL, src_uuid))
-                {
-                    GameSequence();
-                }
+                GameSequence();
             }
-            break;
         }
+        break;
+    }
 
-        case Protocol::CLIENT_HANDLE:
+    case Protocol::CLIENT_CARD:
+    {
+        std::string cardName;
+
+        in >> cardName;
+        Card c(cardName);
+
+        // Check if the card name exists
+        if (c.IsValid())
         {
-            Deck handle;
-            in >> handle;
-
             Place p = engine.GetPlayerPlace(src_uuid);
 
             // Check if the uuid exists
             if (p.Value() != Place::NOWHERE)
             {
                 // Check sequence
-                if (engine.GetSequence() == TarotEngine::WAIT_FOR_HANDLE)
+                if (engine.GetSequence() == TarotEngine::WAIT_FOR_PLAYED_CARD)
                 {
                     // Check if right player
                     if (engine.GetCurrentPlayer() == p)
                     {
-                        if (engine.SetHandle(handle, p))
+                        if (engine.SetCard(c, p))
                         {
-                            // Handle is valid, show it to all players
-                            Send(Protocol::TableShowHandle(handle, p));
-                        }
-                        else
-                        {
-                            // Invalid or no handle, continue game (player has to play a card)
-                            GameSequence();
+                            // Broadcast played card, and wait for all acknowlegements
+                            Send(Protocol::TableShowCard(c, p));
                         }
                     }
+                    else
+                    {
+                        TLogError("Wrong player");
+                    }
+                }
+                else
+                {
+                    TLogError("Bad sequence");
                 }
             }
             else
             {
                 TLogError("Cannot get player place from UUID");
             }
-            break;
         }
-
-        case Protocol::CLIENT_SYNC_HANDLE:
+        else
         {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+            TLogError("Bad card name!");
+        }
+        break;
+    }
+
+    case Protocol::CLIENT_SYNC_SHOW_CARD:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_CARD, src_uuid))
             {
-                if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_HANDLE, src_uuid))
-                {
-                    GameSequence();
-                }
+                GameSequence();
             }
-            break;
         }
+        break;
+    }
 
-        case Protocol::CLIENT_CARD:
+    case Protocol::CLIENT_SYNC_TRICK:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
         {
-            std::string cardName;
-
-            in >> cardName;
-            Card c(cardName);
-
-            // Check if the card name exists
-            if (c.IsValid())
+            if (engine.Sync(TarotEngine::WAIT_FOR_END_OF_TRICK, src_uuid))
             {
-                Place p = engine.GetPlayerPlace(src_uuid);
+                GameSequence();
+            }
+        }
+        break;
+    }
 
-                // Check if the uuid exists
-                if (p.Value() != Place::NOWHERE)
+    case Protocol::CLIENT_SYNC_END_OF_DEAL:
+    {
+        // Check if the uuid exists
+        if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        {
+            if (engine.Sync(TarotEngine::WAIT_FOR_END_OF_DEAL, src_uuid))
+            {
+                if (engine.NextDeal())
                 {
-                    // Check sequence
-                    if (engine.GetSequence() == TarotEngine::WAIT_FOR_PLAYED_CARD)
-                    {
-                        // Check if right player
-                        if (engine.GetCurrentPlayer() == p)
-                        {
-                            if (engine.SetCard(c, p))
-                            {
-                                // Broadcast played card, and wait for all acknowlegements
-                                Send(Protocol::TableShowCard(c, p));
-                            }
-                        }
-                        else
-                        {
-                            TLogError("Wrong player");
-                        }
-                    }
-                    else
-                    {
-                        TLogError("Bad sequence");
-                    }
+                    NewDeal();
                 }
                 else
                 {
-                    TLogError("Cannot get player place from UUID");
+                    Send(Protocol::TableEndOfGame(engine.GetWinner()));
                 }
             }
-            else
-            {
-                TLogError("Bad card name!");
-            }
-            break;
         }
+        break;
+    }
 
-        case Protocol::CLIENT_SYNC_SHOW_CARD:
-        {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
-            {
-                if (engine.Sync(TarotEngine::WAIT_FOR_SHOW_CARD, src_uuid))
-                {
-                    GameSequence();
-                }
-            }
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_TRICK:
-        {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
-            {
-                if (engine.Sync(TarotEngine::WAIT_FOR_END_OF_TRICK, src_uuid))
-                {
-                    GameSequence();
-                }
-            }
-            break;
-        }
-
-        case Protocol::CLIENT_SYNC_END_OF_DEAL:
-        {
-            // Check if the uuid exists
-            if (engine.GetPlayerPlace(src_uuid) != Place::NOWHERE)
-            {
-                if (engine.Sync(TarotEngine::WAIT_FOR_END_OF_DEAL, src_uuid))
-                {
-                    if (engine.NextDeal())
-                    {
-                        NewDeal();
-                    }
-                    else
-                    {
-                        Send(Protocol::TableEndOfGame(engine.GetWinner()));
-                    }
-                }
-            }
-            break;
-        }
-
-        default:
-            TLogError("Unknown packet received");
-            break;
+    default:
+        TLogError("Unknown packet received");
+        break;
     }
 
     return ret;
