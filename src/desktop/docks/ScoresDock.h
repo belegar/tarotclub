@@ -41,7 +41,7 @@ public:
     ScoresDock(QWidget *parent);
 
     void Clear();
-    void SetPlayers(const QMap<Place, Identity> &players);
+    void SetPlayers(const std::map<Place, Identity> &players);
     void SetNewScore(const Deal &deal);
 
 protected:

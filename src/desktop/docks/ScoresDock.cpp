@@ -54,7 +54,7 @@ void ScoresDock::Clear()
     tableScores->setRowCount(0);
 }
 /*****************************************************************************/
-void ScoresDock::SetPlayers(const QMap<Place, Identity> &players)
+void ScoresDock::SetPlayers(const std::map<Place, Identity> &players)
 {
     QStringList header;
 
@@ -63,9 +63,11 @@ void ScoresDock::SetPlayers(const QMap<Place, Identity> &players)
     for (std::uint8_t i = 0; i < 4; i++)
     {
         Place place(i);
-        if (players.contains(place))
+        std::map<Place, Identity>::const_iterator iter = players.find(place);
+        if (iter != players.end())
         {
-            header += players[place].name.data();
+            Identity ident = iter->second;
+            header += QString(ident.name.c_str());
         }
         else
         {
