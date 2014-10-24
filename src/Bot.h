@@ -64,7 +64,8 @@ private:
     virtual void TableMessage(const std::string &message);
     virtual void LobbyMessage(const std::string &message);
     virtual void AssignedPlace();
-    virtual void PlayersList();
+    virtual void TablePlayersList();
+    virtual void LobbyPlayersList();
     virtual void NewDeal();
     virtual void SelectPlayer(Place p);
     virtual void RequestBid(Contract highestBid);

@@ -61,9 +61,14 @@ void Bot::AssignedPlace()
     // Nothing to do
 }
 /*****************************************************************************/
-void Bot::PlayersList()
+void Bot::TablePlayersList()
 {
     // Nothing to do with the list of players
+}
+/*****************************************************************************/
+void Bot::LobbyPlayersList()
+{
+    // Nothing to do with this event
 }
 /*****************************************************************************/
 void Bot::NewDeal()
