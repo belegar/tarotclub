@@ -119,6 +119,21 @@ std::list<std::uint32_t> Users::GetUsersOfTable(std::uint32_t tableId)
     return theList;
 }
 /*****************************************************************************/
+std::map<std::uint32_t, std::string> Users::GetLobbyUserNames()
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    std::map<std::uint32_t, std::string> theList;
+    for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
+    {
+        // Do not include users in login process
+        if (iter->second.connected)
+        {
+            theList[iter->first] = iter->second.identity.name;
+        }
+    }
+    return theList;
+}
+/*****************************************************************************/
 std::list<std::uint32_t> Users::GetLobbyUsers()
 {
     std::lock_guard<std::mutex> lock(mMutex);

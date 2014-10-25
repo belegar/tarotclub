@@ -58,6 +58,7 @@ public:
 
     // Get some lists of specific group
     std::list<std::uint32_t> GetUsersOfTable(std::uint32_t tableId);
+    std::map<std::uint32_t, std::string> GetLobbyUserNames();
     std::list<std::uint32_t> GetLobbyUsers();
 
     void CloseClients();
