@@ -98,7 +98,6 @@ public:
     void UpdateStatistics();
     Card Play();
     bool IsValid(const Card &c);
-    bool IsConnected();
     Deck AutoDiscard();
 
     // Getters
@@ -151,6 +150,8 @@ public:
 
     // Network
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
+    bool IsConnected();
+    void Disconnect();
     void Close();
 
     // Protocol methods

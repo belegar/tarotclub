@@ -258,6 +258,11 @@ bool Client::IsConnected()
     return mConnected;
 }
 /*****************************************************************************/
+void Client::Disconnect()
+{
+    mTcpClient.Close();
+}
+/*****************************************************************************/
 void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
     if (!mTcpClient.IsValid())
