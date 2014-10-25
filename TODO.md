@@ -14,6 +14,7 @@ Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant
 
 ## New features
   
+  * Allow to add new server addresses in the lobby, save them in the configuration file
   * Use the Canvas to propose Handle (with the menu)
   * Change the Lobby protocol into JSON-RPC
   * Allow to choose the AI script configuration file (user customization)
