@@ -63,6 +63,7 @@ public:
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
     void JoinTable(std::uint32_t tableId);
     void QuitTable(std::uint32_t tableId);
+    void Disconnect();
 
     // Configuration management
     void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
@@ -120,6 +121,7 @@ public slots:
     void slotCreateNetworkGame();
     void slotCleanBeforeExit();
     void slotSendChatMessage(const QString &message);
+    void slotSendLobbyMessage(const QString &message);
     void slotStartGame();
 
 private:
