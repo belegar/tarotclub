@@ -43,24 +43,22 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
 {
     setModal(false);
     ui.setupUi(this);
-    ui.serverAddress->setCursorPosition(0);
     ui.serverPort->setValue(4269);
 
-#ifdef QT_DEBUG
-    ui.serverAddress->setText("127.0.0.1");
-#endif
-
     connect(ui.connectButton, &QPushButton::clicked, this, &LobbyWindow::slotConnect);
+    connect(ui.disconnectButton, &QPushButton::clicked, this, &LobbyWindow::slotDisconnect);
     connect(ui.joinButton, &QPushButton::clicked, this, &LobbyWindow::slotJoin);
     connect(ui.quitButton, &QPushButton::clicked, this, &LobbyWindow::slotQuit);
     connect(ui.closeButton, &QPushButton::clicked, this, &LobbyWindow::slotClose);
+
+    connect(ui.chatText, &QLineEdit::returnPressed, this, &LobbyWindow::slotReturnPressed);
 
     Initialize();
 }
 /*****************************************************************************/
 void LobbyWindow::slotConnect()
 {
-    QHostInfo info = QHostInfo::fromName(ui.serverAddress->text());
+    QHostInfo info = QHostInfo::fromName(ui.serverAddress->currentText());
 
     if (info.error() == QHostInfo::NoError)
     {
@@ -104,9 +102,27 @@ void LobbyWindow::slotConnect()
     }
 }
 /*****************************************************************************/
+void LobbyWindow::slotDisconnect()
+{
+    mTableList.clear();
+    ui.tableList->clear();
+    ui.playerList->clear();
+    emit sigDisconnect();
+}
+/*****************************************************************************/
 void LobbyWindow::slotMessage(std::string message)
 {
     ui.textArea->append(QString(message.c_str()));
+}
+/*****************************************************************************/
+void LobbyWindow::SetPlayersNames(const std::map<std::uint32_t, std::string> &players)
+{
+    ui.playerList->clear();
+    mPlayerList = players;
+    for (std::map<std::uint32_t, std::string>::const_iterator iter = mPlayerList.begin(); iter != mPlayerList.end(); ++iter)
+    {
+        ui.playerList->addItem(QString(iter->second.c_str()));
+    }
 }
 /*****************************************************************************/
 void LobbyWindow::slotJoin()
@@ -182,6 +198,17 @@ bool LobbyWindow::RequestHttp(const QString &request, QString &reply)
     }
     delete netReply;
     return ret;
+}
+/*****************************************************************************/
+void LobbyWindow::slotReturnPressed()
+{
+    QString message = ui.chatText->text();
+    if (message.length() == 0)
+    {
+        return;
+    }
+    emit sigEmitMessage(message);
+    ui.chatText->clear();
 }
 
 //=============================================================================
