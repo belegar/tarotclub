@@ -24,11 +24,11 @@
 BASE_DIR = $${PWD}/..
 
 CONFIG(debug, debug|release) {
-debug:      DESTDIR = $$BASE_DIR/build-server/debug
+debug:      DESTDIR = $$BASE_DIR/build-tcds/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$BASE_DIR/build-server/release
+release:    DESTDIR = $$BASE_DIR/build-tcds/release
 }
 
 UI_DIR          = $$DESTDIR/ui
