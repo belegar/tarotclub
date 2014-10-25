@@ -170,6 +170,7 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
             std::string message = "The player " + ident.name + " has joined the server.";
             TLogNetwork(message);
             SendData(Protocol::LobbyChatMessage(message), 0U);
+            SendData(Protocol::LobbyPlayersList(mUsers.GetLobbyUserNames()), 0U);
         }
         break;
     }
