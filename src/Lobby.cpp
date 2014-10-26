@@ -19,8 +19,12 @@
 #include "Lobby.h"
 #include "Log.h"
 #include "Util.h"
+#include "Defines.h"
 #include <sstream>
 #include <vector>
+
+
+const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub ") + std::string(VERSION_STRING);
 
 /*****************************************************************************/
 Lobby::Lobby()
@@ -170,6 +174,7 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
             std::string message = "The player " + ident.name + " has joined the server.";
             TLogNetwork(message);
             SendData(Protocol::LobbyChatMessage(message), 0U);
+            SendData(Protocol::LobbyPlayersList(mUsers.GetLobbyUserNames()), 0U);
         }
         break;
     }
@@ -332,6 +337,11 @@ std::string Lobby::ParseUri(const std::string &uri)
             reply += ss.str();
         }
     }
+    else if (uri == "/version")
+    {
+        reply = LOBBY_VERSION_STRING;
+    }
+    TLogNetwork("Received HTTP request: " + uri);
 
     return reply;
 }

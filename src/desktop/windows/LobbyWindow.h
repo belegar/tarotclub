@@ -39,9 +39,12 @@ public:
     LobbyWindow(QWidget *parent);
 
     void Initialize();
+    void SetPlayersNames(const std::map<std::uint32_t, std::string> &players);
 
 signals:
+    void sigEmitMessage(const QString &);
     void sigConnect(QString, std::uint16_t);
+    void sigDisconnect();
     void sigJoinTable(std::uint32_t);
     void sigQuitTable(std::uint32_t);
 
@@ -50,16 +53,20 @@ public slots:
 
 private slots:
     void slotConnect();
+    void slotDisconnect();
     void slotJoin();
     void slotQuit();
     void slotClose();
+    void slotReturnPressed();
+    void slotCheckServer();
 
 private:
     Ui::LobbyUI  ui;
 
     QMap<QString, std::uint32_t> mTableList;    // key = table name, value = table ID
-    QMap<QString, std::uint32_t> mPlayerList; // key = user name, value = uuid
+    std::map<std::uint32_t, std::string> mPlayerList; // key = user name, value = uuid
     bool RequestHttp(const QString &request, QString &reply);
+    bool CheckServer();
 };
 
 

@@ -209,6 +209,11 @@ void TarotWidget::QuitTable(std::uint32_t tableId)
     mClient.SendQuitTable(tableId);
 }
 /*****************************************************************************/
+void TarotWidget::Disconnect()
+{
+    mClient.Close();
+}
+/*****************************************************************************/
 void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
 {
     // Save game config
@@ -494,6 +499,11 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
 void TarotWidget::slotSendChatMessage(const QString &message)
 {
     mClient.SendTableMessage(message.toStdString());
+}
+/*****************************************************************************/
+void TarotWidget::slotSendLobbyMessage(const QString &message)
+{
+    mClient.SendLobbyMessage(message.toStdString());
 }
 /*****************************************************************************/
 void TarotWidget::slotMessage(std::string message)

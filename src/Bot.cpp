@@ -475,7 +475,10 @@ void Bot::EnteredLobby()
 /*****************************************************************************/
 void Bot::AdminGameFull()
 {
-    // Nothing to do, bot is never
+    // We are the admin on this table, let's start the game!
+    Tarot::Shuffle sh;
+    sh.type = Tarot::Shuffle::RANDOM_DEAL;
+    mClient.AdminNewGame(Tarot::ONE_DEAL, sh);
 }
 
 //=============================================================================

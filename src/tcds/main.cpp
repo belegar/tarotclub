@@ -87,7 +87,9 @@ int main(int argc, char *argv[])
 
     Lobby lobby;
     lobbyPtr = &lobby;
-    lobby.Initialize(conf.GetOptions());
+	ServerOptions options = conf.GetOptions();
+	std::cout << "Starting lobby on TCP port: " << options.lobby_tcp_port << std::endl;
+	lobby.Initialize(options);
 
     // Run the web server on background
     struct mg_server *server;

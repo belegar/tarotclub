@@ -30,6 +30,8 @@ class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Contr
 {
 
 public:
+    static const std::string LOBBY_VERSION_STRING;
+
     Lobby();
     ~Lobby();
 
