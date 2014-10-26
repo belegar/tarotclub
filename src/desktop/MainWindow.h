@@ -83,6 +83,8 @@ private slots:
     void slotConnectToLobby(QString server, std::uint16_t port);
     void slotJoinTable(std::uint32_t tableId);
     void slotQuitTable(std::uint32_t tableId);
+    void slotDisconnectFromLobby();
+    void slotLobbyPlayersList();
 
 private:
     void SetupDialogs();
@@ -97,6 +99,7 @@ private:
 
     // Menus
     QMenu *gameMenu;
+    QMenu *netMenu;
     QMenu *paramsMenu;
     QMenu *helpMenu;
 
@@ -109,9 +112,9 @@ private:
     QAction *newAutoPlayAct;
 
     //----network
-    QAction *netGameServerAct;
-    QAction *netGameClientAct;
-    QAction *netQuickJoinAct;
+//    QAction *netGameServerAct;
+    QAction *onlineGameAct;
+//    QAction *netQuickJoinAct;
 
     // Menu Paramètres
     QAction *dealEditorAct;
