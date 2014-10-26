@@ -51,9 +51,10 @@ QString GetLocale()
 /**
  * The following code overwrite the library function "abort" and voluntary
  * generates an exception. In that case, it could be possible to backtrace
- * where the initial exception occured.
+ * where the initial exception occured. Add __cdecl under windows before the
+ * function name.
  */
-extern "C" void __cdecl abort (void)
+extern "C" void abort (void)
 {
     volatile int a = 0;
     a = 1/a;
