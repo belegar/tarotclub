@@ -19,8 +19,12 @@
 #include "Lobby.h"
 #include "Log.h"
 #include "Util.h"
+#include "Defines.h"
 #include <sstream>
 #include <vector>
+
+
+const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub ") + std::string(VERSION_STRING);
 
 /*****************************************************************************/
 Lobby::Lobby()
@@ -332,6 +336,10 @@ std::string Lobby::ParseUri(const std::string &uri)
             ss << ident.name << "(" << *iter << ")";
             reply += ss.str();
         }
+    }
+    else if (uri == "/version")
+    {
+        reply = LOBBY_VERSION_STRING;
     }
 
     return reply;
