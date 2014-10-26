@@ -58,6 +58,7 @@ private slots:
     void slotQuit();
     void slotClose();
     void slotReturnPressed();
+    void slotCheckServer();
 
 private:
     Ui::LobbyUI  ui;
@@ -65,6 +66,7 @@ private:
     QMap<QString, std::uint32_t> mTableList;    // key = table name, value = table ID
     std::map<std::uint32_t, std::string> mPlayerList; // key = user name, value = uuid
     bool RequestHttp(const QString &request, QString &reply);
+    bool CheckServer();
 };
 
 

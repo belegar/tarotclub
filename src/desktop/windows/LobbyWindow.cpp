@@ -28,6 +28,7 @@
 #include <QtNetwork>
 #include "LobbyWindow.h"
 #include "ServerConfig.h"
+#include "Lobby.h"
 
 /*
  *
@@ -43,13 +44,13 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
 {
     setModal(false);
     ui.setupUi(this);
-    ui.serverPort->setValue(4269);
 
     connect(ui.connectButton, &QPushButton::clicked, this, &LobbyWindow::slotConnect);
     connect(ui.disconnectButton, &QPushButton::clicked, this, &LobbyWindow::slotDisconnect);
     connect(ui.joinButton, &QPushButton::clicked, this, &LobbyWindow::slotJoin);
     connect(ui.quitButton, &QPushButton::clicked, this, &LobbyWindow::slotQuit);
     connect(ui.closeButton, &QPushButton::clicked, this, &LobbyWindow::slotClose);
+    connect(ui.checkServerButton, &QPushButton::clicked, this, &LobbyWindow::slotCheckServer);
 
     connect(ui.chatText, &QLineEdit::returnPressed, this, &LobbyWindow::slotReturnPressed);
 
@@ -58,45 +59,51 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
 /*****************************************************************************/
 void LobbyWindow::slotConnect()
 {
-    QHostInfo info = QHostInfo::fromName(ui.serverAddress->currentText());
-
-    if (info.error() == QHostInfo::NoError)
+    QListWidgetItem *item = ui.serverList->currentItem();
+    if (item != NULL)
     {
-        QList<QHostAddress>	addresses = info.addresses();
-        // Try each IP address to find any suitable server
-        for (QList<QHostAddress>::iterator iter = addresses.begin(); iter != addresses.end(); ++iter)
+        QHostInfo info = QHostInfo::fromName(item->text());
+        QString gamePort = ui.gameTcpPort->text();
+        QString webPort = ui.gameTcpPort->text();
+
+        if (info.error() == QHostInfo::NoError)
         {
-            QString reply;
-            QString request = QString("http://") + iter->toString() + QString(":8080");
-            if (RequestHttp(request + "/tables", reply))
+            QList<QHostAddress>	addresses = info.addresses();
+            // Try each IP address to find any suitable server
+            for (QList<QHostAddress>::iterator iter = addresses.begin(); iter != addresses.end(); ++iter)
             {
-                // found something interesting
-                QStringList strList = reply.split(",");
-                ui.tableList->clear();
-                mTableList.clear();
-
-                QRegExp rex("^(\\w+)\\((\\d+)\\)");
-                for (int i = 0; i < strList.size(); i++)
+                QString reply;
+                QString request = QString("http://") + iter->toString() + ":" + webPort;
+                if (RequestHttp(request + "/tables", reply))
                 {
-                    int pos = rex.indexIn(strList[i]);
-                    if ((pos > -1) && (rex.captureCount() == 2))
+                    // found something interesting
+                    QStringList strList = reply.split(",");
+                    ui.tableList->clear();
+                    mTableList.clear();
+
+                    QRegExp rex("^(\\w+)\\((\\d+)\\)");
+                    for (int i = 0; i < strList.size(); i++)
                     {
-                        QString name = rex.cap(1);
-                        std::uint32_t id = rex.cap(2).toULong();
-                        mTableList[name] = id;
+                        int pos = rex.indexIn(strList[i]);
+                        if ((pos > -1) && (rex.captureCount() == 2))
+                        {
+                            QString name = rex.cap(1);
+                            std::uint32_t id = rex.cap(2).toULong();
+                            mTableList[name] = id;
 
-                        // Update the table list
-                        ui.tableList->addItem(name);
+                            // Update the table list
+                            ui.tableList->addItem(name);
+                        }
                     }
+
+                    // It seems that we have found a valid server, try to connect
+                    emit sigConnect(iter->toString(), (std::uint16_t)webPort.toUShort());
+
                 }
-
-                // It seems that we have found a valid server, try to connect
-                emit sigConnect(iter->toString(), (std::uint16_t)ui.serverPort->value());
-
-            }
-            else
-            {
-                ui.textArea->append(reply);
+                else
+                {
+                    ui.textArea->append(reply);
+                }
             }
         }
     }
@@ -151,6 +158,50 @@ void LobbyWindow::slotQuit()
             emit sigQuitTable(mTableList[name]);
         }
     }
+}
+/*****************************************************************************/
+void LobbyWindow::slotCheckServer()
+{
+    if (CheckServer())
+    {
+        ui.serverStatus->setText(tr("Server OK"));
+    }
+    else
+    {
+        ui.serverStatus->setText(tr("Server unavailable :("));
+    }
+}
+/*****************************************************************************/
+bool LobbyWindow::CheckServer()
+{
+    bool ret = false;
+    QListWidgetItem *item = ui.serverList->currentItem();
+    if (item != NULL)
+    {
+        QHostInfo info = QHostInfo::fromName(item->text());
+        QString webPort = ui.gameTcpPort->text();
+
+        if (info.error() == QHostInfo::NoError)
+        {
+            QList<QHostAddress>	addresses = info.addresses();
+            // Try each IP address to find any suitable server
+            for (QList<QHostAddress>::iterator iter = addresses.begin(); iter != addresses.end(); ++iter)
+            {
+                QString reply;
+                QString request = QString("http://") + iter->toString() + ":" + webPort;
+                if (RequestHttp(request + "/version", reply))
+                {
+                    // ok, found it, check the version string
+                    if (reply == QString(Lobby::LOBBY_VERSION_STRING.c_str()))
+                    {
+                        ret = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return ret;
 }
 /*****************************************************************************/
 void LobbyWindow::slotClose()
