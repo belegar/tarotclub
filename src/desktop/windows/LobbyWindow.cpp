@@ -64,7 +64,7 @@ void LobbyWindow::slotConnect()
     {
         QHostInfo info = QHostInfo::fromName(item->text());
         QString gamePort = ui.gameTcpPort->text();
-        QString webPort = ui.gameTcpPort->text();
+        QString webPort = ui.webTcpPort->text();
 
         if (info.error() == QHostInfo::NoError)
         {
@@ -179,7 +179,7 @@ bool LobbyWindow::CheckServer()
     if (item != NULL)
     {
         QHostInfo info = QHostInfo::fromName(item->text());
-        QString webPort = ui.gameTcpPort->text();
+        QString webPort = ui.webTcpPort->text();
 
         if (info.error() == QHostInfo::NoError)
         {
