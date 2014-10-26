@@ -61,6 +61,11 @@
             <string>tarotclub.duckdns.org</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>127.0.0.1</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item>

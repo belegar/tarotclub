@@ -216,6 +216,9 @@ void LobbyWindow::Initialize()
     ui.tableList->clear();
     ui.playerList->clear();
     ui.textArea->clear();
+    ui.serverStatus->setText("-");
+    ui.gameTcpPort->setValue(4269);
+    ui.webTcpPort->setValue(8080);
 }
 /*****************************************************************************/
 bool LobbyWindow::RequestHttp(const QString &request, QString &reply)
