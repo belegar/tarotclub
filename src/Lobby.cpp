@@ -341,6 +341,7 @@ std::string Lobby::ParseUri(const std::string &uri)
     {
         reply = LOBBY_VERSION_STRING;
     }
+    TLogNetwork("Received HTTP request: " + uri);
 
     return reply;
 }
