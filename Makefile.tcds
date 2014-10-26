@@ -10,8 +10,8 @@
 VPATH  =   src src/library src/tcds src/jsengine src/json prj/tcds src/http
 
 # Output directories
-OBJECTS_DIR    = build-server/release/obj
-DESTDIR        = build-server/release/
+OBJECTS_DIR    = build-tcds/release/obj
+DESTDIR        = build-tcds/release/
 
 # ==============================================================================
 # Parse any make command line arguments
@@ -23,11 +23,11 @@ ifeq ($(ARCH), mingw)
     USER_DEFINES    = -DUSE_WINDOWS_OS -mthreads
     LFLAGS          = -static-libgcc -static-libstdc++ -static -lpthread -Wl,-s -Wl,-subsystem,console 
     LIBS            = -lws2_32 -mthreads -lpsapi
-    DESTDIR_TARGET  = build-server/release/tcds.exe
+    DESTDIR_TARGET  = build-tcds/release/tcds.exe
 else 
    USER_DEFINES     = -DUSE_UNIX_OS
    LFLAGS           = -pthread -std=c++11
-   DESTDIR_TARGET   = build-server/release/tcds
+   DESTDIR_TARGET   = build-tcds/release/tcds
 endif
 
 # Debug / release build differences
@@ -127,7 +127,7 @@ make_dir:
 
 clean:
 	@echo Cleaning generated files ...
-	@$(DEL_FILE) build-server/*
+	@$(DEL_FILE) build-tcds/*
 
 .PHONY: lint    
 lint: run_lint
