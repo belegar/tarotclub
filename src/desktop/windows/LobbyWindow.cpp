@@ -97,7 +97,7 @@ void LobbyWindow::slotConnect()
                     }
 
                     // It seems that we have found a valid server, try to connect
-                    emit sigConnect(iter->toString(), (std::uint16_t)webPort.toUShort());
+                    emit sigConnect(iter->toString(), (std::uint16_t)gamePort.toUShort());
 
                 }
                 else
