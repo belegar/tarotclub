@@ -7,7 +7,7 @@
 # ==============================================================================
 
 # where to find source files
-VPATH  =   src src/library src/tcds src/jsengine src/json prj/tcds
+VPATH  =   src src/library src/tcds src/jsengine src/json prj/tcds src/http
 
 # Output directories
 OBJECTS_DIR    = build-server/release/obj
@@ -51,7 +51,7 @@ PERL          = perl
 DEFINES       = -DUNICODE $(USER_DEFINES)
 CFLAGS        = -pipe $(OPTIM) -pedantic -std=c99 -fstrict-aliasing -fomit-frame-pointer -Wall -Wextra -MMD $(DEFINES)
 CXXFLAGS      = -pipe -std=c++11 $(OPTIM) -Wall -Wextra -frtti -fexceptions -MMD $(DEFINES)
-INCPATH       = -Iprj -I'src' -I'src/library' -I'src/tcds' -I'src/jsengine' -I'src/json' -I'.'
+INCPATH       = -Iprj -I'src' -I'src/library' -I'src/tcds' -I'src/jsengine' -I'src/json' -I'.' -I'src/http'
 LINKER        = g++
 COPY          = cp -f
 COPY_FILE     = cp -f
@@ -96,11 +96,12 @@ SOURCES += Log.cpp \
 		Deal.cpp \
 		Protocol.cpp \
 		Controller.cpp \
-		Table.cpp \
 		Score.cpp \
 		System.cpp \
 		main.cpp \
-		Lobby.cpp
+		Lobby.cpp \
+		Users.cpp \
+		mongoose.c
 
 CPP_FILES = $(filter %.cpp, $(SOURCES))
 C_FILES = $(filter %.c, $(SOURCES))
