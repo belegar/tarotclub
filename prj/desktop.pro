@@ -103,9 +103,9 @@ CONFIG(debug, debug|release) {
     DEFINES += DUK_OPT_DEBUG
 
 unix {
-    QMAKE_CXXFLAGS  +=-fsanitize=address -fno-omit-frame-pointer
-    QMAKE_CFLAGS    +=-fsanitize=address -fno-omit-frame-pointer
-    QMAKE_LFLAGS    +=-fsanitize=address
+  #  QMAKE_CXXFLAGS  +=-fsanitize=address -fno-omit-frame-pointer
+  #  QMAKE_CFLAGS    +=-fsanitize=address -fno-omit-frame-pointer
+  #  QMAKE_LFLAGS    +=-fsanitize=address
 }
 # DUK_OPT_DEBUG DUK_OPT_DDDEBUG DUK_OPT_DDEBUG
 
