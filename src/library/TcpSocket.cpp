@@ -119,7 +119,7 @@ bool TcpSocket::Bind(std::uint16_t port)
     if (IsValid())
     {
         mAddr.sin_family      = AF_INET;
-        mAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        mAddr.sin_addr.s_addr = htonl(INADDR_ANY);
         mAddr.sin_port        = htons(port);
 
         if (::bind(mSock,
