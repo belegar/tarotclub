@@ -50,6 +50,7 @@ signals:
 
 public slots:
     void slotMessage(std::string message);
+    void slotConnectionFailure();
 
 private slots:
     void slotConnect();

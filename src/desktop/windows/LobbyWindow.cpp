@@ -30,14 +30,6 @@
 #include "ServerConfig.h"
 #include "Lobby.h"
 
-/*
- *
- * QString txt = trUtf8("Connected to the server.");
-    QString txt = trUtf8("Connection to the server ....");
-    QString txt = trUtf8("The connection has been closed by the server.");
-    QString txt = trUtf8("Socket error - code: ") + QString().setNum((int)code);
- */
-
 /*****************************************************************************/
 LobbyWindow::LobbyWindow(QWidget *parent = 0)
     : QDialog(parent, Qt::Window)
@@ -55,10 +47,16 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
     connect(ui.chatText, &QLineEdit::returnPressed, this, &LobbyWindow::slotReturnPressed);
 
     Initialize();
+
+#if TAROT_DEBUG
+    ui.serverList->addItem("192.168.1.30");
+    ui.serverList->addItem("127.0.0.1");
+#endif
 }
 /*****************************************************************************/
 void LobbyWindow::slotConnect()
 {
+    ui.infoLabel->setText(trUtf8("Connecting ..."));
     QListWidgetItem *item = ui.serverList->currentItem();
     if (item != NULL)
     {
@@ -98,7 +96,6 @@ void LobbyWindow::slotConnect()
 
                     // It seems that we have found a valid server, try to connect
                     emit sigConnect(iter->toString(), (std::uint16_t)gamePort.toUShort());
-
                 }
                 else
                 {
@@ -111,6 +108,7 @@ void LobbyWindow::slotConnect()
 /*****************************************************************************/
 void LobbyWindow::slotDisconnect()
 {
+    ui.infoLabel->setText(trUtf8("Not connected."));
     mTableList.clear();
     ui.tableList->clear();
     ui.playerList->clear();
@@ -122,8 +120,14 @@ void LobbyWindow::slotMessage(std::string message)
     ui.textArea->append(QString(message.c_str()));
 }
 /*****************************************************************************/
+void LobbyWindow::slotConnectionFailure()
+{
+     ui.infoLabel->setText(trUtf8("Connection to the seveur failed!"));
+}
+/*****************************************************************************/
 void LobbyWindow::SetPlayersNames(const std::map<std::uint32_t, std::string> &players)
 {
+    ui.infoLabel->setText(trUtf8("Connected."));
     ui.playerList->clear();
     mPlayerList = players;
     for (std::map<std::uint32_t, std::string>::const_iterator iter = mPlayerList.begin(); iter != mPlayerList.end(); ++iter)
@@ -162,6 +166,8 @@ void LobbyWindow::slotQuit()
 /*****************************************************************************/
 void LobbyWindow::slotCheckServer()
 {
+    ui.serverStatus->setText(tr("Checking ..."));
+
     if (CheckServer())
     {
         ui.serverStatus->setText(tr("Server OK"));
