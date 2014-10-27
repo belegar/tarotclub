@@ -196,7 +196,15 @@ void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
 
     // Connect us to the server
     mClient.ConnectToHost(ip, port);
-    mConnectionType = REMOTE;
+    if (mClient.IsConnected())
+    {
+        mConnectionType = REMOTE;
+    }
+    else
+    {
+        mConnectionType = NO_CONNECTION;
+        emit sigRemoteConnectionFailure();
+    }
 }
 /*****************************************************************************/
 void TarotWidget::JoinTable(std::uint32_t tableId)

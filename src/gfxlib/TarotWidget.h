@@ -103,6 +103,7 @@ public:
 signals:
     // These signals are used internally and made accessible in public for any external entity
     void sigEnteredLobby();
+    void sigRemoteConnectionFailure();
     void sigNewGame();
     void sigTablePlayersList();
     void sigLobbyPlayersList();

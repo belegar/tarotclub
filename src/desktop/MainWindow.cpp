@@ -60,7 +60,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigLobbyMessage, lobbyWindow, &LobbyWindow::slotMessage, Qt::QueuedConnection);
-    connect(tarotWidget, &TarotWidget::sigLobbyPlayersList, this, &MainWindow::slotLobbyPlayersList);
+    connect(tarotWidget, &TarotWidget::sigRemoteConnectionFailure, lobbyWindow, &LobbyWindow::slotConnectionFailure, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigLobbyPlayersList, this, &MainWindow::slotLobbyPlayersList, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
