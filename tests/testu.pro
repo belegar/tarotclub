@@ -113,7 +113,8 @@ HEADERS += Log.h \
     Base64.h \
     Sha1.h \
     WebSocket.h \
-    Value.h
+    Value.h \
+    Protocol.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -127,7 +128,8 @@ SOURCES += Log.cpp \
     Base64.cpp \
     Sha1.cpp \
     WebSocket.cpp \
-    Value.cpp
+    Value.cpp \
+    Protocol.cpp
 
 # ------------------------------------------------------------------------------
 # Database management files
