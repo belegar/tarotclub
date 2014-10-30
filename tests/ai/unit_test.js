@@ -145,33 +145,6 @@ module.RunDiscardTest = function()
 	discard.printHtml();
 };
 /*****************************************************************************/
-module.RunBotFunctionsTest = function()
-{
-	systemPrint("********** TEST_4: bot algorithms **********");
-
-	module.game.setBotCards("01-C;19-T;04-D;11-H;11-S;13-D;02-T;06-C;05-S;09-D;14-H;01-S;04-C;06-S;04-S;07-C;21-T;12-S;00-T;01-T");
-	module.game.bot.deck.printHtml();
-
-	systemPrint("Highest club: " + module.game.bot.getHighestCard("C"));
-	systemPrint("Highest spade: " + module.game.bot.getHighestCard("S"));
-	systemPrint("Highest diamond: " + module.game.bot.getHighestCard("D"));
-	systemPrint("Highest heart: " + module.game.bot.getHighestCard("H"));
-	systemPrint("Highest trump: " + module.game.bot.getHighestCard("T"));
-
-
-	systemPrint("Lowest club: " + module.game.bot.getLowestCard("C", 0));
-	systemPrint("Lowest spade: " + module.game.bot.getLowestCard("S", 0));
-	systemPrint("Lowest diamond: " + module.game.bot.getLowestCard("D", 0));
-	systemPrint("Lowest heart: " + module.game.bot.getLowestCard("H", 0));
-	systemPrint("Lowest trump: " + module.game.bot.getLowestCard("T", 0));
-
-
-	systemPrint("Lowest trump higher than 1: " + module.game.bot.getLowestCard("T", 2));
-	systemPrint("Lowest trump higher than 2: " + module.game.bot.getLowestCard("T", 3));
-
-
-};
-/*****************************************************************************/
 module.RunMissingSuitDetectionTester = function()
 {
 	systemPrint("\n********** MISSING SUIT DETECTION TEST **********");
@@ -222,57 +195,55 @@ module.RunMissingSuitDetectionTester = function()
         }
 	}
 };
-
 /*****************************************************************************/
-module.RunFakeGame = function()
+module.RunBotFunctionsTest = function()
 {
+	systemPrint("********** TEST_4: bot algorithms **********");
 
-	/*
-	systemPrint("");
-	systemPrint("\n********** FAKE GAME SIMULATOR **********");
+	module.game.setBotCards("01-C;19-T;04-D;11-H;11-S;13-D;02-T;06-C;05-S;09-D;14-H;01-S;04-C;06-S;04-S;07-C;21-T;12-S;00-T;01-T");
+	module.game.bot.deck.printHtml();
 
-	// Opponents
-	module.game.myPlace = TarotLib.Place.SOUTH;
-	module.players[1].myPlace = TarotLib.Place.EAST;
-	module.players[2].myPlace = TarotLib.Place.NORTH;
-	module.players[3].myPlace = TarotLib.Place.WEST;
+	systemPrint("Highest club: " + module.game.bot.getHighestCard("C"));
+	systemPrint("Highest spade: " + module.game.bot.getHighestCard("S"));
+	systemPrint("Highest diamond: " + module.game.bot.getHighestCard("D"));
+	systemPrint("Highest heart: " + module.game.bot.getHighestCard("H"));
+	systemPrint("Highest trump: " + module.game.bot.getHighestCard("T"));
+
+
+	systemPrint("Lowest club: " + module.game.bot.getLowestCard("C", 0));
+	systemPrint("Lowest spade: " + module.game.bot.getLowestCard("S", 0));
+	systemPrint("Lowest diamond: " + module.game.bot.getLowestCard("D", 0));
+	systemPrint("Lowest heart: " + module.game.bot.getLowestCard("H", 0));
+	systemPrint("Lowest trump: " + module.game.bot.getLowestCard("T", 0));
+
+
+	systemPrint("Lowest trump higher than 1: " + module.game.bot.getLowestCard("T", 2));
+	systemPrint("Lowest trump higher than 2: " + module.game.bot.getLowestCard("T", 3));
+
+	systemPrint("********** TEST_5: AI use case: play low card if the taker has cut the trick suit **********");
 	
-	// Give cards to all the players
-	for (i=0; i<4; i++)
-	{
-		module.players[i].initialize();
-		module.players[i].botPlace = i;
-		module.players[i].taker = TarotLib.Place.EAST;
-    	module.players[i].contract = TarotLib.Contract.PRISE;
-		module.players[i].setBotCards(module.decks[i].toString());
-	}
+	// Use Case #1:
+	// je suis le preneur, on joue coeur, je coupe et le mec derrière moi (le dernier à jouer) met un roi alors qu'il lui reste du coeur à jouer (ils le font // souvent ça, le sacrifice des grosses cartes...)
 
-	// The take has to build its discard
-	systemPrint("Dog deck: " + dogList);
-	var discard = module.players[TarotLib.Place.EAST].bot.buildDiscard(dogList);
-	systemPrint("Bot build a discard: " + discard);
-	 
-	// Let's play 18 tricks
-	for (i = 0; i<18; i++)
-	{
-		systemPrint("---- Trick " + (i+1) + " ----")
-		for (var j=0; j<4; j++)
-		{
-			systemPrint("Player cards: " + TarotLib.Place.toString(j));
-			module.players[j].printBot();
-			
-			var card = module.players[j].playDefenseStrategy();
-			
-			systemPrint("Played card: " + card);
-			systemPrint("");
-			for (var k=0; k<4; k++)
-			{
-				module.players[k].setPlayedCard(card, j);
-			}
-		}
-	}
+	module.game.initialize();
+	
+	// Set game parameters
+	module.game.botPlace = TarotLib.Place.SOUTH;
+	module.game.taker = TarotLib.Place.WEST;
+	
+	// Give only hearts to the player
+	module.game.bot.deck.setCards("02-H;12-H;14-H;05-H;01-H");
 
-	*/
+	// First player (east) plays hearts
+	module.game.setPlayedCard("03-H", 1);
+	// North plays hearts also
+	module.game.setPlayedCard("04-H", 2);
+	// The taker (east), cut the suit
+	module.game.setPlayedCard("02-T", 3);
+	
+	var cardName = module.game.playDefenseStrategy();
+	systemPrint("Played card (must be 01-H): " + cardName);
+	
 };
 
 /*****************************************************************************/
