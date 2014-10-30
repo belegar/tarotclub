@@ -24,12 +24,17 @@ The following ChangeLog is using specific signs to quickly identify the nature o
 	+ New avatars and avatar chooser
 	+ New window to display the previously played deals
 	
+## Artificial intelligence changes
+
+    + Corrected defense playing after the taker if he has cut a suit
+	
 ## Dedicated server changes
     
 	- Removed the rooms, a Tarot server now simply has some tables
     + Use a command line TCDS configuration file, new dynamic creation of tables (number, names)
 	+ Usage of a work thread to share packets analysis
 	+ Dynamic bot creation (per table)
+	+ New Lobby
 	+ New experimental embedded HTTP server on port 8080, REST API available
 	~ Corrected build and some crashes under Visual C++ 2013
 
