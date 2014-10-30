@@ -2,7 +2,6 @@
   
 ## IA strategy
 
-  * Correct lost deck synchronization between engine and JS world (bad card number played) (CORRECTED: bug was in CanPlayCard())
   * je suis le preneur, on joue coeur, je coupe et le mec derrière moi (le dernier à jouer) met un roi alors qu'il lui reste du coeur à jouer (ils le font souvent ça, le sacrifice des grosses cartes...)
   * Si je me lance à faire des series d'atouts (surtout en partant de mes plus hauts), c'est pour aller à la chasse au petit mais eux ils jouent d'entrée leurs gros atouts (du coup les adversaires mettent les petits qu'ils ont) puis enchaine avec un petit atout...
 Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant tes gros...
@@ -12,8 +11,15 @@ Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant
   
 # BACKLOG
 
+## Code architecture
+
+  * Use a shared_ptr to pass a reference of the Protocol work thread to users (Lobby, client, )
+
 ## New features
   
+  * Lobby: add buttons to add a bot on a table
+  * Lobby: add buttons to manage the server list (add/remove)
+  * Re-enable local server creation with the TarotClub desktop, includes the mongoose HTTP source to manage REST API
   * TCDS JSON parameter to choose the server web port (default 8080)
   * Allow to add new server addresses in the lobby, save them in the configuration file
   * Use the Canvas to propose Handle (with the menu)
