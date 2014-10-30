@@ -209,6 +209,20 @@ var p = Game.prototype;
         return leader;
     };
 	
+	/**
+	 * @brief Return true if the player has cut (whatever is the value, he may have overcut or played low trump)
+	 * @param The taker played suit
+	 */
+	p.takerHasCut = function(takerPlayedSuit)
+	{
+		var hasCut = false;
+		if ((this.trickSuit != "T") && (takerPlayedSuit == "T"))
+		{
+			hasCut = true;
+		}
+		return hasCut;
+	};
+	
     p.detectMissedColor = function(place)
     {
         if (this.currentPosition === 0) {
@@ -284,7 +298,8 @@ var p = Game.prototype;
                 {
                     if (this.players[this.taker].hasSuits[i] == true)
                     {
-                        playedCard = this.bot.playLowestCard(TarotLib.Suit.toString(i));    
+                        playedCard = this.bot.playLowestCard(TarotLib.Suit.toString(i));
+						systemPrint("defense: taker has a missed suit, make it cut!");
                         break;
                     }
                 }
@@ -306,7 +321,6 @@ var p = Game.prototype;
 		else
 		{
             // We have to play the suit color previously played
-            
             if (this.beforeAttack())
             {
                 // look if we have the suit
@@ -319,12 +333,15 @@ var p = Game.prototype;
                 {
                     // Whatever, play any low card
                     playedCard = this.bot.playLowestCard();
+					systemPrint("defense: play a low card before the attack");
                 }
             }
             else
             {
+				// We are playing after the attack
                 var leaderCard = this.detectLeader();
                 if (leaderCard.owner == this.taker)
+				// ==> The Taker IS the leader!!
                 {
                     // look if we have the suit requested
                     if (this.bot.hasSuit(this.trickSuit))
@@ -345,25 +362,36 @@ var p = Game.prototype;
                         }
                         else
                         {
-                            // Can we play an higher card than the taker?
-                            var card = this.highestSuit();
-                            if (this.bot.hasHigherCard(this.trickSuit, card.value))
-                            {
-                                // We can play higher than the taker! Give points to the defense :)
-                                playedCard = this.bot.playHighestCard(this.trickSuit);
-                            }
-                            else
-                            {
-                                playedCard = this.bot.playLowestCard(this.trickSuit);   
-                            }
+							if (this.takerHasCut(leaderCard.suit))
+							// ==> Taker is the leader and has cut
+							{
+								playedCard = this.bot.playLowestCard(this.trickSuit);
+								systemPrint("defense: taker has cut, play low card");
+							}
+							else
+							{
+								// Can we play an higher card than the taker?
+								var card = this.highestSuit();
+								if (this.bot.hasHigherCard(this.trickSuit, card.value))
+								{
+									// We can play higher than the taker! Give points to the defense :)
+									playedCard = this.bot.playHighestCard(this.trickSuit);
+								}
+								else
+								{
+									playedCard = this.bot.playLowestCard(this.trickSuit);
+								}
+							}
                         }
                     }
                     else
                     {
                         playedCard = this.bot.playLowestCard();
+						systemPrint("defense: taker is the leader, play low card");
                     }
                 }
                 else
+				// ==> Taker is NOT the leader
                 {
                     // look if we have the suit requested
                     if (this.bot.hasSuit(this.trickSuit))
