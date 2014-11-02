@@ -219,7 +219,11 @@ module.RunBotFunctionsTest = function()
 
 	systemPrint("Lowest trump higher than 1: " + module.game.bot.getLowestCard("T", 2));
 	systemPrint("Lowest trump higher than 2: " + module.game.bot.getLowestCard("T", 3));
-
+};
+/*****************************************************************************/
+module.AiUseCasesTest = function()
+{
+	systemPrint(""); // skip line
 	systemPrint("********** TEST_5: AI use case: play low card if the taker has cut the trick suit **********");
 	
 	// Use Case #1:
@@ -236,13 +240,66 @@ module.RunBotFunctionsTest = function()
 
 	// First player (east) plays hearts
 	module.game.setPlayedCard("03-H", 1);
-	// North plays hearts also
+	// Second player (north) plays hearts also
 	module.game.setPlayedCard("04-H", 2);
-	// The taker (east), cut the suit
+	// The taker (west), cut the suit
 	module.game.setPlayedCard("02-T", 3);
 	
 	var cardName = module.game.playDefenseStrategy();
 	systemPrint("Played card (must be 01-H): " + cardName);
+	
+	systemPrint(""); // skip line
+	systemPrint("********** TEST_6: AI use case: Play high card if the defence is leader **********");
+	
+	module.game.initialize();
+	
+	// Set game parameters
+	module.game.botPlace = TarotLib.Place.SOUTH;
+	module.game.taker = TarotLib.Place.WEST;
+	
+	// Give some cards to the player, and a fool
+	module.game.bot.deck.setCards("02-H;12-H;13-H;05-H;01-H;00-T");
+
+	// First player (east) plays hearts
+	module.game.setPlayedCard("03-H", 1);
+	// Second player (north) plays hearts also, he is the leader
+	module.game.setPlayedCard("14-H", 2);
+	// The taker (east), plays a low card
+	module.game.setPlayedCard("04-H", 3);
+	
+	var cardName = module.game.playDefenseStrategy();
+	systemPrint("Played card (must be 13-H): " + cardName);
+	
+		systemPrint(""); // skip line
+	systemPrint("********** TEST_7: AI use case: Play the fool when possible to avoid playing it at the last turn **********");
+	
+	// Encore une excuse en fin de jeu (mais il m'est donné a priori)
+	
+	module.game.initialize();
+	
+	// Set game parameters
+	module.game.botPlace = TarotLib.Place.SOUTH;
+	module.game.taker = TarotLib.Place.WEST;
+	
+	// Give some cards to the player, and a fool
+	module.game.bot.deck.setCards("02-H;12-H;13-H;05-H;01-H;00-T");
+
+	// First player (east) plays hearts
+	module.game.setPlayedCard("03-H", 1);
+	// Second player (north) plays hearts also
+	module.game.setPlayedCard("09-H", 2);
+	// The taker (east), plays a high card, he is the leader
+	module.game.setPlayedCard("14-H", 3);
+	
+	var cardName = module.game.playDefenseStrategy();
+	systemPrint("Played card (must be 00-T): " + cardName);
+	
+	
+	
+	// Si je me lance à faire des series d'atouts (surtout en partant de mes plus hauts), c'est pour aller à la 
+	// chasse au petit mais eux ils jouent d'entrée leurs gros atouts (du coup les adversaires mettent les 
+	// petits qu'ils ont) puis enchaine avec un petit atout...
+    // Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant tes gros...
 	
 };
 

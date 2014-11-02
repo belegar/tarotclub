@@ -202,21 +202,27 @@ var p = Bot.prototype;
             }
         }
 
-        if (forceSuit != undefined)
+		// ok, we have to play a lowest card ; try to play the excuse to save it
+		if (this.stats.fool)
+		{
+			playedCard = "00-T";
+		}
+		else if (forceSuit != undefined)
         {
             playedCard = this.getLowestCard(forceSuit, minValue);
         }
         else
         {
-            for (var i=0; i<5; i++)
-            {
-                var suit = TarotLib.Suit.toString(i);
-                if (this.stats.suits[suit] != 0)
-                {
-                    playedCard = this.getLowestCard(suit, minValue);
-                    break;
-                }
-            }
+			// Find any low card in any suit ...
+			for (var i=0; i<5; i++)
+			{
+				var suit = TarotLib.Suit.toString(i);
+				if (this.stats.suits[suit] != 0)
+				{
+					playedCard = this.getLowestCard(suit, minValue);
+					break;
+				}
+			}
         }
 
         // We still haven't found any cards, it means that we only have the fool and/or the little trump

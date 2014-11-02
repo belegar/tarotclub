@@ -27,6 +27,7 @@ The following ChangeLog is using specific signs to quickly identify the nature o
 ## Artificial intelligence changes
 
     + Corrected defense playing after the taker if he has cut a suit
+	+ Plays the excuse as early as possible to avoid playing it at the last trick
 	
 ## Dedicated server changes
     
