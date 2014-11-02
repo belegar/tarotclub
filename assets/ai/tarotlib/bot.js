@@ -141,10 +141,12 @@ var p = Bot.prototype;
      * @param[in] The suit where to get the card, string format
      * @return The card, string format
      */
-    p.getHighestCard = function(suit)
+    p.getHighestCard = function(suit, limitValue)
     {
         var index = 100; // init with impossible index
         var highestValue = 0; // init with impossible value
+		var indexJustAfterTheValue = 100;
+		
         for (var i=0; i<this.deck.size(); i++)
         {
             var card = this.deck.get(i);
@@ -155,11 +157,29 @@ var p = Bot.prototype;
                     index = i;
                     highestValue = card.value;
                 }
+				
+				// Get the index just over the maxValue, if defined
+				if (limitValue != undefined)
+				{
+					if ((card.value > limitValue) &&
+					    (indexJustAfterTheValue == 100))
+					{
+						indexJustAfterTheValue = i;
+					}
+				}
+				
             }
         }
         if (index != 100)
         {
-            return this.deck.get(index).getName();
+			if (indexJustAfterTheValue != 100)
+			{
+				return this.deck.get(indexJustAfterTheValue).getName();
+			}
+			else
+			{
+				return this.deck.get(index).getName();
+			}
         }
         return undefined;
     };
@@ -235,15 +255,19 @@ var p = Bot.prototype;
         return playedCard;
     };
 
-    p.playHighestCard = function(forceSuit)
+	/**
+	 * @brief Play the highest card available in the deck
+	 * @param[in] forceSuit: if defined, the suit to play
+	 * @param[in] value: if defined, the value to play over, and stop here even if we have higher values
+	 */
+    p.playHighestCard = function(forceSuit, value)
     {
-        var playedCard = undefined;
-
+        var playedCard = undefined;	
         if (forceSuit != undefined)
         {
             if (this.stats.suits[forceSuit] != 0)
             {
-                playedCard = this.getHighestCard(forceSuit);
+                playedCard = this.getHighestCard(forceSuit, value);
             }
         }
 
@@ -254,7 +278,7 @@ var p = Bot.prototype;
                 var suit = TarotLib.Suit.toString(i);
                 if (this.stats.suits[suit] != 0)
                 {
-                    playedCard = this.getHighestCard(suit);
+                    playedCard = this.getHighestCard(suit, value);
                     break;
                 }
             }

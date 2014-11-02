@@ -1,13 +1,16 @@
-# Planned for 2.4 (Target date: November 2014)
-  
-## IA strategy
-
-
-  * De même qu'ils n'essaient jamais de jouer leur 21 pour essayer de sauver le 1 d'un equipier. 
-  * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
+# Planned for 2.5 (Target date: January 2014)
   
 # BACKLOG
 
+## IA strategy
+
+  * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
+  * Si je me lance à faire des series d'atouts (surtout en partant de mes plus hauts), c'est pour aller à la 
+	// chasse au petit mais eux ils jouent d'entrée leurs gros atouts (du coup les adversaires mettent les 
+	// petits qu'ils ont) puis enchaine avec un petit atout...
+    // Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant tes gros...
+  
+  
 ## Code architecture
 
   * Use a shared_ptr to pass a reference of the Protocol work thread to users (Lobby, client, )

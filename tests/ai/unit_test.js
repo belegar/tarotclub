@@ -208,14 +208,13 @@ module.RunBotFunctionsTest = function()
 	systemPrint("Highest diamond: " + module.game.bot.getHighestCard("D"));
 	systemPrint("Highest heart: " + module.game.bot.getHighestCard("H"));
 	systemPrint("Highest trump: " + module.game.bot.getHighestCard("T"));
-
+	systemPrint("Highest trump just over 18 (must be 19-T): " + module.game.bot.getHighestCard("T", 18));
 
 	systemPrint("Lowest club: " + module.game.bot.getLowestCard("C", 0));
 	systemPrint("Lowest spade: " + module.game.bot.getLowestCard("S", 0));
 	systemPrint("Lowest diamond: " + module.game.bot.getLowestCard("D", 0));
 	systemPrint("Lowest heart: " + module.game.bot.getLowestCard("H", 0));
 	systemPrint("Lowest trump: " + module.game.bot.getLowestCard("T", 0));
-
 
 	systemPrint("Lowest trump higher than 1: " + module.game.bot.getLowestCard("T", 2));
 	systemPrint("Lowest trump higher than 2: " + module.game.bot.getLowestCard("T", 3));
@@ -270,7 +269,7 @@ module.AiUseCasesTest = function()
 	var cardName = module.game.playDefenseStrategy();
 	systemPrint("Played card (must be 13-H): " + cardName);
 	
-		systemPrint(""); // skip line
+	systemPrint(""); // skip line
 	systemPrint("********** TEST_7: AI use case: Play the fool when possible to avoid playing it at the last turn **********");
 	
 	// Encore une excuse en fin de jeu (mais il m'est donné a priori)
@@ -294,12 +293,29 @@ module.AiUseCasesTest = function()
 	var cardName = module.game.playDefenseStrategy();
 	systemPrint("Played card (must be 00-T): " + cardName);
 	
+	systemPrint(""); // skip line
+	systemPrint("********** TEST_8: Try to save the one of trump of a defence partner **********");
 	
+	// De même qu'ils n'essaient jamais de jouer leur 21 pour essayer de sauver le 1 d'un equipier.
 	
-	// Si je me lance à faire des series d'atouts (surtout en partant de mes plus hauts), c'est pour aller à la 
-	// chasse au petit mais eux ils jouent d'entrée leurs gros atouts (du coup les adversaires mettent les 
-	// petits qu'ils ont) puis enchaine avec un petit atout...
-    // Donc soit tu pars à la chasse soit tu fais tomber les atouts mais pas en mettant tes gros...
+	module.game.initialize();
+	
+	// Set game parameters
+	module.game.botPlace = TarotLib.Place.SOUTH;
+	module.game.taker = TarotLib.Place.WEST;
+	
+	// Give some cards to the player
+	module.game.bot.deck.setCards("16-T;10-T;05-T;18-T;00-T");
+
+	// First player (east) plays trump
+	module.game.setPlayedCard("02-T", 1);
+	// Second player (north) plays the little of trump
+	module.game.setPlayedCard("01-T", 2);
+	// The taker (east), try to capture the little of trump
+	module.game.setPlayedCard("14-T", 3);
+	
+	var cardName = module.game.playDefenseStrategy();
+	systemPrint("Played card (must be 16-T): " + cardName);
 	
 };
 

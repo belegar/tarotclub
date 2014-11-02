@@ -352,12 +352,13 @@ var p = Game.prototype;
                             var card = this.highestTrump();
                             if (this.bot.hasHigherCard("T", card.value))
                             {
-                                playedCard = this.bot.playLowestCard("T", card.value);    
+                                playedCard = this.bot.playHighestCard("T", card.value);
+								systemPrint("defense: play higher trump, just over than the taker :)");								
                             }
                             else
                             {
                                 // Try to play whatever trump, except the little
-                                playedCard = this.bot.playLowestCard("T", 2);       
+                                playedCard = this.bot.playLowestCard("T", 2);    
                             }
                         }
                         else
