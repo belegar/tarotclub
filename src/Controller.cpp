@@ -132,15 +132,36 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         std::uint32_t kicked_player;
         in >> kicked_player;
         // Check if the uuid exists
-         Place place = engine.GetPlayerPlace(kicked_player);
+        Place place = engine.GetPlayerPlace(kicked_player);
         if (place != Place::NOWHERE)
         {
             // Warn all the player
             std::string message = "The player " + engine.GetIdentity(place).name + " has quit the game.";
             Send(Protocol::TableChatMessage(message));
 
-            // FIXME: put the game in "pause" mode
-            // Ask for a new player to continue
+            // Remove this player from the engine
+            engine.RemovePlayer(kicked_player);
+            mEventHandler.RemovePlayer(kicked_player, mId);
+            // Update player list
+            Send(Protocol::TablePlayersList(engine.GetPlayersList()));
+            // If we are in a game, finish it and kick all players
+            if (engine.GetSequence() != TarotEngine::WAIT_FOR_PLAYERS)
+            {
+                // Remove remaining players
+                for (std::uint32_t i = 0U; i < engine.GetNbPlayers(); i++)
+                {
+                    Player *player = engine.GetPlayer(i);
+                    if (player != NULL)
+                    {
+                        mEventHandler.RemovePlayer(player->GetUuid(), mId);
+                    }
+                }
+
+                engine.CreateTable(engine.GetNbPlayers());
+                mFull = false;
+                mAdmins.clear();
+            }
+
         }
         break;
     }

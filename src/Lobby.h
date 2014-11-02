@@ -58,7 +58,16 @@ private:
 
     // From Controller
     virtual void AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId);
+    virtual void RemovePlayer(std::uint32_t uuid, std::uint32_t tableId);
     virtual void SendData(const ByteArray &block, std::uint32_t tableId);
+
+    std::uint32_t PlayerTable(std::uint32_t uuid);
+    void ExecuteRequest(const ByteArray &packet);
+    std::string GetTableName(const std::uint32_t tableId);
+
+    // From Protocol::WorkItem
+    bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
+    ByteArray GetPacket();
 
     int             mTcpPort;
     TcpServer       mTcpServer;
@@ -72,13 +81,6 @@ private:
     // Bots management
     std::list<Bot *> mBots;
     std::mutex mBotsMutex;
-
-    std::uint32_t PlayerTable(std::uint32_t uuid);
-    void ExecuteRequest(const ByteArray &packet);
-
-    // From Protocol::WorkItem
-    bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
-    ByteArray GetPacket();
 
 };
 

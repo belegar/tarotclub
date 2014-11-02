@@ -196,7 +196,20 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
 
     case Protocol::CLIENT_QUIT_TABLE:
     {
-
+        std::uint32_t tableId;
+        in >> tableId;
+        // Is player around the table?
+        if (mUsers.GetPlayerTable(src_uuid) == tableId)
+        {
+            // Forward it to the table controller
+            for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+            {
+                if ((*iter)->GetId() == tableId)
+                {
+                    (*iter)->ExecuteRequest(Protocol::LobbyRemovePlayer(src_uuid));
+                }
+            }
+        }
         break;
     }
 
@@ -239,9 +252,18 @@ void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
 void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
 {
     std::stringstream ss;
-    ss << "Player " << mUsers.GetIdentity(uuid).name << " is entering on table: " << tableId;
+    ss << "Player " << mUsers.GetIdentity(uuid).name << " is entering on table: " << GetTableName(tableId);
     TLogNetwork(ss.str());
     mUsers.SetPlayingTable(uuid, tableId);
+    SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
+}
+/*****************************************************************************/
+void Lobby::RemovePlayer(std::uint32_t uuid, std::uint32_t tableId)
+{
+    std::stringstream ss;
+    ss << "Player " << mUsers.GetIdentity(uuid).name << " is leaving table: " << GetTableName(tableId);
+    TLogNetwork(ss.str());
+    mUsers.SetPlayingTable(uuid, 0U);
     SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
 }
 /*****************************************************************************/
@@ -288,6 +310,20 @@ void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
         peer.Send(block.ToSring());
         std::this_thread::sleep_for(std::chrono::milliseconds(20U));
     }
+}
+/*****************************************************************************/
+std::string Lobby::GetTableName(const std::uint32_t tableId)
+{
+    std::string name = "errot_table_not_found";
+    // Forward it to the table controller
+    for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    {
+        if ((*iter)->GetId() == tableId)
+        {
+            name = (*iter)->GetName();
+        }
+    }
+    return name;
 }
 /*****************************************************************************/
 void Lobby::Stop()

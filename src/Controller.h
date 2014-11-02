@@ -51,6 +51,7 @@ public:
     {
     public:
         virtual void AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId) = 0;
+        virtual void RemovePlayer(std::uint32_t uuid, std::uint32_t tableId) = 0;
         virtual void SendData(const ByteArray &block, std::uint32_t tableId) = 0;
     };
 

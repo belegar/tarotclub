@@ -71,6 +71,7 @@ public:
     bool NextDeal();
 
     Place AddPlayer(std::uint32_t uuid);
+    void RemovePlayer(std::uint32_t uuid);
     void BidSequence();
     void DiscardSequence();
     void GameSequence();

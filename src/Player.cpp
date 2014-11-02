@@ -315,7 +315,7 @@ void Player::RemoveDuplicates(const Deck &cards)
 /*****************************************************************************/
 bool Player::IsFree()
 {
-    if (mUuid == 0)
+    if (mUuid == 0U)
     {
         return true;
     }

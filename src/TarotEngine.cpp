@@ -341,6 +341,17 @@ Place TarotEngine::AddPlayer(std::uint32_t uuid)
     return p;
 }
 /*****************************************************************************/
+void TarotEngine::RemovePlayer(std::uint32_t uuid)
+{
+    for (std::uint32_t i = 0U; i < mNbPlayers; i++)
+    {
+        if (mPlayers[i].GetUuid() == uuid)
+        {
+            mPlayers[i].SetUuid(0U);
+        }
+    }
+}
+/*****************************************************************************/
 /**
  * @brief TarotEngine::SetIdentity
  * @param uuid
