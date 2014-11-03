@@ -136,14 +136,15 @@ void PlayerBox::SetAvatar(const QString &av)
 {
     QFile f(av);
 
-    if (f.exists() == false)
+    if (f.exists())
     {
-        return;
+        QPixmap img(av);
+        mAvatar.setPixmap(img);
     }
-    QPixmap img(av);
-    //  img.scaledToHeight(40);
-
-    mAvatar.setPixmap(img);
+    else
+    {
+        mAvatar.setPixmap(QPixmap()); // empty one
+    }
 }
 /*****************************************************************************/
 void PlayerBox::SetBidText(const QString &text)
