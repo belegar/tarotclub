@@ -120,8 +120,24 @@ std::string Util::HomePath()
     std::string homedir;
 
 #if defined(USE_WINDOWS_OS)
+
+#if defined(_MSC_VER)
+	char* buf = 0;
+	size_t sz = 0;
+	if (_dupenv_s(&buf, &sz, "HOMEDRIVE") == 0)
+	{
+		homedir.append(buf);
+		free(buf);
+	}
+	if (_dupenv_s(&buf, &sz, "HOMEPATH") == 0)
+	{
+		homedir.append(buf);
+		free(buf);
+	}
+#else
     homedir = getenv("HOMEDRIVE");
     homedir += getenv("HOMEPATH");
+#endif
 #else
     homedir = getenv("HOME");
 #endif

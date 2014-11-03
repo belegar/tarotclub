@@ -93,7 +93,11 @@ void TcpServer::Stop()
 {
     if (mSendFd > 0)
     {
-        write(mSendFd, "1", 1);
+#ifdef USE_WINDOWS_OS
+        _write(mSendFd, "1", 1);
+#else
+		write(mSendFd, "1", 1);
+#endif
     }
     Close();
     Join();

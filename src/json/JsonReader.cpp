@@ -67,8 +67,12 @@ bool JsonReader::Open(const std::string &fileName)
         f.close();
 
         char *endptr;
-        char *source = strdup(contents.str().c_str());
 
+#ifdef USE_WINDOWS_OS
+        char *source = _strdup(contents.str().c_str());
+#else
+		char *source = strdup(contents.str().c_str());
+#endif
         if (Parse(source, &endptr) == JSON_PARSE_OK)
         {
             mValid = true;
