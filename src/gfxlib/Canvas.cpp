@@ -412,6 +412,18 @@ void Canvas::SetPlayerIdentity(const std::map<Place, Identity> &players, Place m
         mPlayerBox.value(rel)->SetAvatar(ident.avatar.c_str());
         mPlayerBox.value(rel)->EnableAvatar(mShowAvatars); // forward the config
     }
+
+    for (std::uint32_t i = 0U; i < Place::FIFTH; i++)
+    {
+        if (players.find(Place(i)) == players.end())
+        {
+            // Clear it
+            Place rel = SwapPlace(myPlace, Place(i));  // relative place
+            mPlayerBox.value(rel)->SetPlayerName("");
+            mPlayerBox.value(rel)->SetAvatar("");
+            mPlayerBox.value(rel)->EnableAvatar(false);
+        }
+    }
 }
 /*****************************************************************************/
 /**
