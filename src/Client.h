@@ -65,6 +65,7 @@ public:
     public:
         static const std::uint32_t ErrLobbyAccessRefused = 4000U;
         static const std::uint32_t ErrTableAccessRefused = 5000U;
+        static const std::uint32_t ErrTableFull = 6000U;
 
         virtual void Error(std::uint32_t errorId) = 0;
         virtual void DisconnectedFromServer() = 0;

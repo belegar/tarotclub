@@ -426,6 +426,11 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         mEventHandler.AdminGameFull();
         break;
     }
+    case Protocol::TABLE_ERROR_FULL:
+    {
+        mEventHandler.Error(IEvent::ErrTableFull);
+        break;
+    }
 
     case Protocol::TABLE_CHAT_MESSAGE:
     {
