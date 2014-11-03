@@ -55,6 +55,7 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
 #if TAROT_DEBUG
     ui.serverList->addItem("192.168.1.30");
     ui.serverList->addItem("127.0.0.1");
+    ui.serverList->addItem("192.168.1.12");
 #endif
 }
 /*****************************************************************************/
