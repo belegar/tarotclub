@@ -245,6 +245,7 @@ void Users::RemoveUser(std::uint32_t uuid)
     if (mUsers.find(uuid) != mUsers.end())
     {
         mUsers.erase(uuid);
+        mIdManager.ReleaseId(uuid);
     }
     else
     {
