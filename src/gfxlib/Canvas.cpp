@@ -410,6 +410,7 @@ void Canvas::SetPlayerIdentity(const std::map<Place, Identity> &players, Place m
         Identity ident = iter->second;
         mPlayerBox.value(rel)->SetPlayerName(ident.name.c_str());
         mPlayerBox.value(rel)->SetAvatar(ident.avatar.c_str());
+        mPlayerBox.value(rel)->EnableAvatar(mShowAvatars); // forward the config
     }
 }
 /*****************************************************************************/
@@ -561,7 +562,7 @@ void Canvas::ShowAvatars(bool b)
     }
 }
 /*****************************************************************************/
-void Canvas::InitBoard()
+void Canvas::InitBoard(bool clear)
 {
     QMapIterator<Place, PlayerBox *> i(mPlayerBox);
     while (i.hasNext())
@@ -569,8 +570,19 @@ void Canvas::InitBoard()
         i.next();
         i.value()->HighlightPlayer(false);
         i.value()->SelectPlayer(false);
-        i.value()->EnableAvatar(mShowAvatars);
         i.value()->SetBidText("");
+
+        // Clear process hides everything
+        if (clear)
+        {
+            i.value()->SetPlayerName("");
+            i.value()->EnableAvatar(false);
+            i.value()->SetAvatar("");
+        }
+        else
+        {
+            i.value()->EnableAvatar(mShowAvatars);
+        }
     }
 
     HidePopup();

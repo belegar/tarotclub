@@ -84,7 +84,7 @@ public:
     void ShowBid(Place p, Contract contract, Place myPlace);
     void HideBidsChoice();
     void ShowAvatars(bool b);
-    void InitBoard();
+    void InitBoard(bool clear = false);
     void ResetCards();
     Place SwapPlace(Place my_place, Place absolute);
     void DisplayDiscardMenu(bool visible);
