@@ -348,6 +348,8 @@ void TarotEngine::RemovePlayer(std::uint32_t uuid)
         if (mPlayers[i].GetUuid() == uuid)
         {
             mPlayers[i].SetUuid(0U);
+            // Remove its identity, index is the place
+            mPlayersIdent.erase(Place(i));
         }
     }
 }
