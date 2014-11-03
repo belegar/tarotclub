@@ -522,7 +522,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="59"/>
         <source>Connecting ...</source>
-        <translation>Connextion ...</translation>
+        <translation>Connexion ...</translation>
     </message>
     <message>
         <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="111"/>
