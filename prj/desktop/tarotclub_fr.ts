@@ -85,90 +85,90 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>Canvas</name>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="613"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="625"/>
         <source>Contract succeded by </source>
         <translation>Contrat réussi de </translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="617"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="629"/>
         <source>Contract failed by </source>
         <translation>Contrat échoué de </translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="620"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="646"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="647"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="632"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="658"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="659"/>
         <source>points</source>
         <translation>points</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="625"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="637"/>
         <source>Summary</source>
         <translation>Résumé</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="626"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="638"/>
         <source>Taker</source>
         <translation>Preneur</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="627"/>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="635"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="639"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="647"/>
         <source>Contract</source>
         <translation>Contrat</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="628"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="640"/>
         <source>Number of oudlers</source>
         <translation>Nombre de bouts</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="629"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="641"/>
         <source>Points</source>
         <translation>Points</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="630"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="642"/>
         <source>Points to do</source>
         <translation>Points à faire</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="634"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="646"/>
         <source>Calculation</source>
         <translation>Calcul</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="636"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="648"/>
         <source>Earn / loss</source>
         <translation>Gains / pertes</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="637"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="649"/>
         <source>Little endian bonus</source>
         <translation>Bonus petit au bout</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="638"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="650"/>
         <source>Contract multiplier</source>
         <translation>Multiplicateur de contrat</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="639"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="651"/>
         <source>Handle</source>
         <translation>Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="640"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="652"/>
         <source>Slam</source>
         <translation>Chelem</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="646"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="658"/>
         <source>Total defense</source>
         <translation>Total défense</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/Canvas.cpp" line="647"/>
+        <location filename="../../src/gfxlib/Canvas.cpp" line="659"/>
         <source>Total attack</source>
         <translation>Total attaque</translation>
     </message>
@@ -415,31 +415,15 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
         <translation>Serveur</translation>
     </message>
     <message>
-        <source>IP address:</source>
-        <translation type="vanished">Adresse IP:</translation>
-    </message>
-    <message>
-        <source>Port:</source>
-        <translation type="vanished">Port :</translation>
-    </message>
-    <message>
         <location filename="../../src/desktop/forms/LobbyUI.ui" line="134"/>
         <source>Connect</source>
         <translation>Connexion</translation>
-    </message>
-    <message>
-        <source>Status:</source>
-        <translation type="vanished">Statut :</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/LobbyUI.ui" line="155"/>
         <location filename="../../src/desktop/forms/LobbyUI.ui" line="234"/>
         <source>TextLabel</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Rooms</source>
-        <translation type="vanished">Salons</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/LobbyUI.ui" line="56"/>
@@ -520,13 +504,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LobbyWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="59"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="63"/>
         <source>Connecting ...</source>
         <translation>Connexion ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="111"/>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="220"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="242"/>
         <source>Not connected.</source>
         <translation>Non connecté.</translation>
     </message>
@@ -541,260 +524,225 @@ p, li { white-space: pre-wrap; }
         <translation>Connecté.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="169"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="189"/>
         <source>Checking ...</source>
         <translation>Vérification ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="173"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="193"/>
         <source>Server OK</source>
         <translation>Serveur OK</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="177"/>
+        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="197"/>
         <source>Server unavailable :(</source>
         <translation>Serveur indisponible :(</translation>
-    </message>
-    <message>
-        <source>Connected to the server.</source>
-        <translation type="vanished">Connecté au serveur.</translation>
-    </message>
-    <message>
-        <source>Connection to the server ....</source>
-        <translation type="vanished">Connexion au serveur...</translation>
-    </message>
-    <message>
-        <source>The connection has been closed by the server.</source>
-        <translation type="vanished">La connexion a été coupée par le serveur.</translation>
-    </message>
-    <message>
-        <source>Socket error - code: </source>
-        <translation type="vanished">Erreur socket - code: </translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="312"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="341"/>
         <source>&amp;New quick game</source>
         <translation>&amp;Nouvelle partie rapide</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="313"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="342"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="314"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="343"/>
         <source>Start a one player game against computer</source>
         <translation>Démarrer une partie solitaire contre des adversaires gérés par l&apos;ordinateur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="316"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="345"/>
         <source>New &amp;tournament</source>
         <translation>Nouveau &amp;Tournoi</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="317"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="346"/>
         <source>Ctrl+T</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="318"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="347"/>
         <source>Play five deals against the computer</source>
         <translation>Jouez cinq parties successives contre l&apos;ordinateur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="320"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="349"/>
         <source>New nu&amp;mbered deal</source>
         <translation>Nouvelle partie nu&amp;mérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="321"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="350"/>
         <source>Ctrl+M</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="322"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="351"/>
         <source>Deal cards with a predefined deal number</source>
         <translation>Les cartes sont distribuées selon une donne numérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="324"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="353"/>
         <source>New manua&amp;l deal</source>
         <translation>Nouvelle partie mane&amp;lle</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="325"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="354"/>
         <source>Ctrl+L</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="326"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="355"/>
         <source>Deal cards with a deal created with the editor</source>
         <translation>Les cartes sont distribuées à partir d&apos;un fichier de donne prédéfinie</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="328"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="357"/>
         <source>New auto&amp; play</source>
         <translation>Nouvelle donne automatique</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="329"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="358"/>
         <source>Ctrl+Y</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="330"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="359"/>
         <source>Auto play, to train your AI script!</source>
         <translation>Partie automarique, pratique pour essayer vos scripts IA !</translation>
     </message>
     <message>
-        <source>Create a new network game (serve&amp;r)</source>
-        <translation type="vanished">Créer un serveu&amp;r de jeu en réseau</translation>
+        <location filename="../../src/desktop/MainWindow.cpp" line="194"/>
+        <source>Client error: %1</source>
+        <translation>Erreur du client: %1</translation>
     </message>
     <message>
-        <source>Create a network game and invite friends to join the game</source>
-        <translation type="vanished">Créez un serveur de jeu en réseau et invitez vos amis à venir vous joindre</translation>
-    </message>
-    <message>
-        <source>&amp;Quick join a network game</source>
-        <translation type="vanished">&amp;Partie rapide en ligne</translation>
-    </message>
-    <message>
-        <source>Join a game server created using TarotClub</source>
-        <translation type="vanished">Joindre un serveur de jeu créé avec TarotClub</translation>
-    </message>
-    <message>
-        <source>&amp;Join a dedicated game server</source>
-        <translation type="vanished">&amp;Joindre un serveur dédié</translation>
-    </message>
-    <message>
-        <source>Join a game server created using TarotClubServer</source>
-        <translation type="vanished">Rejoindre un serveur créé avec le serveur dédié &quot;Tcds&quot;</translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="333"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="362"/>
         <source>&amp;Play online</source>
         <translation>&amp;Jouer en ligne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="334"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="363"/>
         <source>Ctrl+P</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="335"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="364"/>
         <source>Join a TarotClub game server</source>
         <translation>Joindre un serveur de jeu TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="346"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="375"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="347"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="376"/>
         <source>Ctrl+Q</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="348"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="377"/>
         <source>Quit the game</source>
         <translation>Quitter le jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="352"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="381"/>
         <source>Game</source>
         <translation>Jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="364"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="393"/>
         <source>Network game</source>
         <translation>Jeu en réseau</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="376"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="405"/>
         <source>&amp;Options</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="377"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="406"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="378"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="407"/>
         <source>Game options</source>
         <translation>Options du jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="380"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="409"/>
         <source>Deal e&amp;ditor</source>
         <translation>&amp;Editeur de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="381"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="410"/>
         <source>Ctrl+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="382"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="411"/>
         <source>Create a pre-defined deal by choosing the cards of each player</source>
         <translation>Créez une donne prédéfinie en choisissant les cartes de chaque joueur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="385"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="414"/>
         <source>&amp;Deals viewer</source>
         <translation>&amp;Visualiseur de donnes</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="386"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="415"/>
         <source>Ctrl+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="387"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="416"/>
         <source>Display previously played deals</source>
         <translation>Affiche les donnes jouées précédemment</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="389"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="418"/>
         <source>Parameters</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="405"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="434"/>
         <source>&amp;About...</source>
         <translation>&amp;À propos ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="406"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="435"/>
         <source>Ctrl+A</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="407"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="436"/>
         <source>About TarotClub</source>
         <translation>À propos de TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="410"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="439"/>
         <source>&amp;Help and manual</source>
         <translation>Ai&amp;de et manuel </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="411"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="440"/>
         <source>Ctrl+H</source>
         <translation>Ctrl+H</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="412"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="441"/>
         <source>Show game help and Tarot rules</source>
         <translation>Montre l&apos;aide du jeu et la règle du jeu de Tarot</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="416"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="445"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
@@ -1079,30 +1027,30 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>TarotWidget</name>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="311"/>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="603"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="330"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="622"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="312"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="331"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation>Votre poignée n&apos;est pas valide. Montrer l&apos;excuse signifie que vous n&apos;avez plus d&apos;atouts en main.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="604"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="623"/>
         <source>All the players have passed.
 New deal will start.</source>
         <translation>Tous les joueurs ont passé. Une nouvelle donne va démarrer.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="633"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="652"/>
         <source>Handle</source>
         <translation>Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="634"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="653"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation>Vous possédez une poignée. Souhaitez-vous la déclarer ?</translation>
