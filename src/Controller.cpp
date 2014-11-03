@@ -33,6 +33,7 @@
 Controller::Controller(IEvent &handler)
     : mEventHandler(handler)
     , mFull(false)
+    , mAdmin(Protocol::INVALID_UID)
     , mName("Default")
     , mId(1U)
 {
@@ -74,7 +75,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
 
             engine.CreateTable(nbPlayers);
             mFull = false;
-            mAdmins.clear();
+            mAdmin = Protocol::INVALID_UID;
         }
         break;
     }
@@ -104,9 +105,9 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                 mEventHandler.AcceptPlayer(uuid, mId);
 
                 // If it is the first player, then it is an admin
-                if (mAdmins.empty())
+                if (mAdmin == Protocol::INVALID_UID)
                 {
-                    mAdmins.push_back(uuid);
+                    mAdmin = uuid;
                 }
 
                 mFull = engine.SetIdentity(uuid, ident);
@@ -118,10 +119,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                 if (mFull)
                 {
                     // Warn table admin that the game is full, so it can start
-                    for (std::vector<std::uint32_t>::iterator iter = mAdmins.begin(); iter != mAdmins.end(); ++iter)
-                    {
-                        Send(Protocol::AdminGameFull(true, *iter));
-                    }
+                    Send(Protocol::AdminGameFull(true, mAdmin));
                 }
             }
             else
@@ -161,13 +159,29 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
             mEventHandler.RemovePlayer(kicked_player, mId);
             // Update player list
             Send(Protocol::TablePlayersList(engine.GetPlayersList()));
+            // Update the admin
+            if (kicked_player == mAdmin)
+            {
+                // Choose another admin
+                std::uint32_t newAdmin = Protocol::INVALID_UID;
+                for (std::uint32_t i = 0U; i < engine.GetNbPlayers(); i++)
+                {
+                    Player *player = engine.GetPlayer(i);
+                    if (player != NULL)
+                    {
+                        newAdmin = player->GetUuid();
+                    }
+                }
+                mAdmin = newAdmin;
+            }
+
             // If we are in a game, finish it and kick all players
             if (engine.GetSequence() != TarotEngine::WAIT_FOR_PLAYERS)
             {
                 // Remove remaining players
                 for (std::uint32_t i = 0U; i < engine.GetNbPlayers(); i++)
                 {
-                    Player *player = engine.GetPlayer(i);
+                    Player *player = engine.GetPlayer(Place(i));
                     if (player != NULL)
                     {
                         mEventHandler.RemovePlayer(player->GetUuid(), mId);
@@ -175,7 +189,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                 }
                 engine.CreateTable(engine.GetNbPlayers());
                 mFull = false;
-                mAdmins.clear();
+                mAdmin = Protocol::INVALID_UID;
             }
 
         }
@@ -199,7 +213,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
 
     case Protocol::ADMIN_NEW_GAME:
     {
-        if (IsAdmin(src_uuid))
+        if (src_uuid == mAdmin)
         {
             std::uint8_t gameMode;
             Tarot::Shuffle shuffle;
@@ -633,16 +647,6 @@ void Controller::GameSequence()
                 break;
         }
     }
-}
-/*****************************************************************************/
-bool Controller::IsAdmin(std::uint32_t unique_id)
-{
-    bool ret = false;
-    if (std::count(mAdmins.begin(), mAdmins.end(), unique_id) > 0)
-    {
-        ret = true;
-    }
-    return ret;
 }
 /*****************************************************************************/
 void Controller::Send(const ByteArray &block)

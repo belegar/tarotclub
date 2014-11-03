@@ -76,7 +76,7 @@ private:
     TarotEngine engine;
     ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
     bool mFull;
-    std::vector<std::uint32_t> mAdmins; //!< A list of admin players (default is the first player to be connected
+    std::uint32_t mAdmin; //!< Admin player (first player connected)
     std::string mName; //!< Name of this table
     std::uint32_t mId; //!< Table ID
 
@@ -88,7 +88,6 @@ private:
     void StartDeal();
     void BidSequence();
     void GameSequence();
-    bool IsAdmin(std::uint32_t unique_id);
     void Send(const ByteArray &block);
 };
 
