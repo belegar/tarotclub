@@ -177,6 +177,12 @@ bool Users::IsValid(std::uint32_t uuid, int socket)
     return valid;
 }
 /*****************************************************************************/
+bool Users::IsHere(std::uint32_t uuid)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    return mUsers.find(uuid) != mUsers.end();
+}
+/*****************************************************************************/
 /**
  * @brief Users::NewStagingUser
  *

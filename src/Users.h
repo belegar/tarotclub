@@ -46,6 +46,7 @@ public:
 
     // Players management
     bool IsValid(std::uint32_t uuid, int socket);
+    bool IsHere(std::uint32_t uuid);
     std::uint32_t NewStagingUser(int socket);
     bool AccessGranted(std::uint32_t uuid, const Identity &ident);
     void RemoveUser(std::uint32_t uuid);

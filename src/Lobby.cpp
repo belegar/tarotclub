@@ -236,9 +236,10 @@ void Lobby::ClientClosed(int socket)
     ss << "Player " << mUsers.GetIdentity(uuid).name << " has quit the server. UUID: " << uuid << ", socket=" << socket;
     TLogNetwork(ss.str());
 
-    // Remove the player first from the table
-    RemovePlayerFromTable(uuid, mUsers.GetPlayerTable(uuid));
+    // Remove the player from the server
     mUsers.RemoveUser(uuid);
+    // Remove the player from the table
+    RemovePlayerFromTable(uuid, mUsers.GetPlayerTable(uuid));
 }
 /*****************************************************************************/
 void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
@@ -270,12 +271,16 @@ void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
 /*****************************************************************************/
 void Lobby::RemovePlayer(std::uint32_t uuid, std::uint32_t tableId)
 {
-    std::stringstream ss;
-    ss << "Player " << mUsers.GetIdentity(uuid).name << " is leaving table: " << GetTableName(tableId);
-    TLogNetwork(ss.str());
-    mUsers.SetPlayingTable(uuid, 0U);
-    SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
-    SendData(Protocol::TableQuitEvent(uuid, tableId), 0U);
+    // Only send message and event if the player is still connected
+    if (mUsers.IsHere(uuid))
+    {
+        std::stringstream ss;
+        ss << "Player " << mUsers.GetIdentity(uuid).name << " is leaving table: " << GetTableName(tableId);
+        TLogNetwork(ss.str());
+        mUsers.SetPlayingTable(uuid, 0U);
+        SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
+        SendData(Protocol::TableQuitEvent(uuid, tableId), 0U);
+    }
 }
 /*****************************************************************************/
 void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
