@@ -47,7 +47,7 @@ Users::Users()
 std::uint32_t Users::GetPlayerTable(std::uint32_t uuid)
 {
    std::lock_guard<std::mutex> lock(mMutex);
-   std::uint32_t tableId = 0U;
+   std::uint32_t tableId = Protocol::NO_TABLE;
 
    if ((mUsers.find(uuid) != mUsers.end()))
    {
@@ -191,7 +191,7 @@ std::uint32_t Users::NewStagingUser(int socket)
     std::uint32_t uuid = mIdManager.TakeId();
     // Add the user to the main users list
     mUsers[uuid].socket = socket;
-    mUsers[uuid].tableId = 0U;
+    mUsers[uuid].tableId = Protocol::NO_TABLE;
     mUsers[uuid].connected = false;
 
     return uuid;
