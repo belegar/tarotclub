@@ -232,6 +232,7 @@ void Lobby::ClientClosed(int socket)
 {
     std::stringstream ss;
     std::uint32_t uuid = mUsers.GetUuid(socket);
+    std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
 
     ss << "Player " << mUsers.GetIdentity(uuid).name << " has quit the server. UUID: " << uuid << ", socket=" << socket;
     TLogNetwork(ss.str());
@@ -239,7 +240,7 @@ void Lobby::ClientClosed(int socket)
     // Remove the player from the server
     mUsers.RemoveUser(uuid);
     // Remove the player from the table
-    RemovePlayerFromTable(uuid, mUsers.GetPlayerTable(uuid));
+    RemovePlayerFromTable(uuid, tableId);
 }
 /*****************************************************************************/
 void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
