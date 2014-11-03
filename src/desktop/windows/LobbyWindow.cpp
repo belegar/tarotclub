@@ -48,6 +48,10 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
 
     Initialize();
 
+    // FIXME: make these parameters customizable in the client Json configuration file
+    ui.gameTcpPort->setValue(4269);
+    ui.webTcpPort->setValue(8080);
+
 #if TAROT_DEBUG
     ui.serverList->addItem("192.168.1.30");
     ui.serverList->addItem("127.0.0.1");
@@ -108,10 +112,6 @@ void LobbyWindow::slotConnect()
 /*****************************************************************************/
 void LobbyWindow::slotDisconnect()
 {
-    ui.infoLabel->setText(trUtf8("Not connected."));
-    mTableList.clear();
-    ui.tableList->clear();
-    ui.playerList->clear();
     emit sigDisconnect();
 }
 /*****************************************************************************/
@@ -134,6 +134,26 @@ void LobbyWindow::SetPlayersNames(const std::map<std::uint32_t, std::string> &pl
     {
         ui.playerList->addItem(QString(iter->second.c_str()));
     }
+}
+/*****************************************************************************/
+void LobbyWindow::SetTableStatus(std::uint32_t tableId, bool status)
+{
+    (void) tableId; // FIXME: add information about the connection using this id
+    if (status)
+    {
+        ui.joinButton->setEnabled(false);
+        ui.quitButton->setEnabled(true);
+    }
+    else
+    {
+        ui.joinButton->setEnabled(true);
+        ui.quitButton->setEnabled(false);
+    }
+}
+/*****************************************************************************/
+void LobbyWindow::DisconnectedFromServer()
+{
+    Initialize();
 }
 /*****************************************************************************/
 void LobbyWindow::slotJoin()
@@ -216,15 +236,14 @@ void LobbyWindow::slotClose()
 }
 /*****************************************************************************/
 void LobbyWindow::Initialize()
-{
-    QString txt = trUtf8("Not connected.");
-    ui.infoLabel->setText(txt);
+{  
+    ui.joinButton->setEnabled(true);
+    ui.quitButton->setEnabled(false);
+    ui.infoLabel->setText(trUtf8("Not connected."));
+    mTableList.clear();
     ui.tableList->clear();
     ui.playerList->clear();
-    ui.textArea->clear();
     ui.serverStatus->setText("-");
-    ui.gameTcpPort->setValue(4269);
-    ui.webTcpPort->setValue(8080);
 }
 /*****************************************************************************/
 bool LobbyWindow::RequestHttp(const QString &request, QString &reply)

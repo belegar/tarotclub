@@ -62,6 +62,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigLobbyMessage, lobbyWindow, &LobbyWindow::slotMessage, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigRemoteConnectionFailure, lobbyWindow, &LobbyWindow::slotConnectionFailure, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigLobbyPlayersList, this, &MainWindow::slotLobbyPlayersList, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigTableQuitEvent, this, &MainWindow::slotTableQuitEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigTableJoinEvent, this, &MainWindow::slotTableJoinEvent, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigClientError, this, &MainWindow::slotClientError, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigDisconnectedFromServer, this, &MainWindow::slotDisconnectedFromServer, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
@@ -171,6 +175,31 @@ void MainWindow::slotQuitTable(std::uint32_t tableId)
     {
         tarotWidget->QuitTable(tableId);
     }
+}
+/*****************************************************************************/
+void MainWindow::slotTableQuitEvent(std::uint32_t tableId)
+{
+    lobbyWindow->SetTableStatus(tableId, false);
+    infosDock->Clear();
+    scoresDock->Clear();
+}
+/*****************************************************************************/
+void MainWindow::slotTableJoinEvent(std::uint32_t tableId)
+{
+    lobbyWindow->SetTableStatus(tableId, true);
+}
+/*****************************************************************************/
+void MainWindow::slotClientError(std::uint32_t errorId)
+{
+    QString errorMsg = tr("Client error: %1").arg(errorId);
+    lobbyWindow->slotMessage(errorMsg.toStdString());
+}
+/*****************************************************************************/
+void MainWindow::slotDisconnectedFromServer()
+{
+    lobbyWindow->DisconnectedFromServer();
+    infosDock->Clear();
+    scoresDock->Clear();
 }
 /*****************************************************************************/
 void MainWindow::slotLobbyPlayersList()

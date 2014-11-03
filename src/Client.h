@@ -63,11 +63,17 @@ public:
     class IEvent
     {
     public:
+        static const std::uint32_t ErrLobbyAccessRefused = 4000U;
+        static const std::uint32_t ErrTableAccessRefused = 5000U;
+
+        virtual void Error(std::uint32_t errorId) = 0;
+        virtual void DisconnectedFromServer() = 0;
         virtual void EnteredLobby() = 0;
         virtual void AdminGameFull() = 0;
+        virtual void TableQuitEvent(std::uint32_t tableId) = 0;
         virtual void TableMessage(const std::string &message) = 0;
         virtual void LobbyMessage(const std::string &message) = 0;
-        virtual void AssignedPlace() = 0;
+        virtual void TableJoinEvent(std::uint32_t tableId) = 0;
         virtual void TablePlayersList() = 0;
         virtual void LobbyPlayersList() = 0;
         virtual void NewGame() = 0;

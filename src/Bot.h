@@ -59,11 +59,14 @@ private:
     bool InitializeScriptContext();
 
     // Client events
+    virtual void Error(std::uint32_t errorId);
+    virtual void DisconnectedFromServer();
     virtual void EnteredLobby();
     virtual void AdminGameFull();
+    virtual void TableQuitEvent(std::uint32_t tableId);
     virtual void TableMessage(const std::string &message);
     virtual void LobbyMessage(const std::string &message);
-    virtual void AssignedPlace();
+    virtual void TableJoinEvent(std::uint32_t tableId);
     virtual void TablePlayersList();
     virtual void LobbyPlayersList();
     virtual void NewDeal();

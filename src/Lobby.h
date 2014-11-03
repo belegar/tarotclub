@@ -48,6 +48,7 @@ public:
     bool RemoveBot(std::uint32_t uuid);
 
     void CloseClients();
+
 private:
 
     // From TcpServer interface
@@ -61,13 +62,13 @@ private:
     virtual void RemovePlayer(std::uint32_t uuid, std::uint32_t tableId);
     virtual void SendData(const ByteArray &block, std::uint32_t tableId);
 
-    std::uint32_t PlayerTable(std::uint32_t uuid);
-    void ExecuteRequest(const ByteArray &packet);
-    std::string GetTableName(const std::uint32_t tableId);
-
     // From Protocol::WorkItem
     bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
     ByteArray GetPacket();
+
+    void ExecuteRequest(const ByteArray &packet);
+    std::string GetTableName(const std::uint32_t tableId);
+	void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId);
 
     int             mTcpPort;
     TcpServer       mTcpServer;

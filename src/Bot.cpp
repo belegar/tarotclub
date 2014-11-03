@@ -56,8 +56,9 @@ void Bot::LobbyMessage(const std::string &message)
     // A bot cannot reply (yet :)
 }
 /*****************************************************************************/
-void Bot::AssignedPlace()
+void Bot::TableJoinEvent(std::uint32_t tableId)
 {
+    (void) tableId;
     // Nothing to do
 }
 /*****************************************************************************/
@@ -467,6 +468,18 @@ bool Bot::InitializeScriptContext()
     return retCode;
 }
 /*****************************************************************************/
+void Bot::Error(std::uint32_t errorId)
+{
+    std::stringstream ss;
+    ss << "Bot client error code: " << errorId;
+    TLogError(ss.str());
+}
+/*****************************************************************************/
+void Bot::DisconnectedFromServer()
+{
+    // Nothing to do
+}
+/*****************************************************************************/
 void Bot::EnteredLobby()
 {
     // As soon as we have entered into the lobby, join the assigned table
@@ -479,6 +492,12 @@ void Bot::AdminGameFull()
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
     mClient.AdminNewGame(Tarot::ONE_DEAL, sh);
+}
+/*****************************************************************************/
+void Bot::TableQuitEvent(std::uint32_t tableId)
+{
+    (void) tableId;
+    // nothing to do except waiting for new orders
 }
 
 //=============================================================================

@@ -85,44 +85,61 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         Identity ident;
         in >> uuid;
         in >> ident;
-        // Look for free Place and assign the uuid to this player
-        Place assigned = engine.AddPlayer(uuid);
-        if (assigned.Value() != Place::NOWHERE)
+
+        // Check if player is not already connected
+        if (engine.GetPlayerPlace(uuid) == Place::NOWHERE)
         {
-            // New player connected, send table information
-            Send(Protocol::TableJoinReply(
-                                       assigned,
-                                       engine.GetNbPlayers(),
-                                       uuid));
-
-            // Warn upper layers
-            mEventHandler.AcceptPlayer(uuid, mId);
-
-            // If it is the first player, then it is an admin
-            if (mAdmins.empty())
+            // Look for free Place and assign the uuid to this player
+            Place assigned = engine.AddPlayer(uuid);
+            if (assigned.Value() != Place::NOWHERE)
             {
-                mAdmins.push_back(uuid);
-            }
+                // New player connected, send table information
+                Send(Protocol::TableJoinReply(
+										   true,
+                                           assigned,
+                                           engine.GetNbPlayers(),
+                                           uuid));
 
-            mFull = engine.SetIdentity(uuid, ident);
-            std::string message = "The player " + ident.name + " has joined the game.";
-            Send(Protocol::TableChatMessage(message));
+                // Warn upper layers
+                mEventHandler.AcceptPlayer(uuid, mId);
 
-            // Update player list
-            Send(Protocol::TablePlayersList(engine.GetPlayersList()));
-            if (mFull)
-            {
-                // Warn table admin that the game is full, so it can start
-                for (std::vector<std::uint32_t>::iterator iter = mAdmins.begin(); iter != mAdmins.end(); ++iter)
+                // If it is the first player, then it is an admin
+                if (mAdmins.empty())
                 {
-                    Send(Protocol::AdminGameFull(true, *iter));
+                    mAdmins.push_back(uuid);
                 }
+
+                mFull = engine.SetIdentity(uuid, ident);
+                std::string message = "The player " + ident.name + " has joined the game.";
+                Send(Protocol::TableChatMessage(message));
+
+                // Update player list
+                Send(Protocol::TablePlayersList(engine.GetPlayersList()));
+                if (mFull)
+                {
+                    // Warn table admin that the game is full, so it can start
+                    for (std::vector<std::uint32_t>::iterator iter = mAdmins.begin(); iter != mAdmins.end(); ++iter)
+                    {
+                        Send(Protocol::AdminGameFull(true, *iter));
+                    }
+                }
+            }
+            else
+            {
+                // Server is full, send an error message
+                Send(Protocol::TableFullMessage(uuid));
             }
         }
         else
         {
-            // Server is full, send an error message
-            Send(Protocol::TableFullMessage(uuid));
+            // Player is already connected, send error
+            // New player connected, send table information
+            Send(Protocol::TableJoinReply(
+                                       false,
+                                       Place::NOWHERE,
+                                       0U,
+                                       uuid));
+
         }
         break;
     }
@@ -156,7 +173,6 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                         mEventHandler.RemovePlayer(player->GetUuid(), mId);
                     }
                 }
-
                 engine.CreateTable(engine.GetNbPlayers());
                 mFull = false;
                 mAdmins.clear();

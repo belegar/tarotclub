@@ -40,6 +40,7 @@ TarotWidget::TarotWidget(QWidget *parent)
     , mConnectionType(NO_CONNECTION)
     , mAutoPlay(false)
     , mGameMode(Tarot::ONE_DEAL)
+    , mShutdown(false)
 {
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
 
@@ -86,6 +87,8 @@ TarotWidget::TarotWidget(QWidget *parent)
     connect(this, &TarotWidget::sigWaitTrick, this, &TarotWidget::slotWaitTrick, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigGameFull, this, &TarotWidget::slotStartGame, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigAutoJoinTable, this, &TarotWidget::slotAutoJoinTable, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigTableQuitEvent, this, &TarotWidget::slotTableQuitEvent, Qt::QueuedConnection);
+    connect(this, &TarotWidget::sigDisconnectedFromServer, this, &TarotWidget::slotDisconnectedFromServer, Qt::QueuedConnection);
 
 }
 /*****************************************************************************/
@@ -116,6 +119,9 @@ void TarotWidget::Initialize(const ServerOptions &opt)
  */
 void TarotWidget::slotCleanBeforeExit()
 {
+    // Raise a flag
+    mShutdown = true;
+
     // Close ourself
     mClient.Close();
     mLobby.Stop();
@@ -217,6 +223,19 @@ void TarotWidget::QuitTable(std::uint32_t tableId)
     mClient.SendQuitTable(tableId);
 }
 /*****************************************************************************/
+void TarotWidget::slotTableQuitEvent(std::uint32_t tableId)
+{
+    (void) tableId;
+    // We have been kicked from the table OR this is a simple acknowlegment message
+    // Clean canvas
+    InitScreen(true);
+}
+/*****************************************************************************/
+void TarotWidget::slotDisconnectedFromServer()
+{
+    InitScreen(true);
+}
+/*****************************************************************************/
 void TarotWidget::Disconnect()
 {
     mClient.Close();
@@ -248,10 +267,10 @@ void TarotWidget::slotStartGame()
     mClient.AdminNewGame(mGameMode, mShuffle);
 }
 /*****************************************************************************/
-void TarotWidget::InitScreen()
+void TarotWidget::InitScreen(bool rawClear)
 {
     // GUI initialization
-    mCanvas->InitBoard();
+    mCanvas->InitBoard(rawClear);
     mCanvas->ResetCards();
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 }

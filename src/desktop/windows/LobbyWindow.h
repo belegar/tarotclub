@@ -40,6 +40,8 @@ public:
 
     void Initialize();
     void SetPlayersNames(const std::map<std::uint32_t, std::string> &players);
+    void SetTableStatus(std::uint32_t tableId, bool status);
+    void DisconnectedFromServer();
 
 signals:
     void sigEmitMessage(const QString &);

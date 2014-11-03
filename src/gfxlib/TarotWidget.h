@@ -102,7 +102,11 @@ public:
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
+    void sigClientError(std::uint32_t errorId);
+    void sigDisconnectedFromServer();
     void sigEnteredLobby();
+    void sigTableQuitEvent(std::uint32_t tableId);
+    void sigTableJoinEvent(std::uint32_t tableId);
     void sigRemoteConnectionFailure();
     void sigNewGame();
     void sigTablePlayersList();
@@ -138,14 +142,29 @@ private:
     Deck            mMySavedDeck;
     Tarot::GameMode mGameMode;
     Tarot::Shuffle  mShuffle;
+    bool            mShutdown;
 
     // Helpers
     void ShowSouthCards();
     void HideTrick();
-    void InitScreen();
+    void InitScreen(bool rawClear = false);
     bool HasLocalConnection();
 
     // Client events
+    virtual void Error(std::uint32_t errorId)
+    {
+        emit sigClientError(errorId);
+    }
+
+    virtual void DisconnectedFromServer()
+    {
+        // This flag avoid teh propagation of several events during the shutdown process
+        if (!mShutdown)
+        {
+            emit sigDisconnectedFromServer();
+        }
+    }
+
     virtual void EnteredLobby()
     {
         emit sigEnteredLobby();
@@ -161,8 +180,14 @@ private:
         emit sigLobbyMessage(message);
     }
 
-    virtual void AssignedPlace()
+    virtual void TableQuitEvent(std::uint32_t tableId)
     {
+        emit sigTableQuitEvent(tableId);
+    }
+
+    virtual void TableJoinEvent(std::uint32_t tableId)
+    {
+        emit sigTableJoinEvent(tableId);
         emit sigAssignedPlace();
     }
     virtual void TablePlayersList()
@@ -283,6 +308,8 @@ private slots:
     void slotWaitTrick(Place p);
     void slotEndOfDeal();
     void slotEndOfGame(Place winner);
+    void slotTableQuitEvent(std::uint32_t tableId);
+    void slotDisconnectedFromServer();
 
     // Board events
     void slotAcceptHandle();

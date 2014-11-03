@@ -109,7 +109,7 @@ void Lobby::ReadData(int socket, const std::string &data)
         {
             // gets the table of the sender
             std::uint32_t tableId = mUsers.GetPlayerTable(src_uuid);
-            if (tableId != 0U)
+            if (tableId != Protocol::NO_TABLE)
             {
                 // forward it to the suitable table controller
                 for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
@@ -183,12 +183,17 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
     {
         std::uint32_t tableId;
         in >> tableId;
-        // Forward it to the table controller
-        for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+
+        // A user can join a table if he is _NOT_ already around a table
+        if (mUsers.GetPlayerTable(src_uuid) == Protocol::NO_TABLE)
         {
-            if ((*iter)->GetId() == tableId)
+            // Forward it to the table controller
+            for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
             {
-                (*iter)->ExecuteRequest(Protocol::LobbyAddPlayer(src_uuid, mUsers.GetIdentity(src_uuid)));
+                if ((*iter)->GetId() == tableId)
+                {
+                    (*iter)->ExecuteRequest(Protocol::LobbyAddPlayer(src_uuid, mUsers.GetIdentity(src_uuid)));
+                }
             }
         }
         break;
@@ -198,17 +203,9 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
     {
         std::uint32_t tableId;
         in >> tableId;
-        // Is player around the table?
         if (mUsers.GetPlayerTable(src_uuid) == tableId)
         {
-            // Forward it to the table controller
-            for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
-            {
-                if ((*iter)->GetId() == tableId)
-                {
-                    (*iter)->ExecuteRequest(Protocol::LobbyRemovePlayer(src_uuid));
-                }
-            }
+            RemovePlayerFromTable(src_uuid, tableId);
         }
         break;
     }
@@ -239,8 +236,21 @@ void Lobby::ClientClosed(int socket)
     ss << "Player " << mUsers.GetIdentity(uuid).name << " has quit the server. UUID: " << uuid << ", socket=" << socket;
     TLogNetwork(ss.str());
 
-    //FIXME: remove the player first from the table
+    // Remove the player first from the table
+    RemovePlayerFromTable(uuid, mUsers.GetPlayerTable(uuid));
     mUsers.RemoveUser(uuid);
+}
+/*****************************************************************************/
+void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
+{
+    // Forward it to the table controller
+    for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    {
+        if ((*iter)->GetId() == tableId)
+        {
+            (*iter)->ExecuteRequest(Protocol::LobbyRemovePlayer(uuid));
+        }
+    }
 }
 /*****************************************************************************/
 void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
@@ -265,6 +275,7 @@ void Lobby::RemovePlayer(std::uint32_t uuid, std::uint32_t tableId)
     TLogNetwork(ss.str());
     mUsers.SetPlayingTable(uuid, 0U);
     SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
+    SendData(Protocol::TableQuitEvent(uuid, tableId), 0U);
 }
 /*****************************************************************************/
 void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)

@@ -86,22 +86,22 @@ public:
         CLIENT_QUIT_TABLE       = 0x32, //!< A user wants to quit the table
         CLIENT_REPLY_LOGIN      = 0x33, //!< Client sends its identity to the server
 
-        // server -> client (player)
+        // lobby -> client
         LOBBY_CHAT_MESSAGE      = 0x40, //!< chat message broadcasted to all clients
         LOBBY_REQUEST_LOGIN     = 0x41, //!< Server assigns a place to a client and he must reply back the identity
         LOBBY_LOGIN_RESULT      = 0x42,
+        LOBBY_PLAYERS_LIST      = 0x43,
         // FIXME: Not implemented in the server side
-        LOBBY_DISCONNECT        = 0x43, //!< Ask a client to quit the game
-        LOBBY_PLAYERS_LIST      = 0x44,
+        LOBBY_DISCONNECT        = 0x44, //!< Ask a client to quit the game
 
-        // system -> server
+        // lobby -> table
         LOBBY_CREATE_TABLE      = 0x50, //!< Ask the server to start a new table with N players
         LOBBY_ADD_PLAYER        = 0x51, //!< Add a player
         LOBBY_REMOVE_PLAYER     = 0x52, //!< Remove player
 
         // table -> client (player)
         TABLE_JOIN_REPLY        = 0x6F, //!< Player joins the table (accepted or rejected)
-        TABLE_QUIT_REPLY        = 0x70, //!< Player quit the table (accepted or rejected)
+        TABLE_QUIT_EVENT        = 0x70, //!< Player quit the table
         TABLE_CHAT_MESSAGE      = 0x71,
         TABLE_PLAYERS_LIST      = 0x72, //!< Once the players list has been received, players must indicate if they are ready
         TABLE_NEW_GAME          = 0x73, //!< New game mode, and shuffle type
@@ -182,7 +182,7 @@ public:
     static ByteArray ClientQuitTable(std::uint32_t client_uuid, std::uint32_t tableId);
 
     // table -> client (player): manage the Tarot game protocol and all the table related stuff
-    static ByteArray TableJoinReply(Place p, std::uint8_t nbPlayers, std::uint32_t uuid);
+    static ByteArray TableJoinReply(bool status, Place p, std::uint8_t nbPlayers, std::uint32_t uuid);
     static ByteArray TableAllPassed();
     static ByteArray TableFullMessage(std::uint32_t uuid);
     static ByteArray TableAskForDiscard(std::uint32_t uuid);
@@ -201,6 +201,7 @@ public:
     static ByteArray TableEndOfTrick(Place winner);
     static ByteArray TableEndOfDeal(Score &score);
     static ByteArray TableEndOfGame(Place winner);
+    static ByteArray TableQuitEvent(std::uint32_t uuid, std::uint32_t tableId);
 
     // Admin -> controller
     static ByteArray AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint32_t uuid);

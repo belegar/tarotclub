@@ -42,6 +42,8 @@ Client::Client(IEvent &handler)
 void Client::Initialize()
 {
     mSequence = STOPPED;
+    mPlayersIdent.clear();
+    mPlace = Place::NOWHERE;
 
     if (!mInitialized)
     {
@@ -333,6 +335,7 @@ void Client::Run()
                 }
             }
             mPlayer.SetUuid(Protocol::INVALID_UID);
+            mEventHandler.DisconnectedFromServer();
         }
         else if (cmd == EXIT)
         {
@@ -391,6 +394,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         }
         else
         {
+            mEventHandler.Error(IEvent::ErrLobbyAccessRefused);
             TLogError("Lobby has rejected the login.");
         }
         break;
@@ -433,9 +437,30 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
     case Protocol::TABLE_JOIN_REPLY:
     {
+        bool status;
+        std::uint32_t tableId;
+        in >> tableId;
+        in >> status;
         in >> mPlace;
         in >> mNbPlayers;
-        mEventHandler.AssignedPlace();
+        if (status)
+        {
+            mEventHandler.TableJoinEvent(tableId);
+        }
+        else
+        {
+            mEventHandler.Error(IEvent::ErrTableAccessRefused);
+        }
+        break;
+    }
+
+    case Protocol::TABLE_QUIT_EVENT:
+    {
+        std::uint32_t tableId;
+        in >> tableId;
+
+        Initialize();
+        mEventHandler.TableQuitEvent(tableId);
         break;
     }
 

@@ -47,6 +47,10 @@ class Controller : public Protocol::IWorkItem
 {
 
 public:
+    /**
+     * @brief The IEvent class for upper layers (the table manager)
+     *
+     */
     class IEvent
     {
     public:

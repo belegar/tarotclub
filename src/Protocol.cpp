@@ -452,13 +452,27 @@ ByteArray Protocol::TableAskForDiscard(std::uint32_t uuid)
     return BuildCommand(Protocol::TABLE_ASK_FOR_DISCARD, TABLE_UID, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::TableJoinReply(Place p, std::uint8_t nbPlayers, std::uint32_t uuid)
+ByteArray Protocol::TableQuitEvent(std::uint32_t uuid, std::uint32_t tableId)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::TABLE_QUIT_EVENT, TABLE_UID, uuid);
+    out.Seek(HEADER_SIZE);
+    out << tableId;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::TableJoinReply(bool status, Place p, std::uint8_t nbPlayers, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::TABLE_JOIN_REPLY, TABLE_UID, uuid);
     out.Seek(HEADER_SIZE);
+    out << status;
     out << p;                       // assigned place
     out << nbPlayers;               // number of players in the current game
     UpdateHeader(packet);
