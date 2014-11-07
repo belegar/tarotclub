@@ -103,18 +103,6 @@ qmake prj/desktop.pro
 make
 ```
 
-## How to build TarotClub Dedicated Server (TCDS)
-
-You can use the prj/tcds.pro file and follow the same way than the previous chapter.
-Another way is to use the hand-made "Makefile.tcds" available at the directory root. Some batch/sh command-line 
-scripts are available.
-
-Example under Windows:
-```
-cd tarotclub
-build_tcds.bat
-```
-
 # Development tools
 
 ## Code style
@@ -368,20 +356,6 @@ must be loaded during the initialization of the game. The order is important bec
 The path of the file must be relative to the root of the configuration file.
 
 ## Game API
-
-TODO
-
-# Dedicated Server usage
-
-## JSON Configuration file
-
-TODO
-
-## Web management interface
-
-TODO
-
-## REST API
 
 TODO
 
