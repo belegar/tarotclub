@@ -163,7 +163,27 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
     }
     else
     {
-        txt.setNum((int)card.GetValue());
+        int value = (int)card.GetValue();
+        if (value == 11)
+        {
+            txt = "V";
+        }
+        else if (value == 12)
+        {
+            txt = "C";
+        }
+        else if (value == 13)
+        {
+            txt = "D";
+        }
+        else if (value == 14)
+        {
+            txt = "R";
+        }
+        else
+        {
+            txt.setNum(value);
+        }
         txt += suits[card.GetSuit()];
     }
 
@@ -171,6 +191,15 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
     if (item != NULL)
     {
         item->setText(txt);
+        if ((card.GetSuit() == Card::HEARTS) ||
+            (card.GetSuit() == Card::DIAMONDS))
+        {
+            item->setForeground(QColor(Qt::red));
+        }
+        else
+        {
+            item->setForeground(QColor(Qt::black));
+        }
     }
 }
 /*****************************************************************************/
