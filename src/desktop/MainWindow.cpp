@@ -145,7 +145,6 @@ void MainWindow::slotNewCustomDeal()
 /*****************************************************************************/
 void MainWindow::slotJoinNetworkGame()
 {
-    lobbyWindow->Initialize();
     lobbyWindow->show();
 }
 /*****************************************************************************/
