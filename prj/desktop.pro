@@ -50,6 +50,7 @@ VPATH += $$BASE_DIR/src/desktop/forms
 VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/gfxlib
+VPATH += $$BASE_DIR/src/network
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
@@ -67,6 +68,7 @@ INCLUDEPATH += $$BASE_DIR/src/desktop/forms
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
+INCLUDEPATH += $$BASE_DIR/src/network
 
 # ------------------------------------------------------------------------------
 # Compiler definitions

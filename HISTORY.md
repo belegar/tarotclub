@@ -1,14 +1,11 @@
-# HISTORY OF TAROTCLUB VERSIONS
+# Version 2.5 - Codename <???> (??/??/2014)
 
-## Introduction
+## Desktop user interface
 
-The following ChangeLog is using specific signs to quickly identify the nature of the change:
+  * Information dock window: display king/queen etc. instead of 14, 13 .. and make hearts and diamonds in red
 
-+ new feature
-~ bug corrected
-- feature removed
 
-# Version 2.4 - Codename <Pirate!> (??/??/2014)
+# Version 2.4 - Codename <Pirate!> (03/11/2014)
 
 ## Internal modifications
 
