@@ -13,6 +13,7 @@
   * Peut on avoir de la couleur dans l'onglet information pour les coeurs et carreaux mais surtout les numeros 11 - 12 - 13 - 14... ce n'est vraiment pas intuitif, il faut reflechir...
   * Create a old-style gradient (pale-yellow) in all the cards
   * Indicate the table id and name in the deal file result
+
   
 ## TCDS dedicated server 
 
