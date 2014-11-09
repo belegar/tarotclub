@@ -143,6 +143,7 @@ void TcpSocket::Close()
         ::shutdown(mSock, SD_BOTH);
         ::closesocket(mSock);
 #endif
+        mSock = -1;
     }
 }
 /*****************************************************************************/
