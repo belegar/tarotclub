@@ -211,7 +211,7 @@ public:
 
     // Lobby -> client(s)
     static ByteArray LobbyRequestLogin(std::uint32_t uuid);
-    static ByteArray LobbyLoginResult(bool accepted, std::uint32_t uuid);
+    static ByteArray LobbyLoginResult(bool accepted, const std::map<std::string, std::uint32_t> &tableList, std::uint32_t uuid);
     static ByteArray LobbyDisconnect(std::uint32_t uuid);
     static ByteArray LobbyChatMessage(const std::string &message);
     static ByteArray LobbyPlayersList(const std::map<std::uint32_t, std::string> &players);
