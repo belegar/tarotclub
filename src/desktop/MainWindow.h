@@ -82,6 +82,7 @@ private slots:
     void slotTableJoinEvent(std::uint32_t tableId);
     void slotClientError(std::uint32_t errorId);
     void slotDisconnectedFromServer();
+    void slotEnteredLobby();
 
     // Events from LobbyWindow
     void slotConnectToLobby(QString server, std::uint16_t port);

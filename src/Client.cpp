@@ -262,11 +262,13 @@ bool Client::IsConnected()
 /*****************************************************************************/
 void Client::Disconnect()
 {
+    mConnected = false;
     mTcpClient.Close();
 }
 /*****************************************************************************/
 void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
+    Disconnect();
     if (!mTcpClient.IsValid())
     {
         // Create a socket before connection
@@ -286,8 +288,7 @@ void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
 /*****************************************************************************/
 void Client::Close()
 {
-    mConnected = false;
-    mTcpClient.Close();
+    Disconnect();
 
     if (mInitialized)
     {
@@ -390,6 +391,19 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         in >> accepted;
         if (accepted)
         {
+            std::uint32_t tableSize;
+            in >> tableSize;
+
+            mTableList.clear();
+            for (std::uint32_t i = 0U; i < tableSize; i++)
+            {
+                std::string name;
+                std::uint32_t id;
+
+                in >> name;
+                in >> id;
+                mTableList[name] = id;
+            }
             mEventHandler.EnteredLobby();
         }
         else

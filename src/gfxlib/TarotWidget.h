@@ -100,6 +100,11 @@ public:
         return mClient.GetMyDeck();
     }
 
+    std::map<std::string, std::uint32_t> GetTableList()
+    {
+        return mClient.GetTableList();
+    }
+
 signals:
     // These signals are used internally and made accessible in public for any external entity
     void sigClientError(std::uint32_t errorId);

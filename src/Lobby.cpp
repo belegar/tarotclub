@@ -170,7 +170,14 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
 
         if (mUsers.AccessGranted(src_uuid, ident))
         {
-            SendData(Protocol::LobbyLoginResult(true, src_uuid), 0U);
+            // Create a list of tables available on the server
+            std::map<std::string, std::uint32_t> list;
+            for (std::list<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+            {
+                list[(*iter)->GetName()] = (*iter)->GetId();
+            }
+
+            SendData(Protocol::LobbyLoginResult(true, list, src_uuid), 0U);
             std::string message = "The player " + ident.name + " has joined the server.";
             TLogNetwork(message);
             SendData(Protocol::LobbyChatMessage(message), 0U);

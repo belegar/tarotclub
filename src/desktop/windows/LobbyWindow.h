@@ -42,6 +42,7 @@ public:
     void SetPlayersNames(const std::map<std::uint32_t, std::string> &players);
     void SetTableStatus(std::uint32_t tableId, bool status);
     void DisconnectedFromServer();
+    void SetTables(const std::map<std::string, std::uint32_t> &tableList);
 
 signals:
     void sigEmitMessage(const QString &);
@@ -66,7 +67,7 @@ private slots:
 private:
     Ui::LobbyUI  ui;
 
-    QMap<QString, std::uint32_t> mTableList;    // key = table name, value = table ID
+    std::map<std::string, std::uint32_t> mTableList;    // key = table name, value = table ID
     std::map<std::uint32_t, std::string> mPlayerList; // key = user name, value = uuid
     bool RequestHttp(const QString &request, QString &reply);
     bool CheckServer();

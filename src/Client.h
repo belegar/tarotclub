@@ -147,6 +147,8 @@ public:
     }
     std::uint32_t GetUuid() { return mPlayer.GetUuid(); }
 
+    std::map<std::string, std::uint32_t>  GetTableList() { return mTableList; }
+
     std::string GetTablePlayerName(Place p);
 
     // Setters
@@ -200,6 +202,7 @@ private:
     Tarot::GameMode mGameMode;
     std::map<Place, Identity> mPlayersIdent;  // players around the table
     std::map<std::uint32_t, std::string> mLobbyUsers; // pair of uuid, names
+    std::map<std::string, std::uint32_t> mTableList;
     std::uint8_t mNbPlayers;
     Tarot::Bid  mBid;
     Tarot::Shuffle mShuffle;
