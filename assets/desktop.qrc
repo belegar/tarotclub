@@ -32,5 +32,63 @@
         <file>avatars/19.svg</file>
         <file>avatars/20.svg</file>
         <file>cards/minideck.svg</file>
+        <file>avatars/A01.png</file>
+        <file>avatars/A02.png</file>
+        <file>avatars/A03.png</file>
+        <file>avatars/A04.png</file>
+        <file>avatars/B04.png</file>
+        <file>avatars/B05.png</file>
+        <file>avatars/C01.png</file>
+        <file>avatars/C03.png</file>
+        <file>avatars/D03.png</file>
+        <file>avatars/D04.png</file>
+        <file>avatars/E01.png</file>
+        <file>avatars/E02.png</file>
+        <file>avatars/E04.png</file>
+        <file>avatars/E05.png</file>
+        <file>avatars/F01.png</file>
+        <file>avatars/F04.png</file>
+        <file>avatars/FA04.png</file>
+        <file>avatars/FB01.png</file>
+        <file>avatars/FC01.png</file>
+        <file>avatars/FC04.png</file>
+        <file>avatars/FD01.png</file>
+        <file>avatars/FD05.png</file>
+        <file>avatars/FE02.png</file>
+        <file>avatars/FE03.png</file>
+        <file>avatars/FE05.png</file>
+        <file>avatars/FG01.png</file>
+        <file>avatars/FH01.png</file>
+        <file>avatars/FH04.png</file>
+        <file>avatars/FI02.png</file>
+        <file>avatars/FI05.png</file>
+        <file>avatars/G01.png</file>
+        <file>avatars/G03.png</file>
+        <file>avatars/G04.png</file>
+        <file>avatars/H01.png</file>
+        <file>avatars/H02.png</file>
+        <file>avatars/H05.png</file>
+        <file>avatars/I01.png</file>
+        <file>avatars/I02.png</file>
+        <file>avatars/I03.png</file>
+        <file>avatars/J01.png</file>
+        <file>avatars/J03.png</file>
+        <file>avatars/K02.png</file>
+        <file>avatars/K03.png</file>
+        <file>avatars/L01.png</file>
+        <file>avatars/L02.png</file>
+        <file>avatars/L03.png</file>
+        <file>avatars/M03.png</file>
+        <file>avatars/M04.png</file>
+        <file>avatars/M05.png</file>
+        <file>avatars/N01.png</file>
+        <file>avatars/N02.png</file>
+        <file>avatars/N03.png</file>
+        <file>avatars/N04.png</file>
+        <file>avatars/N05.png</file>
+        <file>avatars/O02.png</file>
+        <file>avatars/O03.png</file>
+        <file>avatars/O04.png</file>
+        <file>avatars/O05.png</file>
     </qresource>
 </RCC>
