@@ -79,6 +79,7 @@ public:
 
     // Getters
     bool GetValue(const std::string &obj, std::int32_t &value);
+    bool GetValue(const std::string &obj, std::uint32_t &value);
     bool GetValue(const std::string &obj, std::string &value);
     bool GetValue(const std::string &obj, bool &value);
     std::vector<JsonValue> GetArray(const std::string &obj, Value::Type type);

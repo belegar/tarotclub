@@ -105,6 +105,19 @@ bool JsonReader::GetValue(const std::string &obj, std::int32_t &value)
     return ret;
 }
 /*****************************************************************************/
+bool JsonReader::GetValue(const std::string &obj, std::uint32_t &value)
+{
+    bool ret = false;
+
+    JsonValue val = GetJsonValue(obj, JsonValue::INTEGER);
+    if (val.IsValid())
+    {
+        value = static_cast<std::uint32_t>(val.GetInteger());
+        ret = true;
+    }
+    return ret;
+}
+/*****************************************************************************/
 bool JsonReader::GetValue(const std::string &obj, std::string &value)
 {
     bool ret = false;
