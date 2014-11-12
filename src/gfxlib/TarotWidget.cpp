@@ -264,7 +264,13 @@ void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh
 /*****************************************************************************/
 void TarotWidget::slotStartGame()
 {
-    mClient.AdminNewGame(mGameMode, mShuffle);
+    std::uint8_t  numberOfTurns = 1U;
+    if (mGameMode == Tarot::TOURNAMENT)
+    {
+        numberOfTurns = mServerOptions.tournamentTurns;
+    }
+
+    mClient.AdminNewGame(mGameMode, mShuffle, numberOfTurns);
 }
 /*****************************************************************************/
 void TarotWidget::InitScreen(bool rawClear)

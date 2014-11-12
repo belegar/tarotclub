@@ -70,22 +70,31 @@ bool ServerConfig::Load(const std::string &fileName)
                 // The general strategy is to be tolerant on the values.
                 // If they are not in the acceptable range, we set the default value
                 // without throwing any error
-                std::int32_t intval;
-                if (json.GetValue("delay", intval))
+                std::uint32_t unsignedVal;
+                if (json.GetValue("delay", unsignedVal))
                 {
-                    if ((intval < 0) || (intval > 9000))
+                    if (unsignedVal > 9000U)
                     {
-                        intval = DEFAULT_DELAY;
+                        unsignedVal = DEFAULT_DELAY;
                     }
-                    mOptions.timer = intval;
+                    mOptions.timer = unsignedVal;
                 }
-                if (json.GetValue("lobby_tcp_port", intval))
+                if (json.GetValue("lobby_tcp_port", unsignedVal))
                 {
-                    mOptions.lobby_tcp_port = intval;
+                    mOptions.lobby_tcp_port = unsignedVal;
                 }
-                if (json.GetValue("lobby_max_conn", intval))
+                if (json.GetValue("lobby_max_conn", unsignedVal))
                 {
-                    mOptions.lobby_max_conn = intval;
+                    mOptions.lobby_max_conn = unsignedVal;
+                }
+
+                if (json.GetValue("tournament_turns", unsignedVal))
+                {
+                    mOptions.tournamentTurns = static_cast<std::uint8_t>(unsignedVal);
+                    if (mOptions.tournamentTurns > MAX_NUMBER_OF_TURNS)
+                    {
+                        mOptions.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
+                    }
                 }
 
                 for (std::uint32_t i = 1U; i < 4U; i++)
@@ -170,6 +179,7 @@ bool ServerConfig::Save(const std::string &fileName)
     json.CreateValuePair("delay", mOptions.timer);
     json.CreateValuePair("lobby_tcp_port", mOptions.lobby_tcp_port);
     json.CreateValuePair("lobby_max_conn", mOptions.lobby_max_conn);
+    json.CreateValuePair("tournament_turns", mOptions.tournamentTurns);
 
     for (std::uint32_t i = 1U; i < 4U; i++)
     {
@@ -212,6 +222,7 @@ ServerOptions ServerConfig::GetDefault()
     opt.timer           = DEFAULT_DELAY;
     opt.lobby_tcp_port  = DEFAULT_LOBBY_TCP_PORT;
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
+    opt.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
     opt.tables.push_back("Default"); // default table name (one table minimum)
 
     opt.bots[Place::WEST].name     = "Leela";

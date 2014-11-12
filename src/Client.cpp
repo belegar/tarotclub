@@ -44,6 +44,7 @@ void Client::Initialize()
     mSequence = STOPPED;
     mPlayersIdent.clear();
     mPlace = Place::NOWHERE;
+    mDeal.Initialize();
 
     if (!mInitialized)
     {
@@ -491,10 +492,12 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     case Protocol::TABLE_NEW_GAME:
     {
         std::uint8_t mode;
+        std::uint8_t numberOfTurns;
         in >> mode;
         in >> mShuffle;
+        in >> numberOfTurns;
 
-        mDeal.NewGame();
+        mDeal.NewGame(numberOfTurns);
         mGameMode = (Tarot::GameMode)mode;
         mEventHandler.NewGame();
         break;
@@ -681,9 +684,9 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     return ret;
 }
 /*****************************************************************************/
-void Client::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle)
+void Client::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns)
 {
-    ByteArray packet = Protocol::AdminNewGame(gameMode, shuffle, mPlayer.GetUuid());
+    ByteArray packet = Protocol::AdminNewGame(gameMode, shuffle, numberOfTurns, mPlayer.GetUuid());
     SendPacket(packet);
 }
 /*****************************************************************************/

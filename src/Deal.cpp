@@ -36,13 +36,12 @@ static const std::string DEAL_RESULT_FILE_VERSION  = "2.1"; // should be backwar
 /*****************************************************************************/
 Deal::Deal()
 {
-    NewGame();
-    NewDeal();
+    Initialize();
 }
 /*****************************************************************************/
-void Deal::NewGame()
+void Deal::Initialize()
 {
-    for (std::uint32_t i = 0U; i < MAX_ROUNDS; i++)
+    for (std::uint32_t i = 0U; i < ServerConfig::MAX_NUMBER_OF_TURNS; i++)
     {
         for (std::uint32_t j = 0U; j < 5U; j++)
         {
@@ -50,6 +49,18 @@ void Deal::NewGame()
         }
     }
     dealCounter = 0U;
+    littleEndianOudler = false;
+    littleEndianOwner = NO_TEAM;
+    slamDone = false;
+    slamOwner = NO_TEAM;
+    mTricksWon = 0;
+    mNumberOfTurns = ServerConfig::DEFAULT_NUMBER_OF_TURNS;
+}
+/*****************************************************************************/
+void Deal::NewGame(std::uint8_t numberOfTurns)
+{
+    mNumberOfTurns = numberOfTurns;
+    Initialize();
 }
 /*****************************************************************************/
 void Deal::NewDeal()
@@ -348,7 +359,7 @@ bool Deal::AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers)
         }
     }
     dealCounter++;
-    if (dealCounter < MAX_ROUNDS)
+    if (dealCounter < mNumberOfTurns)
     {
         return true;
     }
@@ -517,7 +528,7 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
     bool ret = true;
     JsonReader json;
 
-    NewGame();
+    NewGame(1U);
     NewDeal();
 
     if (json.Open(fileName))

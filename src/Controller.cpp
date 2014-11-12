@@ -217,12 +217,14 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         {
             std::uint8_t gameMode;
             Tarot::Shuffle shuffle;
+            std::uint8_t numberOfTurns;
 
             in >> gameMode;
             in >> shuffle;
+            in >> numberOfTurns;
 
-            engine.NewGame((Tarot::GameMode)gameMode, shuffle);
-            Send(Protocol::TableNewGame((Tarot::GameMode)gameMode, shuffle));
+            engine.NewGame((Tarot::GameMode)gameMode, shuffle, numberOfTurns);
+            Send(Protocol::TableNewGame((Tarot::GameMode)gameMode, shuffle, numberOfTurns));
         }
         break;
     }

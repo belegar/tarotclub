@@ -79,6 +79,7 @@ bool ClientConfig::Load(const std::string &fileName)
     {
         std::string stringval;
         std::int32_t intval;
+        std::uint32_t unsignedVal;
 
         if (json.GetValue("version", stringval))
         {
@@ -108,9 +109,9 @@ bool ClientConfig::Load(const std::string &fileName)
                     }
                 }
 
-                if (json.GetValue("delay_before_cleaning", intval))
+                if (json.GetValue("delay_before_cleaning", unsignedVal))
                 {
-                    mOptions.delayBeforeCleaning = intval;
+                    mOptions.delayBeforeCleaning = static_cast<std::uint16_t>(unsignedVal);
                     if (mOptions.delayBeforeCleaning > 5000U)
                     {
                         mOptions.delayBeforeCleaning = 5000U;
