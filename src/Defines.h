@@ -36,7 +36,6 @@ static const std::string TAROT_TITLE    = "TarotClub";
 static const std::string TAROT_VNAME    = "Pirate!";
 
 static const std::uint32_t NB_LANGUAGE  = 2U;
-static const std::uint32_t MAX_ROUNDS   = 5U;
 #endif
 
 #endif // DEFINES_H
