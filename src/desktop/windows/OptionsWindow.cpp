@@ -405,7 +405,7 @@ void OptionsWindow::slotBtnOk()
 
     // Server stuff
     serverOptions.timer = ui.slider1->value();
-    serverOptions.lobby_tcp_port = QString(ui.portReseau->text()).toInt();
+    serverOptions.game_tcp_port = QString(ui.portReseau->text()).toInt();
 
     serverOptions.bots[Place::EAST].name = ui.nomJoueurEst->text().toStdString();
     serverOptions.bots[Place::NORTH].name = ui.nomJoueurNord->text().toStdString();
@@ -597,7 +597,7 @@ void OptionsWindow::refresh()
 
     // server stuff
     ui.slider1->setValue(serverOptions.timer);
-    ui.portReseau->setValue(serverOptions.lobby_tcp_port);
+    ui.portReseau->setValue(serverOptions.game_tcp_port);
     ui.nomJoueurEst->setText(QString(serverOptions.bots[Place::EAST].name.data()));
     ui.nomJoueurNord->setText(QString(serverOptions.bots[Place::NORTH].name.data()));
     ui.nomJoueurOuest->setText(QString(serverOptions.bots[Place::WEST].name.data()));

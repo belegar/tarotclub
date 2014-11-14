@@ -28,7 +28,7 @@ const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub ") + std:
 
 /*****************************************************************************/
 Lobby::Lobby()
-    : mTcpPort(ServerConfig::DEFAULT_LOBBY_TCP_PORT)
+    : mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
 {
 
@@ -59,7 +59,7 @@ void Lobby::Initialize(const ServerOptions &opt)
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
     // Initialize all the tables, starting with the TCP port indicated
-    mTcpPort = opt.lobby_tcp_port;
+    mTcpPort = opt.game_tcp_port;
     for (std::uint32_t i = 0U; i < opt.tables.size(); i++)
     {
         std::uint32_t id = i + 1U; // Id zero is not valid (means "no table")
@@ -73,7 +73,7 @@ void Lobby::Initialize(const ServerOptions &opt)
     }
 
     // Lobby TCP server
-    mTcpServer.Start(opt.lobby_tcp_port, opt.lobby_max_conn);
+    mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn);
 }
 /*****************************************************************************/
 void Lobby::WaitForEnd()

@@ -149,7 +149,7 @@ void TarotWidget::slotCreateNetworkGame()
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
     // Connect us to the server
-    mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_LOBBY_TCP_PORT);
+    mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
 }
 /*****************************************************************************/
 bool TarotWidget::HasLocalConnection()
@@ -254,7 +254,7 @@ void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh
     {
         mConnectionType = LOCAL;
         // Connect us to the server
-        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_LOBBY_TCP_PORT);
+        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
     }
     else
     {
