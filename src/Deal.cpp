@@ -534,7 +534,7 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
     if (json.Open(fileName))
     {
         std::uint32_t numberOfPlayers;
-        std::vector<JsonValue> players = json.GetArray("deal_info:players", JsonValue::STRING);
+        std::vector<JsonValue> players = json.GetArray("deal_info:players");
         numberOfPlayers = players.size();
         if ((numberOfPlayers == 3U) ||
                 (numberOfPlayers == 4U) ||
@@ -592,7 +592,7 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                 StartDeal(str_value, bid);
 
                 // Load played cards
-                std::vector<JsonValue> tricks = json.GetArray("tricks", JsonValue::STRING);
+                std::vector<JsonValue> tricks = json.GetArray("tricks");
                 if (tricks.size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
                 {
                     std::uint8_t trickCounter = 1U;
