@@ -12,7 +12,7 @@
         "contract": "Take",
         "slam": false,
         "first_trick_lead": "West",
-        "discard": "10-S;03-S;01-S;06-H;04-C;03-C",
+        "dog": "10-S;03-S;01-S;06-H;04-C;03-C",
         "score": {
             "attacker_points": 28,
             "attacker_score": 38,
