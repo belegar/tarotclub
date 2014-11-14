@@ -49,6 +49,7 @@ VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/database
 VPATH += $$BASE_DIR/src/gfxlib
+VPATH += $$BASE_DIR/src/network
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
