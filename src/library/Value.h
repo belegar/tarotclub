@@ -31,14 +31,18 @@
 
 /*****************************************************************************/
 /**
- * @brief The JSValue class
+ * @brief General purpose any Value
  * The currently supported values are:
  *  \li a double
  *  \li a string
  *  \li an integer
  *  \li a boolean
+ *  \li a null value
  *
- * null is not supported. Array and Object are managed with dedicated classes.
+ * Examples of usage:
+ *   - JSON base class
+ *   - JavaScript C++ wrapper API
+ *
  */
 class Value
 {
@@ -68,6 +72,12 @@ public:
     {
         return mType != INVALID;
     }
+
+    bool IsNull()
+    {
+        return mType == NULL_VAL;
+    }
+
     Type GetType()
     {
         return mType;
