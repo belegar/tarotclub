@@ -28,6 +28,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
 // Forward declarations to resolve inter-dependency between Array and Object
 class JsonArray;
