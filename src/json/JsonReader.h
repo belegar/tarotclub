@@ -89,7 +89,6 @@ private:
     bool mValid;
     IJsonNode *mRootNode;
 
-    JsonValue GetJsonValue(const std::string &nodePath);
     JsonReader::ParseStatus Parse(char *s, char **endptr);
     JsonValue StringToNumber(char *s, char **endptr);
     std::vector<std::string> Split(const std::string &obj);

@@ -9,6 +9,7 @@
 #include "Card.h"
 #include "Deck.h"
 #include "ServerConfig.h"
+#include "ClientConfig.h"
 #include "Player.h"
 #include "System.h"
 #include "UniqueId.h"
@@ -293,12 +294,24 @@ void TarotBase::TestDeckClass()
 
 void TarotBase::TestConfig()
 {
-    ServerOptions options;
+    // --------- Server configuration
+    ServerOptions options = ServerConfig::GetDefault();
     ServerConfig conf;
 
-    options = ServerConfig::GetDefault();
     conf.SetOptions(options);
-    conf.Save(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
+    bool ret = conf.Save(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
+    QCOMPARE(ret, true);
+
+    // --------- Client configuration
+    ClientOptions clientOptions = ClientConfig::GetDefault();
+    ClientConfig clientConf;
+
+    clientConf.SetOptions(clientOptions);
+    ret = clientConf.Save(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
+    QCOMPARE(ret, true);
+
+    ret = clientConf.Load(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
+    QCOMPARE(ret, true);
 }
 
 void TarotBase::TestCommon()

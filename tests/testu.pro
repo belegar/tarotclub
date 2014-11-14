@@ -164,6 +164,7 @@ HEADERS += Deck.h \
     Card.h \
     Player.h \
     ServerConfig.h \
+    ClientConfig.h \
     Common.h \
     System.h \
     Deal.h \
@@ -173,6 +174,7 @@ SOURCES += Deck.cpp \
     Card.cpp \
     Player.cpp \
     ServerConfig.cpp \
+    ClientConfig.cpp \
     Common.cpp \
     System.cpp \
     Deal.cpp \

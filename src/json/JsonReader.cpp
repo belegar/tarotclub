@@ -92,67 +92,27 @@ bool JsonReader::Open(const std::string &fileName)
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, std::int32_t &value)
 {
-    bool ret = false;
-
-    JsonValue val = GetJsonValue(nodePath);
-    if (val.IsValid() && (val.GetTag() == IJsonNode::INTEGER))
-    {
-        value = val.GetInteger();
-        ret = true;
-    }
-    return ret;
+    return JsonValue::FromNode(FindNode(nodePath), value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, std::uint32_t &value)
 {
-    bool ret = false;
-
-    JsonValue val = GetJsonValue(nodePath);
-    if (val.IsValid() && (val.GetTag() == IJsonNode::INTEGER))
-    {
-        value = static_cast<std::uint32_t>(val.GetInteger());
-        ret = true;
-    }
-    return ret;
+    return JsonValue::FromNode(FindNode(nodePath), value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, std::string &value)
 {
-    bool ret = false;
-
-    JsonValue val = GetJsonValue(nodePath);
-    if (val.IsValid() && (val.GetTag() == IJsonNode::STRING))
-    {
-        value = val.GetString();
-        ret = true;
-    }
-    return ret;
+    return JsonValue::FromNode(FindNode(nodePath), value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, bool &value)
 {
-    bool ret = false;
-
-    JsonValue val = GetJsonValue(nodePath);
-    if (val.IsValid() && (val.GetTag() == IJsonNode::BOOLEAN))
-    {
-        value = val.GetBool();
-        ret = true;
-    }
-    return ret;
+    return JsonValue::FromNode(FindNode(nodePath), value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, double &value)
 {
-    bool ret = false;
-
-    JsonValue val = GetJsonValue(nodePath);
-    if (val.IsValid() && (val.GetTag() == IJsonNode::DOUBLE))
-    {
-        value = val.GetDouble();
-        ret = true;
-    }
-    return ret;
+    return JsonValue::FromNode(FindNode(nodePath), value);
 }
 /*****************************************************************************/
 std::vector<JsonValue> JsonReader::GetArray(const std::string &nodePath)
@@ -191,25 +151,6 @@ std::vector<JsonValue> JsonReader::GetArray(const std::string &nodePath)
                     }
                 }
             }
-        }
-    }
-
-    return retval;
-}
-/*****************************************************************************/
-JsonValue JsonReader::GetJsonValue(const std::string &nodePath)
-{
-    JsonValue retval;
-    IJsonNode *node = FindNode(nodePath);
-
-    if (node != NULL)
-    {
-        if ((node->GetTag() != IJsonNode::OBJECT) &&
-            (node->GetTag() != IJsonNode::ARRAY))
-        {
-            // we are arrived to the value, get it
-            JsonValue *value = dynamic_cast<JsonValue *>(node);
-            retval = *value;
         }
     }
 

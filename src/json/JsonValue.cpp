@@ -379,9 +379,149 @@ JsonValue::~JsonValue()
 
 }
 /*****************************************************************************/
+bool JsonValue::FromNode(IJsonNode *node, std::int32_t &value)
+{
+    bool ret = false;
+    if (node != NULL)
+    {
+        if ((node->GetTag() != IJsonNode::OBJECT) &&
+            (node->GetTag() != IJsonNode::ARRAY))
+        {
+            // we are arrived to the value, get it
+            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
+            if (jsonValue !=  nullptr)
+            {
+                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::INTEGER))
+                {
+                    value = jsonValue->GetInteger();
+                    ret = true;
+                }
+            }
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::FromNode(IJsonNode *node, std::uint32_t &value)
+{
+    bool ret = false;
+    if (node != NULL)
+    {
+        if ((node->GetTag() != IJsonNode::OBJECT) &&
+            (node->GetTag() != IJsonNode::ARRAY))
+        {
+            // we are arrived to the value, get it
+            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
+            if (jsonValue !=  nullptr)
+            {
+                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::INTEGER))
+                {
+                    value = static_cast<std::uint32_t>(jsonValue->GetInteger());
+                    ret = true;
+                }
+            }
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::FromNode(IJsonNode *node, std::uint16_t &value)
+{
+    bool ret = false;
+    if (node != NULL)
+    {
+        if ((node->GetTag() != IJsonNode::OBJECT) &&
+            (node->GetTag() != IJsonNode::ARRAY))
+        {
+            // we are arrived to the value, get it
+            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
+            if (jsonValue !=  nullptr)
+            {
+                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::INTEGER))
+                {
+                    value = static_cast<std::uint16_t>(jsonValue->GetInteger());
+                    ret = true;
+                }
+            }
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::FromNode(IJsonNode *node, std::string &value)
+{
+    bool ret = false;
+    if (node != NULL)
+    {
+        if ((node->GetTag() != IJsonNode::OBJECT) &&
+            (node->GetTag() != IJsonNode::ARRAY))
+        {
+            // we are arrived to the value, get it
+            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
+            if (jsonValue !=  nullptr)
+            {
+                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::STRING))
+                {
+                    value = jsonValue->GetString();
+                    ret = true;
+                }
+            }
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::FromNode(IJsonNode *node, bool &value)
+{
+    bool ret = false;
+    if (node != NULL)
+    {
+        if ((node->GetTag() != IJsonNode::OBJECT) &&
+            (node->GetTag() != IJsonNode::ARRAY))
+        {
+            // we are arrived to the value, get it
+            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
+            if (jsonValue !=  nullptr)
+            {
+                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::BOOLEAN))
+                {
+                    value = jsonValue->GetBool();
+                    ret = true;
+                }
+            }
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::FromNode(IJsonNode *node, double &value)
+{
+    bool ret = false;
+    if (node != NULL)
+    {
+        if ((node->GetTag() != IJsonNode::OBJECT) &&
+            (node->GetTag() != IJsonNode::ARRAY))
+        {
+            // we are arrived to the value, get it
+            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
+            if (jsonValue !=  nullptr)
+            {
+                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::DOUBLE))
+                {
+                    value = jsonValue->GetDouble();
+                    ret = true;
+                }
+            }
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
 JsonValue &JsonValue::operator =(const JsonValue &rhs)
 {
     mTag = rhs.mTag;
+    mObject = rhs.mObject;
+    mArray = rhs.mArray;
     mIntegerValue = rhs.mIntegerValue;
     mDoubleValue = rhs.mDoubleValue;
     mStringValue = rhs.mStringValue;

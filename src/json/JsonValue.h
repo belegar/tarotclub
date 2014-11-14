@@ -127,6 +127,13 @@ public:
     JsonValue(JsonArray *array);
     ~JsonValue();
 
+    static bool FromNode(IJsonNode *node, std::int32_t &value);
+    static bool FromNode(IJsonNode *node, std::uint32_t &value);
+    static bool FromNode(IJsonNode *node, std::uint16_t &value);
+    static bool FromNode(IJsonNode *node, std::string &value);
+    static bool FromNode(IJsonNode *node, bool &value);
+    static bool FromNode(IJsonNode *node, double &value);
+
     // Implemented virtual methods from IJsonNode
     IJsonNode::Tag GetTag()
     {
