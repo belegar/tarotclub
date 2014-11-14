@@ -142,6 +142,19 @@ bool JsonReader::GetValue(const std::string &nodePath, bool &value)
     return ret;
 }
 /*****************************************************************************/
+bool JsonReader::GetValue(const std::string &nodePath, double &value)
+{
+    bool ret = false;
+
+    JsonValue val = GetJsonValue(nodePath);
+    if (val.IsValid() && (val.GetTag() == IJsonNode::DOUBLE))
+    {
+        value = val.GetDouble();
+        ret = true;
+    }
+    return ret;
+}
+/*****************************************************************************/
 std::vector<JsonValue> JsonReader::GetArray(const std::string &nodePath)
 {
     std::vector<JsonValue> retval;

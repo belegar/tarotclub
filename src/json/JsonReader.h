@@ -82,6 +82,7 @@ public:
     bool GetValue(const std::string &nodePath, std::uint32_t &value);
     bool GetValue(const std::string &nodePath, std::string &value);
     bool GetValue(const std::string &nodePath, bool &value);
+    bool GetValue(const std::string &nodePath, double &value);
     std::vector<JsonValue> GetArray(const std::string &nodePath);
 
 private:

@@ -54,6 +54,14 @@ void JsonTest::ParseFile()
     std::cout << "delay_before_cleaning = " << intvalue << std::endl;
     QCOMPARE(intvalue, 1500);
 
+    double doublevalue = 0;
+    if (!json.GetValue("double_value", doublevalue))
+    {
+        QFAIL("Get double value error");
+    }
+    std::cout << "double_value = " << doublevalue << std::endl;
+    QCOMPARE(doublevalue, 42.7809);
+
     // Testing Array of strings
     std::vector<JsonValue> array = json.GetArray("identity:array_of_strings");
     std::int32_t  size = array.size();
