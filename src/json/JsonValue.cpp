@@ -75,6 +75,27 @@ std::string JsonArray::ToString()
     return text;
 }
 /*****************************************************************************/
+bool JsonArray::HasNode(const std::string &key)
+{
+    bool ret = false;
+    std::vector<IJsonNode *>::const_iterator iter;
+    for (iter = mArray.begin(); iter != mArray.end(); ++iter)
+    {
+        // Broadcast the request to each underneath node
+        if((*iter)->HasNode(key))
+        {
+            ret = true;
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+IJsonNode *JsonArray::GetNode(const std::string &key)
+{
+    (void) key;
+    return nullptr;
+}
+/*****************************************************************************/
 void JsonArray::CreateValue(const JsonValue &value)
 {
     JsonValue *val = new JsonValue(value);
@@ -83,19 +104,14 @@ void JsonArray::CreateValue(const JsonValue &value)
 /*****************************************************************************/
 JsonObject *JsonArray::CreateObject()
 {
-    JsonObject *obj = new JsonObject(1U);
+    JsonObject *obj = new JsonObject(mLevel + 1U);
     mArray.push_back(obj);
     return obj;
 }
 /*****************************************************************************/
-std::uint32_t JsonArray::GetSize()
+IJsonNode *JsonArray::GetEntry(std::uint32_t index)
 {
-    return mArray.size();
-}
-/*****************************************************************************/
-IJsonNode *JsonArray::GetNode(std::uint32_t index)
-{
-    IJsonNode *node = NULL;
+    IJsonNode *node = nullptr;
 
     if (index < mArray.size())
     {
@@ -106,10 +122,14 @@ IJsonNode *JsonArray::GetNode(std::uint32_t index)
 /*****************************************************************************/
 JsonArray *JsonArray::CreateArray()
 {
-    JsonArray *array = new JsonArray(1U);
+    JsonArray *array = new JsonArray(mLevel + 1U);
     mArray.push_back(array);
     return array;
 }
+/*****************************************************************************/
+
+//          *                          *                                  *
+
 /*****************************************************************************/
 JsonObject::JsonObject(std::uint32_t level)
     : mLevel(level)
@@ -213,21 +233,25 @@ IJsonNode *JsonObject::GetNode(const std::string &key)
     return retval;
 }
 /*****************************************************************************/
+
+//          *                          *                                  *
+
+/*****************************************************************************/
 std::string JsonValue::ToString()
 {
     std::string text;
     std::stringstream ss;
 
-    if (GetType() == STRING)
+    if (GetTag() == STRING)
     {
         text = "\"" + GetString() + "\"";
     }
-    else if (GetType() == INTEGER)
+    else if (GetTag() == INTEGER)
     {
         ss << GetInteger();
         text = ss.str();
     }
-    else if (GetType() == BOOLEAN)
+    else if (GetTag() == BOOLEAN)
     {
         if (GetBool())
         {
@@ -238,12 +262,12 @@ std::string JsonValue::ToString()
             text = "false";
         }
     }
-    else if (GetType() == DOUBLE)
+    else if (GetTag() == DOUBLE)
     {
         ss << GetDouble();
         text = ss.str();
     }
-    else if (GetType() == NULL_VAL)
+    else if (GetTag() == NULL_VAL)
     {
         text = "null";
     }
@@ -253,6 +277,130 @@ std::string JsonValue::ToString()
     }
 
     return text;
+}
+/*****************************************************************************/
+JsonValue::JsonValue(std::int32_t value)
+    : mTag(INTEGER)
+    , mObject(nullptr)
+    , mArray(nullptr)
+    , mIntegerValue(value)
+    , mDoubleValue(0.0F)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(double value)
+    : mTag(DOUBLE)
+    , mObject(nullptr)
+    , mArray(nullptr)
+    , mIntegerValue(0)
+    , mDoubleValue(value)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(const char *value)
+    : mTag(STRING)
+    , mObject(nullptr)
+    , mArray(nullptr)
+    , mIntegerValue(0)
+    , mDoubleValue(0.0F)
+    , mStringValue(value)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(const std::string &value)
+    : mTag(STRING)
+    , mObject(nullptr)
+    , mArray(nullptr)
+    , mIntegerValue(0)
+    , mDoubleValue(0.0F)
+    , mStringValue(value)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(bool value)
+    : mTag(BOOLEAN)
+    , mObject(nullptr)
+    , mArray(nullptr)
+    , mIntegerValue(0)
+    , mDoubleValue(0.0F)
+    , mBoolValue(value)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(const JsonValue &value)
+{
+    *this = value;
+}
+/*****************************************************************************/
+JsonValue::JsonValue(JsonObject *obj)
+    : mTag(OBJECT)
+    , mObject(obj)
+    , mArray(nullptr)
+    , mIntegerValue(0)
+    , mDoubleValue(0.0F)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(JsonArray *array)
+    : mTag(ARRAY)
+    , mObject(nullptr)
+    , mArray(array)
+    , mIntegerValue(0)
+    , mDoubleValue(0.0F)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue()
+    : mTag(INVALID)
+    , mObject(nullptr)
+    , mArray(nullptr)
+    , mIntegerValue(0)
+    , mDoubleValue(0.0F)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::~JsonValue()
+{
+
+}
+/*****************************************************************************/
+JsonValue &JsonValue::operator =(const JsonValue &rhs)
+{
+    mTag = rhs.mTag;
+    mIntegerValue = rhs.mIntegerValue;
+    mDoubleValue = rhs.mDoubleValue;
+    mStringValue = rhs.mStringValue;
+    mBoolValue = rhs.mBoolValue;
+    return *this;
+}
+/*****************************************************************************/
+bool JsonValue::HasNode(const std::string &key)
+{
+    // A value does not have any key
+    (void) key;
+    return false;
+}
+/*****************************************************************************/
+IJsonNode *JsonValue::GetNode(const std::string &key)
+{
+    // A value does not have any sub-node
+    (void) key;
+    return nullptr;
 }
 
 //=============================================================================

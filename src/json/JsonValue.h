@@ -26,9 +26,8 @@
 #ifndef JSONVALUE_H
 #define JSONVALUE_H
 
-#include "Value.h"
+#include <string>
 #include <vector>
-
 
 // Forward declarations to resolve inter-dependency between Array and Object
 class JsonArray;
@@ -41,14 +40,21 @@ class IJsonNode
 public:
     enum Tag
     {
-        JSON_VALUE,
-        JSON_ARRAY,
-        JSON_OBJECT
+        INVALID,
+        ARRAY,
+        OBJECT,
+        INTEGER,
+        DOUBLE,
+        BOOLEAN,
+        STRING,
+        NULL_VAL
     };
 
     virtual ~IJsonNode() {}
 
     virtual Tag GetTag() = 0;
+    virtual bool HasNode(const std::string &key) = 0;
+    virtual IJsonNode* GetNode(const std::string &key) = 0;
     virtual std::string ToString() = 0;
 };
 /*****************************************************************************/
@@ -61,16 +67,19 @@ public:
     // Implemented virtual methods
     IJsonNode::Tag GetTag()
     {
-        return IJsonNode::JSON_ARRAY;
+        return IJsonNode::ARRAY;
     }
     std::string ToString();
 
+    bool HasNode(const std::string &key);
+    IJsonNode* GetNode(const std::string &key);
+
     // JsonArray
+    IJsonNode *GetEntry(std::uint32_t index);
+    std::uint32_t GetSize() { return mArray.size(); }
     void CreateValue(const JsonValue &value);
     JsonArray *CreateArray(); // no name in an array inside an array
     JsonObject *CreateObject(); // no name in an object inside an object
-    std::uint32_t GetSize();
-    IJsonNode *GetNode(std::uint32_t index);
 
 private:
     std::vector<IJsonNode *> mArray;
@@ -86,42 +95,91 @@ public:
     // Implemented virtual methods
     IJsonNode::Tag GetTag()
     {
-        return IJsonNode::JSON_OBJECT;
+        return IJsonNode::OBJECT;
     }
     std::string ToString();
+    bool HasNode(const std::string &key);
+    IJsonNode *GetNode(const std::string &key);
 
     // JsonObject
     void CreateValuePair(const std::string &name, const JsonValue &value);
     JsonArray *CreateArrayPair(const std::string &name);
     JsonObject *CreateObjectPair(const std::string &name);
-    bool HasNode(const std::string &key);
-    IJsonNode *GetNode(const std::string &key);
 
 private:
     std::vector<std::pair<std::string, IJsonNode *> > mObject;
     std::uint32_t mLevel;
 };
 /*****************************************************************************/
-class JsonValue : public Value, public IJsonNode
+class JsonValue : public IJsonNode
 {
-
 public:
-
-    // From JSValue
-    JsonValue(std::int32_t value) : Value(value) {}
-    JsonValue(double value) : Value(value) {}
-    JsonValue(const char *value) : Value(value) {}
-    JsonValue(const std::string &value) : Value(value) {}
-    JsonValue(bool value) : Value(value) {}
-    JsonValue(const Value &value) : Value(value) {}
-    JsonValue() : Value() {}
+    // From Value class
+    JsonValue(std::int32_t value);
+    JsonValue(double value);
+    JsonValue(const char *value);
+    JsonValue(const std::string &value);
+    JsonValue(bool value);
+    JsonValue(const JsonValue &value);
+    JsonValue(); // default constructor creates an invalid value!
+    JsonValue(JsonObject *obj);
+    JsonValue(JsonArray *array);
+    ~JsonValue();
 
     // Implemented virtual methods from IJsonNode
     IJsonNode::Tag GetTag()
     {
-        return IJsonNode::JSON_VALUE;
+        return mTag;
     }
+
     std::string ToString();
+    bool HasNode(const std::string &key);
+    IJsonNode *GetNode(const std::string &key);
+
+    JsonValue &operator = (JsonValue const &rhs);
+
+    bool IsValid()
+    {
+        return mTag != INVALID;
+    }
+
+    bool IsArray() { return mArray != nullptr; }
+    bool IsObject() { return mObject != nullptr; }
+    bool IsNull() { return mTag == NULL_VAL; }
+
+    JsonObject *GetObject() { return mObject; }
+    JsonArray *GetArray() { return mArray; }
+
+    std::int32_t    GetInteger()
+    {
+        return mIntegerValue;
+    }
+    double          GetDouble()
+    {
+        return mDoubleValue;
+    }
+    bool            GetBool()
+    {
+        return mBoolValue;
+    }
+    std::string     GetString()
+    {
+        return mStringValue;
+    }
+
+    void SetNull()
+    {
+        mTag = NULL_VAL;
+    }
+
+private:
+    IJsonNode::Tag mTag;
+    JsonObject *mObject;
+    JsonArray *mArray;
+    std::int32_t mIntegerValue;
+    double mDoubleValue;
+    std::string mStringValue;
+    bool mBoolValue;
 };
 
 #endif // JSONVALUE_H

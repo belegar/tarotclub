@@ -37,9 +37,7 @@
 JsonReader::JsonReader()
 {
     mValid = false;
-    mRootArray = NULL;
-    mRootObject = NULL;
-    mRootType = IJsonNode::JSON_OBJECT;
+    mRootNode = nullptr;
 }
 /*****************************************************************************/
 JsonReader::~JsonReader()
@@ -92,12 +90,12 @@ bool JsonReader::Open(const std::string &fileName)
     return mValid;
 }
 /*****************************************************************************/
-bool JsonReader::GetValue(const std::string &obj, std::int32_t &value)
+bool JsonReader::GetValue(const std::string &nodePath, std::int32_t &value)
 {
     bool ret = false;
 
-    JsonValue val = GetJsonValue(obj, JsonValue::INTEGER);
-    if (val.IsValid())
+    JsonValue val = GetJsonValue(nodePath);
+    if (val.IsValid() && (val.GetTag() == IJsonNode::INTEGER))
     {
         value = val.GetInteger();
         ret = true;
@@ -105,12 +103,12 @@ bool JsonReader::GetValue(const std::string &obj, std::int32_t &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonReader::GetValue(const std::string &obj, std::uint32_t &value)
+bool JsonReader::GetValue(const std::string &nodePath, std::uint32_t &value)
 {
     bool ret = false;
 
-    JsonValue val = GetJsonValue(obj, JsonValue::INTEGER);
-    if (val.IsValid())
+    JsonValue val = GetJsonValue(nodePath);
+    if (val.IsValid() && (val.GetTag() == IJsonNode::INTEGER))
     {
         value = static_cast<std::uint32_t>(val.GetInteger());
         ret = true;
@@ -118,12 +116,12 @@ bool JsonReader::GetValue(const std::string &obj, std::uint32_t &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonReader::GetValue(const std::string &obj, std::string &value)
+bool JsonReader::GetValue(const std::string &nodePath, std::string &value)
 {
     bool ret = false;
 
-    JsonValue val = GetJsonValue(obj, JsonValue::STRING);
-    if (val.IsValid())
+    JsonValue val = GetJsonValue(nodePath);
+    if (val.IsValid() && (val.GetTag() == IJsonNode::STRING))
     {
         value = val.GetString();
         ret = true;
@@ -131,12 +129,12 @@ bool JsonReader::GetValue(const std::string &obj, std::string &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonReader::GetValue(const std::string &obj, bool &value)
+bool JsonReader::GetValue(const std::string &nodePath, bool &value)
 {
     bool ret = false;
 
-    JsonValue val = GetJsonValue(obj, JsonValue::BOOLEAN);
-    if (val.IsValid())
+    JsonValue val = GetJsonValue(nodePath);
+    if (val.IsValid() && (val.GetTag() == IJsonNode::BOOLEAN))
     {
         value = val.GetBool();
         ret = true;
@@ -144,87 +142,40 @@ bool JsonReader::GetValue(const std::string &obj, bool &value)
     return ret;
 }
 /*****************************************************************************/
-std::vector<JsonValue> JsonReader::GetArray(const std::string &obj, JsonValue::Type type)
+std::vector<JsonValue> JsonReader::GetArray(const std::string &nodePath)
 {
     std::vector<JsonValue> retval;
+    IJsonNode *node = FindNode(nodePath);
 
-    std::vector<std::string> path = Split(obj);
-
-    if (mValid)
+    if (node != NULL)
     {
-        if (mRootType == IJsonNode::JSON_OBJECT)
+        if (node->GetTag() == IJsonNode::ARRAY)
         {
-            IJsonNode *node = mRootObject;
-            for (std::uint32_t i = 0U; i < path.size(); i++)
+            // we are arrived to the array, get it
+            JsonArray *array = dynamic_cast<JsonArray *>(node);
+
+            if (array != NULL)
             {
-                std::string key = path[i];
-                if (node != NULL)
+                // Fill the array with the values
+                for (std::uint32_t j = 0U; j < array->GetSize(); j++)
                 {
-                    if (node->GetTag() == IJsonNode::JSON_OBJECT)
+                    IJsonNode *subNode = array->GetEntry(j);
+                    if (subNode->GetTag() == IJsonNode::OBJECT)
                     {
-                        JsonObject *object = dynamic_cast<JsonObject *>(node);
-                        if (object != NULL)
+                        retval.push_back(dynamic_cast<JsonObject *>(subNode));
+                    }
+                    else if (subNode->GetTag() == IJsonNode::ARRAY)
+                    {
+                        retval.push_back(dynamic_cast<JsonArray *>(subNode));
+                    }
+                    else
+                    {
+                        JsonValue *jsonValue = dynamic_cast<JsonValue *>(subNode);
+                        if (jsonValue->IsValid())
                         {
-                            if (object->HasNode(key))
-                            {
-                                node = object->GetNode(key);
-
-                                if (node->GetTag() == IJsonNode::JSON_ARRAY)
-                                {
-                                    // we are arrived to the array, get it
-                                    JsonArray *array = dynamic_cast<JsonArray *>(node);
-
-                                    if (array != NULL)
-                                    {
-                                        // Fill the array with the values
-                                        for (std::uint32_t j = 0U; j < array->GetSize(); j++)
-                                        {
-                                            IJsonNode *value = array->GetNode(j);
-
-                                            // We only manage array of JsonValues (not array of objects or array of arrays)
-                                            if (value != NULL)
-                                            {
-                                                if (value->GetTag() == IJsonNode::JSON_VALUE)
-                                                {
-                                                    JsonValue *jsonValue = dynamic_cast<JsonValue *>(value);
-                                                    if (jsonValue->IsValid() && (jsonValue->GetType() == type))
-                                                    {
-                                                        retval.push_back(*jsonValue);
-                                                    }
-                                                    else
-                                                    {
-                                                        // bad json value
-                                                        break;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    // array of objects or array of arrays ara not supported
-                                                    break;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                // oops ...
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                }
-                            }
-                            else
-                            {
-                                // Not found
-                                node = NULL;
-                            }
+                            retval.push_back(*jsonValue);
                         }
                     }
-                }
-                else
-                {
-                    // Parse error, bad key or other internal problem
-                    break;
                 }
             }
         }
@@ -233,68 +184,52 @@ std::vector<JsonValue> JsonReader::GetArray(const std::string &obj, JsonValue::T
     return retval;
 }
 /*****************************************************************************/
-JsonValue JsonReader::GetJsonValue(const std::string &obj, JsonValue::Type type)
+JsonValue JsonReader::GetJsonValue(const std::string &nodePath)
 {
     JsonValue retval;
+    IJsonNode *node = FindNode(nodePath);
 
-    std::vector<std::string> path = Split(obj);
-
-    if (mValid)
+    if (node != NULL)
     {
-        if (mRootType == IJsonNode::JSON_OBJECT)
+        if ((node->GetTag() != IJsonNode::OBJECT) &&
+            (node->GetTag() != IJsonNode::ARRAY))
         {
-            IJsonNode *node = mRootObject;
-            for (std::uint32_t i = 0U; i < path.size(); i++)
-            {
-                std::string key = path[i];
-                if (node != NULL)
-                {
-                    if (node->GetTag() == IJsonNode::JSON_OBJECT)
-                    {
-                        JsonObject *object = dynamic_cast<JsonObject *>(node);
-                        if (object != NULL)
-                        {
-                            if (object->HasNode(key))
-                            {
-                                node = object->GetNode(key);
-
-                                if (node->GetTag() == IJsonNode::JSON_VALUE)
-                                {
-                                    // we are arrived to the value, get it
-                                    JsonValue *value = dynamic_cast<JsonValue *>(node);
-                                    if (value != NULL)
-                                    {
-                                        switch (type)
-                                        {
-                                            case JsonValue::INTEGER:
-                                                // convert double into integer
-                                                retval = JsonValue(static_cast<std::int32_t>(value->GetDouble()));
-                                                break;
-                                            default:
-                                                retval = *value; // copy value
-                                                break;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // Not found
-                                node = NULL;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Parse error, bad key or other internal problem
-                    break;
-                }
-            }
+            // we are arrived to the value, get it
+            JsonValue *value = dynamic_cast<JsonValue *>(node);
+            retval = *value;
         }
     }
 
     return retval;
+}
+/*****************************************************************************/
+IJsonNode *JsonReader::FindNode(const std::string &nodePath)
+{
+    IJsonNode *node = NULL;
+
+    std::vector<std::string> path = Split(nodePath);
+
+    if (mValid)
+    {
+        node = mRootNode;
+        for (std::uint32_t i = 0U; i < path.size(); i++)
+        {
+            std::string key = path[i];
+            if (node != nullptr)
+            {
+                if (node->HasNode(key))
+                {
+                    node = node->GetNode(key);
+                }
+            }
+            else
+            {
+                // problem, exit loop
+                break;
+            }
+        }
+    }
+    return node;
 }
 /*****************************************************************************/
 /**
@@ -306,16 +241,11 @@ JsonValue JsonReader::GetJsonValue(const std::string &obj, JsonValue::Type type)
 void JsonReader::Close()
 {
     mValid = false;
-    if (mRootArray != NULL)
+    if (mRootNode != nullptr)
     {
-        delete mRootArray;
+        delete mRootNode;
     }
-    if (mRootObject != NULL)
-    {
-        delete mRootObject;
-    }
-    mRootArray = NULL;
-    mRootObject = NULL;
+    mRootNode = nullptr;
 }
 /*****************************************************************************/
 JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
@@ -358,7 +288,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
             case '7':
             case '8':
             case '9':
-                o = JsonValue(StringToDouble(*endptr, &s));
+                o = JsonValue(StringToNumber(*endptr, &s));
                 if (!IsDelim(*s))
                 {
                     *endptr = s;
@@ -536,7 +466,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 {
                     return JSON_PARSE_STACK_UNDERFLOW;
                 }
-                if (tags[pos] != IJsonNode::JSON_ARRAY)
+                if (tags[pos] != IJsonNode::ARRAY)
                 {
                     return JSON_PARSE_MISMATCH_BRACKET;
                 }
@@ -562,7 +492,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 {
                     return JSON_PARSE_STACK_UNDERFLOW;
                 }
-                if (tags[pos] != IJsonNode::JSON_OBJECT)
+                if (tags[pos] != IJsonNode::OBJECT)
                 {
                     return JSON_PARSE_MISMATCH_BRACKET;
                 }
@@ -595,11 +525,10 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 if (pos == 0)
                 {
                     // We create the root node of the document
-                    mRootArray = new JsonArray(0U);
-                    mRootType = IJsonNode::JSON_ARRAY;
-                    nodes[pos] = mRootArray;
+                    mRootNode = new JsonArray(0U);
+                    nodes[pos] = mRootNode;
                 }
-                else if (tags[pos - 1] == IJsonNode::JSON_OBJECT)
+                else if (tags[pos - 1] == IJsonNode::OBJECT)
                 {
                     // if previous node was an object, then we create a new array
                     JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos - 1]);
@@ -612,7 +541,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                     nodes[pos] = array->CreateArray();
                 }
 
-                tags[pos] = IJsonNode::JSON_ARRAY;
+                tags[pos] = IJsonNode::ARRAY;
                 keys[pos] = "";
                 separator = true;
                 continue;
@@ -625,11 +554,10 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 if (pos == 0)
                 {
                     // We create the root node of the document
-                    mRootObject = new JsonObject(0U);
-                    mRootType = IJsonNode::JSON_OBJECT;
-                    nodes[pos] = mRootObject;
+                    mRootNode = new JsonObject(0U);
+                    nodes[pos] = mRootNode;
                 }
-                else if (tags[pos - 1] == IJsonNode::JSON_OBJECT)
+                else if (tags[pos - 1] == IJsonNode::OBJECT)
                 {
                     // if previous node was an object, then we create a new object
                     JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos - 1]);
@@ -643,7 +571,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 }
 
                 //tails[pos] = nullptr;
-                tags[pos] = IJsonNode::JSON_OBJECT;
+                tags[pos] = IJsonNode::OBJECT;
                 keys[pos] = "";
                 separator = true;
                 continue;
@@ -667,12 +595,12 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
         separator = false;
 
         // We are here because we are in an object
-        if (tags[pos] == IJsonNode::JSON_OBJECT)
+        if (tags[pos] == IJsonNode::OBJECT)
         {
             if (keys[pos] == "")
             {
                 // Key found!
-                if (o.GetType() != JsonValue::STRING)
+                if (o.GetTag() != IJsonNode::STRING)
                 {
                     return JSON_PARSE_UNQUOTED_KEY;
                 }
@@ -681,7 +609,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
             }
 
             // Use our own type management, event if the RTTI thing would also work...
-            if (nodes[pos]->GetTag() == IJsonNode::JSON_OBJECT)
+            if (nodes[pos]->GetTag() == IJsonNode::OBJECT)
             {
                 JsonObject *obj = dynamic_cast<JsonObject *>(nodes[pos]);
                 obj->CreateValuePair(keys[pos], o);
@@ -696,7 +624,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
         {
             // We are in an Array
             // Use our own type management, event if the RTTI thing would also work...
-            if (nodes[pos]->GetTag() == IJsonNode::JSON_ARRAY)
+            if (nodes[pos]->GetTag() == IJsonNode::ARRAY)
             {
                 JsonArray *array = dynamic_cast<JsonArray *>(nodes[pos]);
                 array->CreateValue(o);
@@ -711,7 +639,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
     return JSON_PARSE_BREAKING_BAD;
 }
 /*****************************************************************************/
-double JsonReader::StringToDouble(char *s, char **endptr)
+JsonValue JsonReader::StringToNumber(char *s, char **endptr)
 {
     char ch = *s;
     if (ch == '+' || ch == '-')
@@ -720,6 +648,9 @@ double JsonReader::StringToDouble(char *s, char **endptr)
     }
 
     double result = 0;
+    bool doubleValue = false;
+    JsonValue retVal;
+
     while (isdigit(*s))
     {
         result = (result * 10) + (*s++ - '0');
@@ -728,6 +659,7 @@ double JsonReader::StringToDouble(char *s, char **endptr)
     if (*s == '.')
     {
         ++s;
+        doubleValue = true;
 
         double fraction = 1;
         while (isdigit(*s))
@@ -740,6 +672,7 @@ double JsonReader::StringToDouble(char *s, char **endptr)
     if (*s == 'e' || *s == 'E')
     {
         ++s;
+        doubleValue = true;
 
         double base = 10;
         if (*s == '+')
@@ -771,7 +704,19 @@ double JsonReader::StringToDouble(char *s, char **endptr)
     }
 
     *endptr = s;
-    return ch == '-' ? -result : result;
+
+    result = (ch == '-') ? -result : result;
+
+    if (doubleValue)
+    {
+        retVal = result;
+    }
+    else
+    {
+        retVal = static_cast<std::int32_t>(result);
+    }
+
+    return retVal;
 }
 /*****************************************************************************/
 std::vector<std::string> JsonReader::Split(const std::string &obj)
