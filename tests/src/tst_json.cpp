@@ -54,8 +54,8 @@ void JsonTest::ParseFile()
     std::cout << "delay_before_cleaning = " << intvalue << std::endl;
     QCOMPARE(intvalue, 1500);
 
-
-    std::vector<JsonValue> array = json.GetArray("identity:array_of_strings", JsonValue::STRING);
+    // Testing Array of strings
+    std::vector<JsonValue> array = json.GetArray("identity:array_of_strings");
     std::int32_t  size = array.size();
     QCOMPARE(size, 4);
 
@@ -63,7 +63,7 @@ void JsonTest::ParseFile()
     {
         if (array[i].IsValid())
         {
-            if (array[i].GetType() == JsonValue::STRING)
+            if (array[i].GetTag() == IJsonNode::STRING)
             {
                 std::cout << "Value " << i << ": " << array[i].GetString() << std::endl;
             }
@@ -78,6 +78,10 @@ void JsonTest::ParseFile()
         }
     }
 
+    // Testing array of objects
+    array = json.GetArray("array_of_objects");
+    size = array.size();
+    QCOMPARE(size, 2);
 
 }
 
