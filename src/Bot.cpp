@@ -428,14 +428,14 @@ bool Bot::InitializeScriptContext()
 
     if (json.Open(appRoot + "conf.json"))
     {
-        std::vector<JsonValue> files = json.GetArray("files", JsonValue::STRING);
+        std::vector<JsonValue> files = json.GetArray("files");
 
         mBotEngine.Initialize();
 
         // Load all Javascript files
         for (std::uint32_t i = 0U; i < files.size(); i++)
         {
-            if (files[i].IsValid() && (files[i].GetType() == JsonValue::STRING))
+            if (files[i].IsValid() && (files[i].GetTag() == IJsonNode::STRING))
             {
                 std::string fileName = appRoot + files[i].GetString();
 
