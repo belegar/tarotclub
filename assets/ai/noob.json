@@ -8,6 +8,6 @@
         "tarotlib/player.js",
         "tarotlib/bot.js",
         "tarotlib/game.js",
-        "beginner.js"
+        "noob.js"
     ]
 }
