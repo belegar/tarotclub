@@ -86,7 +86,6 @@ std::string Util::CurrentDateTime(const std::string &format)
 std::string Util::ExecutablePath()
 {
     std::string path;
-    std::uint32_t found;
 
 #ifdef USE_WINDOWS_OS
     wchar_t buf[MAX_PATH];
@@ -100,19 +99,17 @@ std::string Util::ExecutablePath()
     }
     std::wstring wstr(buf);
     path = std::string(wstr.begin(), wstr.end());
-    found = path.find_last_of("\\"); // remove the executable name
 
 #elif defined(USE_UNIX_OS)
     char buf[FILENAME_MAX];
     readlink("/proc/self/exe", buf, sizeof(buf));
     path = buf;
-    found = path.find_last_of("/");  // remove the executable name
 #elif defined(USE_APPLE_OS)
     _NSGetExecutablePath(path, &size); // make it compile
 #else
 #error "A portable code is needed here"
 #endif
-    return (path.substr(0, found));
+    return (GetDirectoryPath(path));
 }
 /*****************************************************************************/
 std::string Util::HomePath()
@@ -163,6 +160,16 @@ bool Util::FolderExists(const std::string &foldername)
 
 
     return ret;
+}
+/*****************************************************************************/
+std::string Util::GetFileName(const std::string &path)
+{
+    return path.substr( path.find_last_of(DIR_SEPARATOR) + 1 );
+}
+/*****************************************************************************/
+std::string Util::GetDirectoryPath(const std::string &path)
+{
+    return path.substr(0, path.find_last_of(DIR_SEPARATOR));
 }
 /*****************************************************************************/
 /**
