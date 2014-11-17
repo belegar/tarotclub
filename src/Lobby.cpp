@@ -410,7 +410,7 @@ std::string Lobby::ParseUri(const std::string &uri)
  * @param delay
  * @return
  */
-bool Lobby::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay)
+bool Lobby::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile)
 {
     std::lock_guard<std::mutex> lock(mBotsMutex);
 
@@ -422,6 +422,7 @@ bool Lobby::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16
     bot->SetIdentity(ident);
     bot->SetTimeBeforeSend(delay);
     bot->SetTableToJoin(tableToJoin);
+    bot->SetAiScriptConfigFile(scriptFile);
     bot->Initialize();
     // Connect the bot to the server
     bot->ConnectToHost("127.0.0.1", mTcpPort);

@@ -105,30 +105,35 @@ bool ServerConfig::Load(const std::string &fileName)
 
                 for (std::uint32_t i = 1U; i < 4U; i++)
                 {
-                    Place bot(i);
-                    if (json.GetValue(bot.ToString() + ":name", value))
+                    std::string botPos = Place(i).ToString();
+                    if (json.GetValue(botPos + ":name", value))
                     {
-                        mOptions.bots[i].name = value;
+                        mOptions.bots[i].identity.name = value;
                     }
-                    if (json.GetValue(bot.ToString() + ":avatar", value))
+                    if (json.GetValue(botPos + ":avatar", value))
                     {
-                        mOptions.bots[i].avatar = value;
+                        mOptions.bots[i].identity.avatar = value;
                     }
-                    if (json.GetValue(bot.ToString() + ":gender", value))
+                    if (json.GetValue(botPos + ":gender", value))
                     {
                         if (value == "female")
                         {
-                            mOptions.bots[i].gender = Identity::FEMALE;
+                            mOptions.bots[i].identity.gender = Identity::FEMALE;
                         }
                         else
                         {
-                            mOptions.bots[i].gender = Identity::MALE;
+                            mOptions.bots[i].identity.gender = Identity::MALE;
                         }
 
                     }
-                    if (json.GetValue(bot.ToString() + ":quote", value))
+                    if (json.GetValue(botPos + ":quote", value))
                     {
-                        mOptions.bots[i].quote = value;
+                        mOptions.bots[i].identity.quote = value;
+                    }
+
+                    if (json.GetValue(botPos + ":bot_file_path", value))
+                    {
+                        mOptions.bots[i].scriptFilePath = value;
                     }
                 }
 
@@ -194,10 +199,10 @@ bool ServerConfig::Save(const std::string &fileName)
     {
         Place bot(i);
         JsonObject *obj = json.CreateObjectPair(bot.ToString());
-        obj->CreateValuePair("name", mOptions.bots[i].name);
-        obj->CreateValuePair("avatar", mOptions.bots[i].avatar);
+        obj->CreateValuePair("name", mOptions.bots[i].identity.name);
+        obj->CreateValuePair("avatar", mOptions.bots[i].identity.avatar);
         std::string text;
-        if (mOptions.bots[i].gender == Identity::MALE)
+        if (mOptions.bots[i].identity.gender == Identity::MALE)
         {
             text = "male";
         }
@@ -207,7 +212,8 @@ bool ServerConfig::Save(const std::string &fileName)
         }
 
         obj->CreateValuePair("gender", text);
-        obj->CreateValuePair("quote", mOptions.bots[i].quote);
+        obj->CreateValuePair("quote", mOptions.bots[i].identity.quote);
+        obj->CreateValuePair("bot_file_path", mOptions.bots[i].scriptFilePath);
     }
 
     JsonArray *array = json.CreateArrayPair("tables");
@@ -234,20 +240,23 @@ ServerOptions ServerConfig::GetDefault()
     opt.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
     opt.tables.push_back("Default"); // default table name (one table minimum)
 
-    opt.bots[Place::WEST].name     = "Leela";
-    opt.bots[Place::WEST].avatar   = ":/avatars/14.svg";
-    opt.bots[Place::WEST].quote    = "No, this isn't mutant language. We use a lot more profanity.";
-    opt.bots[Place::WEST].gender   = Identity::FEMALE;
+    opt.bots[Place::WEST].identity.name     = "Leela";
+    opt.bots[Place::WEST].identity.avatar   = ":/avatars/14.svg";
+    opt.bots[Place::WEST].identity.quote    = "No, this isn't mutant language. We use a lot more profanity.";
+    opt.bots[Place::WEST].identity.gender   = Identity::FEMALE;
+    opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath() + "noob.json";
 
-    opt.bots[Place::NORTH].name    = "Bender";
-    opt.bots[Place::NORTH].avatar  = ":/avatars/03.svg";
-    opt.bots[Place::NORTH].quote   = "Afterlife? If I'd thought I had to go through a whole another life, I'd kill myself right now.";
-    opt.bots[Place::NORTH].gender  = Identity::MALE;
+    opt.bots[Place::NORTH].identity.name    = "Bender";
+    opt.bots[Place::NORTH].identity.avatar  = ":/avatars/03.svg";
+    opt.bots[Place::NORTH].identity.quote   = "Afterlife? If I'd thought I had to go through a whole another life, I'd kill myself right now.";
+    opt.bots[Place::NORTH].identity.gender  = Identity::MALE;
+    opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath() + "noob.json";
 
-    opt.bots[Place::EAST].name     = "Amy";
-    opt.bots[Place::EAST].avatar   = ":/avatars/18.svg";
-    opt.bots[Place::EAST].quote    = "oooh! nice boots! Do they come in women's sizes?";
-    opt.bots[Place::EAST].gender   = Identity::FEMALE;
+    opt.bots[Place::EAST].identity.name     = "Amy";
+    opt.bots[Place::EAST].identity.avatar   = ":/avatars/18.svg";
+    opt.bots[Place::EAST].identity.quote    = "oooh! nice boots! Do they come in women's sizes?";
+    opt.bots[Place::EAST].identity.gender   = Identity::FEMALE;
+    opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath() + "noob.json";
 
     return opt;
 }

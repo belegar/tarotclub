@@ -406,6 +406,11 @@ void Bot::SetIdentity(const Identity &ident)
     mClient.SetMyIdentity(ident);
 }
 /*****************************************************************************/
+void Bot::SetAiScriptConfigFile(const std::string &fileName)
+{
+    mScriptConf = fileName;
+}
+/*****************************************************************************/
 void Bot::Initialize()
 {
     mClient.Initialize();
@@ -419,14 +424,11 @@ void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 bool Bot::InitializeScriptContext()
 {
     bool retCode = true;
-    std::string appRoot;
-
-    appRoot = System::ScriptPath();
+    std::string scriptRoot = Util::GetDirectoryPath(mScriptConf);
 
     // Open the configuration file to find the scripts
     JsonReader json;
-
-    if (json.Open(appRoot + "conf.json"))
+    if (json.Open(mScriptConf))
     {
         std::vector<JsonValue> files = json.GetArray("files");
 
@@ -437,7 +439,8 @@ bool Bot::InitializeScriptContext()
         {
             if (files[i].IsValid() && (files[i].GetTag() == IJsonNode::STRING))
             {
-                std::string fileName = appRoot + files[i].GetString();
+
+                std::string fileName = scriptRoot + Util::DIR_SEPARATOR + files[i].GetString();
 
 #ifdef USE_WINDOWS_OS
                 // Correct the path if needed

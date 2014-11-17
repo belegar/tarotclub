@@ -43,7 +43,7 @@ public:
     std::string ParseUri(const std::string &uri);
 
     // Bots management
-    bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay);
+    bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile);
     std::uint32_t GetNumberOfBots(std::uint32_t tableId);
     bool RemoveBot(std::uint32_t uuid);
 

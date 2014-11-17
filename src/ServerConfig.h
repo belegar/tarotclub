@@ -30,6 +30,12 @@
 #include "Identity.h"
 
 /*****************************************************************************/
+struct BotConf
+{
+    Identity identity;
+    std::string scriptFilePath;
+};
+
 struct ServerOptions
 {
     std::uint16_t timer;      // between players, in milliseconds
@@ -37,7 +43,7 @@ struct ServerOptions
     std::uint16_t web_tcp_port;
     std::int32_t lobby_max_conn;    // Max number of simultaneous connected clients
     std::uint8_t    tournamentTurns;
-    std::map<Place, Identity>   bots;
+    std::map<Place, BotConf>   bots;
     std::vector<std::string> tables; // table list names
 };
 

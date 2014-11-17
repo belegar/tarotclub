@@ -182,11 +182,11 @@ void TarotWidget::slotAssignedPlace()
         // FIXME: add/remove bots depending of the number of players (3, 4 or 5)
         if (mLobby.GetNumberOfBots(1U) == 0U)
         {
-            std::map<Place, Identity>::iterator iter;
+            std::map<Place, BotConf>::iterator iter;
             for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
             {
                 QThread::msleep(50U);
-                mLobby.AddBot(1U, iter->second, mServerOptions.timer);
+                mLobby.AddBot(1U, iter->second.identity, mServerOptions.timer, iter->second.scriptFilePath);
             }
         }
     }
