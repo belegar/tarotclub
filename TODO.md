@@ -1,20 +1,18 @@
 # Planned for 2.5 (Target date: January 2015)
-    
+	
 ##  Desktop client
 
-  * Faire en sorte de choisir le nombre de donnes pour les tournois dans la prochaine version
-  * Allow to choose an local avatar file /   * On devrait pouvoir importer une image perso 
+  * Faire en sorte de choisir le nombre de donnes pour les tournois dans la prochaine version (config file + user interface option)
+  * Allow to choose a local avatar file /   * On devrait pouvoir importer une image perso 
   * Lobby: add buttons to add a bot on a table
   * Lobby: add buttons to manage the server list (add/remove)
-  * Allow to add new server addresses in the lobby, save them in the configuration file
+  * Allow to add new server addresses in the lobby, save them in the client configuration file (config file + user interface option)
   * Add new protocol command to get the list of tables instead of using a REST api
   * Allow to choose the AI script configuration file (user customization)
   * Display icon close to the avatar when a player has declared a handle and/or a slam
-  * Peut on avoir de la couleur dans l'onglet information pour les coeurs et carreaux mais surtout les numeros 11 - 12 - 13 - 14... ce n'est vraiment pas intuitif, il faut reflechir...
   * Create a old-style gradient (pale-yellow) in all the cards
-  * Indicate the table id and name in the deal file result
-
-  
+  * Indicate the table id and name in the deal file result --> filename only ?
+ 
 ## TCDS dedicated server 
 
   * Add server parameters (number of deals of the tournament, TCP port for the dedicated server …)
@@ -34,6 +32,10 @@
   
     
 # BACKLOG
+  
+## Robustnesses
+
+  * Add a maximum play delay for network players, if timeout a random card is played
   
 ## New features
     
