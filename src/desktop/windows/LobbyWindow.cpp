@@ -67,7 +67,6 @@ void LobbyWindow::slotConnect()
     {
         QHostInfo info = QHostInfo::fromName(item->text());
         QString gamePort = ui.gameTcpPort->text();
-        QString webPort = ui.webTcpPort->text();
 
         if (info.error() == QHostInfo::NoError)
         {
@@ -75,36 +74,15 @@ void LobbyWindow::slotConnect()
             // Try each IP address to find any suitable server
             for (QList<QHostAddress>::iterator iter = addresses.begin(); iter != addresses.end(); ++iter)
             {
-                QString reply;
-                QString request = QString("http://") + iter->toString() + ":" + webPort;
-                if (RequestHttp(request + "/tables", reply))
+                if (CheckServer())
                 {
-                    // found something interesting
-                    QStringList strList = reply.split(",");
-                    ui.tableList->clear();
-                    mTableList.clear();
-
-                    QRegExp rex("^(\\w+)\\((\\d+)\\)");
-                    for (int i = 0; i < strList.size(); i++)
-                    {
-                        int pos = rex.indexIn(strList[i]);
-                        if ((pos > -1) && (rex.captureCount() == 2))
-                        {
-                            QString name = rex.cap(1);
-                            std::uint32_t id = rex.cap(2).toULong();
-                            mTableList[name] = id;
-
-                            // Update the table list
-                            ui.tableList->addItem(name);
-                        }
-                    }
-
                     // It seems that we have found a valid server, try to connect
                     emit sigConnect(iter->toString(), (std::uint16_t)gamePort.toUShort());
+                    break;
                 }
                 else
                 {
-                    ui.textArea->append(reply);
+                    ui.textArea->append(tr("Invalid server"));
                 }
             }
         }
@@ -157,14 +135,24 @@ void LobbyWindow::DisconnectedFromServer()
     Initialize();
 }
 /*****************************************************************************/
+void LobbyWindow::SetTables(const std::map<std::string, std::uint32_t> &tableList)
+{
+    ui.tableList->clear();
+    mTableList = tableList;
+    for (std::map<std::string, std::uint32_t>::const_iterator iter = tableList.begin(); iter != tableList.end(); ++iter)
+    {
+        ui.tableList->addItem(QString(iter->first.c_str()));
+    }
+}
+/*****************************************************************************/
 void LobbyWindow::slotJoin()
 {
     // Gets the table name
     QListWidgetItem * item = ui.tableList->currentItem();
     if (item != NULL)
     {
-        QString name = item->text();
-        if (mTableList.contains(name))
+        std::string name = item->text().toStdString();
+        if (mTableList.find(name) != mTableList.end())
         {
             emit sigJoinTable(mTableList[name]);
         }
@@ -177,8 +165,8 @@ void LobbyWindow::slotQuit()
     QListWidgetItem * item = ui.tableList->currentItem();
     if (item != NULL)
     {
-        QString name = item->text();
-        if (mTableList.contains(name))
+        std::string name = item->text().toStdString();
+        if (mTableList.find(name) != mTableList.end())
         {
             emit sigQuitTable(mTableList[name]);
         }

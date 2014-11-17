@@ -66,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigTableJoinEvent, this, &MainWindow::slotTableJoinEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigClientError, this, &MainWindow::slotClientError, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigDisconnectedFromServer, this, &MainWindow::slotDisconnectedFromServer, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigEnteredLobby, this, &MainWindow::slotEnteredLobby, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
@@ -145,7 +146,6 @@ void MainWindow::slotNewCustomDeal()
 /*****************************************************************************/
 void MainWindow::slotJoinNetworkGame()
 {
-    lobbyWindow->Initialize();
     lobbyWindow->show();
 }
 /*****************************************************************************/
@@ -200,6 +200,11 @@ void MainWindow::slotDisconnectedFromServer()
     lobbyWindow->DisconnectedFromServer();
     infosDock->Clear();
     scoresDock->Clear();
+}
+/*****************************************************************************/
+void MainWindow::slotEnteredLobby()
+{
+    lobbyWindow->SetTables(tarotWidget->GetTableList());
 }
 /*****************************************************************************/
 void MainWindow::slotLobbyPlayersList()

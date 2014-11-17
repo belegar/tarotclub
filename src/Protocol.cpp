@@ -27,7 +27,7 @@
 #include "Log.h"
 #include "ByteStreamWriter.h"
 
-const std::uint8_t  Protocol::VERSION       = 1U;
+const std::uint8_t  Protocol::VERSION       = 2U;
 
 // Specific static UUID
 const std::uint32_t Protocol::INVALID_UID   = 0U;
@@ -741,7 +741,7 @@ ByteArray Protocol::LobbyRequestLogin(std::uint32_t uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::LobbyLoginResult(bool accepted, std::uint32_t uuid)
+ByteArray Protocol::LobbyLoginResult(bool accepted, const std::map<std::string, std::uint32_t> &tableList, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -749,6 +749,14 @@ ByteArray Protocol::LobbyLoginResult(bool accepted, std::uint32_t uuid)
     BuildHeader(packet, Protocol::LOBBY_LOGIN_RESULT, LOBBY_UID, uuid);
     out.Seek(HEADER_SIZE);
     out << accepted;                // true if we are accepted to the server
+    out << static_cast<std::uint32_t>(tableList.size());
+
+    for (std::map<std::string, std::uint32_t>::const_iterator iter = tableList.begin(); iter != tableList.end(); ++iter)
+    {
+        out << iter->first;
+        out << iter->second;
+    }
+
     UpdateHeader(packet);
 
     return packet;
