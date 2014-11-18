@@ -52,7 +52,7 @@ public:
     void StartDeal(Place firstPlayer, const Tarot::Bid &bid);
     void AnalyzeGame(std::uint8_t numberOfPlayers);
     void CalculateScore();
-    void GenerateEndDealLog(const std::map<Place, Identity> &players);
+    void GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName);
     bool LoadGameDealLog(const std::string &fileName);
     bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 

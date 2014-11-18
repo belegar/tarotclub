@@ -473,11 +473,11 @@ void TarotEngine::GameSequence()
     }
 }
 /*****************************************************************************/
-void TarotEngine::EndOfDeal()
+void TarotEngine::EndOfDeal(const std::string &tableName)
 {
     mDeal.AnalyzeGame(mNbPlayers);
     mDeal.CalculateScore();
-    mDeal.GenerateEndDealLog(mPlayersIdent);
+    mDeal.GenerateEndDealLog(mPlayersIdent, tableName);
 
     ResetAck();
     mSequence = WAIT_FOR_END_OF_DEAL;

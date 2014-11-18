@@ -607,11 +607,18 @@ void Controller::BidSequence()
 /*****************************************************************************/
 void Controller::GameSequence()
 {
+#ifdef DESKTOP_PROJECT
+    const std::string cProjectName = "desktop";
+#else
+    const std::string cProjectName = "tcds";
+#endif
     engine.GameSequence();
 
     if (engine.IsLastTrick())
     {
-        engine.EndOfDeal();
+        std::stringstream ss;
+        ss << cProjectName << "_" << mName << "_" << mId << "_";
+        engine.EndOfDeal(ss.str());
         Send(Protocol::TableEndOfDeal(engine.GetScore()));
     }
     else
