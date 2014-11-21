@@ -1,9 +1,18 @@
-# Version 2.5 - Codename <???> (??/??/2014)
+# Version 2.5 - Codename <Pirate!> (??/??/2014)
 
 ## Desktop user interface
 
   * Information dock window: display king/queen etc. instead of 14, 13 .. and make hearts and diamonds in red
+  * Added more default icons
 
+## TarotClub network protocol
+
+  * Add new protocol command to get the list of tables instead of using a REST api, protocol version updated to V2
+
+## Corrected issues
+
+  * Removed lobby window initialization before showing it
+  * Issue #26: impossible to play a local game after a network game
 
 # Version 2.4 - Codename <Pirate!> (03/11/2014)
 
