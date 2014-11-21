@@ -1,13 +1,24 @@
 # Planned for 2.5 (Target date: January 2015)
-	
+
+## DONE
+
+  * Add new protocol command to get the list of tables instead of using a REST api
+  * Add server parameters (number of deals of the tournament, TCP port for the dedicated server …)
+  * TCDS JSON parameter to choose the server web port (default 8080)
+  * Duktape upgraded to 1.02
+  
 ##  Desktop client
 
   * Faire en sorte de choisir le nombre de donnes pour les tournois dans la prochaine version (config file + user interface option)
+  
+  
   * Allow to choose a local avatar file /   * On devrait pouvoir importer une image perso 
+  
   * Lobby: add buttons to add a bot on a table
   * Lobby: add buttons to manage the server list (add/remove)
   * Allow to add new server addresses in the lobby, save them in the client configuration file (config file + user interface option)
-  * Add new protocol command to get the list of tables instead of using a REST api
+  
+
   * Allow to choose the AI script configuration file (user customization)
   * Display icon close to the avatar when a player has declared a handle and/or a slam
   * Create a old-style gradient (pale-yellow) in all the cards
@@ -15,8 +26,6 @@
  
 ## TCDS dedicated server 
 
-  * Add server parameters (number of deals of the tournament, TCP port for the dedicated server …)
-  * TCDS JSON parameter to choose the server web port (default 8080)
   * Start to integrate the SQLite database for statistics (see design document)
   * Use a different log filename than the desktop version
   
