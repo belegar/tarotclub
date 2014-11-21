@@ -33,87 +33,214 @@
        <string>Identity</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
+       <item row="0" column="1">
         <widget class="QGroupBox" name="groupBox_6">
          <property name="title">
           <string>Identity</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>Avatar</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="0" column="0" rowspan="3">
+              <widget class="QLabel" name="pixSud">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::Box</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Plain</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_15">
+               <item>
+                <widget class="QRadioButton" name="radioHttp">
+                 <property name="text">
+                  <string>HTTP avatar</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEditHttpAvatar">
+                 <property name="text">
+                  <string>http://www.example.com/myavatar.jpg</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <item>
+                <widget class="QRadioButton" name="radioPredefined">
+                 <property name="text">
+                  <string>Pre-defined avatar</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnPixSud">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>100</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../../assets/desktop.qrc">
+                   <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
+                 </property>
+                 <property name="autoDefault">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="2" column="1">
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>62</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_16">
             <item>
-             <layout class="QVBoxLayout" name="_7">
-              <property name="spacing">
-               <number>6</number>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
-               <widget class="QLabel" name="pixSud">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>100</height>
-                 </size>
+               <layout class="QHBoxLayout" name="_10">
+                <property name="spacing">
+                 <number>6</number>
                 </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>100</height>
-                 </size>
+                <property name="leftMargin">
+                 <number>0</number>
                 </property>
-                <property name="frameShape">
-                 <enum>QFrame::Box</enum>
+                <property name="topMargin">
+                 <number>0</number>
                 </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Plain</enum>
+                <property name="rightMargin">
+                 <number>0</number>
                 </property>
-                <property name="text">
-                 <string/>
+                <property name="bottomMargin">
+                 <number>0</number>
                 </property>
-                <property name="scaledContents">
-                 <bool>true</bool>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                </property>
-               </widget>
+                <item>
+                 <widget class="QLabel" name="TextLabel2_3_2">
+                  <property name="text">
+                   <string>Nick name:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="nomJoueurSud">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="maxLength">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
-               <widget class="QPushButton" name="btnPixSud">
-                <property name="minimumSize">
+               <layout class="QHBoxLayout" name="_11">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="TextLabel3_2_2">
+                  <property name="text">
+                   <string>Quote:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="citationSud">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="locale">
+                   <locale language="French" country="France"/>
+                  </property>
+                  <property name="maxLength">
+                   <number>100</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_6">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
                  <size>
-                  <width>100</width>
-                  <height>20</height>
+                  <width>20</width>
+                  <height>40</height>
                  </size>
                 </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>100</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="../../../assets/desktop.qrc">
-                  <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
-                </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-               </widget>
+               </spacer>
               </item>
              </layout>
             </item>
@@ -122,7 +249,7 @@
               <property name="title">
                <string>Gender</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_6">
+              <layout class="QGridLayout" name="gridLayout_11">
                <item row="0" column="0">
                 <widget class="QRadioButton" name="sexeM">
                  <property name="text">
@@ -154,97 +281,6 @@
              </widget>
             </item>
            </layout>
-          </item>
-          <item row="1" column="0">
-           <layout class="QHBoxLayout" name="_10">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="TextLabel2_3_2">
-              <property name="text">
-               <string>Nick name:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="nomJoueurSud">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="maxLength">
-               <number>10</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="0">
-           <layout class="QHBoxLayout" name="_11">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="TextLabel3_2_2">
-              <property name="text">
-               <string>Quote:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="citationSud">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="locale">
-               <locale language="French" country="France"/>
-              </property>
-              <property name="maxLength">
-               <number>100</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="3" column="0">
-           <spacer>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
