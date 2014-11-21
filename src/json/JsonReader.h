@@ -78,21 +78,21 @@ public:
     void Close();
 
     // Getters
-    bool GetValue(const std::string &obj, std::int32_t &value);
-    bool GetValue(const std::string &obj, std::string &value);
-    bool GetValue(const std::string &obj, bool &value);
-    std::vector<JsonValue> GetArray(const std::string &obj, Value::Type type);
+    bool GetValue(const std::string &nodePath, std::int32_t &value);
+    bool GetValue(const std::string &nodePath, std::uint32_t &value);
+    bool GetValue(const std::string &nodePath, std::string &value);
+    bool GetValue(const std::string &nodePath, bool &value);
+    bool GetValue(const std::string &nodePath, double &value);
+    std::vector<JsonValue> GetArray(const std::string &nodePath);
 
 private:
     bool mValid;
-    IJsonNode::Tag mRootType;
-    JsonArray *mRootArray;
-    JsonObject *mRootObject;
+    IJsonNode *mRootNode;
 
-    JsonValue GetJsonValue(const std::string &obj, Value::Type type);
     JsonReader::ParseStatus Parse(char *s, char **endptr);
-    double StringToDouble(char *s, char **endptr);
+    JsonValue StringToNumber(char *s, char **endptr);
     std::vector<std::string> Split(const std::string &obj);
+    IJsonNode *FindNode(const std::string &nodePath);
 
 
     /*****************************************************************************/

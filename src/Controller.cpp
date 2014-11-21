@@ -217,12 +217,14 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         {
             std::uint8_t gameMode;
             Tarot::Shuffle shuffle;
+            std::uint8_t numberOfTurns;
 
             in >> gameMode;
             in >> shuffle;
+            in >> numberOfTurns;
 
-            engine.NewGame((Tarot::GameMode)gameMode, shuffle);
-            Send(Protocol::TableNewGame((Tarot::GameMode)gameMode, shuffle));
+            engine.NewGame((Tarot::GameMode)gameMode, shuffle, numberOfTurns);
+            Send(Protocol::TableNewGame((Tarot::GameMode)gameMode, shuffle, numberOfTurns));
         }
         break;
     }
@@ -605,11 +607,18 @@ void Controller::BidSequence()
 /*****************************************************************************/
 void Controller::GameSequence()
 {
+#ifdef DESKTOP_PROJECT
+    const std::string cProjectName = "desktop";
+#else
+    const std::string cProjectName = "tcds";
+#endif
     engine.GameSequence();
 
     if (engine.IsLastTrick())
     {
-        engine.EndOfDeal();
+        std::stringstream ss;
+        ss << cProjectName << "_" << mName << "_" << mId << "_";
+        engine.EndOfDeal(ss.str());
         Send(Protocol::TableEndOfDeal(engine.GetScore()));
     }
     else

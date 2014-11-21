@@ -30,12 +30,20 @@
 #include "Identity.h"
 
 /*****************************************************************************/
+struct BotConf
+{
+    Identity identity;
+    std::string scriptFilePath;
+};
+
 struct ServerOptions
 {
     std::uint16_t timer;      // between players, in milliseconds
-    std::uint16_t lobby_tcp_port;
+    std::uint16_t game_tcp_port;
+    std::uint16_t web_tcp_port;
     std::int32_t lobby_max_conn;    // Max number of simultaneous connected clients
-    std::map<Place, Identity>   bots;
+    std::uint8_t    tournamentTurns;
+    std::map<Place, BotConf>   bots;
     std::vector<std::string> tables; // table list names
 };
 
@@ -45,9 +53,12 @@ class ServerConfig
 
 public:
     static const std::uint16_t  DEFAULT_DELAY               = 500U;     // in ms
-    static const std::uint16_t  DEFAULT_LOBBY_TCP_PORT      = 4269U;
+    static const std::uint16_t  DEFAULT_GAME_TCP_PORT       = 4269U;
+    static const std::uint16_t  DEFAULT_WEB_TCP_PORT        = 8080U;
     static const std::uint32_t  DEFAULT_LOBBY_MAX_CONN      = 250U;
     static const std::string    DEFAULT_SERVER_CONFIG_FILE;
+    static const std::uint8_t   DEFAULT_NUMBER_OF_TURNS     = 5U;
+    static const std::uint8_t   MAX_NUMBER_OF_TURNS         = 20U;
 
     ServerConfig();
 

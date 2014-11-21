@@ -164,7 +164,7 @@ public:
     void Close();
 
     // Protocol methods
-    void AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
+    void AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns);
     void SendJoinTable(std::uint32_t tableId);
     void SendQuitTable(std::uint32_t tableId);
     void SendBid(Contract c, bool slam);

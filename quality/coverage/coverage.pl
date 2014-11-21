@@ -30,7 +30,14 @@ my $SCRIPT_DIR	= cwd();
 
 @excluded_files = (
 "duktape",
-"sqlite3"
+"sqlite3",
+"tst_database",
+"tst_hash",
+"tst_json",
+"tst_tarot_base",
+"tst_tarot_rules",
+"tst_utilities",
+"tst_websocket",
 );
 
 my @Header  = ( "Source file", "Completion", "Total lines" );
@@ -42,6 +49,8 @@ my $table = Text::TabularDisplay->new(@Header);
 
 # gets all coverage GCC output files
 my @Files 		= GetFileList ($OBJECT_DIR, $GCOV_EXTENSION);
+my $totalExecutedLines = 0.0;
+my $totalLines = 0.0;
 
 print "Run gcov on files ...\n";
 foreach my $File  (@Files) 
@@ -68,6 +77,10 @@ foreach my $File  (@Files)
 
 # Print result in a table
 print $table->render;
+
+# Print the general coverage percentage
+my  $coverage = ($totalExecutedLines * 100.0) / $totalLines;
+print "\r\nGlobal coverage: $coverage %\r\n";
 
 # =========================================================
 # @sub 	RunGcov
@@ -125,6 +138,11 @@ sub ParseSummary
                     {
                         my @row = ($sourceFile, $executed, $lines);
                         $table->add(@row);
+						
+						# Add to global statistics
+						$totalExecutedLines += $executed;
+						$totalLines += $lines;
+						
                         # print "$sourceFile\t\t\t|\t$toPrint$executed\t\t|\t$lines\t\t|\r\n";
                     }
                 }

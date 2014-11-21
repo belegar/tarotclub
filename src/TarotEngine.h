@@ -64,10 +64,10 @@ public:
     void Initialize();
     void StopGame();
     void CreateTable(std::uint8_t nbPlayers);
-    void NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s);
+    void NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t numberOfTurns);
     void NewDeal();
     Place StartDeal();
-    void EndOfDeal();
+    void EndOfDeal(const std::string &tableName);
     bool NextDeal();
 
     Place AddPlayer(std::uint32_t uuid);

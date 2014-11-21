@@ -71,7 +71,7 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mNbPlayers = nbPlayers;
 
     // 1. Initialize internal states
-    mDeal.NewGame();
+    mDeal.Initialize();
     mBid.Initialize();
 
     for (std::uint32_t i = 0U; i < 5U; i++)
@@ -90,11 +90,11 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mSequence = WAIT_FOR_PLAYERS;
 }
 /*****************************************************************************/
-void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s)
+void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t numberOfTurns)
 {
     mShuffle = s;
     mGameMode = mode;
-    mDeal.NewGame();
+    mDeal.NewGame(numberOfTurns);
     mSequence = WAIT_FOR_READY;
 }
 /*****************************************************************************/
@@ -473,11 +473,11 @@ void TarotEngine::GameSequence()
     }
 }
 /*****************************************************************************/
-void TarotEngine::EndOfDeal()
+void TarotEngine::EndOfDeal(const std::string &tableName)
 {
     mDeal.AnalyzeGame(mNbPlayers);
     mDeal.CalculateScore();
-    mDeal.GenerateEndDealLog(mPlayersIdent);
+    mDeal.GenerateEndDealLog(mPlayersIdent, tableName);
 
     ResetAck();
     mSequence = WAIT_FOR_END_OF_DEAL;

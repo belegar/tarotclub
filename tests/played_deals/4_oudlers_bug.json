@@ -12,6 +12,7 @@
         "contract": "Take",
         "slam": false,
         "first_trick_lead": "West",
+		"dog": "",
         "score": {
             "attacker_points": 51,
             "attacker_score": 40,

@@ -50,6 +50,8 @@ public:
     static std::string Join(const std::vector<std::string> &tokens, const std::string &delimiter);
     static std::int32_t GetCurrentMemoryUsage();
     static std::int32_t GetMaximumMemoryUsage();
+    static std::string GetFileName(const std::string &path);
+    static std::string GetDirectoryPath(const std::string &path);
 };
 
 #endif // UTIL_H

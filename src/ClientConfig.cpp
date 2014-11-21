@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string CLIENT_CONFIG_VERSION  = "2.0";
+static const std::string CLIENT_CONFIG_VERSION  = "2.1";
 const std::string    ClientConfig::DEFAULT_CLIENT_CONFIG_FILE  = "tarotclub.json";
 
 /*****************************************************************************/
@@ -79,6 +79,7 @@ bool ClientConfig::Load(const std::string &fileName)
     {
         std::string stringval;
         std::int32_t intval;
+        std::uint32_t unsignedVal;
 
         if (json.GetValue("version", stringval))
         {
@@ -108,9 +109,9 @@ bool ClientConfig::Load(const std::string &fileName)
                     }
                 }
 
-                if (json.GetValue("delay_before_cleaning", intval))
+                if (json.GetValue("delay_before_cleaning", unsignedVal))
                 {
-                    mOptions.delayBeforeCleaning = intval;
+                    mOptions.delayBeforeCleaning = static_cast<std::uint16_t>(unsignedVal);
                     if (mOptions.delayBeforeCleaning > 5000U)
                     {
                         mOptions.delayBeforeCleaning = 5000U;
@@ -151,6 +152,26 @@ bool ClientConfig::Load(const std::string &fileName)
                 if (json.GetValue("identity:quote", stringval))
                 {
                     mOptions.identity.quote = stringval;
+                }
+
+                std::vector<JsonValue> servers = json.GetArray("servers");
+                mOptions.serverList.clear();
+                for (std::uint32_t i = 0U; i < servers.size(); i++)
+                {
+                    if (servers[i].IsObject())
+                    {
+                        JsonObject *obj = servers[i].GetObject();
+                        ServerInfo srv;
+
+                        bool ret = JsonValue::FromNode(obj->GetNode("address"), srv.address);
+                        if (ret) { ret = JsonValue::FromNode(obj->GetNode("game_port"), srv.game_tcp_port); }
+                        if (ret) { ret = JsonValue::FromNode(obj->GetNode("web_port"), srv.web_tcp_port); }
+
+                        if (ret)
+                        {
+                            mOptions.serverList.push_back(srv);
+                        }
+                    }
                 }
             }
             else
@@ -210,6 +231,17 @@ bool ClientConfig::Save(const std::string &fileName)
         text = "female";
     }
 
+    // List of servers
+    JsonArray *servers = json.CreateArrayPair("servers");
+    for (std::uint32_t i = 0U; i < mOptions.serverList.size(); i++)
+    {
+        ServerInfo inf =  mOptions.serverList[i];
+        JsonObject *srv = servers->CreateObject();
+        srv->CreateValuePair("address", inf.address);
+        srv->CreateValuePair("game_port", (std::int32_t) inf.game_tcp_port);
+        srv->CreateValuePair("web_port", (std::int32_t) inf.web_tcp_port);
+    }
+
     obj->CreateValuePair("gender", text);
     obj->CreateValuePair("quote", mOptions.identity.quote);
 
@@ -223,6 +255,14 @@ bool ClientConfig::Save(const std::string &fileName)
 /*****************************************************************************/
 ClientOptions ClientConfig::GetDefault()
 {
+    const ServerInfo DefaultServers[2U] = {
+      {"http://tarot.fun-center.fr", 4269, 8080 },
+      {"http://tarotclub.duckdns.org", 4269, 8080 }
+    };
+
+    const std::uint32_t NumberOfServers = (sizeof(DefaultServers) / sizeof(ServerInfo));
+
+
     ClientOptions opt;
 
     opt.showAvatars = AVATARS_DEF;
@@ -237,6 +277,11 @@ ClientOptions ClientConfig::GetDefault()
     opt.identity.avatar = ":/avatars/01.svg";
     opt.identity.quote = "But existing is practically all I do!";
     opt.identity.gender = Identity::MALE;
+
+    for (std::uint32_t i = 0U; i < NumberOfServers; i++)
+    {
+        opt.serverList.push_back(DefaultServers[i]);
+    }
 
     return opt;
 }

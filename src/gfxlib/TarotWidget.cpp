@@ -149,7 +149,7 @@ void TarotWidget::slotCreateNetworkGame()
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
 
     // Connect us to the server
-    mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_LOBBY_TCP_PORT);
+    mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
 }
 /*****************************************************************************/
 bool TarotWidget::HasLocalConnection()
@@ -182,11 +182,11 @@ void TarotWidget::slotAssignedPlace()
         // FIXME: add/remove bots depending of the number of players (3, 4 or 5)
         if (mLobby.GetNumberOfBots(1U) == 0U)
         {
-            std::map<Place, Identity>::iterator iter;
+            std::map<Place, BotConf>::iterator iter;
             for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
             {
                 QThread::msleep(50U);
-                mLobby.AddBot(1U, iter->second, mServerOptions.timer);
+                mLobby.AddBot(1U, iter->second.identity, mServerOptions.timer, iter->second.scriptFilePath);
             }
         }
     }
@@ -258,9 +258,36 @@ void TarotWidget::Disconnect()
     mClient.Disconnect();
 }
 /*****************************************************************************/
+void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
+{
+    // Save game config
+    mAutoPlay = autoPlay;
+    mGameMode = mode;
+    mShuffle = sh;
+
+    InitScreen();
+
+    if (!HasLocalConnection())
+    {
+        mConnectionType = LOCAL;
+        // Connect us to the server
+        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
+    }
+    else
+    {
+        slotStartGame();
+    }
+}
+/*****************************************************************************/
 void TarotWidget::slotStartGame()
 {
-    mClient.AdminNewGame(mGameMode, mShuffle);
+    std::uint8_t  numberOfTurns = 1U;
+    if (mGameMode == Tarot::TOURNAMENT)
+    {
+        numberOfTurns = mServerOptions.tournamentTurns;
+    }
+
+    mClient.AdminNewGame(mGameMode, mShuffle, numberOfTurns);
 }
 /*****************************************************************************/
 void TarotWidget::InitScreen(bool rawClear)

@@ -12,6 +12,7 @@
         "contract": "Guard",
         "slam": false,
         "first_trick_lead": "South",
+		"dog": "",
         "score": {
             "attacker_points": 28,
             "attacker_score": 38,

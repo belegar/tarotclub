@@ -187,7 +187,7 @@ public:
     static ByteArray TableFullMessage(std::uint32_t uuid);
     static ByteArray TableAskForDiscard(std::uint32_t uuid);
     static ByteArray TableAskForHandle(std::uint32_t uuid);
-    static ByteArray TableNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle);
+    static ByteArray TableNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns);
     static ByteArray TableChatMessage(const std::string &message);
     static ByteArray TableShowBid(Contract c, bool slam, Place p);
     static ByteArray TablePlayersList(const std::map<Place, Identity> &players);
@@ -204,7 +204,7 @@ public:
     static ByteArray TableQuitEvent(std::uint32_t uuid, std::uint32_t tableId);
 
     // Admin -> controller
-    static ByteArray AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint32_t uuid);
+    static ByteArray AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns, std::uint32_t uuid);
 
     // Controller -> Admin
     static ByteArray AdminGameFull(bool full, std::uint32_t uuid);

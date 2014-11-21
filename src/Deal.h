@@ -37,6 +37,7 @@
 #include "Score.h"
 #include "Player.h"
 #include "Identity.h"
+#include "ServerConfig.h"
 
 /*****************************************************************************/
 class Deal
@@ -45,12 +46,13 @@ public:
     Deal();
 
     // Helpers
-    void NewGame();
+    void Initialize();
+    void NewGame(std::uint8_t numberOfTurns);
     void NewDeal();
     void StartDeal(Place firstPlayer, const Tarot::Bid &bid);
     void AnalyzeGame(std::uint8_t numberOfPlayers);
     void CalculateScore();
-    void GenerateEndDealLog(const std::map<Place, Identity> &players);
+    void GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName);
     bool LoadGameDealLog(const std::string &fileName);
     bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 
@@ -62,6 +64,7 @@ public:
     std::map<int, Place> GetPodium();
     Deck GetDog();
     Deck GetDiscard();
+    std::uint8_t GetNumberOfTurns() { return mNumberOfTurns; }
 
     // Setters
     void SetHandle(const Deck &handle, Team team);
@@ -98,7 +101,8 @@ private:
 
     // scores of previous deals
     std::uint32_t dealCounter;
-    int scores[MAX_ROUNDS][5];   // score of each turn players, 5 players max
+    int scores[ServerConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
+    std::uint8_t mNumberOfTurns;
 };
 
 

@@ -49,6 +49,7 @@ VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/database
 VPATH += $$BASE_DIR/src/gfxlib
+VPATH += $$BASE_DIR/src/network
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
@@ -163,6 +164,7 @@ HEADERS += Deck.h \
     Card.h \
     Player.h \
     ServerConfig.h \
+    ClientConfig.h \
     Common.h \
     System.h \
     Deal.h \
@@ -172,6 +174,7 @@ SOURCES += Deck.cpp \
     Card.cpp \
     Player.cpp \
     ServerConfig.cpp \
+    ClientConfig.cpp \
     Common.cpp \
     System.cpp \
     Deal.cpp \

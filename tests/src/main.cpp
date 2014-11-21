@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
         testFailures++;
     }
 
-    TarotRules tst_rules;
-    if (QTest::qExec(&tst_rules, argc, argv) == 0)
+    JsonTest tst_json;
+    if (QTest::qExec(&tst_json, argc, argv) == 0)
     {
         testSuccesses++;
     }
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
         testFailures++;
     }
 
-    JsonTest tst_json;
-    if (QTest::qExec(&tst_json, argc, argv) == 0)
+    TarotRules tst_rules;
+    if (QTest::qExec(&tst_rules, argc, argv) == 0)
     {
         testSuccesses++;
     }
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     {
         testFailures++;
     }
-
+/*
     TstWebSocket tst_websock;
     if (QTest::qExec(&tst_websock, argc, argv) == 0)
     {
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     {
         testFailures++;
     }
-
+*/
     TstDataBase tst_db;
     if (QTest::qExec(&tst_db, argc, argv) == 0)
     {

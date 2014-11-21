@@ -11,8 +11,8 @@
   * Display icon close to the avatar when a player has declared a handle and/or a slam
   * Peut on avoir de la couleur dans l'onglet information pour les coeurs et carreaux mais surtout les numeros 11 - 12 - 13 - 14... ce n'est vraiment pas intuitif, il faut reflechir...
   * Create a old-style gradient (pale-yellow) in all the cards
-  * Indicate the table id and name in the deal file result
-
+  * Indicate the table id and name in the deal file result --> filename only ?
+ 
 ## TCDS dedicated server 
 
   * Add server parameters (number of deals of the tournament, TCP port for the dedicated server …)
@@ -32,6 +32,10 @@
   
     
 # BACKLOG
+  
+## Robustnesses
+
+  * Add a maximum play delay for network players, if timeout a random card is played
   
 ## New features
     

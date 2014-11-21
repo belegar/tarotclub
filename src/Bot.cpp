@@ -406,6 +406,11 @@ void Bot::SetIdentity(const Identity &ident)
     mClient.SetMyIdentity(ident);
 }
 /*****************************************************************************/
+void Bot::SetAiScriptConfigFile(const std::string &fileName)
+{
+    mScriptConf = fileName;
+}
+/*****************************************************************************/
 void Bot::Initialize()
 {
     mClient.Initialize();
@@ -419,25 +424,23 @@ void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 bool Bot::InitializeScriptContext()
 {
     bool retCode = true;
-    std::string appRoot;
-
-    appRoot = System::ScriptPath();
+    std::string scriptRoot = Util::GetDirectoryPath(mScriptConf);
 
     // Open the configuration file to find the scripts
     JsonReader json;
-
-    if (json.Open(appRoot + "conf.json"))
+    if (json.Open(mScriptConf))
     {
-        std::vector<JsonValue> files = json.GetArray("files", JsonValue::STRING);
+        std::vector<JsonValue> files = json.GetArray("files");
 
         mBotEngine.Initialize();
 
         // Load all Javascript files
         for (std::uint32_t i = 0U; i < files.size(); i++)
         {
-            if (files[i].IsValid() && (files[i].GetType() == JsonValue::STRING))
+            if (files[i].IsValid() && (files[i].GetTag() == IJsonNode::STRING))
             {
-                std::string fileName = appRoot + files[i].GetString();
+
+                std::string fileName = scriptRoot + Util::DIR_SEPARATOR + files[i].GetString();
 
 #ifdef USE_WINDOWS_OS
                 // Correct the path if needed
@@ -491,7 +494,7 @@ void Bot::AdminGameFull()
     // We are the admin on this table, let's start the game!
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
-    mClient.AdminNewGame(Tarot::ONE_DEAL, sh);
+    mClient.AdminNewGame(Tarot::ONE_DEAL, sh, mClient.GetDeal().GetNumberOfTurns());
 }
 /*****************************************************************************/
 void Bot::TableQuitEvent(std::uint32_t tableId)

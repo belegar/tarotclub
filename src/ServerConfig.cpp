@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "2.0";
+static const std::string SERVER_CONFIG_VERSION  = "2.1";
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 
 /*****************************************************************************/
@@ -70,60 +70,83 @@ bool ServerConfig::Load(const std::string &fileName)
                 // The general strategy is to be tolerant on the values.
                 // If they are not in the acceptable range, we set the default value
                 // without throwing any error
-                std::int32_t intval;
-                if (json.GetValue("delay", intval))
+                std::uint32_t unsignedVal;
+                if (json.GetValue("delay", unsignedVal))
                 {
-                    if ((intval < 0) || (intval > 9000))
+                    if (unsignedVal > 9000U)
                     {
-                        intval = DEFAULT_DELAY;
+                        unsignedVal = DEFAULT_DELAY;
                     }
-                    mOptions.timer = intval;
+                    mOptions.timer = unsignedVal;
                 }
-                if (json.GetValue("lobby_tcp_port", intval))
+                if (json.GetValue("game_tcp_port", unsignedVal))
                 {
-                    mOptions.lobby_tcp_port = intval;
+                    mOptions.game_tcp_port = unsignedVal;
                 }
-                if (json.GetValue("lobby_max_conn", intval))
+
+                if (json.GetValue("web_tcp_port", unsignedVal))
                 {
-                    mOptions.lobby_max_conn = intval;
+                    mOptions.web_tcp_port = unsignedVal;
+                }
+
+                if (json.GetValue("lobby_max_conn", unsignedVal))
+                {
+                    mOptions.lobby_max_conn = unsignedVal;
+                }
+
+                if (json.GetValue("tournament_turns", unsignedVal))
+                {
+                    mOptions.tournamentTurns = static_cast<std::uint8_t>(unsignedVal);
+                    if (mOptions.tournamentTurns > MAX_NUMBER_OF_TURNS)
+                    {
+                        mOptions.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
+                    }
                 }
 
                 for (std::uint32_t i = 1U; i < 4U; i++)
                 {
-                    Place bot(i);
-                    if (json.GetValue(bot.ToString() + ":name", value))
+                    std::string botPos = Place(i).ToString();
+                    if (json.GetValue(botPos + ":name", value))
                     {
-                        mOptions.bots[i].name = value;
+                        mOptions.bots[i].identity.name = value;
                     }
-                    if (json.GetValue(bot.ToString() + ":avatar", value))
+                    if (json.GetValue(botPos + ":avatar", value))
                     {
-                        mOptions.bots[i].avatar = value;
+                        mOptions.bots[i].identity.avatar = value;
                     }
-                    if (json.GetValue(bot.ToString() + ":gender", value))
+                    if (json.GetValue(botPos + ":gender", value))
                     {
                         if (value == "female")
                         {
-                            mOptions.bots[i].gender = Identity::FEMALE;
+                            mOptions.bots[i].identity.gender = Identity::FEMALE;
                         }
                         else
                         {
-                            mOptions.bots[i].gender = Identity::MALE;
+                            mOptions.bots[i].identity.gender = Identity::MALE;
                         }
 
                     }
-                    if (json.GetValue(bot.ToString() + ":quote", value))
+                    if (json.GetValue(botPos + ":quote", value))
                     {
-                        mOptions.bots[i].quote = value;
+                        mOptions.bots[i].identity.quote = value;
+                    }
+
+                    if (json.GetValue(botPos + ":bot_file_path", value))
+                    {
+                        mOptions.bots[i].scriptFilePath = value;
                     }
                 }
 
                 mOptions.tables.clear();
-                std::vector<JsonValue> tables = json.GetArray("tables", JsonValue::STRING);
+                std::vector<JsonValue> tables = json.GetArray("tables");
                 if (tables.size() > 0U)
                 {
                     for (std::vector<JsonValue>::iterator iter = tables.begin(); iter != tables.end(); ++iter)
                     {
-                        mOptions.tables.push_back(iter->GetString());
+                        if (iter->GetTag() == IJsonNode::STRING)
+                        {
+                            mOptions.tables.push_back(iter->GetString());
+                        }
                     }
                 }
                 else
@@ -168,17 +191,18 @@ bool ServerConfig::Save(const std::string &fileName)
     json.CreateValuePair("version", SERVER_CONFIG_VERSION);
     json.CreateValuePair("generator", "Generated by TarotClub " + TAROT_VERSION);
     json.CreateValuePair("delay", mOptions.timer);
-    json.CreateValuePair("lobby_tcp_port", mOptions.lobby_tcp_port);
+    json.CreateValuePair("game_tcp_port", mOptions.game_tcp_port);
     json.CreateValuePair("lobby_max_conn", mOptions.lobby_max_conn);
+    json.CreateValuePair("tournament_turns", mOptions.tournamentTurns);
 
     for (std::uint32_t i = 1U; i < 4U; i++)
     {
         Place bot(i);
         JsonObject *obj = json.CreateObjectPair(bot.ToString());
-        obj->CreateValuePair("name", mOptions.bots[i].name);
-        obj->CreateValuePair("avatar", mOptions.bots[i].avatar);
+        obj->CreateValuePair("name", mOptions.bots[i].identity.name);
+        obj->CreateValuePair("avatar", mOptions.bots[i].identity.avatar);
         std::string text;
-        if (mOptions.bots[i].gender == Identity::MALE)
+        if (mOptions.bots[i].identity.gender == Identity::MALE)
         {
             text = "male";
         }
@@ -188,7 +212,8 @@ bool ServerConfig::Save(const std::string &fileName)
         }
 
         obj->CreateValuePair("gender", text);
-        obj->CreateValuePair("quote", mOptions.bots[i].quote);
+        obj->CreateValuePair("quote", mOptions.bots[i].identity.quote);
+        obj->CreateValuePair("bot_file_path", mOptions.bots[i].scriptFilePath);
     }
 
     JsonArray *array = json.CreateArrayPair("tables");
@@ -210,24 +235,28 @@ ServerOptions ServerConfig::GetDefault()
     ServerOptions opt;
 
     opt.timer           = DEFAULT_DELAY;
-    opt.lobby_tcp_port  = DEFAULT_LOBBY_TCP_PORT;
+    opt.game_tcp_port  = DEFAULT_GAME_TCP_PORT;
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
+    opt.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
     opt.tables.push_back("Default"); // default table name (one table minimum)
 
-    opt.bots[Place::WEST].name     = "Leela";
-    opt.bots[Place::WEST].avatar   = ":/avatars/14.svg";
-    opt.bots[Place::WEST].quote    = "No, this isn't mutant language. We use a lot more profanity.";
-    opt.bots[Place::WEST].gender   = Identity::FEMALE;
+    opt.bots[Place::WEST].identity.name     = "Leela";
+    opt.bots[Place::WEST].identity.avatar   = ":/avatars/14.svg";
+    opt.bots[Place::WEST].identity.quote    = "No, this isn't mutant language. We use a lot more profanity.";
+    opt.bots[Place::WEST].identity.gender   = Identity::FEMALE;
+    opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath() + "noob.json";
 
-    opt.bots[Place::NORTH].name    = "Bender";
-    opt.bots[Place::NORTH].avatar  = ":/avatars/03.svg";
-    opt.bots[Place::NORTH].quote   = "Afterlife? If I'd thought I had to go through a whole another life, I'd kill myself right now.";
-    opt.bots[Place::NORTH].gender  = Identity::MALE;
+    opt.bots[Place::NORTH].identity.name    = "Bender";
+    opt.bots[Place::NORTH].identity.avatar  = ":/avatars/03.svg";
+    opt.bots[Place::NORTH].identity.quote   = "Afterlife? If I'd thought I had to go through a whole another life, I'd kill myself right now.";
+    opt.bots[Place::NORTH].identity.gender  = Identity::MALE;
+    opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath() + "noob.json";
 
-    opt.bots[Place::EAST].name     = "Amy";
-    opt.bots[Place::EAST].avatar   = ":/avatars/18.svg";
-    opt.bots[Place::EAST].quote    = "oooh! nice boots! Do they come in women's sizes?";
-    opt.bots[Place::EAST].gender   = Identity::FEMALE;
+    opt.bots[Place::EAST].identity.name     = "Amy";
+    opt.bots[Place::EAST].identity.avatar   = ":/avatars/18.svg";
+    opt.bots[Place::EAST].identity.quote    = "oooh! nice boots! Do they come in women's sizes?";
+    opt.bots[Place::EAST].identity.gender   = Identity::FEMALE;
+    opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath() + "noob.json";
 
     return opt;
 }
