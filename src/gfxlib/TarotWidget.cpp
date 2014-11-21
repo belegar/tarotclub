@@ -205,7 +205,7 @@ void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh
     {
         mConnectionType = LOCAL;
         // Connect us to the server
-        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_LOBBY_TCP_PORT);
+        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
     }
     else
     {
@@ -256,27 +256,6 @@ void TarotWidget::slotDisconnectedFromServer()
 void TarotWidget::Disconnect()
 {
     mClient.Disconnect();
-}
-/*****************************************************************************/
-void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
-{
-    // Save game config
-    mAutoPlay = autoPlay;
-    mGameMode = mode;
-    mShuffle = sh;
-
-    InitScreen();
-
-    if (!HasLocalConnection())
-    {
-        mConnectionType = LOCAL;
-        // Connect us to the server
-        mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
-    }
-    else
-    {
-        slotStartGame();
-    }
 }
 /*****************************************************************************/
 void TarotWidget::slotStartGame()
