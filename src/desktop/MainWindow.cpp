@@ -86,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(lobbyWindow, &LobbyWindow::sigJoinTable, this, &MainWindow::slotJoinTable);
     connect(lobbyWindow, &LobbyWindow::sigQuitTable, this, &MainWindow::slotQuitTable);
     connect(lobbyWindow, &LobbyWindow::sigEmitMessage, tarotWidget, &TarotWidget::slotSendLobbyMessage);
+    connect(lobbyWindow, &LobbyWindow::sigSaveServersConfiguration, this, &MainWindow::slotSaveConfiguration);
 
     // Exit catching to terminate the game properly
     connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
@@ -212,6 +213,14 @@ void MainWindow::slotLobbyPlayersList()
     lobbyWindow->SetPlayersNames(tarotWidget->GetLobbyPlayersList());
 }
 /*****************************************************************************/
+void MainWindow::slotSaveConfiguration()
+{
+    ClientOptions opt = mClientConfig.GetOptions();
+    opt.serverList = lobbyWindow->GetServersList();
+    mClientConfig.SetOptions(opt);
+    mClientConfig.Save(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
+}
+/*****************************************************************************/
 void MainWindow::slotQuickJoinNetworkGame()
 {
     if (quickJoinWindow->exec() == QDialog::Accepted)
@@ -251,6 +260,7 @@ void MainWindow::Initialize()
     tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
                               mServerConfig.GetOptions());
 
+    lobbyWindow->SetServersList(mClientConfig.GetOptions().serverList);
     debugDock->Initialize();
 
     // Load previously saved settings

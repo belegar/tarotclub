@@ -267,7 +267,8 @@ FORMS += AboutUI.ui \
     NumberedDealUI.ui \
     DealEditorUI.ui \
     QuickJoin.ui \
-    LobbyUI.ui
+    LobbyUI.ui \
+    ../src/desktop/forms/NewServerUI.ui
 
 HEADERS += AboutWindow.h \
     MainWindow.h \

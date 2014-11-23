@@ -29,6 +29,7 @@
 #include "LobbyWindow.h"
 #include "ServerConfig.h"
 #include "Lobby.h"
+#include "ui_NewServerUI.h"
 
 /*****************************************************************************/
 LobbyWindow::LobbyWindow(QWidget *parent = 0)
@@ -43,30 +44,23 @@ LobbyWindow::LobbyWindow(QWidget *parent = 0)
     connect(ui.quitButton, &QPushButton::clicked, this, &LobbyWindow::slotQuit);
     connect(ui.closeButton, &QPushButton::clicked, this, &LobbyWindow::slotClose);
     connect(ui.checkServerButton, &QPushButton::clicked, this, &LobbyWindow::slotCheckServer);
-
+    connect(ui.addServerButton, &QPushButton::clicked, this, &LobbyWindow::slotAddServer);
+    connect(ui.removeServerButton, &QPushButton::clicked, this, &LobbyWindow::slotRemoveServer);
+    connect(ui.addBotButton, &QPushButton::clicked, this, &LobbyWindow::slotAddBot);
+    connect(ui.removeBotButton, &QPushButton::clicked, this, &LobbyWindow::slotRemoveBot);
     connect(ui.chatText, &QLineEdit::returnPressed, this, &LobbyWindow::slotReturnPressed);
 
     Initialize();
-
-    // FIXME: make these parameters customizable in the client Json configuration file
-    ui.gameTcpPort->setValue(4269);
-    ui.webTcpPort->setValue(8080);
-
-#if TAROT_DEBUG
-    ui.serverList->addItem("192.168.1.30");
-    ui.serverList->addItem("127.0.0.1");
-    ui.serverList->addItem("192.168.1.12");
-#endif
 }
 /*****************************************************************************/
 void LobbyWindow::slotConnect()
 {
     ui.infoLabel->setText(trUtf8("Connecting ..."));
-    QListWidgetItem *item = ui.serverList->currentItem();
-    if (item != NULL)
+    std::uint32_t item = ui.serverList->currentRow();
+    if (item < mServerList.size())
     {
-        QHostInfo info = QHostInfo::fromName(item->text());
-        QString gamePort = ui.gameTcpPort->text();
+        QHostInfo info = QHostInfo::fromName(mServerList[item].address.c_str());
+        QString gamePort = QString().setNum(mServerList[item].game_tcp_port);
 
         if (info.error() == QHostInfo::NoError)
         {
@@ -145,6 +139,49 @@ void LobbyWindow::SetTables(const std::map<std::string, std::uint32_t> &tableLis
     }
 }
 /*****************************************************************************/
+void LobbyWindow::SetServersList(const std::vector<ServerInfo> &servers)
+{
+    mServerList = servers;
+
+#if TAROT_DEBUG
+    ServerInfo srv;
+
+    srv.game_tcp_port = 4269;
+    srv.web_tcp_port = 8080;
+    srv.address = "192.168.1.30";
+    mServerList.push_back(srv);
+
+    srv.address = "192.168.1.12";
+    mServerList.push_back(srv);
+
+    srv.address = "127.0.0.1";
+    mServerList.push_back(srv);
+#endif
+
+    UpdateServersList();
+}
+/*****************************************************************************/
+void LobbyWindow::UpdateServersList()
+{
+    ui.serverList->clear();
+    for (std::vector<ServerInfo>::iterator iter = mServerList.begin(); iter != mServerList.end(); ++iter)
+    {
+        QString server = QString(iter->address.c_str()) + QString(" (%1), (%2)").arg(iter->game_tcp_port).arg(iter->web_tcp_port);
+        ui.serverList->addItem(server);
+    }
+
+    if (mServerList.size() > 0)
+    {
+        // Select first element
+        ui.serverList->setCurrentRow(0);
+    }
+}
+/*****************************************************************************/
+std::vector<ServerInfo> LobbyWindow::GetServersList()
+{
+    return mServerList;
+}
+/*****************************************************************************/
 void LobbyWindow::slotJoin()
 {
     // Gets the table name
@@ -187,14 +224,56 @@ void LobbyWindow::slotCheckServer()
     }
 }
 /*****************************************************************************/
+void LobbyWindow::slotAddServer()
+{
+    QDialog *dialog = new QDialog(this);
+    Ui::newServerUI srvUi;
+
+    srvUi.setupUi(dialog);
+
+    if (dialog->exec() == QDialog::Accepted)
+    {
+        ServerInfo server;
+        server.address = srvUi.address->text().toStdString();
+        server.game_tcp_port = srvUi.gamePort->value();
+        server.web_tcp_port = srvUi.webPort->value();
+
+        mServerList.push_back(server);
+        UpdateServersList();
+        emit sigSaveServersConfiguration();
+    }
+}
+/*****************************************************************************/
+void LobbyWindow::slotRemoveServer()
+{
+    std::uint32_t item = ui.serverList->currentRow();
+    if (item < mServerList.size())
+    {
+        mServerList.erase(mServerList.begin() + item);
+
+        UpdateServersList();
+        emit sigSaveServersConfiguration();
+    }
+}
+/*****************************************************************************/
+void LobbyWindow::slotAddBot()
+{
+
+}
+/*****************************************************************************/
+void LobbyWindow::slotRemoveBot()
+{
+
+}
+/*****************************************************************************/
 bool LobbyWindow::CheckServer()
 {
     bool ret = false;
-    QListWidgetItem *item = ui.serverList->currentItem();
-    if (item != NULL)
+    std::uint32_t item = ui.serverList->currentRow();
+    if (item < mServerList.size())
     {
-        QHostInfo info = QHostInfo::fromName(item->text());
-        QString webPort = ui.webTcpPort->text();
+        QHostInfo info = QHostInfo::fromName(mServerList[item].address.c_str());
+        QString webPort = QString().setNum(mServerList[item].web_tcp_port);
 
         if (info.error() == QHostInfo::NoError)
         {

@@ -28,6 +28,7 @@
 
 #include <QTcpSocket>
 #include <QMap>
+#include "ClientConfig.h"
 #include "ui_LobbyUI.h"
 
 /*****************************************************************************/
@@ -43,6 +44,8 @@ public:
     void SetTableStatus(std::uint32_t tableId, bool status);
     void DisconnectedFromServer();
     void SetTables(const std::map<std::string, std::uint32_t> &tableList);
+    void SetServersList(const std::vector<ServerInfo> &servers);
+    std::vector<ServerInfo> GetServersList();
 
 signals:
     void sigEmitMessage(const QString &);
@@ -50,6 +53,7 @@ signals:
     void sigDisconnect();
     void sigJoinTable(std::uint32_t);
     void sigQuitTable(std::uint32_t);
+    void sigSaveServersConfiguration();
 
 public slots:
     void slotMessage(std::string message);
@@ -63,14 +67,20 @@ private slots:
     void slotClose();
     void slotReturnPressed();
     void slotCheckServer();
+    void slotAddServer();
+    void slotRemoveServer();
+    void slotAddBot();
+    void slotRemoveBot();
 
 private:
     Ui::LobbyUI  ui;
 
     std::map<std::string, std::uint32_t> mTableList;    // key = table name, value = table ID
     std::map<std::uint32_t, std::string> mPlayerList; // key = user name, value = uuid
+    std::vector<ServerInfo> mServerList;
     bool RequestHttp(const QString &request, QString &reply);
     bool CheckServer();
+    void UpdateServersList();
 };
 
 

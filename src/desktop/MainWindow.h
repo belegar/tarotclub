@@ -90,6 +90,7 @@ private slots:
     void slotQuitTable(std::uint32_t tableId);
     void slotDisconnectFromLobby();
     void slotLobbyPlayersList();
+    void slotSaveConfiguration();
 
 private:
     void SetupDialogs();
