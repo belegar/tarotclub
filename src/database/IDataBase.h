@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - DataBase.h
+ * TarotClub - IDataBase.h
  *=============================================================================
- * A simple DataBase class abstraction layer
+ * An application interface to write and read data from a database
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,62 +23,44 @@
  *=============================================================================
  */
 
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef IDATABASE_H
+#define IDATABASE_H
 
-#include <vector>
-#include "Value.h"
-#include "sqlite3.h"
-#include "IDataBase.h"
-#include <mutex>
-#include <thread>
+#include <cstdint>
 
 /*****************************************************************************/
-class DataBase : public IDataBase
+class IDataBase
 {
 public:
-    class IWorkItem
+    struct Stats
     {
-    public:
-        virtual void DoAction() = 0;
+        Stats() { Reset(); }
+
+        void Reset()
+        {
+            min = 0U;
+            max = 0U;
+            current = 0U;
+            total = 0U;
+        }
+
+        std::uint32_t min;
+        std::uint32_t max;
+        std::uint32_t current;
+        std::uint32_t total;
     };
 
-    DataBase();
-    ~DataBase();
+    virtual ~IDataBase() { /* nothing to do */ }
 
-    // From IDataBase
-    void Initialize();
+    virtual void Initialize() = 0;
 
-    void AddPlayer();
-
-    void DecPlayer();
-
-private:
-    sqlite3 *mDb;
-    bool mValid;
-    std::thread mThread;
-    bool mInitialized;
-    bool mStopRequested;
-    std::mutex mMutex;
-
-    // Server statistics
-    IDataBase::Stats mStats;
-
-
-    // Database Helpers
-    bool Open(const std::string &fileName);
-    void Close();
-    std::vector<std::vector<Value> > Query(const char *query);
-
-    // Thread
-    static void EntryPoint(void *pthis);
-    void Run();
+    virtual void AddPlayer() = 0;
 
 };
 
 
-#endif // DATABASE_H
+#endif // IDATABASE_H
 
 //=============================================================================
-// End of file DataBase.h
+// End of file IDataBase.h
 //=============================================================================

@@ -25,8 +25,9 @@
 
 #include <cctype>
 #include <iostream>
-#include <string.h>
-
+#include <string>
+#include <sstream>
+#include "Util.h"
 #include "DataBase.h"
 
 /*****************************************************************************/
@@ -35,6 +36,58 @@ DataBase::DataBase()
     , mValid(false)
 {
 
+}
+/*****************************************************************************/
+void DataBase::Initialize()
+{
+    mInitialized = true;
+    mThread = std::thread(DataBase::EntryPoint, this);
+}
+/*****************************************************************************/
+void DataBase::AddPlayer()
+{
+    mMutex.lock();
+    mStats.current++;
+    mMutex.unlock();
+}
+/*****************************************************************************/
+void DataBase::DecPlayer()
+{
+    mMutex.lock();
+    if (mStats.current > 0U)
+    {
+        mStats.current--;
+    }
+    mMutex.unlock();
+}
+/*****************************************************************************/
+void DataBase::EntryPoint(void *pthis)
+{
+    DataBase *pt = static_cast<DataBase *>(pthis);
+    pt->Run();
+}
+/*****************************************************************************/
+void DataBase::Run()
+{
+    time_t rawtime;
+    time_t nextHour;
+    time_t diff;
+
+    while(!mStopRequested)
+    {
+        // calculate how many seconds we have to sleep before the next round hour (eg: 17h00min00s)
+        time(&rawtime);
+        nextHour = ((rawtime / 60U) * 60U) + 60U;
+        diff = nextHour - rawtime;
+#ifdef TAROT_DEBUG
+        std::stringstream ss;
+        ss << Util::CurrentDateTime("%X") << ", sleep for:" << diff << std::endl;
+        std::cout << ss.str();
+#endif
+        std::this_thread::sleep_for(std::chrono::seconds(diff));
+
+        // Calulate statistics
+    }
 }
 /*****************************************************************************/
 DataBase::~DataBase()

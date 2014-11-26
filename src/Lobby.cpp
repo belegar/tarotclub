@@ -27,8 +27,9 @@
 const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub ") + std::string(VERSION_STRING);
 
 /*****************************************************************************/
-Lobby::Lobby()
-    : mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
+Lobby::Lobby(IDataBase &i_dataBase)
+    : mDataBase(i_dataBase)
+    , mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
 {
 
@@ -54,6 +55,7 @@ Lobby::~Lobby()
 void Lobby::Initialize(const ServerOptions &opt)
 {
     Protocol::GetInstance().Initialize();
+    mDataBase.Initialize();
 
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
