@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - DataBase.h
+ * TarotClub - DummyDataBase.h
  *=============================================================================
- * A simple DataBase class abstraction layer
+ * Empty IDataBase implementation used to stub where it is needed
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,61 +23,31 @@
  *=============================================================================
  */
 
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef DUMMY_DATABASE_H
+#define DUMMY_DATABASE_H
 
 #include <vector>
 #include "Value.h"
-#include "sqlite3.h"
 #include "IDataBase.h"
-#include <mutex>
-#include <thread>
 
 /*****************************************************************************/
-class DataBase : public IDataBase
+class DummyDataBase : public IDataBase
 {
 public:
-    class IWorkItem
-    {
-    public:
-        virtual void DoAction() = 0;
-    };
+    DummyDataBase() {}
+    ~DummyDataBase() {}
 
-    DataBase();
-    ~DataBase();
-
-    void Stop() { mStopRequested = true; mThread.join(); }
+    void Stop() { }
 
     // From IDataBase
-    void Initialize();
-    void AddPlayer();
-    void DecPlayer();
-
-    // Database Helpers
-    bool Open(const std::string &fileName);
-    void Close();
-    std::vector<std::vector<Value> > Query(const std::string &query);
-
-private:
-    sqlite3 *mDb;
-    bool mValid;
-    std::thread mThread;
-    bool mInitialized;
-    bool mStopRequested;
-    std::mutex mMutex;
-
-    // Server statistics
-    IDataBase::Stats mStats;
-
-    // Thread
-    static void EntryPoint(void *pthis);
-    void Run();
-
+    void Initialize() {}
+    void AddPlayer() {}
+    void DecPlayer() {}
 };
 
 
-#endif // DATABASE_H
+#endif // DUMMY_DATABASE_H
 
 //=============================================================================
-// End of file DataBase.h
+// End of file DummyDataBase.h
 //=============================================================================

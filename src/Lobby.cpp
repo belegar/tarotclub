@@ -27,8 +27,9 @@
 const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub ") + std::string(VERSION_STRING);
 
 /*****************************************************************************/
-Lobby::Lobby()
-    : mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
+Lobby::Lobby(IDataBase &i_dataBase)
+    : mDataBase(i_dataBase)
+    , mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
 {
 
@@ -54,6 +55,7 @@ Lobby::~Lobby()
 void Lobby::Initialize(const ServerOptions &opt)
 {
     Protocol::GetInstance().Initialize();
+    mDataBase.Initialize();
 
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
@@ -182,6 +184,8 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
             TLogNetwork(message);
             SendData(Protocol::LobbyChatMessage(message), 0U);
             SendData(Protocol::LobbyPlayersList(mUsers.GetLobbyUserNames()), 0U);
+
+            mDataBase.AddPlayer();
         }
         break;
     }
@@ -248,6 +252,8 @@ void Lobby::ClientClosed(int socket)
     mUsers.RemoveUser(uuid);
     // Remove the player from the table
     RemovePlayerFromTable(uuid, tableId);
+
+    mDataBase.DecPlayer();
 }
 /*****************************************************************************/
 void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
