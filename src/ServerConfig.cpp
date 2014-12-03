@@ -235,7 +235,8 @@ ServerOptions ServerConfig::GetDefault()
     ServerOptions opt;
 
     opt.timer           = DEFAULT_DELAY;
-    opt.game_tcp_port  = DEFAULT_GAME_TCP_PORT;
+    opt.game_tcp_port   = DEFAULT_GAME_TCP_PORT;
+    opt.web_tcp_port    = DEFAULT_WEB_TCP_PORT;
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
     opt.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
     opt.tables.push_back("Default"); // default table name (one table minimum)
