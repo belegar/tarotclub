@@ -48,6 +48,11 @@ void DataBase::AddPlayer()
 {
     mMutex.lock();
     mStats.current++;
+    mStats.total++;
+    if (mStats.current >= mStats.max)
+    {
+        mStats.max = mStats.current;
+    }
     mMutex.unlock();
 }
 /*****************************************************************************/
@@ -57,6 +62,10 @@ void DataBase::DecPlayer()
     if (mStats.current > 0U)
     {
         mStats.current--;
+        if (mStats.current <= mStats.min)
+        {
+            mStats.min = mStats.current;
+        }
     }
     mMutex.unlock();
 }
@@ -69,24 +78,60 @@ void DataBase::EntryPoint(void *pthis)
 /*****************************************************************************/
 void DataBase::Run()
 {
+#ifdef TAROT_DEBUG
+    static const std::uint32_t cSecondsInHour = 60U;
+#else
+    static const std::uint32_t cSecondsInHour = 3600U;
+#endif
+    static const std::string cDbFileName = "tcds.sqlite";
+
     time_t rawtime;
     time_t nextHour;
-    time_t diff;
+
+    bool ret = Open(cDbFileName);
+    if (ret)
+    {
+        Query("CREATE TABLE IF NOT EXISTS stats (datetime INTEGER, min INTEGER, max INTEGER, current INTEGER, total INTEGER);");
+        Close();
+    }
+
+    time(&rawtime);
+    nextHour = ((rawtime / cSecondsInHour) * cSecondsInHour) + cSecondsInHour;
 
     while(!mStopRequested)
     {
-        // calculate how many seconds we have to sleep before the next round hour (eg: 17h00min00s)
+        std::this_thread::sleep_for(std::chrono::seconds(1U));
         time(&rawtime);
-        nextHour = ((rawtime / 60U) * 60U) + 60U;
-        diff = nextHour - rawtime;
-#ifdef TAROT_DEBUG
-        std::stringstream ss;
-        ss << Util::CurrentDateTime("%X") << ", sleep for:" << diff << std::endl;
-        std::cout << ss.str();
-#endif
-        std::this_thread::sleep_for(std::chrono::seconds(diff));
 
-        // Calulate statistics
+#ifdef TAROT_DEBUG
+        std::cout << "Next database update in: " << (int)(nextHour - rawtime) << " seconds" << std::endl;
+#endif
+
+        if (rawtime >= nextHour)
+        {
+            nextHour = ((rawtime / cSecondsInHour) * cSecondsInHour) + cSecondsInHour;
+            mMutex.lock();
+            // Store statistics
+            bool ret = Open(cDbFileName);
+            if (ret)
+            {
+                std::stringstream query;
+                query << "INSERT INTO stats VALUES("
+                      << rawtime << ","
+                      << mStats.min << ","
+                      << mStats.max << ","
+                      << mStats.current << ","
+                      << mStats.total
+                      << ");";
+#ifdef TAROT_DEBUG
+                std::cout << "Storing stats: " << query.str() << std::endl;
+#endif
+                Query(query.str());
+                Close();
+            }
+            mStats.total = 0U;
+            mMutex.unlock();
+        }
     }
 }
 /*****************************************************************************/
@@ -115,12 +160,12 @@ bool DataBase::Open(const std::string &fileName)
     return mValid;
 }
 /*****************************************************************************/
-std::vector<std::vector<Value> > DataBase::Query(const char *query)
+std::vector<std::vector<Value> > DataBase::Query(const std::string &query)
 {
     sqlite3_stmt *statement;
     std::vector<std::vector<Value> > results;
 
-    if (sqlite3_prepare_v2(mDb, query, -1, &statement, 0) == SQLITE_OK)
+    if (sqlite3_prepare_v2(mDb, query.c_str(), -1, &statement, 0) == SQLITE_OK)
     {
         int cols = sqlite3_column_count(statement);
 

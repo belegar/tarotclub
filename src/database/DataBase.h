@@ -46,12 +46,17 @@ public:
     DataBase();
     ~DataBase();
 
+    void Stop() { mStopRequested = true; mThread.join(); }
+
     // From IDataBase
     void Initialize();
-
     void AddPlayer();
-
     void DecPlayer();
+
+    // Database Helpers
+    bool Open(const std::string &fileName);
+    void Close();
+    std::vector<std::vector<Value> > Query(const std::string &query);
 
 private:
     sqlite3 *mDb;
@@ -63,12 +68,6 @@ private:
 
     // Server statistics
     IDataBase::Stats mStats;
-
-
-    // Database Helpers
-    bool Open(const std::string &fileName);
-    void Close();
-    std::vector<std::vector<Value> > Query(const char *query);
 
     // Thread
     static void EntryPoint(void *pthis);
