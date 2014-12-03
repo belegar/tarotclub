@@ -53,8 +53,8 @@ public:
     virtual ~IDataBase() { /* nothing to do */ }
 
     virtual void Initialize() = 0;
-
     virtual void AddPlayer() = 0;
+    virtual void DecPlayer() = 0;
 
 };
 
