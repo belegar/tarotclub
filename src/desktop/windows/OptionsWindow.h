@@ -111,7 +111,7 @@ public:
     void SetClientOptions(const ClientOptions &opt);
     void SetServerOptions(const ServerOptions &opt);
 
-public slots:
+private slots:
     void slotBtnOk();
     void slotBtnDefaut();
     void slotAvatarSelected(int id);
@@ -121,10 +121,9 @@ public slots:
     void slider1Changed(int);
     void slider2Changed(int);
     void slotBtnPixSud();
-    void slotBtnPixEst();
-    void slotBtnPixNord();
-    void slotBtnPixOuest();
+    void slotButtonBotAvatar();
     void slotColorPicker();
+    void slotBotSelected(int currentRow);
 
 private:
     Ui::OptionsUI  ui;
@@ -137,6 +136,8 @@ private:
     DragWidget *dragWidget;
     QMap<int, AvatarLabel *> mAvatarFiles;
     int mSelectedAvatar;
+    QStringList mLevelList;
+    int mPreviousSelectedBot;
 
     QString ChooseAvatar(const QString &defaultAvatar);
     void    refresh();

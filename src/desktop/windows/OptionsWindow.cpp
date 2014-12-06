@@ -24,6 +24,7 @@
  */
 
 #include "OptionsWindow.h"
+#include "Translations.h"
 #include <QDir>
 #include <QString>
 #include <QtWidgets>
@@ -249,6 +250,7 @@ int DragWidget::DetectLabel(int x)
 /*****************************************************************************/
 OptionsWindow::OptionsWindow(QWidget *parent)
     : QDialog(parent)
+    , mPreviousSelectedBot(-1)
 {
     ui.setupUi(this);
 
@@ -308,9 +310,7 @@ OptionsWindow::OptionsWindow(QWidget *parent)
 
     // Avatar choice
     connect(ui.btnPixSud, SIGNAL(clicked()), this, SLOT(slotBtnPixSud()));
-    connect(ui.btnPixEst, SIGNAL(clicked()), this, SLOT(slotBtnPixEst()));
-    connect(ui.btnPixNord, SIGNAL(clicked()), this, SLOT(slotBtnPixNord()));
-    connect(ui.btnPixOuest, SIGNAL(clicked()), this, SLOT(slotBtnPixOuest()));
+    connect(ui.buttonBotAvatar, SIGNAL(clicked()), this, SLOT(slotButtonBotAvatar()));
 
     // Background color choice
     connect(ui.tapisColor, SIGNAL(clicked()), this, SLOT(slotColorPicker()));
@@ -318,12 +318,12 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     // Disable the delay when the click option has been choosen
     connect(ui.clic, SIGNAL(stateChanged(int)), this, SLOT(slotClickOptionChanged(int)));
 
-    QStringList listeNiveaux;
-    listeNiveaux.append(tr("Beginner"));
+    mLevelList.append(tr("Beginner"));
 
-    ui.niveauEst->addItems(listeNiveaux);
-    ui.niveauNord->addItems(listeNiveaux);
-    ui.niveauOuest->addItems(listeNiveaux);
+    connect(ui.botsList, &QListWidget::currentRowChanged, this, &OptionsWindow::slotBotSelected);
+    ui.botsList->addItem(PlaceToString(Place::EAST));
+    ui.botsList->addItem(PlaceToString(Place::NORTH));
+    ui.botsList->addItem(PlaceToString(Place::WEST));
 
     dragWidget = new DragWidget();
     ui.iconsLayout->addWidget(dragWidget);
@@ -339,6 +339,7 @@ void OptionsWindow::SetServerOptions(const ServerOptions &opt)
 {
     serverOptions = opt;
     refresh();
+    ui.botsList->setCurrentRow(0);
 }
 /*****************************************************************************/
 ClientOptions &OptionsWindow::GetClientOptions()
@@ -359,6 +360,59 @@ void OptionsWindow::slotColorPicker()
         colorName = color.name();
         ui.tapisColor->setPalette(QPalette(color));
         ui.tapisColor->setAutoFillBackground(true);
+    }
+}
+/*****************************************************************************/
+void OptionsWindow::slotBotSelected(int currentRow)
+{
+    if (currentRow >= 0)
+    {
+        if (currentRow != mPreviousSelectedBot)
+        {
+            QPixmap im;
+
+            if (mPreviousSelectedBot >= 0)
+            {
+                Place place(mPreviousSelectedBot + 1U);
+                // Save previous bot configuration
+                serverOptions.bots[place].identity.name = ui.botName->text().toStdString();
+                serverOptions.bots[place].identity.quote = ui.botQuote->text().toStdString();
+                if (ui.botMale->isChecked())
+                {
+                    serverOptions.bots[place].identity.gender = Identity::MALE;
+                }
+                else
+                {
+                    serverOptions.bots[place].identity.gender = Identity::FEMALE;
+                }
+            }
+
+            mPreviousSelectedBot = currentRow;
+
+            ui.botAiLevel->clear();
+            ui.botAiLevel->addItems(mLevelList);
+            ui.botAiLevel->setCurrentIndex(0);
+
+            // Get the place of the selected bot
+            Place place(currentRow + 1U);
+
+            ui.botName->setText(QString(serverOptions.bots[place].identity.name.data()));
+            ui.botQuote->setText(QString(serverOptions.bots[place].identity.quote.data()));
+
+            if (serverOptions.bots[place].identity.gender == Identity::MALE)
+            {
+                ui.botMale->setChecked(true);
+            }
+            else
+            {
+                ui.botFemale->setChecked(true);
+            }
+
+            if (im.load(QString(serverOptions.bots[place].identity.avatar.data())) == true)
+            {
+                ui.botAvatar->setPixmap(im);
+            }
+        }
     }
 }
 /*****************************************************************************/
@@ -405,12 +459,6 @@ void OptionsWindow::slotBtnOk()
 
     // Server stuff
     serverOptions.timer = ui.slider1->value();
-    serverOptions.game_tcp_port = QString(ui.portReseau->text()).toInt();
-
-    serverOptions.bots[Place::EAST].identity.name = ui.nomJoueurEst->text().toStdString();
-    serverOptions.bots[Place::NORTH].identity.name = ui.nomJoueurNord->text().toStdString();
-    serverOptions.bots[Place::WEST].identity.name = ui.nomJoueurOuest->text().toStdString();
-
     accept();
 }
 /*****************************************************************************/
@@ -506,46 +554,20 @@ void OptionsWindow::slotBtnPixSud()
     ui.pixSud->setPixmap(im);
 }
 /*****************************************************************************/
-void OptionsWindow::slotBtnPixEst()
+void OptionsWindow::slotButtonBotAvatar()
 {
     QString s;
     QPixmap im;
 
-    s = ChooseAvatar(QString(serverOptions.bots[Place::EAST].identity.avatar.data()));
-    if (im.load(s) == false)
-    {
-        return;
-    }
-    serverOptions.bots[Place::EAST].identity.avatar = s.toStdString();
-    ui.pixEst->setPixmap(im);
-}
-/*****************************************************************************/
-void OptionsWindow::slotBtnPixNord()
-{
-    QString s;
-    QPixmap im;
+    Place place(ui.botsList->currentRow() + 1U);
 
-    s = ChooseAvatar(QString(serverOptions.bots[Place::NORTH].identity.avatar.data()));
+    s = ChooseAvatar(QString(serverOptions.bots[place].identity.avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[Place::NORTH].identity.avatar = s.toStdString();
-    ui.pixNord->setPixmap(im);
-}
-/*****************************************************************************/
-void OptionsWindow::slotBtnPixOuest()
-{
-    QString s;
-    QPixmap im;
-
-    s = ChooseAvatar(QString(serverOptions.bots[Place::WEST].identity.avatar.data()));
-    if (im.load(s) == false)
-    {
-        return;
-    }
-    serverOptions.bots[Place::WEST].identity.avatar = s.toStdString();
-    ui.pixOuest->setPixmap(im);
+    serverOptions.bots[place].identity.avatar = s.toStdString();
+    ui.botAvatar->setPixmap(im);
 }
 /*****************************************************************************/
 /**
@@ -597,27 +619,6 @@ void OptionsWindow::refresh()
 
     // server stuff
     ui.slider1->setValue(serverOptions.timer);
-    ui.portReseau->setValue(serverOptions.game_tcp_port);
-    ui.nomJoueurEst->setText(QString(serverOptions.bots[Place::EAST].identity.name.data()));
-    ui.nomJoueurNord->setText(QString(serverOptions.bots[Place::NORTH].identity.name.data()));
-    ui.nomJoueurOuest->setText(QString(serverOptions.bots[Place::WEST].identity.name.data()));
-
-    if (im.load(QString(serverOptions.bots[Place::EAST].identity.avatar.data())) == true)
-    {
-        ui.pixEst->setPixmap(im);
-    }
-    if (im.load(QString(serverOptions.bots[Place::NORTH].identity.avatar.data())) == true)
-    {
-        ui.pixNord->setPixmap(im);
-    }
-    if (im.load(QString(serverOptions.bots[Place::WEST].identity.avatar.data())) == true)
-    {
-        ui.pixOuest->setPixmap(im);
-    }
-
-    ui.niveauEst->setCurrentIndex(0);
-    ui.niveauNord->setCurrentIndex(0);
-    ui.niveauOuest->setCurrentIndex(0);
 }
 
 //=============================================================================
