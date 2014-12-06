@@ -51,6 +51,7 @@ VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/src/network
+VPATH += $$BASE_DIR/src/database
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
@@ -69,6 +70,7 @@ INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/network
+INCLUDEPATH += $$BASE_DIR/src/database
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -122,7 +124,7 @@ DEFINES += DUK_OPT_NO_JC
 # ------------------------------------------------------------------------------
 # JavaScript files
 # ------------------------------------------------------------------------------
-OTHER_FILES = beginner.js \
+OTHER_FILES = noob.js \
               system.js \
               card.js \
               util.js \
@@ -131,11 +133,6 @@ OTHER_FILES = beginner.js \
               player.js \
               bot.js \
               unit_test.js
-
-# ------------------------------------------------------------------------------
-# QML files
-# ------------------------------------------------------------------------------
-OTHER_FILES = DealViewer.qml
 
 # ------------------------------------------------------------------------------
 # Translation files
@@ -157,7 +154,9 @@ HEADERS += Log.h \
     TcpClient.h \
     UniqueId.h \
     System.h \
-    Value.h
+    Value.h \
+    IDataBase.h \
+    DummyDataBase.h
 
 SOURCES += Log.cpp \
     Util.cpp \

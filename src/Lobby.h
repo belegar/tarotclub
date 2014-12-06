@@ -24,6 +24,7 @@
 #include "ServerConfig.h"
 #include "Bot.h"
 #include "Users.h"
+#include "IDataBase.h"
 
 /*****************************************************************************/
 class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Controller::IEvent
@@ -32,7 +33,7 @@ class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Contr
 public:
     static const std::string LOBBY_VERSION_STRING;
 
-    Lobby();
+    Lobby(IDataBase &i_dataBase);
     ~Lobby();
 
     void Initialize(const ServerOptions &opt);
@@ -70,6 +71,7 @@ private:
     std::string GetTableName(const std::uint32_t tableId);
 	void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId);
 
+    IDataBase       &mDataBase;
     int             mTcpPort;
     TcpServer       mTcpServer;
     bool            mCreated;   ///< True if the table has been created

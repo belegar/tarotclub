@@ -36,6 +36,7 @@
 #include "ServerConfig.h"
 #include "GfxCard.h"
 #include "Canvas.h"
+#include "DummyDataBase.h"
 
 /*****************************************************************************/
 /**
@@ -135,6 +136,7 @@ public slots:
     void slotStartGame();
 
 private:
+    DummyDataBase   mDataBase;
     Lobby           mLobby;    // Embedded lobby into this executable
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
