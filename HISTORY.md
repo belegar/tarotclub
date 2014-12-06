@@ -3,7 +3,9 @@
 ## Desktop user interface
 
   * Information dock window: display king/queen etc. instead of 14, 13 .. and make hearts and diamonds in red
-  * Added more default icons
+  * Added more default avatar images
+  * Lobby: add buttons to manage the server list (add/remove)
+  * New option window for bots, allowing future custom bots configuration
 
 ## TarotClub network protocol
 
@@ -13,6 +15,13 @@
 
   * Removed lobby window initialization before showing it
   * Issue #26: impossible to play a local game after a network game
+
+## TCDS dedicated server / internals
+
+  * Use a different log filename than the desktop version (prefixed by "tcds" instead of "desktop")
+  * New option: the number of tournament turns is now configurable
+  * New option: parameter to choose the server web port (default 8080)
+  * Duktape upgraded to 1.02
 
 # Version 2.4 - Codename <Pirate!> (03/11/2014)
 

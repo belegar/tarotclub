@@ -1,53 +1,31 @@
 # Planned for 2.5 (Target date: January 2015)
-	
-## DONE
-
-  * Add new protocol command to get the list of tables instead of using a REST api
-  * Add server parameters (number of deals of the tournament, TCP port for the dedicated server …)
-  * TCDS JSON parameter to choose the server web port (default 8080)
-  * Duktape upgraded to 1.02
   
 ##  Desktop client
 
-  * Faire en sorte de choisir le nombre de donnes pour les tournois dans la prochaine version
+  * Add a GUI option to choose the number of tournament turns
   * Allow to choose an local avatar file /   * On devrait pouvoir importer une image perso 
-  
-  
   * Lobby: add buttons to add a bot on a table
-  * Lobby: add buttons to manage the server list (add/remove)
-  * Allow to add new server addresses in the lobby, save them in the configuration file
-  * Add new protocol command to get the list of tables instead of using a REST api
-
   * Allow to choose the AI script configuration file (user customization)
-  * Display icon close to the avatar when a player has declared a handle and/or a slam
-  * Peut on avoir de la couleur dans l'onglet information pour les coeurs et carreaux mais surtout les numeros 11 - 12 - 13 - 14... ce n'est vraiment pas intuitif, il faut reflechir...
-  * Create a old-style gradient (pale-yellow) in all the cards
-  * Indicate the table id and name in the deal file result --> filename only ?
  
 ## TCDS dedicated server 
 
   * Start to integrate the SQLite database for statistics (see design document)
-  * Use a different log filename than the desktop version
-  
-## Code architecture / engine
 
-  * Use a shared_ptr to pass a reference of the Protocol work thread to users (Lobby, client, )
-  * Dynamically create SVG images (usage of one card "background" for all the cards, and a set of illustrations for all the cards)
-  
 ## IA strategy
 
   * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
   * Par contre le preneur a encore joué le petit pour faire tomber les atouts .
+      
+# ---------------------------------------------- BACKLOG --------------------------------------------------
   
-    
-# BACKLOG
-  
-## Robustnesses
+## Code architecture / engine
 
   * Add a maximum play delay for network players, if timeout a random card is played
-  
+  * Use a shared_ptr to pass a reference of the Protocol work thread to users (Lobby, client, )
+
 ## New features
     
+  * Display icon close to the avatar when a player has declared a handle and/or a slam
   * Re-enable local server creation with the TarotClub desktop, includes the mongoose HTTP source to manage REST API
   * Use the Canvas to propose Handle (with the menu)
   * Change the Lobby protocol into JSON-RPC
@@ -85,8 +63,11 @@
   
 ## UI improvements / Gfx engine
   
+  * Create a old-style gradient (pale-yellow) in all the cards
   * Try wrap Qt UI elements to allow easy porting
   * Add animation when player cards are played
   * Dog / Handle: grey not allowed cards
   * Use an HTML5 canvas and JavaScript to allow an easy porting on all platforms
+  * Dynamically create SVG images (usage of one card "background" for all the cards, and a set of illustrations for all the cards)
+
 
