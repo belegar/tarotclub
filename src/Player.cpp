@@ -206,10 +206,18 @@ bool Player::TestPlayTrump(const Card &card, const PlayerStats &stats)
     }
     else
     {
-        // Does he have a trump to cut?
+        // Does he have a trump?
         if (stats.hasTrump == true)
         {
-            ret = false; // he must play a trump
+            // If he has only one trump and this trump is the fool, then he can play any card
+            if (stats.highestTrumpValue == 0)
+            {
+                ret = true;
+            }
+            else
+            {
+                ret = false; // he must play a trump
+            }
         }
         else
         {

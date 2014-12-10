@@ -3,6 +3,7 @@
 ## Desktop user interface
 
   * Information dock window: display king/queen etc. instead of 14, 13 .. and make hearts and diamonds in red
+  * Add a GUI option to choose the number of tournament turns
   * Added more default avatar images
   * Lobby: add buttons to manage the server list (add/remove)
   * New option window for bots, allowing future custom bots configuration
@@ -15,6 +16,7 @@
 
   * Removed lobby window initialization before showing it
   * Issue #26: impossible to play a local game after a network game
+  * Issue #33: Excuse must be played when no more trumps
 
 ## TCDS dedicated server / internals
 
@@ -22,6 +24,8 @@
   * New option: the number of tournament turns is now configurable
   * New option: parameter to choose the server web port (default 8080)
   * Duktape upgraded to 1.02
+  * Integration of the SQLite database for statistics
+  * Embedded webpage to manage the server (first version)
 
 # Version 2.4 - Codename <Pirate!> (03/11/2014)
 

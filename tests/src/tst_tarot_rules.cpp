@@ -113,6 +113,19 @@ void TarotRules::TestCanPlayCard()
     TestCard("07-D", true);
     TestCard("13-C", true);
 
+    // ===================================
+    // Test 6: The player has only the excuse and trick suit is trump ;
+    // He can play any card.
+    // ===================================
+    player.SetCards("12-C;12-H;10-H;02-H;03-H;13-C;05-H;00-T;11-C;07-D;09-C"); // only one excuse
+
+    currentTrick.SetCards("19-T;12-T;10-T");
+
+    // Any card is correct
+    TestCard("00-T", true);
+    TestCard("12-C", true);
+    TestCard("07-D", true);
+    TestCard("02-H", true);
 }
 
 void TarotRules::TestScoreCalculation()
