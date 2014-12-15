@@ -25,6 +25,7 @@
 
 #include "OptionsWindow.h"
 #include "Translations.h"
+#include "Avatar.h"
 #include <QDir>
 #include <QString>
 #include <QtWidgets>
@@ -575,8 +576,6 @@ void OptionsWindow::slotButtonBotAvatar()
  */
 void OptionsWindow::refresh()
 {
-    QPixmap im;
-
     ui.nomJoueurSud->setText(QString(clientOptions.identity.name.data()));
     ui.citationSud->setText(QString(clientOptions.identity.quote.data()));
     if (clientOptions.identity.gender == Identity::MALE)
@@ -590,10 +589,26 @@ void OptionsWindow::refresh()
     ui.afficheAvatars->setChecked(clientOptions.showAvatars);
     ui.langList->setCurrentIndex(clientOptions.language);
     indexLangue = clientOptions.language;
-    if (im.load(QString(clientOptions.identity.avatar.data())) == true)
+
+    QString fileName = QString(clientOptions.identity.avatar.data());
+    Avatar avatar(fileName);
+
+    if (avatar.IsValid())
     {
-        ui.pixSud->setPixmap(im);
+        if (avatar.IsHttp())
+        {
+            ui.radioHttp->setChecked(true);
+            ui.lineEditHttpAvatar->setEnabled(true);
+            ui.lineEditHttpAvatar->setText(fileName);
+        }
+        else
+        {
+            ui.radioPredefined->setChecked(true);
+            ui.lineEditHttpAvatar->setEnabled(false);
+        }
+        ui.pixSud->setPixmap(avatar.GetPixmap());
     }
+
     QColor color(clientOptions.backgroundColor.c_str());
     if (color.isValid())
     {
