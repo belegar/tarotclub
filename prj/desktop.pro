@@ -157,7 +157,7 @@ HEADERS += Log.h \
     Value.h \
     IDataBase.h \
     DummyDataBase.h \
-    ../src/gfxlib/Avatar.h
+    Avatar.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -170,7 +170,7 @@ SOURCES += Log.cpp \
     UniqueId.cpp \
     System.cpp \
     Value.cpp \
-    ../src/gfxlib/Avatar.cpp
+    Avatar.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
