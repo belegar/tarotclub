@@ -42,6 +42,9 @@ InfosDock::InfosDock(QWidget *parent)
 
     ui.tableWidget->setRowCount(18);
 
+    QHeaderView *hv = ui.tableWidget->horizontalHeader();
+    hv->setSectionResizeMode(QHeaderView::Stretch);
+
     for (i = 0; i < 4; i++)
     {
         for (j = 0; j < 18; j++)
