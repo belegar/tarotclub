@@ -244,7 +244,8 @@ HEADERS += Canvas.h \
     MessageBoxItem.h \
     IButtonEvent.h \
     ICardEvent.h \
-    Translations.h
+    Translations.h \
+    RectBase.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
@@ -269,7 +270,7 @@ FORMS += AboutUI.ui \
     DealEditorUI.ui \
     QuickJoin.ui \
     LobbyUI.ui \
-    ../src/desktop/forms/NewServerUI.ui
+    NewServerUI.ui
 
 HEADERS += AboutWindow.h \
     MainWindow.h \

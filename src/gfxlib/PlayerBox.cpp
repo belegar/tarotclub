@@ -31,7 +31,9 @@
 
 /*****************************************************************************/
 PlayerBox::PlayerBox(Layout layout)
-    : mName(QPointF(0, 0))
+    : RectBase(true)
+    , mNameColor("#808080")
+    , mName(QPointF(0, 0))
     , mBid(QPointF(0, 0))
     , mLayout(layout)
 {
@@ -53,13 +55,6 @@ PlayerBox::PlayerBox(Layout layout)
         mBid.setPos(2 * SPACE_BETWEEN_ITEMS + mAvatar.boundingRect().width(), mName.boundingRect().height() + 2 * SPACE_BETWEEN_ITEMS);
     }
 
-    QRadialGradient gradient;
-    gradient.setCenter(boundingRect().width() / 2, boundingRect().height() / 2);
-    gradient.setRadius(boundingRect().width() * 2.0);
-    gradient.setColorAt( 0, QColor("#5A310D") );
-    gradient.setColorAt( 1, Qt::black);
-    setBrush(gradient);
-
     // Init with defaut image
     mAvatar.setParentItem(this);
     mAvatar.setPixmap(QPixmap()); // empty pixmap
@@ -70,66 +65,13 @@ PlayerBox::PlayerBox(Layout layout)
     mName.setParentItem(this);
     mName.setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     mName.show();
-    SetBackgroundColor(Qt::gray, NAME_BOX);
+    mName.setBrush(mNameColor);
 
     // bid box
     mBid.setParentItem(this);
     mBid.SetTextColor(Qt::white);
     mBid.show();
-    SetBackgroundColor(Qt::red, BID_BOX);
-
-    // Create a drop-shadow under the card
-    mShadow.setBlurRadius(15.0);
-    mShadow.setColor(Qt::black);
-    mShadow.setOffset(0, 0);
-    setGraphicsEffect(&mShadow);
-}
-/*****************************************************************************/
-void PlayerBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    // Paint with specified color and pen
-    painter->setRenderHint(QPainter::Antialiasing);
-
-    QPen pen;
-    pen.setColor("#C68E17");
-    pen.setWidth(3);
-    painter->setPen(pen);
-    painter->setBrush(brush());
-    painter->drawRoundRect(rect(), (int)(15 * rect().height()
-                                         / rect().width()), 15);
-}
-/*****************************************************************************/
-void PlayerBox::SetBackgroundColor(Qt::GlobalColor color, Box box)
-{
-    QPointF start, stop;
-
-    if (box == NAME_BOX)
-    {
-        start = mName.rect().topLeft();
-        stop = mName.rect().bottomLeft();
-    }
-    else
-    {
-        start = mBid.rect().topLeft();
-        stop = mBid.rect().bottomLeft();
-    }
-
-    QLinearGradient gradient(start, stop);
-
-    gradient.setColorAt(0.0, Qt::transparent);
-    gradient.setColorAt(1.0, color);
-
-    if (box == NAME_BOX)
-    {
-        mName.setBrush(gradient);
-    }
-    else
-    {
-        mBid.setBrush(gradient);
-    }
+    mBid.setBrush(Qt::red);
 }
 /*****************************************************************************/
 void PlayerBox::SetAvatar(const QString &av)
@@ -179,7 +121,7 @@ void PlayerBox::SelectPlayer(bool selected)
     if (selected == true)
     {
         width = 2;
-        color = Qt::red;
+        color = Qt::darkRed;
     }
     else
     {
@@ -194,11 +136,11 @@ void PlayerBox::HighlightPlayer(bool highlighted)
 {
     if (highlighted == true)
     {
-        SetBackgroundColor(Qt::yellow, NAME_BOX);
+        mName.setBrush(Qt::darkYellow);
     }
     else
     {
-        SetBackgroundColor(Qt::gray, NAME_BOX);
+        mName.setBrush(mNameColor);
     }
     update();
 }

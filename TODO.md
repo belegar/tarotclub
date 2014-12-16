@@ -2,14 +2,9 @@
   
 ##  Desktop client
 
-  * Add a GUI option to choose the number of tournament turns
   * Allow to choose an local avatar file /   * On devrait pouvoir importer une image perso 
   * Lobby: add buttons to add a bot on a table
   * Allow to choose the AI script configuration file (user customization)
- 
-## TCDS dedicated server 
-
-  * Start to integrate the SQLite database for statistics (see design document)
 
 ## IA strategy
 

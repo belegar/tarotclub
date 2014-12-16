@@ -64,6 +64,7 @@ INCLUDEPATH += $$BASE_DIR/src/database
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
+INCLUDEPATH += $$BASE_DIR/src/network
 INCLUDEPATH += $$BASE_DIR/tests/src
 
 
