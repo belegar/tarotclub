@@ -26,17 +26,15 @@
 #ifndef MESSAGE_BOX_ITEM_H_
 #define MESSAGE_BOX_ITEM_H_
 
-#include <QGraphicsRectItem>
+#include "RectBase.h"
 #include <QGraphicsTextItem>
 #include <QRectF>
 
 /*****************************************************************************/
-class MessageBoxItem : public QGraphicsRectItem
+class MessageBoxItem : public RectBase
 {
 public:
     MessageBoxItem();
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     void SetText(const QString &text, const QSize &size);
     void SetBorder(const QRectF &border)

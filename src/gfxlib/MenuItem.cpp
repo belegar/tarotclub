@@ -59,7 +59,7 @@ static const std::uint8_t buttonMenu[] =
 
 /*****************************************************************************/
 MenuItem::MenuItem(IButtonEvent *event)
-    : color(149, 149, 149, 127)
+    : RectBase(false)
     , checkBox(this, SPACE)
 {
     setRect(0, 0, PlayerBox::PLAYER_BOX_WIDTH_HOR, 130);
@@ -77,7 +77,6 @@ MenuItem::MenuItem(IButtonEvent *event)
         button->hide();
         buttons.push_back(button);
     }
-
     checkBox.hide();
 }
 /*****************************************************************************/
@@ -107,19 +106,6 @@ void MenuItem::Initialize()
     }
     checkBox.SetText(QObject::tr("Slam"));
 }
-/*****************************************************************************/
-void MenuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    // Paint with specified color and pen
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->setBrush(QBrush(color));
-    painter->setPen(QPen(Qt::white));
-    painter->drawRoundRect(rect(), (int)(25 * rect().height()
-                                         / rect().width()), 25);
- }
 /*****************************************************************************/
 void MenuItem::DisplayMenu(std::uint8_t menu)
 {

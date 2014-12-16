@@ -26,16 +26,14 @@
 #ifndef POPUP_ITEM_H_
 #define POPUP_ITEM_H_
 
-#include <QGraphicsRectItem>
+#include "RectBase.h"
 #include <QRectF>
 
 /*****************************************************************************/
-class PopupItem : public QGraphicsRectItem
+class PopupItem : public RectBase
 {
 public:
     PopupItem();
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     // Helpers
     void DrawItems(const QList<QGraphicsItem *> &items);

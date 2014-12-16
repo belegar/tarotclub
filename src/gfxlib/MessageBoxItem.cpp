@@ -32,27 +32,12 @@
 
 /*****************************************************************************/
 MessageBoxItem::MessageBoxItem()
+    : RectBase(false)
 {
     mText.setParentItem(this);
     mText.setZValue(4.0);
 
-    setBrush(QColor("#808080"));
-    setPen(QPen(Qt::white));
     setZValue(3.0);
-}
-/*****************************************************************************/
-void MessageBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    // Paint with specified color and pen
-    painter->setRenderHint(QPainter::Antialiasing);
-
-    painter->setPen(pen());
-    painter->setBrush(brush());
-    painter->drawRoundRect(rect(), (int)(25 * rect().height()
-                                         / rect().width()), 25);
 }
 /*****************************************************************************/
 void MessageBoxItem::SetText(const QString &text, const QSize &size)
@@ -65,6 +50,7 @@ void MessageBoxItem::SetText(const QString &text, const QSize &size)
     setRect(x, y, size.width(), size.height());
 
     mText.setHtml(text);
+    mText.setDefaultTextColor(QColor(Qt::white));
 }
 
 

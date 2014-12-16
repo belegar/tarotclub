@@ -27,7 +27,6 @@
 #define MENU_ITEM_H_
 
 // Qt includes
-#include <QGraphicsRectItem>
 #include <QGraphicsSvgItem>
 #include <QtGui>
 
@@ -37,9 +36,10 @@
 #include "CheckBoxItem.h"
 #include "CustomTypes.h"
 #include "ButtonItem.h"
+#include "RectBase.h"
 
 /*****************************************************************************/
-class MenuItem : public QGraphicsRectItem
+class MenuItem : public RectBase
 {
 public:
     MenuItem(IButtonEvent *event);
@@ -64,12 +64,10 @@ public:
     static const std::uint8_t DISCARD_MENU  = 3U;
     static const std::uint8_t MAIN_MENU     = 4U;
 
-
     enum { Type = UserType + MENU_TYPE_ITEM };
 
     // Virtual methods
     int type() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     // Helpers
     void DisplayMenu(std::uint8_t menu);
@@ -83,7 +81,6 @@ public:
 private:
     QPointF GetButtonPosition(std::uint32_t pos);
 
-    QColor color;
     std::vector<ButtonItem *> buttons; // menu type, button
     CheckBoxItem checkBox;
 };

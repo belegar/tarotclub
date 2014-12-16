@@ -29,6 +29,7 @@
 // Qt includes
 #include "TextBox.h"
 #include "GfxCard.h"
+#include "RectBase.h"
 
 #define SPACE_BETWEEN_ITEMS 10
 
@@ -70,7 +71,7 @@ private:
  *   - a nickname text box
  *   - a bid text box
  */
-class PlayerBox : public QGraphicsRectItem
+class PlayerBox : public RectBase
 {
 
 public:
@@ -98,19 +99,11 @@ public:
     void SetPlayerName(const QString &text);
 
 private:
-    enum Box
-    {
-        NAME_BOX,
-        BID_BOX
-    };
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void SetBackgroundColor(Qt::GlobalColor color, Box box);
+    QColor mNameColor;
     AvatarItem mAvatar;
     TextBox mName;
     TextBox mBid;
     Layout mLayout;
-    QGraphicsDropShadowEffect mShadow;
 };
 
 #endif // PLAYER_BOX_H

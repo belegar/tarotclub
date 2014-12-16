@@ -111,6 +111,7 @@ Canvas::Canvas(QWidget *parent)
     mMenuItem.setPos(MENU_POS_X, MENU_POS_Y);
     mMenuItem.show();
     mScene.addItem(&mMenuItem);
+    mMenuItem.setZValue(100);
 
     mPopupItem.hide();
     mScene.addItem(&mPopupItem);
