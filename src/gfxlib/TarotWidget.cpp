@@ -647,6 +647,7 @@ void TarotWidget::slotBuildDiscard()
 void TarotWidget::slotAskForHandle()
 {
     mMyHandle.Clear();
+    bool declareHandle = false;
 
     // If we're about to play the first card, the Player is allowed to declare a handle
     // If a handle exists in the player's deck, we propose to declare it
@@ -658,8 +659,13 @@ void TarotWidget::slotAskForHandle()
                                         QMessageBox::Yes | QMessageBox::No);
         if (ret == QMessageBox::Yes)
         {
-            mCanvas->SetFilter(Canvas::CARDS);
+            declareHandle = true;
         }
+    }
+
+    if (declareHandle)
+    {
+        mCanvas->SetFilter(Canvas::CARDS);
     }
     else
     {
