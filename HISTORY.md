@@ -15,8 +15,10 @@
 ## Corrected issues
 
   * Removed lobby window initialization before showing it
+  * Deal table widget is now correctly stretched
   * Issue #26: impossible to play a local game after a network game
   * Issue #33: Excuse must be played when no more trumps
+  * Issue #28, #34: Game blocked if handle declaration is refused
 
 ## TCDS dedicated server / internals
 

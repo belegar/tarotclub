@@ -1,5 +1,7 @@
 # Planned for 2.5 (Target date: January 2015)
-  
+ 
+## Internet website: add an Ubuntu 32 bits download link.
+ 
 ##  Desktop client
 
   * Allow to choose an local avatar file /   * On devrait pouvoir importer une image perso 
