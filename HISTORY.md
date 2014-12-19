@@ -7,6 +7,7 @@
   * Added more default avatar images
   * Lobby: add buttons to manage the server list (add/remove)
   * New option window for bots, allowing future custom bots configuration
+  * Allow to choose an local avatar file or import/use a remote image file via an URL
 
 ## TarotClub network protocol
 

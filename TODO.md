@@ -3,68 +3,82 @@
 ## Internet website: add an Ubuntu 32 bits download link.
  
 ##  Desktop client
-
-  * Allow to choose an local avatar file /   * On devrait pouvoir importer une image perso 
+  
   * Lobby: add buttons to add a bot on a table
-  * Allow to choose the AI script configuration file (user customization)
-
+  * Allow to display HTTP avatars of network players
+ 
+# ---------------------------------------------- VERSION 2.6 --------------------------------------------------
+ 
+##  Desktop client
+  
+  * Allow to choose the AI script configuration file (user customization) from the GUI option
+  * New option for no avatar
+  * Save and load game
+  
 ## IA strategy
 
   * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
   * Par contre le preneur a encore joué le petit pour faire tomber les atouts .
-      
-# ---------------------------------------------- BACKLOG --------------------------------------------------
+  * Don't display the avatar box when no avatar is selected    
+
+## UI improvements / Gfx engine
   
-## Code architecture / engine
+  * Create a old-style gradient (pale-yellow) in all the cards
+  * Add animation when player cards are played
+
+## Code architecture / engine / network
 
   * Add a maximum play delay for network players, if timeout a random card is played
-  * Use a shared_ptr to pass a reference of the Protocol work thread to users (Lobby, client, )
+  * New network commands: change nick, change avatar
+  * Dedicated server information and commands (display stats, tables and players)
+  
+# ---------------------------------------------- BACKLOG --------------------------------------------------  
+  
+## Code architecture / engine / network
 
-## New features
-    
+  * Use a shared_ptr to pass a reference of the Protocol work thread to users (Lobby, client, )
+  * Change the network protocol into JSON-RPC
+  * Encrypted protocol / authenticated server
+  * WebSocket server (allow HTML5 JS clients)
+  * Log raw bad packets with IPs 
+  * Create an Observer status to only be a spectator for a current game
+  
+##  Desktop client
+  
   * Display icon close to the avatar when a player has declared a handle and/or a slam
   * Re-enable local server creation with the TarotClub desktop, includes the mongoose HTTP source to manage REST API
   * Use the Canvas to propose Handle (with the menu)
-  * Change the Lobby protocol into JSON-RPC
   * Lobby improvements: see status, number of connected players, scores, player names
-  * New network commands: change nick, change avatar
   * Add title in popup window (to show the dog or handle)
   * Add an option to display the deals window at the end of a played deal
   * Display the dog / discard at the end of the deal
   * Display all the played cards at the end of the deal
   * Display the player's declared handle by clicking on the icon
   * J'aimerais bien qu'un clic droit sur une carte l'affiche par dessus les autres afin de bien la voir
-  * WebSocket server (allow HTML5 JS clients)
   * Create a previous trick dock window (to comply to the offcial Tarot rules, even if it is redundant with the deal info dock)
-  * Server protocol for remote management
-  * Client/Server stuff (commands, disconnections, replace a disconnected client by a bot …)
-  * Log raw bad packets with IPs 
   * Pour les poignées, le probleme c'est que ca affiche juste poignée, il faudrait que ca precise, double, triple... voire meme, encore mieux qu'il propose les differentes possibilité poignées (grisé si pas assez d'atout), et si on clic il choisit les cartes, a ce moment on peut les modifier si on en a plus et on valide le tout...	
   * Show a tournament podium at the end
-  * Allow to display HTTP avatars
   * Show the discard at the end of the deal (and the points)
   * Statistic graphs (points at each round)
-  * Save and load game
   * Display IP address of the newly created server for convenience (for self-hosted games)
-  * Open the server side game mode to allow scripting new game modes (or at least, json configuration file for participants)
-  * Championship system with points
-  * Different game modes (legacy Tarot Rules, Uno style, Magic style …)
-  * Championship mode like in football
-  * Create an Observer status to only be a spectator for a current game
+
+## Game modes
+
   * 3 and 5 players game
-  * Encrypted protocol / authenticated server
-  * Create a website with registered users ; link the TarotClub server with these users
-  * Mac OS X version
-  * iPhone version
-  * Windows Phone version
+  * Different game modes (legacy Tarot Rules, Uno style, Magic style …)
+  * Championship mode like in football  / with points
   
 ## UI improvements / Gfx engine
   
-  * Create a old-style gradient (pale-yellow) in all the cards
   * Try wrap Qt UI elements to allow easy porting
-  * Add animation when player cards are played
   * Dog / Handle: grey not allowed cards
   * Use an HTML5 canvas and JavaScript to allow an easy porting on all platforms
   * Dynamically create SVG images (usage of one card "background" for all the cards, and a set of illustrations for all the cards)
 
+## Porting to other OS
 
+  * Mac OS X version
+  * iPhone version
+  * Windows Phone version
+  * FreeBSD TCDS compatibility
+  
