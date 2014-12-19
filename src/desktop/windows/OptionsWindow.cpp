@@ -25,7 +25,6 @@
 
 #include "OptionsWindow.h"
 #include "Translations.h"
-#include "Avatar.h"
 #include <QDir>
 #include <QString>
 #include <QtWidgets>
@@ -58,6 +57,9 @@ static const std::uint8_t suitList[5] =
 };
 
 static const QSize labelSize(40, 40);
+
+static const int cLocalRadioButtonId = 1U;
+static const int cPredefinedRadioButtonId = 2U;
 
 /*****************************************************************************/
 DragWidget::DragWidget(QWidget *parent)
@@ -252,6 +254,7 @@ int DragWidget::DetectLabel(int x)
 OptionsWindow::OptionsWindow(QWidget *parent)
     : QDialog(parent)
     , mPreviousSelectedBot(-1)
+    , mImportAvatarWindow(this)
 {
     ui.setupUi(this);
 
@@ -312,12 +315,18 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     // Avatar choice
     connect(ui.btnPixSud, SIGNAL(clicked()), this, SLOT(slotBtnPixSud()));
     connect(ui.buttonBotAvatar, SIGNAL(clicked()), this, SLOT(slotButtonBotAvatar()));
+    connect(ui.buttonImport, &QPushButton::clicked, this, &OptionsWindow::slotImportAvatar);
 
     // Background color choice
     connect(ui.tapisColor, SIGNAL(clicked()), this, SLOT(slotColorPicker()));
 
     // Disable the delay when the click option has been choosen
     connect(ui.clic, SIGNAL(stateChanged(int)), this, SLOT(slotClickOptionChanged(int)));
+
+    // Enable/disable the custom avatar URL
+    mRadioGroup.addButton(ui.radioLocal, cLocalRadioButtonId);
+    mRadioGroup.addButton(ui.radioPredefined, cPredefinedRadioButtonId);
+    connect (&mRadioGroup, SIGNAL(buttonToggled(int,bool)), this, SLOT(slotButtonToggled(int,bool)));
 
     mLevelList.append(tr("Beginner"));
 
@@ -333,13 +342,11 @@ OptionsWindow::OptionsWindow(QWidget *parent)
 void OptionsWindow::SetClientOptions(const ClientOptions &opt)
 {
     clientOptions = opt;
-    refresh();
 }
 /*****************************************************************************/
 void OptionsWindow::SetServerOptions(const ServerOptions &opt)
 {
     serverOptions = opt;
-    refresh();
     ui.botsList->setCurrentRow(0);
 }
 /*****************************************************************************/
@@ -417,6 +424,23 @@ void OptionsWindow::slotBotSelected(int currentRow)
     }
 }
 /*****************************************************************************/
+void OptionsWindow::slotButtonToggled(int id, bool checked)
+{
+    if (id == cLocalRadioButtonId)
+    {
+        if (checked == true)
+        {
+            ui.buttonImport->setEnabled(true);
+            ui.btnPixSud->setEnabled(false);
+        }
+    }
+    else
+    {
+        ui.buttonImport->setEnabled(false);
+        ui.btnPixSud->setEnabled(true);
+    }
+}
+/*****************************************************************************/
 void OptionsWindow::slotBtnOk()
 {
     clientOptions.identity.name = ui.nomJoueurSud->text().toStdString();
@@ -467,7 +491,7 @@ void OptionsWindow::slotBtnDefaut()
 {
     clientOptions = ClientConfig::GetDefault();
     serverOptions = ServerConfig::GetDefault();
-    refresh();
+    Refresh();
 }
 /*****************************************************************************/
 void OptionsWindow::slider1Changed(int value)
@@ -571,10 +595,20 @@ void OptionsWindow::slotButtonBotAvatar()
     ui.botAvatar->setPixmap(im);
 }
 /*****************************************************************************/
+void OptionsWindow::slotImportAvatar()
+{
+    mImportAvatarWindow.SetFilePath(QString(clientOptions.identity.avatar.c_str()));
+    if (mImportAvatarWindow.exec() == QDialog::Accepted)
+    {
+        clientOptions.identity.avatar = mImportAvatarWindow.GetFilePath().toStdString();
+        ui.pixSud->setPixmap(mImportAvatarWindow.GetPixmap());
+    }
+}
+/*****************************************************************************/
 /**
  * @brief Refresh widgets with current configuration
  */
-void OptionsWindow::refresh()
+void OptionsWindow::Refresh()
 {
     ui.nomJoueurSud->setText(QString(clientOptions.identity.name.data()));
     ui.citationSud->setText(QString(clientOptions.identity.quote.data()));
@@ -590,23 +624,24 @@ void OptionsWindow::refresh()
     ui.langList->setCurrentIndex(clientOptions.language);
     indexLangue = clientOptions.language;
 
-    QString fileName = QString(clientOptions.identity.avatar.data());
-    Avatar avatar(fileName);
+    QString filename = QString(clientOptions.identity.avatar.c_str());
 
-    if (avatar.IsValid())
+    if (filename[0] == ':')
     {
-        if (avatar.IsHttp())
+        ui.radioPredefined->setChecked(true);
+        ui.buttonImport->setEnabled(false);
+        ui.btnPixSud->setEnabled(true);
+    }
+    else
+    {
+        if (Avatar::ExistsInLocalDirectory(filename))
         {
-            ui.radioHttp->setChecked(true);
-            ui.lineEditHttpAvatar->setEnabled(true);
-            ui.lineEditHttpAvatar->setText(fileName);
+            ui.pixSud->setPixmap(Avatar::GetLocalPath(filename));
         }
-        else
-        {
-            ui.radioPredefined->setChecked(true);
-            ui.lineEditHttpAvatar->setEnabled(false);
-        }
-        ui.pixSud->setPixmap(avatar.GetPixmap());
+
+        ui.radioLocal->setChecked(true);
+        ui.buttonImport->setEnabled(true);
+        ui.btnPixSud->setEnabled(false);
     }
 
     QColor color(clientOptions.backgroundColor.c_str());

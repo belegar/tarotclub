@@ -236,6 +236,7 @@ void MainWindow::slotShowOptions()
 {
     optionsWindow->SetClientOptions(mClientConfig.GetOptions());
     optionsWindow->SetServerOptions(mServerConfig.GetOptions());
+    optionsWindow->Refresh();
 
     if (optionsWindow->exec() == QDialog::Accepted)
     {

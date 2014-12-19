@@ -37,6 +37,7 @@
 #include "ClientConfig.h"
 #include "ServerConfig.h"
 #include "Card.h"
+#include "ImportAvatarWindow.h"
 
 class QDragEnterEvent;
 class QDropEvent;
@@ -111,6 +112,8 @@ public:
     void SetClientOptions(const ClientOptions &opt);
     void SetServerOptions(const ServerOptions &opt);
 
+    void Refresh();
+
 private slots:
     void slotBtnOk();
     void slotBtnDefaut();
@@ -124,6 +127,8 @@ private slots:
     void slotButtonBotAvatar();
     void slotColorPicker();
     void slotBotSelected(int currentRow);
+    void slotButtonToggled(int id, bool checked);
+    void slotImportAvatar();
 
 private:
     Ui::OptionsUI  ui;
@@ -138,9 +143,10 @@ private:
     int mSelectedAvatar;
     QStringList mLevelList;
     int mPreviousSelectedBot;
+    QButtonGroup mRadioGroup;
+    ImportAvatarWindow mImportAvatarWindow;
 
     QString ChooseAvatar(const QString &defaultAvatar);
-    void    refresh();
 
 };
 
