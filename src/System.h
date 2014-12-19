@@ -62,6 +62,11 @@ public:
         return mScriptPath;
     }
 
+    static std::string AvatarPath()
+    {
+        return mHomePath + "avatars" + Util::DIR_SEPARATOR;
+    }
+
     static void Initialize();
 
 private:

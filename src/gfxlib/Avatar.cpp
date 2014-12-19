@@ -24,17 +24,32 @@
  */
 
 #include "Avatar.h"
+#include "System.h"
 
 /*****************************************************************************/
-Avatar::Avatar(const QString &fileName)
-    : mHttp(false)
-    , mValid(false)
+Avatar::Avatar()
 {
-    if (fileName.size() > 0)
+
+}
+/*****************************************************************************/
+void Avatar::SetFilePath(const QString &filePath)
+{
+    mFilePath = filePath;
+}
+/*****************************************************************************/
+bool Avatar::LoadFile()
+{
+    bool success = false;
+
+    if (IsLocal())
     {
-        if (fileName[0] != ':')
+        success = mPixmap.load(mFilePath);
+    }
+    else
+    {
+        if (IsValid())
         {
-            QNetworkReply *reply = mNetworkManager.get(QNetworkRequest(QUrl(fileName)));
+            QNetworkReply *reply = mNetworkManager.get(QNetworkRequest(QUrl::fromUserInput(mFilePath)));
 
             QEventLoop loop;
             connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
@@ -43,27 +58,48 @@ Avatar::Avatar(const QString &fileName)
             const QByteArray data(reply->readAll());
             if (data.size() > 0)
             {
-                mValid = mPixmap.loadFromData(data);
-                mHttp = true;
+                success = mPixmap.loadFromData(data);
             }
             reply->deleteLater();
         }
-        else
-        {
-            mValid = mPixmap.load(fileName);
-        }
     }
 
+    return success;
 }
 /*****************************************************************************/
-bool Avatar::IsHttp()
+/**
+ * @brief Save the Pixmap to the TarotClub avatars directory
+ * @return
+ */
+bool Avatar::SaveToLocalDirectory()
 {
-    return mHttp;
+    bool ret = false;
+    if (IsValid())
+    {
+        ret = mPixmap.save(QString(System::AvatarPath().c_str()) + QFileInfo(mFilePath).fileName());
+    }
+    return ret;
 }
 /*****************************************************************************/
-bool Avatar::IsValid()
+bool Avatar::ExistsInLocalDirectory(const QString &filePath)
 {
-    return mValid;
+    QFileInfo info(GetLocalPath(filePath));
+    return info.exists();
+}
+/*****************************************************************************/
+QString Avatar::GetLocalPath(const QString &filePath)
+{
+    return QString(System::AvatarPath().c_str()) + QFileInfo(filePath).fileName();
+}
+/*****************************************************************************/
+bool Avatar::IsLocal() const
+{
+    return QUrl::fromUserInput(mFilePath).isLocalFile();
+}
+/*****************************************************************************/
+bool Avatar::IsValid() const
+{
+    return QUrl::fromUserInput(mFilePath).isValid();
 }
 /*****************************************************************************/
 QPixmap Avatar::GetPixmap()

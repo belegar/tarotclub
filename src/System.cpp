@@ -88,6 +88,10 @@ void System::Initialize()
     {
         Util::Mkdir(LogPath());
     }
+    if (!Util::FolderExists(AvatarPath()))
+    {
+        Util::Mkdir(AvatarPath());
+    }
 
     if (!TcpSocket::Initialize())
     {

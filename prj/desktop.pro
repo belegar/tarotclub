@@ -270,7 +270,8 @@ FORMS += AboutUI.ui \
     DealEditorUI.ui \
     QuickJoin.ui \
     LobbyUI.ui \
-    NewServerUI.ui
+    NewServerUI.ui \
+    ImportAvatar.ui
 
 HEADERS += AboutWindow.h \
     MainWindow.h \
@@ -281,7 +282,8 @@ HEADERS += AboutWindow.h \
     ChatDock.h \
     DebugDock.h \
     LobbyWindow.h \
-    DealsWindow.h
+    DealsWindow.h \
+    ImportAvatarWindow.h
 
 SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
@@ -293,6 +295,7 @@ SOURCES += AboutWindow.cpp \
     DebugDock.cpp \    
     LobbyWindow.cpp \
     DealsWindow.cpp \
+    ImportAvatarWindow.cpp \
     main.cpp
 
 # End of project file

@@ -36,18 +36,24 @@ class Avatar : public QObject
     Q_OBJECT
 
 public:
-    Avatar(const QString& fileName);
+    Avatar();
 
-    bool IsHttp();
-    bool IsValid();
+    bool IsLocal() const;
+    bool IsValid() const;
     QPixmap GetPixmap();
+    QString GetFilePath() { return mFilePath; }
+    void SetFilePath(const QString &filePath);
+    bool LoadFile();
+    bool SaveToLocalDirectory();
+
+    // Static methods
+    static bool ExistsInLocalDirectory(const QString &filePath);
+    static QString GetLocalPath(const QString &filePath);
 
 private:
     QPixmap mPixmap;
+    QString mFilePath;
     QNetworkAccessManager mNetworkManager;
-    bool mHttp;
-    bool mValid;
-
 };
 
 #endif // AVATAR_H
