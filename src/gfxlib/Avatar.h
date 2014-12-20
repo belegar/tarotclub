@@ -40,13 +40,15 @@ public:
     Avatar(const QString &filePath);
 
     bool IsLocal() const;
+    bool IsPredefined() const;
     bool IsValid() const;
     QPixmap GetPixmap();
     QString GetFilePath() { return mFilePath; }
     void SetFilePath(const QString &filePath);
     bool LoadFile();
-    bool SaveToLocalDirectory();
-    bool ExistsInLocalDirectory();
+    bool LoadFromAvatarDirectory();
+    bool SaveToAvatarDirectory();
+    bool ExistsInAvatarDirectory();
     QString GetLocalPath();
     QString HashName();
 

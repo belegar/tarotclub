@@ -27,7 +27,7 @@
 #include <QFile>
 #include <QtGui>
 #include "Log.h"
-
+#include "Avatar.h"
 
 /*****************************************************************************/
 PlayerBox::PlayerBox(Layout layout)
@@ -45,21 +45,21 @@ PlayerBox::PlayerBox(Layout layout)
     if (mLayout == VERTICAL)
     {
         setRect(0, 0, PLAYER_BOX_WIDTH_VERT, PLAYER_BOX_HEIGHT_VERT);
-        mName.setPos(SPACE_BETWEEN_ITEMS, mAvatar.boundingRect().height() + 2 * SPACE_BETWEEN_ITEMS);
-        mBid.setPos(SPACE_BETWEEN_ITEMS, mAvatar.boundingRect().height() + mName.boundingRect().height() + 3 * SPACE_BETWEEN_ITEMS);
+        mName.setPos(SPACE_BETWEEN_ITEMS, mAvatarBox.boundingRect().height() + 2 * SPACE_BETWEEN_ITEMS);
+        mBid.setPos(SPACE_BETWEEN_ITEMS, mAvatarBox.boundingRect().height() + mName.boundingRect().height() + 3 * SPACE_BETWEEN_ITEMS);
     }
     else
     {
         setRect(0, 0, PLAYER_BOX_WIDTH_HOR, PLAYER_BOX_HEIGHT_HOR);
-        mName.setPos(2 * SPACE_BETWEEN_ITEMS + mAvatar.boundingRect().width(), SPACE_BETWEEN_ITEMS);
-        mBid.setPos(2 * SPACE_BETWEEN_ITEMS + mAvatar.boundingRect().width(), mName.boundingRect().height() + 2 * SPACE_BETWEEN_ITEMS);
+        mName.setPos(2 * SPACE_BETWEEN_ITEMS + mAvatarBox.boundingRect().width(), SPACE_BETWEEN_ITEMS);
+        mBid.setPos(2 * SPACE_BETWEEN_ITEMS + mAvatarBox.boundingRect().width(), mName.boundingRect().height() + 2 * SPACE_BETWEEN_ITEMS);
     }
 
     // Init with defaut image
-    mAvatar.setParentItem(this);
-    mAvatar.setPixmap(QPixmap()); // empty pixmap
-    mAvatar.setPos(SPACE_BETWEEN_ITEMS, SPACE_BETWEEN_ITEMS);
-    mAvatar.hide();
+    mAvatarBox.setParentItem(this);
+    mAvatarBox.setPixmap(QPixmap()); // empty pixmap
+    mAvatarBox.setPos(SPACE_BETWEEN_ITEMS, SPACE_BETWEEN_ITEMS);
+    mAvatarBox.hide();
 
     // player's name
     mName.setParentItem(this);
@@ -74,18 +74,43 @@ PlayerBox::PlayerBox(Layout layout)
     mBid.setBrush(Qt::red);
 }
 /*****************************************************************************/
-void PlayerBox::SetAvatar(const QString &av)
+void PlayerBox::SetAvatar(const QString &fileName)
 {
-    QFile f(av);
+    Avatar avatar(fileName);
+    bool ret = false;
 
-    if (f.exists())
+    if (avatar.IsPredefined() || avatar.IsLocal())
     {
-        QPixmap img(av);
-        mAvatar.setPixmap(img);
+        QFileInfo inf(fileName);
+        if (inf.exists())
+        {
+            ret = avatar.LoadFile();
+        }
     }
     else
     {
-        mAvatar.setPixmap(QPixmap()); // empty one
+        // Remote URL
+        if (avatar.ExistsInAvatarDirectory())
+        {
+            ret = avatar.LoadFromAvatarDirectory();
+        }
+        else
+        {
+            // no any local copy, try to fetch the image
+            if (avatar.LoadFile())
+            {
+                ret = avatar.SaveToAvatarDirectory();
+            }
+        }
+    }
+
+    if (ret)
+    {
+        mAvatarBox.setPixmap(avatar.GetPixmap());
+    }
+    else
+    {
+        mAvatarBox.setPixmap(QPixmap()); // empty image
     }
 }
 /*****************************************************************************/
@@ -105,11 +130,11 @@ void PlayerBox::EnableAvatar(bool enable)
 {
     if (enable == true)
     {
-        mAvatar.show();
+        mAvatarBox.show();
     }
     else
     {
-        mAvatar.hide();
+        mAvatarBox.hide();
     }
 }
 /*****************************************************************************/

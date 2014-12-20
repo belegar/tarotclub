@@ -60,7 +60,7 @@ void ImportAvatarWindow::slotOk()
         else
         {
             setCursor(QCursor(Qt::WaitCursor));
-            if (mAvatar.SaveToLocalDirectory())
+            if (mAvatar.SaveToAvatarDirectory())
             {
                 (void) QMessageBox::information(this, tr("TarotClub"),
                                             tr("Import success."),

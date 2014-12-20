@@ -94,13 +94,13 @@ public:
     void EnableAvatar(bool enable);
 
     // Setters
-    void SetAvatar(const QString &mAvatar);
+    void SetAvatar(const QString &fileName);
     void SetBidText(const QString &text);
     void SetPlayerName(const QString &text);
 
 private:
     QColor mNameColor;
-    AvatarItem mAvatar;
+    AvatarItem mAvatarBox;
     TextBox mName;
     TextBox mBid;
     Layout mLayout;

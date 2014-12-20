@@ -74,11 +74,16 @@ bool Avatar::LoadFile()
     return success;
 }
 /*****************************************************************************/
+bool Avatar::LoadFromAvatarDirectory()
+{
+   return mPixmap.load(GetLocalPath());
+}
+/*****************************************************************************/
 /**
  * @brief Save the Pixmap to the TarotClub avatars directory
  * @return
  */
-bool Avatar::SaveToLocalDirectory()
+bool Avatar::SaveToAvatarDirectory()
 {
     bool ret = false;
     if (IsValid())
@@ -88,7 +93,7 @@ bool Avatar::SaveToLocalDirectory()
     return ret;
 }
 /*****************************************************************************/
-bool Avatar::ExistsInLocalDirectory()
+bool Avatar::ExistsInAvatarDirectory()
 {
     QFileInfo info(GetLocalPath());
     return info.exists();
@@ -102,6 +107,19 @@ QString Avatar::GetLocalPath()
 bool Avatar::IsLocal() const
 {
     return QUrl::fromUserInput(mFilePath).isLocalFile();
+}
+/*****************************************************************************/
+bool Avatar::IsPredefined() const
+{
+    bool ret = false;
+    if (mFilePath.size() > 0)
+    {
+        if (mFilePath[0] == ':')
+        {
+            ret = true;
+        }
+    }
+    return ret;
 }
 /*****************************************************************************/
 bool Avatar::IsValid() const

@@ -624,9 +624,9 @@ void OptionsWindow::Refresh()
     ui.langList->setCurrentIndex(clientOptions.language);
     indexLangue = clientOptions.language;
 
-    QString filename = QString(clientOptions.identity.avatar.c_str());
+    Avatar avatar(QString(clientOptions.identity.avatar.c_str()));
 
-    if (filename[0] == ':')
+    if (avatar.IsPredefined())
     {
         ui.radioPredefined->setChecked(true);
         ui.buttonImport->setEnabled(false);
@@ -634,8 +634,7 @@ void OptionsWindow::Refresh()
     }
     else
     {
-        Avatar avatar(filename);
-        if (avatar.ExistsInLocalDirectory())
+        if (avatar.ExistsInAvatarDirectory())
         {
             ui.pixSud->setPixmap(avatar.GetLocalPath());
         }
