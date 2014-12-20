@@ -25,9 +25,16 @@
 
 #include "Avatar.h"
 #include "System.h"
+#include <QCryptographicHash>
 
 /*****************************************************************************/
 Avatar::Avatar()
+{
+
+}
+/*****************************************************************************/
+Avatar::Avatar(const QString &filePath)
+    : mFilePath(filePath)
 {
 
 }
@@ -76,20 +83,20 @@ bool Avatar::SaveToLocalDirectory()
     bool ret = false;
     if (IsValid())
     {
-        ret = mPixmap.save(QString(System::AvatarPath().c_str()) + QFileInfo(mFilePath).fileName());
+        ret = mPixmap.save(GetLocalPath());
     }
     return ret;
 }
 /*****************************************************************************/
-bool Avatar::ExistsInLocalDirectory(const QString &filePath)
+bool Avatar::ExistsInLocalDirectory()
 {
-    QFileInfo info(GetLocalPath(filePath));
+    QFileInfo info(GetLocalPath());
     return info.exists();
 }
 /*****************************************************************************/
-QString Avatar::GetLocalPath(const QString &filePath)
+QString Avatar::GetLocalPath()
 {
-    return QString(System::AvatarPath().c_str()) + QFileInfo(filePath).fileName();
+    return QString(System::AvatarPath().c_str()) + HashName();
 }
 /*****************************************************************************/
 bool Avatar::IsLocal() const
@@ -106,7 +113,11 @@ QPixmap Avatar::GetPixmap()
 {
     return mPixmap;
 }
-
+/*****************************************************************************/
+QString Avatar::HashName()
+{
+    return QString(QCryptographicHash::hash(mFilePath.toLocal8Bit(),QCryptographicHash::Md5).toHex()) + ".png";
+}
 //=============================================================================
 // End of file Avatar.cpp
 //=============================================================================

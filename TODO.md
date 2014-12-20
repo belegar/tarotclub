@@ -4,7 +4,6 @@
  
 ##  Desktop client
   
-  * Lobby: add buttons to add a bot on a table
   * Allow to display HTTP avatars of network players
  
 # ---------------------------------------------- VERSION 2.6 --------------------------------------------------
@@ -14,6 +13,8 @@
   * Allow to choose the AI script configuration file (user customization) from the GUI option
   * New option for no avatar
   * Save and load game
+  * Lobby: add buttons to add a bot on a table
+  * New option to hide the south identity bloc on the screen (or show a minimized one)
   
 ## IA strategy
 

@@ -634,9 +634,10 @@ void OptionsWindow::Refresh()
     }
     else
     {
-        if (Avatar::ExistsInLocalDirectory(filename))
+        Avatar avatar(filename);
+        if (avatar.ExistsInLocalDirectory())
         {
-            ui.pixSud->setPixmap(Avatar::GetLocalPath(filename));
+            ui.pixSud->setPixmap(avatar.GetLocalPath());
         }
 
         ui.radioLocal->setChecked(true);

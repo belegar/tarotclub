@@ -46,7 +46,6 @@ private:
     Avatar mAvatar;
 
 private slots:
-    void slotImport();
     void slotBrowse();
     void slotOk();
 };

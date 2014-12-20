@@ -37,6 +37,7 @@ class Avatar : public QObject
 
 public:
     Avatar();
+    Avatar(const QString &filePath);
 
     bool IsLocal() const;
     bool IsValid() const;
@@ -45,10 +46,9 @@ public:
     void SetFilePath(const QString &filePath);
     bool LoadFile();
     bool SaveToLocalDirectory();
-
-    // Static methods
-    static bool ExistsInLocalDirectory(const QString &filePath);
-    static QString GetLocalPath(const QString &filePath);
+    bool ExistsInLocalDirectory();
+    QString GetLocalPath();
+    QString HashName();
 
 private:
     QPixmap mPixmap;

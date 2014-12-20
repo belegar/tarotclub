@@ -36,7 +36,6 @@ ImportAvatarWindow::ImportAvatarWindow(QWidget *parent)
     ui.setupUi(this);
 
     connect (ui.buttonBrowse, &QPushButton::clicked, this, &ImportAvatarWindow::slotBrowse);
-    connect (ui.buttonImport, &QPushButton::clicked, this, &ImportAvatarWindow::slotImport);
     connect (ui.okButton, &QPushButton::clicked, this, &ImportAvatarWindow::slotOk);
 }
 /*****************************************************************************/
@@ -45,23 +44,36 @@ void ImportAvatarWindow::SetFilePath(const QString &filePath)
     ui.lineEdit->setText(filePath);
 }
 /*****************************************************************************/
-void ImportAvatarWindow::slotImport()
+void ImportAvatarWindow::slotOk()
 {
     mAvatar.SetFilePath(ui.lineEdit->text());
+    QCursor currentCursor = cursor();
+    setCursor(QCursor(Qt::WaitCursor));
+    ui.okButton->setEnabled(false);
     if (mAvatar.LoadFile())
     {
-        if (mAvatar.SaveToLocalDirectory())
+        if (mAvatar.IsLocal())
         {
-            (void) QMessageBox::information(this, tr("TarotClub"),
-                                        tr("Import success."),
-                                        QMessageBox::Ok);
+            setCursor(currentCursor);
             accept();
         }
         else
         {
-            (void) QMessageBox::information(this, tr("TarotClub"),
-                                        tr("Import failed."),
-                                        QMessageBox::Ok);
+            setCursor(QCursor(Qt::WaitCursor));
+            if (mAvatar.SaveToLocalDirectory())
+            {
+                (void) QMessageBox::information(this, tr("TarotClub"),
+                                            tr("Import success."),
+                                            QMessageBox::Ok);
+                setCursor(currentCursor);
+                accept();
+            }
+            else
+            {
+                (void) QMessageBox::information(this, tr("TarotClub"),
+                                            tr("Saving to local directory failed."),
+                                            QMessageBox::Ok);
+            }
         }
     }
     else
@@ -71,22 +83,7 @@ void ImportAvatarWindow::slotImport()
                                        "the specified url or path."),
                                     QMessageBox::Ok);
     }
-}
-/*****************************************************************************/
-void ImportAvatarWindow::slotOk()
-{
-    mAvatar.SetFilePath(ui.lineEdit->text());
-    if (mAvatar.LoadFile())
-    {
-        accept();
-    }
-    else
-    {
-        (void) QMessageBox::information(this, tr("TarotClub"),
-                                    tr("The avatar cannot be fetched from\n"
-                                       "the specified url or path."),
-                                    QMessageBox::Ok);
-    }
+    ui.okButton->setEnabled(true);
 }
 /*****************************************************************************/
 void ImportAvatarWindow::slotBrowse()
