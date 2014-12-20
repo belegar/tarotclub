@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>950</width>
+    <width>985</width>
     <height>653</height>
    </rect>
   </property>
@@ -245,6 +245,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
            <widget class="QPushButton" name="addBotButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Add bot</string>
             </property>
@@ -252,6 +255,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="removeBotButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Remove bot</string>
             </property>
