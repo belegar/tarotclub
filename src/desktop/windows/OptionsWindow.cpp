@@ -463,7 +463,6 @@ void OptionsWindow::slotBtnOk()
         clientOptions.showAvatars = false;
     }
     clientOptions.language = ui.langList->currentIndex();
-
     if (indexLangue != clientOptions.language)
     {
         QMessageBox::information(this, tr("Information"),
@@ -471,6 +470,7 @@ void OptionsWindow::slotBtnOk()
     }
     clientOptions.backgroundColor = colorName.toStdString();
     clientOptions.delayBeforeCleaning = ui.slider2->value();
+    serverOptions.tournamentTurns = static_cast<std::uint8_t>(ui.turns->value());
 
     if (ui.clic->isChecked())
     {
@@ -622,12 +622,14 @@ void OptionsWindow::Refresh()
     }
     ui.afficheAvatars->setChecked(clientOptions.showAvatars);
     ui.langList->setCurrentIndex(clientOptions.language);
+    ui.turns->setValue(static_cast<int>(serverOptions.tournamentTurns));
     indexLangue = clientOptions.language;
 
     Avatar avatar(QString(clientOptions.identity.avatar.c_str()));
 
     if (avatar.IsPredefined())
     {
+        ui.pixSud->setPixmap(avatar.GetFilePath());
         ui.radioPredefined->setChecked(true);
         ui.buttonImport->setEnabled(false);
         ui.btnPixSud->setEnabled(true);

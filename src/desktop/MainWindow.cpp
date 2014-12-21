@@ -128,7 +128,7 @@ void MainWindow::slotNewAutoPlay()
 {
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
-    tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh, true);
+    tarotWidget->LaunchLocalGame(Tarot::TOURNAMENT, sh, true);
 }
 /*****************************************************************************/
 void MainWindow::slotNewCustomDeal()

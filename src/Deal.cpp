@@ -35,6 +35,7 @@ static const std::string DEAL_RESULT_FILE_VERSION  = "2.1"; // should be backwar
 
 /*****************************************************************************/
 Deal::Deal()
+    : mNumberOfTurns(ServerConfig::DEFAULT_NUMBER_OF_TURNS)
 {
     Initialize();
 }
@@ -54,7 +55,6 @@ void Deal::Initialize()
     slamDone = false;
     slamOwner = NO_TEAM;
     mTricksWon = 0;
-    mNumberOfTurns = ServerConfig::DEFAULT_NUMBER_OF_TURNS;
 }
 /*****************************************************************************/
 void Deal::NewGame(std::uint8_t numberOfTurns)

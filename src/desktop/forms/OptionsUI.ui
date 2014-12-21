@@ -332,7 +332,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBox">
+             <widget class="QSpinBox" name="turns">
               <property name="minimum">
                <number>1</number>
               </property>
