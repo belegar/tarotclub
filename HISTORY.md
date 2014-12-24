@@ -8,6 +8,7 @@
   * Lobby: add buttons to manage the server list (add/remove)
   * New option window for bots, allowing future custom bots configuration
   * Allow to choose an local avatar file or import/use a remote image file via an URL
+  * The Deal Editor can now load a custom deal file
 
 ## TarotClub network protocol
 
