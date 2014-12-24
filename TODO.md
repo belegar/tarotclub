@@ -1,10 +1,3 @@
-# Planned for 2.5 (Target date: January 2015)
- 
-## Internet website: add an Ubuntu 32 bits download link.
- 
-##  Desktop client
-  
-  * Allow to display HTTP avatars of network players
  
 # ---------------------------------------------- VERSION 2.6 --------------------------------------------------
  
@@ -20,7 +13,7 @@
 
   * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
   * Par contre le preneur a encore joué le petit pour faire tomber les atouts .
-  * Don't display the avatar box when no avatar is selected    
+  * Don't display the avatar box when no avatar is selected
 
 ## UI improvements / Gfx engine
   
