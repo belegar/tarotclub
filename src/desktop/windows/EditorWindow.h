@@ -38,14 +38,12 @@ class EditorWindow : public QDialog
 {
     Q_OBJECT
 
-private:
-    Ui::DealEditorUI ui;
-
 public:
     EditorWindow(QWidget *parent = 0);
 
     void Initialize();
     void AddToList(int id, QListWidget *list, QListWidgetItem *item);
+
 
 public slots:
     void slotOpenDeal();
@@ -60,6 +58,12 @@ public slots:
     void slotRemoveNorthCard(QListWidgetItem *item);
     void slotRemoveWestCard(QListWidgetItem *item);
     void slotRemoveEastCard(QListWidgetItem *item);
+
+
+private:
+    Ui::DealEditorUI ui;
+
+    void Clear();
 
 };
 

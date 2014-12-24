@@ -45,11 +45,15 @@ public:
     Deck &GetSouthDeck();
     Deck &GetNorthDeck();
 
-private:
-    bool FillDeck(Deck &deck, const std::string &cards, int nbCards);
+    void SetFirstPlayer(Place p);
+    Place GetFirstPlayer() { return mFirstPlayer; }
 
+    bool IsValid(std::uint8_t numberOfPlayers);
+
+private:
     Deck    mPlayers[5]; //!< five players max in Tarot
     Deck    mDogDeck;
+    Place   mFirstPlayer;
 };
 
 #endif // DEAL_FILE_H

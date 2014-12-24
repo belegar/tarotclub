@@ -570,7 +570,14 @@ void TarotEngine::CreateDeal()
     if (mShuffle.type == Tarot::Shuffle::CUSTOM_DEAL)
     {
         DealFile editor;
-        if (editor.LoadFile(mShuffle.file) == true)
+        if (!editor.LoadFile(mShuffle.file))
+        {
+            // Fall back to default mode
+            TLogError("Cannot load custom deal file");
+            mShuffle.type = Tarot::Shuffle::RANDOM_DEAL;
+        }
+
+        if (editor.IsValid(mNbPlayers))
         {
             // SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3,
             currentTrick.Append(editor.GetSouthDeck());
@@ -578,11 +585,14 @@ void TarotEngine::CreateDeal()
             currentTrick.Append(editor.GetNorthDeck());
             currentTrick.Append(editor.GetWestDeck());
             currentTrick.Append(editor.GetDogDeck());
+
+            // Override the current player
+            mCurrentPlayer = editor.GetFirstPlayer();
         }
         else
         {
             // Fall back to default mode
-            TLogError("Cannot load custom deal file");
+            TLogError("Invalid deal file");
             mShuffle.type = Tarot::Shuffle::RANDOM_DEAL;
         }
     }

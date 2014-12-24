@@ -23,10 +23,12 @@
  *=============================================================================
  */
 
-#include "EditorWindow.h"
 #include <QObject>
 #include <QFileDialog>
+#include <QMessageBox>
 #include "DealFile.h"
+#include "Translations.h"
+#include "EditorWindow.h"
 
 /*****************************************************************************/
 EditorWindow::EditorWindow(QWidget *parent)
@@ -48,15 +50,15 @@ EditorWindow::EditorWindow(QWidget *parent)
     connect(ui.northList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(slotRemoveNorthCard(QListWidgetItem *)));
     connect(ui.westList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(slotRemoveWestCard(QListWidgetItem *)));
     connect(ui.eastList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(slotRemoveEastCard(QListWidgetItem *)));
+
+    ui.firstPlayerCombo->addItem(PlaceToString(Place::EAST));
+    ui.firstPlayerCombo->addItem(PlaceToString(Place::NORTH));
+    ui.firstPlayerCombo->addItem(PlaceToString(Place::WEST));
 }
 /*****************************************************************************/
 void EditorWindow::Initialize()
 {
-    ui.mainCardList->clear();
-    ui.eastList->clear();
-    ui.northList->clear();
-    ui.southList->clear();
-    ui.westList->clear();
+    Clear();
 
     Deck deck;
     deck.CreateTarotDeck();
@@ -64,6 +66,15 @@ void EditorWindow::Initialize()
     {
         ui.mainCardList->addItem(new QListWidgetItem((*it).GetName().data()));
     }
+}
+/*****************************************************************************/
+void EditorWindow::Clear()
+{
+    ui.mainCardList->clear();
+    ui.eastList->clear();
+    ui.northList->clear();
+    ui.southList->clear();
+    ui.westList->clear();
 }
 /*****************************************************************************/
 void EditorWindow::slotToSouth()
@@ -152,19 +163,55 @@ void EditorWindow::slotRemoveEastCard(QListWidgetItem *item)
 /*****************************************************************************/
 void EditorWindow::slotOpenDeal()
 {
-    // FIXME: add the loading mechanism
-}
-/*****************************************************************************/
-void EditorWindow::slotSaveDeal()
-{
-    if (ui.southList->count() != 18 ||
-            ui.northList->count() != 18 ||
-            ui.westList->count() != 18 ||
-            ui.eastList->count() != 18)
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open a deal file"),
+                       "tarot.json",
+                       tr("JSON (*json)"));
+    if (fileName.isEmpty())
     {
         return;
     }
 
+    DealFile editor;
+    if (editor.LoadFile(fileName.toStdString()))
+    {
+        Clear();
+
+        // Dog
+        for (Deck::ConstIterator it = editor.GetDogDeck().Begin(); it != editor.GetDogDeck().End(); ++it)
+        {
+            ui.mainCardList->addItem(new QListWidgetItem((*it).GetName().data()));
+        }
+        // East
+        for (Deck::ConstIterator it = editor.GetEastDeck().Begin(); it != editor.GetEastDeck().End(); ++it)
+        {
+            ui.eastList->addItem(new QListWidgetItem((*it).GetName().data()));
+        }
+        // West
+        for (Deck::ConstIterator it = editor.GetWestDeck().Begin(); it != editor.GetWestDeck().End(); ++it)
+        {
+            ui.westList->addItem(new QListWidgetItem((*it).GetName().data()));
+        }
+        // South
+        for (Deck::ConstIterator it = editor.GetSouthDeck().Begin(); it != editor.GetSouthDeck().End(); ++it)
+        {
+            ui.southList->addItem(new QListWidgetItem((*it).GetName().data()));
+        }
+        // North
+        for (Deck::ConstIterator it = editor.GetNorthDeck().Begin(); it != editor.GetNorthDeck().End(); ++it)
+        {
+            ui.northList->addItem(new QListWidgetItem((*it).GetName().data()));
+        }
+
+    }
+    else
+    {
+        QMessageBox::critical(this, tr("Loading error"), tr("Cannot read the input deal file!"));
+    }
+
+}
+/*****************************************************************************/
+void EditorWindow::slotSaveDeal()
+{
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save deal"),
                        "tarot.json",
                        tr("JSON (*json)"));
@@ -174,9 +221,8 @@ void EditorWindow::slotSaveDeal()
     }
 
     DealFile editor;
-    editor.Clear();
 
-    // Chien
+    // Dog
     for (int i = 0; i < ui.mainCardList->count(); i++)
     {
         QListWidgetItem *item = ui.mainCardList->item(i);
@@ -222,6 +268,7 @@ void EditorWindow::slotSaveDeal()
         }
     }
 
+    editor.SetFirstPlayer(Place(ui.firstPlayerCombo->currentIndex() + 1U));
     editor.SaveFile(fileName.toStdString());
 }
 
