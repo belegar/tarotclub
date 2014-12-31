@@ -356,6 +356,7 @@ void LobbyWindow::slotReturnPressed()
     }
     emit sigEmitMessage(message);
     ui.chatText->clear();
+    ui.chatText->setFocus();
 }
 
 //=============================================================================

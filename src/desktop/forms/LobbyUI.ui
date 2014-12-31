@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>985</width>
+    <width>1006</width>
     <height>653</height>
    </rect>
   </property>
@@ -77,12 +77,18 @@
             <property name="text">
              <string>Add server</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="removeServerButton">
             <property name="text">
              <string>Remove server</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -110,12 +116,18 @@
               <property name="text">
                <string>Connect</string>
               </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="disconnectButton">
               <property name="text">
                <string>Disconnect</string>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -154,6 +166,9 @@
              <widget class="QPushButton" name="checkServerButton">
               <property name="text">
                <string>Check server</string>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -230,12 +245,18 @@
             <property name="text">
              <string>Join</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="quitButton">
             <property name="text">
              <string>Quit</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -251,6 +272,9 @@
             <property name="text">
              <string>Add bot</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -260,6 +284,9 @@
             </property>
             <property name="text">
              <string>Remove bot</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -318,6 +345,9 @@
       <widget class="QPushButton" name="closeButton">
        <property name="text">
         <string>Close</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
