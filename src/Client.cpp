@@ -834,7 +834,10 @@ void Client::SendSyncHandle()
 /*****************************************************************************/
 void Client::SendPacket(const ByteArray &packet)
 {
-    mTcpClient.Send(packet.ToSring());
+    if (IsConnected())
+    {
+        mTcpClient.Send(packet.ToSring());
+    }
 }
 
 //=============================================================================
