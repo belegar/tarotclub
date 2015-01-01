@@ -67,6 +67,15 @@ public:
         return mHomePath + "avatars" + Util::DIR_SEPARATOR;
     }
 
+    static std::string ProjectName()
+    {
+#ifdef DESKTOP_PROJECT
+        return "desktop";
+#else
+        return "tcds";
+#endif
+    }
+
     static void Initialize();
 
 private:

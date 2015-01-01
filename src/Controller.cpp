@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "Controller.h"
 #include "ByteStreamReader.h"
+#include "System.h"
 
 /*****************************************************************************/
 Controller::Controller(IEvent &handler)
@@ -607,17 +608,12 @@ void Controller::BidSequence()
 /*****************************************************************************/
 void Controller::GameSequence()
 {
-#ifdef DESKTOP_PROJECT
-    const std::string cProjectName = "desktop";
-#else
-    const std::string cProjectName = "tcds";
-#endif
     engine.GameSequence();
 
     if (engine.IsLastTrick())
     {
         std::stringstream ss;
-        ss << cProjectName << "_" << mName << "_" << mId << "_";
+        ss << System::ProjectName() << "_" << mName << "_" << mId << "_";
         engine.EndOfDeal(ss.str());
         Send(Protocol::TableEndOfDeal(engine.GetScore()));
     }
