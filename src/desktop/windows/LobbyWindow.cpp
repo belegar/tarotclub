@@ -293,6 +293,12 @@ bool LobbyWindow::CheckServer()
                 }
             }
         }
+        else
+        {
+            std::stringstream ss;
+            ss << "Lookup failed:" << info.errorString().toStdString();
+            TLogError(ss.str());
+        }
     }
 
     return ret;
