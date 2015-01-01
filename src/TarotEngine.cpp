@@ -142,6 +142,11 @@ Place TarotEngine::StartDeal()
         mCurrentPlayer = mDealer.Next(mNbPlayers); // The first player on the dealer's right
     }
 
+    std::stringstream ss;
+    ss << "Taker: " << mBid.taker.ToString() << " / ";
+    ss << "Contract: " << mBid.contract.ToString();
+    TLogInfo(ss.str());
+
     mDeal.StartDeal(mCurrentPlayer, mBid);
 
     return mCurrentPlayer;
@@ -588,6 +593,7 @@ void TarotEngine::CreateDeal()
 
             // Override the current player
             mCurrentPlayer = editor.GetFirstPlayer();
+            mDealer = mCurrentPlayer.Previous(mNbPlayers);
         }
         else
         {
