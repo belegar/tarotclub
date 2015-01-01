@@ -49,7 +49,7 @@ public:
     void RefreshDeals();
 
 public slots:
-    void slotActivated(const QString & text);
+    void slotActivated(int index);
 
 private:
     QVBoxLayout *mLayout;
@@ -61,6 +61,7 @@ private:
     QGraphicsSimpleTextItem *mText;
     QVector<QGraphicsSvgItem *> mCardsPics;
     Deal mDeal;
+    QFileInfoList mList;
 
     void DisplayDeck(const Deck &deck, qreal x, qreal y);
 };

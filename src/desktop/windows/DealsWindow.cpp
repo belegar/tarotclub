@@ -23,6 +23,7 @@
  *=============================================================================
  */
 
+#include <QMessageBox>
 #include "DealsWindow.h"
 #include "Deck.h"
 #include "System.h"
@@ -53,7 +54,7 @@ DealsWindow::DealsWindow(QWidget *parent)
     mLayout->addLayout(layout2);
 
     connect(mOkButton, &QPushButton::clicked, this, &QDialog::accept);
-    connect(mComboBox, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::activated), this, &DealsWindow::slotActivated);
+    connect(mComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &DealsWindow::slotActivated);
 }
 /*****************************************************************************/
 DealsWindow::~DealsWindow()
@@ -61,32 +62,38 @@ DealsWindow::~DealsWindow()
 
 }
 /*****************************************************************************/
-void DealsWindow::slotActivated(const QString &text)
+void DealsWindow::slotActivated(int index)
 {
-    mDeal.LoadGameDealLog(System::GamePath() + "/deal_result_" + text.toStdString() + ".json");
-
-    qreal y = 0;
-    qreal limit_x = 700;
-
-    // Show discard
-    DisplayDeck(mDeal.GetDiscard(), 100, 0);
-
-    qreal x = 0;
-    y = 115;
-    // Show played tricks
-    for (std::uint8_t i = 0U; i < Tarot::NumberOfCardsInHand(4U); i++)
+    QString fileName = QString(System::GamePath().c_str()) + mList.at(index).fileName();
+    if (mDeal.LoadGameDealLog(fileName.toStdString()))
     {
-         Deck trick = mDeal.GetTrick(i, 4U);
-         DisplayDeck(trick, x, y);
+        qreal y = 0;
+        qreal limit_x = 700;
 
-         // Space between horizontal tricks
-         x += 60 + 35 * trick.Size();
+        // Show discard
+        DisplayDeck(mDeal.GetDiscard(), 100, 0);
 
-         if (x >= limit_x)
-         {
-             x = 0;
-             y += 115;
-         }
+        qreal x = 0;
+        y = 115;
+        // Show played tricks
+        for (std::uint8_t i = 0U; i < Tarot::NumberOfCardsInHand(4U); i++)
+        {
+             Deck trick = mDeal.GetTrick(i, 4U);
+             DisplayDeck(trick, x, y);
+
+             // Space between horizontal tricks
+             x += 60 + 35 * trick.Size();
+
+             if (x >= limit_x)
+             {
+                 x = 0;
+                 y += 115;
+             }
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Loading error"), tr("Cannot load the file: ") + fileName);
     }
 }
 /*****************************************************************************/
@@ -160,15 +167,15 @@ void DealsWindow::RefreshDeals()
 {
     QDir dir(QString(System::GamePath().c_str()));
     dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-    QFileInfoList list = dir.entryInfoList();
+    mList = dir.entryInfoList();
 
-    for (int i = 0; i < list.size(); i++)
+    for (int i = 0; i < mList.size(); i++)
     {
         // Filename format is: deal_result_2014-10-12.153826.json
         // We have to extract the date and time "%Y-%m-%d.%H%M%S"
 
         // 1. get the filename and remove .json
-        QString dateTime = list.at(i).fileName();
+        QString dateTime = mList.at(i).fileName();
         dateTime.chop(5);
 
         // 3. Fill the combo box
@@ -181,7 +188,7 @@ void DealsWindow::RefreshDeals()
     {
         mComboBox->setCurrentIndex(count-1);
         // Manually call the combo box event to display the deal
-        slotActivated(mComboBox->currentText());
+        slotActivated(mComboBox->currentIndex());
     }
 }
 
