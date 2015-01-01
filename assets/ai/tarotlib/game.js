@@ -331,9 +331,18 @@ var p = Game.prototype;
                 }
                 else
                 {
-                    // Whatever, play any low card
-                    playedCard = this.bot.playLowestCard();
-					systemPrint("defense: play a low card before the attack");
+                    if (this.bot.hasSuit(TarotLib.Suit.TRUMPS))
+                    {
+                        // We need to cut, with a low trump since we are playing before the taker
+                        // If no cuts, the fool is played
+                        playedCard = this.bot.playHighestCard("T", 0);       
+                    }
+                    else
+                    {
+                        // Whatever, play any low card
+                        playedCard = this.bot.playLowestCard();
+    					systemPrint("defense: play a low card before the attack");
+                    }
                 }
             }
             else
