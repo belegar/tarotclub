@@ -180,6 +180,7 @@ public:
     void Shuffle(int seed);
     void Sort(const std::string &order);
     bool HasOneOfTrump() const;
+    bool HasOnlyOneOfTrump() const;
     bool HasFool() const;
     Card HighestTrump() const;
     Card HighestSuit() const;

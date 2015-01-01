@@ -598,26 +598,33 @@ void TarotEngine::CreateDeal()
     }
     else
     {
-        currentTrick.CreateTarotDeck();
-        if (mShuffle.type == Tarot::Shuffle::RANDOM_DEAL)
-        {
-            std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
-            mShuffle.seed = static_cast<std::uint32_t>(seed);
-        }
-        currentTrick.Shuffle(mShuffle.seed);
+        RandomDeal();
     }
 
     int n = Tarot::NumberOfCardsInHand(mNbPlayers);
-    for (std::uint32_t i = 0U; i < mNbPlayers; i++)
+    bool valid;
+    do
     {
-        mPlayers[i].Clear();
-        mPlayers[i].Append(currentTrick.Mid(i * n, n));
+        valid = true;
+        for (std::uint32_t i = 0U; i < mNbPlayers; i++)
+        {
+            mPlayers[i].Clear();
+            mPlayers[i].Append(currentTrick.Mid(i * n, n));
 
-        std::stringstream message;
-        Place p(i);
-        message << "Player " << p.ToString() << " deck: " << mPlayers[i].ToString();
-        TLogInfo(message.str());
+            if (mPlayers[i].HasOnlyOneOfTrump())
+            {
+                RandomDeal(); // deal again
+                valid = false;
+                TLogInfo("Petit sec detected!");
+            }
+
+            std::stringstream message;
+            Place p(i);
+            message << "Player " << p.ToString() << " deck: " << mPlayers[i].ToString();
+            TLogInfo(message.str());
+        }
     }
+    while (!valid);
 
     // Remaining cards go to the dog
     Deck dog(currentTrick.Mid(mNbPlayers * n));
@@ -629,7 +636,17 @@ void TarotEngine::CreateDeal()
 
     currentTrick.Clear();
 }
-
+/*****************************************************************************/
+void TarotEngine::RandomDeal()
+{
+    currentTrick.CreateTarotDeck();
+    if (mShuffle.type == Tarot::Shuffle::RANDOM_DEAL)
+    {
+        std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
+        mShuffle.seed = static_cast<std::uint32_t>(seed);
+    }
+    currentTrick.Shuffle(mShuffle.seed);
+}
 
 //=============================================================================
 // End of file TarotEngine.cpp

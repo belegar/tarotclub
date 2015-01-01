@@ -271,6 +271,19 @@ bool Deck::HasOneOfTrump() const
     return ret;
 }
 /*****************************************************************************/
+bool Deck::HasOnlyOneOfTrump() const
+{
+    bool ret = false;
+    if (HighestTrump().GetValue() == 1U)
+    {
+        if (!HasFool())
+        {
+            ret = true;
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
 bool Deck::HasFool() const
 {
     bool ret = false;

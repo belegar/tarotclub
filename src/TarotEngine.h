@@ -149,6 +149,7 @@ private:
     void ResetAck();
     void CreateDeal();
     bool IsEndOfTrick();
+    void RandomDeal();
 };
 
 #endif // TAROT_ENGINE_H

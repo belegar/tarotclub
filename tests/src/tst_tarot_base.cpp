@@ -167,6 +167,15 @@ void TarotBase::TestDeckClass()
     QCOMPARE(one.HasFool(), true);
     QCOMPARE(one.HasOneOfTrump(), true);
 
+    one.SetCards("00-T;01-T");
+    QCOMPARE(one.HasOnlyOneOfTrump(), false);
+    one.SetCards("00-T;04-T;12-S;14-H;12-T;02-C;20-T");
+    QCOMPARE(one.HasOnlyOneOfTrump(), false);
+    one.SetCards("01-T;12-S;14-H;12-T;02-C;20-T");
+    QCOMPARE(one.HasOnlyOneOfTrump(), false);
+    one.SetCards("01-T;12-S;14-H;02-C");
+    QCOMPARE(one.HasOnlyOneOfTrump(), true);
+
     one.SetCards("02-T;21-T");
     QCOMPARE(one.HasFool(), false);
     QCOMPARE(one.HasOneOfTrump(), false);
