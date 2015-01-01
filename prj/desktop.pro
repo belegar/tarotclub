@@ -94,7 +94,6 @@ win32 {
     RC_FILE = desktop/icon.rc
     LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
-    DEFINES += DESKTOP_PROJECT
     # Let's make everything's static so that we don't need any DLL
     QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
 }
@@ -107,11 +106,11 @@ CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
     DEFINES += DUK_OPT_DEBUG
 
-unix {
-  #  QMAKE_CXXFLAGS  +=-fsanitize=address -fno-omit-frame-pointer
-  #  QMAKE_CFLAGS    +=-fsanitize=address -fno-omit-frame-pointer
-  #  QMAKE_LFLAGS    +=-fsanitize=address
-}
+    unix {
+      #  QMAKE_CXXFLAGS  +=-fsanitize=address -fno-omit-frame-pointer
+      #  QMAKE_CFLAGS    +=-fsanitize=address -fno-omit-frame-pointer
+      #  QMAKE_LFLAGS    +=-fsanitize=address
+    }
 # DUK_OPT_DEBUG DUK_OPT_DDDEBUG DUK_OPT_DDEBUG
 
 }
@@ -120,6 +119,9 @@ unix {
 # Duktape defines
 DEFINES += DUK_OPT_NO_JX
 DEFINES += DUK_OPT_NO_JC
+
+# Common defines for all platforms
+DEFINES += DESKTOP_PROJECT
 
 # ------------------------------------------------------------------------------
 # JavaScript files
