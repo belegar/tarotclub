@@ -112,15 +112,30 @@ std::uint8_t Place::Value()
     return mPlace;
 }
 /*****************************************************************************/
-Place Place::Next(std::uint8_t max)
+Place Place::Next(std::uint8_t numberOfPlayers)
 {
     std::uint8_t place = mPlace;
     place++;
 
-    if ((place >= max) ||
+    if ((place >= numberOfPlayers) ||
             (place >= NOWHERE))
     {
         place = Place::SOUTH;
+    }
+    return place;
+}
+/*****************************************************************************/
+Place Place::Previous(std::uint8_t numberOfPlayers)
+{
+    std::uint8_t place = mPlace;
+
+    if (place == Place::SOUTH)
+    {
+        place = numberOfPlayers - 1U;
+    }
+    else
+    {
+        place--;
     }
     return place;
 }
