@@ -1,4 +1,14 @@
-# Version 2.5 - Codename <Pirate!> (??/??/2014)
+# Branch 2.5 - Codename <Pirate!> (28/12/2014)
+
+## Corrections in version 2.5.1
+
+  * Lobby window: removed default focus on buttons while chatting
+  * "Petit sec" deals are avoided
+  * [Arch] Added missing icon in the menu launcher
+  * [Ubuntu] Added missing documentation in the package
+  * Corrected generated deal filename for the desktop version
+  * Corrected deals visualizer
+
 
 ## Desktop user interface
 
