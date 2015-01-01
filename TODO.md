@@ -14,6 +14,8 @@
   * Un joueur joue son 21 alors que j'ai déjà joué et qu'il n'y a aucun point... (il avait d'autres petits atouts evidemment)
   * Par contre le preneur a encore joué le petit pour faire tomber les atouts .
   * Don't display the avatar box when no avatar is selected
+  * Un truc pas clair dans la logique, le preneur fait tomber les atouts, mais continue même quand les autres n'en ont plus ?!
+    Tout ça pour finir avec son petit... qu'il aurait pu garder pour la fin du jeu.
 
 ## UI improvements / Gfx engine
   
