@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string CLIENT_CONFIG_VERSION  = "2.1";
+static const std::string CLIENT_CONFIG_VERSION  = "2.2"; // increase the version to force any update
 const std::string    ClientConfig::DEFAULT_CLIENT_CONFIG_FILE  = "tarotclub.json";
 
 /*****************************************************************************/
@@ -256,8 +256,8 @@ bool ClientConfig::Save(const std::string &fileName)
 ClientOptions ClientConfig::GetDefault()
 {
     const ServerInfo DefaultServers[2U] = {
-      {"http://tarot.fun-center.fr", 4269, 8080 },
-      {"http://tarotclub.duckdns.org", 4269, 8080 }
+      {"tarot.fun-center.fr", 4269, 8080 },
+      {"tarotclub.duckdns.org", 4269, 8080 }
     };
 
     const std::uint32_t NumberOfServers = (sizeof(DefaultServers) / sizeof(ServerInfo));
