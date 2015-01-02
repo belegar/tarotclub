@@ -8,6 +8,8 @@
   * [Ubuntu] Added missing documentation in the package
   * Corrected generated deal filename for the desktop version
   * Corrected deals visualizer
+  * Corrected defense AI script bug
+  * Deleted the quote parameter (obsolete)
 
 
 ## Desktop user interface
