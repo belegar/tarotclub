@@ -383,8 +383,6 @@ void OptionsWindow::slotBotSelected(int currentRow)
             {
                 Place place(mPreviousSelectedBot + 1U);
                 // Save previous bot configuration
-                serverOptions.bots[place].identity.name = ui.botName->text().toStdString();
-                serverOptions.bots[place].identity.quote = ui.botQuote->text().toStdString();
                 if (ui.botMale->isChecked())
                 {
                     serverOptions.bots[place].identity.gender = Identity::MALE;
@@ -404,8 +402,7 @@ void OptionsWindow::slotBotSelected(int currentRow)
             // Get the place of the selected bot
             Place place(currentRow + 1U);
 
-            ui.botName->setText(QString(serverOptions.bots[place].identity.name.data()));
-            ui.botQuote->setText(QString(serverOptions.bots[place].identity.quote.data()));
+            ui.botName->setText(QString::fromStdString(serverOptions.bots[place].identity.name));
 
             if (serverOptions.bots[place].identity.gender == Identity::MALE)
             {
@@ -444,7 +441,6 @@ void OptionsWindow::slotButtonToggled(int id, bool checked)
 void OptionsWindow::slotBtnOk()
 {
     clientOptions.identity.name = ui.nomJoueurSud->text().toStdString();
-    clientOptions.identity.quote = ui.citationSud->text().toStdString();
     if (ui.sexeM->isChecked())
     {
         clientOptions.identity.gender = Identity::MALE;
@@ -610,8 +606,7 @@ void OptionsWindow::slotImportAvatar()
  */
 void OptionsWindow::Refresh()
 {
-    ui.nomJoueurSud->setText(QString(clientOptions.identity.name.data()));
-    ui.citationSud->setText(QString(clientOptions.identity.quote.data()));
+    ui.nomJoueurSud->setText(QString::fromStdString(clientOptions.identity.name));
     if (clientOptions.identity.gender == Identity::MALE)
     {
         ui.sexeM->setChecked(true);

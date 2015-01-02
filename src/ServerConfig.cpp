@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "2.1";
+static const std::string SERVER_CONFIG_VERSION  = "2.2"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 
 /*****************************************************************************/
@@ -126,10 +126,6 @@ bool ServerConfig::Load(const std::string &fileName)
                         }
 
                     }
-                    if (json.GetValue(botPos + ":quote", value))
-                    {
-                        mOptions.bots[i].identity.quote = value;
-                    }
 
                     if (json.GetValue(botPos + ":bot_file_path", value))
                     {
@@ -212,7 +208,6 @@ bool ServerConfig::Save(const std::string &fileName)
         }
 
         obj->CreateValuePair("gender", text);
-        obj->CreateValuePair("quote", mOptions.bots[i].identity.quote);
         obj->CreateValuePair("bot_file_path", mOptions.bots[i].scriptFilePath);
     }
 
@@ -243,19 +238,16 @@ ServerOptions ServerConfig::GetDefault()
 
     opt.bots[Place::WEST].identity.name     = "Leela";
     opt.bots[Place::WEST].identity.avatar   = ":/avatars/14.svg";
-    opt.bots[Place::WEST].identity.quote    = "No, this isn't mutant language. We use a lot more profanity.";
     opt.bots[Place::WEST].identity.gender   = Identity::FEMALE;
     opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath() + "noob.json";
 
     opt.bots[Place::NORTH].identity.name    = "Bender";
     opt.bots[Place::NORTH].identity.avatar  = ":/avatars/03.svg";
-    opt.bots[Place::NORTH].identity.quote   = "Afterlife? If I'd thought I had to go through a whole another life, I'd kill myself right now.";
     opt.bots[Place::NORTH].identity.gender  = Identity::MALE;
     opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath() + "noob.json";
 
     opt.bots[Place::EAST].identity.name     = "Amy";
     opt.bots[Place::EAST].identity.avatar   = ":/avatars/18.svg";
-    opt.bots[Place::EAST].identity.quote    = "oooh! nice boots! Do they come in women's sizes?";
     opt.bots[Place::EAST].identity.gender   = Identity::FEMALE;
     opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath() + "noob.json";
 

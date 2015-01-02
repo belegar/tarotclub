@@ -49,7 +49,6 @@ public:
     }
 
     std::string name;
-    std::string quote;
     std::string avatar;  // path to the avatar image (local or network path)
     Gender      gender;
 
@@ -58,7 +57,6 @@ public:
     {
         out << ident.name
             << ident.avatar
-            << ident.quote
             << (std::uint8_t)ident.gender;
         return out;
     }
@@ -69,7 +67,6 @@ public:
 
         in >> ident.name;
         in >> ident.avatar;
-        in >> ident.quote;
         in >> var8;
         ident.gender = (Gender)var8;
 

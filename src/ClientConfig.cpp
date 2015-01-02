@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string CLIENT_CONFIG_VERSION  = "2.2"; // increase the version to force any update
+static const std::string CLIENT_CONFIG_VERSION  = "2.2"; // increase the version to force any incompatible update in the file structure
 const std::string    ClientConfig::DEFAULT_CLIENT_CONFIG_FILE  = "tarotclub.json";
 
 /*****************************************************************************/
@@ -149,10 +149,6 @@ bool ClientConfig::Load(const std::string &fileName)
                     }
 
                 }
-                if (json.GetValue("identity:quote", stringval))
-                {
-                    mOptions.identity.quote = stringval;
-                }
 
                 std::vector<JsonValue> servers = json.GetArray("servers");
                 mOptions.serverList.clear();
@@ -243,7 +239,6 @@ bool ClientConfig::Save(const std::string &fileName)
     }
 
     obj->CreateValuePair("gender", text);
-    obj->CreateValuePair("quote", mOptions.identity.quote);
 
     if (!json.SaveToFile(fileName))
     {
@@ -275,7 +270,6 @@ ClientOptions ClientConfig::GetDefault()
 
     opt.identity.name = "Fry";
     opt.identity.avatar = ":/avatars/01.svg";
-    opt.identity.quote = "But existing is practically all I do!";
     opt.identity.gender = Identity::MALE;
 
     for (std::uint32_t i = 0U; i < NumberOfServers; i++)
