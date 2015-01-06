@@ -29,6 +29,9 @@
 #include "Log.h"
 #include "Avatar.h"
 
+static const QPen SelectedPen = QPen(QColor(Qt::red), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+static const QPen NormalPen = QPen(QColor(Qt::white), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+
 /*****************************************************************************/
 PlayerBox::PlayerBox(Layout layout)
     : RectBase(true)
@@ -63,15 +66,16 @@ PlayerBox::PlayerBox(Layout layout)
 
     // player's name
     mName.setParentItem(this);
-    mName.setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    mName.setPen(NormalPen);
     mName.show();
     mName.setBrush(mNameColor);
 
     // bid box
     mBid.setParentItem(this);
     mBid.SetTextColor(Qt::white);
+    mBid.setPen(QColor(Qt::white));
     mBid.show();
-    mBid.setBrush(Qt::red);
+    mBid.setBrush(Qt::darkCyan);
 }
 /*****************************************************************************/
 void PlayerBox::SetAvatar(const QString &fileName)
@@ -140,26 +144,20 @@ void PlayerBox::EnableAvatar(bool enable)
 /*****************************************************************************/
 void PlayerBox::SelectPlayer(bool selected)
 {
-    Qt::GlobalColor color;
-    qreal width;
-
-    if (selected == true)
+    if (selected)
     {
-        width = 2;
-        color = Qt::darkRed;
+        mName.setPen(SelectedPen);
     }
     else
     {
-        width = 1;
-        color = Qt::black;
+        mName.setPen(NormalPen);
     }
-    mName.setPen(QPen(QColor(color), width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    mName.update();
+    update();
 }
 /*****************************************************************************/
 void PlayerBox::HighlightPlayer(bool highlighted)
 {
-    if (highlighted == true)
+    if (highlighted)
     {
         mName.setBrush(Qt::darkYellow);
     }

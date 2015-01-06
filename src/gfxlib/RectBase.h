@@ -41,6 +41,7 @@ public:
         mPen.setColor("#C68E17");
         mPen.setWidth(3);
 
+        // Background gradient effect
         mGradient.setColorAt( 0, QColor("#5A310D") );
         mGradient.setColorAt( 1, Qt::black);
 
