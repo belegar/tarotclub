@@ -426,7 +426,7 @@ bool Bot::InitializeScriptContext()
     bool retCode = true;
     std::string scriptRoot = Util::GetDirectoryPath(mScriptConf);
 
-    TLogInfo(std::string("Opening: ") + mScriptConf);
+    TLogInfo(std::string("Opening: ") + mScriptConf + std::string(", script root path: ") + scriptRoot);
 
     // Open the configuration file to find the scripts
     JsonReader json;
