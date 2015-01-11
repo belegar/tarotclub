@@ -25,6 +25,7 @@
 
 #include "Avatar.h"
 #include "System.h"
+#include "Log.h"
 #include <QCryptographicHash>
 
 /*****************************************************************************/
@@ -56,7 +57,8 @@ bool Avatar::LoadFile()
     {
         if (IsValid())
         {
-            QNetworkReply *reply = mNetworkManager.get(QNetworkRequest(QUrl::fromUserInput(mFilePath)));
+            QUrl url = QUrl::fromUserInput(mFilePath);
+            QNetworkReply *reply = mNetworkManager.get(QNetworkRequest(url));
 
             QEventLoop loop;
             connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
@@ -66,6 +68,12 @@ bool Avatar::LoadFile()
             if (data.size() > 0)
             {
                 success = mPixmap.loadFromData(data);
+            }
+            else
+            {
+              //  std::stringstream ss;
+              //  ss << << ;
+                TLogError( std::string("Cannot get avatar: ") + reply->errorString().toStdString());
             }
             reply->deleteLater();
         }
