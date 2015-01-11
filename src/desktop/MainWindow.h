@@ -90,7 +90,6 @@ private slots:
     void slotQuitTable(std::uint32_t tableId);
     void slotDisconnectFromLobby();
     void slotLobbyPlayersList();
-    void slotSaveConfiguration();
 
 private:
     void SetupDialogs();
@@ -107,6 +106,7 @@ private:
     QMenu *gameMenu;
     QMenu *netMenu;
     QMenu *paramsMenu;
+    QMenu *mDevMenu;
     QMenu *helpMenu;
 
     // Menu Jeu
@@ -115,7 +115,6 @@ private:
     QAction *newTournamentAct;
     QAction *newNumberedDealAct;
     QAction *newCustomDealAct;
-    QAction *newAutoPlayAct;
 
     //----network
 //    QAction *netGameServerAct;
@@ -127,13 +126,15 @@ private:
     QAction *optionsAct;
     QAction *dealsAct;
 
+    // Menu développeur
+    QAction *newAutoPlayAct;
+
     TarotWidget *tarotWidget;
 
     // Modal windows
     AboutWindow *about;
     OptionsWindow *optionsWindow;
     EditorWindow *editorWindow;
-    LobbyWindow *lobbyWindow;
     QDialog *quickJoinWindow;
     Ui::quickJoin uiQuickJoin;
     DealsWindow *dealsWindow;
@@ -143,6 +144,7 @@ private:
     InfosDock *infosDock;
     ChatDock *chatDock;
     DebugDock *debugDock;
+    LobbyDock *mLobbyDock;
 
 };
 

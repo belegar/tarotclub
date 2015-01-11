@@ -29,34 +29,27 @@
 #include "LobbyWindow.h"
 #include "ServerConfig.h"
 #include "Lobby.h"
-#include "ui_NewServerUI.h"
 
 /*****************************************************************************/
-LobbyWindow::LobbyWindow(QWidget *parent = 0)
-    : QDialog(parent, Qt::Window)
+LobbyDock::LobbyDock(QWidget *parent = 0)
+    : QDockWidget(tr("Hall"), parent)
 {
-    setModal(false);
     ui.setupUi(this);
 
-    connect(ui.connectButton, &QPushButton::clicked, this, &LobbyWindow::slotConnect);
-    connect(ui.disconnectButton, &QPushButton::clicked, this, &LobbyWindow::slotDisconnect);
-    connect(ui.joinButton, &QPushButton::clicked, this, &LobbyWindow::slotJoin);
-    connect(ui.quitButton, &QPushButton::clicked, this, &LobbyWindow::slotQuit);
-    connect(ui.closeButton, &QPushButton::clicked, this, &LobbyWindow::slotClose);
-    connect(ui.checkServerButton, &QPushButton::clicked, this, &LobbyWindow::slotCheckServer);
-    connect(ui.addServerButton, &QPushButton::clicked, this, &LobbyWindow::slotAddServer);
-    connect(ui.removeServerButton, &QPushButton::clicked, this, &LobbyWindow::slotRemoveServer);
-    connect(ui.addBotButton, &QPushButton::clicked, this, &LobbyWindow::slotAddBot);
-    connect(ui.removeBotButton, &QPushButton::clicked, this, &LobbyWindow::slotRemoveBot);
-    connect(ui.chatText, &QLineEdit::returnPressed, this, &LobbyWindow::slotReturnPressed);
+    connect(ui.connectButton, &QPushButton::clicked, this, &LobbyDock::slotConnect);
+    connect(ui.disconnectButton, &QPushButton::clicked, this, &LobbyDock::slotDisconnect);
+    connect(ui.joinButton, &QPushButton::clicked, this, &LobbyDock::slotJoin);
+    connect(ui.quitButton, &QPushButton::clicked, this, &LobbyDock::slotQuit);
+    connect(ui.checkServerButton, &QPushButton::clicked, this, &LobbyDock::slotCheckServer);
+    connect(ui.chatText, &QLineEdit::returnPressed, this, &LobbyDock::slotReturnPressed);
 
     Initialize();
 }
 /*****************************************************************************/
-void LobbyWindow::slotConnect()
+void LobbyDock::slotConnect()
 {
     ui.infoLabel->setText(trUtf8("Connecting ..."));
-    std::uint32_t item = ui.serverList->currentRow();
+    std::uint32_t item = ui.serverList->currentIndex();
     if (item < mServerList.size())
     {
         QHostInfo info = QHostInfo::fromName(mServerList[item].address.c_str());
@@ -83,22 +76,22 @@ void LobbyWindow::slotConnect()
     }
 }
 /*****************************************************************************/
-void LobbyWindow::slotDisconnect()
+void LobbyDock::slotDisconnect()
 {
     emit sigDisconnect();
 }
 /*****************************************************************************/
-void LobbyWindow::slotMessage(std::string message)
+void LobbyDock::slotMessage(std::string message)
 {
     ui.textArea->append(QString(message.c_str()));
 }
 /*****************************************************************************/
-void LobbyWindow::slotConnectionFailure()
+void LobbyDock::slotConnectionFailure()
 {
      ui.infoLabel->setText(trUtf8("Connection to the seveur failed!"));
 }
 /*****************************************************************************/
-void LobbyWindow::SetPlayersNames(const std::map<std::uint32_t, std::string> &players)
+void LobbyDock::SetPlayersNames(const std::map<std::uint32_t, std::string> &players)
 {
     ui.infoLabel->setText(trUtf8("Connected."));
     ui.playerList->clear();
@@ -109,7 +102,7 @@ void LobbyWindow::SetPlayersNames(const std::map<std::uint32_t, std::string> &pl
     }
 }
 /*****************************************************************************/
-void LobbyWindow::SetTableStatus(std::uint32_t tableId, bool status)
+void LobbyDock::SetTableStatus(std::uint32_t tableId, bool status)
 {
     (void) tableId; // FIXME: add information about the connection using this id
     if (status)
@@ -124,12 +117,12 @@ void LobbyWindow::SetTableStatus(std::uint32_t tableId, bool status)
     }
 }
 /*****************************************************************************/
-void LobbyWindow::DisconnectedFromServer()
+void LobbyDock::DisconnectedFromServer()
 {
     Initialize();
 }
 /*****************************************************************************/
-void LobbyWindow::SetTables(const std::map<std::string, std::uint32_t> &tableList)
+void LobbyDock::SetTables(const std::map<std::string, std::uint32_t> &tableList)
 {
     ui.tableList->clear();
     mTableList = tableList;
@@ -139,7 +132,7 @@ void LobbyWindow::SetTables(const std::map<std::string, std::uint32_t> &tableLis
     }
 }
 /*****************************************************************************/
-void LobbyWindow::SetServersList(const std::vector<ServerInfo> &servers)
+void LobbyDock::SetServersList(const std::vector<ServerInfo> &servers)
 {
     mServerList = servers;
 
@@ -161,28 +154,17 @@ void LobbyWindow::SetServersList(const std::vector<ServerInfo> &servers)
     UpdateServersList();
 }
 /*****************************************************************************/
-void LobbyWindow::UpdateServersList()
+void LobbyDock::UpdateServersList()
 {
     ui.serverList->clear();
     for (std::vector<ServerInfo>::iterator iter = mServerList.begin(); iter != mServerList.end(); ++iter)
     {
-        QString server = QString(iter->address.c_str()) + QString(" (%1), (%2)").arg(iter->game_tcp_port).arg(iter->web_tcp_port);
+        QString server = QString(iter->address.c_str());
         ui.serverList->addItem(server);
     }
-
-    if (mServerList.size() > 0)
-    {
-        // Select first element
-        ui.serverList->setCurrentRow(0);
-    }
 }
 /*****************************************************************************/
-std::vector<ServerInfo> LobbyWindow::GetServersList()
-{
-    return mServerList;
-}
-/*****************************************************************************/
-void LobbyWindow::slotJoin()
+void LobbyDock::slotJoin()
 {
     // Gets the table name
     QListWidgetItem * item = ui.tableList->currentItem();
@@ -196,7 +178,7 @@ void LobbyWindow::slotJoin()
     }
 }
 /*****************************************************************************/
-void LobbyWindow::slotQuit()
+void LobbyDock::slotQuit()
 {
     // Gets the table name
     QListWidgetItem * item = ui.tableList->currentItem();
@@ -210,66 +192,24 @@ void LobbyWindow::slotQuit()
     }
 }
 /*****************************************************************************/
-void LobbyWindow::slotCheckServer()
+void LobbyDock::slotCheckServer()
 {
-    ui.serverStatus->setText(tr("Checking ..."));
+    ui.textArea->append(tr("<b>Checking server ...</b>"));
 
     if (CheckServer())
     {
-        ui.serverStatus->setText(tr("Server OK"));
+        ui.textArea->append(tr("<b>Server OK</b>"));
     }
     else
     {
-        ui.serverStatus->setText(tr("Server unavailable :("));
+        ui.textArea->append(tr("<b>Server unavailable :(</b>"));
     }
 }
 /*****************************************************************************/
-void LobbyWindow::slotAddServer()
-{
-    QDialog *dialog = new QDialog(this);
-    Ui::newServerUI srvUi;
-
-    srvUi.setupUi(dialog);
-
-    if (dialog->exec() == QDialog::Accepted)
-    {
-        ServerInfo server;
-        server.address = srvUi.address->text().toStdString();
-        server.game_tcp_port = srvUi.gamePort->value();
-        server.web_tcp_port = srvUi.webPort->value();
-
-        mServerList.push_back(server);
-        UpdateServersList();
-        emit sigSaveServersConfiguration();
-    }
-}
-/*****************************************************************************/
-void LobbyWindow::slotRemoveServer()
-{
-    std::uint32_t item = ui.serverList->currentRow();
-    if (item < mServerList.size())
-    {
-        mServerList.erase(mServerList.begin() + item);
-
-        UpdateServersList();
-        emit sigSaveServersConfiguration();
-    }
-}
-/*****************************************************************************/
-void LobbyWindow::slotAddBot()
-{
-
-}
-/*****************************************************************************/
-void LobbyWindow::slotRemoveBot()
-{
-
-}
-/*****************************************************************************/
-bool LobbyWindow::CheckServer()
+bool LobbyDock::CheckServer()
 {
     bool ret = false;
-    std::uint32_t item = ui.serverList->currentRow();
+    std::uint32_t item = ui.serverList->currentIndex();
     if (item < mServerList.size())
     {
         QHostInfo info = QHostInfo::fromName(mServerList[item].address.c_str());
@@ -304,12 +244,7 @@ bool LobbyWindow::CheckServer()
     return ret;
 }
 /*****************************************************************************/
-void LobbyWindow::slotClose()
-{
-    this->hide();
-}
-/*****************************************************************************/
-void LobbyWindow::Initialize()
+void LobbyDock::Initialize()
 {  
     ui.joinButton->setEnabled(true);
     ui.quitButton->setEnabled(false);
@@ -317,10 +252,9 @@ void LobbyWindow::Initialize()
     mTableList.clear();
     ui.tableList->clear();
     ui.playerList->clear();
-    ui.serverStatus->setText("-");
 }
 /*****************************************************************************/
-bool LobbyWindow::RequestHttp(const QString &request, QString &reply)
+bool LobbyDock::RequestHttp(const QString &request, QString &reply)
 {
     bool ret = false;
     // create custom temporary event loop on stack
@@ -353,7 +287,7 @@ bool LobbyWindow::RequestHttp(const QString &request, QString &reply)
     return ret;
 }
 /*****************************************************************************/
-void LobbyWindow::slotReturnPressed()
+void LobbyDock::slotReturnPressed()
 {
     QString message = ui.chatText->text();
     if (message.length() == 0)

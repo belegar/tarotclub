@@ -28,6 +28,7 @@
 #include <QDir>
 #include <QString>
 #include <QtWidgets>
+#include "ui_NewServerUI.h"
 
 static const QPoint labelPos[5] =
 {
@@ -328,6 +329,9 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     mRadioGroup.addButton(ui.radioPredefined, cPredefinedRadioButtonId);
     connect (&mRadioGroup, SIGNAL(buttonToggled(int,bool)), this, SLOT(slotButtonToggled(int,bool)));
 
+    connect(ui.addServerButton, &QPushButton::clicked, this, &OptionsWindow::slotAddServer);
+    connect(ui.removeServerButton, &QPushButton::clicked, this, &OptionsWindow::slotRemoveServer);
+
     mLevelList.append(tr("Beginner"));
 
     connect(ui.botsList, &QListWidget::currentRowChanged, this, &OptionsWindow::slotBotSelected);
@@ -480,6 +484,7 @@ void OptionsWindow::slotBtnOk()
 
     // Server stuff
     serverOptions.timer = ui.slider1->value();
+
     accept();
 }
 /*****************************************************************************/
@@ -601,6 +606,51 @@ void OptionsWindow::slotImportAvatar()
     }
 }
 /*****************************************************************************/
+void OptionsWindow::slotAddServer()
+{
+    QDialog *dialog = new QDialog(this);
+    Ui::newServerUI srvUi;
+
+    srvUi.setupUi(dialog);
+
+    if (dialog->exec() == QDialog::Accepted)
+    {
+        ServerInfo server;
+        server.address = srvUi.address->text().toStdString();
+        server.game_tcp_port = srvUi.gamePort->value();
+        server.web_tcp_port = srvUi.webPort->value();
+
+        clientOptions.serverList.push_back(server);
+        UpdateServersList();
+    }
+}
+/*****************************************************************************/
+void OptionsWindow::slotRemoveServer()
+{
+    std::uint32_t item = ui.serverList->currentRow();
+    if (item < clientOptions.serverList.size())
+    {
+        clientOptions.serverList.erase(clientOptions.serverList.begin() + item);
+        UpdateServersList();
+    }
+}
+/*****************************************************************************/
+void OptionsWindow::UpdateServersList()
+{
+    ui.serverList->clear();
+    for (std::vector<ServerInfo>::iterator iter = clientOptions.serverList.begin(); iter != clientOptions.serverList.end(); ++iter)
+    {
+        QString server = QString(iter->address.c_str()) + QString(" (%1), (%2)").arg(iter->game_tcp_port).arg(iter->web_tcp_port);
+        ui.serverList->addItem(server);
+    }
+
+    if (clientOptions.serverList.size() > 0)
+    {
+        // Select first element
+        ui.serverList->setCurrentRow(0);
+    }
+}
+/*****************************************************************************/
 /**
  * @brief Refresh widgets with current configuration
  */
@@ -666,6 +716,9 @@ void OptionsWindow::Refresh()
 
     // server stuff
     ui.slider1->setValue(serverOptions.timer);
+
+    // -------------  NETWORK TAB --------------
+    UpdateServersList();
 }
 
 //=============================================================================

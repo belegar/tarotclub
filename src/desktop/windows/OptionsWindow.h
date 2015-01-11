@@ -130,6 +130,10 @@ private slots:
     void slotButtonToggled(int id, bool checked);
     void slotImportAvatar();
 
+    // Network tab widgets
+    void slotAddServer();
+    void slotRemoveServer();
+
 private:
     Ui::OptionsUI  ui;
     Ui::Avatars mAvatarsUi;
@@ -147,6 +151,7 @@ private:
     ImportAvatarWindow mImportAvatarWindow;
 
     QString ChooseAvatar(const QString &defaultAvatar);
+    void UpdateServersList();
 
 };
 
