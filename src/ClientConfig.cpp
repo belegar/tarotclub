@@ -216,6 +216,10 @@ bool ClientConfig::Save(const std::string &fileName)
 
     JsonObject *obj = json.CreateObjectPair("identity");
     obj->CreateValuePair("name", mOptions.identity.name);
+
+    // Make sure to use unix path separator
+    Util::ReplaceCharacter(mOptions.identity.avatar, "\\", "/");
+
     obj->CreateValuePair("avatar", mOptions.identity.avatar);
     std::string text;
     if (mOptions.identity.gender == Identity::MALE)
@@ -251,12 +255,11 @@ bool ClientConfig::Save(const std::string &fileName)
 ClientOptions ClientConfig::GetDefault()
 {
     const ServerInfo DefaultServers[2U] = {
-      {"tarot.fun-center.fr", 4269, 8080 },
-      {"tarotclub.duckdns.org", 4269, 8080 }
+        {"tarotclub.duckdns.org", 4269, 8080 },
+        {"tarot.fun-center.fr", 4269, 8080 },
     };
 
     const std::uint32_t NumberOfServers = (sizeof(DefaultServers) / sizeof(ServerInfo));
-
 
     ClientOptions opt;
 

@@ -196,6 +196,10 @@ bool ServerConfig::Save(const std::string &fileName)
         Place bot(i);
         JsonObject *obj = json.CreateObjectPair(bot.ToString());
         obj->CreateValuePair("name", mOptions.bots[i].identity.name);
+
+        // Make sure to use unix path separator
+        Util::ReplaceCharacter(mOptions.bots[i].identity.avatar, "\\", "/");
+
         obj->CreateValuePair("avatar", mOptions.bots[i].identity.avatar);
         std::string text;
         if (mOptions.bots[i].identity.gender == Identity::MALE)
@@ -208,6 +212,9 @@ bool ServerConfig::Save(const std::string &fileName)
         }
 
         obj->CreateValuePair("gender", text);
+
+        // Make sure to use unix path separator
+        Util::ReplaceCharacter(mOptions.bots[i].scriptFilePath, "\\", "/");
         obj->CreateValuePair("bot_file_path", mOptions.bots[i].scriptFilePath);
     }
 
