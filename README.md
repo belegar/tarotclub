@@ -103,6 +103,22 @@ qmake prj/desktop.pro
 make
 ```
 
+## How to build TarotClub under Fedora
+
+Install the following packages
+
+```
+yum install gcc-c++ qt5-qtsvg-devel qt5-qtsvg qt5-base qt5-qtbase-devel
+```
+
+Then run Qmake:
+
+```
+cd tarotclub
+qmake-qt5 prj/desktop.pro
+make
+```
+
 # Development tools
 
 ## Code style
@@ -115,6 +131,7 @@ The following tools are used:
 
 Here is a quick-and-dirty coding rules list:
 
+  * Indentation takes 4-spaces, to tabulations allowed. BSD style brackets.
   * Class members are prefixed by a 'm' letter, followed by mixed-case: mMyMemberVariable;
   * Class/Enum/Structure names are mixed-case: class MyClass() { ... };
   
@@ -231,8 +248,9 @@ and the delivery process must be executed again from the beginning).
 
   * Twitter
   * Ubuntu-fr forum
+  * ArchLinux-FR forum
   * Canard-PC forum
-  * TODO: fedora, arch, suse, slackware, Mac
+  * TODO: fedora, suse, slackware, Mac
 
 ## Propaganda
 
