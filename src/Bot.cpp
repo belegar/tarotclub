@@ -163,6 +163,8 @@ void Bot::AskForHandle()
 {
     bool valid = false;
     JSEngine::StringList args;
+
+    TLogInfo("Ask for handle");
     Value ret = mBotEngine.Call("AskForHandle", args);
     Deck handle; // empty by default
 
@@ -201,6 +203,7 @@ void Bot::AskForHandle()
 
     if (valid)
     {
+        TLogInfo(std::string("Sending handle") + handle.ToString());
         mClient.SendHandle(handle);
     }
     else
@@ -425,6 +428,8 @@ bool Bot::InitializeScriptContext()
 {
     bool retCode = true;
     std::string scriptRoot = Util::GetDirectoryPath(mScriptConf);
+
+    TLogInfo(std::string("Opening: ") + mScriptConf + std::string(", script root path: ") + scriptRoot);
 
     // Open the configuration file to find the scripts
     JsonReader json;

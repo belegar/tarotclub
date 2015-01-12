@@ -59,8 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);
-    connect(tarotWidget, &TarotWidget::sigLobbyMessage, lobbyWindow, &LobbyWindow::slotMessage, Qt::QueuedConnection);
-    connect(tarotWidget, &TarotWidget::sigRemoteConnectionFailure, lobbyWindow, &LobbyWindow::slotConnectionFailure, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigLobbyMessage, mLobbyDock, &LobbyDock::slotMessage, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigRemoteConnectionFailure, mLobbyDock, &LobbyDock::slotConnectionFailure, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigLobbyPlayersList, this, &MainWindow::slotLobbyPlayersList, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigTableQuitEvent, this, &MainWindow::slotTableQuitEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigTableJoinEvent, this, &MainWindow::slotTableJoinEvent, Qt::QueuedConnection);
@@ -81,12 +81,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(chatDock, &ChatDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendChatMessage);
 
     // Lobby
-    connect(lobbyWindow, &LobbyWindow::sigConnect, this, &MainWindow::slotConnectToLobby);
-    connect(lobbyWindow, &LobbyWindow::sigDisconnect, this, &MainWindow::slotDisconnectFromLobby);
-    connect(lobbyWindow, &LobbyWindow::sigJoinTable, this, &MainWindow::slotJoinTable);
-    connect(lobbyWindow, &LobbyWindow::sigQuitTable, this, &MainWindow::slotQuitTable);
-    connect(lobbyWindow, &LobbyWindow::sigEmitMessage, tarotWidget, &TarotWidget::slotSendLobbyMessage);
-    connect(lobbyWindow, &LobbyWindow::sigSaveServersConfiguration, this, &MainWindow::slotSaveConfiguration);
+    connect(mLobbyDock, &LobbyDock::sigConnect, this, &MainWindow::slotConnectToLobby);
+    connect(mLobbyDock, &LobbyDock::sigDisconnect, this, &MainWindow::slotDisconnectFromLobby);
+    connect(mLobbyDock, &LobbyDock::sigJoinTable, this, &MainWindow::slotJoinTable);
+    connect(mLobbyDock, &LobbyDock::sigQuitTable, this, &MainWindow::slotQuitTable);
+    connect(mLobbyDock, &LobbyDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendLobbyMessage);
 
     // Exit catching to terminate the game properly
     connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
@@ -147,7 +146,7 @@ void MainWindow::slotNewCustomDeal()
 /*****************************************************************************/
 void MainWindow::slotJoinNetworkGame()
 {
-    lobbyWindow->show();
+    mLobbyDock->show();
 }
 /*****************************************************************************/
 void MainWindow::slotConnectToLobby(QString server, std::uint16_t port)
@@ -180,45 +179,37 @@ void MainWindow::slotQuitTable(std::uint32_t tableId)
 /*****************************************************************************/
 void MainWindow::slotTableQuitEvent(std::uint32_t tableId)
 {
-    lobbyWindow->SetTableStatus(tableId, false);
+    mLobbyDock->SetTableStatus(tableId, false);
     infosDock->Clear();
     scoresDock->Clear();
 }
 /*****************************************************************************/
 void MainWindow::slotTableJoinEvent(std::uint32_t tableId)
 {
-    lobbyWindow->SetTableStatus(tableId, true);
+    mLobbyDock->SetTableStatus(tableId, true);
 }
 /*****************************************************************************/
 void MainWindow::slotClientError(std::uint32_t errorId)
 {
     QString errorMsg = tr("Client error: %1").arg(errorId);
-    lobbyWindow->slotMessage(errorMsg.toStdString());
+    mLobbyDock->slotMessage(errorMsg.toStdString());
 }
 /*****************************************************************************/
 void MainWindow::slotDisconnectedFromServer()
 {
-    lobbyWindow->DisconnectedFromServer();
+    mLobbyDock->DisconnectedFromServer();
     infosDock->Clear();
     scoresDock->Clear();
 }
 /*****************************************************************************/
 void MainWindow::slotEnteredLobby()
 {
-    lobbyWindow->SetTables(tarotWidget->GetTableList());
+    mLobbyDock->SetTables(tarotWidget->GetTableList());
 }
 /*****************************************************************************/
 void MainWindow::slotLobbyPlayersList()
 {
-    lobbyWindow->SetPlayersNames(tarotWidget->GetLobbyPlayersList());
-}
-/*****************************************************************************/
-void MainWindow::slotSaveConfiguration()
-{
-    ClientOptions opt = mClientConfig.GetOptions();
-    opt.serverList = lobbyWindow->GetServersList();
-    mClientConfig.SetOptions(opt);
-    mClientConfig.Save(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
+    mLobbyDock->SetPlayersNames(tarotWidget->GetLobbyPlayersList());
 }
 /*****************************************************************************/
 void MainWindow::slotQuickJoinNetworkGame()
@@ -247,6 +238,7 @@ void MainWindow::slotShowOptions()
         mServerConfig.Save(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
         tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
                                   mServerConfig.GetOptions());
+        mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
     }
 }
 /*****************************************************************************/
@@ -261,7 +253,7 @@ void MainWindow::Initialize()
     tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
                               mServerConfig.GetOptions());
 
-    lobbyWindow->SetServersList(mClientConfig.GetOptions().serverList);
+    mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
     debugDock->Initialize();
 
     // Load previously saved settings
@@ -290,10 +282,6 @@ void MainWindow::SetupDialogs()
     optionsWindow->setAttribute(Qt::WA_ShowModal, true);
     optionsWindow->hide();
 
-    // Connect to a dedicated server
-    lobbyWindow = new LobbyWindow(this);
-    lobbyWindow->hide();
-
     // Deal editor
     editorWindow = new EditorWindow(this);
     editorWindow->setAttribute(Qt::WA_ShowModal, true);
@@ -317,6 +305,14 @@ void MainWindow::SetupDocks()
     debugDock->setObjectName("DebugDock"); // for dock saving
     addDockWidget(Qt::BottomDockWidgetArea, debugDock);
     debugDock->hide();
+
+    // Debug, for scripts and Qt error redirection
+    mLobbyDock = new LobbyDock(this);
+    mLobbyDock->setObjectName("LobbyDock"); // for dock saving
+    addDockWidget(Qt::BottomDockWidgetArea, mLobbyDock);
+    mLobbyDock->hide();
+
+    tabifyDockWidget(debugDock, mLobbyDock);
 
     // ----------  Right Docks ------------------------
 
@@ -370,10 +366,6 @@ void MainWindow::SetupMenus()
     newCustomDealAct->setShortcut(tr("Ctrl+L"));
     newCustomDealAct->setStatusTip(tr("Deal cards with a deal created with the editor"));
 
-    newAutoPlayAct = new QAction(tr("New auto& play"), this);
-    newAutoPlayAct->setShortcut(tr("Ctrl+Y"));
-    newAutoPlayAct->setStatusTip(tr("Auto play, to train your AI script!"));
-
     //----- Network
     onlineGameAct = new QAction(tr("&Play online"), this);
     onlineGameAct->setShortcut(tr("Ctrl+P"));
@@ -399,7 +391,6 @@ void MainWindow::SetupMenus()
     gameMenu->addAction(newTournamentAct);
     gameMenu->addAction(newNumberedDealAct);
     gameMenu->addAction(newCustomDealAct);
-    gameMenu->addAction(newAutoPlayAct);
     gameMenu->addSeparator();
     gameMenu->addAction(exitAct);
 
@@ -441,8 +432,16 @@ void MainWindow::SetupMenus()
     paramsMenu->addAction(scoresDock->toggleViewAction());
     paramsMenu->addAction(infosDock->toggleViewAction());
     paramsMenu->addAction(chatDock->toggleViewAction());
-    paramsMenu->addAction(debugDock->toggleViewAction());
-    paramsMenu->addAction(debugDock->toggleViewAction());
+
+    // ----------------
+    // Developer menu
+    // ----------------
+    mDevMenu = menuBar()->addMenu(tr("Debug"));
+    newAutoPlayAct = new QAction(tr("New auto& play"), this);
+    newAutoPlayAct->setShortcut(tr("Ctrl+Y"));
+    newAutoPlayAct->setStatusTip(tr("Auto play, to train your AI script!"));
+    mDevMenu->addAction(newAutoPlayAct);
+    mDevMenu->addAction(debugDock->toggleViewAction());
 
     //-----------
     // Menu Help

@@ -528,12 +528,12 @@ void Canvas::HideMessageBox()
 /*****************************************************************************/
 void Canvas::ShowSelection(Place p, Place myPlace)
 {
+    Place rel = SwapPlace(myPlace, p);  // relative place
+
     QMapIterator<Place, PlayerBox *> i(mPlayerBox);
     while (i.hasNext())
     {
-        i.next();
-        Place rel = SwapPlace(myPlace, p);  // relative place
-
+        i.next();        
         if (i.key() == rel)
         {
             i.value()->SelectPlayer(true);

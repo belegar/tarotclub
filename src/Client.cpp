@@ -359,6 +359,10 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     bool ret = true;
     ByteStreamReader in(data);
 
+    std::stringstream dbg;
+    dbg << "Client command received: 0x" << std::hex << (int)cmd;
+    TLogNetwork(dbg.str());
+
     switch (cmd)
     {
 

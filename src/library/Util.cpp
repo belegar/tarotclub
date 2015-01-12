@@ -169,7 +169,13 @@ std::string Util::GetFileName(const std::string &path)
 /*****************************************************************************/
 std::string Util::GetDirectoryPath(const std::string &path)
 {
-    return path.substr(0, path.find_last_of(DIR_SEPARATOR));
+    std::string directory = path;
+    // transform into native path
+#ifdef USE_WINDOWS_OS
+    ReplaceCharacter(directory, "/", "\\");
+#endif
+
+    return directory.substr(0, directory.find_last_of(DIR_SEPARATOR));
 }
 /*****************************************************************************/
 /**

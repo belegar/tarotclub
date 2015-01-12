@@ -31,16 +31,18 @@
 
 // Includes locales
 #include "ChatDock.h"
+#include <QLabel>
 
 /*****************************************************************************/
 ChatDock::ChatDock(QWidget *parent)
-    : QDockWidget(trUtf8("Chat"), parent)
+    : QDockWidget(trUtf8("Private chat"), parent)
 {
+    QLabel *label = new QLabel(tr("Use this chat when you have joined a table to discuss with the other players."));
     chatWindow = new QTextBrowser();
     textLine = new QLineEdit();
 
-
     QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(label);
     layout->addWidget(chatWindow);
     layout->addWidget(textLine);
 

@@ -90,5 +90,10 @@
         <file>avatars/O03.png</file>
         <file>avatars/O04.png</file>
         <file>avatars/O05.png</file>
+        <file>images/check.png</file>
+        <file>images/connect.png</file>
+        <file>images/disconnect.png</file>
+        <file>images/join.png</file>
+        <file>images/quit.png</file>
     </qresource>
 </RCC>

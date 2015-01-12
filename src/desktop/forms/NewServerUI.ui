@@ -32,7 +32,7 @@
         <item>
          <widget class="QLineEdit" name="address">
           <property name="text">
-           <string>http://tarot.myserver.com</string>
+           <string>tarot.myserver.com</string>
           </property>
          </widget>
         </item>

@@ -37,7 +37,7 @@
 
 /*****************************************************************************/
 DebugDock::DebugDock(QWidget *parent)
-    : QDockWidget(trUtf8("Debug"), parent)
+    : QDockWidget(trUtf8("Debug output window"), parent)
 {
     logWindow = new QTextBrowser();
     clearButton = new QPushButton(trUtf8("Clear"));
