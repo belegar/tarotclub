@@ -58,6 +58,10 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
     bool ret = true;
     ByteStreamReader in(data);
 
+    std::stringstream dbg;
+    dbg << "Server controller command received: 0x" << std::hex << (int)cmd;
+    TLogNetwork(dbg.str());
+
     switch (cmd)
     {
     case Protocol::CLIENT_ERROR:
