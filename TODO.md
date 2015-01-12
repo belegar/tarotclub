@@ -27,6 +27,7 @@
   * Add a maximum play delay for network players, if timeout a random card is played
   * New network commands: change nick, change avatar
   * Dedicated server information and commands (display stats, tables and players)
+  * Log all the messages (per table and of the hall, one file per day)
   
 # ---------------------------------------------- BACKLOG --------------------------------------------------  
   

@@ -1,5 +1,12 @@
 # Branch 2.5 - Codename <Pirate!> (28/12/2014)
 
+## Corrections in version 2.5.2
+
+  * Corrected the selection color around the name box
+  * Try of a new box color for the bid (less flashy than the red one)
+  * NEW lobby dockable window interface
+  * 
+
 ## Corrections in version 2.5.1
 
   * Lobby window: removed default focus on buttons while chatting
@@ -10,7 +17,6 @@
   * Corrected deals visualizer
   * Corrected defense AI script bug
   * Deleted the quote parameter (obsolete)
-
 
 ## Desktop user interface
 
