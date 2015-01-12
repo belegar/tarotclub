@@ -54,6 +54,12 @@ public:
     static const std::uint32_t  USERS_UID;      //!< Start of users UUID
     static const std::uint32_t  NO_TABLE;       //!< Identifier for "no table"
 
+    // Offsets (in bytes) from the start of one packet
+    static const std::uint32_t VERSION_OFFSET;
+    static const std::uint32_t SRC_UUID_OFFSET;
+    static const std::uint32_t DEST_UUID_OFFSET;
+    static const std::uint32_t COMMAND_OFFSET;
+
     struct PacketInfo
     {
         std::uint16_t offset;

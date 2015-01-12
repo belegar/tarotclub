@@ -43,10 +43,10 @@ const std::uint32_t Protocol::NO_TABLE      = 0U;
 static const std::uint16_t HEADER_SIZE      = 12U;
 
 // Offsets (in bytes) from the start of one packet
-static const std::uint32_t VERSION_OFFSET   = 2U;
-static const std::uint32_t SRC_UUID_OFFSET  = 3U;
-static const std::uint32_t DEST_UUID_OFFSET = 7U;
-static const std::uint32_t COMMAND_OFFSET   = 11U;
+static const std::uint32_t Protocol::VERSION_OFFSET   = 2U;
+static const std::uint32_t Protocol::SRC_UUID_OFFSET  = 3U;
+static const std::uint32_t Protocol::DEST_UUID_OFFSET = 7U;
+static const std::uint32_t Protocol::COMMAND_OFFSET   = 11U;
 
 /*****************************************************************************/
 Protocol::Protocol()
@@ -246,14 +246,19 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
                 {
                     // Drop the rest of the packet
                     found = false;
+                    TLogNetwork("Bad protocol version.");
                 }
             }
             else
             {
                 found = false;
-                TLogError("Packet too small.");
+                TLogNetwork("Sub-packet too small.");
             }
         }
+    }
+    else
+    {
+        TLogNetwork("Received packet too small.");
     }
     return packets;
 }

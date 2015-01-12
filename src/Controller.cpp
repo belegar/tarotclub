@@ -660,6 +660,11 @@ void Controller::GameSequence()
 /*****************************************************************************/
 void Controller::Send(const ByteArray &block)
 {
+    std::uint8_t cmd = block.Get(Protocol::COMMAND_OFFSET);
+    std::stringstream dbg;
+    dbg << "Server controller sending packet: 0x" << std::hex << (int)cmd;
+    TLogNetwork(dbg.str());
+
     mEventHandler.SendData(block, mId);
 }
 

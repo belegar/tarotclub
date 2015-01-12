@@ -163,6 +163,8 @@ void Bot::AskForHandle()
 {
     bool valid = false;
     JSEngine::StringList args;
+
+    TLogInfo("Ask for handle");
     Value ret = mBotEngine.Call("AskForHandle", args);
     Deck handle; // empty by default
 
@@ -201,6 +203,7 @@ void Bot::AskForHandle()
 
     if (valid)
     {
+        TLogInfo(std::string("Sending handle") + handle.ToString());
         mClient.SendHandle(handle);
     }
     else
