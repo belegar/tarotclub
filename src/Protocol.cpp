@@ -43,10 +43,10 @@ const std::uint32_t Protocol::NO_TABLE      = 0U;
 static const std::uint16_t HEADER_SIZE      = 12U;
 
 // Offsets (in bytes) from the start of one packet
-static const std::uint32_t Protocol::VERSION_OFFSET   = 2U;
-static const std::uint32_t Protocol::SRC_UUID_OFFSET  = 3U;
-static const std::uint32_t Protocol::DEST_UUID_OFFSET = 7U;
-static const std::uint32_t Protocol::COMMAND_OFFSET   = 11U;
+const std::uint32_t Protocol::VERSION_OFFSET   = 2U;
+const std::uint32_t Protocol::SRC_UUID_OFFSET  = 3U;
+const std::uint32_t Protocol::DEST_UUID_OFFSET = 7U;
+const std::uint32_t Protocol::COMMAND_OFFSET   = 11U;
 
 /*****************************************************************************/
 Protocol::Protocol()

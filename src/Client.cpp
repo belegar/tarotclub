@@ -48,9 +48,15 @@ void Client::Initialize()
 
     if (!mInitialized)
     {
-        mTcpClient.Create();
-        mThread = std::thread(Client::EntryPoint, this);
-        mInitialized = true;
+        mInitialized = mTcpClient.Start();
+        if (mInitialized)
+        {
+            mThread = std::thread(Client::EntryPoint, this);
+        }
+        else
+        {
+            TLogError("Cannot initialize socket client");
+        }
     }
 }
 /*****************************************************************************/
@@ -276,15 +282,9 @@ void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
         mTcpClient.Create();
     }
 
-    if (mTcpClient.Connect(hostName, port) == true)
-    {
-        mConnected = true;
-        mQueue.Push(START);
-    }
-    else
-    {
-        TLogError("Client cannot connect to server.");
-    }
+    mHostName = hostName;
+    mTcpPort = port;
+    mQueue.Push(START);
 }
 /*****************************************************************************/
 void Client::Close()
@@ -315,29 +315,37 @@ void Client::Run()
         mQueue.WaitAndPop(cmd);
         if (cmd == START)
         {
-            while (mConnected)
+            if (mTcpClient.Connect(mHostName, mTcpPort) == true)
             {
-                std::int32_t ret = mTcpClient.Recv(buffer);
-                if (ret > 0)
+                mConnected = true;
+                while (mConnected)
                 {
-                    ByteArray data(buffer);
-                    mConnected = Protocol::DataManagement(this, data);
+                    std::int32_t ret = mTcpClient.Recv(buffer);
+                    if (ret > 0)
+                    {
+                        ByteArray data(buffer);
+                        mConnected = Protocol::DataManagement(this, data);
+                    }
+                    else if (ret == 0)
+                    {
+                        mConnected = false;
+                        TLogNetwork("Lost connection! Place: " + mPlace.ToString());
+                    }
+                    else
+                    {
+                        // Error!
+                        mConnected = false;
+                        TLogNetwork("Rev() socket read error.");
+                        mTcpClient.Close();
+                    }
                 }
-                else if (ret == 0)
-                {
-                    mConnected = false;
-                    TLogNetwork("Lost connection! Place: " + mPlace.ToString());
-                }
-                else
-                {
-                    // Error!
-                    mConnected = false;
-                    TLogNetwork("Rev() socket read error.");
-                    mTcpClient.Close();
-                }
+                mPlayer.SetUuid(Protocol::INVALID_UID);
+                mEventHandler.DisconnectedFromServer();
             }
-            mPlayer.SetUuid(Protocol::INVALID_UID);
-            mEventHandler.DisconnectedFromServer();
+            else
+            {
+                TLogError("Client cannot connect to server.");
+            }
         }
         else if (cmd == EXIT)
         {
@@ -838,9 +846,18 @@ void Client::SendSyncHandle()
 /*****************************************************************************/
 void Client::SendPacket(const ByteArray &packet)
 {
+    std::uint8_t cmd = packet.Get(Protocol::COMMAND_OFFSET);
+    std::stringstream dbg;
+    dbg << "Client sending packet: 0x" << std::hex << (int)cmd;
+    TLogNetwork(dbg.str());
+
     if (IsConnected())
     {
         mTcpClient.Send(packet.ToSring());
+    }
+    else
+    {
+        TLogNetwork("WARNING! try to send packet without any connection.");
     }
 }
 

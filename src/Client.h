@@ -220,6 +220,8 @@ private:
     bool        mInitialized;
     ThreadQueue<Command> mQueue;
     bool        mConnected;
+    std::string mHostName;
+    std::uint16_t mTcpPort;
 
     static void EntryPoint(void *pthis);
     void Run();

@@ -83,6 +83,7 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
     if (!mInitialized)
     {
         mThread = std::thread(TcpServer::EntryPoint, this);
+        mExecutor = std::thread(TcpServer::ExecutorEntry, this);
         mInitialized = true;
     }
 
@@ -204,7 +205,10 @@ void TcpServer::Run()
             /* The select call failed.                                */
             /**********************************************************/
             end_server = true;
-            mEventHandler.ServerTerminated(IEvent::WAIT_SOCK_FAILED);
+            EventData data;
+            data.action = IEvent::SERVER_TERMINATED;
+            data.type = IEvent::WAIT_SOCK_FAILED;
+            mExecQueue.Push(data);
         }
         else if (rc == 0)
         {
@@ -212,7 +216,10 @@ void TcpServer::Run()
             /* The time out expired.                                  */
             /**********************************************************/
             end_server = true;
-            mEventHandler.ServerTerminated(IEvent::TIMEOUT);
+            EventData data;
+            data.action = IEvent::SERVER_TERMINATED;
+            data.type = IEvent::TIMEOUT;
+            mExecQueue.Push(data);
         }
         else
         {
@@ -225,7 +232,10 @@ void TcpServer::Run()
                 if (FD_ISSET(mReceiveFd, &working_set))
                 {
                     end_server = true;
-                    mEventHandler.ServerTerminated(IEvent::CLOSED);
+                    EventData data;
+                    data.action = IEvent::SERVER_TERMINATED;
+                    data.type = IEvent::CLOSED;
+                    mExecQueue.Push(data);
                     break;
                 }
                 else if (FD_ISSET(GetSocket(), &working_set))
@@ -282,6 +292,43 @@ void TcpServer::EntryPoint(void *pthis)
     pt->Run();
 }
 /*****************************************************************************/
+void TcpServer::ExecutorEntry(void *pthis)
+{
+    TcpServer *pt = static_cast<TcpServer *>(pthis);
+    pt->RunExecutor();
+}
+/*****************************************************************************/
+void TcpServer::RunExecutor()
+{
+    while(true)
+    {
+        EventData data;
+        mExecQueue.WaitAndPop(data);
+
+        if (data.action == IEvent::SERVER_TERMINATED)
+        {
+            mEventHandler.ServerTerminated(data.type);
+            break;
+        }
+        else if (data.action == IEvent::NEW_CONNECTION)
+        {
+            mEventHandler.NewConnection(data.socket);
+        }
+        else if (data.action == IEvent::READ_DATA)
+        {
+            mEventHandler.ReadData(data.socket, data.data);
+        }
+        else if (data.action == IEvent::CLIENT_CLOSED)
+        {
+            mEventHandler.ClientClosed(data.socket);
+        }
+        else
+        {
+            // nothing to do
+        }
+    }
+}
+/*****************************************************************************/
 void TcpServer::IncommingConnection()
 {
     int new_sd;
@@ -321,7 +368,10 @@ void TcpServer::IncommingConnection()
             UpdateMaxSocket();
 
             // Signal a new client
-            mEventHandler.NewConnection(new_sd);
+            EventData data;
+            data.action = IEvent::NEW_CONNECTION;
+            data.socket = new_sd;
+            mExecQueue.Push(data);
         }
 
         /**********************************************/
@@ -361,7 +411,11 @@ bool TcpServer::IncommingData(int in_sock)
         ret = true;
 
         // Send the received data
-        mEventHandler.ReadData(in_sock, buffer);
+        EventData data;
+        data.action = IEvent::READ_DATA;
+        data.socket = in_sock;
+        data.data = buffer,
+        mExecQueue.Push(data);
     }
     else if (rc < 0)
     {
@@ -401,7 +455,10 @@ bool TcpServer::IncommingData(int in_sock)
         UpdateMaxSocket();
 
         // Signal the disconnection
-        mEventHandler.ClientClosed(in_sock);
+        EventData data;
+        data.action = IEvent::CLIENT_CLOSED;
+        data.socket = in_sock;
+        mExecQueue.Push(data);
     }
 
     return ret;

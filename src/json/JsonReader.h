@@ -55,6 +55,9 @@ class JsonReader
 {
 
 public:
+    typedef std::vector<JsonValue>::iterator Iterator;
+    typedef std::vector<JsonValue>::const_iterator ConstIterator;
+
     enum ParseStatus
     {
         JSON_PARSE_OK,

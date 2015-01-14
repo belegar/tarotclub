@@ -31,6 +31,7 @@
 #include <mutex>
 #include "TcpSocket.h"
 #include "Observer.h"
+#include "ThreadQueue.h"
 
 /*****************************************************************************/
 /**
@@ -52,6 +53,14 @@ public:
             WAIT_SOCK_FAILED,
             TIMEOUT,
             CLOSED
+        };
+
+        enum Action
+        {
+            NEW_CONNECTION,
+            READ_DATA,
+            CLIENT_CLOSED,
+            SERVER_TERMINATED
         };
 
         /**
@@ -93,7 +102,17 @@ public:
     std::string GetPeerName(int s);
 
 private:
+    struct EventData
+    {
+        int socket;
+        std::string data;
+        IEvent::CloseType type;
+        IEvent::Action action;
+    };
+
     std::thread mThread;
+    std::thread mExecutor;
+    ThreadQueue<EventData> mExecQueue;
     int  mMaxSd;
     fd_set mMasterSet;
     std::vector<int> mClients;
@@ -106,6 +125,8 @@ private:
     int mSendFd;
 
     static void EntryPoint(void *pthis);
+    static void ExecutorEntry(void *pthis);
+    void RunExecutor();
     void Run();
     void IncommingConnection();
     bool IncommingData(int in_sock);
