@@ -256,6 +256,7 @@ void LobbyDock::Initialize()
     ui.disconnectButton->setEnabled(false);
     ui.infoLabel->setText(trUtf8("Not connected."));
     mTableList.clear();
+    mPlayerList.clear();
     ui.tableList->clear();
     ui.playerList->clear();
 }
