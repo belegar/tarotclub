@@ -283,7 +283,7 @@ HEADERS += AboutWindow.h \
     InfosDock.h \
     ChatDock.h \
     DebugDock.h \
-    LobbyWindow.h \
+    LobbyDock.h \
     DealsWindow.h \
     ImportAvatarWindow.h
 
@@ -295,7 +295,7 @@ SOURCES += AboutWindow.cpp \
     InfosDock.cpp \
     ChatDock.cpp \
     DebugDock.cpp \    
-    LobbyWindow.cpp \
+    LobbyDock.cpp \
     DealsWindow.cpp \
     ImportAvatarWindow.cpp \
     main.cpp
