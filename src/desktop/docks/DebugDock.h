@@ -29,7 +29,7 @@
 // Includes Qt
 #include <QDockWidget>
 #include <QLineEdit>
-#include <QTextBrowser>
+#include <QPlainTextEdit>
 #include <QPushButton>
 
 // Includes locales
@@ -43,7 +43,7 @@ class DebugDock : public QDockWidget, public Observer<std::string>
     Q_OBJECT
 
 private:
-    QTextBrowser *logWindow;
+    QPlainTextEdit *logWindow;
     QPushButton  *clearButton;
     QPushButton  *saveButton;
 

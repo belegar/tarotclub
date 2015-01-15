@@ -39,7 +39,8 @@
 DebugDock::DebugDock(QWidget *parent)
     : QDockWidget(trUtf8("Debug output window"), parent)
 {
-    logWindow = new QTextBrowser();
+    logWindow = new QPlainTextEdit();
+    logWindow->setReadOnly(true);
     clearButton = new QPushButton(trUtf8("Clear"));
     saveButton = new QPushButton(trUtf8("Save"));
 
@@ -76,7 +77,7 @@ void DebugDock::clear()
 /*****************************************************************************/
 void DebugDock::slotMessage(QString message)
 {
-    logWindow->append(message);
+    logWindow->appendPlainText(message);
 }
 /*****************************************************************************/
 void DebugDock::save()
