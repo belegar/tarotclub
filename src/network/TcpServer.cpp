@@ -109,6 +109,7 @@ void TcpServer::Join()
     if (mInitialized)
     {
         mThread.join();
+        mExecutor.join();
         mInitialized = false;
     }
 }
