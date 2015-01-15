@@ -71,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Game menu specific to desktop version
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
     connect(newCustomDealAct, &QAction::triggered, this, &MainWindow::slotNewCustomDeal);
-    connect(onlineGameAct, &QAction::triggered, this, &MainWindow::slotJoinNetworkGame);
 //    connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
     connect(optionsAct, &QAction::triggered, this, &MainWindow::slotShowOptions);
     connect(newAutoPlayAct, &QAction::triggered, this, &MainWindow::slotNewAutoPlay);
@@ -142,11 +141,6 @@ void MainWindow::slotNewCustomDeal()
 
         tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh, false);
     }
-}
-/*****************************************************************************/
-void MainWindow::slotJoinNetworkGame()
-{
-    mLobbyDock->show();
 }
 /*****************************************************************************/
 void MainWindow::slotConnectToLobby(QString server, std::uint16_t port)
@@ -398,7 +392,7 @@ void MainWindow::SetupMenus()
     // Network menu
     //---------------
     netMenu = menuBar()->addMenu(tr("Network game"));
-    netMenu->addAction(onlineGameAct);
+    netMenu->addAction(mLobbyDock->toggleViewAction());
 
     /*
     netMenu->addSeparator();

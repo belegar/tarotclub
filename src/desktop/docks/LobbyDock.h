@@ -1,5 +1,5 @@
 /*=============================================================================
- * TarotClub - LobbyWindow.h
+ * TarotClub - LobbyDock.h
  *=============================================================================
  * Lobby window, includes a chat area and the tables available on the server
  *=============================================================================
@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef LOBBY_WINDOW_H
-#define LOBBY_WINDOW_H
+#ifndef LOBBY_DOCK_H
+#define LOBBY_DOCK_H
 
 #include <QDockWidget>
 #include <QTcpSocket>
@@ -78,8 +78,8 @@ private:
 };
 
 
-#endif // LOBBY_WINDOW_H
+#endif // LOBBY_DOCK_H
 
 //=============================================================================
-// End of file LobbyWindow.h
+// End of file LobbyDock.h
 //=============================================================================

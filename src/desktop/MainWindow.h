@@ -42,7 +42,7 @@
 #include "InfosDock.h"
 #include "ChatDock.h"
 #include "DebugDock.h"
-#include "LobbyWindow.h"
+#include "LobbyDock.h"
 #include "ui_QuickJoin.h"
 #include "DealsWindow.h"
 
@@ -61,7 +61,6 @@ private slots:
     void slotDealEditor();
     void slotNewNumberedDeal();
     void slotNewCustomDeal();
-    void slotJoinNetworkGame();
     void slotQuickJoinNetworkGame();
     void slotShowOptions();
     void slotLaunchHelp();
