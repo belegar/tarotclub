@@ -139,6 +139,10 @@ void Lobby::ReadData(int socket, const std::string &data)
             TLogNetwork(ss.str());
         }
     }
+    else
+    {
+        TLogNetwork("Invalid user!");
+    }
 }
 /*****************************************************************************/
 void Lobby::ExecuteRequest(const ByteArray &packet)
