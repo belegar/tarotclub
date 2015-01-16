@@ -25,7 +25,7 @@
 
 #include <QString>
 #include "AboutWindow.h"
-#include "Common.h"
+#include "Defines.h"
 
 /*****************************************************************************/
 AboutWindow::AboutWindow(QWidget *parent)
@@ -34,8 +34,6 @@ AboutWindow::AboutWindow(QWidget *parent)
     ui.setupUi(this);
 
     ui.version->setText(QString(TAROT_TITLE.c_str()) + " " +  QString(TAROT_VERSION.c_str()));
-    ui.nom->setText("Codename: <" + QString(TAROT_VNAME.c_str()) + ">");
-
 }
 
 //=============================================================================
