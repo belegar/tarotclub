@@ -33,6 +33,7 @@
 /*****************************************************************************/
 LobbyDock::LobbyDock(QWidget *parent = 0)
     : QDockWidget(tr("Online game hall"), parent)
+    , mConnected(false)
 {
     ui.setupUi(this);
 
@@ -83,22 +84,29 @@ void LobbyDock::slotDisconnect()
 /*****************************************************************************/
 void LobbyDock::slotMessage(std::string message)
 {
-    ui.textArea->append(QString(message.c_str()));
+    if (mConnected)
+    {
+        ui.textArea->append(QString(message.c_str()));
+    }
 }
 /*****************************************************************************/
 void LobbyDock::slotConnectionFailure()
 {
      ui.infoLabel->setText(trUtf8("Connection to the seveur failed!"));
+     Initialize();
 }
 /*****************************************************************************/
 void LobbyDock::SetPlayersNames(const std::map<std::uint32_t, std::string> &players)
 {
-    ui.infoLabel->setText(trUtf8("Connected."));
-    ui.playerList->clear();
-    mPlayerList = players;
-    for (std::map<std::uint32_t, std::string>::const_iterator iter = mPlayerList.begin(); iter != mPlayerList.end(); ++iter)
+    if (mConnected)
     {
-        ui.playerList->addItem(QString(iter->second.c_str()));
+        ui.infoLabel->setText(trUtf8("Connected."));
+        ui.playerList->clear();
+        mPlayerList = players;
+        for (std::map<std::uint32_t, std::string>::const_iterator iter = mPlayerList.begin(); iter != mPlayerList.end(); ++iter)
+        {
+            ui.playerList->addItem(QString(iter->second.c_str()));
+        }
     }
 }
 /*****************************************************************************/
@@ -124,6 +132,7 @@ void LobbyDock::DisconnectedFromServer()
 /*****************************************************************************/
 void LobbyDock::SetTables(const std::map<std::string, std::uint32_t> &tableList)
 {
+    mConnected = true;
     ui.tableList->clear();
     mTableList = tableList;
     for (std::map<std::string, std::uint32_t>::const_iterator iter = tableList.begin(); iter != tableList.end(); ++iter)
@@ -133,6 +142,7 @@ void LobbyDock::SetTables(const std::map<std::string, std::uint32_t> &tableList)
 
     ui.connectButton->setEnabled(false);
     ui.disconnectButton->setEnabled(true);
+    ui.joinButton->setEnabled(true);
 }
 /*****************************************************************************/
 void LobbyDock::SetServersList(const std::vector<ServerInfo> &servers)
@@ -250,7 +260,8 @@ bool LobbyDock::CheckServer()
 /*****************************************************************************/
 void LobbyDock::Initialize()
 {  
-    ui.joinButton->setEnabled(true);
+    mConnected = false;
+    ui.joinButton->setEnabled(false);
     ui.quitButton->setEnabled(false);
     ui.connectButton->setEnabled(true);
     ui.disconnectButton->setEnabled(false);
@@ -301,9 +312,12 @@ void LobbyDock::slotReturnPressed()
     {
         return;
     }
-    emit sigEmitMessage(message);
     ui.chatText->clear();
     ui.chatText->setFocus();
+    if (mConnected)
+    {
+        emit sigEmitMessage(message);
+    }
 }
 
 //=============================================================================

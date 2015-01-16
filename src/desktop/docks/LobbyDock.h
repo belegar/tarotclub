@@ -72,6 +72,8 @@ private:
     std::map<std::string, std::uint32_t> mTableList;    // key = table name, value = table ID
     std::map<std::uint32_t, std::string> mPlayerList; // key = user name, value = uuid
     std::vector<ServerInfo> mServerList;
+    bool mConnected;
+
     bool RequestHttp(const QString &request, QString &reply);
     bool CheckServer();
     void UpdateServersList();

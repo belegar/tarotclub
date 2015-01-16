@@ -106,6 +106,8 @@ public:
         return mClient.GetTableList();
     }
 
+    ConnectionType GetConnectionType() { return mConnectionType; }
+
 signals:
     // These signals are used internally and made accessible in public for any external entity
     void sigClientError(std::uint32_t errorId);
