@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "2.2"; // increase the version to force any incompatible update in the file structure
+static const std::string SERVER_CONFIG_VERSION  = "2.3"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 
 /*****************************************************************************/
@@ -244,17 +244,17 @@ ServerOptions ServerConfig::GetDefault()
     opt.tables.push_back("Default"); // default table name (one table minimum)
 
     opt.bots[Place::WEST].identity.name     = "Leela";
-    opt.bots[Place::WEST].identity.avatar   = ":/avatars/14.svg";
+    opt.bots[Place::WEST].identity.avatar   = ":/avatars/FD05.png";
     opt.bots[Place::WEST].identity.gender   = Identity::FEMALE;
     opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath() + "noob.json";
 
     opt.bots[Place::NORTH].identity.name    = "Bender";
-    opt.bots[Place::NORTH].identity.avatar  = ":/avatars/03.svg";
+    opt.bots[Place::NORTH].identity.avatar  = ":/avatars/N03.png";
     opt.bots[Place::NORTH].identity.gender  = Identity::MALE;
     opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath() + "noob.json";
 
     opt.bots[Place::EAST].identity.name     = "Amy";
-    opt.bots[Place::EAST].identity.avatar   = ":/avatars/18.svg";
+    opt.bots[Place::EAST].identity.avatar   = ":/avatars/FE02.png";
     opt.bots[Place::EAST].identity.gender   = Identity::FEMALE;
     opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath() + "noob.json";
 
