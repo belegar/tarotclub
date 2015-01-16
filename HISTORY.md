@@ -2,10 +2,14 @@
 
 ## Corrections in version 2.5.2
 
-  * Corrected the selection color around the name box
-  * Try of a new box color for the bid (less flashy than the red one)
-  * NEW lobby dockable window interface
-  * 
+  * Corrected the selection colour around the name box
+  * Try of a new box colour for the bid (less flashy than the red one)
+  * NEW lobby hall dock-able window GUI
+  * Corrected slow server performance and hazardous disconnections by adding a Tcp Server event thread
+  * Corrected the lobby player list not cleared on disconnection
+  * Removed version name and icon, updated AboutBox with links
+  * Removed SVG avatars to keep one design style
+  * Correction: Lobby GUI is not updated when playing a local game
 
 ## Corrections in version 2.5.1
 
@@ -13,7 +17,7 @@
   * "Petit sec" deals are avoided
   * [Arch] Added missing icon in the menu launcher
   * [Ubuntu] Added missing documentation in the package
-  * Corrected generated deal filename for the desktop version
+  * Corrected generated deal file name for the desktop version
   * Corrected deals visualizer
   * Corrected defense AI script bug
   * Deleted the quote parameter (obsolete)
