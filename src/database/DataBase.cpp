@@ -103,7 +103,7 @@ void DataBase::Run()
         std::this_thread::sleep_for(std::chrono::seconds(1U));
         time(&rawtime);
 
-#ifdef TAROT_DEBUG
+#ifdef DATABASE_DEBUG
         std::cout << "Next database update in: " << (int)(nextHour - rawtime) << " seconds" << std::endl;
 #endif
 
