@@ -62,7 +62,6 @@ private:
 
     // Client events
     virtual void Error(std::uint32_t errorId);
-    virtual void DisconnectedFromServer();
     virtual void EnteredLobby();
     virtual void AdminGameFull();
     virtual void TableQuitEvent(std::uint32_t tableId);

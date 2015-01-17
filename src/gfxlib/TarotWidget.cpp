@@ -200,35 +200,28 @@ void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh
     mGameMode = mode;
     mShuffle = sh;
 
-    InitScreen();
-
     if (!HasLocalConnection())
     {
+        InitScreen(true);
         mConnectionType = LOCAL;
         // Connect us to the server
         mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
     }
     else
     {
+        InitScreen();
         slotStartGame();
     }
 }
 /*****************************************************************************/
 void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
 {
-    InitScreen();
+    mClient.Disconnect();
+    InitScreen(true);
+    mConnectionType = REMOTE;
 
     // Connect us to the server
     mClient.ConnectToHost(ip, port);
-    if (mClient.IsConnected())
-    {
-        mConnectionType = REMOTE;
-    }
-    else
-    {
-        mConnectionType = NO_CONNECTION;
-        emit sigRemoteConnectionFailure();
-    }
 }
 /*****************************************************************************/
 void TarotWidget::JoinTable(std::uint32_t tableId)

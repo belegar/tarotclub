@@ -115,7 +115,6 @@ signals:
     void sigEnteredLobby();
     void sigTableQuitEvent(std::uint32_t tableId);
     void sigTableJoinEvent(std::uint32_t tableId);
-    void sigRemoteConnectionFailure();
     void sigNewGame();
     void sigTablePlayersList();
     void sigLobbyPlayersList();
@@ -162,15 +161,21 @@ private:
     // Client events
     virtual void Error(std::uint32_t errorId)
     {
-        emit sigClientError(errorId);
-    }
+        switch(errorId)
+        {
+        default:
+        case Client::IEvent::ErrCannotConnectToServer:
+        case Client::IEvent::ErrDisconnectedFromServer:
+        case Client::IEvent::ErrLobbyAccessRefused:
+            mConnectionType = NO_CONNECTION;
+            emit sigDisconnectedFromServer();
+            break;
+        }
 
-    virtual void DisconnectedFromServer()
-    {
-        // This flag avoid teh propagation of several events during the shutdown process
+        // Progagate the error code only if the software is not in exit process
         if (!mShutdown)
         {
-            emit sigDisconnectedFromServer();
+            emit sigClientError(errorId);
         }
     }
 

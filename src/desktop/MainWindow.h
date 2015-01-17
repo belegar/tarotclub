@@ -80,7 +80,7 @@ private slots:
     void slotTableQuitEvent(std::uint32_t tableId);
     void slotTableJoinEvent(std::uint32_t tableId);
     void slotClientError(std::uint32_t errorId);
-    void slotDisconnectedFromServer();
+    void DisconnectedFromServer();
     void slotEnteredLobby();
 
     // Events from LobbyWindow

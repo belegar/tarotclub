@@ -59,13 +59,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigAddScore, this, &MainWindow::slotEndOfDeal, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewGame, this, &MainWindow::slotNewGameEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigNewDeal, this, &MainWindow::slotNewDealEvent, Qt::QueuedConnection);
-    connect(tarotWidget, &TarotWidget::sigLobbyMessage, mLobbyDock, &LobbyDock::slotMessage, Qt::QueuedConnection);
-    connect(tarotWidget, &TarotWidget::sigRemoteConnectionFailure, mLobbyDock, &LobbyDock::slotConnectionFailure, Qt::QueuedConnection);
+    connect(tarotWidget, &TarotWidget::sigLobbyMessage, mLobbyDock, &LobbyDock::slotChatMessage, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigLobbyPlayersList, this, &MainWindow::slotLobbyPlayersList, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigTableQuitEvent, this, &MainWindow::slotTableQuitEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigTableJoinEvent, this, &MainWindow::slotTableJoinEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigClientError, this, &MainWindow::slotClientError, Qt::QueuedConnection);
-    connect(tarotWidget, &TarotWidget::sigDisconnectedFromServer, this, &MainWindow::slotDisconnectedFromServer, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigEnteredLobby, this, &MainWindow::slotEnteredLobby, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
@@ -191,11 +189,34 @@ void MainWindow::slotTableJoinEvent(std::uint32_t tableId)
 /*****************************************************************************/
 void MainWindow::slotClientError(std::uint32_t errorId)
 {
-    QString errorMsg = tr("Client error: %1").arg(errorId);
-    mLobbyDock->slotMessage(errorMsg.toStdString());
+    switch(errorId)
+    {
+
+    case Client::IEvent::ErrCannotConnectToServer:
+        mLobbyDock->SystemMessage(tr("Cannot connect to server"));
+        break;
+    case Client::IEvent::ErrDisconnectedFromServer:
+        mLobbyDock->SystemMessage(tr("Disconnected from server"));
+        DisconnectedFromServer();
+        break;
+    case Client::IEvent::ErrLobbyAccessRefused:
+        mLobbyDock->SystemMessage(tr("Lobby access refused"));
+        break;
+    case Client::IEvent::ErrTableAccessRefused:
+        mLobbyDock->SystemMessage(tr("Table access refused"));
+        break;
+    case Client::IEvent::ErrTableFull:
+        mLobbyDock->SystemMessage(tr("Table is full, cannot join the game"));
+        break;
+    default:
+        mLobbyDock->SystemMessage(tr("Unknown error"));
+        DisconnectedFromServer();
+        break;
+    }
+
 }
 /*****************************************************************************/
-void MainWindow::slotDisconnectedFromServer()
+void MainWindow::DisconnectedFromServer()
 {
     mLobbyDock->DisconnectedFromServer();
     infosDock->Clear();

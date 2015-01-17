@@ -46,6 +46,7 @@ public:
     void DisconnectedFromServer();
     void SetTables(const std::map<std::string, std::uint32_t> &tableList);
     void SetServersList(const std::vector<ServerInfo> &servers);
+    void SystemMessage(const QString &message);
 
 signals:
     void sigEmitMessage(const QString &);
@@ -55,8 +56,7 @@ signals:
     void sigQuitTable(std::uint32_t);
 
 public slots:
-    void slotMessage(std::string message);
-    void slotConnectionFailure();
+    void slotChatMessage(std::string message);
 
 private slots:
     void slotConnect();

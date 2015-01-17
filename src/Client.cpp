@@ -340,11 +340,12 @@ void Client::Run()
                     }
                 }
                 mPlayer.SetUuid(Protocol::INVALID_UID);
-                mEventHandler.DisconnectedFromServer();
+                mEventHandler.Error(IEvent::ErrDisconnectedFromServer);
             }
             else
             {
                 TLogError("Client cannot connect to server.");
+                mEventHandler.Error(IEvent::ErrCannotConnectToServer);
             }
         }
         else if (cmd == EXIT)

@@ -483,11 +483,6 @@ void Bot::Error(std::uint32_t errorId)
     TLogError(ss.str());
 }
 /*****************************************************************************/
-void Bot::DisconnectedFromServer()
-{
-    // Nothing to do
-}
-/*****************************************************************************/
 void Bot::EnteredLobby()
 {
     // As soon as we have entered into the lobby, join the assigned table

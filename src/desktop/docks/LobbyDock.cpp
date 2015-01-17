@@ -82,7 +82,7 @@ void LobbyDock::slotDisconnect()
     emit sigDisconnect();
 }
 /*****************************************************************************/
-void LobbyDock::slotMessage(std::string message)
+void LobbyDock::slotChatMessage(std::string message)
 {
     if (mConnected)
     {
@@ -90,10 +90,9 @@ void LobbyDock::slotMessage(std::string message)
     }
 }
 /*****************************************************************************/
-void LobbyDock::slotConnectionFailure()
+void LobbyDock::SystemMessage(const QString &message)
 {
-     ui.infoLabel->setText(trUtf8("Connection to the seveur failed!"));
-     Initialize();
+    ui.textArea->append(QString("<b>") + message + QString("</b>"));
 }
 /*****************************************************************************/
 void LobbyDock::SetPlayersNames(const std::map<std::uint32_t, std::string> &players)
@@ -207,16 +206,16 @@ void LobbyDock::slotQuit()
 /*****************************************************************************/
 void LobbyDock::slotCheckServer()
 {
-    ui.textArea->append(tr("<b>Checking server ...</b>"));
+    SystemMessage(tr("Checking server ..."));
 
     update();
     if (CheckServer())
     {
-        ui.textArea->append(tr("<b>Server OK</b>"));
+        SystemMessage(tr("Server OK"));
     }
     else
     {
-        ui.textArea->append(tr("<b>Server unavailable :(</b>"));
+        SystemMessage(tr("Server unavailable :("));
     }
 }
 /*****************************************************************************/
