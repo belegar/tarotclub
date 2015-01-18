@@ -397,6 +397,7 @@ void Bot::EndOfGame(Place winner)
 {
     (void) winner;
     // FIXME What must we do?
+    AdminGameFull(); // start a new game
 }
 /*****************************************************************************/
 void Bot::SetTimeBeforeSend(std::uint16_t t)
