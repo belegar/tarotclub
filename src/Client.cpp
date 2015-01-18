@@ -323,8 +323,11 @@ void Client::Run()
                     std::int32_t ret = mTcpClient.Recv(buffer);
                     if (ret > 0)
                     {
-                        ByteArray data(buffer);
-                        mConnected = Protocol::DataManagement(this, data);
+                      //  ByteArray data(buffer);
+                      //  mConnected = Protocol::DataManagement(this, data);
+
+                        mProtocolQueue.Push(buffer); // Add packet to the queue
+                        Protocol::GetInstance().Execute(this); // Actually decode the packet
                     }
                     else if (ret == 0)
                     {
@@ -333,10 +336,7 @@ void Client::Run()
                     }
                     else
                     {
-                        // Error!
-                        mConnected = false;
-                        TLogNetwork("Rev() socket read error.");
-                        mTcpClient.Close();
+                        // try again to read from the socket
                     }
                 }
                 mPlayer.SetUuid(Protocol::INVALID_UID);
@@ -357,8 +357,12 @@ void Client::Run()
 /*****************************************************************************/
 ByteArray Client::GetPacket()
 {
-    // Not implemented for the client, return an empty array
-    return ByteArray();
+    ByteArray data;
+    if (!mProtocolQueue.TryPop(data))
+    {
+        TLogError("Lobby: work item called without any data in the queue!");
+    }
+    return data;
 }
 /*****************************************************************************/
 bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
@@ -386,6 +390,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     case Protocol::LOBBY_DISCONNECT:
     {
         mTcpClient.Close();
+        mConnected = false;
         ret = false;
         break;
     }

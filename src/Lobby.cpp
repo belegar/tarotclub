@@ -139,6 +139,10 @@ void Lobby::ReadData(int socket, const std::string &data)
             TLogNetwork(ss.str());
         }
     }
+    else
+    {
+        TLogNetwork("Invalid user!");
+    }
 }
 /*****************************************************************************/
 void Lobby::ExecuteRequest(const ByteArray &packet)
@@ -380,10 +384,18 @@ std::string Lobby::ParseUri(const std::string &uri)
         {
             if (iter != mTables.begin())
             {
-                reply += ",";
+                reply += "\n";
             }
             std::stringstream ss;
-            ss << (*iter)->GetName() << "(" << (*iter)->GetId() << ")";
+            ss << (*iter)->GetName() << "(" << (*iter)->GetId() << "), players: ";
+
+            // Get the players connected to this table
+            std::map<std::uint32_t, std::string> players = mUsers.GetTableUserNames((*iter)->GetId());
+            for (std::map<std::uint32_t, std::string>::iterator iter2 = players.begin(); iter2 != players.end(); ++iter2)
+            {
+                ss << iter2->second << " ";
+            }
+
             reply += ss.str();
         }
     }

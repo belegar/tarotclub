@@ -220,6 +220,7 @@ private:
     std::thread mThread;
     bool        mInitialized;
     ThreadQueue<Command> mQueue;
+    ThreadQueue<ByteArray> mProtocolQueue;
     bool        mConnected;
     std::string mHostName;
     std::uint16_t mTcpPort;

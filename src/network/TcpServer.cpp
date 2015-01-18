@@ -418,11 +418,6 @@ bool TcpServer::IncommingData(int in_sock)
         data.data = buffer,
         mExecQueue.Push(data);
     }
-    else if (rc < 0)
-    {
-        // Receive failure
-        close_conn = true;
-    }
     else if (rc == 0)
     {
         /**********************************************/

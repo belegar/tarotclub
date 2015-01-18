@@ -8,6 +8,7 @@
   * Save and load game
   * Lobby: add buttons to add a bot on a table
   * New option to hide the south identity bloc on the screen (or show a minimized one)
+  * Propose to upgrade to a newer version if available (periodic check or at lobby connection)
   
 ## IA strategy
 
@@ -62,8 +63,10 @@
 ## Game modes
 
   * 3 and 5 players game
-  * Different game modes (legacy Tarot Rules, Uno style, Magic style …)
+  * Different game modes (legacy Tarot Rules, Uno style, Magic style)
+  * Game modes described in Wikipedia (6, 7 players, 1 player solitaire style)
   * Championship mode like in football  / with points
+  * Game by mail mode :)
   
 ## UI improvements / Gfx engine
   
