@@ -128,7 +128,7 @@ module.RunStatsTest = function()
 /*****************************************************************************/
 module.RunDiscardTest = function()
 {
-	systemPrint("********** TEST_3: discard **********");
+	systemPrint("********** TEST_DISCARD_01: discard **********");
 
 	module.game.setBotCards("01-C;19-T;04-D;11-H;11-S;13-D;02-T;06-C;05-S;09-D;14-H;01-S;04-C;06-S;04-S;07-C;21-T;12-S");
 
@@ -143,6 +143,28 @@ module.RunDiscardTest = function()
 
 	systemPrint("Discard: ");
 	discard.printHtml();
+
+
+	systemPrint(""); // skip line
+	systemPrint("********** TEST_DISCARD_02: discard problem use case (more than 6 cards in the discard) **********");
+	
+	module.game.setBotCards("09-S;15-T;06-D;17-T;20-T;18-T;04-H;14-T;04-D;08-T;07-D;14-C;12-D;14-S;02-S;03-D;10-H;07-S");
+
+
+	systemPrint("Deck before: ");
+	module.game.bot.deck.printHtml();
+
+	var discard = new TarotLib.Deck();
+	discard.setCards(module.game.bot.buildDiscard("11-C;05-T;09-T;02-D;05-D;11-D"));
+
+	systemPrint("Deck after: ");
+	module.game.bot.deck.printHtml();
+
+	systemPrint("Discard: ");
+	discard.printHtml();
+
+	
+
 };
 /*****************************************************************************/
 module.RunMissingSuitDetectionTester = function()
