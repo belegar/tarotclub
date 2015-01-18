@@ -33,7 +33,7 @@
 #include <iostream>
 
 // Larger values will read larger chunks of data.
-static const std::int32_t MAXRECV = 4096;
+static const std::int32_t MAXRECV = 2048;
 
 
 bool TcpSocket::mOneTimeInit = false;
@@ -242,7 +242,6 @@ std::int32_t TcpSocket::Recv(std::string &output) const
     char buf [MAXRECV + 1];
     memset(buf, 0, sizeof(buf));
 
-
     output = std::string();
     int status = 0; // changed from int to ssize_t
 
@@ -254,7 +253,6 @@ std::int32_t TcpSocket::Recv(std::string &output) const
     if (status > 0)
     {
         output.append(buf, static_cast<size_t>(status));
-        memset(buf, 0, sizeof(buf));
     }
 
     // return the status code, or the number of bytes read.
