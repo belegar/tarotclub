@@ -164,6 +164,23 @@ bool TcpSocket::Listen(std::int32_t maxConnections) const
 int TcpSocket::Accept() const
 {
     int new_sd = ::accept(mSock, NULL, NULL);
+
+
+#ifdef _WIN32
+    (void) SetHandleInformation((HANDLE) new_sd, HANDLE_FLAG_INHERIT, 0);
+#else
+    ::fcntl(new_sd, F_SETFD, FD_CLOEXEC);
+#endif
+
+
+#ifdef _WIN32
+    unsigned long on = 1;
+    ::ioctlsocket(new_sd, FIONBIO, &on);
+#else
+    int flags = ::fcntl(new_sd, F_GETFL, 0);
+    ::fcntl(new_sd, F_SETFL, flags | O_NONBLOCK);
+#endif
+
     return new_sd;
 }
 /*****************************************************************************/
@@ -244,21 +261,34 @@ std::int32_t TcpSocket::Recv(std::string &output) const
 
 
     output = std::string();
-    int status = 0; // changed from int to ssize_t
+    int result = 0; // changed from int to ssize_t
 
     // Most likely, we will read a packet, or if the message
     // is very short, we will receive the entire message in
     // a short packet. But it might be a long one.
-    status = ::recv(mSock, buf, MAXRECV, 0);
+    result = ::recv(mSock, buf, MAXRECV, 0);
 
-    if (status > 0)
+
+    if (result > 0)
     {
-        output.append(buf, static_cast<size_t>(status));
+        output.append(buf, static_cast<size_t>(result));
         memset(buf, 0, sizeof(buf));
+    }
+    else if (result < 0)
+    {
+        if (errno == EAGAIN)
+        {
+            // try again, ignore and select again the socket
+            std::cout << "Sock: try again" << std::endl;
+        }
+        else
+        {
+            std::cout << "Err: " << errno << std::endl;
+        }
     }
 
     // return the status code, or the number of bytes read.
-    return status;
+    return result;
 }
 
 //=============================================================================
