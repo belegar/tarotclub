@@ -8,6 +8,7 @@
   * Save and load game
   * Lobby: add buttons to add a bot on a table
   * New option to hide the south identity bloc on the screen (or show a minimized one)
+  * Propose to upgrade to a newer version if available (periodic check or at lobby connection)
   
 ## IA strategy
 
