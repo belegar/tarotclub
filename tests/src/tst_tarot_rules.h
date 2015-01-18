@@ -17,6 +17,7 @@ public:
 private Q_SLOTS:
     void TestCanPlayCard();
     void TestScoreCalculation();
+    void TestAutoDiscard();
 
 private:
     Player player;

@@ -41,6 +41,7 @@ public:
     bool TestHandle(const Deck &handle);
     bool TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numberOfPlayers);
 
+
     /**
      * @brief RemoveDuplicates
      *
@@ -63,6 +64,8 @@ public:
     {
         mAck = ack;
     }
+
+    Deck AutoDiscard(const Deck &dog, std::uint8_t nbPlayers);
 
 private:
     // player's cards in hand

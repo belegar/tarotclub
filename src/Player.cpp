@@ -44,6 +44,32 @@ void Player::SetUuid(std::uint32_t value)
     mUuid = value;
 }
 /*****************************************************************************/
+Deck Player::AutoDiscard(const Deck &dog, std::uint8_t nbPlayers)
+{
+    Deck discard;
+
+    // We add all the dog cards to the player's deck
+    Append(dog);
+
+    // We're looking valid discard cards to put in the discard
+    for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
+    {
+        Card c = (*iter);
+        if ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() != 14U))
+        {
+            discard.Append(c);
+
+            if (discard.Size() == Tarot::NumberOfDogCards(nbPlayers))
+            {
+                // enough cards!
+                break;
+            }
+        }
+    }
+
+    return discard;
+}
+/*****************************************************************************/
 /**
  * @brief Player::canPlayCard
  *

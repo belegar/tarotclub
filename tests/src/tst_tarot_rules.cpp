@@ -23,6 +23,18 @@ void TarotRules::TestCard(const std::string &card, bool expected)
 }
 
 
+void TarotRules::TestAutoDiscard()
+{
+    player.SetCards("09-S;15-T;06-D;17-T;20-T;18-T;04-H;14-T;04-D;08-T;07-D;14-C;12-D;14-S;02-S;03-D;10-H;07-S");
+    Deck dog("11-C;05-T;09-T;02-D;05-D;11-D");
+    Deck discard = player.AutoDiscard(dog, 4U);
+
+    std::cout << discard.ToString() << std::endl;
+    QCOMPARE(player.TestDiscard(discard, dog, 4U), true);
+
+}
+
+
 void TarotRules::TestCanPlayCard()
 {
     player.SetCards("12-C;12-H;10-H;02-H;03-H;11-C;11-T;07-D;03-T;09-C;13-C;05-H;00-T");
