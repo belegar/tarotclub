@@ -10,6 +10,10 @@
   * Removed version name and icon, updated AboutBox with links
   * Removed SVG avatars to keep one design style
   * Correction: Lobby GUI is not updated when playing a local game
+  * Corrected blocking game under linux (EGAIN was closing the client socket())
+  * Duktape updated to version 1.1.0
+  * AI correction: sometimes, the discard was not valid (more than 6 cards)
+  * Auto discard correction
 
 ## Corrections in version 2.5.1
 
