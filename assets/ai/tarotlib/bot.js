@@ -360,6 +360,9 @@ var p = Bot.prototype;
         var suitToAdd;
         var bestSuitToAdd = 0;
 
+	// Update the statistics with the dog deck
+	this.updateStats();
+
         // Look if we can have cuts in some suits
         for (i = 0; i < 4; i++)
         {
@@ -393,8 +396,11 @@ var p = Bot.prototype;
                 var card = this.deck.get(i);
                 if (card.suit == suitToAdd)
                 {
-                    discard.addOneCard(card.getName(), 0);
-                    this.deck.removeCard(card.getName());
+		    if (discard.size() < 6)
+		    {
+                        discard.addOneCard(card.getName(), 0);
+                        this.deck.removeCard(card.getName());
+                    }
                 }
             }
         }

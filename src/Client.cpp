@@ -214,34 +214,6 @@ void Client::UpdateStatistics()
     mPlayer.AnalyzeSuits(stats);
 }
 /*****************************************************************************/
-Deck Client::AutoDiscard()
-{
-    Deck discard;
-
-    // We add all the dog cards to the player's deck
-    mPlayer += mDog;
-
-    // We're looking valid discard cards to put in the discard
-    for (Deck::ConstIterator iter = mPlayer.Begin(); iter != mPlayer.End(); ++iter)
-    {
-        Card c = (*iter);
-        if ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() != 14U))
-        {
-            mPlayer.Remove(c);
-            discard.Append(c);
-
-            if (discard.Size() == Tarot::NumberOfDogCards(mNbPlayers))
-            {
-                // enough cards!
-                break;
-            }
-        }
-    }
-
-    TLogInfo("Auto discard: " + discard.ToString());
-    return discard;
-}
-/*****************************************************************************/
 Card Client::Play()
 {
     Card c;
@@ -260,6 +232,14 @@ Card Client::Play()
 bool Client::IsValid(const Card &c)
 {
     return mPlayer.CanPlayCard(c, currentTrick);
+}
+/*****************************************************************************/
+Deck Client::AutoDiscard()
+{
+    Deck discard = mPlayer.AutoDiscard(mDog, mNbPlayers);
+    mPlayer.RemoveDuplicates(discard);
+    TLogInfo("Auto discard: " + discard.ToString());
+    return discard;
 }
 /*****************************************************************************/
 bool Client::IsConnected()
