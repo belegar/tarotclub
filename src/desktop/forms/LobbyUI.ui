@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>dockWidget</class>
- <widget class="QDockWidget" name="dockWidget">
+ <class>LobbyUI</class>
+ <widget class="QDockWidget" name="LobbyUI">
   <property name="geometry">
    <rect>
     <x>0</x>
