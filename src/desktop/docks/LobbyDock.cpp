@@ -32,7 +32,7 @@
 
 /*****************************************************************************/
 LobbyDock::LobbyDock(QWidget *parent = 0)
-    : QDockWidget(tr("Online game hall"), parent)
+    : QDockWidget(tr("Online game lobby"), parent)
     , mConnected(false)
 {
     ui.setupUi(this);

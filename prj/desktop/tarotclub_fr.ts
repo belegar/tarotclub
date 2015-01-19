@@ -9,7 +9,12 @@
         <translation>À propos...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="29"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="26"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;The free Tarot card game!&lt;br/&gt;Website: &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;http://www.tarotclub.fr&lt;/a&gt;&lt;br/&gt;Development: &lt;a href=&quot;https://bitbucket/tarotclub&quot;&gt;https://bitbucket/tarotclub&lt;/a&gt;&lt;br/&gt;E-mail: support@tarotclub.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;Le jeu de Tarot libre !&lt;br/&gt;Web : &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;http://www.tarotclub.fr&lt;/a&gt;&lt;br/&gt;Développement : &lt;a href=&quot;https://bitbucket/tarotclub&quot;&gt;https://bitbucket/tarotclub&lt;/a&gt;&lt;br/&gt;E-mail: support@tarotclub.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="48"/>
         <source>TarotClub ( http://www.tarotclub.fr ) - The free Tarot card game!
 
 Copyright (C) 2003-2999 - Anthony Rabine
@@ -44,22 +49,17 @@ Vous devriez avoir reçu une copie de la GNU General Public License avec ce
 programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="107"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="72"/>
         <source>TarotClub 0.0.0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="117"/>
-        <source>&lt;Nom&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="137"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="95"/>
         <source>&amp;Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="140"/>
+        <location filename="../../src/desktop/forms/AboutUI.ui" line="98"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
@@ -176,9 +176,18 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>ChatDock</name>
     <message>
-        <location filename="../../src/desktop/docks/ChatDock.cpp" line="37"/>
         <source>Chat</source>
-        <translation>Discussion</translation>
+        <translation type="vanished">Discussion</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/ChatDock.cpp" line="38"/>
+        <source>Private chat</source>
+        <translation>Discussion privée</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/ChatDock.cpp" line="40"/>
+        <source>Use this chat when you have joined a table to discuss with the other players.</source>
+        <translation>Utilisez ce canal de discussion pour discuter avec les autres joueurs de votre table.</translation>
     </message>
 </context>
 <context>
@@ -237,55 +246,65 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>DealsWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="36"/>
+        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="37"/>
         <source>&amp;Close</source>
         <translation>&amp;Fermer</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="43"/>
+        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="44"/>
         <source>Choose a previously played deal to display.</source>
         <translation>Choisissez une partie terminée pour voir la donne.</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="96"/>
+        <source>Loading error</source>
+        <translation>Erreur de chargement</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="96"/>
+        <source>Cannot load the file: </source>
+        <translation>Impossible de charger le fichier :</translation>
     </message>
 </context>
 <context>
     <name>DebugDock</name>
     <message>
         <location filename="../../src/desktop/docks/DebugDock.cpp" line="40"/>
-        <source>Debug</source>
-        <translation></translation>
+        <source>Debug output window</source>
+        <translation>Fenêtre de sortie de déboggage</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="43"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="44"/>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="44"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="45"/>
         <source>Save</source>
         <translation>Sauver</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="86"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="87"/>
         <source>Save Log Output</source>
         <translation>Sauver les messages de sortie</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="87"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="88"/>
         <source>%1/logfile.txt</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="88"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="89"/>
         <source>Text Files (*.txt);;All Files (*)</source>
         <translation>Fichiers textes (*.txt);; Tous les fichiers (*)</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="101"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="102"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="102"/>
+        <location filename="../../src/desktop/docks/DebugDock.cpp" line="103"/>
         <source>&lt;nobr&gt;File &apos;%1&apos;&lt;br/&gt;cannot be opened for writing.&lt;br/&gt;&lt;br/&gt;The log output could &lt;b&gt;not&lt;/b&gt; be saved!&lt;/nobr&gt;</source>
         <translation></translation>
     </message>
@@ -449,337 +468,396 @@ the specified url or path.</source>
     </message>
 </context>
 <context>
+    <name>LobbyDock</name>
+    <message>
+        <source>Online game hall</source>
+        <translation type="vanished">Salon de jeu en ligne</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="35"/>
+        <source>Online game lobby</source>
+        <translation>Salon de jeu en réseau</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="52"/>
+        <source>Connecting ...</source>
+        <translation>Connexion ...</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="73"/>
+        <source>Invalid server</source>
+        <translation>Serveur invalide</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="102"/>
+        <source>Connected.</source>
+        <translation>Connecté.</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="209"/>
+        <source>Checking server ...</source>
+        <translation>Test du serveur ...</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="214"/>
+        <source>Server OK</source>
+        <translation>Serveur OK</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="218"/>
+        <source>Server unavailable :(</source>
+        <translation>Serveur indisponible :(</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="267"/>
+        <source>Not connected.</source>
+        <translation>Non connecté.</translation>
+    </message>
+</context>
+<context>
     <name>LobbyUI</name>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="14"/>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="274"/>
         <source>Lobby</source>
-        <translation>Hall</translation>
+        <translation type="vanished">Hall</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="35"/>
         <source>Server</source>
-        <translation>Serveur</translation>
+        <translation type="vanished">Serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="78"/>
         <source>Add server</source>
-        <translation>Ajouter un serveur</translation>
+        <translation type="vanished">Ajouter un serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="85"/>
         <source>Remove server</source>
-        <translation>Supprimer un serveur</translation>
+        <translation type="vanished">Supprimer un serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="111"/>
         <source>Connect</source>
-        <translation>Connexion</translation>
+        <translation type="vanished">Connexion</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="132"/>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="170"/>
-        <source>TextLabel</source>
-        <translation></translation>
+        <source>Connect to the server</source>
+        <translation type="vanished">Se connecter au serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="118"/>
+        <source>Disconnect from the server</source>
+        <translation type="vanished">Se déconnecter du serveur</translation>
+    </message>
+    <message>
+        <source>Check the server connection</source>
+        <translation type="vanished">Vérifier la connexion avec le serveur</translation>
+    </message>
+    <message>
         <source>Disconnect</source>
-        <translation>Déconnecter</translation>
+        <translation type="vanished">Déconnecter</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="125"/>
         <source>Connection status:</source>
-        <translation>Statut de la connexion :</translation>
+        <translation type="vanished">Statut de la connexion :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="156"/>
         <source>Check server</source>
-        <translation>Tester le serveur</translation>
+        <translation type="vanished">Tester le serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="163"/>
         <source>Server status:</source>
-        <translation>Statut du serveur :</translation>
+        <translation type="vanished">Statut du serveur :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="220"/>
-        <source>Tables</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="238"/>
         <source>Quit</source>
-        <translation>Quitter</translation>
+        <translation type="vanished">Quitter</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="231"/>
         <source>Join</source>
-        <translation>Joindre</translation>
+        <translation type="vanished">Joindre</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="252"/>
         <source>Add bot</source>
-        <translation>Ajouter un bot</translation>
+        <translation type="vanished">Ajouter un bot</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="262"/>
         <source>Remove bot</source>
-        <translation>Supprimer un bot</translation>
+        <translation type="vanished">Supprimer un bot</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="320"/>
         <source>Close</source>
-        <translation>Fermer</translation>
+        <translation type="vanished">Fermer</translation>
     </message>
 </context>
 <context>
     <name>LobbyWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="58"/>
         <source>Connecting ...</source>
-        <translation>Connexion ...</translation>
+        <translation type="vanished">Connexion ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="310"/>
         <source>Not connected.</source>
-        <translation>Non connecté.</translation>
+        <translation type="vanished">Non connecté.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="98"/>
         <source>Connection to the seveur failed!</source>
-        <translation>La connexion au serveur a échoué !</translation>
+        <translation type="vanished">La connexion au serveur a échoué !</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="79"/>
         <source>Invalid server</source>
-        <translation>Serveur invalid</translation>
+        <translation type="vanished">Serveur invalid</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="103"/>
         <source>Connected.</source>
-        <translation>Connecté.</translation>
+        <translation type="vanished">Connecté.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="215"/>
         <source>Checking ...</source>
-        <translation>Vérification ...</translation>
+        <translation type="vanished">Vérification ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="219"/>
         <source>Server OK</source>
-        <translation>Serveur OK</translation>
+        <translation type="vanished">Serveur OK</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/LobbyWindow.cpp" line="223"/>
         <source>Server unavailable :(</source>
-        <translation>Serveur indisponible :(</translation>
+        <translation type="vanished">Serveur indisponible :(</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="357"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="380"/>
         <source>&amp;New quick game</source>
         <translation>&amp;Nouvelle partie rapide</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="358"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="381"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="359"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="382"/>
         <source>Start a one player game against computer</source>
         <translation>Démarrer une partie solitaire contre des adversaires gérés par l&apos;ordinateur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="361"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="384"/>
         <source>New &amp;tournament</source>
         <translation>Nouveau &amp;Tournoi</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="362"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="385"/>
         <source>Ctrl+T</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="363"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="386"/>
         <source>Play five deals against the computer</source>
         <translation>Jouez cinq parties successives contre l&apos;ordinateur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="365"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="388"/>
         <source>New nu&amp;mbered deal</source>
         <translation>Nouvelle partie nu&amp;mérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="366"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="389"/>
         <source>Ctrl+M</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="367"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="390"/>
         <source>Deal cards with a predefined deal number</source>
         <translation>Les cartes sont distribuées selon une donne numérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="369"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="392"/>
         <source>New manua&amp;l deal</source>
         <translation>Nouvelle partie mane&amp;lle</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="370"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="393"/>
         <source>Ctrl+L</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="371"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="394"/>
         <source>Deal cards with a deal created with the editor</source>
         <translation>Les cartes sont distribuées à partir d&apos;un fichier de donne prédéfinie</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="373"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="467"/>
         <source>New auto&amp; play</source>
         <translation>Nouvelle donne automatique</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="374"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="468"/>
         <source>Ctrl+Y</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="375"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="469"/>
         <source>Auto play, to train your AI script!</source>
         <translation>Partie automarique, pratique pour essayer vos scripts IA !</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="195"/>
         <source>Client error: %1</source>
-        <translation>Erreur du client: %1</translation>
+        <translation type="vanished">Erreur du client: %1</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="378"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="196"/>
+        <source>Cannot connect to server</source>
+        <translation>Impossible de se connecter au serveur</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="199"/>
+        <source>Disconnected from server</source>
+        <translation>Déconnecté du serveur</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="203"/>
+        <source>Lobby access refused</source>
+        <translation>Accès au hall refusé</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="206"/>
+        <source>Table access refused</source>
+        <translation>Accès à la table de jeu refusé</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="209"/>
+        <source>Table is full, cannot join the game</source>
+        <translation>La table de jeu est complète, impossible de la rejoindre</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="212"/>
+        <source>Unknown error</source>
+        <translation>Erreur inconnue</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="397"/>
         <source>&amp;Play online</source>
         <translation>&amp;Jouer en ligne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="379"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="398"/>
         <source>Ctrl+P</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="380"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="399"/>
         <source>Join a TarotClub game server</source>
         <translation>Joindre un serveur de jeu TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="391"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="410"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="392"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="411"/>
         <source>Ctrl+Q</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="393"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="412"/>
         <source>Quit the game</source>
         <translation>Quitter le jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="397"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="416"/>
         <source>Game</source>
         <translation>Jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="409"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="427"/>
         <source>Network game</source>
         <translation>Jeu en réseau</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="421"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="439"/>
         <source>&amp;Options</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="422"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="440"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="423"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="441"/>
         <source>Game options</source>
         <translation>Options du jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="425"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="443"/>
         <source>Deal e&amp;ditor</source>
         <translation>&amp;Editeur de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="426"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="444"/>
         <source>Ctrl+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="427"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="445"/>
         <source>Create a pre-defined deal by choosing the cards of each player</source>
         <translation>Créez une donne prédéfinie en choisissant les cartes de chaque joueur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="430"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="448"/>
         <source>&amp;Deals viewer</source>
         <translation>&amp;Visualiseur de donnes</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="431"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="449"/>
         <source>Ctrl+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="432"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="450"/>
         <source>Display previously played deals</source>
         <translation>Affiche les donnes jouées précédemment</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="434"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="452"/>
         <source>Parameters</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="450"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="466"/>
+        <source>Debug</source>
+        <translation>Déboggage</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/MainWindow.cpp" line="476"/>
         <source>&amp;About...</source>
         <translation>&amp;À propos ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="451"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="477"/>
         <source>Ctrl+A</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="452"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="478"/>
         <source>About TarotClub</source>
         <translation>À propos de TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="455"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="481"/>
         <source>&amp;Help and manual</source>
         <translation>Ai&amp;de et manuel </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="456"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="482"/>
         <source>Ctrl+H</source>
         <translation>Ctrl+H</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="457"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="483"/>
         <source>Show game help and Tarot rules</source>
         <translation>Montre l&apos;aide du jeu et la règle du jeu de Tarot</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="461"/>
+        <location filename="../../src/desktop/MainWindow.cpp" line="487"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
@@ -800,177 +878,194 @@ the specified url or path.</source>
 <context>
     <name>OptionsUI</name>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="20"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="23"/>
         <source>Options</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="33"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="162"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="89"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="95"/>
         <source>Identity</source>
         <translation>Identité</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="39"/>
         <source>Avatar</source>
-        <translation>Avatar</translation>
+        <translation type="vanished">Avatar</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="78"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="232"/>
         <source>Local avatar image</source>
         <translation>Fichier avatar local</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="97"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="251"/>
         <source>Import...</source>
         <translation>Importer ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="108"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="262"/>
         <source>Pre-defined avatar</source>
         <translation>Avatar prédéfini</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="187"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="168"/>
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="269"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="707"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="196"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="669"/>
         <source>Male</source>
         <translation>Masculin</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="276"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="700"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="203"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="662"/>
         <source>Female</source>
         <translation>Féminin</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="568"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="597"/>
         <source>Bots list</source>
         <translation>Liste des bots</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="578"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="607"/>
         <source>Bot identity</source>
         <translation>Identité du bot</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="588"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="617"/>
         <source>Name: </source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="615"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="644"/>
         <source>Level: </source>
         <translation>Niveau :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="629"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="765"/>
+        <source>Network</source>
+        <translation>Réseau</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="780"/>
+        <source>Server list</source>
+        <translation>Liste des serveurs</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="810"/>
+        <source>Add server</source>
+        <translation>Ajouter un serveur</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="820"/>
+        <source>Remove server</source>
+        <translation>Supprimer un serveur</translation>
+    </message>
+    <message>
         <source>Quote: </source>
-        <translation>Citation :</translation>
+        <translation type="vanished">Citation :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="226"/>
         <source>Quote:</source>
-        <translation>Citation:</translation>
+        <translation type="vanished">Citation:</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="303"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="319"/>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="309"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="325"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="317"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="333"/>
         <source>Tournament turns:</source>
         <translation>Nombre de tours du tournoi</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="439"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="455"/>
         <source>Show avatars on the board</source>
         <translation>Montrer les avatars sur le tapis</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="357"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="373"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="390"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="406"/>
         <source>Français</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="395"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="411"/>
         <source>English</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="407"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="423"/>
         <source>Background color</source>
         <translation>Couleur du tapis</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="482"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="498"/>
         <source>Delay between two players</source>
         <translation>Délai entre deux joueurs</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="471"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="505"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="487"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="521"/>
         <source>0.0 seconds</source>
         <translation>0.0 secondes</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="520"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="536"/>
         <source>Activate automatic trick flushing</source>
         <translation>Activer le ramassage des cartes automatique</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="448"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="464"/>
         <source>Delay before trick flush:</source>
         <translation>Délai avant le ramassage:</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="263"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="694"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="190"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="656"/>
         <source>Gender</source>
         <translation>Sexe</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="529"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="545"/>
         <source>Cards order in hand (drag and drop to change position):</source>
         <translation>Ordre des cartes en main (glisser-déposer les icônes pour changer de position)</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="558"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="587"/>
         <source>Opponents</source>
         <translation>Adversaires</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="755"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="34"/>
         <source>Default</source>
         <translation>Défaut</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="778"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="57"/>
         <source>&amp;Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="781"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="60"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="794"/>
+        <location filename="../../src/desktop/forms/OptionsUI.ui" line="73"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
@@ -978,7 +1073,7 @@ the specified url or path.</source>
 <context>
     <name>OptionsWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="331"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="335"/>
         <source>Beginner</source>
         <translation>Débutant</translation>
     </message>
@@ -993,8 +1088,8 @@ the specified url or path.</source>
         <translation>Vous devez redémarrer TarotClub pour prendre en compte le changement.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="499"/>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="504"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="500"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="505"/>
         <source>%1 seconds</source>
         <translation>%1 secondes</translation>
     </message>
@@ -1083,33 +1178,66 @@ the specified url or path.</source>
 <context>
     <name>TarotWidget</name>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="333"/>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="625"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="326"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="618"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="334"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="327"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation>Votre poignée n&apos;est pas valide. Montrer l&apos;excuse signifie que vous n&apos;avez plus d&apos;atouts en main.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="626"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="619"/>
         <source>All the players have passed.
 New deal will start.</source>
         <translation>Tous les joueurs ont passé. Une nouvelle donne va démarrer.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="656"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="649"/>
         <source>Handle</source>
         <translation>Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="657"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="650"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation>Vous possédez une poignée. Souhaitez-vous la déclarer ?</translation>
+    </message>
+</context>
+<context>
+    <name>dockWidget</name>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="38"/>
+        <source>Connect to the server</source>
+        <translation>Se connecter au serveur</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="70"/>
+        <source>Disconnect from the server</source>
+        <translation>Se déconnecter du serveur</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="102"/>
+        <source>Check the server connection</source>
+        <translation>Vérifier la connexion avec le serveur</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="140"/>
+        <source>Join the selected  table</source>
+        <translation>Joindre la table sélectionnée</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="178"/>
+        <source>Quit table</source>
+        <translation>Quitter la table</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/forms/LobbyUI.ui" line="228"/>
+        <source>TextLabel</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1207,8 +1335,8 @@ Do you want to declare it?</source>
     </message>
     <message>
         <location filename="../../src/desktop/forms/NewServerUI.ui" line="35"/>
-        <source>http://tarot.myserver.com</source>
-        <translation></translation>
+        <source>tarot.myserver.com</source>
+        <translation>mon.serveur.com</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/NewServerUI.ui" line="46"/>
