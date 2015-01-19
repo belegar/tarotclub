@@ -1,4 +1,4 @@
-# Branch 2.5 - Codename <Pirate!> (28/12/2014)
+# Branch 2.5
 
 ## Corrections in version 2.5.2
 
@@ -15,7 +15,7 @@
   * AI correction: sometimes, the discard was not valid (more than 6 cards)
   * Auto discard correction
 
-## Corrections in version 2.5.1
+## Corrections in version 2.5.1 (03/01/2015)
 
   * Lobby window: removed default focus on buttons while chatting
   * "Petit sec" deals are avoided
@@ -26,7 +26,7 @@
   * Corrected defense AI script bug
   * Deleted the quote parameter (obsolete)
 
-## Desktop user interface
+## Corrections in version 2.5.0 (28/12/2014)
 
   * Information dock window: display king/queen etc. instead of 14, 13 .. and make hearts and diamonds in red
   * Add a GUI option to choose the number of tournament turns
@@ -35,21 +35,12 @@
   * New option window for bots, allowing future custom bots configuration
   * Allow to choose an local avatar file or import/use a remote image file via an URL
   * The Deal Editor can now load a custom deal file
-
-## TarotClub network protocol
-
   * Add new protocol command to get the list of tables instead of using a REST api, protocol version updated to V2
-
-## Corrected issues
-
   * Removed lobby window initialization before showing it
   * Deal table widget is now correctly stretched
   * Issue #26: impossible to play a local game after a network game
   * Issue #33: Excuse must be played when no more trumps
   * Issue #28, #34: Game blocked if handle declaration is refused
-
-## TCDS dedicated server / internals
-
   * Use a different log filename than the desktop version (prefixed by "tcds" instead of "desktop")
   * New option: the number of tournament turns is now configurable
   * New option: parameter to choose the server web port (default 8080)
