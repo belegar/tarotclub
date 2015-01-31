@@ -74,5 +74,6 @@
         <file>images/disconnect.png</file>
         <file>images/join.png</file>
         <file>images/quit.png</file>
+        <file>fonts/kanzlei.ttf</file>
     </qresource>
 </RCC>

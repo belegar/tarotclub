@@ -1,5 +1,9 @@
 # Branch 2.5
 
+## Corrections in version 2.5.3
+
+  * Kanzlei font is now included in the executable. Updated all packages setup to remove it from the installation.
+
 ## Corrections in version 2.5.2
 
   * Corrected the selection colour around the name box
