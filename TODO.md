@@ -29,6 +29,10 @@
   * New network commands: change nick, change avatar
   * Dedicated server information and commands (display stats, tables and players)
   * Log all the messages (per table and of the hall, one file per day)
+  * Use TCP_NODELAY in socket option ???
+  
+  setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (void *)&yes, sizeof(yes)) == -1 ||
+      setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void *)&yes, sizeof(yes)) == -1)
   
 # ---------------------------------------------- BACKLOG --------------------------------------------------  
   
