@@ -129,6 +129,7 @@ private slots:
     void slotBotSelected(int currentRow);
     void slotButtonToggled(int id, bool checked);
     void slotImportAvatar();
+    void slotChooseScriptPath();
 
     // Network tab widgets
     void slotAddServer();
@@ -145,7 +146,6 @@ private:
     DragWidget *dragWidget;
     QMap<int, AvatarLabel *> mAvatarFiles;
     int mSelectedAvatar;
-    QStringList mLevelList;
     int mPreviousSelectedBot;
     QButtonGroup mRadioGroup;
     ImportAvatarWindow mImportAvatarWindow;
