@@ -167,21 +167,25 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
     else
     {
         int value = (int)card.GetValue();
-        if (value == 11)
+
+        if ((card.GetSuit() != Card::TRUMPS) && (value >= 11))
         {
-            txt = "V";
-        }
-        else if (value == 12)
-        {
-            txt = "C";
-        }
-        else if (value == 13)
-        {
-            txt = "D";
-        }
-        else if (value == 14)
-        {
-            txt = "R";
+            if (value == 11)
+            {
+                txt = "V";
+            }
+            else if (value == 12)
+            {
+                txt = "C";
+            }
+            else if (value == 13)
+            {
+                txt = "D";
+            }
+            else
+            {
+                txt = "R"; // king
+            }
         }
         else
         {
