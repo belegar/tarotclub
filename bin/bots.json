@@ -1,0 +1,26 @@
+[
+	{
+        "name": "Robocop",
+        "avatar": "http://tof.canardpc.com/view/e36c718a-b72c-46e9-96be-a6e0c549d422.jpg",
+        "gender": "male",
+		"bot_file_path": "../assets/ai/package.json"
+    },
+	{
+        "name": "R2D2",
+        "avatar": "",
+        "gender": "male",
+		"bot_file_path": "../assets/ai/package.json"
+    },
+	{
+        "name": "Marvin",
+        "avatar": "http://tof.canardpc.com/view/2c55da23-51cd-49e3-8563-76eb0d2d3814.jpg",
+        "gender": "male",
+		"bot_file_path": "../assets/ai/package.json"
+    },
+	{
+        "name": "Terminator",
+        "avatar": "http://tof.canardpc.com/view/318c106f-a93a-41d3-92bf-bf3c9fdf72c6.jpg",
+        "gender": "male",
+		"bot_file_path": "../assets/ai/package.json"
+    }
+]
