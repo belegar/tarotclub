@@ -94,6 +94,9 @@ public:
     void Close();
     bool Listen(std::int32_t maxConnections) const;
 
+    // return true if socket has data waiting to be read
+    bool DataWaiting();
+
     /**
      * @brief Accept
      * @return The new socket descriptor, valid if >0
@@ -105,6 +108,8 @@ public:
 
     // Static
     static bool Initialize();
+
+    bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
 
 private:
     std::string mHost;

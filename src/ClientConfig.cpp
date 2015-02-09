@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string CLIENT_CONFIG_VERSION  = "2.3"; // increase the version to force any incompatible update in the file structure
+static const std::string CLIENT_CONFIG_VERSION  = "3"; // increase the version to force any incompatible update in the file structure
 const std::string    ClientConfig::DEFAULT_CLIENT_CONFIG_FILE  = "tarotclub.json";
 
 /*****************************************************************************/

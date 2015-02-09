@@ -38,6 +38,83 @@ static const std::int32_t MAXRECV = 2048;
 
 bool TcpSocket::mOneTimeInit = false;
 
+#ifdef USE_WINDOWS_OS
+
+const char* GetWinsockErrorString( int err )
+{
+    switch( err)
+    {
+    case 0:					return "No error";
+    case WSAEINTR:			return "Interrupted system call";
+    case WSAEBADF:			return "Bad file number";
+    case WSAEACCES:			return "Permission denied";
+    case WSAEFAULT:			return "Bad address";
+    case WSAEINVAL:			return "Invalid argument";
+    case WSAEMFILE:			return "Too many open sockets";
+    case WSAEWOULDBLOCK:	return "Operation would block";
+    case WSAEINPROGRESS:	return "Operation now in progress";
+    case WSAEALREADY:		return "Operation already in progress";
+    case WSAENOTSOCK:		return "Socket operation on non-socket";
+    case WSAEDESTADDRREQ:	return "Destination address required";
+    case WSAEMSGSIZE:		return "Message too long";
+    case WSAEPROTOTYPE:		return "Protocol wrong type for socket";
+    case WSAENOPROTOOPT:	return "Bad protocol option";
+    case WSAEPROTONOSUPPORT:	return "Protocol not supported";
+    case WSAESOCKTNOSUPPORT:	return "Socket type not supported";
+    case WSAEOPNOTSUPP:		return "Operation not supported on socket";
+    case WSAEPFNOSUPPORT:	return "Protocol family not supported";
+    case WSAEAFNOSUPPORT:	return "Address family not supported";
+    case WSAEADDRINUSE:		return "Address already in use";
+    case WSAEADDRNOTAVAIL:	return "Can't assign requested address";
+    case WSAENETDOWN:		return "Network is down";
+    case WSAENETUNREACH:	return "Network is unreachable";
+    case WSAENETRESET:		return "Net connection reset";
+    case WSAECONNABORTED:	return "Software caused connection abort";
+    case WSAECONNRESET:		return "Connection reset by peer";
+    case WSAENOBUFS:		return "No buffer space available";
+    case WSAEISCONN:		return "Socket is already connected";
+    case WSAENOTCONN:		return "Socket is not connected";
+    case WSAESHUTDOWN:		return "Can't send after socket shutdown";
+    case WSAETOOMANYREFS:	return "Too many references, can't splice";
+    case WSAETIMEDOUT:		return "Connection timed out";
+    case WSAECONNREFUSED:	return "Connection refused";
+    case WSAELOOP:			return "Too many levels of symbolic links";
+    case WSAENAMETOOLONG:	return "File name too long";
+    case WSAEHOSTDOWN:		return "Host is down";
+    case WSAEHOSTUNREACH:	return "No route to host";
+    case WSAENOTEMPTY:		return "Directory not empty";
+    case WSAEPROCLIM:		return "Too many processes";
+    case WSAEUSERS:			return "Too many users";
+    case WSAEDQUOT:			return "Disc quota exceeded";
+    case WSAESTALE:			return "Stale NFS file handle";
+    case WSAEREMOTE:		return "Too many levels of remote in path";
+    case WSASYSNOTREADY:	return "Network system is unavailable";
+    case WSAVERNOTSUPPORTED:	return "Winsock version out of range";
+    case WSANOTINITIALISED:	return "WSAStartup not yet called";
+    case WSAEDISCON:		return "Graceful shutdown in progress";
+    case WSAHOST_NOT_FOUND:	return "Host not found";
+    case WSANO_DATA:		return "No host data of that type was found";
+    }
+
+    return "unknown";
+}
+
+#endif // USE_WINDOWS_OS
+
+void BailOnSocketError( const char* context )
+{
+#ifdef USE_WINDOWS_OS
+
+    int e = WSAGetLastError();
+    const char* msg = GetWinsockErrorString( e );
+#else
+    const char* msg = strerror( errno );
+#endif
+
+    std::cout << "Socket error in " << context << ": " << msg << std::endl;
+}
+
+
 /*****************************************************************************/
 TcpSocket::TcpSocket()
     : mHost("127.0.0.1")
@@ -161,6 +238,32 @@ bool TcpSocket::Listen(std::int32_t maxConnections) const
     return ret;
 }
 /*****************************************************************************/
+bool TcpSocket::DataWaiting()
+{
+    fd_set fds;
+    FD_ZERO( &fds );
+    FD_SET( mSock, &fds );
+
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    int r = select( mSock+1, &fds, NULL, NULL, &tv);
+    if (r < 0)
+    {
+        BailOnSocketError( "select" );
+    }
+
+    if( FD_ISSET( mSock, &fds ) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+/*****************************************************************************/
 int TcpSocket::Accept() const
 {
     int new_sd = ::accept(mSock, NULL, NULL);
@@ -190,26 +293,31 @@ bool TcpSocket::Connect(const std::string &host, const int port)
 
     mHost = host;
     mPort = port;
-    mAddr.sin_family = AF_INET;
-    mAddr.sin_port = htons(port);
-    mAddr.sin_addr.s_addr = inet_addr(mHost.c_str()); // Convert a string IPv4 into a structure
 
-    if (mAddr.sin_addr.s_addr == INADDR_NONE)
+    if (HostNameToIpAddress(host, mAddr))
     {
-        //printf("inet_addr failed and returned INADDR_NONE\n");
-        //     WSACleanup();
-        return false;
-    }
-    if (mAddr.sin_addr.s_addr == INADDR_ANY)
-    {
-        //    printf("inet_addr failed and returned INADDR_ANY\n");
-        return false;
-    }
+   //     mAddr.sin_family = AF_INET;
+   //     mAddr.sin_port = htons(port);
+   //     mAddr.sin_addr.s_addr = inet_addr(mHost.c_str()); // Convert a string IPv4 into a structure
 
-    int retcode = ::connect(mSock, reinterpret_cast<sockaddr *>(&mAddr), sizeof(mAddr));
-    if (retcode == 0)
-    {
-        ret = true;
+        if (mAddr.sin_addr.s_addr == INADDR_NONE)
+        {
+            //printf("inet_addr failed and returned INADDR_NONE\n");
+            //     WSACleanup();
+            return false;
+        }
+        if (mAddr.sin_addr.s_addr == INADDR_ANY)
+        {
+            //    printf("inet_addr failed and returned INADDR_ANY\n");
+            return false;
+        }
+        mAddr.sin_port = htons(mPort);
+        int retcode = ::connect(mSock, reinterpret_cast<sockaddr *>(&mAddr), sizeof(mAddr));
+        if (retcode == 0)
+        {
+            ret = true;
+        }
+
     }
 
     return ret;
@@ -217,18 +325,24 @@ bool TcpSocket::Connect(const std::string &host, const int port)
 /*****************************************************************************/
 bool TcpSocket::Send(const std::string &input) const
 {
-    size_t ret;
+    bool ret = true;
+    size_t size = input.size();
+    const char *buf = input.data(); // bytes are linear in the string memory, so no problem to get the pointer
 
-    ret = ::send(mSock, input.c_str(), input.size(), 0);
+    while( size > 0 )
+    {
+        int n = ::send( mSock, buf, size, 0 );
+        if (n < 0)
+        {
+            BailOnSocketError( "send()" );
+            ret = false;
+            break;
+        }
+        size -= n;
+        buf += n;
+    }
 
-    if (ret > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ret;
 }
 /*****************************************************************************/
 /**
@@ -253,6 +367,43 @@ bool TcpSocket::Initialize()
 
     return true;
 }
+
+/**
+ * @brief TcpSocket::DnsToIpAddress
+ *
+ * Try to work out address from string. The string can be an IP or an domain address (eg: example.com)
+ * Returns an empty string if bad.
+ *
+ * @param address
+ * @return
+ */
+bool TcpSocket::HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4)
+{
+    struct addrinfo hints, *res, *p;
+    bool status = false;
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
+    hints.ai_socktype = SOCK_STREAM;
+
+    if (getaddrinfo(address.c_str(), NULL, &hints, &res) == 0)
+    {
+        for (p = res; p != NULL; p = p->ai_next)
+        {
+            // get the pointer to the address itself,
+            // different fields in IPv4 and IPv6:
+            // IPv4
+            if (p->ai_family == AF_INET)
+            {
+                ipv4 = *(struct sockaddr_in *)(p->ai_addr);
+                status = true;
+            }
+        }
+        freeaddrinfo(res); // free the linked list
+    }
+
+    return status;
+}
 /*****************************************************************************/
 std::int32_t TcpSocket::Recv(std::string &output) const
 {
@@ -267,7 +418,6 @@ std::int32_t TcpSocket::Recv(std::string &output) const
     // a short packet. But it might be a long one.
     result = ::recv(mSock, buf, MAXRECV, 0);
 
-
     if (result > 0)
     {
         output.append(buf, static_cast<size_t>(result));
@@ -281,7 +431,7 @@ std::int32_t TcpSocket::Recv(std::string &output) const
         }
         else
         {
-            std::cout << "Err: " << errno << std::endl;
+            BailOnSocketError("recv()");
         }
     }
 

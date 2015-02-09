@@ -317,6 +317,7 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     connect(ui.btnPixSud, SIGNAL(clicked()), this, SLOT(slotBtnPixSud()));
     connect(ui.buttonBotAvatar, SIGNAL(clicked()), this, SLOT(slotButtonBotAvatar()));
     connect(ui.buttonImport, &QPushButton::clicked, this, &OptionsWindow::slotImportAvatar);
+    connect(ui.buttonScriptPath, &QPushButton::clicked, this, &OptionsWindow::slotChooseScriptPath);
 
     // Background color choice
     connect(ui.tapisColor, SIGNAL(clicked()), this, SLOT(slotColorPicker()));
@@ -331,8 +332,6 @@ OptionsWindow::OptionsWindow(QWidget *parent)
 
     connect(ui.addServerButton, &QPushButton::clicked, this, &OptionsWindow::slotAddServer);
     connect(ui.removeServerButton, &QPushButton::clicked, this, &OptionsWindow::slotRemoveServer);
-
-    mLevelList.append(tr("Beginner"));
 
     connect(ui.botsList, &QListWidget::currentRowChanged, this, &OptionsWindow::slotBotSelected);
     ui.botsList->addItem(PlaceToString(Place::EAST));
@@ -399,14 +398,11 @@ void OptionsWindow::slotBotSelected(int currentRow)
 
             mPreviousSelectedBot = currentRow;
 
-            ui.botAiLevel->clear();
-            ui.botAiLevel->addItems(mLevelList);
-            ui.botAiLevel->setCurrentIndex(0);
-
             // Get the place of the selected bot
             Place place(currentRow + 1U);
 
             ui.botName->setText(QString::fromStdString(serverOptions.bots[place].identity.name));
+            ui.scriptPath->setText(QString::fromStdString(serverOptions.bots[place].scriptFilePath));
 
             if (serverOptions.bots[place].identity.gender == Identity::MALE)
             {
@@ -603,6 +599,27 @@ void OptionsWindow::slotImportAvatar()
     {
         clientOptions.identity.avatar = mImportAvatarWindow.GetFilePath().toStdString();
         ui.pixSud->setPixmap(mImportAvatarWindow.GetPixmap());
+    }
+}
+/*****************************************************************************/
+void OptionsWindow::slotChooseScriptPath()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"),
+                                                    "",
+                                                    tr("TarotClub script package (package.json)"));
+
+    if (QFileInfo(fileName).exists())
+    {
+        Place place(ui.botsList->currentRow() + 1U);
+
+        serverOptions.bots[place].scriptFilePath = fileName.toStdString();
+        ui.scriptPath->setText(fileName);
+    }
+    else
+    {
+        (void) QMessageBox::critical(this, tr("TarotClub"),
+                                     tr("Bad package file."),
+                                     QMessageBox::Ok );
     }
 }
 /*****************************************************************************/
