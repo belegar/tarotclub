@@ -28,20 +28,64 @@
 
 #include <algorithm>
 
-std::string GetCmdOption(char ** begin, char ** end, const std::string & option)
+class CommandLine
 {
-    char ** itr = std::find(begin, end, option);
-    if (itr != end && ++itr != end)
-    {
-        return *itr;
-    }
-    return "";
-}
 
-bool CmdOptionExists(char** begin, char** end, const std::string& option)
-{
-    return std::find(begin, end, option) != end;
-}
+public:
+    CommandLine(int argc, char *argv[])
+        : mArgc(argc)
+        , mArgv(argv)
+        , mEnd(mArgv + mArgc)
+    {
+
+    }
+
+    CommandLine()
+        : mArgc(0)
+        , mArgv(NULL)
+        , mEnd(NULL)
+    {
+
+    }
+
+    std::string GetOption(const std::string & option)
+    {
+        if (mArgc > 1)
+        {
+            char ** itr = std::find(mArgv, mEnd, option);
+            if (itr != mEnd && ++itr != mEnd)
+            {
+                return *itr;
+            }
+        }
+        return "";
+    }
+
+    std::string GetLastOption()
+    {
+        if (mArgc > 1)
+        {
+            return (mArgv[mArgc-1]);
+        }
+        return "";
+    }
+
+    bool Exists(const std::string& option)
+    {
+        bool exists = false;
+
+        if (mArgc > 1)
+        {
+            exists = std::find(mArgv, mEnd, option) != mEnd;
+        }
+        return exists;
+    }
+
+private:
+    int mArgc;
+    char **mArgv;
+    char **mEnd;
+};
 
 #endif // GETOPTIONS_H
 
