@@ -3,6 +3,7 @@
 ## Corrections in version 2.5.3
 
   * Kanzlei font is now included in the executable. Updated all packages setup to remove it from the installation.
+  * The bot AI JavaScript path can now be configured in the options window
 
 ## Corrections in version 2.5.2
 

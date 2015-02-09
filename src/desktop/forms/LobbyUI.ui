@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>749</width>
-    <height>335</height>
+    <height>324</height>
    </rect>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
@@ -61,6 +61,12 @@
          </sizepolicy>
         </property>
         <property name="minimumSize">
+         <size>
+          <width>42</width>
+          <height>42</height>
+         </size>
+        </property>
+        <property name="maximumSize">
          <size>
           <width>42</width>
           <height>42</height>
