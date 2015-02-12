@@ -1,5 +1,12 @@
 # Branch 2.5
 
+## Corrections in version 2.5.3
+
+  * Kanzlei font is now included in the executable. Updated all packages setup to remove it from the installation.
+  * The bot AI JavaScript path can now be configured in the options window
+  * Corrected issue #50: display of trumps cards in the history dock widget for values between 11 and 14
+  * NEW added botclient executable in the release packages to help debugging custom AI for bots
+
 ## Corrections in version 2.5.2
 
   * Corrected the selection colour around the name box

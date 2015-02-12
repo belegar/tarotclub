@@ -88,6 +88,33 @@ MainWindow::MainWindow(QWidget *parent)
     connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
 }
 /*****************************************************************************/
+void MainWindow::Initialize()
+{
+    QString fontPath = ":/fonts/kanzlei.ttf";
+    int fontId = QFontDatabase::addApplicationFont(fontPath);
+    if (fontId == -1)
+    {
+        TLogError("Cannot add custom font on your system");
+    }
+
+    dealsWindow->Initialize();
+
+    mClientConfig.Load(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
+    mServerConfig.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
+
+    tarotWidget->Initialize(mServerConfig.GetOptions());
+    tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
+                              mServerConfig.GetOptions());
+
+    mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
+    debugDock->Initialize();
+
+    // Load previously saved settings
+    QSettings settings("TarotCorp.", "TarotClub");
+    restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
+    restoreState(settings.value("mainWindowState").toByteArray());
+}
+/*****************************************************************************/
 void MainWindow::slotAboutToQuit()
 {
     tarotWidget->slotCleanBeforeExit();
@@ -267,26 +294,6 @@ void MainWindow::slotShowOptions()
                                   mServerConfig.GetOptions());
         mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
     }
-}
-/*****************************************************************************/
-void MainWindow::Initialize()
-{
-    dealsWindow->Initialize();
-
-    mClientConfig.Load(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
-    mServerConfig.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
-
-    tarotWidget->Initialize(mServerConfig.GetOptions());
-    tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
-                              mServerConfig.GetOptions());
-
-    mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
-    debugDock->Initialize();
-
-    // Load previously saved settings
-    QSettings settings("TarotCorp.", "TarotClub");
-    restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
-    restoreState(settings.value("mainWindowState").toByteArray());
 }
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
