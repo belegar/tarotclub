@@ -129,17 +129,9 @@ function ShowHandle(handle, team)
 
 /**
  * @brief This function is called when the bot must play a card
- *
- * The counter in parameter is useful to calculate the current position
- * in the current turn and to know what are the cards played by the
- * previous players.
- *
- * Use this counter along with the main deck of cards to analyse the game.
- *
  * Notice that in case of a non-valid card returned, the game engine will take
  * a random valid card in the bot's deck.
  *
- * @param[in] gameCounter Current game counter, incremented at each player's turn  [1..72]
  * @return The card played, string format
  */
 function PlayCard()
