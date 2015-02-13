@@ -3,12 +3,12 @@
  
 ##  Desktop client
   
-  * Allow to choose the AI script configuration file (user customization) from the GUI option
   * New option for no avatar
-  * Save and load game
   * Lobby: add buttons to add a bot on a table
   * New option to hide the south identity bloc on the screen (or show a minimized one)
   * Propose to upgrade to a newer version if available (periodic check or at lobby connection)
+  * Re-enable in-game network hosting table
+  * Add an option to display the deals window at the end of a played deal
   
 ## IA strategy
 
@@ -17,18 +17,19 @@
   * Don't display the avatar box when no avatar is selected
   * Un truc pas clair dans la logique, le preneur fait tomber les atouts, mais continue même quand les autres n'en ont plus ?!
     Tout ça pour finir avec son petit... qu'il aurait pu garder pour la fin du jeu.
+  * Synchronize the Bid algorithm with the C++ version
 
 ## UI improvements / Gfx engine
   
-  * Create a old-style gradient (pale-yellow) in all the cards
+  * Span the table border to the view, allow 16/9 form factor (better visualization of the player's deck)
+  * Improve the previously played deals visualizer
+  * Display the dog / discard at the end of the deal (correction: in the deals visualizer)
+  * Show the discard at the end of the deal (and the points)
   * Add animation when player cards are played
 
 ## Code architecture / engine / network
 
-  * Add a maximum play delay for network players, if timeout a random card is played
   * New network commands: change nick, change avatar
-  * Dedicated server information and commands (display stats, tables and players)
-  * Log all the messages (per table and of the hall, one file per day)
   * Use TCP_NODELAY in socket option ???
   
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (void *)&yes, sizeof(yes)) == -1 ||
@@ -47,23 +48,19 @@
   
 ##  Desktop client
   
+  * Save and load game
   * Display icon close to the avatar when a player has declared a handle and/or a slam
   * Re-enable local server creation with the TarotClub desktop, includes the mongoose HTTP source to manage REST API
   * Use the Canvas to propose Handle (with the menu)
   * Lobby improvements: see status, number of connected players, scores, player names
-  * Add title in popup window (to show the dog or handle)
-  * Add an option to display the deals window at the end of a played deal
-  * Display the dog / discard at the end of the deal
-  * Display all the played cards at the end of the deal
+  * Add a nice title in all popup window (to show the dog or handle)
   * Display the player's declared handle by clicking on the icon
   * J'aimerais bien qu'un clic droit sur une carte l'affiche par dessus les autres afin de bien la voir
   * Create a previous trick dock window (to comply to the offcial Tarot rules, even if it is redundant with the deal info dock)
   * Pour les poignées, le probleme c'est que ca affiche juste poignée, il faudrait que ca precise, double, triple... voire meme, encore mieux qu'il propose les differentes possibilité poignées (grisé si pas assez d'atout), et si on clic il choisit les cartes, a ce moment on peut les modifier si on en a plus et on valide le tout...	
   * Show a tournament podium at the end
-  * Show the discard at the end of the deal (and the points)
   * Statistic graphs (points at each round)
   * Display IP address of the newly created server for convenience (for self-hosted games)
-
   
 ## UI improvements / Gfx engine
   
@@ -71,11 +68,11 @@
   * Dog / Handle: grey not allowed cards
   * Use an HTML5 canvas and JavaScript to allow an easy porting on all platforms
   * Dynamically create SVG images (usage of one card "background" for all the cards, and a set of illustrations for all the cards)
-
+  * Create a old-style gradient (pale-yellow) in all the cards
+  
 ## Porting to other OS
 
   * Mac OS X version
   * iPhone version
   * Windows Phone version
-  * FreeBSD TCDS compatibility
   
