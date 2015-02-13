@@ -32,7 +32,7 @@
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
 #include "Util.h"
-#include "Defines.h"
+
 
 /*****************************************************************************/
 enum Team           { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };

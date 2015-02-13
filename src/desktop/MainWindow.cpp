@@ -35,6 +35,7 @@
 #include "ui_NumberedDealUI.h"
 #include "Util.h"
 #include "System.h"
+#include "Defines.h"
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)

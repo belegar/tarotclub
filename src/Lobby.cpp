@@ -19,12 +19,11 @@
 #include "Lobby.h"
 #include "Log.h"
 #include "Util.h"
-#include "Defines.h"
 #include <sstream>
 #include <vector>
 
 
-const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub ") + std::string(VERSION_STRING);
+const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub Lobby v") + std::string("2");
 
 /*****************************************************************************/
 Lobby::Lobby(IDataBase &i_dataBase)

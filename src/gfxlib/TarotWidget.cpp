@@ -32,6 +32,7 @@
 #include "TarotWidget.h"
 #include "Common.h"
 #include "Log.h"
+#include "Defines.h"
 
 /*****************************************************************************/
 TarotWidget::TarotWidget(QWidget *parent)
@@ -184,10 +185,10 @@ void TarotWidget::slotAssignedPlace()
         if (mLobby.GetNumberOfBots(1U) == 0U)
         {
             std::map<Place, BotConf>::iterator iter;
-            for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
+            for (iter = mClientOptions.bots.begin(); iter != mClientOptions.bots.end(); ++iter)
             {
                 QThread::msleep(50U);
-                mLobby.AddBot(1U, iter->second.identity, mServerOptions.timer, iter->second.scriptFilePath);
+                mLobby.AddBot(1U, iter->second.identity, mClientOptions.timer, iter->second.scriptFilePath);
             }
         }
     }
