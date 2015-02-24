@@ -94,6 +94,14 @@ TarotWidget::TarotWidget(QWidget *parent)
 
 }
 /*****************************************************************************/
+TarotWidget::~TarotWidget()
+{
+    if (!mShutdown)
+    {
+        slotCleanBeforeExit();
+    }
+}
+/*****************************************************************************/
 /**
  * @brief One time game initialization
  */

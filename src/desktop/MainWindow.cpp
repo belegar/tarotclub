@@ -41,6 +41,16 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    tarotWidget = new TarotWidget(this);
+    tarotWidget->show();
+
+    mdiArea = new QMdiArea;
+    mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    QMdiSubWindow *widget = mdiArea->addSubWindow(tarotWidget, Qt::WindowMinMaxButtonsHint);
+    widget->setAttribute(Qt::WA_DeleteOnClose);
+    setCentralWidget(mdiArea);
+
     SetupDialogs();
     SetupDocks();
     SetupMenus();
@@ -299,11 +309,6 @@ void MainWindow::slotShowOptions()
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
 {
-    // Main central widget
-    tarotWidget = new TarotWidget(this);
-    tarotWidget->show();
-    setCentralWidget(tarotWidget);
-
     // Deals Window
     dealsWindow = new DealsWindow(this);
     dealsWindow->hide();

@@ -37,7 +37,6 @@ DealsWindow::DealsWindow(QWidget *parent)
     mOkButton = new QPushButton(tr("&Close"), this);
 
     mView = new QGraphicsView(&mScene);
-
     mLayout = new QVBoxLayout(this);
 
     QHBoxLayout *layout1 = new QHBoxLayout();

@@ -159,7 +159,7 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
    // ♠ 	♥ 	♦ 	♣
     Card card(cardName);
     QString suits[5] = { " \u2660", " \u2665", " \u2666", " \u2663", " A" };
-
+	
     if (cardName == "00-T")
     {
         txt = "Ex";

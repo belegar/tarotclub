@@ -30,6 +30,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
+#include <QMdiArea>
 
 // Game includes
 #include "Common.h"
@@ -94,6 +95,9 @@ private:
     void SetupDialogs();
     void SetupMenus();
     void SetupDocks();
+
+
+    QMdiArea *mdiArea;
 
     std::uint8_t mTrickCounter;
     bool mFirstPlayer;

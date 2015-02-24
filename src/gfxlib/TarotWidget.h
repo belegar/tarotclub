@@ -58,6 +58,7 @@ public:
     };
 
     TarotWidget(QWidget *parent = 0);
+    ~TarotWidget();
 
     void Initialize(const ServerOptions &opt);
     void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
