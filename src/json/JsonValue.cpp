@@ -46,12 +46,7 @@ JsonArray::JsonArray(std::uint32_t level)
 /*****************************************************************************/
 JsonArray::~JsonArray()
 {
-    for (std::uint32_t i = 0U; i < mArray.size(); i++)
-    {
-        IJsonNode *node = mArray[i];
-        delete node;
-    }
-    mArray.clear();
+    Clear();
 }
 /*****************************************************************************/
 std::string JsonArray::ToString()
@@ -94,6 +89,16 @@ IJsonNode *JsonArray::GetNode(const std::string &key)
 {
     (void) key;
     return nullptr;
+}
+/*****************************************************************************/
+void JsonArray::Clear()
+{
+    for (std::uint32_t i = 0U; i < mArray.size(); i++)
+    {
+        IJsonNode *node = mArray[i];
+        delete node;
+    }
+    mArray.clear();
 }
 /*****************************************************************************/
 void JsonArray::CreateValue(const JsonValue &value)
@@ -139,8 +144,14 @@ JsonObject::JsonObject(std::uint32_t level)
 /*****************************************************************************/
 JsonObject::~JsonObject()
 {
+    Clear();
+}
+/*****************************************************************************/
+void JsonObject::Clear()
+{
+
 #ifdef JSON_DEBUG
-    static std::uint32_t counter = 0U;
+    std::uint32_t counter = 0U;
 #endif
 
     for (std::uint32_t i = 0U; i < mObject.size(); i++)
@@ -156,6 +167,7 @@ JsonObject::~JsonObject()
 #ifdef JSON_DEBUG
     std::cout << "Destroyed " << counter << " objects." << std::endl;
 #endif
+
 }
 /*****************************************************************************/
 std::string JsonObject::ToString()
@@ -541,6 +553,20 @@ IJsonNode *JsonValue::GetNode(const std::string &key)
     // A value does not have any sub-node
     (void) key;
     return nullptr;
+}
+/*****************************************************************************/
+void JsonValue::Clear()
+{
+    mTag = INVALID;
+
+    if (IsObject())
+    {
+        mObject->Clear();
+    }
+    if (IsArray())
+    {
+        mArray->Clear();
+    }
 }
 
 //=============================================================================
