@@ -41,33 +41,3 @@ See the official documentation on http://www.tarotclub.fr
   * Hizoka, for all of his remarks, game testing and contributions
   * cledesol, for all his remarks and game testing
   * Duktape author, for his Javascript engine and helps
-
-
-
-# Generated files
-
-TarotClub generates some files to store the user configuration and various game information to find bugs or retreive past data.
-The files are generated in the user's home directory:
-
-  * in  ~/<username>/.tarotclub for Linux
-  * in c:\users\<username>\.tarotclub for Windows
-
-## Configuration files
-
-Two configuration files are generated: tarotclub.json for the client preferences and tcds.json for the server configuration. Try to not modify by hand these files since everything is editable through the TarotClub GUI.
-
-## Deal files
-
-Each played deal generates a file in the folder *.tarotclub/games* in JSON format. This file contains the deal parameters, the scoring details and every trick played.
-
-## Log files
-
-One file per day is generated under *.tarotclub/logs*. The format is CSV (comma-separated values) so that it can be easily parsed or opened
- by spreadsheet editors such as Microsoft Excel or LibreOffice Calc.
-
-
-
-
-
-
-
