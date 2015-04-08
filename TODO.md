@@ -3,12 +3,13 @@
  
 ##  Desktop client
   
-  * New option for no avatar
+  * New option for no avatar (Le fait de cacher les avatars ne diminue pas la taille des encadrés des joueurs, il faudrait que ce soit le cas sinon je ne vois pas trop l’intérêt.)
   * Lobby: add buttons to add a bot on a table
   * New option to hide the south identity bloc on the screen (or show a minimized one)
   * Propose to upgrade to a newer version if available (periodic check or at lobby connection)
   * Re-enable in-game network hosting table
   * Add an option to display the deals window at the end of a played deal
+  * Pourrait on choisir une image pour le tapis au lieu d'une couleur unie
   
 ## IA strategy
 
@@ -22,14 +23,16 @@
 ## UI improvements / Gfx engine
   
   * Span the table border to the view, allow 16/9 form factor (better visualization of the player's deck)
-  * Improve the previously played deals visualizer
+  * Improve the previously played deals visualizer (Add more informations (discard, dog, turns number) Display cards like player around the table (south, north ...)
   * Display the dog / discard at the end of the deal (correction: in the deals visualizer)
   * Show the discard at the end of the deal (and the points)
   * Add animation when player cards are played
+  
+  * Bug: refresh current ui setting of the options window if clicked on "default" button
 
 ## Code architecture / engine / network
 
-  * New network commands: change nick, change avatar
+  * New network commands: change nick, change avatar (Hizoka (ubuntu-fr) les avatars ne sont changés que lors du redémarrage du logiciel, on ne peut pas le faire en direct )
   * Use TCP_NODELAY in socket option ???
   
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (void *)&yes, sizeof(yes)) == -1 ||
@@ -45,6 +48,7 @@
   * WebSocket server (allow HTML5 JS clients)
   * Log raw bad packets with IPs 
   * Create an Observer status to only be a spectator for a current game
+  * Add a timer when playing online
   
 ##  Desktop client
   
@@ -61,6 +65,7 @@
   * Show a tournament podium at the end
   * Statistic graphs (points at each round)
   * Display IP address of the newly created server for convenience (for self-hosted games)
+  * Add an option to allow declaring missing figures (alias "misères de tête")
   
 ## UI improvements / Gfx engine
   
