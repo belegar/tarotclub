@@ -255,9 +255,15 @@ public:
         std::string     file;
         std::uint32_t   seed;
 
+        Shuffle()
+        {
+            Initialize();
+        }
+
         void Initialize()
         {
             type = RANDOM_DEAL;
+            file.clear();
             seed = 0U;
         }
 
@@ -281,7 +287,7 @@ public:
     enum GameMode
     {
         ONE_DEAL    = 0xAA, //!< The game will stop after one full deal played
-        TOURNAMENT  = 0xBB  //!< The game will stop after a number of consecutive deals (server configuration)
+        TOURNAMENT  = 0xBB, //!< The game will stop after a number of consecutive random deals (server configuration)
     };
 
     static std::uint8_t NumberOfDogCards(std::uint8_t numberOfPlayers);

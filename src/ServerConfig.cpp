@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "4"; // increase the version to force any incompatible update in the file structure
+static const std::string SERVER_CONFIG_VERSION  = "5"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 
 /*****************************************************************************/
@@ -86,13 +86,50 @@ bool ServerConfig::Load(const std::string &fileName)
                     mOptions.lobby_max_conn = unsignedVal;
                 }
 
-                if (json.GetValue("tournament_turns", unsignedVal))
+                // Setup tournament configuration
+                mOptions.tournament.clear();
+                std::vector<JsonValue> tournament = json.GetArray("tournament");
+                if (tournament.size() > 0U)
                 {
-                    mOptions.tournamentTurns = static_cast<std::uint8_t>(unsignedVal);
-                    if (mOptions.tournamentTurns > MAX_NUMBER_OF_TURNS)
+                    for (std::vector<JsonValue>::iterator iter = tournament.begin(); iter != tournament.end(); ++iter)
                     {
-                        mOptions.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
+                        if (iter->IsObject())
+                        {
+                            JsonObject *obj = iter->GetObject();
+                            std::string value;
+                            Tarot::Shuffle shuffle;
+                            if (JsonValue::FromNode(obj->GetNode("type"), value))
+                            {
+                                if (value == "custom")
+                                {
+                                    shuffle.type = Tarot::Shuffle::CUSTOM_DEAL;
+                                    if (JsonValue::FromNode(obj->GetNode("file"), value))
+                                    {
+                                        shuffle.file = value;
+                                    }
+                                    else
+                                    {
+                                        ret = false;
+                                    }
+                                }
+                                else
+                                {
+                                    // FIXME: add support for numbered deal (get the seed)
+                                    ret = false;
+                                }
+                            }
+
+                            if (ret)
+                            {
+                                mOptions.tournament.push_back(shuffle);
+                            }
+                        }
                     }
+                }
+                else
+                {
+                    TLogError("No tournament details");
+                    ret = false;
                 }
 
                 mOptions.tables.clear();
@@ -109,7 +146,8 @@ bool ServerConfig::Load(const std::string &fileName)
                 }
                 else
                 {
-                    mOptions.tables.push_back("Default");
+                    TLogError("No table defined");
+                    ret = false;
                 }
             }
             else
@@ -149,7 +187,28 @@ bool ServerConfig::Save(const std::string &fileName)
     json.CreateValuePair("version", SERVER_CONFIG_VERSION);
     json.CreateValuePair("game_tcp_port", mOptions.game_tcp_port);
     json.CreateValuePair("lobby_max_conn", mOptions.lobby_max_conn);
-    json.CreateValuePair("tournament_turns", mOptions.tournamentTurns);
+
+    JsonArray *tournament = json.CreateArrayPair("tournament");
+    for (std::vector<Tarot::Shuffle>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
+    {
+        std::string type;
+        std::string file;
+        JsonObject *obj = tournament->CreateObject();
+
+        if (iter->type == Tarot::Shuffle::RANDOM_DEAL)
+        {
+            type = "random";
+            file = "";
+        }
+        else
+        {
+            // FIXME: add the numbered type
+            type = "custom";
+            file = iter->file;
+        }
+        obj->CreateValuePair("type", type);
+        obj->CreateValuePair("file", file);
+    }
 
     JsonArray *array = json.CreateArrayPair("tables");
     for (std::vector<std::string>::iterator iter =  mOptions.tables.begin(); iter !=  mOptions.tables.end(); ++iter)
@@ -172,9 +231,13 @@ ServerOptions ServerConfig::GetDefault()
     opt.game_tcp_port   = DEFAULT_GAME_TCP_PORT;
     opt.web_tcp_port    = DEFAULT_WEB_TCP_PORT;
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
-    opt.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
     opt.tables.push_back("Table 1"); // default table name (one table minimum)
 
+    // Default tournament is some random deals
+    for (std::uint32_t i = 0U; i < DEFAULT_NUMBER_OF_TURNS; i++)
+    {
+        opt.tournament.push_back(Tarot::Shuffle());
+    }
     return opt;
 }
 
