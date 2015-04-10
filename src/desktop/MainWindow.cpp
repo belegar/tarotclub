@@ -541,7 +541,7 @@ void MainWindow::slotWaitTrickEvent(Place winner)
 /*****************************************************************************/
 void MainWindow::slotEndOfDeal()
 {
-    scoresDock->SetNewScore(tarotWidget->GetDeal());
+    scoresDock->SetNewScore(tarotWidget->GetPoints(), tarotWidget->GetBid());
 }
 /*****************************************************************************/
 void MainWindow::slotNewDealEvent()

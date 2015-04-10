@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Score.h
  *=============================================================================
- * Helper class that stores various scoring information
+ * Helper class to store score for one deal or tournament
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -26,14 +26,15 @@
 #define SCORE_H
 
 #include <string>
+#include <map>
 #include "Common.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
+#include "ServerConfig.h"
 
-class Score
+/*****************************************************************************/
+struct Points
 {
-public:
-
     std::int32_t pointsAttack;   // Points of cards
     std::int32_t scoreAttack;    // Final score calculated, including all bonuses
     std::int32_t oudlers;
@@ -41,34 +42,55 @@ public:
     std::int32_t handlePoints;
     std::int32_t slamPoints;
 
+    Points();
+    void Clear();
     Team Winner() const;
-    void Reset();
     std::int32_t GetAttackScore() const;
     std::int32_t GetDefenseScore() const;
     std::int32_t Difference() const;
 
-    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, Score &info)
+    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Points &points)
     {
-        out << info.pointsAttack
-            << info.scoreAttack
-            << info.oudlers
-            << info.littleEndianPoints
-            << info.handlePoints
-            << info.slamPoints;
+        out << points.pointsAttack
+            << points.scoreAttack
+            << points.oudlers
+            << points.littleEndianPoints
+            << points.handlePoints
+            << points.slamPoints;
         return out;
     }
 
-    friend ByteStreamReader &operator>>(ByteStreamReader &in, Score &info)
+    friend ByteStreamReader &operator>>(ByteStreamReader &in, Points &points)
     {
-        in >> info.pointsAttack;
-        in >> info.scoreAttack;
-        in >> info.oudlers;
-        in >> info.littleEndianPoints;
-        in >> info.handlePoints;
-        in >> info.slamPoints;
+        in >> points.pointsAttack;
+        in >> points.scoreAttack;
+        in >> points.oudlers;
+        in >> points.littleEndianPoints;
+        in >> points.handlePoints;
+        in >> points.slamPoints;
         return in;
     }
+};
+/*****************************************************************************/
+class Score
+{
+public:
+    Score();
 
+    void NewGame(std::uint8_t numberOfTurns);
+    void NewDeal();
+
+    std::uint8_t GetNumberOfTurns() { return mNumberOfTurns; }
+
+    bool AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
+    int GetTotalPoints(Place p) const;
+    std::map<int, Place> GetPodium();
+
+private:
+    // scores of previous deals
+    std::uint32_t dealCounter;
+    int scores[ServerConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
+    std::uint8_t mNumberOfTurns;
 };
 
 #endif // SCORE_H

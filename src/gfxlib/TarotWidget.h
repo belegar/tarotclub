@@ -89,13 +89,9 @@ public:
     {
         return mClient.GetShuffle();
     }
-    Score GetScore()
+    Points GetPoints()
     {
-        return mClient.GetDeal().GetScore();
-    }
-    Deal GetDeal()
-    {
-        return mClient.GetDeal();
+        return mClient.GetPoints();
     }
     Deck GetDeck()
     {

@@ -35,7 +35,9 @@
 #include "System.h"
 #include "Translations.h"
 
-static const QRectF border(10, 10, 800, 700);
+float scaleFactor = 1.25;
+
+static QRectF border(10, 10, 800, 700);
 
 #define BORDER_WIDTH        3
 #define SOUTH_CARDS_POS     480
@@ -53,7 +55,7 @@ static const QPointF coordCards[5] =
     QPointF(0, 0)       // NORTH-WEST
 };
 
-static const QPointF coordPlayerBox[5] =
+static QPointF coordPlayerBox[5] =
 {
     QPointF(border.topLeft().x() + 20, border.bottomLeft().y() - 10 - PlayerBox::PLAYER_BOX_HEIGHT_HOR),  // SOUTH
     QPointF(border.width() - PlayerBox::PLAYER_BOX_WIDTH_VERT - 10, 150),  // EAST
@@ -61,6 +63,20 @@ static const QPointF coordPlayerBox[5] =
     QPointF(border.topLeft().x() + 20, 150),   // WEST
     QPointF(0, 0)       // NORTH-WEST
 };
+
+void Canvas::MovePlayerBoxes()
+{
+    QPointF array[4];
+    array[0] = QPointF(border.topLeft().x() + 20, border.bottomLeft().y() - 10 - PlayerBox::PLAYER_BOX_HEIGHT_HOR);  // SOUTH
+    array[1] = QPointF(border.width() - PlayerBox::PLAYER_BOX_WIDTH_VERT - 10, 150);  // EAST
+    array[2] = QPointF(300, 20);   // NORTH
+    array[3] = QPointF(border.topLeft().x() + 20, 150);   // WEST
+
+    for (std::uint32_t i = 0U; i < Place::FIFTH; i++)
+    {
+        mPlayerBox.value(i)->setPos(array[i]);
+    }
+}
 
 
 /*****************************************************************************/
@@ -118,6 +134,103 @@ Canvas::Canvas(QWidget *parent)
 
     mMsgBoxItem.hide();
     mScene.addItem(&mMsgBoxItem);
+}
+/*****************************************************************************/
+void Canvas::resizeEvent(QResizeEvent *event)
+{
+
+    QSize s = size();
+    /*
+    QRect rect;
+    s = event->size();
+    rect.setWidth(s.width());
+    rect.setHeight(s.height());
+    QPolygonF poly = mapToScene(rect);
+*/
+    // ------------------------------------------------------------
+    // Use the following code to fit the view to the window size
+    // ------------------------------------------------------------
+
+  //  border.setHeight(s.height() - 20);
+  //  border.setWidth(s.width() - 20);
+
+  //  MovePlayerBoxes();
+
+    QGraphicsView::resizeEvent(event);
+    fitInView(sceneRect(), Qt::KeepAspectRatio);
+
+
+    // ------------------------------------------------------------
+    // Use the following code for absolute graphic items creation
+    // ------------------------------------------------------------
+
+    /*
+        QSize s;
+        s = event->size();
+        setSceneRect(0, 0, s.width(), s.height());
+        */
+}
+/*****************************************************************************/
+void Canvas::mousePressEvent(QMouseEvent *e)
+{
+    if (TestFilter(BOARD))
+    {
+        // We catch the event for us and forbid any sub item to receive it
+        emit sigViewportClicked();
+    }
+
+#ifdef TAROT_DEBUG
+    QString text;
+    QPointF point = mMenuItem.pos();
+    text = "Menu: x: " + QString().setNum((int)point.x()) + " y: " + QString().setNum((int)point.y());
+    std::cout << text.toStdString() << std::endl;
+#endif
+
+    // Broadcast the event for all the canvas items
+    QGraphicsView::mousePressEvent(e);
+}
+/*****************************************************************************/
+void Canvas::ButtonClicked(std::uint8_t id, std::uint8_t menu)
+{
+    if (TestFilter(MENU))
+    {
+        if (menu == MenuItem::BIDS_MENU)
+        {
+            emit sigContract(Contract(id));
+        }
+        else if (menu == MenuItem::HANDLE_MENU)
+        {
+            emit sigAcceptHandle();
+        }
+        else if (menu == MenuItem::DISCARD_MENU)
+        {
+            emit sigAcceptDiscard();
+        }
+        else if (menu == MenuItem::MAIN_MENU)
+        {
+            emit sigStartGame();
+        }
+    }
+}
+/*****************************************************************************/
+void Canvas::CardClicked(std::uint8_t value, std::uint8_t suit, bool selected)
+{
+    if (TestFilter(CARDS))
+    {
+        emit sigClickCard(value, suit, selected);
+    }
+}
+/*****************************************************************************/
+void Canvas::CardHoverEnter(std::uint8_t value, std::uint8_t suit)
+{
+    emit sigCursorOverCard(value, suit);
+}
+/*****************************************************************************/
+void Canvas::CardHoverLeave(std::uint8_t value, std::uint8_t suit)
+{
+    (void)value;
+    (void)suit;
+    SetCursorType(ARROW);
 }
 /*****************************************************************************/
 bool Canvas::Initialize()
@@ -275,87 +388,6 @@ void Canvas::DisplayMainMenu(bool visible)
         mMenuItem.DisplayMenu(MenuItem::NO_MENU);
         mMenuItem.hide();
     }
-}
-/*****************************************************************************/
-void Canvas::resizeEvent(QResizeEvent *event)
-{
-    // ------------------------------------------------------------
-    // Use the following code to fit the view to the window size
-    // ------------------------------------------------------------
-    QGraphicsView::resizeEvent(event);
-    fitInView(this->sceneRect(), Qt::KeepAspectRatio);
-
-    // ------------------------------------------------------------
-    // Use the following code for absolute graphic items creation
-    // ------------------------------------------------------------
-
-    /*
-        QSize s;
-        s = event->size();
-        setSceneRect(0, 0, s.width(), s.height());
-        */
-}
-/*****************************************************************************/
-void Canvas::mousePressEvent(QMouseEvent *e)
-{
-    if (TestFilter(BOARD))
-    {
-        // We catch the event for us and forbid any sub item to receive it
-        emit sigViewportClicked();
-    }
-
-#ifdef TAROT_DEBUG
-    QString text;
-    QPointF point = mMenuItem.pos();
-    text = "Menu: x: " + QString().setNum((int)point.x()) + " y: " + QString().setNum((int)point.y());
-    std::cout << text.toStdString() << std::endl;
-#endif
-
-    // Broadcast the event for all the canvas items
-    QGraphicsView::mousePressEvent(e);
-}
-/*****************************************************************************/
-void Canvas::ButtonClicked(std::uint8_t id, std::uint8_t menu)
-{
-    if (TestFilter(MENU))
-    {
-        if (menu == MenuItem::BIDS_MENU)
-        {
-            emit sigContract(Contract(id));
-        }
-        else if (menu == MenuItem::HANDLE_MENU)
-        {
-            emit sigAcceptHandle();
-        }
-        else if (menu == MenuItem::DISCARD_MENU)
-        {
-            emit sigAcceptDiscard();
-        }
-        else if (menu == MenuItem::MAIN_MENU)
-        {
-            emit sigStartGame();
-        }
-    }
-}
-/*****************************************************************************/
-void Canvas::CardClicked(std::uint8_t value, std::uint8_t suit, bool selected)
-{
-    if (TestFilter(CARDS))
-    {
-        emit sigClickCard(value, suit, selected);
-    }
-}
-/*****************************************************************************/
-void Canvas::CardHoverEnter(std::uint8_t value, std::uint8_t suit)
-{
-    emit sigCursorOverCard(value, suit);
-}
-/*****************************************************************************/
-void Canvas::CardHoverLeave(std::uint8_t value, std::uint8_t suit)
-{
-    (void)value;
-    (void)suit;
-    SetCursorType(ARROW);
 }
 /*****************************************************************************/
 /**
@@ -629,11 +661,11 @@ bool Canvas::TestFilter(quint8 mask)
     return ret;
 }
 /*****************************************************************************/
-void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
+void Canvas::SetResult(const Points &points, const Tarot::Bid &bid)
 {
     QString result_str = "<html><head></head><body>";
 
-    if (score.Winner() == ATTACK)
+    if (points.Winner() == ATTACK)
     {
         result_str = QString("<h2><center><font color=\"darkgreen\">") + tr("Contract succeded by ");
     }
@@ -642,7 +674,7 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
         result_str = QString("<h2><center><font color=\"darkred\">") + tr("Contract failed by ");
     }
 
-    result_str += QString().setNum(abs(score.Difference())) + QString(" ") + tr("points") + QString("</font></center></h2><hr />");
+    result_str += QString().setNum(abs(points.Difference())) + QString(" ") + tr("points") + QString("</font></center></h2><hr />");
     result_str += "<table><tr>";
 
     // Deal caracteristics
@@ -650,26 +682,26 @@ void Canvas::SetResult(const Score &score, const Tarot::Bid &bid)
     result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Summary") + QString("</b><td /></tr>");
     result_str += QString("<tr><td>") + tr("Taker") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + PlaceToString(bid.taker) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + ContractToString(bid.contract) + QString("</td>");
-    result_str += QString("<tr><td>") + tr("Number of oudlers") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.oudlers) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Points") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)score.pointsAttack) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Points to do") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(Tarot::PointsToDo(score.oudlers)) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Number of oudlers") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.oudlers) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Points") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum((int)points.pointsAttack) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Points to do") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(Tarot::PointsToDo(points.oudlers)) + QString("</td></tr>");
     result_str += "</table></td>";
 
     result_str += "<td width=50%><table>";
     result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Calculation") + QString("</b><td /></tr>");
     result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;25</td></tr>");
-    result_str += QString("<tr><td>") + tr("Earn / loss") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(abs(score.Difference())) + QString("</td>");
-    result_str += QString("<tr><td>") + tr("Little endian bonus") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.littleEndianPoints) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Contract multiplier") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(Tarot::GetMultiplier(score.oudlers)) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Handle") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.handlePoints) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Slam") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(score.slamPoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Earn / loss") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(abs(points.Difference())) + QString("</td>");
+    result_str += QString("<tr><td>") + tr("Little endian bonus") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.littleEndianPoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Contract multiplier") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(Tarot::GetMultiplier(points.oudlers)) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Handle") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.handlePoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Slam") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.slamPoints) + QString("</td></tr>");
     result_str += "</table></td>";
 
     result_str += "</tr></table><hr />";
 
 
-    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(score.GetDefenseScore()) + QString(" ")  + tr("points") + "<br />";
-    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(score.GetAttackScore()) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetDefenseScore()) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(points.GetAttackScore()) + QString(" ")  + tr("points") + "<br />";
 
 
     result_str += "</body></html>";

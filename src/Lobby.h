@@ -33,7 +33,7 @@ class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Contr
 public:
     static const std::string LOBBY_VERSION_STRING;
 
-    Lobby(IDataBase &i_dataBase);
+    Lobby(IDataBase &i_dataBase, const std::string &i_dbName);
     ~Lobby();
 
     void Initialize(const ServerOptions &opt);
@@ -79,7 +79,8 @@ private:
     ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
 
     std::list<Controller *> mTables;
-    Users   mUsers;
+    Users       mUsers;
+    std::string mDbName;
 
     // Bots management
     std::list<Bot *> mBots;

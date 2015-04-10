@@ -37,7 +37,7 @@
 /*****************************************************************************/
 TarotWidget::TarotWidget(QWidget *parent)
     : QWidget(parent)
-    , mLobby(mDataBase)
+    , mLobby(mDataBase, std::string())
     , mClient(*this)
     , mConnectionType(NO_CONNECTION)
     , mAutoPlay(false)
@@ -266,7 +266,7 @@ void TarotWidget::slotStartGame()
     std::uint8_t  numberOfTurns = 1U;
     if (mGameMode == Tarot::TOURNAMENT)
     {
-        numberOfTurns = mServerOptions.tournamentTurns;
+        numberOfTurns = mServerOptions.tournament.size();
     }
 
     mClient.AdminNewGame(mGameMode, mShuffle, numberOfTurns);
@@ -728,7 +728,7 @@ void TarotWidget::slotEndOfDeal()
 {
     mCanvas->InitBoard();
     mCanvas->ResetCards();
-    mCanvas->SetResult(mClient.GetDeal().GetScore(), mClient.GetBid());
+    mCanvas->SetResult(mClient.GetPoints(), mClient.GetBid());
     mCanvas->SetFilter(Canvas::BOARD);
 
     if (mClient.GetGameMode() == Tarot::TOURNAMENT)

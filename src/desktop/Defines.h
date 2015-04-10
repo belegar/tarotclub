@@ -26,6 +26,8 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include <cstdint>
+
 #define VERSION_STRING "2.5.3"
 
 #ifndef ISPP_INVOKED

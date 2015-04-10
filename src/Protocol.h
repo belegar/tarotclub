@@ -205,7 +205,7 @@ public:
     static ByteArray TableBidRequest(Contract c, Place p);
     static ByteArray TableShowDog(const Deck &dog);
     static ByteArray TableEndOfTrick(Place winner);
-    static ByteArray TableEndOfDeal(Score &score);
+    static ByteArray TableEndOfDeal(const Points &score);
     static ByteArray TableEndOfGame(Place winner);
     static ByteArray TableQuitEvent(std::uint32_t uuid, std::uint32_t tableId);
 

@@ -36,7 +36,6 @@
 #include "Protocol.h"
 #include "Common.h"
 #include "Score.h"
-#include "Deal.h"
 #include "ThreadQueue.h"
 
 /*****************************************************************************/
@@ -114,7 +113,7 @@ public:
     Deck &GetDogDeck();
     Deck &GetHandleDeck();
     Deck GetMyDeck();
-    Deal GetDeal();
+    Points GetPoints();
     Place GetPlace();
     std::uint8_t GetNumberOfPlayers()
     {
@@ -134,6 +133,12 @@ public:
     {
         return mGameMode;
     }
+
+    std::uint8_t GetNumberOfTurns()
+    {
+        return mNumberOfTurns;
+    }
+
     Sequence GetSequence()
     {
         return mSequence;
@@ -207,8 +212,8 @@ private:
     std::uint8_t mNbPlayers;
     Tarot::Bid  mBid;
     Tarot::Shuffle mShuffle;
-
-    Deal        mDeal;
+    std::uint8_t mNumberOfTurns;
+    Points      mPoints;
     Deck        mDog;
     Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;

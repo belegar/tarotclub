@@ -77,14 +77,16 @@ void ScoresDock::SetPlayers(const std::map<Place, Identity> &players)
     tableScores->setHorizontalHeaderLabels(header);
 }
 /*****************************************************************************/
-void ScoresDock::SetNewScore(const Deal &deal)
+void ScoresDock::SetNewScore(const Points &points, const Tarot::Bid &bid)
 {
+    mScore.AddPoints(points, bid, 4U);
+
     int  n = tableScores->rowCount() + 1;
     tableScores->setRowCount(n);
 
     for (std::uint32_t i = 0; i < static_cast<std::uint32_t>(tableScores->columnCount()); i++)
     {
-        int total = deal.GetTotalPoints(i);
+        int total = mScore.GetTotalPoints(i);
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(total));
         tableScores->setItem(n - 1, i, newItem);
     }

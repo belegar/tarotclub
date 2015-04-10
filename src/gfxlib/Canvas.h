@@ -101,7 +101,7 @@ public:
     void SetFilter(quint8 f);
     void SetBackground(const std::string &code);
     void SetPlayerIdentity(const std::map<Place, Identity> &players, Place myPlace);
-    void SetResult(const Score &score, const Tarot::Bid &bid);
+    void SetResult(const Points &points, const Tarot::Bid &bid);
 
     // From IButtonEvent
     void ButtonClicked(std::uint8_t id, std::uint8_t menu);
@@ -138,6 +138,7 @@ private:
     PopupItem   mPopupItem;
     MessageBoxItem mMsgBoxItem;
     qreal mDisplayCard;
+    void MovePlayerBoxes();
 };
 
 #endif // CANVAS_H

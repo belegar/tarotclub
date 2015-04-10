@@ -34,33 +34,10 @@
 static const std::string DEAL_RESULT_FILE_VERSION  = "3";
 
 /*****************************************************************************/
-Deal::Deal()
-    : mNumberOfTurns(ServerConfig::DEFAULT_NUMBER_OF_TURNS)
+Deal::Deal(IRemoteDb &i_remoteDb)
+    : mRemoteDb(i_remoteDb)
 {
-    Initialize();
-}
-/*****************************************************************************/
-void Deal::Initialize()
-{
-    for (std::uint32_t i = 0U; i < ServerConfig::MAX_NUMBER_OF_TURNS; i++)
-    {
-        for (std::uint32_t j = 0U; j < 5U; j++)
-        {
-            scores[i][j] = 0;
-        }
-    }
-    dealCounter = 0U;
-    littleEndianOudler = false;
-    littleEndianOwner = NO_TEAM;
-    slamDone = false;
-    slamOwner = NO_TEAM;
-    mTricksWon = 0;
-}
-/*****************************************************************************/
-void Deal::NewGame(std::uint8_t numberOfTurns)
-{
-    mNumberOfTurns = numberOfTurns;
-    Initialize();
+    NewDeal();
 }
 /*****************************************************************************/
 void Deal::NewDeal()
@@ -80,7 +57,6 @@ void Deal::NewDeal()
     slamOwner = NO_TEAM;
     mTricksWon = 0;
     statsAttack.Reset();
-    score.Reset();
 }
 /*****************************************************************************/
 void Deal::StartDeal(Place firstPlayer, const Tarot::Bid &bid)
@@ -271,44 +247,6 @@ void Deal::SetHandle(const Deck &handle, Team team)
     }
 }
 /*****************************************************************************/
-int Deal::GetTotalPoints(Place p) const
-{
-    int total;
-
-    total = 0;
-    for (std::uint32_t i = 0U; i < dealCounter; i++)
-    {
-        total += scores[i][p.Value()];
-    }
-    return (total);
-}
-/*****************************************************************************/
-/**
- * @brief Deal::GetPodium
- *
- * Gets the podium of the tournament. The first player has the highest number of points.
- *
- * @return The sorted list of players, by points
- */
-std::map<int, Place> Deal::GetPodium()
-{
-    std::map<int, Place> podium;
-
-    if (dealCounter > 0U)
-    {
-        // init podium
-        for (std::uint32_t i = 0U; i < 5U; i++)
-        {
-            int points = scores[dealCounter - 1U][i];
-            podium[points] = (Place)i;
-        }
-    }
-
-    // Since the map naturally sorts the list in the key order (points)
-    // there is no need to sort anything
-    return podium;
-}
-/*****************************************************************************/
 Deck Deal::GetDog()
 {
     return mDog;
@@ -330,43 +268,7 @@ void Deal::SetDog(const Deck &dog)
     mDog = dog;
 }
 /*****************************************************************************/
-Score &Deal::GetScore()
-{
-    return score;
-}
-/*****************************************************************************/
-void Deal::SetScore(const Score &s)
-{
-    score = s;
-}
-/*****************************************************************************/
-/**
- * @brief Deal::AddScore
- * @param info
- * @return true if the tournament must continue, false if it is finished
- */
-bool Deal::AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers)
-{
-    for (std::uint32_t i = 0U; i < numberOfPlayers; i++)
-    {
-        if (Place(i) == bid.taker)
-        {
-            scores[dealCounter][i] = score.GetAttackScore();
-        }
-        else
-        {
-            scores[dealCounter][i] = score.GetDefenseScore();
-        }
-    }
-    dealCounter++;
-    if (dealCounter < mNumberOfTurns)
-    {
-        return true;
-    }
-    return false;
-}
-/*****************************************************************************/
-void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
+void Deal::AnalyzeGame(Points &points, std::uint8_t numberOfPlayers)
 {
     std::uint8_t numberOfTricks = Tarot::NumberOfCardsInHand(numberOfPlayers);
     std::uint8_t lastTrick = numberOfTricks - 1U;
@@ -410,10 +312,10 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
     }
 
     // 4. The number of oudler(s) decides the points to do
-    score.oudlers = statsAttack.oudlers;
+    points.oudlers = statsAttack.oudlers;
 
     // 5. We save the points done by the attacker
-    score.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma
+    points.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma
 }
 /*****************************************************************************/
 /**
@@ -429,12 +331,12 @@ void Deal::AnalyzeGame(std::uint8_t numberOfPlayers)
  * ch = the slam bonus (200 or 400)
  *
  */
-void Deal::CalculateScore()
+void Deal::CalculateScore(Points &points)
 {
     // Handle bonus: Ces primes gardent la même valeur quel que soit le contrat.
     // La prime est acquise au camp vainqueur de la donne.
-    score.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mAttackHandle.Size()));
-    score.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mDefenseHandle.Size()));
+    points.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mAttackHandle.Size()));
+    points.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mDefenseHandle.Size()));
 
     // Little endian bonus:
     // Le camp qui réalise la dernière levée, à condition que cette levée
@@ -444,11 +346,11 @@ void Deal::CalculateScore()
     {
         if (littleEndianOwner == ATTACK)
         {
-            score.littleEndianPoints = 10;
+            points.littleEndianPoints = 10;
         }
         else
         {
-            score.littleEndianPoints = -10;
+            points.littleEndianPoints = -10;
         }
     }
 
@@ -457,11 +359,11 @@ void Deal::CalculateScore()
     {
         if (mBid.slam == true)
         {
-            score.slamPoints = 400;
+            points.slamPoints = 400;
         }
         else
         {
-            score.slamPoints = 200;
+            points.slamPoints = 200;
         }
     }
     else
@@ -469,18 +371,18 @@ void Deal::CalculateScore()
         // announced but not realized
         if (mBid.slam == true)
         {
-            score.slamPoints = -200;
+            points.slamPoints = -200;
         }
     }
 
     // Final scoring
-    score.scoreAttack = (25 + abs(score.Difference()) + score.littleEndianPoints) * Tarot::GetMultiplier(mBid.contract) + score.handlePoints + score.slamPoints;
+    points.scoreAttack = (25 + abs(points.Difference()) + points.littleEndianPoints) * Tarot::GetMultiplier(mBid.contract) + points.handlePoints + points.slamPoints;
 }
 /*****************************************************************************/
 /**
  * @brief Generate a file with all played cards of the deal
  */
-void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName)
+void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName, const std::string &db)
 {
     JsonWriter json;
     std::uint8_t numberOfPlayers = players.size();
@@ -520,6 +422,16 @@ void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const st
     {
         TLogError("Saving deal game result failed.");
     }
+
+    // Store game result in the remote database, if required
+    if (db.size() > 0)
+    {
+        if (mRemoteDb.Connect())
+        {
+            mRemoteDb.StoreGame(json.ToString(), db);
+            mRemoteDb.Close();
+        }
+    }
 }
 /*****************************************************************************/
 bool Deal::LoadGameDealLog(const std::string &fileName)
@@ -527,7 +439,6 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
     bool ret = true;
     JsonReader json;
 
-    NewGame(1U);
     NewDeal();
 
     if (json.Open(fileName))

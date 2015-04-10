@@ -44,7 +44,6 @@ void Client::Initialize()
     mSequence = STOPPED;
     mPlayersIdent.clear();
     mPlace = Place::NOWHERE;
-    mDeal.Initialize();
 
     if (!mInitialized)
     {
@@ -112,9 +111,9 @@ void Client::SetMyDeck(const Deck &deck)
     mPlayer.Append(deck);
 }
 /*****************************************************************************/
-Deal Client::GetDeal()
+Points Client::GetPoints()
 {
-    return mDeal;
+    return mPoints;
 }
 /*****************************************************************************/
 Place Client::GetPlace()
@@ -504,12 +503,10 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     case Protocol::TABLE_NEW_GAME:
     {
         std::uint8_t mode;
-        std::uint8_t numberOfTurns;
         in >> mode;
         in >> mShuffle;
-        in >> numberOfTurns;
+        in >> mNumberOfTurns;
 
-        mDeal.NewGame(numberOfTurns);
         mGameMode = (Tarot::GameMode)mode;
         mEventHandler.NewGame();
         break;
@@ -522,7 +519,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
         if (mPlayer.Size() == Tarot::NumberOfCardsInHand(mNbPlayers))
         {
-            mDeal.NewDeal();
+            mPoints.Clear();
             UpdateStatistics();
             mEventHandler.NewDeal();
             SendSyncCards();
@@ -595,7 +592,6 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
         currentTrick.Clear();
         UpdateStatistics(); // cards in hand can have changed due to the dog
-        mDeal.StartDeal(first, mBid);
         mSequence = SYNC_START;
         mEventHandler.StartDeal();
         break;
@@ -666,14 +662,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
     case Protocol::TABLE_END_OF_DEAL:
     {
-        Score score;
-        in >> score;
-
-        mDeal.SetScore(score);
-        if (mGameMode == Tarot::TOURNAMENT)
-        {
-            (void)mDeal.AddScore(mBid, mNbPlayers);
-        }
+        in >> mPoints;
 
         mSequence = SHOW_SCORE;
         mEventHandler.EndOfDeal();

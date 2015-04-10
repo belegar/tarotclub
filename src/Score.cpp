@@ -27,7 +27,23 @@
 #include "Common.h"
 
 /*****************************************************************************/
-Team Score::Winner() const
+Points::Points()
+{
+    Clear();
+}
+/*****************************************************************************/
+void Points::Clear()
+{
+    // Points for one deal
+    pointsAttack        = 0U;
+    scoreAttack         = 0U;
+    oudlers             = 0U;
+    littleEndianPoints  = 0U;
+    handlePoints        = 0U;
+    slamPoints          = 0U;
+}
+/*****************************************************************************/
+Team Points::Winner() const
 {
     if (pointsAttack >= Tarot::PointsToDo(oudlers))
     {
@@ -39,17 +55,7 @@ Team Score::Winner() const
     }
 }
 /*****************************************************************************/
-void Score::Reset()
-{
-    pointsAttack        = 0U;
-    scoreAttack         = 0U;
-    oudlers             = 0U;
-    littleEndianPoints  = 0U;
-    handlePoints        = 0U;
-    slamPoints          = 0U;
-}
-/*****************************************************************************/
-std::int32_t Score::GetAttackScore() const
+std::int32_t Points::GetAttackScore() const
 {
     std::int32_t sign = -1;
 
@@ -60,7 +66,7 @@ std::int32_t Score::GetAttackScore() const
     return (scoreAttack * sign * 3);
 }
 /*****************************************************************************/
-std::int32_t Score::GetDefenseScore() const
+std::int32_t Points::GetDefenseScore() const
 {
     std::int32_t sign = 1;
 
@@ -71,9 +77,104 @@ std::int32_t Score::GetDefenseScore() const
     return (scoreAttack * sign);
 }
 /*****************************************************************************/
-std::int32_t Score::Difference() const
+std::int32_t Points::Difference() const
 {
     return pointsAttack - Tarot::PointsToDo(oudlers);
+}
+/*****************************************************************************/
+
+
+/*****************************************************************************/
+Score::Score()
+{
+    NewGame(ServerConfig::DEFAULT_NUMBER_OF_TURNS);
+}
+/*****************************************************************************/
+void Score::NewGame(std::uint8_t numberOfTurns)
+{
+    // Reset tournament information
+    for (std::uint32_t i = 0U; i < ServerConfig::MAX_NUMBER_OF_TURNS; i++)
+    {
+        for (std::uint32_t j = 0U; j < 5U; j++)
+        {
+            scores[i][j] = 0;
+        }
+    }
+    mNumberOfTurns = numberOfTurns;
+    dealCounter = 0U;
+}
+/*****************************************************************************/
+void Score::NewDeal()
+{
+    // Manage rollover
+    if (dealCounter >= mNumberOfTurns)
+    {
+        dealCounter = 0U;
+    }
+}
+/*****************************************************************************/
+/**
+ * @brief Add the current score to the tournament
+ * @param info
+ * @return true if the tournament must continue, false if it is finished
+ */
+bool Score::AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t numberOfPlayers)
+{
+    for (std::uint32_t i = 0U; i < numberOfPlayers; i++)
+    {
+        if (Place(i) == bid.taker)
+        {
+            scores[dealCounter][i] = points.GetAttackScore();
+        }
+        else
+        {
+            scores[dealCounter][i] = points.GetDefenseScore();
+        }
+    }
+    dealCounter++;
+    if (dealCounter < mNumberOfTurns)
+    {
+        return true;
+    }
+    return false;
+}
+/*****************************************************************************/
+int Score::GetTotalPoints(Place p) const
+{
+    int total;
+
+    total = 0;
+    for (std::uint32_t i = 0U; i < dealCounter; i++)
+    {
+        total += scores[i][p.Value()];
+    }
+    return (total);
+}
+/*****************************************************************************/
+/**
+ * @brief Score::GetPodium
+ *
+ * Gets the podium of the tournament. The first player has the highest number of points.
+ *
+ * @return The sorted list of players, by points
+ */
+std::map<int, Place> Score::GetPodium()
+{
+    std::map<int, Place> podium;
+
+    if (dealCounter > 0U)
+    {
+        // init podium
+        for (std::uint32_t i = 0U; i < 5U; i++)
+        {
+            int points = scores[dealCounter - 1U][i];
+            podium[points] = (Place)i;
+        }
+    }
+
+    // Since the map naturally sorts the list in the key order (points)
+    // there is no need to sort anything
+    return podium;
 }
 
 //=============================================================================

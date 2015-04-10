@@ -33,8 +33,10 @@
 #include "Log.h"
 
 /*****************************************************************************/
-TarotEngine::TarotEngine()
-    : mNbPlayers(4U)
+TarotEngine::TarotEngine(const std::string &i_dbName)
+    : mDeal(mRemoteDb)
+    , mDbName(i_dbName)
+    , mNbPlayers(4U)
     , mSequence(STOPPED)
     , mPosition(0U)
     , mTrickCounter(0U)
@@ -71,7 +73,6 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mNbPlayers = nbPlayers;
 
     // 1. Initialize internal states
-    mDeal.Initialize();
     mBid.Initialize();
 
     for (std::uint32_t i = 0U; i < 5U; i++)
@@ -94,7 +95,7 @@ void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::ui
 {
     mShuffle = s;
     mGameMode = mode;
-    mDeal.NewGame(numberOfTurns);
+    mScore.NewGame(numberOfTurns);
     mSequence = WAIT_FOR_READY;
 }
 /*****************************************************************************/
@@ -421,9 +422,9 @@ Place TarotEngine::GetPlayerPlace(std::uint32_t uuid)
     return p;
 }
 /*****************************************************************************/
-Score &TarotEngine::GetScore()
+Points TarotEngine::GetCurrentGamePoints()
 {
-    return mDeal.GetScore();
+    return mCurrentPoints;
 }
 /*****************************************************************************/
 bool TarotEngine::Sync(Sequence sequence, std::uint32_t uuid)
@@ -480,9 +481,10 @@ void TarotEngine::GameSequence()
 /*****************************************************************************/
 void TarotEngine::EndOfDeal(const std::string &tableName)
 {
-    mDeal.AnalyzeGame(mNbPlayers);
-    mDeal.CalculateScore();
-    mDeal.GenerateEndDealLog(mPlayersIdent, tableName);
+    mCurrentPoints.Clear();
+    mDeal.AnalyzeGame(mCurrentPoints, mNbPlayers);
+    mDeal.CalculateScore(mCurrentPoints);
+    mDeal.GenerateEndDealLog(mPlayersIdent, tableName, mDbName);
 
     ResetAck();
     mSequence = WAIT_FOR_END_OF_DEAL;
@@ -494,7 +496,7 @@ bool TarotEngine::NextDeal()
 
     if (mGameMode == Tarot::TOURNAMENT)
     {
-        continueGame = mDeal.AddScore(mBid, mNbPlayers);
+        continueGame = mScore.AddPoints(mCurrentPoints, mBid, mNbPlayers);
     }
 
     return continueGame;

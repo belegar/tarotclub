@@ -28,27 +28,29 @@
 #include "Common.h"
 #include "Deal.h"
 #include "Identity.h"
+#include "Score.h"
 
 /*****************************************************************************/
 class ScoresDock : public QDockWidget
 {
     Q_OBJECT
 
-private:
-    QTableWidget *tableScores;
-
 public:
     ScoresDock(QWidget *parent);
 
     void Clear();
     void SetPlayers(const std::map<Place, Identity> &players);
-    void SetNewScore(const Deal &deal);
+    void SetNewScore(const Points &points, const Tarot::Bid &bid);
 
 protected:
     void closeEvent(QCloseEvent *e);
 
 signals:
     void sgnlClose();
+
+private:
+    QTableWidget *tableScores;
+    Score   mScore;
 
 };
 
