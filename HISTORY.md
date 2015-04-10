@@ -1,3 +1,11 @@
+
+# Branch 2.6
+
+## Changes in 2.6.0
+
+  * TarotClub preference file now contains the bots configuration
+  * New tournament configuration (per deal configuration)
+
 # Branch 2.5
 
 ## Corrections in version 2.5.3
