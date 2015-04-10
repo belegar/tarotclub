@@ -26,7 +26,6 @@
 #include <QObject>
 #include <QFileDialog>
 #include <QMessageBox>
-#include "DealFile.h"
 #include "Translations.h"
 #include "EditorWindow.h"
 
@@ -50,6 +49,8 @@ EditorWindow::EditorWindow(QWidget *parent)
     connect(ui.northList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(slotRemoveNorthCard(QListWidgetItem *)));
     connect(ui.westList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(slotRemoveWestCard(QListWidgetItem *)));
     connect(ui.eastList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(slotRemoveEastCard(QListWidgetItem *)));
+
+    connect(ui.randomButton, &QPushButton::clicked, this, &EditorWindow::slotRandomDeal);
 
     ui.firstPlayerCombo->addItem(PlaceToString(Place::EAST));
     ui.firstPlayerCombo->addItem(PlaceToString(Place::NORTH));
@@ -75,6 +76,15 @@ void EditorWindow::Clear()
     ui.northList->clear();
     ui.southList->clear();
     ui.westList->clear();
+}
+/*****************************************************************************/
+void EditorWindow::slotRandomDeal()
+{
+    Clear();
+
+    DealFile editor;
+    editor.CreateRandomDeal(4U);
+    RefreshUi(editor);
 }
 /*****************************************************************************/
 void EditorWindow::slotToSouth()
@@ -175,37 +185,40 @@ void EditorWindow::slotOpenDeal()
     if (editor.LoadFile(fileName.toStdString()))
     {
         Clear();
-
-        // Dog
-        for (Deck::ConstIterator it = editor.GetDogDeck().Begin(); it != editor.GetDogDeck().End(); ++it)
-        {
-            ui.mainCardList->addItem(new QListWidgetItem((*it).GetName().data()));
-        }
-        // East
-        for (Deck::ConstIterator it = editor.GetEastDeck().Begin(); it != editor.GetEastDeck().End(); ++it)
-        {
-            ui.eastList->addItem(new QListWidgetItem((*it).GetName().data()));
-        }
-        // West
-        for (Deck::ConstIterator it = editor.GetWestDeck().Begin(); it != editor.GetWestDeck().End(); ++it)
-        {
-            ui.westList->addItem(new QListWidgetItem((*it).GetName().data()));
-        }
-        // South
-        for (Deck::ConstIterator it = editor.GetSouthDeck().Begin(); it != editor.GetSouthDeck().End(); ++it)
-        {
-            ui.southList->addItem(new QListWidgetItem((*it).GetName().data()));
-        }
-        // North
-        for (Deck::ConstIterator it = editor.GetNorthDeck().Begin(); it != editor.GetNorthDeck().End(); ++it)
-        {
-            ui.northList->addItem(new QListWidgetItem((*it).GetName().data()));
-        }
-
+        RefreshUi(editor);
     }
     else
     {
         QMessageBox::critical(this, tr("Loading error"), tr("Cannot read the input deal file!"));
+    }
+}
+/*****************************************************************************/
+void EditorWindow::RefreshUi(const DealFile &editor)
+{
+    // Dog
+    for (Deck::ConstIterator it = editor.GetDogDeck().Begin(); it != editor.GetDogDeck().End(); ++it)
+    {
+        ui.mainCardList->addItem(new QListWidgetItem((*it).GetName().data()));
+    }
+    // East
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::EAST).Begin(); it != editor.GetPlayerDeck(Place::EAST).End(); ++it)
+    {
+        ui.eastList->addItem(new QListWidgetItem((*it).GetName().data()));
+    }
+    // West
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::WEST).Begin(); it != editor.GetPlayerDeck(Place::WEST).End(); ++it)
+    {
+        ui.westList->addItem(new QListWidgetItem((*it).GetName().data()));
+    }
+    // South
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::SOUTH).Begin(); it != editor.GetPlayerDeck(Place::SOUTH).End(); ++it)
+    {
+        ui.southList->addItem(new QListWidgetItem((*it).GetName().data()));
+    }
+    // North
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::NORTH).Begin(); it != editor.GetPlayerDeck(Place::NORTH).End(); ++it)
+    {
+        ui.northList->addItem(new QListWidgetItem((*it).GetName().data()));
     }
 
 }
@@ -221,6 +234,7 @@ void EditorWindow::slotSaveDeal()
     }
 
     DealFile editor;
+    Deck deck;
 
     // Dog
     for (int i = 0; i < ui.mainCardList->count(); i++)
@@ -228,45 +242,58 @@ void EditorWindow::slotSaveDeal()
         QListWidgetItem *item = ui.mainCardList->item(i);
         if (item != NULL)
         {
-            editor.GetDogDeck().Append(Card(item->text().toStdString()));
+            deck.Append(Card(item->text().toStdString()));
         }
     }
+    editor.SetDogDeck(deck);
+    deck.Clear();
+
     // East
     for (int i = 0; i < ui.eastList->count(); i++)
     {
         QListWidgetItem *item = ui.eastList->item(i);
         if (item != NULL)
         {
-            editor.GetEastDeck().Append(Card(item->text().toStdString()));
+            deck.Append(Card(item->text().toStdString()));
         }
     }
+    editor.SetPlayerDeck(Place::EAST, deck);
+    deck.Clear();
+
     // West
     for (int i = 0; i < ui.westList->count(); i++)
     {
         QListWidgetItem *item = ui.westList->item(i);
         if (item != NULL)
         {
-            editor.GetWestDeck().Append(Card(item->text().toStdString()));
+            deck.Append(Card(item->text().toStdString()));
         }
     }
+    editor.SetPlayerDeck(Place::WEST, deck);
+    deck.Clear();
+
     // South
     for (int i = 0; i < ui.southList->count(); i++)
     {
         QListWidgetItem *item = ui.southList->item(i);
         if (item != NULL)
         {
-            editor.GetSouthDeck().Append(Card(item->text().toStdString()));
+            deck.Append(Card(item->text().toStdString()));
         }
     }
+    editor.SetPlayerDeck(Place::SOUTH, deck);
+    deck.Clear();
+
     // North
     for (int i = 0; i < ui.northList->count(); i++)
     {
         QListWidgetItem *item = ui.northList->item(i);
         if (item != NULL)
         {
-            editor.GetNorthDeck().Append(Card(item->text().toStdString()));
+            deck.Append(Card(item->text().toStdString()));
         }
     }
+    editor.SetPlayerDeck(Place::NORTH, deck);
 
     editor.SetFirstPlayer(Place(ui.firstPlayerCombo->currentIndex() + 1U));
     editor.SaveFile(fileName.toStdString());

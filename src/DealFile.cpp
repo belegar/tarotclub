@@ -34,13 +34,10 @@ static const std::string DEAL_FILE_VERSION  = "3";
 
 /*****************************************************************************/
 DealFile::DealFile()
+    : mNbPlayers(4U)
+    , mSeed(0U)
 {
 
-}
-/*****************************************************************************/
-Deck &DealFile::GetNorthDeck()
-{
-    return mPlayers[Place::NORTH];
 }
 /*****************************************************************************/
 void DealFile::SetFirstPlayer(Place p)
@@ -69,39 +66,77 @@ bool DealFile::IsValid(std::uint8_t numberOfPlayers)
     return valid;
 }
 /*****************************************************************************/
-Deck &DealFile::GetSouthDeck()
+bool DealFile::CreateRandomDeal(std::uint8_t numberOfPlayers, std::uint32_t seed)
 {
-    return mPlayers[Place::SOUTH];
+    mNbPlayers = numberOfPlayers;
+    mSeed = seed;
+
+    bool valid = true;
+    Deck deck;
+    deck.CreateTarotDeck();
+    deck.Shuffle(seed);
+
+    Clear();
+
+    // Simple protection
+    if (mNbPlayers > 5U)
+    {
+        TLogError("Number of players not supported.");
+        mNbPlayers = 4U;
+    }
+
+    int n = Tarot::NumberOfCardsInHand(mNbPlayers);
+    for (std::uint32_t i = 0U; i < mNbPlayers; i++)
+    {
+        mPlayers[i].Append(deck.Mid(i * n, n));
+
+        if (mPlayers[i].HasOnlyOneOfTrump())
+        {
+            valid = false;
+            TLogInfo("Petit sec detected!");
+        }
+    }
+
+    // Remaining cards go to the dog
+    mDogDeck = deck.Mid(mNbPlayers * n);
+    return valid;
 }
 /*****************************************************************************/
-Deck &DealFile::GetEastDeck()
+bool DealFile::CreateRandomDeal(std::uint8_t numberOfPlayers)
 {
-    return mPlayers[Place::EAST];
+    std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
+    return CreateRandomDeal(numberOfPlayers, static_cast<std::uint32_t>(seed));
 }
 /*****************************************************************************/
-Deck &DealFile::GetWestDeck()
-{
-    return mPlayers[Place::WEST];
-}
-/*****************************************************************************/
-Deck &DealFile::GetDogDeck()
+const Deck &DealFile::GetDogDeck() const
 {
     return mDogDeck;
+}
+/*****************************************************************************/
+void DealFile::SetDogDeck(const Deck &deck)
+{
+    mDogDeck = deck;
+}
+/*****************************************************************************/
+const Deck &DealFile::GetPlayerDeck(Place p) const
+{
+    return mPlayers[p.Value()];
+}
+/*****************************************************************************/
+void DealFile::SetPlayerDeck(Place p, const Deck &deck)
+{
+    mPlayers[p.Value()] = deck;
 }
 /*****************************************************************************/
 bool DealFile::LoadFile(const std::string &fileName)
 {
     JsonReader json;
 
+    Clear();
+
     bool ret = json.Open(fileName);
     if (ret)
     {
-        mDogDeck.Clear();
-        for (int i = 0; i < 5; i++)
-        {
-            mPlayers[i].Clear();
-        }
-
         std::string stringval;
         if (json.GetValue("version", stringval))
         {
@@ -135,6 +170,7 @@ bool DealFile::LoadFile(const std::string &fileName)
                     ret = false;
                 }
 
+                mNbPlayers = 0U;
                 for (std::uint32_t i = 0U; i < 5U; i++)
                 {
                     if (ret)
@@ -143,6 +179,10 @@ bool DealFile::LoadFile(const std::string &fileName)
                         if (json.GetValue(player.ToString(), stringval))
                         {
                             (void) mPlayers[i].SetCards(stringval);
+                            if (stringval.size() > 0)
+                            {
+                                mNbPlayers++;
+                            }
                         }
                         else
                         {
@@ -204,7 +244,6 @@ void DealFile::Clear()
 
     mDogDeck.Clear();
 }
-
 
 //=============================================================================
 // End of file DealFile.cpp

@@ -160,6 +160,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="randomButton">
+       <property name="text">
+        <string>Random</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="openButton">
        <property name="text">
         <string>Open</string>
