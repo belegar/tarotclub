@@ -52,6 +52,7 @@ EditorWindow::EditorWindow(QWidget *parent)
 
     connect(ui.randomButton, &QPushButton::clicked, this, &EditorWindow::slotRandomDeal);
 
+    ui.firstPlayerCombo->addItem(PlaceToString(Place::SOUTH));
     ui.firstPlayerCombo->addItem(PlaceToString(Place::EAST));
     ui.firstPlayerCombo->addItem(PlaceToString(Place::NORTH));
     ui.firstPlayerCombo->addItem(PlaceToString(Place::WEST));
@@ -84,6 +85,7 @@ void EditorWindow::slotRandomDeal()
 
     DealFile editor;
     editor.CreateRandomDeal(4U);
+    editor.SetFirstPlayer(DealFile::RandomPlace(4U));
     RefreshUi(editor);
 }
 /*****************************************************************************/
@@ -221,6 +223,8 @@ void EditorWindow::RefreshUi(const DealFile &editor)
         ui.northList->addItem(new QListWidgetItem((*it).GetName().data()));
     }
 
+    ui.firstPlayerCombo->setCurrentIndex(editor.GetFirstPlayer().Value());
+
 }
 /*****************************************************************************/
 void EditorWindow::slotSaveDeal()
@@ -295,7 +299,7 @@ void EditorWindow::slotSaveDeal()
     }
     editor.SetPlayerDeck(Place::NORTH, deck);
 
-    editor.SetFirstPlayer(Place(ui.firstPlayerCombo->currentIndex() + 1U));
+    editor.SetFirstPlayer(Place(ui.firstPlayerCombo->currentIndex()));
     editor.SaveFile(fileName.toStdString());
 }
 

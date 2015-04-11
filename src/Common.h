@@ -60,6 +60,7 @@ public:
     Place(std::uint32_t p);
     Place(std::uint8_t p);
     Place(std::string p);
+    Place(int p);
 
     // Helpers
     std::string ToString() const;

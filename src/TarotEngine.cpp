@@ -82,9 +82,7 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mPlayersIdent.clear();
 
     // Choose the dealer
-    std::default_random_engine generator(mSeed);
-    std::uniform_int_distribution<std::uint32_t> distribution(0, nbPlayers - 1);
-    mDealer = distribution(generator);
+    mDealer = DealFile::RandomPlace(mNbPlayers);
 
     // Wait for ready
     ResetAck();

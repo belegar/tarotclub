@@ -46,7 +46,7 @@ public:
     std::uint32_t GetSeed() { return mSeed; }
 
     void SetFirstPlayer(Place p);
-    Place GetFirstPlayer() { return mFirstPlayer; }
+    Place GetFirstPlayer() const { return mFirstPlayer; }
 
     std::uint8_t GetNumberOfPlayers() { return mNbPlayers; }
 
@@ -54,6 +54,8 @@ public:
 
     bool CreateRandomDeal(std::uint8_t numberOfPlayers, std::uint32_t seed);
     bool CreateRandomDeal(std::uint8_t numberOfPlayers);
+
+    static Place RandomPlace(std::uint8_t numberOfPlayers);
 
 private:
     Deck    mPlayers[5]; //!< five players max in Tarot

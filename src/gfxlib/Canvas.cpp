@@ -139,7 +139,7 @@ Canvas::Canvas(QWidget *parent)
 void Canvas::resizeEvent(QResizeEvent *event)
 {
 
-    QSize s = size();
+   // QSize s = size();
     /*
     QRect rect;
     s = event->size();
