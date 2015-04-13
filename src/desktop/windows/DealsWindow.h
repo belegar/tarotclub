@@ -34,6 +34,7 @@
 #include <QtSvg>
 
 #include "Deal.h"
+#include "DummyRemoteDb.h"
 
 /*****************************************************************************/
 class DealsWindow : public QDialog
@@ -60,6 +61,8 @@ private:
     QSvgRenderer mDeck;
     QGraphicsSimpleTextItem *mText;
     QVector<QGraphicsSvgItem *> mCardsPics;
+
+    DummyRemoteDb mRemoteDb;
     Deal mDeal;
     QFileInfoList mList;
 

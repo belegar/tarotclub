@@ -210,7 +210,6 @@ HEADERS += ServerConfig.h \
     Controller.h \
     Lobby.h \
     Common.h \
-    Defines.h \
     Users.h
 
 SOURCES += ServerConfig.cpp \
@@ -285,7 +284,8 @@ HEADERS += AboutWindow.h \
     DebugDock.h \
     LobbyDock.h \
     DealsWindow.h \
-    ImportAvatarWindow.h
+    ImportAvatarWindow.h \
+    Defines.h \
 
 SOURCES += AboutWindow.cpp \
     MainWindow.cpp \

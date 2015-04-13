@@ -26,6 +26,9 @@
 #ifndef CHECKBOXITEM_H
 #define CHECKBOXITEM_H
 
+// LibC++ includes
+#include <cstdint>
+
 // Qt includes
 #include <QGraphicsRectItem>
 #include <QGraphicsSvgItem>

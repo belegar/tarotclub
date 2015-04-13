@@ -32,12 +32,12 @@
 /*****************************************************************************/
 DealsWindow::DealsWindow(QWidget *parent)
     : QDialog(parent)
+    , mDeal(mRemoteDb)
 {
     mComboBox = new QComboBox(this);
     mOkButton = new QPushButton(tr("&Close"), this);
 
     mView = new QGraphicsView(&mScene);
-
     mLayout = new QVBoxLayout(this);
 
     QHBoxLayout *layout1 = new QHBoxLayout();

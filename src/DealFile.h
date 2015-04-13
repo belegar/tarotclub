@@ -39,21 +39,30 @@ public:
 
     void Clear();
 
-    Deck &GetDogDeck();
-    Deck &GetWestDeck();
-    Deck &GetEastDeck();
-    Deck &GetSouthDeck();
-    Deck &GetNorthDeck();
+    const Deck &GetDogDeck() const;
+    void SetDogDeck(const Deck &deck);
+    const Deck &GetPlayerDeck(Place p) const;
+    void SetPlayerDeck(Place p, const Deck &deck);
+    std::uint32_t GetSeed() { return mSeed; }
 
     void SetFirstPlayer(Place p);
-    Place GetFirstPlayer() { return mFirstPlayer; }
+    Place GetFirstPlayer() const { return mFirstPlayer; }
+
+    std::uint8_t GetNumberOfPlayers() { return mNbPlayers; }
 
     bool IsValid(std::uint8_t numberOfPlayers);
+
+    bool CreateRandomDeal(std::uint8_t numberOfPlayers, std::uint32_t seed);
+    bool CreateRandomDeal(std::uint8_t numberOfPlayers);
+
+    static Place RandomPlace(std::uint8_t numberOfPlayers);
 
 private:
     Deck    mPlayers[5]; //!< five players max in Tarot
     Deck    mDogDeck;
     Place   mFirstPlayer;
+    std::uint8_t mNbPlayers;
+    std::uint32_t mSeed;
 };
 
 #endif // DEAL_FILE_H

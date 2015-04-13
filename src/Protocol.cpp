@@ -577,14 +577,14 @@ ByteArray Protocol::TableNewDeal(Player *player)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableEndOfDeal(Score &score)
+ByteArray Protocol::TableEndOfDeal(const Points &points)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::TABLE_END_OF_DEAL, TABLE_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
-    out << score;
+    out << points;
     UpdateHeader(packet);
 
     return packet;

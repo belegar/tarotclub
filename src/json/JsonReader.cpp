@@ -63,30 +63,50 @@ bool JsonReader::Open(const std::string &fileName)
         std::ostringstream contents;
         contents << f.rdbuf();
         f.close();
-
-        char *endptr;
-
-#ifdef USE_WINDOWS_OS
-        char *source = _strdup(contents.str().c_str());
-#else
-		char *source = strdup(contents.str().c_str());
-#endif
-        if (Parse(source, &endptr) == JSON_PARSE_OK)
-        {
-            mValid = true;
-        }
-        else
-        {
-            mValid = false;
-        }
-        free(source);
-
+        mValid = ParseString(contents.str());
     }
     else
     {
         mValid = false;
     }
 
+    return mValid;
+}
+/*****************************************************************************/
+/**
+ * @brief Close
+ *
+ * Cleans the context and free memory
+ *
+ */
+void JsonReader::Close()
+{
+    mValid = false;
+    if (mRootNode != nullptr)
+    {
+        delete mRootNode;
+    }
+    mRootNode = nullptr;
+}
+/*****************************************************************************/
+bool JsonReader::ParseString(const std::string &data)
+{
+    char *endptr;
+
+#ifdef USE_WINDOWS_OS
+    char *source = _strdup(data.c_str());
+#else
+    char *source = strdup(data.c_str());
+#endif
+    if (Parse(source, &endptr) == JSON_PARSE_OK)
+    {
+        mValid = true;
+    }
+    else
+    {
+        mValid = false;
+    }
+    free(source);
     return mValid;
 }
 /*****************************************************************************/
@@ -184,22 +204,6 @@ IJsonNode *JsonReader::FindNode(const std::string &nodePath)
         }
     }
     return node;
-}
-/*****************************************************************************/
-/**
- * @brief Close
- *
- * Cleans the context and free memory
- *
- */
-void JsonReader::Close()
-{
-    mValid = false;
-    if (mRootNode != nullptr)
-    {
-        delete mRootNode;
-    }
-    mRootNode = nullptr;
 }
 /*****************************************************************************/
 JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)

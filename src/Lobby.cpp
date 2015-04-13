@@ -19,18 +19,18 @@
 #include "Lobby.h"
 #include "Log.h"
 #include "Util.h"
-#include "Defines.h"
 #include <sstream>
 #include <vector>
 
 
-const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub ") + std::string(VERSION_STRING);
+const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub Lobby v") + std::string("2");
 
 /*****************************************************************************/
-Lobby::Lobby(IDataBase &i_dataBase)
+Lobby::Lobby(IDataBase &i_dataBase, const std::string &i_dbName)
     : mDataBase(i_dataBase)
     , mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
+    , mDbName(i_dbName)
 {
 
 }
@@ -66,7 +66,7 @@ void Lobby::Initialize(const ServerOptions &opt)
     {
         std::uint32_t id = i + 1U; // Id zero is not valid (means "no table")
         std::cout << "Creating table " << opt.tables[i] << ": id=" << id << std::endl;
-        Controller *table = new Controller(*this);
+        Controller *table = new Controller(*this, mDbName);
         table->SetId(id);
         table->SetName(opt.tables[i]);
         table->Initialize(); // Start all threads and TCP sockets

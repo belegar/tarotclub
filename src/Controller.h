@@ -59,7 +59,7 @@ public:
         virtual void SendData(const ByteArray &block, std::uint32_t tableId) = 0;
     };
 
-    Controller(IEvent &handler);
+    Controller(IEvent &handler, const std::string &i_dbName);
     virtual ~Controller () { /* nothing to do */ }
 
     void Initialize();
@@ -73,7 +73,7 @@ public:
 
 private:
     IEvent     &mEventHandler;
-    TarotEngine engine;
+    TarotEngine mEngine;
     ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
     bool mFull;
     std::uint32_t mAdmin; //!< Admin player (first player connected)

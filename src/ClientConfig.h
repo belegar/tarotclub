@@ -42,6 +42,12 @@ struct ServerInfo
     std::uint16_t web_tcp_port;
 };
 
+struct BotConf
+{
+    Identity identity;
+    std::string scriptFilePath;
+};
+
 struct ClientOptions
 {
     std::string     deckFilePath;
@@ -52,6 +58,8 @@ struct ClientOptions
     std::uint16_t   delayBeforeCleaning;  // in milliseconds
     bool            clickToClean;
     std::string     cardsOrder;
+    std::uint16_t   timer;      // between players, in milliseconds
+    std::map<Place, BotConf>   bots;
     std::vector<ServerInfo>     serverList;
 };
 
@@ -61,6 +69,7 @@ class ClientConfig
 {
 public:
     // default values
+    static const std::uint16_t  DEFAULT_DELAY               = 500U;     // in ms
     static const bool           AVATARS_DEF                 = true;
     static const std::uint16_t  CLIENT_TIMER_DEF            = 1500U;
     static const std::string    DEFAULT_CLIENT_CONFIG_FILE;

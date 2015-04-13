@@ -495,7 +495,7 @@ void Bot::AdminGameFull()
     // We are the admin on this table, let's start the game!
     Tarot::Shuffle sh;
     sh.type = Tarot::Shuffle::RANDOM_DEAL;
-    mClient.AdminNewGame(Tarot::ONE_DEAL, sh, mClient.GetDeal().GetNumberOfTurns());
+    mClient.AdminNewGame(Tarot::ONE_DEAL, sh, mClient.GetNumberOfTurns());
 }
 /*****************************************************************************/
 void Bot::TableQuitEvent(std::uint32_t tableId)

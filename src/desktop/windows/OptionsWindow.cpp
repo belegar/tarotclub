@@ -388,11 +388,11 @@ void OptionsWindow::slotBotSelected(int currentRow)
                 // Save previous bot configuration
                 if (ui.botMale->isChecked())
                 {
-                    serverOptions.bots[place].identity.gender = Identity::MALE;
+                    clientOptions.bots[place].identity.gender = Identity::MALE;
                 }
                 else
                 {
-                    serverOptions.bots[place].identity.gender = Identity::FEMALE;
+                    clientOptions.bots[place].identity.gender = Identity::FEMALE;
                 }
             }
 
@@ -401,10 +401,10 @@ void OptionsWindow::slotBotSelected(int currentRow)
             // Get the place of the selected bot
             Place place(currentRow + 1U);
 
-            ui.botName->setText(QString::fromStdString(serverOptions.bots[place].identity.name));
-            ui.scriptPath->setText(QString::fromStdString(serverOptions.bots[place].scriptFilePath));
+            ui.botName->setText(QString::fromStdString(clientOptions.bots[place].identity.name));
+            ui.scriptPath->setText(QString::fromStdString(clientOptions.bots[place].scriptFilePath));
 
-            if (serverOptions.bots[place].identity.gender == Identity::MALE)
+            if (clientOptions.bots[place].identity.gender == Identity::MALE)
             {
                 ui.botMale->setChecked(true);
             }
@@ -413,7 +413,7 @@ void OptionsWindow::slotBotSelected(int currentRow)
                 ui.botFemale->setChecked(true);
             }
 
-            if (im.load(QString(serverOptions.bots[place].identity.avatar.data())) == true)
+            if (im.load(QString(clientOptions.bots[place].identity.avatar.data())) == true)
             {
                 ui.botAvatar->setPixmap(im);
             }
@@ -465,8 +465,9 @@ void OptionsWindow::slotBtnOk()
                                  tr("You must restart TarotClub to enable the new language.") + "\n\n");
     }
     clientOptions.backgroundColor = colorName.toStdString();
+    clientOptions.timer = ui.slider1->value();
     clientOptions.delayBeforeCleaning = ui.slider2->value();
-    serverOptions.tournamentTurns = static_cast<std::uint8_t>(ui.turns->value());
+    //serverOptions.tournamentTurns = static_cast<std::uint8_t>(ui.turns->value());
 
     if (ui.clic->isChecked())
     {
@@ -477,9 +478,6 @@ void OptionsWindow::slotBtnOk()
         clientOptions.clickToClean = false;
     }
     clientOptions.cardsOrder = dragWidget->GetOrder();
-
-    // Server stuff
-    serverOptions.timer = ui.slider1->value();
 
     accept();
 }
@@ -583,12 +581,12 @@ void OptionsWindow::slotButtonBotAvatar()
 
     Place place(ui.botsList->currentRow() + 1U);
 
-    s = ChooseAvatar(QString(serverOptions.bots[place].identity.avatar.data()));
+    s = ChooseAvatar(QString(clientOptions.bots[place].identity.avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    serverOptions.bots[place].identity.avatar = s.toStdString();
+    clientOptions.bots[place].identity.avatar = s.toStdString();
     ui.botAvatar->setPixmap(im);
 }
 /*****************************************************************************/
@@ -612,7 +610,7 @@ void OptionsWindow::slotChooseScriptPath()
     {
         Place place(ui.botsList->currentRow() + 1U);
 
-        serverOptions.bots[place].scriptFilePath = fileName.toStdString();
+        clientOptions.bots[place].scriptFilePath = fileName.toStdString();
         ui.scriptPath->setText(fileName);
     }
     else
@@ -684,7 +682,7 @@ void OptionsWindow::Refresh()
     }
     ui.afficheAvatars->setChecked(clientOptions.showAvatars);
     ui.langList->setCurrentIndex(clientOptions.language);
-    ui.turns->setValue(static_cast<int>(serverOptions.tournamentTurns));
+  //  ui.turns->setValue(static_cast<int>(serverOptions.tournamentTurns));
     indexLangue = clientOptions.language;
 
     Avatar avatar(QString(clientOptions.identity.avatar.c_str()));
@@ -715,6 +713,7 @@ void OptionsWindow::Refresh()
         ui.tapisColor->setPalette(QPalette(color));
         ui.tapisColor->setAutoFillBackground(true);
     }
+    ui.slider1->setValue(clientOptions.timer);
     ui.slider2->setValue(clientOptions.delayBeforeCleaning);
 
     if (clientOptions.clickToClean == true)
@@ -730,9 +729,6 @@ void OptionsWindow::Refresh()
         slotClickOptionChanged(Qt::Unchecked);
     }
     dragWidget->SetOrder(clientOptions.cardsOrder);
-
-    // server stuff
-    ui.slider1->setValue(serverOptions.timer);
 
     // -------------  NETWORK TAB --------------
     UpdateServersList();

@@ -1,3 +1,12 @@
+
+# Branch 2.6
+
+## Changes in 2.6.0
+
+  * TarotClub preference file now contains the bots configuration
+  * New tournament configuration (per deal configuration) in the JSON file
+  * Added a "random" button in the deal editor window
+
 # Branch 2.5
 
 ## Changes in version 2.5.3

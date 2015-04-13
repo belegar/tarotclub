@@ -26,7 +26,9 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#define VERSION_STRING "2.5.3"
+#include <cstdint>
+
+#define VERSION_STRING "2.6.0"
 
 #ifndef ISPP_INVOKED
 /// @brief The version string uses Semantic Versioning format

@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "3"; // increase the version to force any incompatible update in the file structure
+static const std::string SERVER_CONFIG_VERSION  = "5"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 
 /*****************************************************************************/
@@ -71,14 +71,6 @@ bool ServerConfig::Load(const std::string &fileName)
                 // If they are not in the acceptable range, we set the default value
                 // without throwing any error
                 std::uint32_t unsignedVal;
-                if (json.GetValue("delay", unsignedVal))
-                {
-                    if (unsignedVal > 9000U)
-                    {
-                        unsignedVal = DEFAULT_DELAY;
-                    }
-                    mOptions.timer = unsignedVal;
-                }
                 if (json.GetValue("game_tcp_port", unsignedVal))
                 {
                     mOptions.game_tcp_port = unsignedVal;
@@ -94,43 +86,50 @@ bool ServerConfig::Load(const std::string &fileName)
                     mOptions.lobby_max_conn = unsignedVal;
                 }
 
-                if (json.GetValue("tournament_turns", unsignedVal))
+                // Setup tournament configuration
+                mOptions.tournament.clear();
+                std::vector<JsonValue> tournament = json.GetArray("tournament");
+                if (tournament.size() > 0U)
                 {
-                    mOptions.tournamentTurns = static_cast<std::uint8_t>(unsignedVal);
-                    if (mOptions.tournamentTurns > MAX_NUMBER_OF_TURNS)
+                    for (std::vector<JsonValue>::iterator iter = tournament.begin(); iter != tournament.end(); ++iter)
                     {
-                        mOptions.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
+                        if (iter->IsObject())
+                        {
+                            JsonObject *obj = iter->GetObject();
+                            std::string value;
+                            Tarot::Shuffle shuffle;
+                            if (JsonValue::FromNode(obj->GetNode("type"), value))
+                            {
+                                if (value == "custom")
+                                {
+                                    shuffle.type = Tarot::Shuffle::CUSTOM_DEAL;
+                                    if (JsonValue::FromNode(obj->GetNode("file"), value))
+                                    {
+                                        shuffle.file = value;
+                                    }
+                                    else
+                                    {
+                                        ret = false;
+                                    }
+                                }
+                                else
+                                {
+                                    // FIXME: add support for numbered deal (get the seed)
+                                    ret = false;
+                                }
+                            }
+
+                            if (ret)
+                            {
+                                mOptions.tournament.push_back(shuffle);
+                            }
+                        }
                     }
                 }
-
-                for (std::uint32_t i = 1U; i < 4U; i++)
+                else
                 {
-                    std::string botPos = Place(i).ToString();
-                    if (json.GetValue(botPos + ":name", value))
-                    {
-                        mOptions.bots[i].identity.name = value;
-                    }
-                    if (json.GetValue(botPos + ":avatar", value))
-                    {
-                        mOptions.bots[i].identity.avatar = value;
-                    }
-                    if (json.GetValue(botPos + ":gender", value))
-                    {
-                        if (value == "female")
-                        {
-                            mOptions.bots[i].identity.gender = Identity::FEMALE;
-                        }
-                        else
-                        {
-                            mOptions.bots[i].identity.gender = Identity::MALE;
-                        }
-
-                    }
-
-                    if (json.GetValue(botPos + ":bot_file_path", value))
-                    {
-                        mOptions.bots[i].scriptFilePath = value;
-                    }
+                    TLogError("No tournament details");
+                    ret = false;
                 }
 
                 mOptions.tables.clear();
@@ -147,7 +146,8 @@ bool ServerConfig::Load(const std::string &fileName)
                 }
                 else
                 {
-                    mOptions.tables.push_back("Default");
+                    TLogError("No table defined");
+                    ret = false;
                 }
             }
             else
@@ -185,37 +185,29 @@ bool ServerConfig::Save(const std::string &fileName)
     JsonWriter json;
 
     json.CreateValuePair("version", SERVER_CONFIG_VERSION);
-    json.CreateValuePair("generator", "Generated by TarotClub " + TAROT_VERSION);
-    json.CreateValuePair("delay", mOptions.timer);
     json.CreateValuePair("game_tcp_port", mOptions.game_tcp_port);
     json.CreateValuePair("lobby_max_conn", mOptions.lobby_max_conn);
-    json.CreateValuePair("tournament_turns", mOptions.tournamentTurns);
 
-    for (std::uint32_t i = 1U; i < 4U; i++)
+    JsonArray *tournament = json.CreateArrayPair("tournament");
+    for (std::vector<Tarot::Shuffle>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
     {
-        Place bot(i);
-        JsonObject *obj = json.CreateObjectPair(bot.ToString());
-        obj->CreateValuePair("name", mOptions.bots[i].identity.name);
+        std::string type;
+        std::string file;
+        JsonObject *obj = tournament->CreateObject();
 
-        // Make sure to use unix path separator
-        Util::ReplaceCharacter(mOptions.bots[i].identity.avatar, "\\", "/");
-
-        obj->CreateValuePair("avatar", mOptions.bots[i].identity.avatar);
-        std::string text;
-        if (mOptions.bots[i].identity.gender == Identity::MALE)
+        if (iter->type == Tarot::Shuffle::RANDOM_DEAL)
         {
-            text = "male";
+            type = "random";
+            file = "";
         }
         else
         {
-            text = "female";
+            // FIXME: add the numbered type
+            type = "custom";
+            file = iter->file;
         }
-
-        obj->CreateValuePair("gender", text);
-
-        // Make sure to use unix path separator
-        Util::ReplaceCharacter(mOptions.bots[i].scriptFilePath, "\\", "/");
-        obj->CreateValuePair("bot_file_path", mOptions.bots[i].scriptFilePath);
+        obj->CreateValuePair("type", type);
+        obj->CreateValuePair("file", file);
     }
 
     JsonArray *array = json.CreateArrayPair("tables");
@@ -236,28 +228,16 @@ ServerOptions ServerConfig::GetDefault()
 {
     ServerOptions opt;
 
-    opt.timer           = DEFAULT_DELAY;
     opt.game_tcp_port   = DEFAULT_GAME_TCP_PORT;
     opt.web_tcp_port    = DEFAULT_WEB_TCP_PORT;
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
-    opt.tournamentTurns = DEFAULT_NUMBER_OF_TURNS;
-    opt.tables.push_back("Default"); // default table name (one table minimum)
+    opt.tables.push_back("Table 1"); // default table name (one table minimum)
 
-    opt.bots[Place::WEST].identity.name     = "Leela";
-    opt.bots[Place::WEST].identity.avatar   = ":/avatars/FD05.png";
-    opt.bots[Place::WEST].identity.gender   = Identity::FEMALE;
-    opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath() + "package.json";
-
-    opt.bots[Place::NORTH].identity.name    = "Bender";
-    opt.bots[Place::NORTH].identity.avatar  = ":/avatars/N03.png";
-    opt.bots[Place::NORTH].identity.gender  = Identity::MALE;
-    opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath() + "package.json";
-
-    opt.bots[Place::EAST].identity.name     = "Amy";
-    opt.bots[Place::EAST].identity.avatar   = ":/avatars/FE02.png";
-    opt.bots[Place::EAST].identity.gender   = Identity::FEMALE;
-    opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath() + "package.json";
-
+    // Default tournament is some random deals
+    for (std::uint32_t i = 0U; i < DEFAULT_NUMBER_OF_TURNS; i++)
+    {
+        opt.tournament.push_back(Tarot::Shuffle());
+    }
     return opt;
 }
 

@@ -57,6 +57,7 @@ public:
     virtual bool HasNode(const std::string &key) = 0;
     virtual IJsonNode* GetNode(const std::string &key) = 0;
     virtual std::string ToString() = 0;
+    virtual void Clear() = 0;
 };
 /*****************************************************************************/
 class JsonArray : public IJsonNode
@@ -74,6 +75,7 @@ public:
 
     bool HasNode(const std::string &key);
     IJsonNode* GetNode(const std::string &key);
+    void Clear();
 
     // JsonArray
     IJsonNode *GetEntry(std::uint32_t index);
@@ -101,6 +103,7 @@ public:
     std::string ToString();
     bool HasNode(const std::string &key);
     IJsonNode *GetNode(const std::string &key);
+    void Clear();
 
     // JsonObject
     void CreateValuePair(const std::string &name, const JsonValue &value);
@@ -143,6 +146,7 @@ public:
     std::string ToString();
     bool HasNode(const std::string &key);
     IJsonNode *GetNode(const std::string &key);
+    void Clear();
 
     JsonValue &operator = (JsonValue const &rhs);
 

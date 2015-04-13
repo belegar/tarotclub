@@ -29,6 +29,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include "Common.h"
+#include "DealFile.h"
 #include "Card.h"
 #include <ui_DealEditorUI.h>
 
@@ -44,10 +45,10 @@ public:
     void Initialize();
     void AddToList(int id, QListWidget *list, QListWidgetItem *item);
 
-
 public slots:
     void slotOpenDeal();
     void slotSaveDeal();
+    void slotRandomDeal();
 
     void slotToSouth();
     void slotToNorth();
@@ -64,7 +65,7 @@ private:
     Ui::DealEditorUI ui;
 
     void Clear();
-
+    void RefreshUi(const DealFile &editor);
 };
 
 #endif // EDITORWINDOW_H

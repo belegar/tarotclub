@@ -32,11 +32,12 @@
 #include "TarotWidget.h"
 #include "Common.h"
 #include "Log.h"
+#include "Defines.h"
 
 /*****************************************************************************/
 TarotWidget::TarotWidget(QWidget *parent)
     : QWidget(parent)
-    , mLobby(mDataBase)
+    , mLobby(mDataBase, std::string())
     , mClient(*this)
     , mConnectionType(NO_CONNECTION)
     , mAutoPlay(false)
@@ -91,6 +92,14 @@ TarotWidget::TarotWidget(QWidget *parent)
     connect(this, &TarotWidget::sigTableQuitEvent, this, &TarotWidget::slotTableQuitEvent, Qt::QueuedConnection);
     connect(this, &TarotWidget::sigDisconnectedFromServer, this, &TarotWidget::slotDisconnectedFromServer, Qt::QueuedConnection);
 
+}
+/*****************************************************************************/
+TarotWidget::~TarotWidget()
+{
+    if (!mShutdown)
+    {
+        slotCleanBeforeExit();
+    }
 }
 /*****************************************************************************/
 /**
@@ -184,10 +193,10 @@ void TarotWidget::slotAssignedPlace()
         if (mLobby.GetNumberOfBots(1U) == 0U)
         {
             std::map<Place, BotConf>::iterator iter;
-            for (iter = mServerOptions.bots.begin(); iter != mServerOptions.bots.end(); ++iter)
+            for (iter = mClientOptions.bots.begin(); iter != mClientOptions.bots.end(); ++iter)
             {
                 QThread::msleep(50U);
-                mLobby.AddBot(1U, iter->second.identity, mServerOptions.timer, iter->second.scriptFilePath);
+                mLobby.AddBot(1U, iter->second.identity, mClientOptions.timer, iter->second.scriptFilePath);
             }
         }
     }
@@ -257,7 +266,7 @@ void TarotWidget::slotStartGame()
     std::uint8_t  numberOfTurns = 1U;
     if (mGameMode == Tarot::TOURNAMENT)
     {
-        numberOfTurns = mServerOptions.tournamentTurns;
+        numberOfTurns = mServerOptions.tournament.size();
     }
 
     mClient.AdminNewGame(mGameMode, mShuffle, numberOfTurns);
@@ -719,7 +728,7 @@ void TarotWidget::slotEndOfDeal()
 {
     mCanvas->InitBoard();
     mCanvas->ResetCards();
-    mCanvas->SetResult(mClient.GetDeal().GetScore(), mClient.GetBid());
+    mCanvas->SetResult(mClient.GetPoints(), mClient.GetBid());
     mCanvas->SetFilter(Canvas::BOARD);
 
     if (mClient.GetGameMode() == Tarot::TOURNAMENT)

@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - ScoresDock.h
+ * TarotClub - IDataBase.h
  *=============================================================================
- * Fenêtre dockable affichant les scores des joueurs
+ * An application interface to write and read data from a database
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,37 +23,28 @@
  *=============================================================================
  */
 
-#include <QDockWidget>
-#include <QTableWidget>
-#include "Common.h"
-#include "Deal.h"
-#include "Identity.h"
-#include "Score.h"
+#ifndef I_REMOTE_DB_H
+#define I_REMOTE_DB_H
+
+#include <cstdint>
+#include <string>
 
 /*****************************************************************************/
-class ScoresDock : public QDockWidget
+class IRemoteDb
 {
-    Q_OBJECT
-
 public:
-    ScoresDock(QWidget *parent);
 
-    void Clear();
-    void SetPlayers(const std::map<Place, Identity> &players);
-    void SetNewScore(const Points &points, const Tarot::Bid &bid);
+    virtual ~IRemoteDb() { /* nothing to do */ }
 
-protected:
-    void closeEvent(QCloseEvent *e);
-
-signals:
-    void sgnlClose();
-
-private:
-    QTableWidget *tableScores;
-    Score   mScore;
+    virtual bool Connect() = 0;
+    virtual void Close() = 0;
+    virtual bool StoreGame(const std::string &game, const std::string &db) = 0;
 
 };
 
+
+#endif // I_REMOTE_DB_H
+
 //=============================================================================
-// Fin du fichier ScoresDock.h
+// End of file IRemoteDb.h
 //=============================================================================

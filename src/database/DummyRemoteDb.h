@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - ScoresDock.h
+ * TarotClub - DummyRemoteDb.h
  *=============================================================================
- * Fenêtre dockable affichant les scores des joueurs
+ * Dummy implementation of a remote DB connection.
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,37 +23,32 @@
  *=============================================================================
  */
 
-#include <QDockWidget>
-#include <QTableWidget>
-#include "Common.h"
-#include "Deal.h"
-#include "Identity.h"
-#include "Score.h"
+#ifndef DUMMY_REMOTE_DB_H
+#define DUMMY_REMOTE_DB_H
+
+#include "IRemoteDb.h"
 
 /*****************************************************************************/
-class ScoresDock : public QDockWidget
+class DummyRemoteDb : public IRemoteDb
 {
-    Q_OBJECT
-
 public:
-    ScoresDock(QWidget *parent);
 
-    void Clear();
-    void SetPlayers(const std::map<Place, Identity> &players);
-    void SetNewScore(const Points &points, const Tarot::Bid &bid);
+    virtual ~DummyRemoteDb() { /* nothing to do */ }
 
-protected:
-    void closeEvent(QCloseEvent *e);
-
-signals:
-    void sgnlClose();
-
-private:
-    QTableWidget *tableScores;
-    Score   mScore;
+    virtual bool Connect() { return true; }
+    virtual void Close() {}
+    virtual bool StoreGame(const std::string &game, const std::string &db)
+	{
+		(void) game;
+		(void) db;
+		return true;
+	}
 
 };
 
+
+#endif // DUMMY_REMOTE_DB_H
+
 //=============================================================================
-// Fin du fichier ScoresDock.h
+// End of file DummyRemoteDb.h
 //=============================================================================

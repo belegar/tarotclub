@@ -38,37 +38,31 @@
 #include "Player.h"
 #include "Identity.h"
 #include "ServerConfig.h"
+#include "IRemoteDb.h"
 
 /*****************************************************************************/
 class Deal
 {
 public:
-    Deal();
+    Deal(IRemoteDb &i_remoteDb);
 
     // Helpers
-    void Initialize();
-    void NewGame(std::uint8_t numberOfTurns);
     void NewDeal();
     void StartDeal(Place firstPlayer, const Tarot::Bid &bid);
-    void AnalyzeGame(std::uint8_t numberOfPlayers);
-    void CalculateScore();
-    void GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName);
+    void AnalyzeGame(Points &points, std::uint8_t numberOfPlayers);
+    void CalculateScore(Points &points);
+    void GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName, const std::string &db);
     bool LoadGameDealLog(const std::string &fileName);
-    bool AddScore(const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
 
     // Getters
     Deck GetTrick(std::uint8_t turn, std::uint8_t numberOfPlayers);
     Place GetWinner(std::uint8_t turn, std::uint8_t numberOfPlayers);
-    int  GetTotalPoints(Place p) const;
-    Score  &GetScore();
     std::map<int, Place> GetPodium();
     Deck GetDog();
     Deck GetDiscard();
-    std::uint8_t GetNumberOfTurns() { return mNumberOfTurns; }
 
     // Setters
     void SetHandle(const Deck &handle, Team team);
-    void SetScore(const Score &score);
     void SetDiscard(const Deck &discard, Team owner);
     void SetDog(const Deck &dog);
     Place SetTrick(const Deck &trick, std::uint8_t trickCounter);
@@ -96,13 +90,8 @@ private:
     bool slamDone;  // true if the slam has been successfully done
     Team slamOwner; // the defense can also perform a slam if everything goes wrong
 
-    // Last score
-    Score  score;
-
-    // scores of previous deals
-    std::uint32_t dealCounter;
-    int scores[ServerConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
-    std::uint8_t mNumberOfTurns;
+    // Database storage
+    IRemoteDb &mRemoteDb;
 };
 
 

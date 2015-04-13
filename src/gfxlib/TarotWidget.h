@@ -58,6 +58,7 @@ public:
     };
 
     TarotWidget(QWidget *parent = 0);
+    ~TarotWidget();
 
     void Initialize(const ServerOptions &opt);
     void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
@@ -88,13 +89,9 @@ public:
     {
         return mClient.GetShuffle();
     }
-    Score GetScore()
+    Points GetPoints()
     {
-        return mClient.GetDeal().GetScore();
-    }
-    Deal GetDeal()
-    {
-        return mClient.GetDeal();
+        return mClient.GetPoints();
     }
     Deck GetDeck()
     {

@@ -33,8 +33,10 @@
 #include "Log.h"
 
 /*****************************************************************************/
-TarotEngine::TarotEngine()
-    : mNbPlayers(4U)
+TarotEngine::TarotEngine(const std::string &i_dbName)
+    : mDeal(mRemoteDb)
+    , mDbName(i_dbName)
+    , mNbPlayers(4U)
     , mSequence(STOPPED)
     , mPosition(0U)
     , mTrickCounter(0U)
@@ -71,7 +73,6 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mNbPlayers = nbPlayers;
 
     // 1. Initialize internal states
-    mDeal.Initialize();
     mBid.Initialize();
 
     for (std::uint32_t i = 0U; i < 5U; i++)
@@ -81,9 +82,7 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mPlayersIdent.clear();
 
     // Choose the dealer
-    std::default_random_engine generator(mSeed);
-    std::uniform_int_distribution<std::uint32_t> distribution(0, nbPlayers - 1);
-    mDealer = distribution(generator);
+    mDealer = DealFile::RandomPlace(mNbPlayers);
 
     // Wait for ready
     ResetAck();
@@ -94,7 +93,7 @@ void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::ui
 {
     mShuffle = s;
     mGameMode = mode;
-    mDeal.NewGame(numberOfTurns);
+    mScore.NewGame(numberOfTurns);
     mSequence = WAIT_FOR_READY;
 }
 /*****************************************************************************/
@@ -104,6 +103,7 @@ void TarotEngine::NewDeal()
     mDeal.NewDeal();
     mBid.Initialize();
     mPosition = 0U;
+    currentTrick.Clear();
 
     // 2. Choose the dealer and the first player to start the bid
     mDealer = mDealer.Next(mNbPlayers);
@@ -421,9 +421,9 @@ Place TarotEngine::GetPlayerPlace(std::uint32_t uuid)
     return p;
 }
 /*****************************************************************************/
-Score &TarotEngine::GetScore()
+Points TarotEngine::GetCurrentGamePoints()
 {
-    return mDeal.GetScore();
+    return mCurrentPoints;
 }
 /*****************************************************************************/
 bool TarotEngine::Sync(Sequence sequence, std::uint32_t uuid)
@@ -480,9 +480,10 @@ void TarotEngine::GameSequence()
 /*****************************************************************************/
 void TarotEngine::EndOfDeal(const std::string &tableName)
 {
-    mDeal.AnalyzeGame(mNbPlayers);
-    mDeal.CalculateScore();
-    mDeal.GenerateEndDealLog(mPlayersIdent, tableName);
+    mCurrentPoints.Clear();
+    mDeal.AnalyzeGame(mCurrentPoints, mNbPlayers);
+    mDeal.CalculateScore(mCurrentPoints);
+    mDeal.GenerateEndDealLog(mPlayersIdent, tableName, mDbName);
 
     ResetAck();
     mSequence = WAIT_FOR_END_OF_DEAL;
@@ -494,7 +495,7 @@ bool TarotEngine::NextDeal()
 
     if (mGameMode == Tarot::TOURNAMENT)
     {
-        continueGame = mDeal.AddScore(mBid, mNbPlayers);
+        continueGame = mScore.AddPoints(mCurrentPoints, mBid, mNbPlayers);
     }
 
     return continueGame;
@@ -570,27 +571,19 @@ bool TarotEngine::IsEndOfTrick()
 /*****************************************************************************/
 void TarotEngine::CreateDeal()
 {
-    currentTrick.Clear();
+    DealFile editor;
+    bool random = true;
 
     if (mShuffle.type == Tarot::Shuffle::CUSTOM_DEAL)
     {
-        DealFile editor;
         if (!editor.LoadFile(mShuffle.file))
         {
             // Fall back to default mode
             TLogError("Cannot load custom deal file");
-            mShuffle.type = Tarot::Shuffle::RANDOM_DEAL;
         }
-
-        if (editor.IsValid(mNbPlayers))
+        else if (editor.IsValid(mNbPlayers))
         {
-            // SOUTH = 0, EAST = 1, NORTH = 2, WEST = 3,
-            currentTrick.Append(editor.GetSouthDeck());
-            currentTrick.Append(editor.GetEastDeck());
-            currentTrick.Append(editor.GetNorthDeck());
-            currentTrick.Append(editor.GetWestDeck());
-            currentTrick.Append(editor.GetDogDeck());
-
+            random = false;
             // Override the current player
             mCurrentPlayer = editor.GetFirstPlayer();
             mDealer = mCurrentPlayer.Previous(mNbPlayers);
@@ -599,59 +592,45 @@ void TarotEngine::CreateDeal()
         {
             // Fall back to default mode
             TLogError("Invalid deal file");
-            mShuffle.type = Tarot::Shuffle::RANDOM_DEAL;
         }
     }
-    else
-    {
-        RandomDeal();
-    }
 
-    int n = Tarot::NumberOfCardsInHand(mNbPlayers);
-    bool valid;
-    do
+    if (random)
     {
-        valid = true;
-        for (std::uint32_t i = 0U; i < mNbPlayers; i++)
+        bool valid = true;
+        do
         {
-            mPlayers[i].Clear();
-            mPlayers[i].Append(currentTrick.Mid(i * n, n));
-
-            if (mPlayers[i].HasOnlyOneOfTrump())
+            if (mShuffle.type == Tarot::Shuffle::NUMBERED_DEAL)
             {
-                RandomDeal(); // deal again
-                valid = false;
-                TLogInfo("Petit sec detected!");
+                valid = editor.CreateRandomDeal(mNbPlayers, mShuffle.seed);
+                if (!valid)
+                {
+                    // The provided seed does dot generate a valid deal, so switch to a random one
+                    mShuffle.type = Tarot::Shuffle::RANDOM_DEAL;
+                }
             }
-
-            std::stringstream message;
-            Place p(i);
-            message << "Player " << p.ToString() << " deck: " << mPlayers[i].ToString();
-            TLogInfo(message.str());
+            else
+            {
+                valid = editor.CreateRandomDeal(mNbPlayers);
+            }
         }
+        while (!valid);
+
+        // Save the seed
+        mShuffle.seed = editor.GetSeed();
     }
-    while (!valid);
 
-    // Remaining cards go to the dog
-    Deck dog(currentTrick.Mid(mNbPlayers * n));
-    mDeal.SetDog(dog);
-
-    std::stringstream message;
-    message << "Dog deck: " << dog.ToString();
-    TLogInfo(message.str());
-
-    currentTrick.Clear();
-}
-/*****************************************************************************/
-void TarotEngine::RandomDeal()
-{
-    currentTrick.CreateTarotDeck();
-    if (mShuffle.type == Tarot::Shuffle::RANDOM_DEAL)
+    // Copy deal editor cards to engine
+    for (std::uint32_t i = 0U; i < mNbPlayers; i++)
     {
-        std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
-        mShuffle.seed = static_cast<std::uint32_t>(seed);
+        mPlayers[i].Clear();
+        mPlayers[i].Append(editor.GetPlayerDeck(i));
+
+        TLogInfo( "Player " + Place(i).ToString() + " deck: " + mPlayers[i].ToString());
     }
-    currentTrick.Shuffle(mShuffle.seed);
+    mDeal.SetDog(editor.GetDogDeck());
+
+    TLogInfo("Dog deck: " + editor.GetDogDeck().ToString());
 }
 
 //=============================================================================

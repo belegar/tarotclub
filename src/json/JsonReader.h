@@ -80,6 +80,9 @@ public:
     bool Open(const std::string &fileName);
     void Close();
 
+    bool ParseString(const std::string &data);
+    bool IsValid() { return mValid; }
+
     // Getters
     bool GetValue(const std::string &nodePath, std::int32_t &value);
     bool GetValue(const std::string &nodePath, std::uint32_t &value);

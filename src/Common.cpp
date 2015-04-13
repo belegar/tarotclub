@@ -102,6 +102,12 @@ Place::Place(std::string p)
     }
 }
 /*****************************************************************************/
+Place::Place(int p)
+    : Place(static_cast<std::uint32_t>(p))
+{
+
+}
+/*****************************************************************************/
 std::string Place::ToString() const
 {
     return mStrings[mPlace];

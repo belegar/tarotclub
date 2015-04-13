@@ -32,6 +32,10 @@
 #include "Common.h"
 #include "ServerConfig.h"
 #include "Observer.h"
+#ifndef DESKTOP_PROJECT
+#include "CouchDb.h"
+#endif
+#include "DummyRemoteDb.h"
 
 /*****************************************************************************/
 class TarotEngine
@@ -57,7 +61,7 @@ public:
         WAIT_FOR_END_OF_DEAL
     };
 
-    TarotEngine();
+    TarotEngine(const std::string &i_dbName);
     ~TarotEngine();
 
     // Helpers
@@ -91,7 +95,7 @@ public:
     {
         return mSequence;
     }
-    Score &GetScore();
+    Points GetCurrentGamePoints();
     std::map<Place, Identity> GetPlayersList()
     {
         return mPlayersIdent;
@@ -130,7 +134,16 @@ private:
     Player  mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
     std::map<Place, Identity> mPlayersIdent;
     Deck    currentTrick;   // store the current trick cards played
+
+#ifdef DESKTOP_PROJECT
+    DummyRemoteDb mRemoteDb;
+#else
+    CouchDb mRemoteDb;
+#endif
     Deal    mDeal;
+    Score   mScore;
+    Points  mCurrentPoints;
+    std::string    mDbName; ///< Where finished deals are stored
 
     // Game state variables
     std::uint8_t    mNbPlayers;
@@ -149,7 +162,6 @@ private:
     void ResetAck();
     void CreateDeal();
     bool IsEndOfTrick();
-    void RandomDeal();
 };
 
 #endif // TAROT_ENGINE_H
