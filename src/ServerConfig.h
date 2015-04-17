@@ -34,6 +34,7 @@ struct ServerOptions
     std::uint16_t game_tcp_port;
     std::uint16_t web_tcp_port;
     std::int32_t lobby_max_conn;    // Max number of simultaneous connected clients
+    bool localHostOnly; // if true, restrict to local host server
     std::vector<std::string> tables; // table list names
     std::vector<Tarot::Shuffle> tournament; // one game parameter per turn (vector size is the number of turns)
 };

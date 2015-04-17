@@ -71,6 +71,7 @@ bool ServerConfig::Load(const std::string &fileName)
                 // If they are not in the acceptable range, we set the default value
                 // without throwing any error
                 std::uint32_t unsignedVal;
+                bool boolVal;
                 if (json.GetValue("game_tcp_port", unsignedVal))
                 {
                     mOptions.game_tcp_port = unsignedVal;
@@ -84,6 +85,11 @@ bool ServerConfig::Load(const std::string &fileName)
                 if (json.GetValue("lobby_max_conn", unsignedVal))
                 {
                     mOptions.lobby_max_conn = unsignedVal;
+                }
+
+                if (json.GetValue("local_host_only", boolVal))
+                {
+                    mOptions.localHostOnly = boolVal;
                 }
 
                 // Setup tournament configuration
@@ -187,6 +193,7 @@ bool ServerConfig::Save(const std::string &fileName)
     json.CreateValuePair("version", SERVER_CONFIG_VERSION);
     json.CreateValuePair("game_tcp_port", mOptions.game_tcp_port);
     json.CreateValuePair("lobby_max_conn", mOptions.lobby_max_conn);
+    json.CreateValuePair("local_host_only", mOptions.localHostOnly);
 
     JsonArray *tournament = json.CreateArrayPair("tournament");
     for (std::vector<Tarot::Shuffle>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
@@ -231,6 +238,7 @@ ServerOptions ServerConfig::GetDefault()
     opt.game_tcp_port   = DEFAULT_GAME_TCP_PORT;
     opt.web_tcp_port    = DEFAULT_WEB_TCP_PORT;
     opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
+    opt.localHostOnly   = false;
     opt.tables.push_back("Table 1"); // default table name (one table minimum)
 
     // Default tournament is some random deals
