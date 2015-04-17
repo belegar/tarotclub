@@ -75,7 +75,7 @@ void Lobby::Initialize(const ServerOptions &opt)
     }
 
     // Lobby TCP server
-    mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn);
+    mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn, opt.localHostOnly);
 }
 /*****************************************************************************/
 void Lobby::WaitForEnd()

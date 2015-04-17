@@ -90,7 +90,7 @@ public:
         return mSock != -1;
     }
     bool Create();
-    bool Bind(std::uint16_t port);
+    bool Bind(std::uint16_t port, bool localHostOnly);
     void Close();
     bool Listen(std::int32_t maxConnections) const;
 

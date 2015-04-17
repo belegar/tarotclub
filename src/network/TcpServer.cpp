@@ -39,7 +39,7 @@ TcpServer::TcpServer(IEvent &handler)
 {
 }
 /*****************************************************************************/
-bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
+bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections, bool localHostOnly)
 {
     /*************************************************************/
     /* Create an AF_INET stream socket to receive incoming       */
@@ -64,7 +64,7 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections)
     /*************************************************************/
     /* Bind the socket                                           */
     /*************************************************************/
-    if (!Bind(port))
+    if (!Bind(port, localHostOnly))
     {
         Close();
         return false;
@@ -418,7 +418,7 @@ bool TcpServer::IncommingData(int in_sock)
         data.data = buffer,
         mExecQueue.Push(data);
     }
-    else if (rc == 0)
+    else
     {
         /**********************************************/
         /* Check to see if the connection has been    */

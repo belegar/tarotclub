@@ -96,7 +96,7 @@ public:
 
     virtual ~TcpServer(void) { }
 
-    bool Start(std::uint16_t port, std::int32_t maxConnections);
+    bool Start(std::uint16_t port, std::int32_t maxConnections, bool localHostOnly);
     void Stop();
     void Join();
     std::string GetPeerName(int s);

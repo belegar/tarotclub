@@ -153,11 +153,9 @@ bool TcpSocket::Create()
 
         // Allows the socket to be bound to an address that is already in use.
         // For more information, see bind. Not applicable on ATM sockets.
-        if (setsockopt(mSock,
-                       SOL_SOCKET,
-                       SO_REUSEADDR,
-                       reinterpret_cast<const char *>(&on),
-                       sizeof(on)) == 0)
+        if ((setsockopt(mSock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&on), sizeof(on)) == 0) &&
+            (setsockopt(mSock, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<const char *>(&on), sizeof(on)) == 0) &&
+            (setsockopt(mSock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&on), sizeof(on)) == 0))
         {
             ret = true;
         }
@@ -187,7 +185,7 @@ bool TcpSocket::SetBlocking(bool block)
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Bind(std::uint16_t port)
+bool TcpSocket::Bind(std::uint16_t port, bool localHostOnly)
 {
     bool ret = false;
 
@@ -196,7 +194,14 @@ bool TcpSocket::Bind(std::uint16_t port)
     if (IsValid())
     {
         mAddr.sin_family      = AF_INET;
-        mAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        if (localHostOnly)
+        {
+            mAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+        }
+        else
+        {
+            mAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        }
         mAddr.sin_port        = htons(port);
 
         if (::bind(mSock,
