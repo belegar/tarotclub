@@ -35,8 +35,7 @@
   * New network commands: change nick, change avatar (Hizoka (ubuntu-fr) les avatars ne sont changés que lors du redémarrage du logiciel, on ne peut pas le faire en direct )
   * Use TCP_NODELAY in socket option ???
   
-  setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (void *)&yes, sizeof(yes)) == -1 ||
-      setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void *)&yes, sizeof(yes)) == -1)
+  
   
 # ---------------------------------------------- BACKLOG --------------------------------------------------  
   
