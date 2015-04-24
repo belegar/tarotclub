@@ -678,7 +678,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     }
 
     default:
-        std::string msg = mIdentity.name + ": Unknown packet received.";
+        std::string msg = mIdentity.nickname + ": Unknown packet received.";
         TLogInfo(msg);
         break;
     }

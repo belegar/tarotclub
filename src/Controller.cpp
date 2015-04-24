@@ -117,7 +117,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                 }
 
                 mFull = mEngine.SetIdentity(uuid, ident);
-                std::string message = "The player " + ident.name + " has joined the game.";
+                std::string message = "The player " + ident.nickname + " has joined the game.";
                 Send(Protocol::TableChatMessage(message));
 
                 // Update player list
@@ -157,7 +157,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         if (place != Place::NOWHERE)
         {
             // Warn all the player
-            std::string message = "The player " + mEngine.GetIdentity(place).name + " has quit the game.";
+            std::string message = "The player " + mEngine.GetIdentity(place).nickname + " has quit the game.";
             Send(Protocol::TableChatMessage(message));
 
             // Remove this player from the engine
@@ -211,7 +211,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         Place place = mEngine.GetPlayerPlace(src_uuid);
         if (place != Place::NOWHERE)
         {
-            message = mEngine.GetIdentity(place).name + "> " + message;
+            message = mEngine.GetIdentity(place).nickname + "> " + message;
             Send(Protocol::TableChatMessage(message));
         }
         break;

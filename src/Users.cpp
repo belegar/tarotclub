@@ -231,11 +231,11 @@ bool Users::AccessGranted(std::uint32_t uuid, const Identity &ident)
         {
             if (iter->first != uuid)
             {
-                if (iter->second.identity.name == ident.name)
+                if (iter->second.identity.name == ident.nickname)
                 {
                     // Append the uuid to the name to make it unique within the server
                     std::stringstream ss;
-                    ss << ident.name << uuid;
+                    ss << ident.nickname << uuid;
                     mUsers[uuid].identity.name =  ss.str();
                 }
             }

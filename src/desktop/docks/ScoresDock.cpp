@@ -67,7 +67,7 @@ void ScoresDock::SetPlayers(const std::map<Place, Identity> &players)
         if (iter != players.end())
         {
             Identity ident = iter->second;
-            header += QString(ident.name.c_str());
+            header += QString(ident.nickname.c_str());
         }
         else
         {

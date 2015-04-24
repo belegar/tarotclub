@@ -26,7 +26,7 @@
 const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub Lobby v") + std::string("2");
 
 /*****************************************************************************/
-Lobby::Lobby(IDataBase &i_dataBase, const std::string &i_dbName)
+Lobby::Lobby(ILocalDataBase &i_dataBase, const std::string &i_dbName)
     : mDataBase(i_dataBase)
     , mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
@@ -164,7 +164,7 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
         std::string message;
         in >> message;
 
-        message = mUsers.GetIdentity(src_uuid).name + "> " + message;
+        message = mUsers.GetIdentity(src_uuid).nickname + "> " + message;
         SendData(Protocol::LobbyChatMessage(message), 0U);
         break;
     }
@@ -184,7 +184,7 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
             }
 
             SendData(Protocol::LobbyLoginResult(true, list, src_uuid), 0U);
-            std::string message = "The player " + ident.name + " has joined the server.";
+            std::string message = "The player " + ident.nickname + " has joined the server.";
             TLogNetwork(message);
             SendData(Protocol::LobbyChatMessage(message), 0U);
             SendData(Protocol::LobbyPlayersList(mUsers.GetLobbyUserNames()), 0U);
@@ -249,7 +249,7 @@ void Lobby::ClientClosed(int socket)
     std::uint32_t uuid = mUsers.GetUuid(socket);
     std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
 
-    ss << "Player " << mUsers.GetIdentity(uuid).name << " has quit the server. UUID: " << uuid << ", socket=" << socket;
+    ss << "Player " << mUsers.GetIdentity(uuid).nickname << " has quit the server. UUID: " << uuid << ", socket=" << socket;
     TLogNetwork(ss.str());
 
     // Remove the player from the server
@@ -281,7 +281,7 @@ void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
 void Lobby::AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId)
 {
     std::stringstream ss;
-    ss << "Player " << mUsers.GetIdentity(uuid).name << " is entering on table: " << GetTableName(tableId);
+    ss << "Player " << mUsers.GetIdentity(uuid).nickname << " is entering on table: " << GetTableName(tableId);
     TLogNetwork(ss.str());
     mUsers.SetPlayingTable(uuid, tableId);
     SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
@@ -293,7 +293,7 @@ void Lobby::RemovePlayer(std::uint32_t uuid, std::uint32_t tableId)
     if (mUsers.IsHere(uuid))
     {
         std::stringstream ss;
-        ss << "Player " << mUsers.GetIdentity(uuid).name << " is leaving table: " << GetTableName(tableId);
+        ss << "Player " << mUsers.GetIdentity(uuid).nickname << " is leaving table: " << GetTableName(tableId);
         TLogNetwork(ss.str());
         mUsers.SetPlayingTable(uuid, 0U);
         SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
@@ -411,7 +411,7 @@ std::string Lobby::ParseUri(const std::string &uri)
                 reply += ",";
             }
             std::stringstream ss;
-            ss << ident.name << "(" << *iter << ")";
+            ss << ident.nickname << "(" << *iter << ")";
             reply += ss.str();
         }
     }

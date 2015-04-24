@@ -388,11 +388,11 @@ void OptionsWindow::slotBotSelected(int currentRow)
                 // Save previous bot configuration
                 if (ui.botMale->isChecked())
                 {
-                    clientOptions.bots[place].identity.gender = Identity::MALE;
+                    clientOptions.bots[place].identity.gender = Identity::cGenderMale;
                 }
                 else
                 {
-                    clientOptions.bots[place].identity.gender = Identity::FEMALE;
+                    clientOptions.bots[place].identity.gender = Identity::cGenderFemale;
                 }
             }
 
@@ -404,7 +404,7 @@ void OptionsWindow::slotBotSelected(int currentRow)
             ui.botName->setText(QString::fromStdString(clientOptions.bots[place].identity.name));
             ui.scriptPath->setText(QString::fromStdString(clientOptions.bots[place].scriptFilePath));
 
-            if (clientOptions.bots[place].identity.gender == Identity::MALE)
+            if (clientOptions.bots[place].identity.gender == Identity::cGenderMale)
             {
                 ui.botMale->setChecked(true);
             }
@@ -440,14 +440,14 @@ void OptionsWindow::slotButtonToggled(int id, bool checked)
 /*****************************************************************************/
 void OptionsWindow::slotBtnOk()
 {
-    clientOptions.identity.name = ui.nomJoueurSud->text().toStdString();
+    clientOptions.identity.nickname = ui.nomJoueurSud->text().toStdString();
     if (ui.sexeM->isChecked())
     {
-        clientOptions.identity.gender = Identity::MALE;
+        clientOptions.identity.gender = Identity::cGenderMale;
     }
     else
     {
-        clientOptions.identity.gender = Identity::FEMALE;
+        clientOptions.identity.gender = Identity::cGenderFemale;
     }
 
     if (ui.afficheAvatars->isChecked())
@@ -671,8 +671,8 @@ void OptionsWindow::UpdateServersList()
  */
 void OptionsWindow::Refresh()
 {
-    ui.nomJoueurSud->setText(QString::fromStdString(clientOptions.identity.name));
-    if (clientOptions.identity.gender == Identity::MALE)
+    ui.nomJoueurSud->setText(QString::fromStdString(clientOptions.identity.nickname));
+    if (clientOptions.identity.gender == Identity::cGenderMale)
     {
         ui.sexeM->setChecked(true);
     }

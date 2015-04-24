@@ -33,7 +33,7 @@ class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Contr
 public:
     static const std::string LOBBY_VERSION_STRING;
 
-    Lobby(IDataBase &i_dataBase, const std::string &i_dbName);
+    Lobby(ILocalDataBase &i_dataBase, const std::string &i_dbName);
     ~Lobby();
 
     void Initialize(const ServerOptions &opt);
@@ -71,7 +71,7 @@ private:
     std::string GetTableName(const std::uint32_t tableId);
 	void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId);
 
-    IDataBase       &mDataBase;
+    ILocalDataBase       &mDataBase;
     int             mTcpPort;
     TcpServer       mTcpServer;
     bool            mCreated;   ///< True if the table has been created

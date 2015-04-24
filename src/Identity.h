@@ -36,39 +36,39 @@
 class Identity
 {
 public:
-    enum Gender
-    {
-        MALE,
-        FEMALE
-    };
+    static const std::uint8_t cGenderInvalid    = 0U; ///< Invalid player or identity
+    static const std::uint8_t cGenderMale       = 1U; ///< Human player
+    static const std::uint8_t cGenderFemale     = 2U; ///< Human player
+    static const std::uint8_t cGenderRobot      = 3U; ///< AI bot attached to a user account
+    static const std::uint8_t cGenderDummy      = 4U; ///< Dummy player is to replace missing player
 
     Identity()
-        : gender(MALE)
+        : gender(cGenderInvalid)
     {
 
     }
 
-    std::string name;
-    std::string avatar;  // path to the avatar image (local or network path)
-    Gender      gender;
+    std::string     nickname;
+    std::string     avatar;     ///< Path to the avatar image (local or network path)
+    std::uint8_t    gender;
+    std::string     username;   ///< Empty username means no account
 
     // operator overload to easily serialize parameters
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Identity &ident)
     {
-        out << ident.name
+        out << ident.nickname
             << ident.avatar
-            << (std::uint8_t)ident.gender;
+            << ident.gender
+            << ident.username;
         return out;
     }
 
     friend ByteStreamReader &operator>>(ByteStreamReader &in, Identity &ident)
     {
-        std::uint8_t var8;
-
-        in >> ident.name;
+        in >> ident.nickname;
         in >> ident.avatar;
-        in >> var8;
-        ident.gender = (Gender)var8;
+        in >> ident.gender;
+        in >> ident.username;
 
         return in;
     }

@@ -31,7 +31,7 @@
 #include "IDataBase.h"
 
 /*****************************************************************************/
-class DummyDataBase : public IDataBase
+class DummyDataBase : public ILocalDataBase
 {
 public:
     DummyDataBase() {}

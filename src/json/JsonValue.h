@@ -58,7 +58,7 @@ public:
     void Clear();
     // JsonArray
     JsonValue GetEntry(std::uint32_t index);
-    std::uint32_t GetSize() { return mArray.size(); }
+    std::uint32_t Size() { return mArray.size(); }
     void AddValue(const JsonValue &value);
 
     typedef std::vector<JsonValue>::iterator Iterator;

@@ -441,7 +441,7 @@ void Canvas::SetPlayerIdentity(const std::map<Place, Identity> &players, Place m
     {
         Place rel = SwapPlace(myPlace, iter->first);  // relative place
         Identity ident = iter->second;
-        mPlayerBox.value(rel)->SetPlayerName(ident.name.c_str());
+        mPlayerBox.value(rel)->SetPlayerName(ident.nickname.c_str());
         mPlayerBox.value(rel)->SetAvatar(ident.avatar.c_str());
         mPlayerBox.value(rel)->EnableAvatar(mShowAvatars); // forward the config
     }

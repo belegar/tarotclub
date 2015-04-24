@@ -29,7 +29,7 @@
 #include <cstdint>
 
 /*****************************************************************************/
-class IDataBase
+class ILocalDataBase
 {
 public:
     struct Stats
@@ -50,7 +50,7 @@ public:
         std::uint32_t total;
     };
 
-    virtual ~IDataBase() { /* nothing to do */ }
+    virtual ~ILocalDataBase() { /* nothing to do */ }
 
     virtual void Initialize() = 0;
     virtual void AddPlayer() = 0;
