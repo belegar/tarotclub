@@ -28,25 +28,14 @@
 #include "JsonWriter.h"
 
 /*****************************************************************************/
-JsonWriter::JsonWriter()
-    : JsonObject(0U)
-{
-
-}
-/*****************************************************************************/
-JsonWriter::~JsonWriter()
-{
-
-}
-/*****************************************************************************/
-bool JsonWriter::SaveToFile(const std::string &fileName)
+bool JsonWriter::SaveToFile(JsonObject &i_value, const std::string &fileName)
 {
     std::ofstream f;
     f.open(fileName, std::ios_base::out | std::ios_base::binary);
 
     if (f.is_open())
     {
-        f << ToString() << std::endl;
+        f << i_value.ToString(0U) << std::endl;
         f.close();
         return true;
     }

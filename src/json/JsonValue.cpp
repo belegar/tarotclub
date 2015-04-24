@@ -38,26 +38,15 @@ static std::string CreateIndent(std::uint32_t level)
     return indent;
 }
 /*****************************************************************************/
-JsonArray::JsonArray(std::uint32_t level)
-    : mLevel(level)
-{
-
-}
-/*****************************************************************************/
-JsonArray::~JsonArray()
-{
-    Clear();
-}
-/*****************************************************************************/
-std::string JsonArray::ToString()
+std::string JsonArray::ToString(std::uint32_t level)
 {
     std::string text = "[\n";
-    std::string indent = CreateIndent(mLevel + 1U);
+    std::string indent = CreateIndent(level + 1U);
 
     std::uint32_t index = 0U;
-    for (std::vector<IJsonNode *>::iterator iter = mArray.begin(); iter != mArray.end(); ++iter)
+    for (std::vector<JsonValue>::iterator iter = mArray.begin(); iter != mArray.end(); ++iter)
     {
-        text += indent + (*iter)->ToString();
+        text += indent + iter->ToString(level + 1U);
         index++;
         if (index < mArray.size())
         {
@@ -65,163 +54,73 @@ std::string JsonArray::ToString()
         }
     }
 
-    indent = CreateIndent(mLevel);
+    indent = CreateIndent(level);
     text += "\n" + indent + "]";
     return text;
 }
 /*****************************************************************************/
-bool JsonArray::HasNode(const std::string &key)
-{
-    bool ret = false;
-    std::vector<IJsonNode *>::const_iterator iter;
-    for (iter = mArray.begin(); iter != mArray.end(); ++iter)
-    {
-        // Broadcast the request to each underneath node
-        if((*iter)->HasNode(key))
-        {
-            ret = true;
-        }
-    }
-    return ret;
-}
-/*****************************************************************************/
-IJsonNode *JsonArray::GetNode(const std::string &key)
-{
-    (void) key;
-    return nullptr;
-}
-/*****************************************************************************/
 void JsonArray::Clear()
 {
-    for (std::uint32_t i = 0U; i < mArray.size(); i++)
-    {
-        IJsonNode *node = mArray[i];
-        delete node;
-    }
     mArray.clear();
 }
 /*****************************************************************************/
-void JsonArray::CreateValue(const JsonValue &value)
+void JsonArray::AddValue(const JsonValue &value)
 {
-    JsonValue *val = new JsonValue(value);
-    mArray.push_back(val);
+    mArray.push_back(value);
 }
 /*****************************************************************************/
-JsonObject *JsonArray::CreateObject()
+JsonValue JsonArray::GetEntry(std::uint32_t index)
 {
-    JsonObject *obj = new JsonObject(mLevel + 1U);
-    mArray.push_back(obj);
-    return obj;
-}
-/*****************************************************************************/
-IJsonNode *JsonArray::GetEntry(std::uint32_t index)
-{
-    IJsonNode *node = nullptr;
+    JsonValue value;
 
     if (index < mArray.size())
     {
-        node = mArray[index];
+        value = mArray[index];
     }
-    return node;
-}
-/*****************************************************************************/
-JsonArray *JsonArray::CreateArray()
-{
-    JsonArray *array = new JsonArray(mLevel + 1U);
-    mArray.push_back(array);
-    return array;
+    return value;
 }
 /*****************************************************************************/
 
 //          *                          *                                  *
 
 /*****************************************************************************/
-JsonObject::JsonObject(std::uint32_t level)
-    : mLevel(level)
-{
-
-}
-/*****************************************************************************/
-JsonObject::~JsonObject()
-{
-    Clear();
-}
-/*****************************************************************************/
 void JsonObject::Clear()
 {
-
-#ifdef JSON_DEBUG
-    std::uint32_t counter = 0U;
-#endif
-
-    for (std::uint32_t i = 0U; i < mObject.size(); i++)
-    {
-        std::pair<std::string, IJsonNode *> node = mObject[i];
-        delete node.second;
-#ifdef JSON_DEBUG
-        counter++;
-#endif
-    }
     mObject.clear();
-
-#ifdef JSON_DEBUG
-    std::cout << "Destroyed " << counter << " objects." << std::endl;
-#endif
-
 }
 /*****************************************************************************/
-std::string JsonObject::ToString()
+std::string JsonObject::ToString(std::uint32_t level)
 {
     std::string text = "{\n";
-    std::string indent = CreateIndent(mLevel + 1U);
+    std::string indent = CreateIndent(level + 1U);
 
     std::uint32_t index = 0U;
-    for (std::uint32_t i = 0U; i < mObject.size(); i++)
-    {
-        std::pair<std::string, IJsonNode *> node = mObject[i];
 
-        text += indent + "\"" + node.first + "\": " + node.second->ToString();
+    for (std::map<std::string, JsonValue>::iterator it = mObject.begin(); it != mObject.end(); ++it)
+    {
+        text += indent + "\"" + it->first + "\": " + it->second.ToString(level + 1U);
         index++;
         if (index < mObject.size())
         {
             text += ",\n";
         }
     }
-    indent = CreateIndent(mLevel);
+    indent = CreateIndent(level);
     text += "\n" + indent + "}";
     return text;
 }
 /*****************************************************************************/
-void JsonObject::CreateValuePair(const std::string &name, const JsonValue &value)
+void JsonObject::AddValue(const std::string &name, const JsonValue &value)
 {
-    JsonValue *val = new JsonValue(value);
-    std::pair<std::string, IJsonNode *> node(name, val);
-    mObject.push_back(node);
+    mObject[name] = value;
 }
 /*****************************************************************************/
-JsonArray *JsonObject::CreateArrayPair(const std::string &name)
-{
-    JsonArray *array = new JsonArray(mLevel + 1U);
-    std::pair<std::string, IJsonNode *> node(name, array);
-    mObject.push_back(node);
-    return array;
-}
-/*****************************************************************************/
-JsonObject *JsonObject::CreateObjectPair(const std::string &name)
-{
-    JsonObject *obj = new JsonObject(mLevel + 1U);
-    std::pair<std::string, IJsonNode *> node(name, obj);
-    mObject.push_back(node);
-    return obj;
-}
-/*****************************************************************************/
-bool JsonObject::HasNode(const std::string &key)
+bool JsonObject::HasValue(const std::string &key)
 {
     bool ret = false;
-    std::vector<std::pair<std::string, IJsonNode *> >::const_iterator iter;
-    for (iter = mObject.begin(); iter != mObject.end(); ++iter)
+    for (std::map<std::string, JsonValue>::iterator it = mObject.begin(); it != mObject.end(); ++it)
     {
-        if (iter->first == key)
+        if (it->first == key)
         {
             ret = true;
         }
@@ -229,32 +128,30 @@ bool JsonObject::HasNode(const std::string &key)
     return ret;
 }
 /*****************************************************************************/
-IJsonNode *JsonObject::GetNode(const std::string &key)
+JsonValue JsonObject::GetValue(const std::string &key)
 {
-    IJsonNode *retval = NULL;
-    std::vector<std::pair<std::string, IJsonNode *> >::const_iterator iter;
-
-    for (iter = mObject.begin(); iter != mObject.end(); ++iter)
+    JsonValue value;
+    for (std::map<std::string, JsonValue>::iterator it = mObject.begin(); it != mObject.end(); ++it)
     {
-        if (iter->first == key)
+        if (it->first == key)
         {
-            retval = iter->second;
+            value = it->second;
         }
     }
 
-    return retval;
+    return value;
 }
 /*****************************************************************************/
 
 //          *                          *                                  *
 
 /*****************************************************************************/
-std::string JsonValue::ToString()
+std::string JsonValue::ToString(std::uint32_t level)
 {
     std::string text;
     std::stringstream ss;
 
-    if (GetTag() == STRING)
+    if (IsString())
     {
         text = "\"" + GetString() + "\"";
     }
@@ -283,9 +180,13 @@ std::string JsonValue::ToString()
     {
         text = "null";
     }
+    else if (IsObject())
+    {
+        text = mObject.ToString(level);
+    }
     else
     {
-        // INVALID!
+        text = mArray.ToString(level);
     }
 
     return text;
@@ -293,8 +194,6 @@ std::string JsonValue::ToString()
 /*****************************************************************************/
 JsonValue::JsonValue(std::int32_t value)
     : mTag(INTEGER)
-    , mObject(nullptr)
-    , mArray(nullptr)
     , mIntegerValue(value)
     , mDoubleValue(0.0F)
     , mBoolValue(false)
@@ -304,8 +203,6 @@ JsonValue::JsonValue(std::int32_t value)
 /*****************************************************************************/
 JsonValue::JsonValue(double value)
     : mTag(DOUBLE)
-    , mObject(nullptr)
-    , mArray(nullptr)
     , mIntegerValue(0)
     , mDoubleValue(value)
     , mBoolValue(false)
@@ -315,8 +212,6 @@ JsonValue::JsonValue(double value)
 /*****************************************************************************/
 JsonValue::JsonValue(const char *value)
     : mTag(STRING)
-    , mObject(nullptr)
-    , mArray(nullptr)
     , mIntegerValue(0)
     , mDoubleValue(0.0F)
     , mStringValue(value)
@@ -327,8 +222,6 @@ JsonValue::JsonValue(const char *value)
 /*****************************************************************************/
 JsonValue::JsonValue(const std::string &value)
     : mTag(STRING)
-    , mObject(nullptr)
-    , mArray(nullptr)
     , mIntegerValue(0)
     , mDoubleValue(0.0F)
     , mStringValue(value)
@@ -339,8 +232,6 @@ JsonValue::JsonValue(const std::string &value)
 /*****************************************************************************/
 JsonValue::JsonValue(bool value)
     : mTag(BOOLEAN)
-    , mObject(nullptr)
-    , mArray(nullptr)
     , mIntegerValue(0)
     , mDoubleValue(0.0F)
     , mBoolValue(value)
@@ -353,180 +244,31 @@ JsonValue::JsonValue(const JsonValue &value)
     *this = value;
 }
 /*****************************************************************************/
-JsonValue::JsonValue(JsonObject *obj)
+JsonValue::JsonValue(const JsonObject &obj)
     : mTag(OBJECT)
-    , mObject(obj)
-    , mArray(nullptr)
     , mIntegerValue(0)
     , mDoubleValue(0.0F)
     , mBoolValue(false)
 {
-
+    mObject = obj;
 }
 /*****************************************************************************/
-JsonValue::JsonValue(JsonArray *array)
+JsonValue::JsonValue(const JsonArray &array)
     : mTag(ARRAY)
-    , mObject(nullptr)
-    , mArray(array)
     , mIntegerValue(0)
     , mDoubleValue(0.0F)
     , mBoolValue(false)
 {
-
+    mArray = array;
 }
 /*****************************************************************************/
 JsonValue::JsonValue()
     : mTag(INVALID)
-    , mObject(nullptr)
-    , mArray(nullptr)
     , mIntegerValue(0)
     , mDoubleValue(0.0F)
     , mBoolValue(false)
 {
 
-}
-/*****************************************************************************/
-JsonValue::~JsonValue()
-{
-
-}
-/*****************************************************************************/
-bool JsonValue::FromNode(IJsonNode *node, std::int32_t &value)
-{
-    bool ret = false;
-    if (node != NULL)
-    {
-        if ((node->GetTag() != IJsonNode::OBJECT) &&
-            (node->GetTag() != IJsonNode::ARRAY))
-        {
-            // we are arrived to the value, get it
-            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
-            if (jsonValue !=  nullptr)
-            {
-                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::INTEGER))
-                {
-                    value = jsonValue->GetInteger();
-                    ret = true;
-                }
-            }
-        }
-    }
-    return ret;
-}
-/*****************************************************************************/
-bool JsonValue::FromNode(IJsonNode *node, std::uint32_t &value)
-{
-    bool ret = false;
-    if (node != NULL)
-    {
-        if ((node->GetTag() != IJsonNode::OBJECT) &&
-            (node->GetTag() != IJsonNode::ARRAY))
-        {
-            // we are arrived to the value, get it
-            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
-            if (jsonValue !=  nullptr)
-            {
-                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::INTEGER))
-                {
-                    value = static_cast<std::uint32_t>(jsonValue->GetInteger());
-                    ret = true;
-                }
-            }
-        }
-    }
-    return ret;
-}
-/*****************************************************************************/
-bool JsonValue::FromNode(IJsonNode *node, std::uint16_t &value)
-{
-    bool ret = false;
-    if (node != NULL)
-    {
-        if ((node->GetTag() != IJsonNode::OBJECT) &&
-            (node->GetTag() != IJsonNode::ARRAY))
-        {
-            // we are arrived to the value, get it
-            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
-            if (jsonValue !=  nullptr)
-            {
-                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::INTEGER))
-                {
-                    value = static_cast<std::uint16_t>(jsonValue->GetInteger());
-                    ret = true;
-                }
-            }
-        }
-    }
-    return ret;
-}
-/*****************************************************************************/
-bool JsonValue::FromNode(IJsonNode *node, std::string &value)
-{
-    bool ret = false;
-    if (node != NULL)
-    {
-        if ((node->GetTag() != IJsonNode::OBJECT) &&
-            (node->GetTag() != IJsonNode::ARRAY))
-        {
-            // we are arrived to the value, get it
-            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
-            if (jsonValue !=  nullptr)
-            {
-                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::STRING))
-                {
-                    value = jsonValue->GetString();
-                    ret = true;
-                }
-            }
-        }
-    }
-    return ret;
-}
-/*****************************************************************************/
-bool JsonValue::FromNode(IJsonNode *node, bool &value)
-{
-    bool ret = false;
-    if (node != NULL)
-    {
-        if ((node->GetTag() != IJsonNode::OBJECT) &&
-            (node->GetTag() != IJsonNode::ARRAY))
-        {
-            // we are arrived to the value, get it
-            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
-            if (jsonValue !=  nullptr)
-            {
-                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::BOOLEAN))
-                {
-                    value = jsonValue->GetBool();
-                    ret = true;
-                }
-            }
-        }
-    }
-    return ret;
-}
-/*****************************************************************************/
-bool JsonValue::FromNode(IJsonNode *node, double &value)
-{
-    bool ret = false;
-    if (node != NULL)
-    {
-        if ((node->GetTag() != IJsonNode::OBJECT) &&
-            (node->GetTag() != IJsonNode::ARRAY))
-        {
-            // we are arrived to the value, get it
-            JsonValue *jsonValue = dynamic_cast<JsonValue *>(node);
-            if (jsonValue !=  nullptr)
-            {
-                if (jsonValue->IsValid() && (jsonValue->GetTag() == IJsonNode::DOUBLE))
-                {
-                    value = jsonValue->GetDouble();
-                    ret = true;
-                }
-            }
-        }
-    }
-    return ret;
 }
 /*****************************************************************************/
 JsonValue &JsonValue::operator =(const JsonValue &rhs)
@@ -541,32 +283,24 @@ JsonValue &JsonValue::operator =(const JsonValue &rhs)
     return *this;
 }
 /*****************************************************************************/
-bool JsonValue::HasNode(const std::string &key)
-{
-    // A value does not have any key
-    (void) key;
-    return false;
-}
-/*****************************************************************************/
-IJsonNode *JsonValue::GetNode(const std::string &key)
-{
-    // A value does not have any sub-node
-    (void) key;
-    return nullptr;
-}
-/*****************************************************************************/
 void JsonValue::Clear()
 {
     mTag = INVALID;
-
+    mObject.Clear();
+    mArray.Clear();
+}
+/*****************************************************************************/
+JsonValue JsonValue::FindValue(const std::string &key)
+{
+    JsonValue value;
     if (IsObject())
     {
-        mObject->Clear();
+        if (mObject.HasValue(key))
+        {
+            value = mObject.GetValue(key);
+        }
     }
-    if (IsArray())
-    {
-        mArray->Clear();
-    }
+    return value;
 }
 
 //=============================================================================

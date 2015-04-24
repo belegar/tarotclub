@@ -33,13 +33,10 @@
 #include "JsonValue.h"
 
 /*****************************************************************************/
-class JsonWriter : public JsonObject
+class JsonWriter
 {
 public:
-    JsonWriter();
-    ~JsonWriter();
-
-    bool SaveToFile(const std::string &fileName);
+    static bool SaveToFile(JsonObject &i_value, const std::string &fileName);
 };
 
 

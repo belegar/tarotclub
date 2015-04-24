@@ -28,6 +28,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <cstdint>
 
 // Forward declarations to resolve inter-dependency between Array and Object
@@ -36,7 +37,35 @@ class JsonObject;
 class JsonValue;
 
 /*****************************************************************************/
-class IJsonNode
+class JsonObject
+{
+public:
+    std::string ToString(std::uint32_t level);
+    bool HasValue(const std::string &key);
+    JsonValue GetValue(const std::string &key);
+    void Clear();
+    void AddValue(const std::string &name, const JsonValue &value);
+
+private:
+    std::map<std::string, JsonValue> mObject;
+};
+
+/*****************************************************************************/
+class JsonArray
+{
+public:
+    std::string ToString(std::uint32_t level);
+    void Clear();
+    // JsonArray
+    JsonValue GetEntry(std::uint32_t index);
+    std::uint32_t GetSize() { return mArray.size(); }
+    void AddValue(const JsonValue &value);
+
+private:
+    std::vector<JsonValue> mArray;
+};
+/*****************************************************************************/
+class JsonValue
 {
 public:
     enum Tag
@@ -51,73 +80,6 @@ public:
         NULL_VAL
     };
 
-    virtual ~IJsonNode() {}
-
-    virtual Tag GetTag() = 0;
-    virtual bool HasNode(const std::string &key) = 0;
-    virtual IJsonNode* GetNode(const std::string &key) = 0;
-    virtual std::string ToString() = 0;
-    virtual void Clear() = 0;
-};
-/*****************************************************************************/
-class JsonArray : public IJsonNode
-{
-public:
-    JsonArray(std::uint32_t level);
-    virtual ~JsonArray();
-
-    // Implemented virtual methods
-    IJsonNode::Tag GetTag()
-    {
-        return IJsonNode::ARRAY;
-    }
-    std::string ToString();
-
-    bool HasNode(const std::string &key);
-    IJsonNode* GetNode(const std::string &key);
-    void Clear();
-
-    // JsonArray
-    IJsonNode *GetEntry(std::uint32_t index);
-    std::uint32_t GetSize() { return mArray.size(); }
-    void CreateValue(const JsonValue &value);
-    JsonArray *CreateArray(); // no name in an array inside an array
-    JsonObject *CreateObject(); // no name in an object inside an object
-
-private:
-    std::vector<IJsonNode *> mArray;
-    std::uint32_t mLevel;
-};
-/*****************************************************************************/
-class JsonObject : public IJsonNode
-{
-public:
-    JsonObject(std::uint32_t level);
-    virtual ~JsonObject();
-
-    // Implemented virtual methods
-    IJsonNode::Tag GetTag()
-    {
-        return IJsonNode::OBJECT;
-    }
-    std::string ToString();
-    bool HasNode(const std::string &key);
-    IJsonNode *GetNode(const std::string &key);
-    void Clear();
-
-    // JsonObject
-    void CreateValuePair(const std::string &name, const JsonValue &value);
-    JsonArray *CreateArrayPair(const std::string &name);
-    JsonObject *CreateObjectPair(const std::string &name);
-
-private:
-    std::vector<std::pair<std::string, IJsonNode *> > mObject;
-    std::uint32_t mLevel;
-};
-/*****************************************************************************/
-class JsonValue : public IJsonNode
-{
-public:
     // From Value class
     JsonValue(std::int32_t value);
     JsonValue(double value);
@@ -126,68 +88,48 @@ public:
     JsonValue(bool value);
     JsonValue(const JsonValue &value);
     JsonValue(); // default constructor creates an invalid value!
-    JsonValue(JsonObject *obj);
-    JsonValue(JsonArray *array);
-    ~JsonValue();
-
-    static bool FromNode(IJsonNode *node, std::int32_t &value);
-    static bool FromNode(IJsonNode *node, std::uint32_t &value);
-    static bool FromNode(IJsonNode *node, std::uint16_t &value);
-    static bool FromNode(IJsonNode *node, std::string &value);
-    static bool FromNode(IJsonNode *node, bool &value);
-    static bool FromNode(IJsonNode *node, double &value);
+    JsonValue(const JsonObject &obj);
+    JsonValue(const JsonArray &array);
 
     // Implemented virtual methods from IJsonNode
-    IJsonNode::Tag GetTag()
+    Tag GetTag()
     {
         return mTag;
     }
 
-    std::string ToString();
-    bool HasNode(const std::string &key);
-    IJsonNode *GetNode(const std::string &key);
+    std::string ToString(std::uint32_t level);
     void Clear();
 
     JsonValue &operator = (JsonValue const &rhs);
 
-    bool IsValid()
-    {
-        return mTag != INVALID;
-    }
+    bool IsValid() const      { return mTag != INVALID; }
+    bool IsArray() const      { return mTag == ARRAY; }
+    bool IsObject() const     { return mTag == OBJECT; }
+    bool IsNull() const       { return mTag == NULL_VAL; }
+    bool IsString() const     { return mTag == STRING; }
+    bool IsInteger() const    { return mTag == INTEGER; }
+    bool IsBoolean() const    { return mTag == BOOLEAN; }
+    bool IsDouble() const     { return mTag == DOUBLE; }
 
-    bool IsArray() { return mArray != nullptr; }
-    bool IsObject() { return mObject != nullptr; }
-    bool IsNull() { return mTag == NULL_VAL; }
+    JsonObject &GetObject() { return mObject; }
+    JsonArray &GetArray() { return mArray; }
 
-    JsonObject *GetObject() { return mObject; }
-    JsonArray *GetArray() { return mArray; }
-
-    std::int32_t    GetInteger()
-    {
-        return mIntegerValue;
-    }
-    double          GetDouble()
-    {
-        return mDoubleValue;
-    }
-    bool            GetBool()
-    {
-        return mBoolValue;
-    }
-    std::string     GetString()
-    {
-        return mStringValue;
-    }
+    std::int32_t    GetInteger()    { return mIntegerValue; }
+    double          GetDouble()     { return mDoubleValue; }
+    bool            GetBool()       { return mBoolValue; }
+    std::string     GetString()     { return mStringValue; }
 
     void SetNull()
     {
         mTag = NULL_VAL;
     }
 
+    JsonValue FindValue(const std::string &key);
+
 private:
-    IJsonNode::Tag mTag;
-    JsonObject *mObject;
-    JsonArray *mArray;
+    Tag mTag;
+    JsonObject mObject;
+    JsonArray mArray;
     std::int32_t mIntegerValue;
     double mDoubleValue;
     std::string mStringValue;

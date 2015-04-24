@@ -55,8 +55,6 @@ class JsonReader
 {
 
 public:
-    typedef std::vector<JsonValue>::iterator Iterator;
-    typedef std::vector<JsonValue>::const_iterator ConstIterator;
 
     enum ParseStatus
     {
@@ -83,22 +81,20 @@ public:
     bool ParseString(const std::string &data);
     bool IsValid() { return mValid; }
 
-    // Getters
-    bool GetValue(const std::string &nodePath, std::int32_t &value);
-    bool GetValue(const std::string &nodePath, std::uint32_t &value);
     bool GetValue(const std::string &nodePath, std::string &value);
+    bool GetValue(const std::string &nodePath, std::uint32_t &value);
+    bool GetValue(const std::string &nodePath, std::int32_t &value);
     bool GetValue(const std::string &nodePath, bool &value);
     bool GetValue(const std::string &nodePath, double &value);
-    std::vector<JsonValue> GetArray(const std::string &nodePath);
+    JsonValue FindValue(const std::string &nodePath);
 
 private:
     bool mValid;
-    IJsonNode *mRootNode;
+    JsonValue mValue;
 
     JsonReader::ParseStatus Parse(char *s, char **endptr);
     JsonValue StringToNumber(char *s, char **endptr);
     std::vector<std::string> Split(const std::string &obj);
-    IJsonNode *FindNode(const std::string &nodePath);
 
 
     /*****************************************************************************/
