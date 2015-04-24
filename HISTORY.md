@@ -9,14 +9,14 @@
 
 # Branch 2.5
 
-## Corrections in version 2.5.3
+## Changes in version 2.5.3
 
   * Kanzlei font is now included in the executable. Updated all packages setup to remove it from the installation.
   * The bot AI JavaScript path can now be configured in the options window
   * Corrected issue #50: display of trumps cards in the history dock widget for values between 11 and 14
   * NEW added botclient executable in the release packages to help debugging custom AI for bots
 
-## Corrections in version 2.5.2
+## Changes in version 2.5.2
 
   * Corrected the selection colour around the name box
   * Try of a new box colour for the bid (less flashy than the red one)
@@ -31,7 +31,7 @@
   * AI correction: sometimes, the discard was not valid (more than 6 cards)
   * Auto discard correction
 
-## Corrections in version 2.5.1 (03/01/2015)
+## Changes in version 2.5.1 (03/01/2015)
 
   * Lobby window: removed default focus on buttons while chatting
   * "Petit sec" deals are avoided
@@ -42,7 +42,7 @@
   * Corrected defense AI script bug
   * Deleted the quote parameter (obsolete)
 
-## Corrections in version 2.5.0 (28/12/2014)
+## Changes in version 2.5.0 (28/12/2014)
 
   * Information dock window: display king/queen etc. instead of 14, 13 .. and make hearts and diamonds in red
   * Add a GUI option to choose the number of tournament turns
