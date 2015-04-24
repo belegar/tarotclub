@@ -37,10 +37,11 @@ public:
 
     virtual bool Connect() { return true; }
     virtual void Close() {}
-    virtual bool StoreGame(const std::string &game, const std::string &db)
+    virtual bool StoreAiGame(const JsonObject &game, const std::string &username, const std::string &botname)
 	{
 		(void) game;
-		(void) db;
+        (void) username;
+        (void) botname;
 		return true;
 	}
 

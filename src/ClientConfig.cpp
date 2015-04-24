@@ -140,7 +140,7 @@ bool ClientConfig::Load(const std::string &fileName)
                 // Player's identity
                 if (json.GetValue("identity:name", stringval))
                 {
-                    mOptions.identity.name = stringval;
+                    mOptions.identity.nickname = stringval;
                 }
                 if (json.GetValue("identity:avatar", stringval))
                 {
@@ -150,11 +150,11 @@ bool ClientConfig::Load(const std::string &fileName)
                 {
                     if (stringval == "female")
                     {
-                        mOptions.identity.gender = Identity::FEMALE;
+                        mOptions.identity.gender = Identity::cGenderFemale;
                     }
                     else
                     {
-                        mOptions.identity.gender = Identity::MALE;
+                        mOptions.identity.gender = Identity::cGenderMale;
                     }
 
                 }
@@ -165,7 +165,7 @@ bool ClientConfig::Load(const std::string &fileName)
                     std::string botPos = Place(i).ToString();
                     if (json.GetValue(botPos + ":name", stringval))
                     {
-                        mOptions.bots[i].identity.name = stringval;
+                        mOptions.bots[i].identity.nickname = stringval;
                     }
                     if (json.GetValue(botPos + ":avatar", stringval))
                     {
@@ -175,11 +175,11 @@ bool ClientConfig::Load(const std::string &fileName)
                     {
                         if (stringval == "female")
                         {
-                            mOptions.bots[i].identity.gender = Identity::FEMALE;
+                            mOptions.bots[i].identity.gender = Identity::cGenderFemale;
                         }
                         else
                         {
-                            mOptions.bots[i].identity.gender = Identity::MALE;
+                            mOptions.bots[i].identity.gender = Identity::cGenderMale;
                         }
 
                     }
@@ -190,18 +190,17 @@ bool ClientConfig::Load(const std::string &fileName)
                     }
                 }
 
-                std::vector<JsonValue> servers = json.GetArray("servers");
+                JsonValue servers = json.FindValue("servers");
                 mOptions.serverList.clear();
-                for (std::uint32_t i = 0U; i < servers.size(); i++)
+                for (JsonArray::Iterator iter = servers.GetArray().Begin(); iter != servers.GetArray().End(); ++iter)
                 {
-                    if (servers[i].IsObject())
+                    if (iter->IsObject())
                     {
-                        JsonObject *obj = servers[i].GetObject();
                         ServerInfo srv;
 
-                        bool ret = JsonValue::FromNode(obj->GetNode("address"), srv.address);
-                        if (ret) { ret = JsonValue::FromNode(obj->GetNode("game_port"), srv.game_tcp_port); }
-                        if (ret) { ret = JsonValue::FromNode(obj->GetNode("web_port"), srv.web_tcp_port); }
+                        bool ret = iter->GetValue("address", srv.address);
+                        if (ret) { ret = iter->GetValue("game_port", srv.game_tcp_port); }
+                        if (ret) { ret = iter->GetValue("web_port", srv.web_tcp_port); }
 
                         if (ret)
                         {
@@ -242,26 +241,26 @@ bool ClientConfig::Save(const std::string &fileName)
 {
     bool ret = true;
 
-    JsonWriter json;
+    JsonObject json;
 
-    json.CreateValuePair("version", CLIENT_CONFIG_VERSION);
-    json.CreateValuePair("show_avatars", mOptions.showAvatars);
-    json.CreateValuePair("background_color", mOptions.backgroundColor);
-    json.CreateValuePair("language", mOptions.language);
-    json.CreateValuePair("delay_between_players", mOptions.timer);
-    json.CreateValuePair("delay_before_cleaning", mOptions.delayBeforeCleaning);
-    json.CreateValuePair("click_to_clean", mOptions.clickToClean);
-    json.CreateValuePair("cards_order", mOptions.cardsOrder);
+    json.AddValue("version", CLIENT_CONFIG_VERSION);
+    json.AddValue("show_avatars", mOptions.showAvatars);
+    json.AddValue("background_color", mOptions.backgroundColor);
+    json.AddValue("language", mOptions.language);
+    json.AddValue("delay_between_players", mOptions.timer);
+    json.AddValue("delay_before_cleaning", mOptions.delayBeforeCleaning);
+    json.AddValue("click_to_clean", mOptions.clickToClean);
+    json.AddValue("cards_order", mOptions.cardsOrder);
 
-    JsonObject *obj = json.CreateObjectPair("identity");
-    obj->CreateValuePair("name", mOptions.identity.name);
+    JsonObject identity;
+    identity.AddValue("name", mOptions.identity.nickname);
 
     // Make sure to use unix path separator
     Util::ReplaceCharacter(mOptions.identity.avatar, "\\", "/");
 
-    obj->CreateValuePair("avatar", mOptions.identity.avatar);
+    identity.AddValue("avatar", mOptions.identity.avatar);
     std::string text;
-    if (mOptions.identity.gender == Identity::MALE)
+    if (mOptions.identity.gender == Identity::cGenderMale)
     {
         text = "male";
     }
@@ -269,20 +268,21 @@ bool ClientConfig::Save(const std::string &fileName)
     {
         text = "female";
     }
+    identity.AddValue("gender", text);
+    json.AddValue("identity", identity);
 
     // List of bots
     for (std::uint32_t i = 1U; i < 4U; i++)
     {
-        Place bot(i);
-        JsonObject *obj = json.CreateObjectPair(bot.ToString());
-        obj->CreateValuePair("name", mOptions.bots[i].identity.name);
+        JsonObject botObj;
+        botObj.AddValue("name", mOptions.bots[i].identity.nickname);
 
         // Make sure to use unix path separator
         Util::ReplaceCharacter(mOptions.bots[i].identity.avatar, "\\", "/");
 
-        obj->CreateValuePair("avatar", mOptions.bots[i].identity.avatar);
+        botObj.AddValue("avatar", mOptions.bots[i].identity.avatar);
         std::string text;
-        if (mOptions.bots[i].identity.gender == Identity::MALE)
+        if (mOptions.bots[i].identity.gender == Identity::cGenderMale)
         {
             text = "male";
         }
@@ -291,27 +291,27 @@ bool ClientConfig::Save(const std::string &fileName)
             text = "female";
         }
 
-        obj->CreateValuePair("gender", text);
+        botObj.AddValue("gender", text);
 
         // Make sure to use unix path separator
         Util::ReplaceCharacter(mOptions.bots[i].scriptFilePath, "\\", "/");
-        obj->CreateValuePair("bot_file_path", mOptions.bots[i].scriptFilePath);
+        botObj.AddValue("bot_file_path", mOptions.bots[i].scriptFilePath);
+        json.AddValue(Place(i).ToString(), botObj);
     }
 
     // List of servers
-    JsonArray *servers = json.CreateArrayPair("servers");
+    JsonArray servers; // = json.CreateArrayPair("servers");
     for (std::uint32_t i = 0U; i < mOptions.serverList.size(); i++)
     {
         ServerInfo inf =  mOptions.serverList[i];
-        JsonObject *srv = servers->CreateObject();
-        srv->CreateValuePair("address", inf.address);
-        srv->CreateValuePair("game_port", (std::int32_t) inf.game_tcp_port);
-        srv->CreateValuePair("web_port", (std::int32_t) inf.web_tcp_port);
+        JsonObject srv; // = servers->CreateObject();
+        srv.AddValue("address", inf.address);
+        srv.AddValue("game_port", (std::int32_t) inf.game_tcp_port);
+        srv.AddValue("web_port", (std::int32_t) inf.web_tcp_port);
+        servers.AddValue(srv);
     }
 
-    obj->CreateValuePair("gender", text);
-
-    if (!json.SaveToFile(fileName))
+    if (!JsonWriter::SaveToFile(json, fileName))
     {
         ret = false;
         TLogError("Saving client's configuration failed.");
@@ -339,28 +339,28 @@ ClientOptions ClientConfig::GetDefault()
     opt.delayBeforeCleaning = CLIENT_TIMER_DEF;
     opt.clickToClean = true;
 
-    opt.identity.name = "Fry";
+    opt.identity.nickname = "Fry";
     opt.identity.avatar = ":/avatars/A02.png";
-    opt.identity.gender = Identity::MALE;
+    opt.identity.gender = Identity::cGenderMale;
 
     for (std::uint32_t i = 0U; i < NumberOfServers; i++)
     {
         opt.serverList.push_back(DefaultServers[i]);
     }
 
-    opt.bots[Place::WEST].identity.name     = "Leela";
+    opt.bots[Place::WEST].identity.nickname = "Leela";
     opt.bots[Place::WEST].identity.avatar   = ":/avatars/FD05.png";
-    opt.bots[Place::WEST].identity.gender   = Identity::FEMALE;
+    opt.bots[Place::WEST].identity.gender   = Identity::cGenderFemale;
     opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath() + "package.json";
 
-    opt.bots[Place::NORTH].identity.name    = "Bender";
+    opt.bots[Place::NORTH].identity.nickname = "Bender";
     opt.bots[Place::NORTH].identity.avatar  = ":/avatars/N03.png";
-    opt.bots[Place::NORTH].identity.gender  = Identity::MALE;
+    opt.bots[Place::NORTH].identity.gender  = Identity::cGenderMale;
     opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath() + "package.json";
 
-    opt.bots[Place::EAST].identity.name     = "Amy";
+    opt.bots[Place::EAST].identity.nickname = "Amy";
     opt.bots[Place::EAST].identity.avatar   = ":/avatars/FE02.png";
-    opt.bots[Place::EAST].identity.gender   = Identity::FEMALE;
+    opt.bots[Place::EAST].identity.gender   = Identity::cGenderFemale;
     opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath() + "package.json";
 
     return opt;

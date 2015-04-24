@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <string>
+#include "JsonValue.h"
 
 /*****************************************************************************/
 class IRemoteDb
@@ -38,7 +39,7 @@ public:
 
     virtual bool Connect() = 0;
     virtual void Close() = 0;
-    virtual bool StoreGame(const std::string &game, const std::string &db) = 0;
+    virtual bool StoreAiGame(const JsonObject &game, const std::string &username, const std::string &botname) = 0;
 
 };
 

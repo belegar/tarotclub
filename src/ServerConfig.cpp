@@ -94,24 +94,24 @@ bool ServerConfig::Load(const std::string &fileName)
 
                 // Setup tournament configuration
                 mOptions.tournament.clear();
-                std::vector<JsonValue> tournament = json.GetArray("tournament");
-                if (tournament.size() > 0U)
+                JsonValue tournament = json.FindValue("tournament");
+                if (tournament.GetArray().Size() > 0U)
                 {
-                    for (std::vector<JsonValue>::iterator iter = tournament.begin(); iter != tournament.end(); ++iter)
+                    for (JsonArray::Iterator iter = tournament.GetArray().Begin(); iter != tournament.GetArray().End(); ++iter)
                     {
                         if (iter->IsObject())
                         {
-                            JsonObject *obj = iter->GetObject();
-                            std::string value;
+                            JsonValue value = iter->GetObject().GetValue("type");
                             Tarot::Shuffle shuffle;
-                            if (JsonValue::FromNode(obj->GetNode("type"), value))
+                            if (value.IsString())
                             {
-                                if (value == "custom")
+                                if (value.GetString() == "custom")
                                 {
                                     shuffle.type = Tarot::Shuffle::CUSTOM_DEAL;
-                                    if (JsonValue::FromNode(obj->GetNode("file"), value))
+                                    value = iter->GetObject().GetValue("file");
+                                    if (value.IsString())
                                     {
-                                        shuffle.file = value;
+                                        shuffle.file = value.GetString();
                                     }
                                     else
                                     {
@@ -139,12 +139,12 @@ bool ServerConfig::Load(const std::string &fileName)
                 }
 
                 mOptions.tables.clear();
-                std::vector<JsonValue> tables = json.GetArray("tables");
-                if (tables.size() > 0U)
+                JsonValue tables = json.FindValue("tables");
+                if (tables.GetArray().Size() > 0U)
                 {
-                    for (std::vector<JsonValue>::iterator iter = tables.begin(); iter != tables.end(); ++iter)
+                    for (JsonArray::Iterator iter = tables.GetArray().Begin(); iter != tables.GetArray().End(); ++iter)
                     {
-                        if (iter->GetTag() == IJsonNode::STRING)
+                        if (iter->IsString())
                         {
                             mOptions.tables.push_back(iter->GetString());
                         }
@@ -188,19 +188,19 @@ bool ServerConfig::Save(const std::string &fileName)
 {
     bool ret = true;
 
-    JsonWriter json;
+    JsonObject json;
 
-    json.CreateValuePair("version", SERVER_CONFIG_VERSION);
-    json.CreateValuePair("game_tcp_port", mOptions.game_tcp_port);
-    json.CreateValuePair("lobby_max_conn", mOptions.lobby_max_conn);
-    json.CreateValuePair("local_host_only", mOptions.localHostOnly);
+    json.AddValue("version", SERVER_CONFIG_VERSION);
+    json.AddValue("game_tcp_port", mOptions.game_tcp_port);
+    json.AddValue("lobby_max_conn", mOptions.lobby_max_conn);
+    json.AddValue("local_host_only", mOptions.localHostOnly);
 
-    JsonArray *tournament = json.CreateArrayPair("tournament");
+    JsonArray tournament;
     for (std::vector<Tarot::Shuffle>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
     {
         std::string type;
         std::string file;
-        JsonObject *obj = tournament->CreateObject();
+        JsonObject obj;
 
         if (iter->type == Tarot::Shuffle::RANDOM_DEAL)
         {
@@ -213,17 +213,20 @@ bool ServerConfig::Save(const std::string &fileName)
             type = "custom";
             file = iter->file;
         }
-        obj->CreateValuePair("type", type);
-        obj->CreateValuePair("file", file);
+        obj.AddValue("type", type);
+        obj.AddValue("file", file);
+        tournament.AddValue(obj);
     }
+    json.AddValue("tournament", tournament);
 
-    JsonArray *array = json.CreateArrayPair("tables");
+    JsonArray tables;
     for (std::vector<std::string>::iterator iter =  mOptions.tables.begin(); iter !=  mOptions.tables.end(); ++iter)
     {
-        array->CreateValue(*iter);
+        tables.AddValue(*iter);
     }
+    json.AddValue("tables", tables);
 
-    if (!json.SaveToFile(fileName))
+    if (!JsonWriter::SaveToFile(json, fileName))
     {
         ret = false;
         TLogError("Saving server's configuration failed.");

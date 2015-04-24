@@ -384,41 +384,51 @@ void Deal::CalculateScore(Points &points)
  */
 void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName, const std::string &db)
 {
-    JsonWriter json;
     std::uint8_t numberOfPlayers = players.size();
+    Identity bot;
 
     std::string fileName = System::GamePath() + tableName + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
 
-    json.CreateValuePair("version", DEAL_RESULT_FILE_VERSION);
+    JsonObject json;
+    json.AddValue("version", DEAL_RESULT_FILE_VERSION);
 
     // ========================== Game information ==========================
-    JsonObject *obj = json.CreateObjectPair("deal_info");
+    JsonObject dealInfo;
 
     // Players are sorted from south to north-west, anti-clockwise (see Place class)
-    JsonArray *obj2 = obj->CreateArrayPair("players");
+    JsonArray playersInfo;
     std::map<Place, Identity>::const_iterator it;
     for (it = players.begin(); it != players.end(); ++it)
     {
-        obj2->CreateValue((it->second).name);
-    }
+        playersInfo.AddValue((it->second).nickname);
 
-    obj->CreateValuePair("taker", mBid.taker.ToString());
-    obj->CreateValuePair("contract", mBid.contract.ToString());
-    obj->CreateValuePair("slam", mBid.slam);
-    obj->CreateValuePair("first_trick_lead", mFirstPlayer.ToString());
-    obj->CreateValuePair("dog", mDog.ToString());
-    obj->CreateValuePair("attack_handle", mAttackHandle.ToString());
-    obj->CreateValuePair("defense_handle", mDefenseHandle.ToString());
+        if (it->second.gender == Identity::cGenderRobot)
+        {
+            bot = it->second;
+        }
+    }
+    dealInfo.AddValue("players", playersInfo);
+
+    dealInfo.AddValue("taker", mBid.taker.ToString());
+    dealInfo.AddValue("contract", mBid.contract.ToString());
+    dealInfo.AddValue("slam", mBid.slam);
+    dealInfo.AddValue("first_trick_lead", mFirstPlayer.ToString());
+    dealInfo.AddValue("dog", mDog.ToString());
+    dealInfo.AddValue("attack_handle", mAttackHandle.ToString());
+    dealInfo.AddValue("defense_handle", mDefenseHandle.ToString());
+    json.AddValue("deal_info", dealInfo);
+
 
     // ========================== Played cards ==========================
-    JsonArray *obj3 = json.CreateArrayPair("tricks");
+    JsonArray tricks;
 
     for (std::uint32_t i = 0U; i < Tarot::NumberOfCardsInHand(numberOfPlayers); i++)
     {
-        obj3->CreateValue(mTricks[i].ToString());
+        tricks.AddValue(mTricks[i].ToString());
     }
+    json.AddValue("tricks", tricks);
 
-    if (!json.SaveToFile(fileName))
+    if (!JsonWriter::SaveToFile(json, fileName))
     {
         TLogError("Saving deal game result failed.");
     }
@@ -428,7 +438,20 @@ void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const st
     {
         if (mRemoteDb.Connect())
         {
-            mRemoteDb.StoreGame(json.ToString(), db);
+            if (db == "tc_aicontest")
+            {
+                // Look for the account and bot name
+                if ((bot.cGenderRobot == Identity::cGenderRobot) &&
+                    (bot.username.size() > 0) &&
+                    (bot.nickname.size() > 0))
+                {
+                    mRemoteDb.StoreAiGame(json, bot.username, bot.nickname);
+                }
+                else
+                {
+                    TLogError("Invalid bot identity");
+                }
+            }
             mRemoteDb.Close();
         }
     }
@@ -444,8 +467,8 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
     if (json.Open(fileName))
     {
         std::uint32_t numberOfPlayers;
-        std::vector<JsonValue> players = json.GetArray("deal_info:players");
-        numberOfPlayers = players.size();
+        JsonValue players = json.FindValue("deal_info:players");
+        numberOfPlayers = players.GetArray().Size();
         if ((numberOfPlayers == 3U) ||
                 (numberOfPlayers == 4U) ||
                 (numberOfPlayers == 5U))
@@ -502,15 +525,15 @@ bool Deal::LoadGameDealLog(const std::string &fileName)
                 StartDeal(str_value, bid);
 
                 // Load played cards
-                std::vector<JsonValue> tricks = json.GetArray("tricks");
-                if (tricks.size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
+                JsonValue tricks = json.FindValue("tricks");
+                if (tricks.GetArray().Size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
                 {
                     std::uint8_t trickCounter = 1U;
                     mDiscard.CreateTarotDeck();
 
-                    for (std::uint32_t i = 0U; i < tricks.size(); i++)
+                    for (JsonArray::Iterator iter = tricks.GetArray().Begin(); iter != tricks.GetArray().End(); ++iter)
                     {
-                        Deck trick(tricks[i].GetString());
+                        Deck trick(iter->GetString());
 
                         if (trick.Size() == numberOfPlayers)
                         {
