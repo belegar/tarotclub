@@ -28,7 +28,7 @@
 
 #include <vector>
 #include "Value.h"
-#include "IDataBase.h"
+#include "ILocalDataBase.h"
 
 /*****************************************************************************/
 class DummyDataBase : public ILocalDataBase

@@ -575,7 +575,7 @@ void MainWindow::slotStartDealEvent()
     std::map<Place, Identity>::const_iterator iter = players.find(bid.taker);
     if (iter != players.end())
     {
-        name = QString(iter->second.name.data());
+        name = QString(iter->second.nickname.data());
     }
     infosDock->SetTaker(name, bid.taker);
 

@@ -436,17 +436,17 @@ bool Bot::InitializeScriptContext()
     JsonReader json;
     if (json.Open(mScriptConf))
     {
-        std::vector<JsonValue> files = json.GetArray("files");
+        JsonValue files = json.FindValue("files");
 
         mBotEngine.Initialize();
 
         // Load all Javascript files
-        for (std::uint32_t i = 0U; i < files.size(); i++)
+        for (JsonArray::Iterator iter = files.GetArray().Begin(); iter != files.GetArray().End(); ++iter)
         {
-            if (files[i].IsValid() && (files[i].GetTag() == IJsonNode::STRING))
+            if (iter->IsValid() && (iter->IsString()))
             {
 
-                std::string fileName = scriptRoot + Util::DIR_SEPARATOR + files[i].GetString();
+                std::string fileName = scriptRoot + Util::DIR_SEPARATOR + iter->GetString();
 
 #ifdef USE_WINDOWS_OS
                 // Correct the path if needed

@@ -88,7 +88,7 @@ void InfosDock::SetPlayers(const std::map<Place, Identity> &players)
         std::map<Place, Identity>::const_iterator iter = players.find(place);
         if (iter != players.end())
         {
-            header += iter->second.name.data();
+            header += iter->second.nickname.data();
         }
         else
         {

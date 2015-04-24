@@ -24,7 +24,7 @@
 #include "ServerConfig.h"
 #include "Bot.h"
 #include "Users.h"
-#include "IDataBase.h"
+#include "ILocalDataBase.h"
 
 /*****************************************************************************/
 class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Controller::IEvent

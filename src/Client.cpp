@@ -126,7 +126,7 @@ std::string Client::GetTablePlayerName(Place p)
     std::string name;
     if (mPlayersIdent.find(p) != mPlayersIdent.end())
     {
-        name = mPlayersIdent[p].name;
+        name = mPlayersIdent[p].nickname;
     }
     return name;
 }

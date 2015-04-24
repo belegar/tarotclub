@@ -127,7 +127,7 @@ std::map<std::uint32_t, std::string> Users::GetTableUserNames(std::uint32_t tabl
     {
         if (iter->second.tableId == tableId)
         {
-            theList[iter->first] = iter->second.identity.name;
+            theList[iter->first] = iter->second.identity.nickname;
         }
     }
     return theList;
@@ -142,7 +142,7 @@ std::map<std::uint32_t, std::string> Users::GetLobbyUserNames()
         // Do not include users in login process
         if (iter->second.connected)
         {
-            theList[iter->first] = iter->second.identity.name;
+            theList[iter->first] = iter->second.identity.nickname;
         }
     }
     return theList;
@@ -231,12 +231,12 @@ bool Users::AccessGranted(std::uint32_t uuid, const Identity &ident)
         {
             if (iter->first != uuid)
             {
-                if (iter->second.identity.name == ident.nickname)
+                if (iter->second.identity.nickname == ident.nickname)
                 {
                     // Append the uuid to the name to make it unique within the server
                     std::stringstream ss;
                     ss << ident.nickname << uuid;
-                    mUsers[uuid].identity.name =  ss.str();
+                    mUsers[uuid].identity.nickname =  ss.str();
                 }
             }
         }

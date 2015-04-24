@@ -36,7 +36,7 @@
 #include "ServerConfig.h"
 #include "GfxCard.h"
 #include "Canvas.h"
-#include "DummyDataBase.h"
+#include "DummyLocalDataBase.h"
 
 /*****************************************************************************/
 /**

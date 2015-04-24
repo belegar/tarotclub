@@ -401,7 +401,7 @@ void OptionsWindow::slotBotSelected(int currentRow)
             // Get the place of the selected bot
             Place place(currentRow + 1U);
 
-            ui.botName->setText(QString::fromStdString(clientOptions.bots[place].identity.name));
+            ui.botName->setText(QString::fromStdString(clientOptions.bots[place].identity.nickname));
             ui.scriptPath->setText(QString::fromStdString(clientOptions.bots[place].scriptFilePath));
 
             if (clientOptions.bots[place].identity.gender == Identity::cGenderMale)
