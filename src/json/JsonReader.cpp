@@ -86,117 +86,32 @@ void JsonReader::Close()
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, std::string &value)
 {
-    bool ret = false;
-
-    JsonValue json = FindValue(nodePath);
-    if (json.IsString())
-    {
-        value = json.GetString();
-        ret = true;
-    }
-
-    return ret;
+    return mValue.GetValue(nodePath, value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, std::uint32_t &value)
 {
-    bool ret = false;
-
-    JsonValue json = FindValue(nodePath);
-    if (json.IsInteger())
-    {
-        value = static_cast<std::uint32_t>(json.GetInteger());
-        ret = true;
-    }
-
-    return ret;
+    return mValue.GetValue(nodePath, value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, std::int32_t &value)
 {
-    bool ret = false;
-
-    JsonValue json = FindValue(nodePath);
-    if (json.IsInteger())
-    {
-        value = json.GetInteger();
-        ret = true;
-    }
-
-    return ret;
+    return mValue.GetValue(nodePath, value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, bool &value)
 {
-    bool ret = false;
-
-    JsonValue json = FindValue(nodePath);
-    if (json.IsBoolean())
-    {
-        value = json.GetBool();
-        ret = true;
-    }
-
-    return ret;
+    return mValue.GetValue(nodePath, value);
 }
 /*****************************************************************************/
 bool JsonReader::GetValue(const std::string &nodePath, double &value)
 {
-    bool ret = false;
-
-    JsonValue json = FindValue(nodePath);
-    if (json.IsDouble())
-    {
-        value = json.GetDouble();
-        ret = true;
-    }
-
-    return ret;
+    return mValue.GetValue(nodePath, value);
 }
 /*****************************************************************************/
 JsonValue JsonReader::FindValue(const std::string &nodePath)
 {
-    std::vector<std::string> keys = Split(nodePath);
-
-    JsonValue temp = mValue;
-    for (std::uint32_t i = 0U; i < keys.size(); i++)
-    {
-        temp = temp.FindValue(keys[i]);
-        if (!temp.IsObject())
-        {
-            break;
-        }
-    }
-    return temp;
-}
-/*****************************************************************************/
-std::vector<std::string> JsonReader::Split(const std::string &obj)
-{
-    std::vector<std::string> path;
-    std::size_t found = std::string::npos;
-    int pos = 0;
-
-    do
-    {
-        int size;
-        found = obj.find(':', pos);
-        if (found != std::string::npos)
-        {
-            // calculate size of the string between the delimiters
-            size = found - pos;
-        }
-        else
-        {
-            // last: get remaining characters
-            size = obj.size() - pos;
-        }
-
-        std::string key = obj.substr(pos, size);
-        pos = found + 1;
-        path.push_back(key);
-    }
-    while (found != std::string::npos);
-    return path;
+    return mValue.FindValue(nodePath);
 }
 /*****************************************************************************/
 bool JsonReader::ParseString(const std::string &data)
@@ -523,26 +438,6 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
 #endif
                 ++pos;
                 nodes[pos] = JsonValue(JsonArray());
-               /* if (pos == 0)
-
-
-                {
-                    // We create the root node of the document
-                    nodes[pos] = JsonValue(JsonArray(0U));
-                }
-                else if (tags[pos - 1] == JsonValue::OBJECT)
-                {
-                    // if previous node was an object, then we create a new array
-                    nodes[pos] = ;
-                    nodes[pos - 1]->GetObject().AddValue(keys[pos - 1], JsonArray(pos));
-                }
-                else
-                {
-                    // array in an array?
-                    nodes[pos - 1]->GetArray().AddValue(JsonArray(pos));
-                }
-                */
-
                 tags[pos] = JsonValue::ARRAY;
                 keys[pos] = "";
                 separator = true;
@@ -554,26 +449,6 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
 #endif
                 ++pos;
                 nodes[pos] = JsonValue(JsonObject());
-
-                /*
-                if (pos == 0)
-                {
-                    // We create the root node of the document
-                    mValue = JsonValue(JsonObject(0U));
-                    nodes[pos] = &mValue;
-                }
-                else if (tags[pos - 1] == JsonValue::OBJECT)
-                {
-                    // if previous node was an object, then we create a new object
-                    nodes[pos - 1]->GetObject().AddValue(keys[pos - 1], JsonObject(pos));
-                }
-                else
-                {
-                    // Object in an array? ==> no tag
-                    nodes[pos - 1]->GetArray().AddValue(JsonObject(pos));
-                }
-                */
-
                 tags[pos] = JsonValue::OBJECT;
                 keys[pos] = "";
                 separator = true;

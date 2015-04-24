@@ -61,6 +61,10 @@ public:
     std::uint32_t GetSize() { return mArray.size(); }
     void AddValue(const JsonValue &value);
 
+    typedef std::vector<JsonValue>::iterator Iterator;
+    Iterator Begin() { return mArray.begin(); }
+    Iterator End() { return mArray.end(); }
+
 private:
     std::vector<JsonValue> mArray;
 };
@@ -119,12 +123,19 @@ public:
     bool            GetBool()       { return mBoolValue; }
     std::string     GetString()     { return mStringValue; }
 
+    bool GetValue(const std::string &nodePath, std::string &value);
+    bool GetValue(const std::string &nodePath, std::uint32_t &value);
+    bool GetValue(const std::string &nodePath, std::uint16_t &value);
+    bool GetValue(const std::string &nodePath, std::int32_t &value);
+    bool GetValue(const std::string &nodePath, bool &value);
+    bool GetValue(const std::string &nodePath, double &value);
+
     void SetNull()
     {
         mTag = NULL_VAL;
     }
 
-    JsonValue FindValue(const std::string &key);
+    JsonValue FindValue(const std::string &keyPath);
 
 private:
     Tag mTag;
@@ -134,6 +145,8 @@ private:
     double mDoubleValue;
     std::string mStringValue;
     bool mBoolValue;
+
+    std::vector<std::string> Split(const std::string &obj);
 };
 
 #endif // JSONVALUE_H

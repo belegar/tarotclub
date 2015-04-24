@@ -290,17 +290,139 @@ void JsonValue::Clear()
     mArray.Clear();
 }
 /*****************************************************************************/
-JsonValue JsonValue::FindValue(const std::string &key)
+bool JsonValue::GetValue(const std::string &nodePath, std::string &value)
 {
-    JsonValue value;
-    if (IsObject())
+    bool ret = false;
+
+    JsonValue json = FindValue(nodePath);
+    if (json.IsString())
     {
-        if (mObject.HasValue(key))
+        value = json.GetString();
+        ret = true;
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::GetValue(const std::string &nodePath, std::uint32_t &value)
+{
+    bool ret = false;
+
+    JsonValue json = FindValue(nodePath);
+    if (json.IsInteger())
+    {
+        value = static_cast<std::uint32_t>(json.GetInteger());
+        ret = true;
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::GetValue(const std::string &nodePath, std::uint16_t &value)
+{
+    bool ret = false;
+
+    JsonValue json = FindValue(nodePath);
+    if (json.IsInteger())
+    {
+        value = static_cast<std::uint16_t>(json.GetInteger());
+        ret = true;
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::GetValue(const std::string &nodePath, std::int32_t &value)
+{
+    bool ret = false;
+
+    JsonValue json = FindValue(nodePath);
+    if (json.IsInteger())
+    {
+        value = json.GetInteger();
+        ret = true;
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::GetValue(const std::string &nodePath, bool &value)
+{
+    bool ret = false;
+
+    JsonValue json = FindValue(nodePath);
+    if (json.IsBoolean())
+    {
+        value = json.GetBool();
+        ret = true;
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+bool JsonValue::GetValue(const std::string &nodePath, double &value)
+{
+    bool ret = false;
+
+    JsonValue json = FindValue(nodePath);
+    if (json.IsDouble())
+    {
+        value = json.GetDouble();
+        ret = true;
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+JsonValue JsonValue::FindValue(const std::string &keyPath)
+{
+    std::vector<std::string> keys = Split(keyPath);
+
+    JsonValue temp = mObject;
+    for (std::uint32_t i = 0U; i < keys.size(); i++)
+    {
+        if (temp.IsObject())
         {
-            value = mObject.GetValue(key);
+            if (temp.GetObject().HasValue(keys[i]))
+            {
+                temp = temp.GetObject().GetValue(keys[i]);
+            }
+        }
+        else
+        {
+            break;
         }
     }
-    return value;
+    return temp;
+}
+/*****************************************************************************/
+std::vector<std::string> JsonValue::Split(const std::string &obj)
+{
+    std::vector<std::string> path;
+    std::size_t found = std::string::npos;
+    int pos = 0;
+
+    do
+    {
+        int size;
+        found = obj.find(':', pos);
+        if (found != std::string::npos)
+        {
+            // calculate size of the string between the delimiters
+            size = found - pos;
+        }
+        else
+        {
+            // last: get remaining characters
+            size = obj.size() - pos;
+        }
+
+        std::string key = obj.substr(pos, size);
+        pos = found + 1;
+        path.push_back(key);
+    }
+    while (found != std::string::npos);
+    return path;
 }
 
 //=============================================================================

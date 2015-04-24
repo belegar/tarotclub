@@ -94,8 +94,6 @@ private:
 
     JsonReader::ParseStatus Parse(char *s, char **endptr);
     JsonValue StringToNumber(char *s, char **endptr);
-    std::vector<std::string> Split(const std::string &obj);
-
 
     /*****************************************************************************/
     inline bool IsDelim(char c)
