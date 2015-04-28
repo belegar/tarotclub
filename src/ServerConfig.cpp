@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "5"; // increase the version to force any incompatible update in the file structure
+static const std::string SERVER_CONFIG_VERSION  = "6"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 
 /*****************************************************************************/
@@ -77,9 +77,9 @@ bool ServerConfig::Load(const std::string &fileName)
                     mOptions.game_tcp_port = unsignedVal;
                 }
 
-                if (json.GetValue("web_tcp_port", unsignedVal))
+                if (json.GetValue("console_tcp_port", unsignedVal))
                 {
-                    mOptions.web_tcp_port = unsignedVal;
+                    mOptions.console_tcp_port = unsignedVal;
                 }
 
                 if (json.GetValue("lobby_max_conn", unsignedVal))
@@ -102,12 +102,12 @@ bool ServerConfig::Load(const std::string &fileName)
                         if (iter->IsObject())
                         {
                             JsonValue value = iter->GetObject().GetValue("type");
-                            Tarot::Shuffle shuffle;
+                            Tarot::Distribution shuffle;
                             if (value.IsString())
                             {
                                 if (value.GetString() == "custom")
                                 {
-                                    shuffle.type = Tarot::Shuffle::CUSTOM_DEAL;
+                                    shuffle.type = Tarot::Distribution::CUSTOM_DEAL;
                                     value = iter->GetObject().GetValue("file");
                                     if (value.IsString())
                                     {
@@ -192,17 +192,18 @@ bool ServerConfig::Save(const std::string &fileName)
 
     json.AddValue("version", SERVER_CONFIG_VERSION);
     json.AddValue("game_tcp_port", mOptions.game_tcp_port);
+    json.AddValue("console_tcp_port", mOptions.console_tcp_port);
     json.AddValue("lobby_max_conn", mOptions.lobby_max_conn);
     json.AddValue("local_host_only", mOptions.localHostOnly);
 
     JsonArray tournament;
-    for (std::vector<Tarot::Shuffle>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
+    for (std::vector<Tarot::Distribution>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
     {
         std::string type;
         std::string file;
         JsonObject obj;
 
-        if (iter->type == Tarot::Shuffle::RANDOM_DEAL)
+        if (iter->type == Tarot::Distribution::RANDOM_DEAL)
         {
             type = "random";
             file = "";
@@ -238,16 +239,16 @@ ServerOptions ServerConfig::GetDefault()
 {
     ServerOptions opt;
 
-    opt.game_tcp_port   = DEFAULT_GAME_TCP_PORT;
-    opt.web_tcp_port    = DEFAULT_WEB_TCP_PORT;
-    opt.lobby_max_conn  = DEFAULT_LOBBY_MAX_CONN;
-    opt.localHostOnly   = false;
+    opt.game_tcp_port       = DEFAULT_GAME_TCP_PORT;
+    opt.console_tcp_port    = DEFAULT_CONSOLE_TCP_PORT;
+    opt.lobby_max_conn      = DEFAULT_LOBBY_MAX_CONN;
+    opt.localHostOnly       = false;
     opt.tables.push_back("Table 1"); // default table name (one table minimum)
 
     // Default tournament is some random deals
     for (std::uint32_t i = 0U; i < DEFAULT_NUMBER_OF_TURNS; i++)
     {
-        opt.tournament.push_back(Tarot::Shuffle());
+        opt.tournament.push_back(Tarot::Distribution());
     }
     return opt;
 }

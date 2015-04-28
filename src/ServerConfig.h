@@ -32,11 +32,11 @@
 struct ServerOptions
 {
     std::uint16_t game_tcp_port;
-    std::uint16_t web_tcp_port;
+    std::uint16_t console_tcp_port;
     std::int32_t lobby_max_conn;    // Max number of simultaneous connected clients
     bool localHostOnly; // if true, restrict to local host server
     std::vector<std::string> tables; // table list names
-    std::vector<Tarot::Shuffle> tournament; // one game parameter per turn (vector size is the number of turns)
+    std::vector<Tarot::Distribution> tournament; // one game parameter per turn (vector size is the number of turns)
 };
 
 /*****************************************************************************/
@@ -45,7 +45,7 @@ class ServerConfig
 
 public:
     static const std::uint16_t  DEFAULT_GAME_TCP_PORT       = 4269U;
-    static const std::uint16_t  DEFAULT_WEB_TCP_PORT        = 8090U;
+    static const std::uint16_t  DEFAULT_CONSOLE_TCP_PORT    = 8090U;
     static const std::uint32_t  DEFAULT_LOBBY_MAX_CONN      = 250U;
     static const std::string    DEFAULT_SERVER_CONFIG_FILE;
     static const std::uint8_t   DEFAULT_NUMBER_OF_TURNS     = 5U;
