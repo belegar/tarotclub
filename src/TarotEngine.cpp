@@ -33,14 +33,11 @@
 #include "Log.h"
 
 /*****************************************************************************/
-TarotEngine::TarotEngine(const std::string &i_dbName)
-    : mDeal(mRemoteDb)
-    , mDbName(i_dbName)
-    , mNbPlayers(4U)
+TarotEngine::TarotEngine()
+    : mNbPlayers(4U)
     , mSequence(STOPPED)
     , mPosition(0U)
     , mTrickCounter(0U)
-    , mGameMode(Tarot::ONE_DEAL)
 {
     std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
     mSeed = static_cast<std::uint32_t>(seed);
@@ -64,7 +61,6 @@ void TarotEngine::Initialize()
 {
     mSequence = STOPPED;
     ResetAck();
-    mShuffle.Initialize();
 }
 /*****************************************************************************/
 void TarotEngine::CreateTable(std::uint8_t nbPlayers)
@@ -79,7 +75,6 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     {
         mPlayers[i].SetUuid(0U); // close all the clients
     }
-    mPlayersIdent.clear();
 
     // Choose the dealer
     mDealer = DealFile::RandomPlace(mNbPlayers);
@@ -89,16 +84,15 @@ void TarotEngine::CreateTable(std::uint8_t nbPlayers)
     mSequence = WAIT_FOR_PLAYERS;
 }
 /*****************************************************************************/
-void TarotEngine::NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t numberOfTurns)
+void TarotEngine::NewGame()
 {
-    mShuffle = s;
-    mGameMode = mode;
-    mScore.NewGame(numberOfTurns);
     mSequence = WAIT_FOR_READY;
 }
 /*****************************************************************************/
-void TarotEngine::NewDeal()
+Tarot::Distribution TarotEngine::NewDeal(const Tarot::Distribution &shuffle)
 {
+    Tarot::Distribution shReturned = shuffle;
+
     // 1. Initialize internal states
     mDeal.NewDeal();
     mBid.Initialize();
@@ -110,11 +104,13 @@ void TarotEngine::NewDeal()
     mCurrentPlayer = mDealer.Next(mNbPlayers); // The first player on the dealer's right begins the bid
 
     // 3. Give cards to all players
-    CreateDeal();
+    CreateDeal(shReturned);
 
     // 4. Prepare the wait for ack
     ResetAck();
     mSequence = WAIT_FOR_CARDS;
+
+    return shReturned;
 }
 /*****************************************************************************/
 /**
@@ -150,32 +146,6 @@ Place TarotEngine::StartDeal()
     mDeal.StartDeal(mCurrentPlayer, mBid);
 
     return mCurrentPlayer;
-}
-/*****************************************************************************/
-Tarot::Shuffle TarotEngine::GetShuffle()
-{
-    return mShuffle;
-}
-/*****************************************************************************/
-Place TarotEngine::GetWinner()
-{
-    // FIXME: Not implemented
-
-    return Place(Place::SOUTH);
-
-//    if (mGameMode == Tarot::TOURNAMENT)
-//    {
-//        return mDeal.GetPodium();
-    //    }
-}
-/*****************************************************************************/
-Identity TarotEngine::GetIdentity(Place p)
-{
-    if (mPlayersIdent.find(p) == mPlayersIdent.end())
-    {
-        TLogError("Player does not exists");
-    }
-    return mPlayersIdent[p];
 }
 /*****************************************************************************/
 bool TarotEngine::SetDiscard(const Deck &discard)
@@ -353,8 +323,6 @@ void TarotEngine::RemovePlayer(std::uint32_t uuid)
         if (mPlayers[i].GetUuid() == uuid)
         {
             mPlayers[i].SetUuid(0U);
-            // Remove its identity, index is the place
-            mPlayersIdent.erase(Place(i));
         }
     }
 }
@@ -365,16 +333,13 @@ void TarotEngine::RemovePlayer(std::uint32_t uuid)
  * @param ident
  * @return true if the game is full
  */
-bool TarotEngine::SetIdentity(std::uint32_t uuid, const Identity &ident)
+bool TarotEngine::ValidatePlayer(std::uint32_t uuid)
 {
     if (mSequence == WAIT_FOR_PLAYERS)
     {
         Player *player = GetPlayer(uuid);
         if (player != NULL)
         {
-            // Look for place
-            Place p = GetPlayerPlace(uuid);
-            mPlayersIdent[p] = ident;
             player->SetAck();
         }
     }
@@ -478,27 +443,15 @@ void TarotEngine::GameSequence()
     }
 }
 /*****************************************************************************/
-void TarotEngine::EndOfDeal(const std::string &tableName)
+void TarotEngine::EndOfDeal(const Identity players[5U], const std::string &tableName)
 {
     mCurrentPoints.Clear();
     mDeal.AnalyzeGame(mCurrentPoints, mNbPlayers);
     mDeal.CalculateScore(mCurrentPoints);
-    mDeal.GenerateEndDealLog(mPlayersIdent, tableName, mDbName);
+    mDeal.GenerateEndDealLog(players, mNbPlayers, tableName);
 
     ResetAck();
     mSequence = WAIT_FOR_END_OF_DEAL;
-}
-/*****************************************************************************/
-bool TarotEngine::NextDeal()
-{
-    bool continueGame = false;
-
-    if (mGameMode == Tarot::TOURNAMENT)
-    {
-        continueGame = mScore.AddPoints(mCurrentPoints, mBid, mNbPlayers);
-    }
-
-    return continueGame;
 }
 /*****************************************************************************/
 
@@ -569,14 +522,14 @@ bool TarotEngine::IsEndOfTrick()
     return endOfTrick;
 }
 /*****************************************************************************/
-void TarotEngine::CreateDeal()
+void TarotEngine::CreateDeal(Tarot::Distribution &shuffle)
 {
     DealFile editor;
     bool random = true;
 
-    if (mShuffle.type == Tarot::Shuffle::CUSTOM_DEAL)
+    if (shuffle.type == Tarot::Distribution::CUSTOM_DEAL)
     {
-        if (!editor.LoadFile(mShuffle.file))
+        if (!editor.LoadFile(shuffle.file))
         {
             // Fall back to default mode
             TLogError("Cannot load custom deal file");
@@ -600,13 +553,13 @@ void TarotEngine::CreateDeal()
         bool valid = true;
         do
         {
-            if (mShuffle.type == Tarot::Shuffle::NUMBERED_DEAL)
+            if (shuffle.type == Tarot::Distribution::NUMBERED_DEAL)
             {
-                valid = editor.CreateRandomDeal(mNbPlayers, mShuffle.seed);
+                valid = editor.CreateRandomDeal(mNbPlayers, shuffle.seed);
                 if (!valid)
                 {
                     // The provided seed does dot generate a valid deal, so switch to a random one
-                    mShuffle.type = Tarot::Shuffle::RANDOM_DEAL;
+                    shuffle.type = Tarot::Distribution::RANDOM_DEAL;
                 }
             }
             else
@@ -617,7 +570,7 @@ void TarotEngine::CreateDeal()
         while (!valid);
 
         // Save the seed
-        mShuffle.seed = editor.GetSeed();
+        shuffle.seed = editor.GetSeed();
     }
 
     // Copy deal editor cards to engine

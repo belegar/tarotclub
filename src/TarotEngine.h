@@ -38,6 +38,13 @@
 #include "DummyRemoteDb.h"
 
 /*****************************************************************************/
+/**
+ * @brief Tarot state engine
+ *
+ * This class stores information about one deal. It also manages the game states
+ * and transitions.
+ *
+ */
 class TarotEngine
 {
 public:
@@ -61,18 +68,17 @@ public:
         WAIT_FOR_END_OF_DEAL
     };
 
-    TarotEngine(const std::string &i_dbName);
+    TarotEngine();
     ~TarotEngine();
 
     // Helpers
     void Initialize();
     void StopGame();
     void CreateTable(std::uint8_t nbPlayers);
-    void NewGame(Tarot::GameMode mode, const Tarot::Shuffle &s, std::uint8_t numberOfTurns);
-    void NewDeal();
+    void NewGame();
+    Tarot::Distribution NewDeal(const Tarot::Distribution &shuffle);
     Place StartDeal();
-    void EndOfDeal(const std::string &tableName);
-    bool NextDeal();
+    void EndOfDeal(const Identity players[5U], const std::string &tableName);
 
     Place AddPlayer(std::uint32_t uuid);
     void RemovePlayer(std::uint32_t uuid);
@@ -85,8 +91,6 @@ public:
     Player *GetPlayer(Place p);
     Player *GetPlayer(std::uint32_t uuid);
     Place GetPlayerPlace(std::uint32_t uuid);
-    Place GetWinner();
-    Identity GetIdentity(Place p);
     Place GetCurrentPlayer()
     {
         return mCurrentPlayer;
@@ -96,10 +100,7 @@ public:
         return mSequence;
     }
     Points GetCurrentGamePoints();
-    std::map<Place, Identity> GetPlayersList()
-    {
-        return mPlayersIdent;
-    }
+
     std::uint8_t    GetNbPlayers()
     {
         return mNbPlayers;
@@ -108,15 +109,11 @@ public:
     {
         return mBid;
     }
-    Tarot::GameMode GetGameMode()
-    {
-        return mGameMode;
-    }
+
     Deck GetDog()
     {
         return mDeal.GetDog();
     }
-    Tarot::Shuffle GetShuffle();
 
     bool IsLastTrick()
     {
@@ -124,7 +121,7 @@ public:
     }
 
     // Setters
-    bool SetIdentity(std::uint32_t uuid, const Identity &ident);
+    bool ValidatePlayer(std::uint32_t uuid);
     bool SetDiscard(const Deck &discard);
     bool SetHandle(const Deck &handle, Place p);
     bool SetCard(const Card &c, Place p);
@@ -132,35 +129,25 @@ public:
 
 private:
     Player  mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
-    std::map<Place, Identity> mPlayersIdent;
     Deck    currentTrick;   // store the current trick cards played
 
-#ifdef DESKTOP_PROJECT
-    DummyRemoteDb mRemoteDb;
-#else
-    CouchDb mRemoteDb;
-#endif
     Deal    mDeal;
-    Score   mScore;
     Points  mCurrentPoints;
-    std::string    mDbName; ///< Where finished deals are stored
 
     // Game state variables
     std::uint8_t    mNbPlayers;
     Sequence        mSequence;
     Tarot::Bid      mBid;
-    Tarot::Shuffle  mShuffle;
     std::uint8_t    mPosition;          // Current position, [1..numberOfPlayers]
     Place           mDealer;            // who has dealt the cards
     std::uint8_t    mTrickCounter;       // number of tricks played [1..18] for 4 players
     Place           mCurrentPlayer;
     unsigned        mSeed;
-    Tarot::GameMode mGameMode;
     bool            mHandleAsked[5U];
 
     bool AckFromAllPlayers();
     void ResetAck();
-    void CreateDeal();
+    void CreateDeal(Tarot::Distribution &shuffle);
     bool IsEndOfTrick();
 };
 
