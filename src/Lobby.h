@@ -24,31 +24,39 @@
 #include "ServerConfig.h"
 #include "Bot.h"
 #include "Users.h"
-#include "ILocalDataBase.h"
+#include "Observer.h"
 
 /*****************************************************************************/
-class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Controller::IEvent
+class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Controller::IData
 {
 
 public:
     static const std::string LOBBY_VERSION_STRING;
 
-    Lobby(ILocalDataBase &i_dataBase, const std::string &i_dbName);
+    struct Event : public Observer<std::uint32_t>
+    {
+        static const std::uint32_t cIncPlayer    = 0U;
+        static const std::uint32_t cDecPlayer    = 1U;
+    };
+
+
+    Lobby(const std::string &i_dbName);
     ~Lobby();
 
     void Initialize(const ServerOptions &opt);
     void Stop();
     void WaitForEnd();
 
-    // HTTP / REST API
-    std::string ParseUri(const std::string &uri);
-
     // Bots management
     bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile);
     std::uint32_t GetNumberOfBots(std::uint32_t tableId);
     bool RemoveBot(std::uint32_t uuid);
 
+    // Lobby management
     void CloseClients();
+    void RegisterListener(Event &i_event);
+    std::uint32_t CreateTable(const std::string &tableName = "Table");
+    bool DestroyTable(std::uint32_t id);
 
 private:
 
@@ -59,8 +67,6 @@ private:
     virtual void ServerTerminated(CloseType type);
 
     // From Controller
-    virtual void AcceptPlayer(std::uint32_t uuid, std::uint32_t tableId);
-    virtual void RemovePlayer(std::uint32_t uuid, std::uint32_t tableId);
     virtual void SendData(const ByteArray &block, std::uint32_t tableId);
 
     // From Protocol::WorkItem
@@ -71,16 +77,18 @@ private:
     std::string GetTableName(const std::uint32_t tableId);
 	void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId);
 
-    ILocalDataBase       &mDataBase;
+    Subject<std::uint32_t> mSubject;
     int             mTcpPort;
     TcpServer       mTcpServer;
     bool            mCreated;   ///< True if the table has been created
     bool            mIsFull;
     ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
 
-    std::list<Controller *> mTables;
+    std::map<std::uint32_t, Controller *> mTables; // <id, controller>
+    std::mutex mTablesMutex;
+
     Users       mUsers;
-    std::string mDbName;
+    std::string mDbName; // database name where to store finished games
 
     // Bots management
     std::list<Bot *> mBots;
