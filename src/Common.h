@@ -246,7 +246,7 @@ public:
     static const std::uint8_t DOUBLE_HANDLE = 2U;
     static const std::uint8_t TRIPLE_HANDLE = 3U;
 
-    struct Shuffle
+    struct Distribution
     {
         static const std::uint8_t RANDOM_DEAL   = 0U;
         static const std::uint8_t CUSTOM_DEAL   = 1U;
@@ -256,7 +256,7 @@ public:
         std::string     file;
         std::uint32_t   seed;
 
-        Shuffle()
+        Distribution()
         {
             Initialize();
         }
@@ -268,7 +268,7 @@ public:
             seed = 0U;
         }
 
-        friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Shuffle &sh)
+        friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Distribution &sh)
         {
             out << sh.type
                 << sh.file
@@ -276,7 +276,7 @@ public:
             return out;
         }
 
-        friend ByteStreamReader &operator>>(ByteStreamReader &in, Shuffle &sh)
+        friend ByteStreamReader &operator>>(ByteStreamReader &in, Distribution &sh)
         {
             in >> sh.type;
             in >> sh.file;
@@ -285,10 +285,47 @@ public:
         }
     };
 
-    enum GameMode
+    struct Game
     {
-        ONE_DEAL    = 0xAA, //!< The game will stop after one full deal played
-        TOURNAMENT  = 0xBB, //!< The game will stop after a number of consecutive random deals (server configuration)
+        static const std::uint8_t cQuickDeal        = 1U; ///< Play one deal
+        static const std::uint8_t cSimpleTournament = 2U; ///< Play N consecutive random deals with final score
+        static const std::uint8_t cCustom           = 3U;
+
+        std::uint8_t mode;  ///< Current game mode
+        std::vector<Tarot::Distribution> deals;
+
+        Game()
+        {
+            mode = cQuickDeal;
+        }
+
+        friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Game &game)
+        {
+            out << game.mode;
+            out << (std::uint8_t)game.deals.size();
+
+            for (std::uint32_t i = 0U; i < game.deals.size(); i++)
+            {
+                out << game.deals[i];
+            }
+            return out;
+        }
+
+        friend ByteStreamReader &operator>>(ByteStreamReader &in, Game &game)
+        {
+            std::uint8_t size;
+            in >> game.mode;
+            in >> size;
+
+            game.deals.clear();
+            for (std::uint8_t i = 0U; i < size; i++)
+            {
+                Distribution sh;
+                in >> sh;
+                game.deals.push_back(sh);
+            }
+            return in;
+        }
     };
 
     static std::uint8_t NumberOfDogCards(std::uint8_t numberOfPlayers);
