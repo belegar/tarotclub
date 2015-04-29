@@ -31,13 +31,13 @@
 #include "System.h"
 
 /*****************************************************************************/
-Controller::Controller(IEvent &handler, const std::string &i_dbName)
-    : mEventHandler(handler)
-    , mEngine(i_dbName)
+Controller::Controller(IData &handler)
+    : mDataHandler(handler)
     , mFull(false)
     , mAdmin(Protocol::INVALID_UID)
     , mName("Default")
     , mId(1U)
+    , mAdminMode(false)
 {
 
 }
@@ -51,6 +51,16 @@ void Controller::ExecuteRequest(const ByteArray &packet)
 {
     mQueue.Push(packet); // Add packet to the queue
     Protocol::GetInstance().Execute(this); // Actually decode the packet
+}
+/*****************************************************************************/
+void Controller::SetupGame(const Tarot::Game &game)
+{
+    mGame = game;
+}
+/*****************************************************************************/
+void Controller::SetAdminMode(bool enable)
+{
+    mAdminMode = enable;
 }
 /*****************************************************************************/
 bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
@@ -108,7 +118,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                                            uuid));
 
                 // Warn upper layers
-                mEventHandler.AcceptPlayer(uuid, mId);
+                Send(Protocol::TableAcceptedPlayer(uuid, mId));
 
                 // If it is the first player, then it is an admin
                 if (mAdmin == Protocol::INVALID_UID)
@@ -116,16 +126,25 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                     mAdmin = uuid;
                 }
 
-                mFull = mEngine.SetIdentity(uuid, ident);
+                mPlayers[mEngine.GetPlayerPlace(uuid).Value()] = ident;
+                mFull = mEngine.ValidatePlayer(uuid);
                 std::string message = "The player " + ident.nickname + " has joined the game.";
                 Send(Protocol::TableChatMessage(message));
 
                 // Update player list
-                Send(Protocol::TablePlayersList(mEngine.GetPlayersList()));
+                Send(Protocol::TablePlayersList(CreatePlayerList()));
                 if (mFull)
                 {
-                    // Warn table admin that the game is full, so it can start
-                    Send(Protocol::AdminGameFull(true, mAdmin));
+                    if (mAdminMode)
+                    {
+                        // Warn table admin that the game is full, so it can start
+                        Send(Protocol::AdminGameFull(true, mAdmin));
+                    }
+                    else
+                    {
+                        // Automatic start of the game
+                        NewGame();
+                    }
                 }
             }
             else
@@ -157,14 +176,14 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         if (place != Place::NOWHERE)
         {
             // Warn all the player
-            std::string message = "The player " + mEngine.GetIdentity(place).nickname + " has quit the game.";
+            std::string message = "The player " + mPlayers[place.Value()].nickname + " has quit the game.";
             Send(Protocol::TableChatMessage(message));
 
             // Remove this player from the engine
             mEngine.RemovePlayer(kicked_player);
-            mEventHandler.RemovePlayer(kicked_player, mId);
+            Send(Protocol::TableRemovedPlayer(kicked_player, mId));
             // Update player list
-            Send(Protocol::TablePlayersList(mEngine.GetPlayersList()));
+            Send(Protocol::TablePlayersList(CreatePlayerList()));
             // Update the admin
             if (kicked_player == mAdmin)
             {
@@ -190,14 +209,13 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
                     Player *player = mEngine.GetPlayer(Place(i));
                     if (player != NULL)
                     {
-                        mEventHandler.RemovePlayer(player->GetUuid(), mId);
+                        Send(Protocol::TableRemovedPlayer(player->GetUuid(), mId));
                     }
                 }
                 mEngine.CreateTable(mEngine.GetNbPlayers());
                 mFull = false;
                 mAdmin = Protocol::INVALID_UID;
             }
-
         }
         break;
     }
@@ -211,7 +229,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         Place place = mEngine.GetPlayerPlace(src_uuid);
         if (place != Place::NOWHERE)
         {
-            message = mEngine.GetIdentity(place).nickname + "> " + message;
+            message = mPlayers[place.Value()].nickname + "> " + message;
             Send(Protocol::TableChatMessage(message));
         }
         break;
@@ -221,16 +239,8 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
     {
         if (src_uuid == mAdmin)
         {
-            std::uint8_t gameMode;
-            Tarot::Shuffle shuffle;
-            std::uint8_t numberOfTurns;
-
-            in >> gameMode;
-            in >> shuffle;
-            in >> numberOfTurns;
-
-            mEngine.NewGame((Tarot::GameMode)gameMode, shuffle, numberOfTurns);
-            Send(Protocol::TableNewGame((Tarot::GameMode)gameMode, shuffle, numberOfTurns));
+            in >> mGame;
+            NewGame();
         }
         break;
     }
@@ -526,14 +536,7 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
         {
             if (mEngine.Sync(TarotEngine::WAIT_FOR_END_OF_DEAL, src_uuid))
             {
-                if (mEngine.NextDeal())
-                {
-                    NewDeal();
-                }
-                else
-                {
-                    Send(Protocol::TableEndOfGame(mEngine.GetWinner()));
-                }
+                EndOfDeal();
             }
         }
         break;
@@ -557,28 +560,69 @@ ByteArray Controller::GetPacket()
     return data;
 }
 /*****************************************************************************/
+void Controller::EndOfDeal()
+{
+    bool continueGame = mScore.AddPoints(mEngine.GetCurrentGamePoints(), mEngine.GetBid(), mEngine.GetNbPlayers());
+
+    if (continueGame)
+    {
+        NewDeal();
+    }
+    else
+    {
+        mEngine.StopGame();
+        Send(Protocol::TableEndOfGame(mScore.GetWinner()));
+    }
+}
+/*****************************************************************************/
+std::map<Place, Identity> Controller::CreatePlayerList()
+{
+    std::map<Place, Identity> list;
+
+    for (std::uint8_t i = 0U; i < mEngine.GetNbPlayers(); i++)
+    {
+        list[Place(i)] = mPlayers[i];
+    }
+
+    return list;
+}
+/*****************************************************************************/
+void Controller::NewGame()
+{
+    mScore.NewGame(mGame.deals.size());
+    mEngine.NewGame();
+    Send(Protocol::TableNewGame(mGame));
+}
+/*****************************************************************************/
 void Controller::NewDeal()
 {
-    mEngine.NewDeal();
-    // Send the cards to all the players
-    for (std::uint32_t i = 0U; i < mEngine.GetNbPlayers(); i++)
+    if (mScore.GetCurrentCounter() < mGame.deals.size())
     {
-        Player *player = mEngine.GetPlayer(Place(i));
-        if (player != NULL)
+        mEngine.NewDeal(mGame.deals[mScore.GetCurrentCounter()]);
+        // Send the cards to all the players
+        for (std::uint32_t i = 0U; i < mEngine.GetNbPlayers(); i++)
         {
-            Send(Protocol::TableNewDeal(player));
+            Player *player = mEngine.GetPlayer(Place(i));
+            if (player != NULL)
+            {
+                Send(Protocol::TableNewDeal(player));
+            }
+            else
+            {
+                TLogError("Cannot get player deck");
+            }
         }
-        else
-        {
-            TLogError("Cannot get player deck");
-        }
+    }
+    else
+    {
+        TLogError("Deals or game counter size problem");
     }
 }
 /*****************************************************************************/
 void Controller::StartDeal()
 {
     Place first = mEngine.StartDeal();
-    Send(Protocol::TableStartDeal(first, mEngine.GetBid(), mEngine.GetShuffle()));
+    Send(Protocol::TableStartDeal(first, mEngine.GetBid(), mGame.deals[mScore.GetCurrentCounter()]));
 }
 /*****************************************************************************/
 void Controller::BidSequence()
@@ -619,7 +663,7 @@ void Controller::GameSequence()
     {
         std::stringstream ss;
         ss << System::ProjectName() << "_" << mName << "_" << mId << "_";
-        mEngine.EndOfDeal(ss.str());
+        mEngine.EndOfDeal(mPlayers, ss.str());
         Send(Protocol::TableEndOfDeal(mEngine.GetCurrentGamePoints()));
     }
     else
@@ -666,7 +710,7 @@ void Controller::Send(const ByteArray &block)
     dbg << "Server controller sending packet: 0x" << std::hex << (int)cmd;
     TLogNetwork(dbg.str());
 
-    mEventHandler.SendData(block, mId);
+    mDataHandler.SendData(block, mId);
 }
 
 
