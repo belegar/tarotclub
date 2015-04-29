@@ -42,6 +42,20 @@ std::string System::mLocalePath;
 /*****************************************************************************/
 void System::Initialize()
 {
+    std::string homePath;
+#ifdef TAROT_DEBUG
+    homePath = Util::ExecutablePath() + "/.tarotclub/";
+#else
+    homePath = Util::HomePath() + "/.tarotclub/";
+#endif
+
+    Initialize(homePath);
+}
+/*****************************************************************************/
+void System::Initialize(const std::string &homePath)
+{
+    mHomePath = homePath;
+
     // ----------- Android
 #ifdef USE_ANDROID_OS
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -56,12 +70,10 @@ void System::Initialize()
 #else
 
 #ifdef TAROT_DEBUG
-    mHomePath  = Util::ExecutablePath() + "/.tarotclub/";
     mScriptPath = Util::ExecutablePath() + "/../../assets/ai/";
     mDeckPath = Util::ExecutablePath() + "/../../assets/cards/default/";
     mLocalePath = Util::ExecutablePath() + "/../../prj/desktop/";
 #else
-    mHomePath  = Util::HomePath() + "/.tarotclub/";
     mScriptPath = Util::ExecutablePath() + "/ai/";
     mDeckPath = Util::ExecutablePath() + "/default/";
     mLocalePath = Util::ExecutablePath() + "/";

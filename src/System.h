@@ -77,6 +77,7 @@ public:
     }
 
     static void Initialize();
+    static void Initialize(const std::string &homePath);
 
 private:
     System(); // forbid any instance
