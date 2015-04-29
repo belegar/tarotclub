@@ -60,7 +60,7 @@ void Lobby::Initialize(const ServerOptions &opt)
     Protocol::GetInstance().Initialize();
 
     Tarot::Distribution sh;
-    sh.type = Tarot::Distribution::RANDOM_DEAL;
+    sh.mType = Tarot::Distribution::RANDOM_DEAL;
 
     // Initialize all the tables, starting with the TCP port indicated
     mTcpPort = opt.game_tcp_port;

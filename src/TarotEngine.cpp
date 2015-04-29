@@ -527,9 +527,9 @@ void TarotEngine::CreateDeal(Tarot::Distribution &shuffle)
     DealFile editor;
     bool random = true;
 
-    if (shuffle.type == Tarot::Distribution::CUSTOM_DEAL)
+    if (shuffle.mType == Tarot::Distribution::CUSTOM_DEAL)
     {
-        if (!editor.LoadFile(shuffle.file))
+        if (!editor.LoadFile(shuffle.mFile))
         {
             // Fall back to default mode
             TLogError("Cannot load custom deal file");
@@ -553,13 +553,13 @@ void TarotEngine::CreateDeal(Tarot::Distribution &shuffle)
         bool valid = true;
         do
         {
-            if (shuffle.type == Tarot::Distribution::NUMBERED_DEAL)
+            if (shuffle.mType == Tarot::Distribution::NUMBERED_DEAL)
             {
-                valid = editor.CreateRandomDeal(mNbPlayers, shuffle.seed);
+                valid = editor.CreateRandomDeal(mNbPlayers, shuffle.mSeed);
                 if (!valid)
                 {
                     // The provided seed does dot generate a valid deal, so switch to a random one
-                    shuffle.type = Tarot::Distribution::RANDOM_DEAL;
+                    shuffle.mType = Tarot::Distribution::RANDOM_DEAL;
                 }
             }
             else
@@ -570,7 +570,7 @@ void TarotEngine::CreateDeal(Tarot::Distribution &shuffle)
         while (!valid);
 
         // Save the seed
-        shuffle.seed = editor.GetSeed();
+        shuffle.mSeed = editor.GetSeed();
     }
 
     // Copy deal editor cards to engine

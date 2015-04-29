@@ -107,11 +107,11 @@ bool ServerConfig::Load(const std::string &fileName)
                             {
                                 if (value.GetString() == "custom")
                                 {
-                                    shuffle.type = Tarot::Distribution::CUSTOM_DEAL;
+                                    shuffle.mType = Tarot::Distribution::CUSTOM_DEAL;
                                     value = iter->GetObject().GetValue("file");
                                     if (value.IsString())
                                     {
-                                        shuffle.file = value.GetString();
+                                        shuffle.mFile = value.GetString();
                                     }
                                     else
                                     {
@@ -203,7 +203,7 @@ bool ServerConfig::Save(const std::string &fileName)
         std::string file;
         JsonObject obj;
 
-        if (iter->type == Tarot::Distribution::RANDOM_DEAL)
+        if (iter->mType == Tarot::Distribution::RANDOM_DEAL)
         {
             type = "random";
             file = "";
@@ -212,7 +212,7 @@ bool ServerConfig::Save(const std::string &fileName)
         {
             // FIXME: add the numbered type
             type = "custom";
-            file = iter->file;
+            file = iter->mFile;
         }
         obj.AddValue("type", type);
         obj.AddValue("file", file);

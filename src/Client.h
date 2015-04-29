@@ -129,7 +129,7 @@ public:
         return mLobbyUsers;
     }
 
-    Tarot::Game GetGameMode()
+    Tarot::Game GetGame()
     {
         return mGame;
     }

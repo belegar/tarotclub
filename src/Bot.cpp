@@ -290,7 +290,7 @@ void Bot::NewGame()
     {
         JSEngine::StringList args;
         args.push_back(mClient.GetPlace().ToString());
-        Tarot::Game game = mClient.GetGameMode();
+        Tarot::Game game = mClient.GetGame();
         std::string modeString;
         if (game.mode == Tarot::Game::cQuickDeal)
         {

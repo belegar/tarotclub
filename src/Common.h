@@ -252,35 +252,43 @@ public:
         static const std::uint8_t CUSTOM_DEAL   = 1U;
         static const std::uint8_t NUMBERED_DEAL = 2U;
 
-        std::uint8_t    type;
-        std::string     file;
-        std::uint32_t   seed;
+        std::uint8_t    mType;
+        std::string     mFile;
+        std::uint32_t   mSeed;
 
         Distribution()
         {
             Initialize();
         }
 
+        Distribution(std::uint8_t type, const std::string &file = std::string(), std::uint32_t seed = 0U)
+            : mType(type)
+            , mFile(file)
+            , mSeed(seed)
+        {
+
+        }
+
         void Initialize()
         {
-            type = RANDOM_DEAL;
-            file.clear();
-            seed = 0U;
+            mType = RANDOM_DEAL;
+            mFile.clear();
+            mSeed = 0U;
         }
 
         friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Distribution &sh)
         {
-            out << sh.type
-                << sh.file
-                << sh.seed;
+            out << sh.mType
+                << sh.mFile
+                << sh.mSeed;
             return out;
         }
 
         friend ByteStreamReader &operator>>(ByteStreamReader &in, Distribution &sh)
         {
-            in >> sh.type;
-            in >> sh.file;
-            in >> sh.seed;
+            in >> sh.mType;
+            in >> sh.mFile;
+            in >> sh.mSeed;
             return in;
         }
     };
