@@ -64,7 +64,6 @@ private slots:
     void slotJoin();
     void slotQuit();
     void slotReturnPressed();
-    void slotCheckServer();
 
 private:
     Ui::LobbyUI  ui;
@@ -74,8 +73,6 @@ private:
     std::vector<ServerInfo> mServerList;
     bool mConnected;
 
-    bool RequestHttp(const QString &request, QString &reply);
-    bool CheckServer();
     void UpdateServersList();
 };
 

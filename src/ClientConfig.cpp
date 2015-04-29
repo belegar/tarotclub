@@ -200,7 +200,6 @@ bool ClientConfig::Load(const std::string &fileName)
 
                         bool ret = iter->GetValue("address", srv.address);
                         if (ret) { ret = iter->GetValue("game_port", srv.game_tcp_port); }
-                        if (ret) { ret = iter->GetValue("web_port", srv.web_tcp_port); }
 
                         if (ret)
                         {
@@ -307,7 +306,6 @@ bool ClientConfig::Save(const std::string &fileName)
         JsonObject srv; // = servers->CreateObject();
         srv.AddValue("address", inf.address);
         srv.AddValue("game_port", (std::int32_t) inf.game_tcp_port);
-        srv.AddValue("web_port", (std::int32_t) inf.web_tcp_port);
         servers.AddValue(srv);
     }
 
@@ -322,8 +320,8 @@ bool ClientConfig::Save(const std::string &fileName)
 ClientOptions ClientConfig::GetDefault()
 {
     const ServerInfo DefaultServers[2U] = {
-        {"tarotclub.duckdns.org", 4269, 8080 },
-        {"tarot.fun-center.fr", 4269, 8080 },
+        {"tarotclub.duckdns.org", 4269 },
+        {"tarot.fun-center.fr", 4269 },
     };
 
     const std::uint32_t NumberOfServers = (sizeof(DefaultServers) / sizeof(ServerInfo));

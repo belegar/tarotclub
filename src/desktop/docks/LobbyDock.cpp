@@ -41,7 +41,6 @@ LobbyDock::LobbyDock(QWidget *parent = 0)
     connect(ui.disconnectButton, &QPushButton::clicked, this, &LobbyDock::slotDisconnect);
     connect(ui.joinButton, &QPushButton::clicked, this, &LobbyDock::slotJoin);
     connect(ui.quitButton, &QPushButton::clicked, this, &LobbyDock::slotQuit);
-    connect(ui.checkServerButton, &QPushButton::clicked, this, &LobbyDock::slotCheckServer);
     connect(ui.chatText, &QLineEdit::returnPressed, this, &LobbyDock::slotReturnPressed);
 
     Initialize();
@@ -62,16 +61,7 @@ void LobbyDock::slotConnect()
             // Try each IP address to find any suitable server
             for (QList<QHostAddress>::iterator iter = addresses.begin(); iter != addresses.end(); ++iter)
             {
-                if (CheckServer())
-                {
-                    // It seems that we have found a valid server, try to connect
-                    emit sigConnect(iter->toString(), (std::uint16_t)gamePort.toUShort());
-                    break;
-                }
-                else
-                {
-                    ui.textArea->append(tr("Invalid server"));
-                }
+                emit sigConnect(iter->toString(), (std::uint16_t)gamePort.toUShort());
             }
         }
     }
@@ -152,7 +142,6 @@ void LobbyDock::SetServersList(const std::vector<ServerInfo> &servers)
     ServerInfo srv;
 
     srv.game_tcp_port = 4269;
-    srv.web_tcp_port = 8080;
     srv.address = "192.168.1.30";
     mServerList.push_back(srv);
 
@@ -204,59 +193,6 @@ void LobbyDock::slotQuit()
     }
 }
 /*****************************************************************************/
-void LobbyDock::slotCheckServer()
-{
-    SystemMessage(tr("Checking server ..."));
-
-    update();
-    if (CheckServer())
-    {
-        SystemMessage(tr("Server OK"));
-    }
-    else
-    {
-        SystemMessage(tr("Server unavailable :("));
-    }
-}
-/*****************************************************************************/
-bool LobbyDock::CheckServer()
-{
-    bool ret = false;
-    std::uint32_t item = ui.serverList->currentIndex();
-    if (item < mServerList.size())
-    {
-        QHostInfo info = QHostInfo::fromName(mServerList[item].address.c_str());
-        QString webPort = QString().setNum(mServerList[item].web_tcp_port);
-
-        if (info.error() == QHostInfo::NoError)
-        {
-            QList<QHostAddress>	addresses = info.addresses();
-            // Try each IP address to find any suitable server
-            for (QList<QHostAddress>::iterator iter = addresses.begin(); iter != addresses.end(); ++iter)
-            {
-                QString reply;
-                QString request = QString("http://") + iter->toString() + ":" + webPort;
-                if (RequestHttp(request + "/version", reply))
-                {
-                    // ok, found it, check the version string
-                    if (reply == QString(Lobby::LOBBY_VERSION_STRING.c_str()))
-                    {
-                        ret = true;
-                    }
-                }
-            }
-        }
-        else
-        {
-            std::stringstream ss;
-            ss << "Lookup failed:" << info.errorString().toStdString();
-            TLogError(ss.str());
-        }
-    }
-
-    return ret;
-}
-/*****************************************************************************/
 void LobbyDock::Initialize()
 {  
     mConnected = false;
@@ -269,39 +205,6 @@ void LobbyDock::Initialize()
     mPlayerList.clear();
     ui.tableList->clear();
     ui.playerList->clear();
-}
-/*****************************************************************************/
-bool LobbyDock::RequestHttp(const QString &request, QString &reply)
-{
-    bool ret = false;
-    // create custom temporary event loop on stack
-    QEventLoop eventLoop;
-
-    // "quit()" the eventl-loop, when the network request "finished()"
-    QNetworkAccessManager mgr;
-    QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
-
-    QUrl url(request);
-    // the HTTP request
-    QNetworkRequest req(url);
-
-    QNetworkReply *netReply = mgr.get(req);
-    eventLoop.exec(); // blocks stack until "finished()" has been called
-
-    if (netReply->error() == QNetworkReply::NoError)
-    {
-        // Everything is ok => reply->readAll()
-        reply = netReply->readAll();
-        ret = true;
-    }
-    else
-    {
-        // error...
-        reply = netReply->errorString();
-        ret = false;
-    }
-    delete netReply;
-    return ret;
 }
 /*****************************************************************************/
 void LobbyDock::slotReturnPressed()

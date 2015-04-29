@@ -39,7 +39,6 @@ struct ServerInfo
 {
     std::string address;
     std::uint16_t game_tcp_port;
-    std::uint16_t web_tcp_port;
 };
 
 struct BotConf

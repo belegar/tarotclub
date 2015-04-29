@@ -91,38 +91,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="checkServerButton">
-        <property name="minimumSize">
-         <size>
-          <width>42</width>
-          <height>42</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>42</width>
-          <height>42</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Check the server connection</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../../assets/desktop.qrc">
-          <normaloff>:/images/check.png</normaloff>:/images/check.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="joinButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

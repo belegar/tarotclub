@@ -633,7 +633,6 @@ void OptionsWindow::slotAddServer()
         ServerInfo server;
         server.address = srvUi.address->text().toStdString();
         server.game_tcp_port = srvUi.gamePort->value();
-        server.web_tcp_port = srvUi.webPort->value();
 
         clientOptions.serverList.push_back(server);
         UpdateServersList();
@@ -655,7 +654,7 @@ void OptionsWindow::UpdateServersList()
     ui.serverList->clear();
     for (std::vector<ServerInfo>::iterator iter = clientOptions.serverList.begin(); iter != clientOptions.serverList.end(); ++iter)
     {
-        QString server = QString(iter->address.c_str()) + QString(" (%1), (%2)").arg(iter->game_tcp_port).arg(iter->web_tcp_port);
+        QString server = QString(iter->address.c_str()) + QString(" (%1)").arg(iter->game_tcp_port);
         ui.serverList->addItem(server);
     }
 
