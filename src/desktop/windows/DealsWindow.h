@@ -62,7 +62,6 @@ private:
     QGraphicsSimpleTextItem *mText;
     QVector<QGraphicsSvgItem *> mCardsPics;
 
-    DummyRemoteDb mRemoteDb;
     Deal mDeal;
     QFileInfoList mList;
 

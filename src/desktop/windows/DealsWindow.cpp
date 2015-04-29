@@ -32,7 +32,6 @@
 /*****************************************************************************/
 DealsWindow::DealsWindow(QWidget *parent)
     : QDialog(parent)
-    , mDeal(mRemoteDb)
 {
     mComboBox = new QComboBox(this);
     mOkButton = new QPushButton(tr("&Close"), this);

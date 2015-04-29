@@ -37,11 +37,10 @@
 /*****************************************************************************/
 TarotWidget::TarotWidget(QWidget *parent)
     : QWidget(parent)
-    , mLobby(mDataBase, std::string())
+    , mLobby(std::string())
     , mClient(*this)
     , mConnectionType(NO_CONNECTION)
     , mAutoPlay(false)
-    , mGameMode(Tarot::ONE_DEAL)
     , mShutdown(false)
 {
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
@@ -55,7 +54,7 @@ TarotWidget::TarotWidget(QWidget *parent)
 
     qRegisterMetaType<Place>("Place");
     qRegisterMetaType<Contract>("Contract");
-    qRegisterMetaType<Tarot::Shuffle>("Tarot::Shuffle");
+    qRegisterMetaType<Tarot::Distribution>("Tarot::Shuffle");
     qRegisterMetaType<std::string>("std::string");
 
     // Board click events
@@ -139,27 +138,52 @@ void TarotWidget::slotCleanBeforeExit()
 /*****************************************************************************/
 void TarotWidget::slotNewTournamentGame()
 {
-    Tarot::Shuffle sh;
-    sh.type = Tarot::Shuffle::RANDOM_DEAL;
+    mGame.mode = Tarot::Game::cSimpleTournament;
+    mGame.deals = mServerOptions.tournament;
 
-    LaunchLocalGame(Tarot::TOURNAMENT, sh, false);
+    LaunchLocalGame(false);
 }
 /*****************************************************************************/
 void TarotWidget::slotNewQuickGame()
 {
-    Tarot::Shuffle sh;
-    sh.type = Tarot::Shuffle::RANDOM_DEAL;
+    mGame.mode = Tarot::Game::cQuickDeal;
+    mGame.deals.clear();
+    mGame.deals.push_back(Tarot::Distribution(Tarot::Distribution::RANDOM_DEAL));
 
-    LaunchLocalGame(Tarot::ONE_DEAL, sh, false);
+    LaunchLocalGame(false);
+}
+/*****************************************************************************/
+void TarotWidget::NewNumberedDeal(std::uint32_t dealNumber)
+{
+    mGame.mode = Tarot::Game::cQuickDeal;
+    mGame.deals.clear();
+    mGame.deals.push_back(Tarot::Distribution(Tarot::Distribution::NUMBERED_DEAL, "", dealNumber));
+
+    LaunchLocalGame(false);
+}
+/*****************************************************************************/
+void TarotWidget::NewCustomDeal(const std::string &file)
+{
+    mGame.mode = Tarot::Game::cQuickDeal;
+    mGame.deals.clear();
+    mGame.deals.push_back(Tarot::Distribution(Tarot::Distribution::CUSTOM_DEAL, file));
+
+    LaunchLocalGame(false);
 }
 /*****************************************************************************/
 void TarotWidget::slotCreateNetworkGame()
 {
-    Tarot::Shuffle sh;
-    sh.type = Tarot::Shuffle::RANDOM_DEAL;
-
     // Connect us to the server
     mClient.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
+}
+/*****************************************************************************/
+void TarotWidget::slotNewAutoPlay()
+{
+    mGame.mode = Tarot::Game::cQuickDeal;
+    mGame.deals.clear();
+    mGame.deals.push_back(Tarot::Distribution(Tarot::Distribution::RANDOM_DEAL));
+
+    LaunchLocalGame(true);
 }
 /*****************************************************************************/
 bool TarotWidget::HasLocalConnection()
@@ -202,13 +226,10 @@ void TarotWidget::slotAssignedPlace()
     }
 }
 /*****************************************************************************/
-void TarotWidget::LaunchLocalGame(Tarot::GameMode mode, const Tarot::Shuffle &sh, bool autoPlay)
+void TarotWidget::LaunchLocalGame(bool autoPlay)
 {
     // Save game config
     mAutoPlay = autoPlay;
-    mGameMode = mode;
-    mShuffle = sh;
-
     if (!HasLocalConnection())
     {
         InitScreen(true);
@@ -263,13 +284,7 @@ void TarotWidget::Disconnect()
 /*****************************************************************************/
 void TarotWidget::slotStartGame()
 {
-    std::uint8_t  numberOfTurns = 1U;
-    if (mGameMode == Tarot::TOURNAMENT)
-    {
-        numberOfTurns = mServerOptions.tournament.size();
-    }
-
-    mClient.AdminNewGame(mGameMode, mShuffle, numberOfTurns);
+    mClient.AdminNewGame(mGame);
 }
 /*****************************************************************************/
 void TarotWidget::InitScreen(bool rawClear)
@@ -731,7 +746,7 @@ void TarotWidget::slotEndOfDeal()
     mCanvas->SetResult(mClient.GetPoints(), mClient.GetBid());
     mCanvas->SetFilter(Canvas::BOARD);
 
-    if (mClient.GetGameMode() == Tarot::TOURNAMENT)
+    if (mClient.GetGame().mode == Tarot::Game::cSimpleTournament)
     {
         emit sigAddScore();
     }

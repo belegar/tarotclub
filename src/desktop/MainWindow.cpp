@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(newCustomDealAct, &QAction::triggered, this, &MainWindow::slotNewCustomDeal);
 //    connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
     connect(optionsAct, &QAction::triggered, this, &MainWindow::slotShowOptions);
-    connect(newAutoPlayAct, &QAction::triggered, this, &MainWindow::slotNewAutoPlay);
+    connect(newAutoPlayAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewAutoPlay);
     connect(dealsAct, &QAction::triggered, this, &MainWindow::slotDisplayDeals);
 
     // Table chat
@@ -150,19 +150,8 @@ void MainWindow::slotNewNumberedDeal()
 
     if (widget->exec() == QDialog::Accepted)
     {
-        Tarot::Shuffle sh;
-        sh.type = Tarot::Shuffle::NUMBERED_DEAL;
-        sh.seed = ui.dealNumber->value();
-
-        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh, false);
+        tarotWidget->NewNumberedDeal(ui.dealNumber->value());
     }
-}
-/*****************************************************************************/
-void MainWindow::slotNewAutoPlay()
-{
-    Tarot::Shuffle sh;
-    sh.type = Tarot::Shuffle::RANDOM_DEAL;
-    tarotWidget->LaunchLocalGame(Tarot::TOURNAMENT, sh, true);
 }
 /*****************************************************************************/
 void MainWindow::slotNewCustomDeal()
@@ -171,11 +160,7 @@ void MainWindow::slotNewCustomDeal()
 
     if (fileName.size() != 0)
     {
-        Tarot::Shuffle sh;
-        sh.type = Tarot::Shuffle::CUSTOM_DEAL;
-        sh.file = fileName.toStdString();
-
-        tarotWidget->LaunchLocalGame(Tarot::ONE_DEAL, sh, false);
+        tarotWidget->NewCustomDeal(fileName.toStdString());
     }
 }
 /*****************************************************************************/
@@ -564,7 +549,7 @@ void MainWindow::slotStartDealEvent()
     mTrickCounter = 0U;
     mFirstPlayer = true;
     Tarot::Bid bid = tarotWidget->GetBid();
-    Tarot::Shuffle shuffle = tarotWidget->GetShuffle();
+    Tarot::Distribution shuffle = tarotWidget->GetShuffle();
     std::map<Place, Identity> players = tarotWidget->GetTablePlayersList();
 
     infosDock->Clear();
@@ -579,9 +564,9 @@ void MainWindow::slotStartDealEvent()
     }
     infosDock->SetTaker(name, bid.taker);
 
-    if (shuffle.type != Tarot::Shuffle::CUSTOM_DEAL)
+    if (shuffle.mType != Tarot::Distribution::CUSTOM_DEAL)
     {
-        infosDock->SetDealNumber(shuffle.seed);
+        infosDock->SetDealNumber(shuffle.mSeed);
     }
     else
     {

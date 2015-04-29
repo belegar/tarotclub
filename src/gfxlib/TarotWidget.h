@@ -36,7 +36,6 @@
 #include "ServerConfig.h"
 #include "GfxCard.h"
 #include "Canvas.h"
-#include "DummyLocalDataBase.h"
 
 /*****************************************************************************/
 /**
@@ -61,7 +60,9 @@ public:
     ~TarotWidget();
 
     void Initialize(const ServerOptions &opt);
-    void LaunchLocalGame(Tarot::GameMode, const Tarot::Shuffle &sh, bool autoPlay);
+    void NewNumberedDeal(std::uint32_t dealNumber);
+    void NewCustomDeal(const std::string &file);
+    void LaunchLocalGame(bool autoPlay);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
     void JoinTable(std::uint32_t tableId);
     void QuitTable(std::uint32_t tableId);
@@ -85,7 +86,7 @@ public:
     {
         return mClient.GetBid();
     }
-    Tarot::Shuffle GetShuffle()
+    Tarot::Distribution GetShuffle()
     {
         return mClient.GetShuffle();
     }
@@ -128,13 +129,13 @@ public slots:
     void slotNewTournamentGame();
     void slotNewQuickGame();
     void slotCreateNetworkGame();
+    void slotNewAutoPlay();
     void slotCleanBeforeExit();
     void slotSendChatMessage(const QString &message);
     void slotSendLobbyMessage(const QString &message);
     void slotStartGame();
 
 private:
-    DummyDataBase   mDataBase;
     Lobby           mLobby;    // Embedded lobby into this executable
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
@@ -145,8 +146,8 @@ private:
     Deck            mMyHandle;
     bool            mAutoPlay;
     Deck            mMySavedDeck;
-    Tarot::GameMode mGameMode;
-    Tarot::Shuffle  mShuffle;
+    Tarot::Game     mGame;
+    Tarot::Distribution  mShuffle;
     bool            mShutdown;
 
     // Helpers

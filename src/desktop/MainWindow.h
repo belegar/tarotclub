@@ -65,7 +65,6 @@ private slots:
     void slotQuickJoinNetworkGame();
     void slotShowOptions();
     void slotLaunchHelp();
-    void slotNewAutoPlay();
     void slotAboutToQuit();
     void slotDisplayDeals();
 
