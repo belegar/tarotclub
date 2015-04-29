@@ -44,14 +44,14 @@
 class Deal
 {
 public:
-    Deal(IRemoteDb &i_remoteDb);
+    Deal();
 
     // Helpers
     void NewDeal();
     void StartDeal(Place firstPlayer, const Tarot::Bid &bid);
     void AnalyzeGame(Points &points, std::uint8_t numberOfPlayers);
     void CalculateScore(Points &points);
-    void GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName, const std::string &db);
+    void GenerateEndDealLog(const Identity players[5U], std::uint8_t numberOfPlayers, const std::string &tableName);
     bool LoadGameDealLog(const std::string &fileName);
 
     // Getters
@@ -89,9 +89,6 @@ private:
     // Bonus: Slam
     bool slamDone;  // true if the slam has been successfully done
     Team slamOwner; // the defense can also perform a slam if everything goes wrong
-
-    // Database storage
-    IRemoteDb &mRemoteDb;
 };
 
 

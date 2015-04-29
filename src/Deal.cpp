@@ -34,8 +34,7 @@
 static const std::string DEAL_RESULT_FILE_VERSION  = "3";
 
 /*****************************************************************************/
-Deal::Deal(IRemoteDb &i_remoteDb)
-    : mRemoteDb(i_remoteDb)
+Deal::Deal()
 {
     NewDeal();
 }
@@ -382,11 +381,8 @@ void Deal::CalculateScore(Points &points)
 /**
  * @brief Generate a file with all played cards of the deal
  */
-void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const std::string &tableName, const std::string &db)
+void Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t numberOfPlayers, const std::string &tableName)
 {
-    std::uint8_t numberOfPlayers = players.size();
-    Identity bot;
-
     std::string fileName = System::GamePath() + tableName + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
 
     JsonObject json;
@@ -398,14 +394,9 @@ void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const st
     // Players are sorted from south to north-west, anti-clockwise (see Place class)
     JsonArray playersInfo;
     std::map<Place, Identity>::const_iterator it;
-    for (it = players.begin(); it != players.end(); ++it)
+    for (std::uint8_t i = 0U; i < numberOfPlayers; i++)
     {
-        playersInfo.AddValue((it->second).nickname);
-
-        if (it->second.gender == Identity::cGenderRobot)
-        {
-            bot = it->second;
-        }
+        playersInfo.AddValue(players[i].nickname);
     }
     dealInfo.AddValue("players", playersInfo);
 
@@ -431,29 +422,6 @@ void Deal::GenerateEndDealLog(const std::map<Place, Identity> &players, const st
     if (!JsonWriter::SaveToFile(json, fileName))
     {
         TLogError("Saving deal game result failed.");
-    }
-
-    // Store game result in the remote database, if required
-    if (db.size() > 0)
-    {
-        if (mRemoteDb.Connect())
-        {
-            if (db == "tc_aicontest")
-            {
-                // Look for the account and bot name
-                if ((bot.cGenderRobot == Identity::cGenderRobot) &&
-                    (bot.username.size() > 0) &&
-                    (bot.nickname.size() > 0))
-                {
-                    mRemoteDb.StoreAiGame(json, bot.username, bot.nickname);
-                }
-                else
-                {
-                    TLogError("Invalid bot identity");
-                }
-            }
-            mRemoteDb.Close();
-        }
     }
 }
 /*****************************************************************************/
