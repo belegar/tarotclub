@@ -127,6 +127,10 @@ public:
         TABLE_END_OF_GAME       = 0x81, //!< end of the game mode (tournament ...)
         TABLE_ERROR_FULL        = 0x82, //!< Server is full, cannot join game
 
+        // table -> Lobby
+        TABLE_ACCEPTED_PLAYER   = 0x85,
+        TABLE_REMOVED_PLAYER    = 0x86,
+
         // admin -> server
         ADMIN_NEW_GAME          = 0xB0, //!< Start a new game with a specified mode
 
@@ -193,14 +197,14 @@ public:
     static ByteArray TableFullMessage(std::uint32_t uuid);
     static ByteArray TableAskForDiscard(std::uint32_t uuid);
     static ByteArray TableAskForHandle(std::uint32_t uuid);
-    static ByteArray TableNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns);
+    static ByteArray TableNewGame(Tarot::Game game);
     static ByteArray TableChatMessage(const std::string &message);
     static ByteArray TableShowBid(Contract c, bool slam, Place p);
     static ByteArray TablePlayersList(const std::map<Place, Identity> &players);
     static ByteArray TableShowCard(const Card &c, Place p);
     static ByteArray TableShowHandle(Deck &handle, Place p);
     static ByteArray TableNewDeal(Player *player);
-    static ByteArray TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Shuffle &sh);
+    static ByteArray TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Distribution &sh);
     static ByteArray TablePlayCard(Place p);
     static ByteArray TableBidRequest(Contract c, Place p);
     static ByteArray TableShowDog(const Deck &dog);
@@ -208,9 +212,11 @@ public:
     static ByteArray TableEndOfDeal(const Points &score);
     static ByteArray TableEndOfGame(Place winner);
     static ByteArray TableQuitEvent(std::uint32_t uuid, std::uint32_t tableId);
+    static ByteArray TableAcceptedPlayer(std::uint32_t uuid, std::uint32_t tableId);
+    static ByteArray TableRemovedPlayer(std::uint32_t uuid, std::uint32_t tableId);
 
     // Admin -> controller
-    static ByteArray AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns, std::uint32_t uuid);
+    static ByteArray AdminNewGame(const Tarot::Game &game, std::uint32_t uuid);
 
     // Controller -> Admin
     static ByteArray AdminGameFull(bool full, std::uint32_t uuid);

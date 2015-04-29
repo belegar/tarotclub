@@ -470,6 +470,34 @@ ByteArray Protocol::TableQuitEvent(std::uint32_t uuid, std::uint32_t tableId)
     return packet;
 }
 /*****************************************************************************/
+ByteArray Protocol::TableAcceptedPlayer(std::uint32_t uuid, std::uint32_t tableId)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::TABLE_ACCEPTED_PLAYER, TABLE_UID, LOBBY_UID);
+    out.Seek(HEADER_SIZE);
+    out << tableId;
+    out << uuid;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::TableRemovedPlayer(std::uint32_t uuid, std::uint32_t tableId)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::TABLE_REMOVED_PLAYER, TABLE_UID, LOBBY_UID);
+    out.Seek(HEADER_SIZE);
+    out << tableId;
+    out << uuid;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
 ByteArray Protocol::TableJoinReply(bool status, Place p, std::uint8_t nbPlayers, std::uint32_t uuid)
 {
     ByteArray packet;
@@ -616,7 +644,7 @@ ByteArray Protocol::TableEndOfTrick(Place winner)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Shuffle &sh)
+ByteArray Protocol::TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Distribution &sh)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -673,16 +701,14 @@ ByteArray Protocol::TableShowDog(const Deck &dog)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns)
+ByteArray Protocol::TableNewGame(Tarot::Game game)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::TABLE_NEW_GAME, TABLE_UID, Protocol::ALL_TABLE);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)gameMode;
-    out << shuffle;
-    out << numberOfTurns;
+    out << game;
     UpdateHeader(packet);
 
     return packet;
@@ -802,16 +828,14 @@ ByteArray Protocol::LobbyPlayersList(const std::map<std::uint32_t, std::string> 
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns, std::uint32_t uuid)
+ByteArray Protocol::AdminNewGame(const Tarot::Game &game, std::uint32_t uuid)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::ADMIN_NEW_GAME, uuid, TABLE_UID);
     out.Seek(HEADER_SIZE);
-    out << (std::uint8_t)gameMode;
-    out << shuffle;
-    out << numberOfTurns;
+    out << game;
     UpdateHeader(packet);
 
     return packet;
