@@ -129,9 +129,9 @@ public:
         return mLobbyUsers;
     }
 
-    Tarot::GameMode GetGameMode()
+    Tarot::Game GetGameMode()
     {
-        return mGameMode;
+        return mGame;
     }
 
     std::uint8_t GetNumberOfTurns()
@@ -147,7 +147,7 @@ public:
     {
         return mBid;
     }
-    Tarot::Shuffle GetShuffle()
+    Tarot::Distribution GetShuffle()
     {
         return mShuffle;
     }
@@ -170,7 +170,7 @@ public:
     void Close();
 
     // Protocol methods
-    void AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns);
+    void AdminNewGame(const Tarot::Game &game);
     void SendJoinTable(std::uint32_t tableId);
     void SendQuitTable(std::uint32_t tableId);
     void SendBid(Contract c, bool slam);
@@ -205,13 +205,13 @@ private:
     Identity    mIdentity;  // Player's identity
 
     // Memorized game states and parameters
-    Tarot::GameMode mGameMode;
+    Tarot::Game mGame;
     std::map<Place, Identity> mPlayersIdent;  // players around the table
     std::map<std::uint32_t, std::string> mLobbyUsers; // pair of uuid, names
     std::map<std::string, std::uint32_t> mTableList;
     std::uint8_t mNbPlayers;
     Tarot::Bid  mBid;
-    Tarot::Shuffle mShuffle;
+    Tarot::Distribution mShuffle;
     std::uint8_t mNumberOfTurns;
     Points      mPoints;
     Deck        mDog;

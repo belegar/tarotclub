@@ -30,7 +30,6 @@
 /*****************************************************************************/
 Client::Client(IEvent &handler)
     : mEventHandler(handler)
-    , mGameMode(Tarot::ONE_DEAL)
     , mNbPlayers(4U)
     , mSequence(STOPPED)
     , mInitialized(false)
@@ -502,12 +501,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
     case Protocol::TABLE_NEW_GAME:
     {
-        std::uint8_t mode;
-        in >> mode;
-        in >> mShuffle;
-        in >> mNumberOfTurns;
-
-        mGameMode = (Tarot::GameMode)mode;
+        in >> mGame;
         mEventHandler.NewGame();
         break;
     }
@@ -685,9 +679,9 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     return ret;
 }
 /*****************************************************************************/
-void Client::AdminNewGame(Tarot::GameMode gameMode, const Tarot::Shuffle &shuffle, std::uint8_t numberOfTurns)
+void Client::AdminNewGame(const Tarot::Game &game)
 {
-    ByteArray packet = Protocol::AdminNewGame(gameMode, shuffle, numberOfTurns, mPlayer.GetUuid());
+    ByteArray packet = Protocol::AdminNewGame(game, mPlayer.GetUuid());
     SendPacket(packet);
 }
 /*****************************************************************************/

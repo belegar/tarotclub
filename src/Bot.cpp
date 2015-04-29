@@ -290,15 +290,15 @@ void Bot::NewGame()
     {
         JSEngine::StringList args;
         args.push_back(mClient.GetPlace().ToString());
-        Tarot::GameMode mode = mClient.GetGameMode();
+        Tarot::Game game = mClient.GetGameMode();
         std::string modeString;
-        if (mode == Tarot::ONE_DEAL)
+        if (game.mode == Tarot::Game::cQuickDeal)
         {
             modeString = "one_deal";
         }
         else
         {
-            modeString = "tournament";
+            modeString = "simple_tournament";
         }
         args.push_back(modeString);
         mBotEngine.Call("EnterGame", args);
@@ -396,8 +396,6 @@ void Bot::EndOfDeal()
 void Bot::EndOfGame(Place winner)
 {
     (void) winner;
-    // FIXME What must we do?
-    AdminGameFull(); // start a new game
 }
 /*****************************************************************************/
 void Bot::SetTimeBeforeSend(std::uint16_t t)
@@ -493,9 +491,10 @@ void Bot::EnteredLobby()
 void Bot::AdminGameFull()
 {
     // We are the admin on this table, let's start the game!
-    Tarot::Shuffle sh;
-    sh.type = Tarot::Shuffle::RANDOM_DEAL;
-    mClient.AdminNewGame(Tarot::ONE_DEAL, sh, mClient.GetNumberOfTurns());
+    Tarot::Game game;
+    game.mode = Tarot::Game::cQuickDeal;
+    game.deals.push_back(Tarot::Distribution());
+    mClient.AdminNewGame(game);
 }
 /*****************************************************************************/
 void Bot::TableQuitEvent(std::uint32_t tableId)
