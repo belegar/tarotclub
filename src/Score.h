@@ -81,10 +81,12 @@ public:
     void NewDeal();
 
     std::uint8_t GetNumberOfTurns() { return mNumberOfTurns; }
+    std::uint8_t GetCurrentCounter() { return dealCounter; }
 
     bool AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
     int GetTotalPoints(Place p) const;
     std::map<int, Place> GetPodium();
+    Place GetWinner();
 
 private:
     // scores of previous deals

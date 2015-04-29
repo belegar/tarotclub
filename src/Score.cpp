@@ -176,6 +176,11 @@ std::map<int, Place> Score::GetPodium()
     // there is no need to sort anything
     return podium;
 }
+/*****************************************************************************/
+Place Score::GetWinner()
+{
+    return GetPodium().rbegin()->second;
+}
 
 //=============================================================================
 // End of file Score.cpp
