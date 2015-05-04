@@ -44,6 +44,7 @@ public:
     static std::string ExecutablePath();
     static std::string HomePath();
     static bool FolderExists(const std::string &foldername);
+    static bool FileExists(const std::string &fileName);
     static bool Mkdir(const std::string &fullPath);
     static void ReplaceCharacter(std::string &theString, const std::string &toFind, const std::string &toReplace);
     static std::vector<std::string> Split(const std::string &theString, const std::string &delimiter);

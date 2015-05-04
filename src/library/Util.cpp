@@ -157,8 +157,25 @@ bool Util::FolderExists(const std::string &foldername)
             ret = true;
         }
     }
-
-
+    return ret;
+}
+/*****************************************************************************/
+/**
+ * Checks if a file exists
+ * @param filename of the file to check.
+ * @return true if the file exists, false otherwise.
+ */
+bool Util::FileExists(const std::string &fileName)
+{
+    bool ret = false;
+    struct stat st;
+    if (::stat(fileName.c_str(), &st) == 0)
+    {
+        if ((st.st_mode & S_IFREG) != 0)
+        {
+            ret = true;
+        }
+    }
     return ret;
 }
 /*****************************************************************************/
