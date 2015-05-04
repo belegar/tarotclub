@@ -38,7 +38,8 @@ public:
 
     virtual void Initialize() = 0;
 
-    virtual bool Evaluate(const std::string &fileName) = 0;
+    virtual bool EvaluateFile(const std::string &fileName) = 0;
+    virtual bool EvaluateString(const std::string &contents) = 0;
     virtual Value Call(const std::string &function, const StringList &args) = 0;
 };
 

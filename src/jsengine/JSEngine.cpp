@@ -49,7 +49,7 @@ void JSEngine::Initialize()
     }
 }
 /*****************************************************************************/
-bool JSEngine::Evaluate(const std::string &fileName)
+bool JSEngine::EvaluateFile(const std::string &fileName)
 {
     if (!mValidContext)
     {
@@ -69,7 +69,29 @@ bool JSEngine::Evaluate(const std::string &fileName)
     // Push argument into the stack: file name to evaluate
     duk_push_lstring(mCtx, fileName.c_str(), fileName.size());
 
-    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEval, 1 /*nargs*/, 0 /*nrets*/);
+    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEvalFile, 1 /*nargs*/, 0 /*nrets*/);
+    if (rc != DUK_EXEC_SUCCESS)
+    {
+        PrintError();
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+/*****************************************************************************/
+bool JSEngine::EvaluateString(const std::string &contents)
+{
+    if (!mValidContext)
+    {
+        return false;
+    }
+
+    // Push argument into the stack: file name to evaluate
+    duk_push_lstring(mCtx, contents.c_str(), contents.size());
+
+    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEvalFile, 1 /*nargs*/, 0 /*nrets*/);
     if (rc != DUK_EXEC_SUCCESS)
     {
         PrintError();
@@ -149,12 +171,23 @@ void JSEngine::Close()
     mValidContext = false;
 }
 /*****************************************************************************/
-int JSEngine::WrappedScriptEval(duk_context *ctx)
+int JSEngine::WrappedScriptEvalFile(duk_context *ctx)
 {
     std::string fileName = duk_get_string(ctx, -1);
     duk_pop(ctx);
 
     duk_eval_file(ctx, fileName.c_str());
+
+    // The result of the evaluation is pushed on top of the value stack. Here we don't need th evaluation result, so we pop the value off the stack.
+    duk_pop(ctx);
+
+    return 0; // no return values
+}
+/*****************************************************************************/
+int JSEngine::WrappedScriptEvalString(duk_context *ctx)
+{
+    // Evaluate the Ecmascript source code at the top of the stack
+    duk_eval(ctx);
 
     // The result of the evaluation is pushed on top of the value stack. Here we don't need th evaluation result, so we pop the value off the stack.
     duk_pop(ctx);

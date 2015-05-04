@@ -40,7 +40,8 @@ public:
     ~JSEngine();
 
     void Initialize();
-    bool Evaluate(const std::string &fileName);
+    bool EvaluateFile(const std::string &fileName);
+    bool EvaluateString(const std::string &contents);
     Value Call(const std::string &function, const IScriptEngine::StringList &args);
     void Close();
 
@@ -48,7 +49,8 @@ private:
     duk_context *mCtx;
     bool mValidContext;
 
-    static int WrappedScriptEval(duk_context *ctx);
+    static int WrappedScriptEvalFile(duk_context *ctx);
+    static int WrappedScriptEvalString(duk_context *ctx);
     static int WrappedScriptCall(duk_context *ctx);
 
     void PrintError() const;
