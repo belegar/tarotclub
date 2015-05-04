@@ -381,7 +381,7 @@ void Deal::CalculateScore(Points &points)
 /**
  * @brief Generate a file with all played cards of the deal
  */
-void Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t numberOfPlayers, const std::string &tableName)
+std::string Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t numberOfPlayers, const std::string &tableName)
 {
     std::string fileName = System::GamePath() + tableName + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
 
@@ -423,16 +423,18 @@ void Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t numberOfP
     {
         TLogError("Saving deal game result failed.");
     }
+
+    return json.ToString(0U);
 }
 /*****************************************************************************/
 bool Deal::LoadGameDealLog(const std::string &fileName)
 {
     bool ret = true;
-    JsonReader json;
+    JsonValue json;
 
     NewDeal();
 
-    if (json.Open(fileName))
+    if (JsonReader::ParseFile(json, fileName))
     {
         std::uint32_t numberOfPlayers;
         JsonValue players = json.FindValue("deal_info:players");
