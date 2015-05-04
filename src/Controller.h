@@ -48,7 +48,7 @@ class Controller : public Protocol::IWorkItem
 
 public:
     /**
-     * @brief The IEvent class for upper layers (the table manager)
+     * @brief Interface to send serialized data
      *
      */
     class IData

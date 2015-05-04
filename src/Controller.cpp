@@ -663,8 +663,8 @@ void Controller::GameSequence()
     {
         std::stringstream ss;
         ss << System::ProjectName() << "_" << mName << "_" << mId << "_";
-        mEngine.EndOfDeal(mPlayers, ss.str());
-        Send(Protocol::TableEndOfDeal(mEngine.GetCurrentGamePoints()));
+        std::string json = mEngine.EndOfDeal(mPlayers, ss.str());
+        Send(Protocol::TableEndOfDeal(mEngine.GetCurrentGamePoints(), json));
     }
     else
     {
