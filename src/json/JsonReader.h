@@ -75,28 +75,15 @@ public:
     ~JsonReader();
 
     // Helpers
-    bool Open(const std::string &fileName);
-    void Close();
-
-    bool ParseString(const std::string &data);
-    bool IsValid() { return mValid; }
-
-    bool GetValue(const std::string &nodePath, std::string &value);
-    bool GetValue(const std::string &nodePath, std::uint32_t &value);
-    bool GetValue(const std::string &nodePath, std::int32_t &value);
-    bool GetValue(const std::string &nodePath, bool &value);
-    bool GetValue(const std::string &nodePath, double &value);
-    JsonValue FindValue(const std::string &nodePath);
+    static bool ParseFile(JsonValue &json, const std::string &fileName);
+    static bool ParseString(JsonValue &json, const std::string &data);
 
 private:
-    bool mValid;
-    JsonValue mValue;
-
-    JsonReader::ParseStatus Parse(char *s, char **endptr);
-    JsonValue StringToNumber(char *s, char **endptr);
+    static JsonReader::ParseStatus Parse(char *s, char **endptr, JsonValue &json);
+    static JsonValue StringToNumber(char *s, char **endptr);
 
     /*****************************************************************************/
-    inline bool IsDelim(char c)
+    static inline bool IsDelim(char c)
     {
         return isspace(c) || c == ',' || c == ':' || c == ']' || c == '}' || c == '\0';
     }

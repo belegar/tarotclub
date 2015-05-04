@@ -138,11 +138,11 @@ void DealFile::SetPlayerDeck(Place p, const Deck &deck)
 /*****************************************************************************/
 bool DealFile::LoadFile(const std::string &fileName)
 {
-    JsonReader json;
+    JsonValue json;
 
     Clear();
 
-    bool ret = json.Open(fileName);
+    bool ret = JsonReader::ParseFile(json, fileName);
     if (ret)
     {
         std::string stringval;
@@ -218,7 +218,6 @@ bool DealFile::LoadFile(const std::string &fileName)
             ret = false;
         }
     }
-    json.Close();
 
     return ret;
 }

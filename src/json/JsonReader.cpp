@@ -34,16 +34,6 @@
 //#define JSON_READER_D
 
 /*****************************************************************************/
-JsonReader::JsonReader()
-{
-    mValid = false;
-}
-/*****************************************************************************/
-JsonReader::~JsonReader()
-{
-    Close();
-}
-/*****************************************************************************/
 /**
  * @brief Open a JSON file for parsing
  *
@@ -52,9 +42,10 @@ JsonReader::~JsonReader()
  * @param fileName to open
  * @return true if the file has been parsed successfully
  */
-bool JsonReader::Open(const std::string &fileName)
+bool JsonReader::ParseFile(JsonValue &json, const std::string &fileName)
 {
     std::ifstream f;
+    bool valid = false;
 
     f.open(fileName, std::ios_base::in | std::ios_base::binary);
     if (f.is_open())
@@ -62,61 +53,16 @@ bool JsonReader::Open(const std::string &fileName)
         std::ostringstream contents;
         contents << f.rdbuf();
         f.close();
-        mValid = ParseString(contents.str());
-    }
-    else
-    {
-        mValid = false;
+        valid = ParseString(json, contents.str());
     }
 
-    return mValid;
+    return valid;
 }
 /*****************************************************************************/
-/**
- * @brief Close
- *
- * Cleans the context and free memory
- *
- */
-void JsonReader::Close()
-{
-    mValid = false;
-    mValue.Clear();
-}
-/*****************************************************************************/
-bool JsonReader::GetValue(const std::string &nodePath, std::string &value)
-{
-    return mValue.GetValue(nodePath, value);
-}
-/*****************************************************************************/
-bool JsonReader::GetValue(const std::string &nodePath, std::uint32_t &value)
-{
-    return mValue.GetValue(nodePath, value);
-}
-/*****************************************************************************/
-bool JsonReader::GetValue(const std::string &nodePath, std::int32_t &value)
-{
-    return mValue.GetValue(nodePath, value);
-}
-/*****************************************************************************/
-bool JsonReader::GetValue(const std::string &nodePath, bool &value)
-{
-    return mValue.GetValue(nodePath, value);
-}
-/*****************************************************************************/
-bool JsonReader::GetValue(const std::string &nodePath, double &value)
-{
-    return mValue.GetValue(nodePath, value);
-}
-/*****************************************************************************/
-JsonValue JsonReader::FindValue(const std::string &nodePath)
-{
-    return mValue.FindValue(nodePath);
-}
-/*****************************************************************************/
-bool JsonReader::ParseString(const std::string &data)
+bool JsonReader::ParseString(JsonValue &json, const std::string &data)
 {
     char *endptr;
+    bool valid = false;
 
 #ifdef USE_WINDOWS_OS
     char *source = _strdup(data.c_str());
@@ -124,20 +70,16 @@ bool JsonReader::ParseString(const std::string &data)
     char *source = strdup(data.c_str());
 #endif
 
-    JsonReader::ParseStatus status = Parse(source, &endptr);
+    JsonReader::ParseStatus status = Parse(source, &endptr, json);
     if (status == JSON_PARSE_OK)
     {
-        mValid = true;
-    }
-    else
-    {
-        mValid = false;
+        valid = true;
     }
     free(source);
-    return mValid;
+    return valid;
 }
 /*****************************************************************************/
-JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
+JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr, JsonValue &json)
 {
     int pos = -1;
     int prev = -1;
@@ -373,7 +315,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 else
                 {
                     // End of document
-                    mValue = nodes[0];
+                    json = nodes[0];
                     *endptr = s;
                     return JSON_PARSE_OK;
                 }
@@ -421,7 +363,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr)
                 else
                 {
                     // End of document
-                    mValue = nodes[0];
+                    json = nodes[0];
                     *endptr = s;
                     return JSON_PARSE_OK;
                 }
