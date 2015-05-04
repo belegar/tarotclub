@@ -305,6 +305,7 @@ public:
         Game()
         {
             mode = cQuickDeal;
+            deals.push_back(Tarot::Distribution());
         }
 
         friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Game &game)
