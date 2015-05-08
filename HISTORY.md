@@ -6,6 +6,10 @@
   * TarotClub preference file now contains the bots configuration
   * New tournament configuration (per deal configuration) in the JSON file
   * Added a "random" button in the deal editor window
+  * Removed "Check server" lobby button
+  * Removed dedicated server web interface
+  * AI script files can now be located inside a ZIP archive file
+  * Updated Duktape JavaScript Engine version to 1.2.1
 
 # Branch 2.5
 
