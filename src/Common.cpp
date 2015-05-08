@@ -146,6 +146,11 @@ Place Place::Previous(std::uint8_t numberOfPlayers)
     return place;
 }
 /*****************************************************************************/
+bool Place::IsValid()
+{
+    return (mPlace < NOWHERE);
+}
+/*****************************************************************************/
 std::vector<std::string> Place::Initialize()
 {
     std::vector<std::string> stringList;

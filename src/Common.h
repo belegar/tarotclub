@@ -76,6 +76,7 @@ public:
      */
     Place Next(std::uint8_t numberOfPlayers);
     Place Previous(std::uint8_t numberOfPlayers);
+    bool IsValid();
 
     Place &operator = (Place const &rhs)
     {
