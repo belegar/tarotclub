@@ -33,7 +33,7 @@
 #include "ByteStreamWriter.h"
 
 /*****************************************************************************/
-class Identity
+struct Identity
 {
 public:
     static const std::uint8_t cGenderInvalid    = 0U; ///< Invalid player or identity
@@ -42,16 +42,16 @@ public:
     static const std::uint8_t cGenderRobot      = 3U; ///< AI bot attached to a user account
     static const std::uint8_t cGenderDummy      = 4U; ///< Dummy player is to replace missing player
 
+    std::string     nickname;
+    std::string     avatar;     ///< Path to the avatar image (local or network path)
+    std::uint8_t    gender;
+    std::string     username;   ///< Empty username means no account
+
     Identity()
         : gender(cGenderInvalid)
     {
 
     }
-
-    std::string     nickname;
-    std::string     avatar;     ///< Path to the avatar image (local or network path)
-    std::uint8_t    gender;
-    std::string     username;   ///< Empty username means no account
 
     // operator overload to easily serialize parameters
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Identity &ident)
