@@ -114,6 +114,7 @@ public:
     Deck &GetHandleDeck();
     Deck GetMyDeck();
     Points GetPoints();
+    std::string GetResult() { return mResult; }
     Place GetPlace();
     std::uint8_t GetNumberOfPlayers()
     {
@@ -190,6 +191,7 @@ public:
     void SendSyncEndOfDeal();
     void SendTableMessage(const std::string &message);
     void SendLobbyMessage(const std::string &message);
+    void SendSyncJoinTable();
 
 private:
     enum Command
@@ -214,9 +216,11 @@ private:
     Tarot::Distribution mShuffle;
     std::uint8_t mNumberOfTurns;
     Points      mPoints;
+    std::string mResult;
     Deck        mDog;
     Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;
+    std::uint32_t mTableId;
 
     Sequence    mSequence;
     Deck::Statistics   stats;   // statistics on player's cards
@@ -240,7 +244,6 @@ private:
     // TarotClub Protocol methods
     void SendIdentity();
     void SendPacket(const ByteArray &packet);
-
 };
 
 #endif // CLIENT_H

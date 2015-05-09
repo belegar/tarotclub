@@ -31,6 +31,7 @@
 Client::Client(IEvent &handler)
     : mEventHandler(handler)
     , mNbPlayers(4U)
+    , mTableId(0U)
     , mSequence(STOPPED)
     , mInitialized(false)
     , mConnected(false)
@@ -346,7 +347,6 @@ ByteArray Client::GetPacket()
 bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
 {
     (void) src_uuid;
-    (void) dest_uuid;
     bool ret = true;
     ByteStreamReader in(data);
 
@@ -361,7 +361,15 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     {
         std::string message;
         in >> message;
-        mEventHandler.LobbyMessage(message);
+
+        if (dest_uuid == mTableId)
+        {
+            mEventHandler.TableMessage(message);
+        }
+        else
+        {
+            mEventHandler.LobbyMessage(message);
+        }
         break;
     }
 
@@ -439,32 +447,26 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     }
     case Protocol::TABLE_ERROR_FULL:
     {
+        mTableId = 0U;
         mEventHandler.Error(IEvent::ErrTableFull);
         break;
     }
 
-    case Protocol::TABLE_CHAT_MESSAGE:
-    {
-        std::string message;
-        in >> message;
-        mEventHandler.TableMessage(message);
-        break;
-    }
-
-    case Protocol::TABLE_JOIN_REPLY:
+    case Protocol::LOBBY_JOIN_TABLE_REPLY:
     {
         bool status;
-        std::uint32_t tableId;
-        in >> tableId;
+        in >> mTableId;
         in >> status;
         in >> mPlace;
         in >> mNbPlayers;
         if (status)
         {
-            mEventHandler.TableJoinEvent(tableId);
+            mEventHandler.TableJoinEvent(mTableId);
+            SendSyncJoinTable();
         }
         else
         {
+            mTableId = 0U;
             mEventHandler.Error(IEvent::ErrTableAccessRefused);
         }
         break;
@@ -472,11 +474,9 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
     case Protocol::TABLE_QUIT_EVENT:
     {
-        std::uint32_t tableId;
-        in >> tableId;
-
         Initialize();
-        mEventHandler.TableQuitEvent(tableId);
+        mEventHandler.TableQuitEvent(mTableId);
+        mTableId = 0U;
         break;
     }
 
@@ -657,6 +657,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     case Protocol::TABLE_END_OF_DEAL:
     {
         in >> mPoints;
+        in >> mResult;
 
         mSequence = SHOW_SCORE;
         mEventHandler.EndOfDeal();
@@ -681,7 +682,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 /*****************************************************************************/
 void Client::AdminNewGame(const Tarot::Game &game)
 {
-    ByteArray packet = Protocol::AdminNewGame(game, mPlayer.GetUuid());
+    ByteArray packet = Protocol::AdminNewGame(game, mPlayer.GetUuid(), mTableId);
     SendPacket(packet);
 }
 /*****************************************************************************/
@@ -705,19 +706,19 @@ void Client::SendIdentity()
 /*****************************************************************************/
 void Client::SendTableMessage(const std::string &message)
 {
-    ByteArray packet = Protocol::ClientTableMessage(message, mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid(), mTableId);
     SendPacket(packet);
 }
 /*****************************************************************************/
 void Client::SendLobbyMessage(const std::string &message)
 {
-    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid(), Protocol::LOBBY_UID);
     SendPacket(packet);
 }
 /*****************************************************************************/
 void Client::SendSyncNewGame()
 {
-    ByteArray packet = Protocol::ClientSyncNewGame(mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientSyncNewGame(mPlayer.GetUuid(), mTableId);
     SendPacket(packet);
 }
 /*****************************************************************************/
@@ -729,26 +730,26 @@ void Client::SendError()
 /*****************************************************************************/
 void Client::SendBid(Contract c, bool slam)
 {
-    ByteArray packet = Protocol::ClientBid(c, slam, mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientBid(c, slam, mPlayer.GetUuid(), mTableId);
     SendPacket(packet);
 }
 /*****************************************************************************/
 void Client::SendDiscard(const Deck &discard)
 {
-    ByteArray packet = Protocol::ClientDiscard(discard, mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientDiscard(discard, mPlayer.GetUuid(), mTableId);
     SendPacket(packet);
 }
 /*****************************************************************************/
 void Client::SendHandle(const Deck &handle)
 {
-    SendPacket(Protocol::ClientHandle(handle, mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientHandle(handle, mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendCard(const Card &c)
 {
     if (c.IsValid())
     {
-        ByteArray packet = Protocol::ClientCard(c.GetName(), mPlayer.GetUuid());
+        ByteArray packet = Protocol::ClientCard(c.GetName(), mPlayer.GetUuid(), mTableId);
         SendPacket(packet);
     }
     else
@@ -761,61 +762,67 @@ void Client::SendSyncDog()
 {
     mSequence = IDLE;
 
-    ByteArray packet = Protocol::ClientSyncDog(mPlayer.GetUuid());
+    ByteArray packet = Protocol::ClientSyncDog(mPlayer.GetUuid(), mTableId);
     SendPacket(packet);
 }
 /*****************************************************************************/
 void Client::SendSyncStart()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncStart(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncStart(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendSyncShowCard()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncShowCard(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncShowCard(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendSyncCards()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncCards(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncCards(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendSyncBid()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncBid(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncBid(mPlayer.GetUuid(), mTableId));
+}
+/*****************************************************************************/
+void Client::SendSyncJoinTable()
+{
+    mSequence = IDLE;
+    SendPacket(Protocol::ClientSyncJoinTable(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendSyncAllPassed()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncAllPassed(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncAllPassed(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendSyncTrick()
 {
     mSequence = IDLE;
     currentTrick.Clear();
-    SendPacket(Protocol::ClientSyncTrick(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncTrick(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendSyncEndOfDeal()
 {
     mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncEndOfDeal(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncEndOfDeal(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendSyncHandle()
 {
-    SendPacket(Protocol::ClientSyncHandle(mPlayer.GetUuid()));
+    SendPacket(Protocol::ClientSyncHandle(mPlayer.GetUuid(), mTableId));
 }
 /*****************************************************************************/
 void Client::SendPacket(const ByteArray &packet)
 {
-    std::uint8_t cmd = packet.Get(Protocol::COMMAND_OFFSET);
+    std::uint8_t cmd = Protocol::GetCommand(packet);
     std::stringstream dbg;
     dbg << "Client sending packet: 0x" << std::hex << (int)cmd;
     TLogNetwork(dbg.str());
