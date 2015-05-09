@@ -52,6 +52,7 @@ VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/src/network
 VPATH += $$BASE_DIR/src/database
+VPATH += $$BASE_DIR/src/zip
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
@@ -71,6 +72,7 @@ INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/network
 INCLUDEPATH += $$BASE_DIR/src/database
+INCLUDEPATH += $$BASE_DIR/src/zip
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -159,7 +161,8 @@ HEADERS += Log.h \
     Value.h \
     IDataBase.h \
     DummyDataBase.h \
-    Avatar.h
+    Avatar.h \
+    Zip.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -172,7 +175,8 @@ SOURCES += Log.cpp \
     UniqueId.cpp \
     System.cpp \
     Value.cpp \
-    Avatar.cpp
+    Avatar.cpp \
+    Zip.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
