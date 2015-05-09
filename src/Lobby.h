@@ -33,14 +33,22 @@ class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Contr
 public:
     static const std::string LOBBY_VERSION_STRING;
 
-    struct Event : public Observer<std::uint32_t>
+    struct Event
     {
         static const std::uint32_t cIncPlayer    = 0U;
         static const std::uint32_t cDecPlayer    = 1U;
+        static const std::uint32_t cProtocolData = 2U;
+
+        Event(std::uint32_t type)
+            : mType(type)
+         {}
+
+        std::uint32_t mType;
+        ByteArray mBlock;
     };
 
 
-    Lobby(const std::string &i_dbName);
+    Lobby();
     ~Lobby();
 
     void Initialize(const ServerOptions &opt);
@@ -54,8 +62,10 @@ public:
 
     // Lobby management
     void CloseClients();
-    void RegisterListener(Event &i_event);
-    std::uint32_t CreateTable(const std::string &tableName = "Table");
+    void RegisterListener(Observer<Event> &i_event);
+
+    // Tables management
+    std::uint32_t CreateTable(const std::string &tableName, bool adminMode = true, const Tarot::Game &game = Tarot::Game());
     bool DestroyTable(std::uint32_t id);
 
 private:
@@ -66,8 +76,8 @@ private:
     virtual void ClientClosed(int socket);
     virtual void ServerTerminated(CloseType type);
 
-    // From Controller
-    virtual void SendData(const ByteArray &block, std::uint32_t tableId);
+    // Called from the table controllers and Lobby
+    void SendData(const ByteArray &block);
 
     // From Protocol::WorkItem
     bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
@@ -77,23 +87,23 @@ private:
     std::string GetTableName(const std::uint32_t tableId);
 	void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId);
 
-    Subject<std::uint32_t> mSubject;
+    Subject<Event> mSubject;
     int             mTcpPort;
     TcpServer       mTcpServer;
     bool            mCreated;   ///< True if the table has been created
     bool            mIsFull;
     ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
 
-    std::map<std::uint32_t, Controller *> mTables; // <id, controller>
+    std::vector<Controller *> mTables;
+    UniqueId    mTableIds;
     std::mutex mTablesMutex;
-
     Users       mUsers;
-    std::string mDbName; // database name where to store finished games
 
     // Bots management
     std::list<Bot *> mBots;
     std::mutex mBotsMutex;
 
+    void SendDataToPlayer(const ByteArray &data);
 };
 
 #endif // LOBBY_H

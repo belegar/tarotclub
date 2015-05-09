@@ -26,10 +26,10 @@
 const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub Lobby v") + std::string("2");
 
 /*****************************************************************************/
-Lobby::Lobby(const std::string &i_dbName)
+Lobby::Lobby()
     : mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
-    , mDbName(i_dbName)
+    , mTableIds(Protocol::TABLES_UID, Protocol::MAXIMUM_TABLES)
 {
 
 }
@@ -41,9 +41,9 @@ Lobby::~Lobby()
     mTablesMutex.lock();
     mBotsMutex.lock();
     // Kill tables
-    for (std::map<std::uint32_t, Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    for (std::vector<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
     {
-        delete iter->second;
+        delete (*iter);
     }
 
     // Kill bots
@@ -73,23 +73,28 @@ void Lobby::Initialize(const ServerOptions &opt)
     mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn, opt.localHostOnly);
 }
 /*****************************************************************************/
-std::uint32_t Lobby::CreateTable(const std::string &tableName)
+std::uint32_t Lobby::CreateTable(const std::string &tableName, bool adminMode, const Tarot::Game &game)
 {
-    std::uint32_t id = 1U;
-
     mTablesMutex.lock();
-    if (mTables.size() > 0U)
-    {
-        id = mTables.rbegin()->first + 1U;
-    }
 
-    std::cout << "Creating table " << tableName << ": id=" << id << std::endl;
-    Controller *table = new Controller(*this);
-    table->SetId(id);
-    table->SetName(tableName);
-    table->Initialize(); // Start all threads and TCP sockets
-    table->ExecuteRequest(Protocol::LobbyCreateTable(4U));
-    mTables[id] = table;
+    std::uint32_t id = mTableIds.TakeId();
+
+    if (id > 0U)
+    {
+        std::cout << "Creating table " << tableName << ": id=" << id << std::endl;
+        Controller *table = new Controller(*this);
+        table->SetId(id);
+        table->SetName(tableName);
+        table->SetAdminMode(adminMode);
+        table->SetupGame(game);
+        table->Initialize();
+        table->CreateTable(4U);
+        mTables.push_back(table);
+    }
+    else
+    {
+        TLogError("Cannot create table: maximum number of tables reached.");
+    }
     mTablesMutex.unlock();
 
     return id;
@@ -97,7 +102,19 @@ std::uint32_t Lobby::CreateTable(const std::string &tableName)
 /*****************************************************************************/
 bool Lobby::DestroyTable(std::uint32_t id)
 {
-#warning TODO
+    bool ret = false;
+    mTablesMutex.lock();
+    for (std::vector<Controller *>::iterator it = mTables.begin(); it != mTables.end(); ++it)
+    {
+        if ((*it)->GetId() == id)
+        {
+            mTables.erase(it);
+            ret = true;
+            break;
+        }
+    }
+    mTablesMutex.unlock();
+    return ret;
 }
 /*****************************************************************************/
 void Lobby::WaitForEnd()
@@ -129,19 +146,19 @@ void Lobby::ReadData(int socket, const std::string &data)
     if (mUsers.IsValid(src_uuid, socket))
     {
         // Filter using the destination uuid (table or lobby?)
-        if (dest_uuid == Protocol::TABLE_UID)
+        if (mTableIds.IsTaken(dest_uuid))
         {
             // gets the table of the sender
             std::uint32_t tableId = mUsers.GetPlayerTable(src_uuid);
-            if (tableId != Protocol::NO_TABLE)
+            if (tableId == dest_uuid)
             {
                 mTablesMutex.lock();
                 // forward it to the suitable table controller
-                for (std::map<std::uint32_t, Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+                for (std::vector<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
                 {
-                    if (iter->second->GetId() == tableId)
+                    if ((*iter)->GetId() == tableId)
                     {
-                        iter->second->ExecuteRequest(packet);
+                        (*iter)->ExecuteRequest(packet);
                     }
                 }
                 mTablesMutex.unlock();
@@ -183,13 +200,23 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
 
     switch (cmd)
     {
-    case Protocol::CLIENT_LOBBY_MESSAGE:
+    case Protocol::CLIENT_CHAT_MESSAGE:
     {
         std::string message;
+        std::uint32_t target;
         in >> message;
+        in >> target;
 
         message = mUsers.GetIdentity(src_uuid).nickname + "> " + message;
-        SendData(Protocol::LobbyChatMessage(message), 0U);
+        if (mTableIds.IsTaken(target))
+        {
+            SendData(Protocol::LobbyChatMessage(message, target));
+        }
+        else
+        {
+            // Otherwise, send the data to the players connected in the lobby
+            SendData(Protocol::LobbyChatMessage(message, Protocol::LOBBY_UID));
+        }
         break;
     }
 
@@ -204,19 +231,19 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
             std::map<std::string, std::uint32_t> list;
 
             mTablesMutex.lock();
-            for (std::map<std::uint32_t, Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+            for (std::vector<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
             {
-                list[iter->second->GetName()] = iter->second->GetId();
+                list[(*iter)->GetName()] = (*iter)->GetId();
             }
             mTablesMutex.unlock();
 
-            SendData(Protocol::LobbyLoginResult(true, list, src_uuid), 0U);
+            SendData(Protocol::LobbyLoginResult(true, list, src_uuid));
             std::string message = "The player " + ident.nickname + " has joined the server.";
             TLogNetwork(message);
-            SendData(Protocol::LobbyChatMessage(message), 0U);
-            SendData(Protocol::LobbyPlayersList(mUsers.GetLobbyUserNames()), 0U);
+            SendData(Protocol::LobbyChatMessage(message, Protocol::LOBBY_UID));
+            SendData(Protocol::LobbyPlayersList(mUsers.GetLobbyUserNames()));
 
-            std::uint32_t event = Event::cIncPlayer;
+            Event event(Event::cIncPlayer);
             mSubject.Notify(event);
         }
         break;
@@ -230,16 +257,51 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
         // A user can join a table if he is _NOT_ already around a table
         if (mUsers.GetPlayerTable(src_uuid) == Protocol::NO_TABLE)
         {
+            Place assignedPlace;
+            std::uint8_t nbPlayers;
             mTablesMutex.lock();
+
             // Forward it to the table controller
-            for (std::map<std::uint32_t, Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+            for (std::vector<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
             {
-                if (iter->second->GetId() == tableId)
+                if ((*iter)->GetId() == tableId)
                 {
-                    iter->second->ExecuteRequest(Protocol::LobbyAddPlayer(src_uuid, mUsers.GetIdentity(src_uuid)));
+                    assignedPlace = (*iter)->AddPlayer(src_uuid, nbPlayers);
                 }
             }
             mTablesMutex.unlock();
+
+            if (assignedPlace.IsValid())
+            {
+                mUsers.SetPlayingTable(src_uuid, tableId);
+
+                // New player connected, send table information
+                SendData(Protocol::LobbyJoinTableReply(
+                                           true,
+                                           assignedPlace,
+                                           nbPlayers,
+                                           src_uuid,
+                                           tableId));
+
+                std::string msg = "Player " + mUsers.GetIdentity(src_uuid).nickname + " is entering on table: " + GetTableName(tableId);
+                TLogNetwork(msg);
+
+                SendData(Protocol::LobbyChatMessage(msg, Protocol::LOBBY_UID));
+
+                // Update player list
+                SendData(Protocol::TablePlayersList(mUsers.GetTablePlayers(tableId), tableId));
+            }
+            else
+            {
+                // Player is already connected, send error
+                SendData(Protocol::LobbyJoinTableReply(
+                                           false,
+                                           Place::NOWHERE,
+                                           0U,
+                                           src_uuid,
+                                            tableId));
+
+            }
         }
         break;
     }
@@ -251,41 +313,6 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
         if (mUsers.GetPlayerTable(src_uuid) == tableId)
         {
             RemovePlayerFromTable(src_uuid, tableId);
-        }
-        break;
-    }
-
-    case Protocol::TABLE_ACCEPTED_PLAYER:
-    {
-        std::uint32_t tableId;
-        std::uint32_t uuid;
-        in >> tableId;
-        in >> uuid;
-
-        std::stringstream ss;
-        ss << "Player " << mUsers.GetIdentity(uuid).nickname << " is entering on table: " << GetTableName(tableId);
-        TLogNetwork(ss.str());
-        mUsers.SetPlayingTable(uuid, tableId);
-        SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
-        break;
-    }
-
-    case Protocol::TABLE_REMOVED_PLAYER:
-    {
-        std::uint32_t tableId;
-        std::uint32_t uuid;
-        in >> tableId;
-        in >> uuid;
-
-        // Only send message and event if the player is still connected
-        if (mUsers.IsHere(uuid))
-        {
-            std::stringstream ss;
-            ss << "Player " << mUsers.GetIdentity(uuid).nickname << " is leaving table: " << GetTableName(tableId);
-            TLogNetwork(ss.str());
-            mUsers.SetPlayingTable(uuid, 0U);
-            SendData(Protocol::LobbyChatMessage(ss.str()), 0U);
-            SendData(Protocol::TableQuitEvent(uuid, tableId), 0U);
         }
         break;
     }
@@ -322,59 +349,71 @@ void Lobby::ClientClosed(int socket)
     // Remove the player from the table
     RemovePlayerFromTable(uuid, tableId);
 
-    std::uint32_t event = Event::cDecPlayer;
+    Event event(Event::cDecPlayer);
     mSubject.Notify(event);
 }
 /*****************************************************************************/
 void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
 {
+    bool removeAllPlayers = false;
     mTablesMutex.lock();
     // Forward it to the table controller
-    for (std::map<std::uint32_t, Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    for (std::vector<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
     {
-        if (iter->second->GetId() == tableId)
+        if ((*iter)->GetId() == tableId)
         {
-            iter->second->ExecuteRequest(Protocol::LobbyRemovePlayer(uuid));
+            removeAllPlayers = (*iter)->RemovePlayer(uuid);
         }
     }
     mTablesMutex.unlock();
+
+    std::list<std::uint32_t> peers;
+
+    if (removeAllPlayers)
+    {
+        peers = mUsers.GetUsersOfTable(tableId);
+    }
+
+    for (std::list<std::uint32_t>::iterator iter = peers.begin(); iter != peers.end(); ++iter)
+    {
+        if (mUsers.IsHere(*iter))
+        {
+            std::stringstream ss;
+            ss << "Player " << mUsers.GetIdentity(*iter).nickname << " is leaving table: " << GetTableName(tableId);
+            TLogNetwork(ss.str());
+            mUsers.SetPlayingTable(*iter, 0U);
+            SendData(Protocol::LobbyChatMessage(ss.str(), Protocol::LOBBY_UID));
+            SendData(Protocol::TableQuitEvent(*iter,tableId));
+        }
+    }
+
+    // Update player list
+    SendData(Protocol::TablePlayersList(mUsers.GetTablePlayers(tableId), tableId));
 }
 /*****************************************************************************/
 void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
 {
     (void) type;
-    // FIXME: log an error
+    TLogError("Server terminated (internal error)");
 }
 /*****************************************************************************/
-void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
+void Lobby::SendData(const ByteArray &block)
 {
     std::uint32_t dest_uuid = Protocol::GetDestUuid(block);
 
     std::list<std::uint32_t> peers; // list of users to send the data
 
-    if (dest_uuid == Protocol::ALL_TABLE)
+    if (mTableIds.IsTaken(dest_uuid))
     {
-        if (tableId != 0U)
-        {
-            // If the player is connected to a table, send data to the table players only
-            peers = mUsers.GetUsersOfTable(tableId);
-        }
-        else
-        {
-            TLogError("Cannot send the packet to table ID zero! (reserved)");
-        }
-    }
-    else if (dest_uuid == Protocol::ALL_LOBBY)
-    {
-        // Otherwise, send the data to the players connected in the lobby
-        peers = mUsers.GetLobbyUsers();
+        // If the player is connected to a table, send data to the table players only
+        peers = mUsers.GetUsersOfTable(dest_uuid);
     }
     else if (dest_uuid == Protocol::LOBBY_UID)
     {
-        // Parse commands by the Lobby
-        ExecuteRequest(block);
+        // Send data to all the connected users
+        peers = mUsers.GetLobbyUsers();
     }
-    else
+    else if (mUsers.IsHere(dest_uuid))
     {
         // Only send the data to one connected client
         peers.push_back(dest_uuid);
@@ -388,6 +427,14 @@ void Lobby::SendData(const ByteArray &block, std::uint32_t tableId)
         peer.Send(block.ToSring());
         std::this_thread::sleep_for(std::chrono::milliseconds(20U));
     }
+
+    if (peers.size() > 0U)
+    {
+        // Send data to listeners
+        Event event(Event::cProtocolData);
+        event.mBlock = block;
+        mSubject.Notify(event);
+    }
 }
 /*****************************************************************************/
 std::string Lobby::GetTableName(const std::uint32_t tableId)
@@ -396,11 +443,11 @@ std::string Lobby::GetTableName(const std::uint32_t tableId)
 
     mTablesMutex.lock();
     // Forward it to the table controller
-    for (std::map<std::uint32_t, Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    for (std::vector<Controller *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
     {
-        if (iter->second->GetId() == tableId)
+        if ((*iter)->GetId() == tableId)
         {
-            name = iter->second->GetName();
+            name = (*iter)->GetName();
         }
     }
     mTablesMutex.unlock();
@@ -445,7 +492,7 @@ bool Lobby::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16
     bot->SetIdentity(ident);
     bot->SetTimeBeforeSend(delay);
     bot->SetTableToJoin(tableToJoin);
-    bot->SetAiScriptConfigFile(scriptFile);
+    bot->SetAiScript(scriptFile);
     bot->Initialize();
 
     mBotsMutex.lock();
@@ -513,7 +560,7 @@ bool Lobby::RemoveBot(std::uint32_t uuid)
     return ret;
 }
 /*****************************************************************************/
-void Lobby::RegisterListener(Lobby::Event &i_event)
+void Lobby::RegisterListener(Observer<Event> &i_event)
 {
     mSubject.Attach(i_event);
 }
