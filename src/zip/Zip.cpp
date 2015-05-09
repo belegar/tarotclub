@@ -64,8 +64,13 @@ bool Zip::GetFile(const std::string &fileName, std::string &contents)
     {
         size_t size;
         char *p = (char *)mz_zip_reader_extract_file_to_heap(&zip_archive, fileName.c_str(), &size, 0);
-        contents.assign(p, size);
-        free(p);
+
+        if (p != NULL)
+        {
+            contents.assign(p, size);
+            free(p);
+            ret = true;
+        }
     }
     return ret;
 }
