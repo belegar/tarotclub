@@ -134,6 +134,12 @@ std::string Client::GetTablePlayerName(Place p)
 void Client::SetMyIdentity(const Identity &ident)
 {
     mIdentity = ident;
+
+    if (IsConnected())
+    {
+        // Send the new client identity to the server
+        SendChangeIdentity();
+    }
 }
 /*****************************************************************************/
 Contract Client::CalculateBid()
@@ -701,6 +707,12 @@ void Client::SendQuitTable(std::uint32_t tableId)
 void Client::SendIdentity()
 {
     ByteArray packet = Protocol::ClientReplyLogin(mPlayer.GetUuid(), mIdentity);
+    SendPacket(packet);
+}
+/*****************************************************************************/
+void Client::SendChangeIdentity()
+{
+    ByteArray packet = Protocol::ClientChangeIdentity(mPlayer.GetUuid(), mIdentity);
     SendPacket(packet);
 }
 /*****************************************************************************/

@@ -84,6 +84,7 @@ public:
         CLIENT_JOIN_TABLE       = 0x31, //!< A user wants to join the table
         CLIENT_QUIT_TABLE       = 0x32, //!< A user wants to quit the table
         CLIENT_REPLY_LOGIN      = 0x33, //!< Client sends its identity to the server
+        CLIENT_CHANGE_IDENTITY  = 0x34, //!< New client identity
 
         // lobby -> client
         LOBBY_CHAT_MESSAGE      = 0x40, //!< chat message broadcasted to all clients (table or lobby main chat)
@@ -155,6 +156,7 @@ public:
     // Client -> Lobby
     static ByteArray ClientReplyLogin(std::uint32_t client_uuid, const Identity &ident);
     static ByteArray ClientLobbyMessage(const std::string &message, std::uint32_t client_uuid, std::uint32_t target);
+    static ByteArray ClientChangeIdentity(std::uint32_t client_uuid, const Identity &ident);
 
     // Client -> Controller
     static ByteArray ClientSyncNewGame(std::uint32_t client_uuid, std::uint32_t tableId);
@@ -210,6 +212,7 @@ public:
     static ByteArray LobbyDisconnect(std::uint32_t uuid);
     static ByteArray LobbyChatMessage(const std::string &message, std::uint32_t target);
     static ByteArray LobbyPlayersList(const std::map<std::uint32_t, std::string> &players);
+
 
 private:
 

@@ -317,6 +317,26 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
         break;
     }
 
+    case Protocol::CLIENT_CHANGE_IDENTITY:
+    {
+        Identity newIdent;
+        in >> newIdent;
+
+        mUsers.AccessGranted(src_uuid, newIdent);
+
+        if (mUsers.IsHere(src_uuid))
+        {
+            // Update player list
+            std::uint32_t tableId = mUsers.GetPlayerTable(src_uuid);
+            if (tableId != 0U)
+            {
+                SendData(Protocol::TablePlayersList(mUsers.GetTablePlayers(tableId), tableId));
+            }
+            SendData(Protocol::LobbyPlayersList(mUsers.GetLobbyUserNames()));
+        }
+        break;
+    }
+
     default:
         TLogNetwork("Lobby received a bad packet");
         break;

@@ -350,13 +350,25 @@ ByteArray Protocol::ClientQuitTable(std::uint32_t client_uuid, std::uint32_t tab
     return packet;
 }
 /*****************************************************************************/
-// Client does not have yet any UUID, so we use a generic one
 ByteArray Protocol::ClientReplyLogin(std::uint32_t client_uuid, const Identity &ident)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     BuildHeader(packet, Protocol::CLIENT_REPLY_LOGIN, client_uuid, LOBBY_UID);
+    out.Seek(HEADER_SIZE);
+    out << ident;
+    UpdateHeader(packet);
+
+    return packet;
+}
+/*****************************************************************************/
+ByteArray Protocol::ClientChangeIdentity(std::uint32_t client_uuid, const Identity &ident)
+{
+    ByteArray packet;
+    ByteStreamWriter out(packet);
+
+    BuildHeader(packet, Protocol::CLIENT_CHANGE_IDENTITY, client_uuid, LOBBY_UID);
     out.Seek(HEADER_SIZE);
     out << ident;
     UpdateHeader(packet);

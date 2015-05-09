@@ -192,6 +192,7 @@ public:
     void SendTableMessage(const std::string &message);
     void SendLobbyMessage(const std::string &message);
     void SendSyncJoinTable();
+    void SendChangeIdentity();
 
 private:
     enum Command
