@@ -327,25 +327,6 @@ void TarotEngine::RemovePlayer(std::uint32_t uuid)
     }
 }
 /*****************************************************************************/
-/**
- * @brief TarotEngine::SetIdentity
- * @param uuid
- * @param ident
- * @return true if the game is full
- */
-bool TarotEngine::ValidatePlayer(std::uint32_t uuid)
-{
-    if (mSequence == WAIT_FOR_PLAYERS)
-    {
-        Player *player = GetPlayer(uuid);
-        if (player != NULL)
-        {
-            player->SetAck();
-        }
-    }
-    return AckFromAllPlayers();
-}
-/*****************************************************************************/
 Player *TarotEngine::GetPlayer(Place p)
 {
     Player *player = NULL;
@@ -393,7 +374,6 @@ Points TarotEngine::GetCurrentGamePoints()
 /*****************************************************************************/
 bool TarotEngine::Sync(Sequence sequence, std::uint32_t uuid)
 {
-    bool ret = false;
     Player *player = GetPlayer(uuid);
 
     if (player != NULL)
@@ -401,10 +381,9 @@ bool TarotEngine::Sync(Sequence sequence, std::uint32_t uuid)
         if (mSequence == sequence)
         {
             player->SetAck();
-            ret = AckFromAllPlayers();
         }
     }
-    return ret;
+    return AckFromAllPlayers();
 }
 /*****************************************************************************/
 /**
@@ -443,15 +422,17 @@ void TarotEngine::GameSequence()
     }
 }
 /*****************************************************************************/
-void TarotEngine::EndOfDeal(const Identity players[5U], const std::string &tableName)
+std::string TarotEngine::EndOfDeal()
 {
     mCurrentPoints.Clear();
     mDeal.AnalyzeGame(mCurrentPoints, mNbPlayers);
     mDeal.CalculateScore(mCurrentPoints);
-    mDeal.GenerateEndDealLog(players, mNbPlayers, tableName);
+    std::string result = mDeal.GenerateEndDealLog(mNbPlayers);
 
     ResetAck();
     mSequence = WAIT_FOR_END_OF_DEAL;
+
+    return result;
 }
 /*****************************************************************************/
 

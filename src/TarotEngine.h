@@ -78,7 +78,7 @@ public:
     void NewGame();
     Tarot::Distribution NewDeal(const Tarot::Distribution &shuffle);
     Place StartDeal();
-    void EndOfDeal(const Identity players[5U], const std::string &tableName);
+    std::string EndOfDeal();
 
     Place AddPlayer(std::uint32_t uuid);
     void RemovePlayer(std::uint32_t uuid);
@@ -121,7 +121,6 @@ public:
     }
 
     // Setters
-    bool ValidatePlayer(std::uint32_t uuid);
     bool SetDiscard(const Deck &discard);
     bool SetHandle(const Deck &handle, Place p);
     bool SetCard(const Card &c, Place p);
