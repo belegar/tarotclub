@@ -57,7 +57,7 @@ public:
     Identity GetIdentity(std::uint32_t uuid);
     std::uint32_t GetUuid(std::int32_t socket);
 
-    void SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId);
+    void SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId, Place place);
 
     // Get some lists of specific group
     std::list<std::uint32_t> GetUsersOfTable(std::uint32_t tableId);

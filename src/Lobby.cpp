@@ -273,7 +273,7 @@ bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t des
 
             if (assignedPlace.IsValid())
             {
-                mUsers.SetPlayingTable(src_uuid, tableId);
+                mUsers.SetPlayingTable(src_uuid, tableId, assignedPlace);
 
                 // New player connected, send table information
                 SendData(Protocol::LobbyJoinTableReply(
@@ -381,7 +381,7 @@ void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
             std::stringstream ss;
             ss << "Player " << mUsers.GetIdentity(*iter).nickname << " is leaving table: " << GetTableName(tableId);
             TLogNetwork(ss.str());
-            mUsers.SetPlayingTable(*iter, 0U);
+            mUsers.SetPlayingTable(*iter, 0U, Place::NOWHERE);
             SendData(Protocol::LobbyChatMessage(ss.str(), Protocol::LOBBY_UID));
             SendData(Protocol::TableQuitEvent(*iter,tableId));
         }

@@ -203,7 +203,7 @@ void TarotWidget::slotAutoJoinTable()
     if (HasLocalConnection())
     {
         // Auto join the embedded server in case of local game only
-        mClient.SendJoinTable(1U);
+        mClient.SendJoinTable(Protocol::TABLES_UID);
     }
 }
 /*****************************************************************************/
@@ -213,13 +213,13 @@ void TarotWidget::slotAssignedPlace()
     {
         // Now that we have joined the table, we can connect the bots
         // FIXME: add/remove bots depending of the number of players (3, 4 or 5)
-        if (mLobby.GetNumberOfBots(1U) == 0U)
+        if (mLobby.GetNumberOfBots(Protocol::TABLES_UID) == 0U)
         {
             std::map<Place, BotConf>::iterator iter;
             for (iter = mClientOptions.bots.begin(); iter != mClientOptions.bots.end(); ++iter)
             {
                 QThread::msleep(50U);
-                mLobby.AddBot(1U, iter->second.identity, mClientOptions.timer, iter->second.scriptFilePath);
+                mLobby.AddBot(Protocol::TABLES_UID, iter->second.identity, mClientOptions.timer, iter->second.scriptFilePath);
             }
         }
     }
