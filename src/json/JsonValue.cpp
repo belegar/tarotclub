@@ -378,7 +378,7 @@ JsonValue JsonValue::FindValue(const std::string &keyPath)
 {
     std::vector<std::string> keys = Split(keyPath);
 
-    JsonValue temp = mObject;
+    JsonValue temp = *this;
     for (std::uint32_t i = 0U; i < keys.size(); i++)
     {
         if (temp.IsObject())
@@ -386,6 +386,20 @@ JsonValue JsonValue::FindValue(const std::string &keyPath)
             if (temp.GetObject().HasValue(keys[i]))
             {
                 temp = temp.GetObject().GetValue(keys[i]);
+            }
+        }
+        else if (temp.IsArray())
+        {
+            for (JsonArray::Iterator iter = temp.GetArray().Begin(); iter != temp.GetArray().End(); ++iter)
+            {
+                if (iter->IsObject())
+                {
+                    if (iter->GetObject().HasValue(keys[i]))
+                    {
+                        temp = iter->GetObject().GetValue(keys[i]);
+                        break;
+                    }
+                }
             }
         }
         else
