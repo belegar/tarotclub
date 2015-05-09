@@ -40,7 +40,7 @@ public:
 
     void SetTimeBeforeSend(std::uint16_t t);
     void SetIdentity(const Identity &ident);
-    void SetAiScriptConfigFile(const std::string &fileName);
+    void SetAiScript(const std::string &path);
     void Initialize();
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
     void Close()
@@ -56,7 +56,7 @@ private:
     std::uint16_t  mTimeBeforeSend;
     JSEngine mBotEngine;
     std::uint32_t mTableToJoin;
-    std::string mScriptConf;
+    std::string mScriptPath;
 
     bool InitializeScriptContext();
 

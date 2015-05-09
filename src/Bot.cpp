@@ -29,6 +29,7 @@
 #include "Util.h"
 #include "System.h"
 #include "JsonReader.h"
+#include "Zip.h"
 
 /*****************************************************************************/
 Bot::Bot()
@@ -408,9 +409,9 @@ void Bot::SetIdentity(const Identity &ident)
     mClient.SetMyIdentity(ident);
 }
 /*****************************************************************************/
-void Bot::SetAiScriptConfigFile(const std::string &fileName)
+void Bot::SetAiScript(const std::string &path)
 {
-    mScriptConf = fileName;
+    mScriptPath = path;
 }
 /*****************************************************************************/
 void Bot::Initialize()
@@ -426,50 +427,111 @@ void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 bool Bot::InitializeScriptContext()
 {
     bool retCode = true;
-    std::string scriptRoot = Util::GetDirectoryPath(mScriptConf);
+    Zip zip;
+    bool useZip = false;
 
-    TLogInfo(std::string("Opening: ") + mScriptConf + std::string(", script root path: ") + scriptRoot);
-
-    // Open the configuration file to find the scripts
-    JsonReader json;
-    if (json.Open(mScriptConf))
+    if (Util::FileExists(mScriptPath))
     {
-        JsonValue files = json.FindValue("files");
-
-        mBotEngine.Initialize();
-
-        // Load all Javascript files
-        for (JsonArray::Iterator iter = files.GetArray().Begin(); iter != files.GetArray().End(); ++iter)
+        // Seems to be an archive file
+        if (!zip.Open(mScriptPath))
         {
-            if (iter->IsValid() && (iter->IsString()))
-            {
-
-                std::string fileName = scriptRoot + Util::DIR_SEPARATOR + iter->GetString();
-
-#ifdef USE_WINDOWS_OS
-                // Correct the path if needed
-                Util::ReplaceCharacter(fileName, "/", "\\");
-#endif
-
-                if (!mBotEngine.Evaluate(fileName))
-                {
-                    std::stringstream message;
-                    message << "Script error: could not open program file: " << fileName;
-                    TLogError(message.str());
-                    retCode = false;
-                }
-            }
-            else
-            {
-                TLogError("Bad Json value in the array");
-                retCode = false;
-            }
+            TLogError("Invalid AI Zip file.");
+            retCode = false;
         }
+        useZip = true;
     }
     else
     {
-        TLogError("Cannot open Json configuration file");
-        retCode = false;
+        if (Util::FolderExists(mScriptPath))
+        {
+            TLogInfo(std::string("Using script root path: ") + mScriptPath);
+        }
+        else
+        {
+            TLogError("Invalid AI script path");
+            retCode = false;
+        }
+    }
+
+    if (retCode)
+    {
+        // Open the configuration file to find the scripts
+        JsonValue json;
+
+        if (useZip)
+        {
+            std::string package;
+            if (zip.GetFile("package.json", package))
+            {
+                retCode = JsonReader::ParseString(json, package);
+            }
+            else
+            {
+                retCode = false;
+            }
+        }
+        else
+        {
+            retCode = JsonReader::ParseFile(json, mScriptPath + Util::DIR_SEPARATOR + "package.json");
+        }
+
+        if (retCode)
+        {
+            JsonValue files = json.FindValue("files");
+
+            mBotEngine.Initialize();
+
+            // Load all Javascript files
+            for (JsonArray::Iterator iter = files.GetArray().Begin(); iter != files.GetArray().End(); ++iter)
+            {
+                if (iter->IsValid() && (iter->IsString()))
+                {
+                    if (useZip)
+                    {
+                        std::string script;
+                        if (zip.GetFile(iter->GetString(), script))
+                        {
+                            if (!mBotEngine.EvaluateString(script))
+                            {
+                                TLogError("Script error: could not parse ZIP filename: " + iter->GetString());
+                                retCode = false;
+                            }
+                        }
+                        else
+                        {
+                            retCode = false;
+                        }
+                    }
+                    else
+                    {
+                        std::string fileName = mScriptPath + Util::DIR_SEPARATOR + iter->GetString();
+
+        #ifdef USE_WINDOWS_OS
+                        // Correct the path if needed
+                        Util::ReplaceCharacter(fileName, "/", "\\");
+        #endif
+
+                        if (!mBotEngine.EvaluateFile(fileName))
+                        {
+                            std::stringstream message;
+                            message << "Script error: could not open program file: " << fileName;
+                            TLogError(message.str());
+                            retCode = false;
+                        }
+                    }
+                }
+                else
+                {
+                    TLogError("Bad Json value in the array");
+                    retCode = false;
+                }
+            }
+        }
+        else
+        {
+            TLogError("Cannot open Json configuration file");
+            retCode = false;
+        }
     }
 
     return retCode;
