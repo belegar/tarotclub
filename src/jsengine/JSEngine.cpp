@@ -91,7 +91,7 @@ bool JSEngine::EvaluateString(const std::string &contents)
     // Push argument into the stack: file name to evaluate
     duk_push_lstring(mCtx, contents.c_str(), contents.size());
 
-    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEvalFile, 1 /*nargs*/, 0 /*nrets*/);
+    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEvalString, 1 /*nargs*/, 0 /*nrets*/);
     if (rc != DUK_EXEC_SUCCESS)
     {
         PrintError();
