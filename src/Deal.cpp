@@ -381,10 +381,8 @@ void Deal::CalculateScore(Points &points)
 /**
  * @brief Generate a file with all played cards of the deal
  */
-std::string Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t numberOfPlayers, const std::string &tableName)
+std::string Deal::GenerateEndDealLog(std::uint8_t numberOfPlayers)
 {
-    std::string fileName = System::GamePath() + tableName + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
-
     JsonObject json;
     json.AddValue("version", DEAL_RESULT_FILE_VERSION);
 
@@ -392,14 +390,7 @@ std::string Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t nu
     JsonObject dealInfo;
 
     // Players are sorted from south to north-west, anti-clockwise (see Place class)
-    JsonArray playersInfo;
-    std::map<Place, Identity>::const_iterator it;
-    for (std::uint8_t i = 0U; i < numberOfPlayers; i++)
-    {
-        playersInfo.AddValue(players[i].nickname);
-    }
-    dealInfo.AddValue("players", playersInfo);
-
+    dealInfo.AddValue("number_of_players", (std::int32_t)numberOfPlayers);
     dealInfo.AddValue("taker", mBid.taker.ToString());
     dealInfo.AddValue("contract", mBid.contract.ToString());
     dealInfo.AddValue("slam", mBid.slam);
@@ -409,7 +400,6 @@ std::string Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t nu
     dealInfo.AddValue("defense_handle", mDefenseHandle.ToString());
     json.AddValue("deal_info", dealInfo);
 
-
     // ========================== Played cards ==========================
     JsonArray tricks;
 
@@ -418,11 +408,6 @@ std::string Deal::GenerateEndDealLog(const Identity players[5U], std::uint8_t nu
         tricks.AddValue(mTricks[i].ToString());
     }
     json.AddValue("tricks", tricks);
-
-    if (!JsonWriter::SaveToFile(json, fileName))
-    {
-        TLogError("Saving deal game result failed.");
-    }
 
     return json.ToString(0U);
 }
