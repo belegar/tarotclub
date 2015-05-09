@@ -28,6 +28,7 @@
 
 #include "UniqueId.h"
 #include "Identity.h"
+#include "Common.h"
 #include <map>
 
 /*****************************************************************************/
@@ -39,6 +40,7 @@ public:
         std::int32_t socket;    // valid if > 0
         std::uint32_t tableId;  // zero if not playing
         bool connected;         // true if the user is connected (not in login process)
+        Place place;            // place around the table (if joined a table)
         Identity identity;
     };
 
@@ -59,7 +61,7 @@ public:
 
     // Get some lists of specific group
     std::list<std::uint32_t> GetUsersOfTable(std::uint32_t tableId);
-    std::map<std::uint32_t, std::string> GetTableUserNames(std::uint32_t tableId);
+    std::map<Place, Identity> GetTablePlayers(std::uint32_t tableId);
     std::map<std::uint32_t, std::string> GetLobbyUserNames();
     std::list<std::uint32_t> GetLobbyUsers();
 

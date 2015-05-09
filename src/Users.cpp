@@ -28,11 +28,9 @@
 #include "Protocol.h"
 #include "TcpSocket.h"
 
-static const std::uint32_t MAXIMUM_USERS    = 250U;
-
 /*****************************************************************************/
 Users::Users()
-    : mIdManager(Protocol::USERS_UID, MAXIMUM_USERS)
+    : mIdManager(Protocol::USERS_UID, Protocol::MAXIMUM_USERS)
 {
 }
 /*****************************************************************************/
@@ -119,15 +117,16 @@ std::list<std::uint32_t> Users::GetUsersOfTable(std::uint32_t tableId)
     return theList;
 }
 /*****************************************************************************/
-std::map<std::uint32_t, std::string> Users::GetTableUserNames(std::uint32_t tableId)
+std::map<Place, Identity> Users::GetTablePlayers(std::uint32_t tableId)
 {
     std::lock_guard<std::mutex> lock(mMutex);
-    std::map<std::uint32_t, std::string> theList;
+
+    std::map<Place, Identity> theList;
     for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
         if (iter->second.tableId == tableId)
         {
-            theList[iter->first] = iter->second.identity.nickname;
+            theList[iter->second.place] = iter->second.identity;
         }
     }
     return theList;
