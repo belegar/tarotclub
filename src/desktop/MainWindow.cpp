@@ -36,6 +36,8 @@
 #include "Util.h"
 #include "System.h"
 #include "Defines.h"
+#include "JsonReader.h"
+#include "JsonWriter.h"
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
@@ -527,6 +529,22 @@ void MainWindow::slotWaitTrickEvent(Place winner)
 void MainWindow::slotEndOfDeal()
 {
     scoresDock->SetNewScore(tarotWidget->GetPoints(), tarotWidget->GetBid());
+
+    // Generate end of deal log
+    std::string fileName = System::GamePath() + System::ProjectName() + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
+    JsonValue json;
+
+    if (JsonReader::ParseString(json, tarotWidget->GetResult()))
+    {
+        if (!JsonWriter::SaveToFile(json.GetObject(), fileName))
+        {
+            TLogError("Cannot save JSON result file.");
+        }
+    }
+    else
+    {
+        TLogError("Cannot parse JSON result file.");
+    }
 }
 /*****************************************************************************/
 void MainWindow::slotNewDealEvent()

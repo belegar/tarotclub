@@ -94,6 +94,10 @@ public:
     {
         return mClient.GetPoints();
     }
+    std::string GetResult()
+    {
+        return mClient.GetResult();
+    }
     Deck GetDeck()
     {
         return mClient.GetMyDeck();

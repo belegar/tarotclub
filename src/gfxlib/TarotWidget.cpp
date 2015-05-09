@@ -37,7 +37,6 @@
 /*****************************************************************************/
 TarotWidget::TarotWidget(QWidget *parent)
     : QWidget(parent)
-    , mLobby(std::string())
     , mClient(*this)
     , mConnectionType(NO_CONNECTION)
     , mAutoPlay(false)
