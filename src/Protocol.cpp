@@ -30,23 +30,24 @@
 const std::uint8_t  Protocol::VERSION       = 2U;
 
 // Specific static UUID
-const std::uint32_t Protocol::INVALID_UID   = 0U;
-const std::uint32_t Protocol::ALL_LOBBY     = 1U;
-const std::uint32_t Protocol::ALL_TABLE     = 2U;
-const std::uint32_t Protocol::LOBBY_UID     = 3U;
-const std::uint32_t Protocol::TABLE_UID     = 4U;
+const std::uint32_t Protocol::INVALID_UID       = 0U;
+const std::uint32_t Protocol::LOBBY_UID         = 1U;
 
-const std::uint32_t Protocol::USERS_UID     = 10U;
-const std::uint32_t Protocol::NO_TABLE      = 0U;
+const std::uint32_t Protocol::USERS_UID         = 10U;
+const std::uint32_t Protocol::MAXIMUM_USERS     = 200U;
+const std::uint32_t Protocol::TABLES_UID        = 1000U;
+const std::uint32_t Protocol::MAXIMUM_TABLES    = 50U;
+
+const std::uint32_t Protocol::NO_TABLE          = 0U;
 
 // Variables to parse the packet
-static const std::uint16_t HEADER_SIZE      = 12U;
+static const std::uint16_t HEADER_SIZE          = 12U;
 
 // Offsets (in bytes) from the start of one packet
-const std::uint32_t Protocol::VERSION_OFFSET   = 2U;
-const std::uint32_t Protocol::SRC_UUID_OFFSET  = 3U;
-const std::uint32_t Protocol::DEST_UUID_OFFSET = 7U;
-const std::uint32_t Protocol::COMMAND_OFFSET   = 11U;
+static const std::uint32_t VERSION_OFFSET   = 2U;
+static const std::uint32_t SRC_UUID_OFFSET  = 3U;
+static const std::uint32_t DEST_UUID_OFFSET = 7U;
+static const std::uint32_t COMMAND_OFFSET   = 11U;
 
 /*****************************************************************************/
 Protocol::Protocol()
@@ -113,6 +114,11 @@ std::uint32_t Protocol::GetSourceUuid(const ByteArray &packet)
 std::uint32_t Protocol::GetDestUuid(const ByteArray &packet)
 {
     return packet.GetUint32(DEST_UUID_OFFSET);
+}
+/*****************************************************************************/
+std::uint8_t Protocol::GetCommand(const ByteArray &packet)
+{
+    return packet.Get(COMMAND_OFFSET);
 }
 /*****************************************************************************/
 void Protocol::Initialize()
@@ -263,54 +269,54 @@ std::vector<Protocol::PacketInfo> Protocol::DecodePacket(const ByteArray &data)
     return packets;
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncNewGame(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncNewGame(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_NEW_GAME, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_NEW_GAME, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncDog(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncDog(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_DOG, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_DOG, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncHandle(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncHandle(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_HANDLE, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_HANDLE, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncTrick(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncTrick(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_TRICK, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_TRICK, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncEndOfDeal(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncEndOfDeal(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_END_OF_DEAL, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_END_OF_DEAL, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncShowCard(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncShowCard(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_CARD, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_CARD, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncStart(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncStart(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_START, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_START, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncBid(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncBid(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_BID, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_SHOW_BID, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncAllPassed(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncAllPassed(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_ALL_PASSED, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_ALL_PASSED, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncCards(std::uint32_t client_uuid)
+ByteArray Protocol::ClientSyncCards(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::CLIENT_SYNC_NEW_DEAL, client_uuid, TABLE_UID);
+    return BuildCommand(Protocol::CLIENT_SYNC_NEW_DEAL, client_uuid, tableId);
 }
 /*****************************************************************************/
 ByteArray Protocol::ClientError(std::uint32_t client_uuid)
@@ -358,38 +364,26 @@ ByteArray Protocol::ClientReplyLogin(std::uint32_t client_uuid, const Identity &
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientLobbyMessage(const std::string &message, std::uint32_t client_uuid)
+ByteArray Protocol::ClientLobbyMessage(const std::string &message, std::uint32_t client_uuid, std::uint32_t target)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::CLIENT_LOBBY_MESSAGE, client_uuid, LOBBY_UID);
+    BuildHeader(packet, Protocol::CLIENT_CHAT_MESSAGE, client_uuid, Protocol::LOBBY_UID);
     out.Seek(HEADER_SIZE);
     out << message;
+    out << target;
     UpdateHeader(packet);
 
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientTableMessage(const std::string &message, std::uint32_t client_uuid)
+ByteArray Protocol::ClientDiscard(const Deck &discard, std::uint32_t client_uuid, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::CLIENT_TABLE_MESSAGE, client_uuid, TABLE_UID);
-    out.Seek(HEADER_SIZE);
-    out << message;
-    UpdateHeader(packet);
-
-    return packet;
-}
-/*****************************************************************************/
-ByteArray Protocol::ClientDiscard(const Deck &discard, std::uint32_t client_uuid)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::CLIENT_DISCARD, client_uuid, TABLE_UID);
+    BuildHeader(packet, Protocol::CLIENT_DISCARD, client_uuid, tableId);
     out.Seek(HEADER_SIZE);
     out << discard;
     UpdateHeader(packet);
@@ -397,12 +391,12 @@ ByteArray Protocol::ClientDiscard(const Deck &discard, std::uint32_t client_uuid
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientHandle(const Deck &handle, std::uint32_t client_uuid)
+ByteArray Protocol::ClientHandle(const Deck &handle, std::uint32_t client_uuid, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::CLIENT_HANDLE, client_uuid, TABLE_UID);
+    BuildHeader(packet, Protocol::CLIENT_HANDLE, client_uuid, tableId);
     out.Seek(HEADER_SIZE);
     out << handle;
     UpdateHeader(packet);
@@ -410,12 +404,12 @@ ByteArray Protocol::ClientHandle(const Deck &handle, std::uint32_t client_uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientCard(const std::string &card, std::uint32_t client_uuid)
+ByteArray Protocol::ClientCard(const std::string &card, std::uint32_t client_uuid, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::CLIENT_CARD, client_uuid, TABLE_UID);
+    BuildHeader(packet, Protocol::CLIENT_CARD, client_uuid, tableId);
     out.Seek(HEADER_SIZE);
     out << card;
     UpdateHeader(packet);
@@ -423,12 +417,12 @@ ByteArray Protocol::ClientCard(const std::string &card, std::uint32_t client_uui
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientBid(Contract c, bool slam, std::uint32_t client_uuid)
+ByteArray Protocol::ClientBid(Contract c, bool slam, std::uint32_t client_uuid, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::CLIENT_BID, client_uuid, TABLE_UID);
+    BuildHeader(packet, Protocol::CLIENT_BID, client_uuid, tableId);
     out.Seek(HEADER_SIZE);
     out << c;  // contract to show
     out << slam;
@@ -437,74 +431,44 @@ ByteArray Protocol::ClientBid(Contract c, bool slam, std::uint32_t client_uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableFullMessage(std::uint32_t uuid)
+ByteArray Protocol::ClientSyncJoinTable(std::uint32_t client_uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::TABLE_ERROR_FULL, TABLE_UID, uuid);
+    return BuildCommand(Protocol::CLIENT_SYNC_JOIN_TABLE, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::TableAllPassed()
+ByteArray Protocol::TableFullMessage(std::uint32_t uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::TABLE_ALL_PASSED, TABLE_UID, ALL_TABLE);
+    return BuildCommand(Protocol::TABLE_ERROR_FULL, tableId, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::TableAskForHandle(std::uint32_t uuid)
+ByteArray Protocol::TableAllPassed(std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::TABLE_ASK_FOR_HANDLE, TABLE_UID, uuid);
+    return BuildCommand(Protocol::TABLE_ALL_PASSED, tableId, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::TableAskForDiscard(std::uint32_t uuid)
+ByteArray Protocol::TableAskForHandle(std::uint32_t uuid, std::uint32_t tableId)
 {
-    return BuildCommand(Protocol::TABLE_ASK_FOR_DISCARD, TABLE_UID, uuid);
+    return BuildCommand(Protocol::TABLE_ASK_FOR_HANDLE, tableId, uuid);
+}
+/*****************************************************************************/
+ByteArray Protocol::TableAskForDiscard(std::uint32_t uuid, std::uint32_t tableId)
+{
+    return BuildCommand(Protocol::TABLE_ASK_FOR_DISCARD, tableId, uuid);
 }
 /*****************************************************************************/
 ByteArray Protocol::TableQuitEvent(std::uint32_t uuid, std::uint32_t tableId)
 {
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::TABLE_QUIT_EVENT, TABLE_UID, uuid);
-    out.Seek(HEADER_SIZE);
-    out << tableId;
-    UpdateHeader(packet);
-
-    return packet;
+    return BuildCommand(Protocol::TABLE_QUIT_EVENT, tableId, uuid);
 }
 /*****************************************************************************/
-ByteArray Protocol::TableAcceptedPlayer(std::uint32_t uuid, std::uint32_t tableId)
+ByteArray Protocol::LobbyJoinTableReply(bool status, Place p, std::uint8_t nbPlayers, std::uint32_t uuid, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_ACCEPTED_PLAYER, TABLE_UID, LOBBY_UID);
+    BuildHeader(packet, Protocol::LOBBY_JOIN_TABLE_REPLY, tableId, uuid);
     out.Seek(HEADER_SIZE);
     out << tableId;
-    out << uuid;
-    UpdateHeader(packet);
-
-    return packet;
-}
-/*****************************************************************************/
-ByteArray Protocol::TableRemovedPlayer(std::uint32_t uuid, std::uint32_t tableId)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::TABLE_REMOVED_PLAYER, TABLE_UID, LOBBY_UID);
-    out.Seek(HEADER_SIZE);
-    out << tableId;
-    out << uuid;
-    UpdateHeader(packet);
-
-    return packet;
-}
-/*****************************************************************************/
-ByteArray Protocol::TableJoinReply(bool status, Place p, std::uint8_t nbPlayers, std::uint32_t uuid)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::TABLE_JOIN_REPLY, TABLE_UID, uuid);
-    out.Seek(HEADER_SIZE);
     out << status;
     out << p;                       // assigned place
     out << nbPlayers;               // number of players in the current game
@@ -513,25 +477,12 @@ ByteArray Protocol::TableJoinReply(bool status, Place p, std::uint8_t nbPlayers,
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableChatMessage(const std::string &message)
+ByteArray Protocol::TableShowBid(Contract c, bool slam, Place p, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_CHAT_MESSAGE, TABLE_UID, Protocol::ALL_TABLE);
-    out.Seek(HEADER_SIZE);
-    out << message;
-    UpdateHeader(packet);
-
-    return packet;
-}
-/*****************************************************************************/
-ByteArray Protocol::TableShowBid(Contract c, bool slam, Place p)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::TABLE_SHOW_PLAYER_BID, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_SHOW_PLAYER_BID, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << p; // current player bid
     out << c; // contract to show
@@ -541,12 +492,12 @@ ByteArray Protocol::TableShowBid(Contract c, bool slam, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TablePlayersList(const std::map<Place, Identity> &players)
+ByteArray Protocol::TablePlayersList(const std::map<Place, Identity> &players, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_PLAYERS_LIST, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_PLAYERS_LIST, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)players.size();
     std::map<Place, Identity>::const_iterator iter;
@@ -562,12 +513,12 @@ ByteArray Protocol::TablePlayersList(const std::map<Place, Identity> &players)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableShowCard(const Card &c, Place p)
+ByteArray Protocol::TableShowCard(const Card &c, Place p, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_SHOW_CARD, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_SHOW_CARD, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << p
         << c.GetName();
@@ -576,12 +527,12 @@ ByteArray Protocol::TableShowCard(const Card &c, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableShowHandle(Deck &handle, Place p)
+ByteArray Protocol::TableShowHandle(Deck &handle, Place p, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_SHOW_HANDLE, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_SHOW_HANDLE, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << p;
     out << handle;
@@ -590,40 +541,41 @@ ByteArray Protocol::TableShowHandle(Deck &handle, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableNewDeal(Player *player)
+ByteArray Protocol::TableNewDeal(Player *player, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
     if (player != NULL)
     {
-        BuildHeader(packet, Protocol::TABLE_NEW_DEAL, TABLE_UID, player->GetUuid());
+        BuildHeader(packet, Protocol::TABLE_NEW_DEAL, tableId, player->GetUuid());
         out.Seek(HEADER_SIZE);
-        out << *player;
+        out << *player; // deck of cards
         UpdateHeader(packet);
     }
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableEndOfDeal(const Points &points)
+ByteArray Protocol::TableEndOfDeal(const Points &points, const std::string &result, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_END_OF_DEAL, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_END_OF_DEAL, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << points;
+    out << result;
     UpdateHeader(packet);
 
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableEndOfGame(Place winner)
+ByteArray Protocol::TableEndOfGame(Place winner, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_END_OF_GAME, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_END_OF_GAME, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << winner;
     UpdateHeader(packet);
@@ -631,12 +583,12 @@ ByteArray Protocol::TableEndOfGame(Place winner)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableEndOfTrick(Place winner)
+ByteArray Protocol::TableEndOfTrick(Place winner, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_END_OF_TRICK, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_END_OF_TRICK, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << winner;
     UpdateHeader(packet);
@@ -644,12 +596,12 @@ ByteArray Protocol::TableEndOfTrick(Place winner)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Distribution &sh)
+ByteArray Protocol::TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, const Tarot::Distribution &sh, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_START_DEAL, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_START_DEAL, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << firstPlayer;     // first player to play
     out << bid.taker;       // taker
@@ -661,12 +613,12 @@ ByteArray Protocol::TableStartDeal(Place firstPlayer, const Tarot::Bid &bid, con
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TablePlayCard(Place p)
+ByteArray Protocol::TablePlayCard(Place p, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_PLAY_CARD, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_PLAY_CARD, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << p; // this player has to play a card
     UpdateHeader(packet);
@@ -674,12 +626,12 @@ ByteArray Protocol::TablePlayCard(Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableBidRequest(Contract c, Place p)
+ByteArray Protocol::TableBidRequest(Contract c, Place p, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_REQUEST_BID, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_REQUEST_BID, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << c; // previous bid
     out << p; // player to declare something
@@ -688,12 +640,12 @@ ByteArray Protocol::TableBidRequest(Contract c, Place p)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableShowDog(const Deck &dog)
+ByteArray Protocol::TableShowDog(const Deck &dog, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_SHOW_DOG, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_SHOW_DOG, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << dog;
     UpdateHeader(packet);
@@ -701,12 +653,12 @@ ByteArray Protocol::TableShowDog(const Deck &dog)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TableNewGame(Tarot::Game game)
+ByteArray Protocol::TableNewGame(const Tarot::Game &game, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::TABLE_NEW_GAME, TABLE_UID, Protocol::ALL_TABLE);
+    BuildHeader(packet, Protocol::TABLE_NEW_GAME, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << game;
     UpdateHeader(packet);
@@ -714,46 +666,14 @@ ByteArray Protocol::TableNewGame(Tarot::Game game)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::LobbyChatMessage(const std::string &message)
+ByteArray Protocol::LobbyChatMessage(const std::string &message, std::uint32_t target)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::LOBBY_CHAT_MESSAGE, LOBBY_UID, Protocol::ALL_LOBBY);
+    BuildHeader(packet, Protocol::LOBBY_CHAT_MESSAGE, LOBBY_UID, target);
     out.Seek(HEADER_SIZE);
     out << message;
-    UpdateHeader(packet);
-
-    return packet;
-}
-/*****************************************************************************/
-ByteArray Protocol::LobbyDisconnect(std::uint32_t uuid)
-{
-    return BuildCommand(Protocol::LOBBY_DISCONNECT, LOBBY_UID, uuid);
-}
-/*****************************************************************************/
-ByteArray Protocol::LobbyRemovePlayer(std::uint32_t player_uuid)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::LOBBY_REMOVE_PLAYER, Protocol::LOBBY_UID, TABLE_UID);
-    out.Seek(HEADER_SIZE);
-    out << player_uuid;
-    UpdateHeader(packet);
-
-    return packet;
-}
-/*****************************************************************************/
-ByteArray Protocol::LobbyAddPlayer(std::uint32_t player_uuid, const Identity &ident)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::LOBBY_ADD_PLAYER, Protocol::LOBBY_UID, TABLE_UID);
-    out.Seek(HEADER_SIZE);
-    out << player_uuid;
-    out << ident;
     UpdateHeader(packet);
 
     return packet;
@@ -793,26 +713,12 @@ ByteArray Protocol::LobbyLoginResult(bool accepted, const std::map<std::string, 
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::LobbyCreateTable(std::uint8_t nbPlayers)
-{
-    ByteArray packet;
-    ByteStreamWriter out(packet);
-
-    BuildHeader(packet, Protocol::LOBBY_CREATE_TABLE, Protocol::LOBBY_UID, TABLE_UID);
-    out.Seek(HEADER_SIZE);
-    out << nbPlayers; // number of players in the current game
-    UpdateHeader(packet);
-
-    return packet;
-}
-
-/*****************************************************************************/
 ByteArray Protocol::LobbyPlayersList(const std::map<std::uint32_t, std::string> &players)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::LOBBY_PLAYERS_LIST, LOBBY_UID, Protocol::ALL_LOBBY);
+    BuildHeader(packet, Protocol::LOBBY_PLAYERS_LIST, LOBBY_UID, LOBBY_UID);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)players.size();
     std::map<std::uint32_t, std::string>::const_iterator iter;
@@ -828,12 +734,12 @@ ByteArray Protocol::LobbyPlayersList(const std::map<std::uint32_t, std::string> 
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::AdminNewGame(const Tarot::Game &game, std::uint32_t uuid)
+ByteArray Protocol::AdminNewGame(const Tarot::Game &game, std::uint32_t uuid, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::ADMIN_NEW_GAME, uuid, TABLE_UID);
+    BuildHeader(packet, Protocol::ADMIN_NEW_GAME, uuid, tableId);
     out.Seek(HEADER_SIZE);
     out << game;
     UpdateHeader(packet);
@@ -841,12 +747,12 @@ ByteArray Protocol::AdminNewGame(const Tarot::Game &game, std::uint32_t uuid)
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::AdminGameFull(bool full, std::uint32_t uuid)
+ByteArray Protocol::AdminGameFull(bool full, std::uint32_t uuid, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
 
-    BuildHeader(packet, Protocol::ADMIN_GAME_FULL, TABLE_UID, uuid);
+    BuildHeader(packet, Protocol::ADMIN_GAME_FULL, tableId, uuid);
     out.Seek(HEADER_SIZE);
     out << full;
     UpdateHeader(packet);
