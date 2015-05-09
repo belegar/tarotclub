@@ -349,17 +349,17 @@ ClientOptions ClientConfig::GetDefault()
     opt.bots[Place::WEST].identity.nickname = "Leela";
     opt.bots[Place::WEST].identity.avatar   = ":/avatars/FD05.png";
     opt.bots[Place::WEST].identity.gender   = Identity::cGenderFemale;
-    opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath() + "package.json";
+    opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath();
 
     opt.bots[Place::NORTH].identity.nickname = "Bender";
     opt.bots[Place::NORTH].identity.avatar  = ":/avatars/N03.png";
     opt.bots[Place::NORTH].identity.gender  = Identity::cGenderMale;
-    opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath() + "package.json";
+    opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath();
 
     opt.bots[Place::EAST].identity.nickname = "Amy";
     opt.bots[Place::EAST].identity.avatar   = ":/avatars/FE02.png";
     opt.bots[Place::EAST].identity.gender   = Identity::cGenderFemale;
-    opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath() + "package.json";
+    opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath();
 
     return opt;
 }
