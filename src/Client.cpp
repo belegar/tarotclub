@@ -319,9 +319,15 @@ void Client::Run()
                         mConnected = false;
                         TLogNetwork("Lost connection! Place: " + mPlace.ToString());
                     }
+                    else if (ret == -2)
+                    {
+                        // try again, ignore and select again the socket
+                        std::cout << "Sock: try again" << std::endl;
+                    }
                     else
                     {
-                        // try again to read from the socket
+                        mConnected = false;
+                        TLogNetwork("Connection reset by peer.");
                     }
                 }
                 mPlayer.SetUuid(Protocol::INVALID_UID);
