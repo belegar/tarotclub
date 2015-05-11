@@ -54,7 +54,7 @@ void System::Initialize()
 /*****************************************************************************/
 void System::Initialize(const std::string &homePath)
 {
-    mHomePath = homePath;
+    mHomePath = homePath; 
 
     // ----------- Android
 #ifdef USE_ANDROID_OS
@@ -86,6 +86,12 @@ void System::Initialize(const std::string &homePath)
     Util::ReplaceCharacter(mDeckPath, "/", "\\");
     Util::ReplaceCharacter(mLocalePath, "/", "\\");
 #endif
+
+    // Ensure final slash/backslash
+    if (mHomePath.back() != Util::DIR_SEPARATOR)
+    {
+        mHomePath.push_back(Util::DIR_SEPARATOR);
+    }
 
     // Check the user TarotClub directories and create them if necessary (all platforms)
     if (!Util::FolderExists(HomePath()))
