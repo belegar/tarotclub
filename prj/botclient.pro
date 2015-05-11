@@ -51,6 +51,7 @@ VPATH += $$TAROTCLUB_DIR/lib
 VPATH += $$TAROTCLUB_DIR/ai
 VPATH += $$TAROTCLUB_DIR/ai/tarotlib
 VPATH += $$TAROTCLUB_DIR/src/network
+VPATH += $$TAROTCLUB_DIR/src/zip
 
 # ------------------------------------------------------------------------------
 # Where to find header files
@@ -61,6 +62,7 @@ INCLUDEPATH += $$TAROTCLUB_DIR/src/botclient
 INCLUDEPATH += $$TAROTCLUB_DIR/src/jsengine
 INCLUDEPATH += $$TAROTCLUB_DIR/src/json
 INCLUDEPATH += $$TAROTCLUB_DIR/src/network
+INCLUDEPATH += $$TAROTCLUB_DIR/src/zip
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -104,7 +106,8 @@ HEADERS += Log.h \
     TcpClient.h \
     UniqueId.h \
     Value.h \
-    GetOptions.h
+    GetOptions.h \
+    Zip.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -115,7 +118,8 @@ SOURCES += Log.cpp \
     TcpServer.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
-    Value.cpp
+    Value.cpp \
+    Zip.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files

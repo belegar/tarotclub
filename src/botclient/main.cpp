@@ -31,6 +31,8 @@
 #include "Util.h"
 #include "JsonReader.h"
 
+static const char *cTarotClientVersion = "1.0.0";
+
 void PrintHelp(char *executable)
 {
     std::cout << std::endl << "Usage: " << Util::GetFileName(executable) << " [options] -c xx.xx.xx.xx config.json" << std::endl;
@@ -52,7 +54,7 @@ int main(int argc, char *argv[])
 {
     CommandLine cmd(argc, argv);
 
-    std::cout << "TarotClub bot(s) client " << TAROT_VERSION << std::endl;
+    std::cout << "TarotClub bot(s) client " << cTarotClientVersion << std::endl;
 
     if(cmd.Exists("-h"))
     {
@@ -72,7 +74,7 @@ int main(int argc, char *argv[])
     std::string port(cmd.GetOption("-p"));
     std::string table(cmd.GetOption("-t"));
 
-    std::uint32_t tableId = 1U;
+    std::uint32_t tableId = Protocol::TABLES_UID;
     std::uint16_t tcpPort = ServerConfig::DEFAULT_GAME_TCP_PORT;
     if (table.size() > 0)
     {
@@ -110,50 +112,37 @@ int main(int argc, char *argv[])
     std::cout << cmd.GetLastOption() << std::endl;
 
     // Parse bots.json file to retrieve the bot identities
-    JsonReader reader;
-    if (reader.Open(cmd.GetLastOption()))
+    JsonValue reader;
+    if (JsonReader::ParseFile(reader, cmd.GetLastOption()))
     {
-        std::vector<JsonValue> identities = reader.GetArray("");
-        if (identities.size() > 0)
+        JsonArray identities = reader.GetArray();
+        if (identities.Size() > 0)
         {
-            for (JsonReader::Iterator iter = identities.begin(); iter != identities.end(); ++iter)
+            for (JsonArray::Iterator iter = identities.Begin(); iter != identities.End(); ++iter)
             {
                 if (iter->IsObject())
                 {
-                    JsonObject *obj = iter->GetObject();
+                    JsonObject obj = iter->GetObject();
                     Identity ident;
-                    if (obj != NULL)
+                    ident.nickname = obj.GetValue("name").GetString();
+                    ident.avatar = obj.GetValue("avatar").GetString();
+                    std::string stringVal = obj.GetValue("gender").GetString();
+                    if (stringVal == "female")
                     {
-                        bool ret = JsonValue::FromNode(obj->GetNode("name"), ident.name);
-                        if (ret) { ret = JsonValue::FromNode(obj->GetNode("avatar"), ident.avatar); }
-                        std::string stringVal;
-                        if (ret)
-                        {
-                            ret = JsonValue::FromNode(obj->GetNode("gender"), stringVal);
-                            if (stringVal == "female")
-                            {
-                                ident.gender = Identity::FEMALE;
-                            }
-                            else
-                            {
-                                ident.gender = Identity::MALE;
-                            }
-                        }
-                        if (ret)
-                        {
-                            ret = JsonValue::FromNode(obj->GetNode("bot_file_path"), stringVal);
-                        }
-
-                        // Everything is good, actually create the bot
-                        if (ret)
-                        {
-                            numberOfBots++;
-                            Bot *bot = new Bot();
-                            bots.push_back(bot);
-                            bot->SetIdentity(ident);
-                            bot->SetAiScriptConfigFile(stringVal);
-                        }
+                        ident.gender = Identity::cGenderFemale;
                     }
+                    else
+                    {
+                        ident.gender = Identity::cGenderMale;
+                    }
+                    stringVal = obj.GetValue("bot_ai").GetString();
+
+                    // Create the bot
+                    numberOfBots++;
+                    Bot *bot = new Bot();
+                    bots.push_back(bot);
+                    bot->SetIdentity(ident);
+                    bot->SetAiScript(stringVal);
                 }
             }
         }
@@ -173,7 +162,7 @@ int main(int argc, char *argv[])
             (*iter)->SetTimeBeforeSend(0U);
             (*iter)->Initialize();
             // Connect the bot to the server
-            std::cout << "Bot is connecting to " << address << ":" << port << std::endl;
+            std::cout << "Bot is connecting to " << address << ":" << tcpPort << std::endl;
             (*iter)->ConnectToHost(address, tcpPort);
         }
 
