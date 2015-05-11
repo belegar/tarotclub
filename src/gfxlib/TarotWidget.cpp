@@ -103,19 +103,9 @@ TarotWidget::~TarotWidget()
 /**
  * @brief One time game initialization
  */
-void TarotWidget::Initialize(const ServerOptions &opt)
+void TarotWidget::Initialize()
 {
     Protocol::GetInstance().Initialize();
-
-    // Ensure that we only have one table (embedded lobby, not the dedicated one!)
-    ServerOptions defaultOpt = opt;
-    if (defaultOpt.tables.size() != 1)
-    {
-        defaultOpt.tables.clear();
-        defaultOpt.tables.push_back("Default");
-    }
-
-    mLobby.Initialize(defaultOpt);
     mClient.Initialize();
     mCanvas->Initialize();
     mCanvas->SetFilter(Canvas::MENU);
@@ -129,6 +119,9 @@ void TarotWidget::slotCleanBeforeExit()
 {
     // Raise a flag
     mShutdown = true;
+
+    // Stop work item thread
+    Protocol::GetInstance().Stop();
 
     // Close ourself
     mClient.Close();
@@ -229,6 +222,17 @@ void TarotWidget::LaunchLocalGame(bool autoPlay)
 {
     // Save game config
     mAutoPlay = autoPlay;
+
+    // Launch local server if needed
+    // Ensure that we only have one table (embedded lobby, not the dedicated one!)
+    if (mServerOptions.tables.size() != 1)
+    {
+        mServerOptions.tables.clear();
+        mServerOptions.tables.push_back("Default");
+    }
+
+    mLobby.Initialize(mServerOptions);
+
     if (!HasLocalConnection())
     {
         InitScreen(true);
@@ -245,7 +249,10 @@ void TarotWidget::LaunchLocalGame(bool autoPlay)
 /*****************************************************************************/
 void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
 {
+    // Destroy any local stuff before connecting elsewhere
     mClient.Disconnect();
+    mLobby.Stop();
+    mLobby.WaitForEnd();
     InitScreen(true);
     mConnectionType = REMOTE;
 
@@ -304,6 +311,25 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
     mClient.SetMyIdentity(mClientOptions.identity);
     mCanvas->ShowAvatars(mClientOptions.showAvatars);
     mCanvas->SetBackground(mClientOptions.backgroundColor);
+
+    if (mConnectionType == LOCAL)
+    {
+        // Update bot identities if required
+        std::map<std::uint32_t, std::string> bots = mClient.GetLobbyPlayersList();
+
+        for (std::map<std::uint32_t, std::string>::iterator iter = bots.begin(); iter != bots.end(); ++iter)
+        {
+            for (std::map<Place, BotConf>::iterator iter2 = mClientOptions.bots.begin();
+                 iter2 != mClientOptions.bots.end(); ++iter2)
+            {
+                if (iter->second == iter2->second.identity.nickname)
+                {
+                    mLobby.ChangeBotIdentity(iter->first, iter2->second.identity);
+                }
+            }
+        }
+    }
+
 }
 /*****************************************************************************/
 void TarotWidget::HideTrick()

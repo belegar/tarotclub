@@ -59,7 +59,7 @@ public:
     TarotWidget(QWidget *parent = 0);
     ~TarotWidget();
 
-    void Initialize(const ServerOptions &opt);
+    void Initialize();
     void NewNumberedDeal(std::uint32_t dealNumber);
     void NewCustomDeal(const std::string &file);
     void LaunchLocalGame(bool autoPlay);
