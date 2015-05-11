@@ -134,7 +134,10 @@ bool Controller::RemovePlayer(std::uint32_t kicked_player)
                 Player *player = mEngine.GetPlayer(i);
                 if (player != NULL)
                 {
-                    newAdmin = player->GetUuid();
+                    if (player->GetUuid() != kicked_player)
+                    {
+                        newAdmin = player->GetUuid();
+                    }
                 }
             }
             mAdmin = newAdmin;
