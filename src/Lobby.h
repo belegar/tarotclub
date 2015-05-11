@@ -59,6 +59,7 @@ public:
     bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile);
     std::uint32_t GetNumberOfBots(std::uint32_t tableId);
     bool RemoveBot(std::uint32_t uuid);
+    void ChangeBotIdentity(std::uint32_t uuid, const Identity &identity);
 
     // Lobby management
     void CloseClients();
@@ -90,7 +91,7 @@ private:
     Subject<Event> mSubject;
     int             mTcpPort;
     TcpServer       mTcpServer;
-    bool            mCreated;   ///< True if the table has been created
+    bool            mInitialized;
     bool            mIsFull;
     ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
 

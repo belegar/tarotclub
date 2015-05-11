@@ -29,6 +29,7 @@ const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub Lobby v")
 Lobby::Lobby()
     : mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
+    , mInitialized(false)
     , mTableIds(Protocol::TABLES_UID, Protocol::MAXIMUM_TABLES)
 {
 
@@ -57,20 +58,22 @@ Lobby::~Lobby()
 /*****************************************************************************/
 void Lobby::Initialize(const ServerOptions &opt)
 {
-    Protocol::GetInstance().Initialize();
-
-    Tarot::Distribution sh;
-    sh.mType = Tarot::Distribution::RANDOM_DEAL;
-
-    // Initialize all the tables, starting with the TCP port indicated
-    mTcpPort = opt.game_tcp_port;
-    for (std::uint32_t i = 0U; i < opt.tables.size(); i++)
+    if (!mInitialized)
     {
-        CreateTable(opt.tables[i]);
-    }
+        Tarot::Distribution sh;
+        sh.mType = Tarot::Distribution::RANDOM_DEAL;
 
-    // Lobby TCP server
-    mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn, opt.localHostOnly);
+        // Initialize all the tables, starting with the TCP port indicated
+        mTcpPort = opt.game_tcp_port;
+        for (std::uint32_t i = 0U; i < opt.tables.size(); i++)
+        {
+            CreateTable(opt.tables[i]);
+        }
+
+        // Lobby TCP server
+        mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn, opt.localHostOnly);
+        mInitialized = true;
+    }
 }
 /*****************************************************************************/
 std::uint32_t Lobby::CreateTable(const std::string &tableName, bool adminMode, const Tarot::Game &game)
@@ -393,6 +396,11 @@ void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
     {
         peers = mUsers.GetUsersOfTable(tableId);
     }
+    else
+    {
+        // Remove only one player
+        peers.push_back(uuid);
+    }
 
     for (std::list<std::uint32_t>::iterator iter = peers.begin(); iter != peers.end(); ++iter)
     {
@@ -477,9 +485,7 @@ std::string Lobby::GetTableName(const std::uint32_t tableId)
 /*****************************************************************************/
 void Lobby::Stop()
 {
-	// Stop work item thread
-	Protocol::GetInstance().Stop();
-
+    mInitialized = false;
     mUsers.CloseClients();
     mTcpServer.Stop();
 
@@ -578,6 +584,17 @@ bool Lobby::RemoveBot(std::uint32_t uuid)
         }
     }
     return ret;
+}
+/*****************************************************************************/
+void Lobby::ChangeBotIdentity(std::uint32_t uuid, const Identity &identity)
+{
+    for (std::list<Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    {
+        if ((*iter)->GetUuid() == uuid)
+        {
+            (*iter)->SetIdentity(identity);
+        }
+    }
 }
 /*****************************************************************************/
 void Lobby::RegisterListener(Observer<Event> &i_event)
