@@ -444,11 +444,11 @@ bool Bot::InitializeScriptContext()
     {
         if (Util::FolderExists(mScriptPath))
         {
-            TLogInfo(std::string("Using script root path: ") + mScriptPath);
+            TLogInfo("Using script root path: " + mScriptPath);
         }
         else
         {
-            TLogError("Invalid AI script path");
+            TLogError("Invalid AI script path " + mScriptPath);
             retCode = false;
         }
     }
