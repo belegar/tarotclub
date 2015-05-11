@@ -34,7 +34,7 @@
 #include <QtSvg>
 
 #include "Deal.h"
-#include "DummyRemoteDb.h"
+
 
 /*****************************************************************************/
 class DealsWindow : public QDialog
@@ -46,7 +46,6 @@ public:
     ~DealsWindow();
 
     void Initialize();
-
     void RefreshDeals();
 
 public slots:
