@@ -51,7 +51,6 @@ VPATH += $$BASE_DIR/src/jsengine
 VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/src/network
-VPATH += $$BASE_DIR/src/database
 VPATH += $$BASE_DIR/src/zip
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
@@ -71,7 +70,6 @@ INCLUDEPATH += $$BASE_DIR/src/jsengine
 INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/network
-INCLUDEPATH += $$BASE_DIR/src/database
 INCLUDEPATH += $$BASE_DIR/src/zip
 
 # ------------------------------------------------------------------------------
@@ -159,8 +157,6 @@ HEADERS += Log.h \
     UniqueId.h \
     System.h \
     Value.h \
-    IDataBase.h \
-    DummyDataBase.h \
     Avatar.h \
     Zip.h
 

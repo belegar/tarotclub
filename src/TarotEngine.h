@@ -32,10 +32,6 @@
 #include "Common.h"
 #include "ServerConfig.h"
 #include "Observer.h"
-#ifndef DESKTOP_PROJECT
-#include "CouchDb.h"
-#endif
-#include "DummyRemoteDb.h"
 
 /*****************************************************************************/
 /**

@@ -38,7 +38,6 @@
 #include "Player.h"
 #include "Identity.h"
 #include "ServerConfig.h"
-#include "IRemoteDb.h"
 
 /*****************************************************************************/
 class Deal
