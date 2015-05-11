@@ -152,7 +152,7 @@ private:
 
     QString ChooseAvatar(const QString &defaultAvatar);
     void UpdateServersList();
-
+    void RefreshBots();
 };
 
 #endif // OPTIONS_WINDOW_H

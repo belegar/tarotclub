@@ -345,12 +345,12 @@ OptionsWindow::OptionsWindow(QWidget *parent)
 void OptionsWindow::SetClientOptions(const ClientOptions &opt)
 {
     clientOptions = opt;
+    ui.botsList->setCurrentRow(0);
 }
 /*****************************************************************************/
 void OptionsWindow::SetServerOptions(const ServerOptions &opt)
 {
     serverOptions = opt;
-    ui.botsList->setCurrentRow(0);
 }
 /*****************************************************************************/
 ClientOptions &OptionsWindow::GetClientOptions()
@@ -380,8 +380,6 @@ void OptionsWindow::slotBotSelected(int currentRow)
     {
         if (currentRow != mPreviousSelectedBot)
         {
-            QPixmap im;
-
             if (mPreviousSelectedBot >= 0)
             {
                 Place place(mPreviousSelectedBot + 1U);
@@ -394,29 +392,14 @@ void OptionsWindow::slotBotSelected(int currentRow)
                 {
                     clientOptions.bots[place].identity.gender = Identity::cGenderFemale;
                 }
+                clientOptions.bots[place].identity.nickname = ui.botName->text().toStdString();
+
+                // other elements are saved on widget action (AI path, avatar ...)
             }
 
             mPreviousSelectedBot = currentRow;
 
-            // Get the place of the selected bot
-            Place place(currentRow + 1U);
-
-            ui.botName->setText(QString::fromStdString(clientOptions.bots[place].identity.nickname));
-            ui.scriptPath->setText(QString::fromStdString(clientOptions.bots[place].scriptFilePath));
-
-            if (clientOptions.bots[place].identity.gender == Identity::cGenderMale)
-            {
-                ui.botMale->setChecked(true);
-            }
-            else
-            {
-                ui.botFemale->setChecked(true);
-            }
-
-            if (im.load(QString(clientOptions.bots[place].identity.avatar.data())) == true)
-            {
-                ui.botAvatar->setPixmap(im);
-            }
+            RefreshBots();
         }
     }
 }
@@ -486,6 +469,9 @@ void OptionsWindow::slotBtnDefaut()
 {
     clientOptions = ClientConfig::GetDefault();
     serverOptions = ServerConfig::GetDefault();
+
+    mPreviousSelectedBot = -1;
+    ui.botsList->setCurrentRow(0);
     Refresh();
 }
 /*****************************************************************************/
@@ -729,8 +715,36 @@ void OptionsWindow::Refresh()
     }
     dragWidget->SetOrder(clientOptions.cardsOrder);
 
+    // -------------  BOTS TAB --------------
+    RefreshBots();
+
     // -------------  NETWORK TAB --------------
     UpdateServersList();
+}
+/*****************************************************************************/
+void OptionsWindow::RefreshBots()
+{
+    // Get the place of the selected bot
+    Place place(ui.botsList->currentRow() + 1U);
+
+    ui.botName->setText(QString::fromStdString(clientOptions.bots[place].identity.nickname));
+    ui.scriptPath->setText(QString::fromStdString(clientOptions.bots[place].scriptFilePath));
+
+    if (clientOptions.bots[place].identity.gender == Identity::cGenderMale)
+    {
+        ui.botMale->setChecked(true);
+    }
+    else
+    {
+        ui.botFemale->setChecked(true);
+    }
+
+    QPixmap im;
+    if (im.load(QString(clientOptions.bots[place].identity.avatar.data())) == true)
+    {
+        ui.botAvatar->setPixmap(im);
+    }
+
 }
 
 //=============================================================================
