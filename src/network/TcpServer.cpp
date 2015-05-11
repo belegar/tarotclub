@@ -385,7 +385,6 @@ void TcpServer::IncommingConnection()
 /*****************************************************************************/
 bool TcpServer::IncommingData(int in_sock)
 {
-    bool close_conn = false;
     TcpSocket socket;
     bool ret = false;
     std::string buffer;
@@ -418,26 +417,21 @@ bool TcpServer::IncommingData(int in_sock)
         data.data = buffer,
         mExecQueue.Push(data);
     }
+    else if (ret == -2)
+    {
+        // Try again to read from socket
+    }
     else
     {
-        /**********************************************/
-        /* Check to see if the connection has been    */
-        /* closed by the client                       */
-        /**********************************************/
-        close_conn = true;
-    }
-
-    /*************************************************/
-    /* If the close_conn flag was turned on, we need */
-    /* to clean up this active connection.  This     */
-    /* clean up process includes removing the        */
-    /* descriptor from the master set and            */
-    /* determining the new maximum descriptor value  */
-    /* based on the bits that are still turned on in */
-    /* the master set.                               */
-    /*************************************************/
-    if (close_conn)
-    {
+        /*************************************************/
+        /* Check to see if the connection has been       */
+        /* closed by the client.                         */
+        /* This clean up process includes removing the   */
+        /* descriptor from the master set and            */
+        /* determining the new maximum descriptor value  */
+        /* based on the bits that are still turned on in */
+        /* the master set.                               */
+        /*************************************************/
         socket.Close();
 
         for (size_t i = 0; i < mClients.size(); i++)

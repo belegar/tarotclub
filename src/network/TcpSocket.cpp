@@ -431,12 +431,12 @@ std::int32_t TcpSocket::Recv(std::string &output) const
     {
         if (errno == EAGAIN)
         {
-            // try again, ignore and select again the socket
-            std::cout << "Sock: try again" << std::endl;
+            result = -2;
         }
         else
         {
             BailOnSocketError("recv()");
+            result = -1;
         }
     }
 
