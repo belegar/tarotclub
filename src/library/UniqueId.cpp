@@ -62,11 +62,12 @@ std::uint32_t UniqueId::TakeId()
 {
     std::uint32_t id = 0U;
 
-    for (id = mMin; id <= mMax; id++)
+    for (std::uint32_t i = mMin; i <= mMax; i++)
     {
-        if (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end())
+        if (std::find(mUsedIds.begin(), mUsedIds.end(), i) == mUsedIds.end())
         {
             // Id not used
+            id = i;
             mUsedIds.push_back(id);
             break;
         }
