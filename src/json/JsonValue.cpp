@@ -201,6 +201,33 @@ JsonValue::JsonValue(std::int32_t value)
 
 }
 /*****************************************************************************/
+JsonValue::JsonValue(std::uint32_t value)
+    : mTag(INTEGER)
+    , mIntegerValue(value)
+    , mDoubleValue(0.0F)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(std::uint16_t value)
+    : mTag(INTEGER)
+    , mIntegerValue(value)
+    , mDoubleValue(0.0F)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
+JsonValue::JsonValue(std::uint8_t value)
+    : mTag(INTEGER)
+    , mIntegerValue(value)
+    , mDoubleValue(0.0F)
+    , mBoolValue(false)
+{
+
+}
+/*****************************************************************************/
 JsonValue::JsonValue(double value)
     : mTag(DOUBLE)
     , mIntegerValue(0)

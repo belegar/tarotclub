@@ -86,6 +86,9 @@ public:
 
     // From Value class
     JsonValue(std::int32_t value);
+    JsonValue(std::uint32_t value);
+    JsonValue(std::uint16_t value);
+    JsonValue(std::uint8_t value);
     JsonValue(double value);
     JsonValue(const char *value);
     JsonValue(const std::string &value);
