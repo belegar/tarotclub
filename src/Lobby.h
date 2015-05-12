@@ -55,6 +55,9 @@ public:
     void Stop();
     void WaitForEnd();
 
+    // Users management
+    std::uint32_t GetNumberOfPlayers();
+
     // Bots management
     bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile);
     std::uint32_t GetNumberOfBots(std::uint32_t tableId);
@@ -64,6 +67,7 @@ public:
     // Lobby management
     void CloseClients();
     void RegisterListener(Observer<Event> &i_event);
+    std::string GetName() { return mName; }
 
     // Tables management
     std::uint32_t CreateTable(const std::string &tableName, bool adminMode = true, const Tarot::Game &game = Tarot::Game());
@@ -88,7 +92,7 @@ private:
     std::string GetTableName(const std::uint32_t tableId);
 	void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId);
 
-    Subject<Event> mSubject;
+    Subject<Event>  mSubject;
     int             mTcpPort;
     TcpServer       mTcpServer;
     bool            mInitialized;
@@ -103,6 +107,7 @@ private:
     // Bots management
     std::list<Bot *> mBots;
     std::mutex mBotsMutex;
+    std::string mName;
 
     void SendDataToPlayer(const ByteArray &data);
 };

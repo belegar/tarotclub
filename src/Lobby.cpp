@@ -30,7 +30,7 @@ Lobby::Lobby()
     : mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
     , mInitialized(false)
-    , mTableIds(Protocol::TABLES_UID, Protocol::MAXIMUM_TABLES)
+    , mTableIds(Protocol::TABLES_UID, Protocol::TABLES_UID + Protocol::MAXIMUM_TABLES)
 {
 
 }
@@ -60,6 +60,7 @@ void Lobby::Initialize(const ServerOptions &opt)
 {
     if (!mInitialized)
     {
+        mName = opt.name;
         Tarot::Distribution sh;
         sh.mType = Tarot::Distribution::RANDOM_DEAL;
 
@@ -84,7 +85,7 @@ std::uint32_t Lobby::CreateTable(const std::string &tableName, bool adminMode, c
 
     if (id > 0U)
     {
-        std::cout << "Creating table " << tableName << ": id=" << id << std::endl;
+        std::cout << "Creating table \"" << tableName << "\": id=" << id << std::endl;
         Controller *table = new Controller(*this);
         table->SetId(id);
         table->SetName(tableName);
@@ -123,6 +124,11 @@ bool Lobby::DestroyTable(std::uint32_t id)
 void Lobby::WaitForEnd()
 {
     mTcpServer.Join();
+}
+/*****************************************************************************/
+std::uint32_t Lobby::GetNumberOfPlayers()
+{
+    return mUsers.GetLobbyUsers().size();
 }
 /*****************************************************************************/
 void Lobby::NewConnection(int socket)
