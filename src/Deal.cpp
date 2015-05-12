@@ -390,7 +390,7 @@ std::string Deal::GenerateEndDealLog(std::uint8_t numberOfPlayers)
     JsonObject dealInfo;
 
     // Players are sorted from south to north-west, anti-clockwise (see Place class)
-    dealInfo.AddValue("number_of_players", (std::int32_t)numberOfPlayers);
+    dealInfo.AddValue("number_of_players", numberOfPlayers);
     dealInfo.AddValue("taker", mBid.taker.ToString());
     dealInfo.AddValue("contract", mBid.contract.ToString());
     dealInfo.AddValue("slam", mBid.slam);

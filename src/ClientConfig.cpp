@@ -305,7 +305,7 @@ bool ClientConfig::Save(const std::string &fileName)
         ServerInfo inf =  mOptions.serverList[i];
         JsonObject srv; // = servers->CreateObject();
         srv.AddValue("address", inf.address);
-        srv.AddValue("game_port", (std::int32_t) inf.game_tcp_port);
+        srv.AddValue("game_port", inf.game_tcp_port);
         servers.AddValue(srv);
     }
 
