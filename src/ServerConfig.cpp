@@ -218,7 +218,7 @@ bool ServerConfig::Save(const std::string &fileName)
     {
         std::string type;
         std::string file;
-        std::uint32_t number;
+        std::uint32_t number = 0U;
         JsonObject obj;
 
         if (iter->mType == Tarot::Distribution::RANDOM_DEAL)
