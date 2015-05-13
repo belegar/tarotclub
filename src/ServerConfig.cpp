@@ -32,6 +32,7 @@
 
 static const std::string SERVER_CONFIG_VERSION  = "6"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
+const std::string ServerConfig::DEFAULT_SERVER_NAME = "desktop";
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
@@ -92,6 +93,11 @@ bool ServerConfig::Load(const std::string &fileName)
                     mOptions.localHostOnly = boolVal;
                 }
 
+                if (json.GetValue("name", value))
+                {
+                    mOptions.name = value;
+                }
+
                 // Setup tournament configuration
                 mOptions.tournament.clear();
                 JsonValue tournament = json.FindValue("tournament");
@@ -118,9 +124,19 @@ bool ServerConfig::Load(const std::string &fileName)
                                         ret = false;
                                     }
                                 }
+                                else if (value.GetString() == "random")
+                                {
+                                    shuffle.mType = Tarot::Distribution::RANDOM_DEAL;
+                                }
+                                else  if (value.GetString() == "numbered")
+                                {
+                                    shuffle.mType = Tarot::Distribution::NUMBERED_DEAL;
+                                    shuffle.mSeed = iter->GetObject().GetValue("number").GetInteger();
+                                    // FIXME we can add a test on the type here before setting the seed
+                                }
                                 else
                                 {
-                                    // FIXME: add support for numbered deal (get the seed)
+                                    TLogError("Unsupported deal type value");
                                     ret = false;
                                 }
                             }
@@ -170,7 +186,7 @@ bool ServerConfig::Load(const std::string &fileName)
     }
     else
     {
-        TLogError("Cannot open server configuration file");
+        TLogError("Cannot open server configuration file" + fileName);
     }
 
     if (!ret)
@@ -195,12 +211,14 @@ bool ServerConfig::Save(const std::string &fileName)
     json.AddValue("console_tcp_port", mOptions.console_tcp_port);
     json.AddValue("lobby_max_conn", mOptions.lobby_max_conn);
     json.AddValue("local_host_only", mOptions.localHostOnly);
+    json.AddValue("name", mOptions.name);
 
     JsonArray tournament;
     for (std::vector<Tarot::Distribution>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
     {
         std::string type;
         std::string file;
+        std::uint32_t number;
         JsonObject obj;
 
         if (iter->mType == Tarot::Distribution::RANDOM_DEAL)
@@ -208,14 +226,20 @@ bool ServerConfig::Save(const std::string &fileName)
             type = "random";
             file = "";
         }
-        else
+        else if (iter->mType == Tarot::Distribution::CUSTOM_DEAL)
         {
-            // FIXME: add the numbered type
             type = "custom";
             file = iter->mFile;
         }
+        else
+        {
+            type = "numbered";
+            number = iter->mSeed;
+        }
+
         obj.AddValue("type", type);
         obj.AddValue("file", file);
+        obj.AddValue("number", number);
         tournament.AddValue(obj);
     }
     json.AddValue("tournament", tournament);
@@ -243,6 +267,7 @@ ServerOptions ServerConfig::GetDefault()
     opt.console_tcp_port    = DEFAULT_CONSOLE_TCP_PORT;
     opt.lobby_max_conn      = DEFAULT_LOBBY_MAX_CONN;
     opt.localHostOnly       = false;
+    opt.name                = DEFAULT_SERVER_NAME;
     opt.tables.push_back("Table 1"); // default table name (one table minimum)
 
     // Default tournament is some random deals

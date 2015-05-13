@@ -35,6 +35,7 @@ struct ServerOptions
     std::uint16_t console_tcp_port;
     std::int32_t lobby_max_conn;    // Max number of simultaneous connected clients
     bool localHostOnly; // if true, restrict to local host server
+    std::string name;
     std::vector<std::string> tables; // table list names
     std::vector<Tarot::Distribution> tournament; // one game parameter per turn (vector size is the number of turns)
 };
@@ -50,6 +51,7 @@ public:
     static const std::string    DEFAULT_SERVER_CONFIG_FILE;
     static const std::uint8_t   DEFAULT_NUMBER_OF_TURNS     = 5U;
     static const std::uint8_t   MAX_NUMBER_OF_TURNS         = 20U;
+    static const std::string    DEFAULT_SERVER_NAME;
 
     ServerConfig();
 
