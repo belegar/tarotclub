@@ -37,6 +37,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <netinet/tcp.h>
 #endif
 
 #ifdef USE_WINDOWS_OS
