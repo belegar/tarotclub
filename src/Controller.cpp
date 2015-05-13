@@ -121,32 +121,34 @@ bool Controller::RemovePlayer(std::uint32_t kicked_player)
     Place place = mEngine.GetPlayerPlace(kicked_player);
     if (place != Place::NOWHERE)
     {
-        // Remove this player from the engine
-        mEngine.RemovePlayer(kicked_player);
-
-        // Update the admin
-        if (kicked_player == mAdmin)
+        // If we are in a game, finish it and kick all players
+        if (mEngine.GetSequence() == TarotEngine::WAIT_FOR_PLAYERS)
         {
-            // Choose another admin
-            std::uint32_t newAdmin = Protocol::INVALID_UID;
-            for (std::uint32_t i = 0U; i < mEngine.GetNbPlayers(); i++)
+            // Update the admin
+            if (kicked_player == mAdmin)
             {
-                Player *player = mEngine.GetPlayer(i);
-                if (player != NULL)
+                std::uint32_t newAdmin = Protocol::INVALID_UID;
+                for (std::uint32_t i = 0U; i < mEngine.GetNbPlayers(); i++)
                 {
-                    if (player->GetUuid() != kicked_player)
+                    Player *player = mEngine.GetPlayer(Place(i));
+                    if (player != NULL)
                     {
-                        newAdmin = player->GetUuid();
+                        // Choose another admin
+                        if (player->GetUuid() != kicked_player)
+                        {
+                            newAdmin = player->GetUuid();
+                            break;
+                        }
                     }
                 }
+                mAdmin = newAdmin;
             }
-            mAdmin = newAdmin;
+            mEngine.RemovePlayer(kicked_player);
         }
-
-        // If we are in a game, finish it and kick all players
-        if (mEngine.GetSequence() != TarotEngine::WAIT_FOR_PLAYERS)
+        else
         {
             removeAllPlayers = true;
+            mEngine.CreateTable(mEngine.GetNbPlayers()); // recreate the table (== reset it)
         }
     }
     mMutex.unlock();
