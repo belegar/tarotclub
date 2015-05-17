@@ -7,9 +7,14 @@
   * New tournament configuration (per deal configuration) in the JSON file
   * Added a "random" button in the deal editor window
   * Removed "Check server" lobby button
-  * Removed dedicated server web interface
   * AI script files can now be located inside a ZIP archive file
   * Updated Duktape JavaScript Engine version to 1.2.1
+  * Corrected bots nickname modification
+  
+  ON GOING:
+
+  * Player and bot identities can now be modified at any time, event while in game
+  * New tournament option tab, can be used to customize a simple tournament
 
 # Branch 2.5
 
