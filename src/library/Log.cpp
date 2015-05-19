@@ -36,6 +36,33 @@ std::mutex Log::mMutex;
 Subject<std::string> Log::mSubject;
 std::string Log::mLogPath;
 
+const std::uint8_t Log::Error   = 1U;
+const std::uint8_t Log::Info    = 2U;
+const std::uint8_t Log::Network = 4U;
+const std::uint8_t Log::Script  = 8U;
+const std::uint8_t Log::Server  = 16U;
+
+static std::map<std::uint8_t, std::string> LogInit();
+static std::map<std::uint8_t, std::string> eventString = LogInit();
+
+/*****************************************************************************/
+/**
+ * @brief One time initialization of a global variable
+ * @return
+ */
+std::map<uint8_t, std::string> LogInit()
+{
+    std::map<std::uint8_t, std::string> evt;
+
+    evt[Log::Error]      = "Error";
+    evt[Log::Info]       = "Info";
+    evt[Log::Network]    = "Network";
+    evt[Log::Script]     = "Script";
+    evt[Log::Server]     = "Server";
+
+    return evt;
+}
+
 /*****************************************************************************/
 Log::Log()
 {
@@ -46,22 +73,17 @@ void Log::RegisterListener(Observer<std::string> &listener)
     mSubject.Attach(listener);
 }
 /*****************************************************************************/
-void Log::AddEntry(Event event, const std::string &file, const int line, const std::string &message)
+void Log::AddEntry(uint8_t event, const std::string &file, const int line, const std::string &message)
 {
-    std::vector<std::string> eventString;
-    eventString.push_back("Error");
-    eventString.push_back("Info");
-    eventString.push_back("Network");
-
     std::stringstream ss;
+
     ss << eventString[event] << ", " <<
        Util::CurrentDateTime("%Y-%m-%d.%X") << ", " <<
        file << ", " <<
        line << ", " <<
        message;
 
-    std::cout << ss.str() << std::endl; // print to local std output
-    mSubject.Notify(ss.str());          // send message to all the listeners
+    mSubject.Notify(ss.str(), event);    // send message to all the listeners
     Save(ss.str());                     // save message to a file
 }
 /*****************************************************************************/
@@ -79,7 +101,7 @@ void Log::Save(const std::string &line)
 
     if (f.is_open())
     {
-        f << line;
+        f << line << std::endl;
         f.close();
     }
     mMutex.unlock();
