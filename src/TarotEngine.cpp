@@ -31,6 +31,7 @@
 #include "Identity.h"
 #include "Util.h"
 #include "Log.h"
+#include "System.h"
 
 /*****************************************************************************/
 TarotEngine::TarotEngine()
@@ -510,10 +511,11 @@ void TarotEngine::CreateDeal(Tarot::Distribution &shuffle)
 
     if (shuffle.mType == Tarot::Distribution::CUSTOM_DEAL)
     {
-        if (!editor.LoadFile(shuffle.mFile))
+        std::string fullPath = System::HomePath() + shuffle.mFile;
+        if (!editor.LoadFile(fullPath))
         {
             // Fall back to default mode
-            TLogError("Cannot load custom deal file");
+            TLogError("Cannot load custom deal file: " + fullPath);
         }
         else if (editor.IsValid(mNbPlayers))
         {
