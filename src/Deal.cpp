@@ -414,153 +414,179 @@ std::string Deal::GenerateEndDealLog(std::uint8_t numberOfPlayers)
 /*****************************************************************************/
 bool Deal::LoadGameDealLog(const std::string &fileName)
 {
-    bool ret = true;
+    bool ret = false;
     JsonValue json;
+
+#ifdef TAROT_DEBUG
+    std::cout << "File: " << fileName << std::endl;
+#endif
+    if (JsonReader::ParseFile(json, fileName))
+    {
+        ret = DecodeJsonDeal(json);
+    }
+    else
+    {
+        TLogError("Cannot open Json deal file");
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool Deal::LoadGameDeal(const std::string &buffer)
+{
+    bool ret = false;
+    JsonValue json;
+
+    if (JsonReader::ParseString(json, buffer))
+    {
+        ret = DecodeJsonDeal(json);
+    }
+    else
+    {
+        TLogError("Cannot analyze JSON buffer");
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool Deal::DecodeJsonDeal(const JsonValue &json)
+{
+    bool ret = true;
 
     NewDeal();
 
-    if (JsonReader::ParseFile(json, fileName))
+    std::uint32_t numberOfPlayers;
+    JsonValue players = json.FindValue("deal_info:players");
+    numberOfPlayers = players.GetArray().Size();
+    if ((numberOfPlayers == 3U) ||
+            (numberOfPlayers == 4U) ||
+            (numberOfPlayers == 5U))
     {
-        std::uint32_t numberOfPlayers;
-        JsonValue players = json.FindValue("deal_info:players");
-        numberOfPlayers = players.GetArray().Size();
-        if ((numberOfPlayers == 3U) ||
-                (numberOfPlayers == 4U) ||
-                (numberOfPlayers == 5U))
+        Tarot::Bid bid;
+
+        std::string str_value;
+        if (json.GetValue("deal_info:taker", str_value))
         {
-            Tarot::Bid bid;
+            bid.taker = str_value;
+        }
+        else
+        {
+            ret = false;
+        }
+        if (json.GetValue("deal_info:contract", str_value))
+        {
+            bid.contract = str_value;
+        }
+        else
+        {
+            ret = false;
+        }
+        bool slam;
+        if (json.GetValue("deal_info:slam", slam))
+        {
+            bid.slam = slam;
+        }
+        else
+        {
+            ret = false;
+        }
 
-            std::string str_value;
-            if (json.GetValue("deal_info:taker", str_value))
-            {
-                bid.taker = str_value;
-            }
-            else
-            {
-                ret = false;
-            }
-            if (json.GetValue("deal_info:contract", str_value))
-            {
-                bid.contract = str_value;
-            }
-            else
-            {
-                ret = false;
-            }
-            bool slam;
-            if (json.GetValue("deal_info:slam", slam))
-            {
-                bid.slam = slam;
-            }
-            else
-            {
-                ret = false;
-            }
+        if (json.GetValue("deal_info:dog", str_value))
+        {
+            mDog.SetCards(str_value);
+        }
+        else
+        {
+            ret = false;
+        }
 
-            if (json.GetValue("deal_info:dog", str_value))
-            {
-                mDog.SetCards(str_value);
-            }
-            else
-            {
-                ret = false;
-            }
+        if (!json.GetValue("deal_info:first_trick_lead", str_value))
+        {
+            ret = false;
+        }
 
-            if (!json.GetValue("deal_info:first_trick_lead", str_value))
-            {
-                ret = false;
-            }
-
-            if (ret)
-            {
+        if (ret)
+        {
 #ifdef TAROT_DEBUG
-                std::cout << "File: " << fileName << std::endl;
-                std::cout << "First player: " << str_value << std::endl;
+            std::cout << "First player: " << str_value << std::endl;
 #endif
-                StartDeal(str_value, bid);
+            StartDeal(str_value, bid);
 
-                // Load played cards
-                JsonValue tricks = json.FindValue("tricks");
-                if (tricks.GetArray().Size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
+            // Load played cards
+            JsonValue tricks = json.FindValue("tricks");
+            if (tricks.GetArray().Size() == Tarot::NumberOfCardsInHand(numberOfPlayers))
+            {
+                std::uint8_t trickCounter = 1U;
+                mDiscard.CreateTarotDeck();
+
+                for (JsonArray::Iterator iter = tricks.GetArray().Begin(); iter != tricks.GetArray().End(); ++iter)
                 {
-                    std::uint8_t trickCounter = 1U;
-                    mDiscard.CreateTarotDeck();
+                    Deck trick(iter->GetString());
 
-                    for (JsonArray::Iterator iter = tricks.GetArray().Begin(); iter != tricks.GetArray().End(); ++iter)
+                    if (trick.Size() == numberOfPlayers)
                     {
-                        Deck trick(iter->GetString());
-
-                        if (trick.Size() == numberOfPlayers)
-                        {
-                            Place winner = SetTrick(trick, trickCounter);
-    #ifdef TAROT_DEBUG
-                            std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.ToString() << ", Winner: " << winner.ToString() << std::endl;
-    #else
-                            (void) winner;
-    #endif
-                            // Remove played cards from this deck
-                            if (mDiscard.RemoveDuplicates(trick) != numberOfPlayers)
-                            {
-                                std::stringstream msg;
-                                msg << "Bad deal contents, trick: " << (int)trickCounter;
-                                TLogError(msg.str());
-                                ret = false;
-                            }
-                            trickCounter++;
-                        }
-                        else
+                        Place winner = SetTrick(trick, trickCounter);
+#ifdef TAROT_DEBUG
+                        std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.ToString() << ", Winner: " << winner.ToString() << std::endl;
+#else
+                        (void) winner;
+#endif
+                        // Remove played cards from this deck
+                        if (mDiscard.RemoveDuplicates(trick) != numberOfPlayers)
                         {
                             std::stringstream msg;
-                            msg << "Bad deal contents at trick: " << (int)trickCounter;
+                            msg << "Bad deal contents, trick: " << (int)trickCounter;
                             TLogError(msg.str());
                             ret = false;
                         }
-                    }
-
-                    // Now that we have removed all the played cards from the mDiscard deck,
-                    // it should contains only the discard cards
-                    if (mDiscard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
-                    {
-#ifdef TAROT_DEBUG
-                        std::cout << "Discard: " << mDiscard.ToString() << std::endl;
-#endif
-
-                        // Give the cards to the right team owner
-                        if (bid.contract == Contract::GUARD_AGAINST)
-                        {
-                            mDiscard.SetOwner(DEFENSE);
-                        }
-                        else
-                        {
-                            mDiscard.SetOwner(ATTACK);
-                        }
+                        trickCounter++;
                     }
                     else
                     {
                         std::stringstream msg;
-                        msg << "Bad discard size: " << (int)mDiscard.Size() << ", contents: " << mDiscard.ToString();
+                        msg << "Bad deal contents at trick: " << (int)trickCounter;
                         TLogError(msg.str());
                         ret = false;
                     }
                 }
+
+                // Now that we have removed all the played cards from the mDiscard deck,
+                // it should contains only the discard cards
+                if (mDiscard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
+                {
+#ifdef TAROT_DEBUG
+                    std::cout << "Discard: " << mDiscard.ToString() << std::endl;
+#endif
+
+                    // Give the cards to the right team owner
+                    if (bid.contract == Contract::GUARD_AGAINST)
+                    {
+                        mDiscard.SetOwner(DEFENSE);
+                    }
+                    else
+                    {
+                        mDiscard.SetOwner(ATTACK);
+                    }
+                }
                 else
                 {
-                    TLogError("Bad deal contents");
+                    std::stringstream msg;
+                    msg << "Bad discard size: " << (int)mDiscard.Size() << ", contents: " << mDiscard.ToString();
+                    TLogError(msg.str());
                     ret = false;
                 }
             }
-        }
-        else
-        {
-            TLogError("Bad number of players in the array");
-            ret = false;
+            else
+            {
+                TLogError("Bad deal contents");
+                ret = false;
+            }
         }
     }
     else
     {
-        TLogError("Cannot open deal JSON file");
+        TLogError("Bad number of players in the array");
         ret = false;
     }
+
     return ret;
 }
 

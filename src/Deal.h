@@ -38,6 +38,7 @@
 #include "Player.h"
 #include "Identity.h"
 #include "ServerConfig.h"
+#include "JsonValue.h"
 
 /*****************************************************************************/
 class Deal
@@ -52,6 +53,8 @@ public:
     void CalculateScore(Points &points);
     std::string GenerateEndDealLog(std::uint8_t numberOfPlayers);
     bool LoadGameDealLog(const std::string &fileName);
+    bool LoadGameDeal(const std::string &buffer);
+    bool DecodeJsonDeal(const JsonValue &json);
 
     // Getters
     Deck GetTrick(std::uint8_t turn, std::uint8_t numberOfPlayers);
@@ -59,6 +62,7 @@ public:
     std::map<int, Place> GetPodium();
     Deck GetDog();
     Deck GetDiscard();
+    Tarot::Bid GetBid() { return mBid; }
 
     // Setters
     void SetHandle(const Deck &handle, Team team);
