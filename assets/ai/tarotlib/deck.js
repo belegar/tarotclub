@@ -52,7 +52,7 @@ var p = Deck.prototype;
 		var buffer = "";
 		for(var i=0; i < this.cards.length; i++)
 		{
-			if (i != 0)
+			if (i !== 0)
 			{
 				buffer += ";";
 			}
@@ -123,7 +123,7 @@ var p = Deck.prototype;
 		var ret = false;
 		for (var i = 0; i < this.cards.length; i++)
 		{
-			if ((this.cards[i].value == value) && (this.cards[i].suit == suit))
+			if ((this.cards[i].value === value) && (this.cards[i].suit === suit))
 			{
 				ret = true;
 			}
@@ -147,15 +147,32 @@ var p = Deck.prototype;
      */
     p.removeCard = function(cardName)
 	{
+        var found = false;
 		for (var i = 0; i < this.cards.length; i++)
 		{
 			var card = this.cards[i].getName();
-			if (cardName == card)
+			if (cardName === card)
 			{
 				this.cards.splice(i, 1); // properly delete the element in the array	
+                found = true;
 			}
 		}
+
+        if (!found) {
+            systemPrint("Error: cannot remove card, not found in the deck!");
+        }
 	};
+
+    // Remove in the current deck all the same cards than the deck passed in argument
+    p.removeDuplicates = function(deck)
+    {
+        for (var i = 0; i < deck.size(); i++) {
+            var c = deck.get(i);
+            if (this.hasCard(c.value, c.suit)) {
+                this.removeCard(c.getName());
+            }
+        }
+    };
 	
     /**
      * @brief build a deck with a string of cards passed in parameters
@@ -177,6 +194,58 @@ var p = Deck.prototype;
 		{
             this.cards[size + i] = new TarotLib.Card(result[i]);
 		}
+    };
+
+    p.highestTrump = function()
+    {
+        var value = 0;
+        var highestCard;
+
+        for (var i = 0; i < this.cards.length; i++)
+        {
+            var card = this.cards[i];
+
+            if ((card.suit === TarotLib.Suit.TRUMPS) &&
+                (card.value > value))
+            {
+                value = card.value;
+                highestCard = card;
+            }
+        }
+        return highestCard;
+    };
+
+    p.highestSuit = function(suit)
+    {
+        var value = 0;
+        var highestCard;
+
+        for (var i = 0; i < this.cards.length; i++)
+        {
+            var card = this.cards[i];
+
+            if ((card.suit !== TarotLib.Suit.TRUMPS) &&
+                (card.value > value))
+            {
+                if (card.suit === suit)
+                {
+                    value = card.value;
+                    highestCard = card;
+                }
+            }
+        }
+        return highestCard;
+    };
+
+    p.hasFool = function()
+    {
+        for (var i = 0; i < this.cards.length; i++)
+        {
+            if ((this.cards[i].value === 0) && (this.cards[i].suit == 'T'))  {
+                return true;
+            }
+        }
+        return false;
     };
 
 TarotLib.Deck = Deck;
