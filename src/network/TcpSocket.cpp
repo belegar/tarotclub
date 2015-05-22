@@ -24,13 +24,14 @@
  */
 
 #include "TcpSocket.h"
-
+#include "Log.h"
 
 #include <errno.h>  // errno, just like it says.
 #include <fcntl.h>  // symbolic names for socket flags.
 
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 // Larger values will read larger chunks of data.
 static const std::int32_t MAXRECV = 2048;
@@ -101,20 +102,48 @@ const char* GetWinsockErrorString( int err )
 
 #endif // USE_WINDOWS_OS
 
-void BailOnSocketError( const char* context )
+/**
+ * @brief AnalyzeSocketError
+ * @param context
+ * @return -2 if not an error (retry later), -1 if it is a real error
+ */
+int TcpSocket::AnalyzeSocketError(const char* context)
 {
+    bool real_error = true;
+    int e;
+    int ret = -1;
 #ifdef USE_WINDOWS_OS
 
-    int e = WSAGetLastError();
+    e = WSAGetLastError();
     const char* msg = GetWinsockErrorString( e );
+
+    if (e == WSAEWOULDBLOCK)
+    {
+        real_error = false;
+    }
 #else
-    const char* msg = strerror( errno );
+
+    e = errno;
+    const char* msg = strerror( e );
+    if (e == EAGAIN)
+    {
+        real_error = false;
+    }
 #endif
 
-    std::cout << "Socket error in " << context << ": " << msg << std::endl;
+    if (real_error)
+    {
+        std::stringstream ss;
+        ss << "Socket error (" << e << ") in " << context << ": " << msg;
+        TLogNetwork(ss.str());
+    }
+    else
+    {
+        ret = -2;
+    }
+
+    return ret;
 }
-
-
 /*****************************************************************************/
 TcpSocket::TcpSocket()
     : mHost("127.0.0.1")
@@ -253,10 +282,21 @@ bool TcpSocket::DataWaiting()
     tv.tv_sec = 0;
     tv.tv_usec = 0;
 
-    int r = select( mSock+1, &fds, NULL, NULL, &tv);
-    if (r < 0)
+    bool ok = true;
+    while(ok)
     {
-        BailOnSocketError( "select" );
+        int r = select( mSock+1, &fds, NULL, NULL, &tv);
+        if (r < 0)
+        {
+            if (AnalyzeSocketError("select()") == -1)
+            {
+                ok = false;
+            }
+        }
+        else
+        {
+            ok = false;
+        }
     }
 
     if( FD_ISSET( mSock, &fds ) )
@@ -339,12 +379,17 @@ bool TcpSocket::Send(const std::string &input) const
         int n = ::send( mSock, buf, size, 0 );
         if (n < 0)
         {
-            BailOnSocketError( "send()" );
-            ret = false;
-            break;
+            if (AnalyzeSocketError("send()") == -1)
+            {
+                ret = false;
+                break;
+            }
         }
-        size -= n;
-        buf += n;
+        else
+        {
+            size -= n;
+            buf += n;
+        }
     }
 
     return ret;
@@ -429,15 +474,7 @@ std::int32_t TcpSocket::Recv(std::string &output) const
     }
     else if (result < 0)
     {
-        if (errno == EAGAIN)
-        {
-            result = -2;
-        }
-        else
-        {
-            BailOnSocketError("recv()");
-            result = -1;
-        }
+        result = AnalyzeSocketError("recv()");
     }
 
     // return the status code, or the number of bytes read.

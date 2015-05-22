@@ -109,6 +109,7 @@ public:
 
     // Static
     static bool Initialize();
+    static int AnalyzeSocketError(const char* context);
 
     bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
 
