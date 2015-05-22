@@ -96,7 +96,7 @@ public:
     bool Listen(std::int32_t maxConnections) const;
 
     // return true if socket has data waiting to be read
-    bool DataWaiting();
+    bool DataWaiting(uint32_t timeout);
 
     /**
      * @brief Accept

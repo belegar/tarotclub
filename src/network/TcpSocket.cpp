@@ -272,14 +272,14 @@ bool TcpSocket::Listen(std::int32_t maxConnections) const
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::DataWaiting()
+bool TcpSocket::DataWaiting(std::uint32_t timeout)
 {
     fd_set fds;
     FD_ZERO( &fds );
     FD_SET( mSock, &fds );
 
     struct timeval tv;
-    tv.tv_sec = 0;
+    tv.tv_sec = (long)timeout;
     tv.tv_usec = 0;
 
     bool ok = true;
