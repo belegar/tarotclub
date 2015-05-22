@@ -454,8 +454,8 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
     NewDeal();
 
     std::uint32_t numberOfPlayers;
-    JsonValue players = json.FindValue("deal_info:players");
-    numberOfPlayers = players.GetArray().Size();
+    JsonValue players = json.FindValue("deal_info:number_of_players");
+    numberOfPlayers = static_cast<std::uint32_t>(players.GetInteger());
     if ((numberOfPlayers == 3U) ||
             (numberOfPlayers == 4U) ||
             (numberOfPlayers == 5U))
@@ -505,7 +505,7 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
 
         if (ret)
         {
-#ifdef TAROT_DEBUG
+#ifdef DEAL_TEST
             std::cout << "First player: " << str_value << std::endl;
 #endif
             StartDeal(str_value, bid);
@@ -524,7 +524,7 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
                     if (trick.Size() == numberOfPlayers)
                     {
                         Place winner = SetTrick(trick, trickCounter);
-#ifdef TAROT_DEBUG
+#ifdef DEAL_TEST
                         std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.ToString() << ", Winner: " << winner.ToString() << std::endl;
 #else
                         (void) winner;
@@ -552,7 +552,7 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
                 // it should contains only the discard cards
                 if (mDiscard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
                 {
-#ifdef TAROT_DEBUG
+#ifdef DEAL_TEST
                     std::cout << "Discard: " << mDiscard.ToString() << std::endl;
 #endif
 
