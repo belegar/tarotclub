@@ -26,6 +26,7 @@
 #include "JsonValue.h"
 #include "Util.h"
 #include <sstream>
+#include <regex>
 
 /*****************************************************************************/
 // Helper function
@@ -208,7 +209,9 @@ std::string JsonValue::ToString(std::uint32_t level)
 
     if (IsString())
     {
-        text = "\"" + GetString() + "\"";
+        std::regex reg("\\\\");
+        std::string escapedString = std::regex_replace(GetString(), reg, "\\\\");
+        text = "\"" + escapedString + "\"";
     }
     else if (GetTag() == INTEGER)
     {
