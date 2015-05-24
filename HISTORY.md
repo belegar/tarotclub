@@ -1,6 +1,13 @@
 
 # Branch 2.6
 
+## Changes in 2.6.1
+
+  * Correction of a major bug in Tcp Server generating a client socket closure
+  * Correction of a major Javascript AI bug generating a engine failure
+  * TcpSocket: Better handling of WOULDBLOCK error code under windows (avoid a disconnection)  
+  * New Javascript AI unit test of a full game (light Tarot engine)
+
 ## Changes in 2.6.0
 
   * TarotClub preference file now contains the bots configuration
