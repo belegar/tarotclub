@@ -96,7 +96,7 @@ public:
     bool Listen(std::int32_t maxConnections) const;
 
     // return true if socket has data waiting to be read
-    bool DataWaiting();
+    bool DataWaiting(uint32_t timeout);
 
     /**
      * @brief Accept
@@ -109,6 +109,7 @@ public:
 
     // Static
     static bool Initialize();
+    static int AnalyzeSocketError(const char* context);
 
     bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
 

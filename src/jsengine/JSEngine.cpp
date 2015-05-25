@@ -24,7 +24,26 @@
  */
 
 #include "JSEngine.h"
+#include "Log.h"
 #include <fstream>
+#include <sstream>
+
+#define DUKTAPE_DEBUG
+
+int SystemPrint(duk_context *ctx)
+{
+    if (duk_check_type(ctx, 0, DUK_TYPE_STRING))
+    {
+        std::string msg = duk_get_string(ctx, 0);
+        TLogScript(msg);
+    }
+    else
+    {
+        TLogError("JSEngine custom print: not a string!");
+    }
+
+    return 0;  /* one return value */
+}
 
 /*****************************************************************************/
 JSEngine::JSEngine()
@@ -45,7 +64,17 @@ void JSEngine::Initialize()
     mCtx = duk_create_heap_default();
     if (mCtx != NULL)
     {
+        // Register our custom print function
+        duk_push_global_object(mCtx);
+        duk_push_c_function(mCtx, SystemPrint, 1);
+        duk_put_prop_string(mCtx, -2 /*idx:global*/, "systemPrint");
+        duk_pop(mCtx);  /* pop global */
+
         mValidContext = true;
+    }
+    else
+    {
+        TLogScript("Cannot initialize script context");
     }
 }
 /*****************************************************************************/
@@ -109,6 +138,7 @@ Value JSEngine::Call(const std::string &function, const IScriptEngine::StringLis
 
     if (!mValidContext)
     {
+        TLogError("Cannot call script function without a valid context.");
         return retval;
     }
 
@@ -116,8 +146,8 @@ Value JSEngine::Call(const std::string &function, const IScriptEngine::StringLis
     duk_push_global_object(mCtx);
     duk_get_prop_string(mCtx, -1 /*index*/, function.c_str()); // actually gets this function name
 
-#ifdef TAROT_DEBUG
-    PrintTop();
+#ifdef DUKTAPE_DEBUG
+  //  PrintTop();
 #endif
 
     if (!duk_is_undefined(mCtx, -1))
@@ -131,6 +161,7 @@ Value JSEngine::Call(const std::string &function, const IScriptEngine::StringLis
         int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptCall, 1 /*nargs*/, 1 /*nrets*/);
         if (rc != DUK_EXEC_SUCCESS)
         {
+            TLogError("JS engine script call failed.");
             PrintError();
         }
         else
@@ -140,7 +171,7 @@ Value JSEngine::Call(const std::string &function, const IScriptEngine::StringLis
                 std::string value = duk_get_string(mCtx, -1);
                 retval = Value(value);
             }
-            if (duk_check_type(mCtx, -1, DUK_TYPE_BOOLEAN))
+            else if (duk_check_type(mCtx, -1, DUK_TYPE_BOOLEAN))
             {
                 bool value = false;
                 if (duk_get_boolean(mCtx, -1))
@@ -148,6 +179,17 @@ Value JSEngine::Call(const std::string &function, const IScriptEngine::StringLis
                     value = true;
                 }
                 retval = Value(value);
+            }
+            else
+            {
+                duk_int_t ret = duk_get_type(mCtx, -1);
+
+                if (ret != DUK_TYPE_UNDEFINED)
+                {
+                    std::stringstream ss;
+                    ss << "Unsupported value type returned: " << ret;
+                    TLogError(ss.str());
+                }
             }
         }
     }
@@ -226,7 +268,7 @@ int JSEngine::WrappedScriptCall(duk_context *ctx)
 void JSEngine::PrintError() const
 {
 
-#ifdef TAROT_DEBUG
+#ifdef DUKTAPE_DEBUG
     if (duk_is_object(mCtx, -1) && duk_has_prop_string(mCtx, -1, "stack"))
     {
         /* FIXME: print error objects specially */

@@ -31,7 +31,7 @@ this.TarotLib = this.TarotLib || {};
 // ****************************************************************************
 // DEFINITIONS
 // ****************************************************************************
-	this.Place = {
+	var Place = {
 		SOUTH:0,
 		EAST:1,
 		NORTH:2,
@@ -91,6 +91,141 @@ this.TarotLib = this.TarotLib || {};
 	        this.bigTrump = false;
 	        this.fool = false;	
         };
+
+        this.AnalyzeTrumps = function(deck)
+        {
+            // looking for trumps
+            for (var i = 0; i < deck.size(); i++)
+            {
+                var c = deck.get(i);
+                if (c.suit === Suit.TRUMPS)
+                {
+                    this.suits[TarotLib.Suit.TRUMPS]++;
+                    if (c.value >= 15)
+                    {
+                        this.majorTrumps++;
+                    }
+                    if (c.value === 21)
+                    {
+                        this.bigTrump = true;
+                        this.oudlers++;
+                    }
+                    if (c.value === 1)
+                    {
+                        this.littleTrump = true;
+                        this.oudlers++;
+                    }
+                    if (c.value === 0)
+                    {
+                        this.fool = true;
+                        this.oudlers++;
+                    }
+                }
+            }
+        };
+
+        this.AnalyzeSuits = function(deck)
+        {
+            var distr = new Array(14); // test of a distribution (14 cards in a suit)
+            var highestPoints = 0;
+
+            // Normal suits
+            for (var i = 0; i<4; i++)
+            {
+                var count = 0;
+                var points = 0;
+                // distr.fill(false); // Allowed starting in ES6 
+                for (var n = 0; n < 14; n++) {
+                    distr[n] = false;
+                }
+                
+                for (var k = 0; k < deck.size(); k++)
+                {
+                    var c = deck.get(k);
+                    if (c.suit === Suit.toString(i))
+                    {
+                        count++;
+                        distr[c.value - 1] = true;
+                        if (c.value === 11)
+                        {
+                            this.jacks++;
+                            points += 1.5;
+                        }
+                        else if (c.value === 12)
+                        {
+                            this.knights++;
+                            points += 2.5;
+                        }
+                        else if (c.value === 13)
+                        {
+                            this.queens++;
+                            points += 3.5;
+                        }
+                        else if (c.value === 14)
+                        {
+                            this.kings++;
+                            points += 4.5;
+                        }
+                        else
+                        {
+                            points += 0.5;
+                        }
+                    }
+                }
+
+                // Save the points
+                this.suitPoints[Suit.toString(i)] = points;
+                if (points >= highestPoints)
+                {
+                    highestPoints = points;
+                    this.bestSuit = Suit.toString(i);
+                }
+
+                this.suits[Suit.toString(i)] = count;
+
+                if (count >= 5)
+                {
+                    this.longSuits++;
+                }
+                if (count === 1)
+                {
+                    this.singletons++;
+                }
+                if (count === 0)
+                {
+                    this.cuts++;
+                }
+                if (distr[13] && distr[12])
+                {
+                    this.weddings++;  // king + queen
+                }
+
+                // Sequence detection
+                count = 0; // sequence length
+                var detected = false; // sequence detected
+                for (var k = 0; k < 14; k++)
+                {
+                    if (distr[k])
+                    {
+                        count++;
+                        if (!detected)
+                        {
+                            if (count >= 5)
+                            {
+                                // Ok, found sequence, enough for it
+                                this.sequences++;
+                                detected = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        count = 0;
+                        detected = false;
+                    }
+                }
+            }
+        };
 		
 		/**
 		 * @brief Update the statistics of a deck
@@ -98,152 +233,10 @@ this.TarotLib = this.TarotLib || {};
 		 */
 		this.update = function(deck)
 		{
-			var i, k;
-			var c;
-
 			this.reset();
-			
-			// looking for trumps
-			for (i = 0; i < deck.size(); i++)
-			{
-				c = deck.get(i);
-				if (c.suit == Suit.TRUMPS)
-				{
-					this.suits[TarotLib.Suit.TRUMPS]++;
-					if (c.value >= 15)
-					{
-						this.majorTrumps++;
-					}
-					if (c.value == 21)
-					{
-						this.bigTrump = true;
-						this.oudlers++;
-					}
-					if (c.value == 1)
-					{
-						this.littleTrump = true;
-						this.oudlers++;
-					}
-					if (c.value == 0)
-					{
-						this.fool = true;
-						this.oudlers++;
-					}
-				}
-			}
-		
-			var longue;
-			var count = 0;
-			var flag = 0;
-			var distr = new Array(14); // test of a distribution (14 cards in a suit)
-			var highestPoints = 0;
-
-			// Normal suits
-			for (i = 0; i<4; i++)
-			{
-				for (k = 0; k<14; k++)
-				{
-					distr[k] = 0;
-				}
-				count = 0;
-
-				var points = 0;
-				for (k = 0; k < deck.size(); k++)
-				{
-					c = deck.get(k);
-					if (c.suit == Suit.toString(i))
-					{
-						count++;
-						distr[c.value - 1] = 1;
-						if (c.value == 11)
-						{
-							this.jacks++;
-							points += 1.5;
-						}
-						else if (c.value == 12)
-						{
-							this.knights++;
-							points += 2.5;
-						}
-						else if (c.value == 13)
-						{
-							this.queens++;
-							points += 3.5;
-						}
-						else if (c.value == 14)
-						{
-							this.kings++;
-							points += 4.5;
-						}
-						else
-						{
-							points += 0.5;
-						}
-					}
-				}
-
-				// Save the points
-				this.suitPoints[Suit.toString(i)] = points;
-				if (points >= highestPoints)
-				{
-					highestPoints = points;
-					this.bestSuit = Suit.toString(i);
-				}
-
-				if (count == 1)
-				{
-					this.singletons++;
-				}
-				if (count == 0)
-				{
-					this.cuts++;
-				}
-
-				// Number of cards in each normal suit
-				this.suits[Suit.toString(i)] = count;
-
-				if ((distr[13] == 1) && (distr[12] == 1))
-				{
-					this.weddings++; // mariage (king + queen)
-				}
-
-				// sequences
-				count = 0;  // length of the sequence
-				flag = 0;   // suit found for this sequence
-				longue = 0;
-
-				for (k = 0; k < 14; k++)
-				{
-					if (distr[k] == 1)
-					{
-						longue++;
-						// start of a sequence
-						if (flag == 0)
-						{
-							flag = 1;
-							count++;
-						}
-						else
-						{
-							count++;
-						}
-					}
-					else if (flag == 1)
-					{
-						if (count >= 5)
-						{
-							this.sequences++;
-						}
-						count = 0;
-						flag = 0;
-					}
-				}
-				if (longue >= 5)
-				{
-					this.longSuits++;
-				}
-			}
-		}; // end update()
+            this.AnalyzeTrumps(deck);
+            this.AnalyzeSuits(deck);
+		};
 	}; // end Stats
 
 // ****************************************************************************
@@ -342,13 +335,13 @@ this.TarotLib = this.TarotLib || {};
 	{
 		var suit;
 
-		if (intValue == 0) {
+		if (intValue === 0) {
 			suit = Suit.SPADES;
-		} else if (intValue == 1) {
+		} else if (intValue === 1) {
 			suit = Suit.HEARTS;
-		} else if (intValue == 2) {
+		} else if (intValue === 2) {
 			suit = Suit.CLUBS;
-		} else if (intValue == 3) {
+		} else if (intValue === 3) {
 			suit = Suit.DIAMONDS;
 		} else {
 			suit = Suit.TRUMPS;

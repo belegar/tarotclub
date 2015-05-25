@@ -45,6 +45,7 @@ public:
     JsonValue GetValue(const std::string &key);
     void Clear();
     void AddValue(const std::string &name, const JsonValue &value);
+    bool ReplaceValue(const std::string &keyPath, const JsonValue &value);
 
 private:
     std::map<std::string, JsonValue> mObject;
@@ -60,6 +61,7 @@ public:
     JsonValue GetEntry(std::uint32_t index);
     std::uint32_t Size() { return mArray.size(); }
     void AddValue(const JsonValue &value);
+    bool ReplaceValue(const std::string &keyPath, const JsonValue &value);
 
     typedef std::vector<JsonValue>::iterator Iterator;
     Iterator Begin() { return mArray.begin(); }
@@ -126,19 +128,20 @@ public:
     bool            GetBool()       { return mBoolValue; }
     std::string     GetString()     { return mStringValue; }
 
-    bool GetValue(const std::string &nodePath, std::string &value);
-    bool GetValue(const std::string &nodePath, std::uint32_t &value);
-    bool GetValue(const std::string &nodePath, std::uint16_t &value);
-    bool GetValue(const std::string &nodePath, std::int32_t &value);
-    bool GetValue(const std::string &nodePath, bool &value);
-    bool GetValue(const std::string &nodePath, double &value);
+    bool GetValue(const std::string &nodePath, std::string &value) const;
+    bool GetValue(const std::string &nodePath, std::uint32_t &value) const;
+    bool GetValue(const std::string &nodePath, std::uint16_t &value) const;
+    bool GetValue(const std::string &nodePath, std::int32_t &value) const;
+    bool GetValue(const std::string &nodePath, bool &value) const;
+    bool GetValue(const std::string &nodePath, double &value) const;
 
     void SetNull()
     {
         mTag = NULL_VAL;
     }
 
-    JsonValue FindValue(const std::string &keyPath);
+    JsonValue FindValue(const std::string &keyPath) const;
+    bool ReplaceValue(const std::string &keyPath, const JsonValue &value);
 
 private:
     Tag mTag;
@@ -148,8 +151,6 @@ private:
     double mDoubleValue;
     std::string mStringValue;
     bool mBoolValue;
-
-    std::vector<std::string> Split(const std::string &obj);
 };
 
 #endif // JSONVALUE_H

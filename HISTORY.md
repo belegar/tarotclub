@@ -1,15 +1,27 @@
 
 # Branch 2.6
 
+## Changes in 2.6.1
+
+  * Correction of a major bug in Tcp Server generating a client socket closure
+  * Correction of a major Javascript AI bug generating a engine failure
+  * TcpSocket: Better handling of WOULDBLOCK error code under windows (avoid a disconnection)  
+  * New Javascript AI unit test of a full game (light Tarot engine)
+
 ## Changes in 2.6.0
 
   * TarotClub preference file now contains the bots configuration
   * New tournament configuration (per deal configuration) in the JSON file
   * Added a "random" button in the deal editor window
   * Removed "Check server" lobby button
-  * Removed dedicated server web interface
   * AI script files can now be located inside a ZIP archive file
   * Updated Duktape JavaScript Engine version to 1.2.1
+  * Corrected bots nickname modification
+  
+  ON GOING:
+
+  * Player and bot identities can now be modified at any time, event while in game
+  * New tournament option tab, can be used to customize a simple tournament
 
 # Branch 2.5
 

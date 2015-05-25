@@ -134,6 +134,7 @@ OTHER_FILES = noob.js \
               game.js \
               player.js \
               bot.js \
+              main.js \
               unit_test.js
 
 # ------------------------------------------------------------------------------

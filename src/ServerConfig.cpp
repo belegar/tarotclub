@@ -156,20 +156,13 @@ bool ServerConfig::Load(const std::string &fileName)
 
                 mOptions.tables.clear();
                 JsonValue tables = json.FindValue("tables");
-                if (tables.GetArray().Size() > 0U)
+
+                for (JsonArray::Iterator iter = tables.GetArray().Begin(); iter != tables.GetArray().End(); ++iter)
                 {
-                    for (JsonArray::Iterator iter = tables.GetArray().Begin(); iter != tables.GetArray().End(); ++iter)
+                    if (iter->IsString())
                     {
-                        if (iter->IsString())
-                        {
-                            mOptions.tables.push_back(iter->GetString());
-                        }
+                        mOptions.tables.push_back(iter->GetString());
                     }
-                }
-                else
-                {
-                    TLogError("No table defined");
-                    ret = false;
                 }
             }
             else

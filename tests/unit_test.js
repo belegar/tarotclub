@@ -34,25 +34,8 @@ var UnitTestModule = (function () {
 	var module = {};
     
     var NB_PLAYERS = 4;
-    
-/*****************************************************************************/
-	// PRIVATE MODULE DATA
-	// FIXME: load string from generated file
     module.game = new TarotLib.Game();
-    module.decks = [];
-    
-	for (var i=0; i<NB_PLAYERS; i++)
-	{
-		module.decks[i] = new TarotLib.Deck(); // The 4 decks, one for each player
-	}
 
-	// Example of a deal
-	module.decks[0].setCards("02-H;12-D;04-H;05-C;01-D;06-D;00-T;09-H;14-D;01-H;13-C;04-T;07-S;01-T;16-T;13-S;08-D;13-T");
-	module.decks[1].setCards("01-C;19-T;04-D;11-H;11-S;13-D;02-T;06-C;05-S;09-D;14-H;01-S;04-C;06-S;04-S;07-C;21-T;12-S");
-	module.decks[2].setCards("10-C;15-T;10-S;11-D;11-T;08-H;02-S;03-H;12-H;05-T;09-C;08-T;10-H;05-H;09-S;08-S;03-D;18-T");
-	module.decks[3].setCards("07-H;02-C;14-S;08-C;05-D;03-S;03-C;06-T;03-T;09-T;14-T;14-C;17-T;20-T;02-D;11-C;10-D;07-T");
-	var dogList = "13-H;10-T;07-D;12-T;12-C;06-H";
-    
 /*****************************************************************************/
 module.HtmlHeader = function()
 {
@@ -199,6 +182,9 @@ module.RunMissingSuitDetectionTester = function()
         "08-H;10-D;09-D;02-T"
     ];
     
+/*
+FIXME: load the deal, and give cards to all the players 
+
 	// This step is testing the statistics builder
 	for(var i=0; i<18; i++)
 	{
@@ -216,6 +202,7 @@ module.RunMissingSuitDetectionTester = function()
             }
         }
 	}
+    */
 };
 /*****************************************************************************/
 module.RunBotFunctionsTest = function()
@@ -340,7 +327,182 @@ module.AiUseCasesTest = function()
 	systemPrint("Played card (must be 16-T): " + cardName);
 	
 };
+/*****************************************************************************/
+function Previous(place)
+{
+    if (place === 0) {
+        place = TarotLib.Place.WEST;
+    } else {
+        place--;
+    }
+    return place;
+};
+/*****************************************************************************/
+function Next(place)
+{
+    place++;
+    if (place > TarotLib.Place.WEST) {
+        place = TarotLib.Place.SOUTH;
+    }
+    return place;
+};
+/*****************************************************************************/
+function GetOwner(firstPlayer, c, trick)
+{
+    var p = firstPlayer;
+    for (var i = 0; i < trick.size(); i++)
+    {
+        if (c === trick[i])
+        {
+            break;
+        }
+        p = Next(p);
+    }
+    return p;
+};
+/*****************************************************************************/
+function DetectWinner(firstPlayer, trick, suitLead)
+{
+    var winner;
 
+    var card = trick.highestTrump();
+    if (card === undefined) {
+        card = trick.highestSuit(suitLead);
+    }
+
+    if (card === undefined) {
+        systemPrint("leader cannot be undefined!");
+    } else {
+
+        // The trick winner is the card leader owner
+        winner = GetOwner(firstPlayer, card, trick);
+
+        if (trick.hasFool())
+        {
+            // Special case of the fool: if played at last turn with a slam realized, it wins the trick
+            // FIXME to code
+        }
+    }
+    return winner;
+};
+/*****************************************************************************/
+module.Engine = function()
+{
+    systemPrint("********** TEST_9: AI full game test **********");
+
+    var dog = "08-T;03-H;09-D;03-S;12-C;14-T";
+    var firstPlayer = TarotLib.Place.EAST;
+
+	var mPlayers = new Array(4);
+    var cards = new Array(4);
+    cards[0] = "03-C;00-T;09-H;13-D;16-T;11-T;05-S;07-C;12-H;05-H;08-D;19-T;14-H;21-T;06-D;06-S;04-S;18-T";
+    cards[1] = "03-D;04-H;15-T;01-D;13-S;04-D;04-T;04-C;10-H;13-C;20-T;01-C;02-D;01-T;07-D;09-S;14-D;07-T";
+    cards[2] = "11-H;05-T;12-S;06-H;08-C;09-C;09-T;14-S;08-H;06-T;10-D;13-T;05-C;02-T;03-T;01-H;02-S;08-S";
+    cards[3] = "14-C;07-S;11-D;05-D;07-H;10-S;01-S;12-D;10-T;02-C;02-H;12-T;11-S;06-C;10-C;17-T;13-H;11-C";
+
+    var contract = 0;
+    var dealer = Previous(firstPlayer); // dealer
+    var place = firstPlayer;
+    var taker = 0;
+
+    // ----------- BID SEQUENCE
+	for (var i = 0; i < 4; i++) {
+		mPlayers[place] = new TarotLib.Game();
+
+        // EnterGame
+        mPlayers[place].botPlace = place;
+
+        // ReceiveCards
+        mPlayers[place].initialize();
+        mPlayers[place].setBotCards(cards[place]);
+
+        // AnnounceBid
+        var cont = mPlayers[place].bot.calculateBid();
+
+        if (cont > contract) {
+            contract = cont;
+            taker = place;
+        } else {
+            cont = 0;
+        }
+
+        systemPrint("The bot " + TarotLib.Place.toString(mPlayers[place].botPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
+
+        place = Next(place);
+	}
+	
+    systemPrint("");
+
+    systemPrint("Taker is: " + TarotLib.Place.toString(taker) + " with contract: " + TarotLib.Contract.toString(contract));
+    
+
+    // ----------- DISCARD SEQUENCE
+
+    // BuildDiscard(dog)
+    var discard = mPlayers[taker].bot.buildDiscard(dog);
+    systemPrint("Discard is: " + discard);
+
+    // ----------- GAME SEQUENCE (18 turns for 4 players)  
+
+    place = firstPlayer; // current player to play
+    var tricks = new Array(18);
+    var turn = 0;
+    var suitLead;
+    var foolDetected;
+
+    for (var i = 0; i < 18; i++) {
+        turn++;
+        // Cards played during this trick
+        tricks[i] = new TarotLib.Deck();
+        foolDetected = false;
+
+        for (var j = 0; j < 4; j++) {
+
+            var c;
+            if (taker === place)
+            {
+                systemPrint("Play ATTACK!");
+                c = mPlayers[place].playAttackStrategy();
+            }
+            else
+            {
+                systemPrint("Play DEFENSE!");
+                c = mPlayers[place].playDefenseStrategy();
+            }
+
+            systemPrint(TarotLib.Place.toString(place) + " is playing " + c);
+
+            tricks[i].addOneCard(c, place);
+           
+            // Send played card to all the players
+            for (var k = 0; k < 4; k++) {
+                mPlayers[k].setPlayedCard(c, place);
+            }
+
+            // The played card can be the leading suit (first one played or second one played if first is a fool)
+            var cardObj = new TarotLib.Card(c);
+            if (j === 0) {
+                if ((cardObj.suit === 'T') && (cardObj.value === 0)) {
+                    foolDetected = true;
+                } else {
+                    suitLead = cardObj.suit;
+                }
+            } else if (j === 1) {
+                if (foolDetected) {
+                    suitLead = cardObj.suit;   
+                }
+            }
+
+            place = Next(place);
+        }
+
+        systemPrint("Suit leader is: " + suitLead);
+        // Detect winner of this trick, he will lead the next trick
+        place = DetectWinner(place, tricks[i], suitLead);
+        systemPrint("Winner of trick: " + turn + " is " + TarotLib.Place.toString(place));
+    }
+
+};
 /*****************************************************************************/
 /**
  * Module end

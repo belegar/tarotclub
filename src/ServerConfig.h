@@ -50,7 +50,7 @@ public:
     static const std::uint32_t  DEFAULT_LOBBY_MAX_CONN      = 250U;
     static const std::string    DEFAULT_SERVER_CONFIG_FILE;
     static const std::uint8_t   DEFAULT_NUMBER_OF_TURNS     = 5U;
-    static const std::uint8_t   MAX_NUMBER_OF_TURNS         = 20U;
+    static const std::uint8_t   MAX_NUMBER_OF_TURNS         = 40U;
     static const std::string    DEFAULT_SERVER_NAME;
 
     ServerConfig();

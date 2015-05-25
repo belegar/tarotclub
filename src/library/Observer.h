@@ -33,7 +33,18 @@ template <class T>
 class Observer
 {
 public:
+    Observer(std::uint8_t mask = 0xFFU)
+        : mMask(mask)
+    {
+
+    }
+    void SetMask(std::uint8_t mask) { mMask = mask; }
+    std::uint8_t GetMask() { return mMask; }
+
     virtual void Update(const T &info) = 0;
+
+private:
+    std::uint8_t mMask;
 };
 
 template <class T>
@@ -51,11 +62,14 @@ public:
         mList.remove(&observer);
     }
 
-    void Notify(const T &info)
+    void Notify(const T &info, std::uint8_t flags = 0xFFU)
     {
         for (typename std::list< Observer<T> *>::iterator it = mList.begin(); it != mList.end(); ++it)
         {
-            (*it)->Update(info);
+            if (((*it)->GetMask() & flags) != 0U)
+            {
+                (*it)->Update(info);
+            }
         }
     }
 

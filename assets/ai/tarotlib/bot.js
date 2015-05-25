@@ -69,7 +69,7 @@ var p = Bot.prototype;
     p.initialize = function()
     {
 	    this.deck.length = 0;
-    }
+    };
 
     p.updateStats = function()
     {
@@ -83,7 +83,7 @@ var p = Bot.prototype;
         for (var i=0; i<this.deck.size(); i++)
         {
             var card = this.deck.get(i);
-            if ((card.suit == suit) &&
+            if ((card.suit === suit) &&
                 (card.value > value))
             {
                 ret = true;
@@ -99,7 +99,7 @@ var p = Bot.prototype;
         for (var i=0; i<this.deck.size(); i++)
         {
             var card = this.deck.get(i);
-            if (card.suit == suit)
+            if (card.suit === suit)
             {
                 ret = true;
             }
@@ -119,7 +119,7 @@ var p = Bot.prototype;
         for (var i=0; i<this.deck.size(); i++)
         {
             var card = this.deck.get(i);
-            if (card.suit == suit)
+            if (card.suit === suit)
             {
                 if ((card.value < lowestValue) &&
                     (card.value >= minValue))
@@ -129,7 +129,7 @@ var p = Bot.prototype;
                 }
             }
         }
-        if (index != 100)
+        if (index !== 100)
         {
             return this.deck.get(index).getName();
         }   
@@ -150,7 +150,7 @@ var p = Bot.prototype;
         for (var i=0; i<this.deck.size(); i++)
         {
             var card = this.deck.get(i);
-            if (card.suit == suit)
+            if (card.suit === suit)
             {
                 if (card.value > highestValue)
                 {
@@ -159,7 +159,7 @@ var p = Bot.prototype;
                 }
 				
 				// Get the index just over the maxValue, if defined
-				if (limitValue != undefined)
+				if (limitValue !== undefined)
 				{
 					if ((card.value > limitValue) &&
 					    (indexJustAfterTheValue == 100))
@@ -170,9 +170,9 @@ var p = Bot.prototype;
 				
             }
         }
-        if (index != 100)
+        if (index !== 100)
         {
-			if (indexJustAfterTheValue != 100)
+			if (indexJustAfterTheValue !== 100)
 			{
 				return this.deck.get(indexJustAfterTheValue).getName();
 			}
@@ -189,9 +189,9 @@ var p = Bot.prototype;
      */
     p.playLongSuit = function()
     {
-        var playedCard = undefined;
+        var playedCard;
 
-        if (this.stats.longSuits != 0)
+        if (this.stats.longSuits !== 0)
         {
             // Walk through all suits, except trumps
             for (var i=0; i<4; i++)
@@ -209,10 +209,10 @@ var p = Bot.prototype;
 
     p.playLowestCard = function(forceSuit, minValue)
     {
-        var playedCard = undefined;
-        if (minValue == undefined)
+        var playedCard;
+        if (minValue === undefined)
         {
-            if (forceSuit == "T")
+            if (forceSuit === "T")
             {
                 minValue = 2;
             }
@@ -227,7 +227,7 @@ var p = Bot.prototype;
 		{
 			playedCard = "00-T";
 		}
-		else if (forceSuit != undefined)
+		else if (forceSuit !== undefined)
         {
             playedCard = this.getLowestCard(forceSuit, minValue);
         }
@@ -246,7 +246,7 @@ var p = Bot.prototype;
         }
 
         // We still haven't found any cards, it means that we only have the fool and/or the little trump
-        if (playedCard == undefined)
+        if (playedCard === undefined)
         {
             // whatever, play the little trumps or the fool ...
             playedCard = this.getLowestCard(TarotLib.Suit.TRUMPS, 0);
@@ -262,8 +262,8 @@ var p = Bot.prototype;
 	 */
     p.playHighestCard = function(forceSuit, value)
     {
-        var playedCard = undefined;	
-        if (forceSuit != undefined)
+        var playedCard;	
+        if (forceSuit !== undefined)
         {
             if (this.stats.suits[forceSuit] != 0)
             {
@@ -271,12 +271,12 @@ var p = Bot.prototype;
             }
         }
 
-        if (playedCard == undefined)
+        if (playedCard === undefined)
         {
             for (var i=0; i<5; i++)
             {
                 var suit = TarotLib.Suit.toString(i);
-                if (this.stats.suits[suit] != 0)
+                if (this.stats.suits[suit] !== 0)
                 {
                     playedCard = this.getHighestCard(suit, value);
                     break;
@@ -326,6 +326,7 @@ var p = Bot.prototype;
         systemPrint("Bid calculated: " + total);
 
         // We decide on a bid depending of thresholds
+        var cont;
         if( total <= 35 ) {
           cont = TarotLib.Contract.PASS;
         } else if( total >= 36  && total <= 50 ) {
@@ -360,8 +361,8 @@ var p = Bot.prototype;
         var suitToAdd;
         var bestSuitToAdd = 0;
 
-	// Update the statistics with the dog deck
-	this.updateStats();
+    	// Update the statistics with the dog deck
+    	this.updateStats();
 
         // Look if we can have cuts in some suits
         for (i = 0; i < 4; i++)
@@ -394,16 +395,17 @@ var p = Bot.prototype;
             for (i = 0; i < this.deck.size(); i++)
             {
                 var card = this.deck.get(i);
-                if (card.suit == suitToAdd)
+                if (card.suit === suitToAdd)
                 {
-		    if (discard.size() < 6)
-		    {
+        		    if (discard.size() < 6)
+        		    {
                         discard.addOneCard(card.getName(), 0);
-                        this.deck.removeCard(card.getName());
                     }
                 }
             }
         }
+
+        this.deck.removeDuplicates(discard);
 
         var minValue = 13;
 
@@ -412,13 +414,12 @@ var p = Bot.prototype;
             // Then, complete the discard to save points (queens, knights...)
             for (i = 0; i < this.deck.size(); i++)
             {
-                var card = this.deck.get(i);
-                if ((card.value != 14) && (card.suit != "T"))
+                var c = this.deck.get(i);
+                if ((c.value !== 14) && (c.suit !== "T"))
                 {
-                    if (card.value == minValue)
+                    if (c.value === minValue)
                     {
-                        discard.addOneCard(card.getName(), 0);
-                        this.deck.removeCard(card.getName());
+                        discard.addOneCard(c.getName(), 0);
                     }
                     if (discard.size() == 6)
                     {
@@ -430,6 +431,8 @@ var p = Bot.prototype;
             // Next paths: add the higher points to lower
             minValue--;
         }
+
+        this.deck.removeDuplicates(discard);
 
         return discard.toString();
     };

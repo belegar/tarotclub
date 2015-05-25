@@ -135,11 +135,6 @@ public:
         return mGame;
     }
 
-    std::uint8_t GetNumberOfTurns()
-    {
-        return mNumberOfTurns;
-    }
-
     Sequence GetSequence()
     {
         return mSequence;
@@ -215,7 +210,6 @@ private:
     std::uint8_t mNbPlayers;
     Tarot::Bid  mBid;
     Tarot::Distribution mShuffle;
-    std::uint8_t mNumberOfTurns;
     Points      mPoints;
     std::string mResult;
     Deck        mDog;

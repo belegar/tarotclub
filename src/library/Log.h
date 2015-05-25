@@ -27,6 +27,7 @@
 #define LOG_H
 
 #include <mutex>
+#include <map>
 #include "Observer.h"
 
 /*****************************************************************************/
@@ -44,16 +45,15 @@
 class Log
 {
 public:
-    enum Event
-    {
-        Error = 0,
-        Info = 1,
-        Network = 2
-    };
+    static const std::uint8_t Error;
+    static const std::uint8_t Info;
+    static const std::uint8_t Network;
+    static const std::uint8_t Script;
+    static const std::uint8_t Server;
 
     Log();
 
-    static void AddEntry(Event event, const std::string &file, const int line, const std::string &message);
+    static void AddEntry(std::uint8_t event, const std::string &file, const int line, const std::string &message);
     static void RegisterListener(Observer<std::string> &listener);
     static void SetLogPath(const std::string &path)
     {
@@ -69,9 +69,11 @@ private:
 };
 
 // Macros definitions
-#define TLogInfo(message)   Log::AddEntry(Log::Info, __FILE__, __LINE__, (message))
-#define TLogError(message)  Log::AddEntry(Log::Error, __FILE__, __LINE__, (message))
-#define TLogNetwork(message)  Log::AddEntry(Log::Network, __FILE__, __LINE__, (message))
+#define TLogInfo(message)       Log::AddEntry(Log::Info, __FILE__, __LINE__, (message))
+#define TLogError(message)      Log::AddEntry(Log::Error, __FILE__, __LINE__, (message))
+#define TLogNetwork(message)    Log::AddEntry(Log::Network, __FILE__, __LINE__, (message))
+#define TLogScript(message)     Log::AddEntry(Log::Script, __FILE__, __LINE__, (message))
+#define TLogServer(message)     Log::AddEntry(Log::Server, __FILE__, __LINE__, (message))
 
 #endif // LOG_H
 

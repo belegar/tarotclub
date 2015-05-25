@@ -417,7 +417,7 @@ bool TcpServer::IncommingData(int in_sock)
         data.data = buffer,
         mExecQueue.Push(data);
     }
-    else if (ret == -2)
+    else if (rc == -2)
     {
         // Try again to read from socket
     }

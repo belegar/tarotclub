@@ -12,12 +12,12 @@
 	<script type="text/javascript" src="../assets/ai/tarotlib/player.js"></script>
 	<script type="text/javascript" src="../assets/ai/tarotlib/bot.js"></script>
 	<script type="text/javascript" src="../assets/ai/tarotlib/game.js"></script>
-	<script type="text/javascript" src="../assets/ai/beginner.js"></script>
+	<script type="text/javascript" src="../assets/ai/main.js"></script>
 	<script type="text/javascript" src="unit_test.js"></script>
 
 	<script>
 		UnitTestModule.HtmlHeader();
-
+        // ---------------------------------
 
 		UnitTestModule.RunCardAndDeckTests();
 		UnitTestModule.RunStatsTest();
@@ -28,6 +28,10 @@
 
 		UnitTestModule.AiUseCasesTest();
 
+        // Play a full game
+        UnitTestModule.Engine();
+
+        // ---------------------------------
 		UnitTestModule.HtmlFooter();
 	</script>
   </head>

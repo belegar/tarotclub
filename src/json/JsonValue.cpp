@@ -24,8 +24,11 @@
  */
 
 #include "JsonValue.h"
+#include "Util.h"
 #include <sstream>
+#include <regex>
 
+/*****************************************************************************/
 // Helper function
 static std::string CreateIndent(std::uint32_t level)
 {
@@ -67,6 +70,32 @@ void JsonArray::Clear()
 void JsonArray::AddValue(const JsonValue &value)
 {
     mArray.push_back(value);
+}
+/*****************************************************************************/
+bool JsonArray::ReplaceValue(const std::string &keyPath, const JsonValue &value)
+{
+    bool ret = false;
+    std::uint32_t index = 0U;
+
+    std::vector<std::string> keys = Util::Split(keyPath, ":");
+    std::istringstream(keys[0]) >> index;
+    keys.erase(keys.begin());
+
+    if (index < Size())
+    {
+        if (keys.size() == 0)
+        {
+            mArray[index] = value;
+            ret = true;
+        }
+        else
+        {
+            // Forward deeper
+            ret = mArray[index].ReplaceValue(Util::Join(keys, ":"), value);
+        }
+    }
+
+    return ret;
 }
 /*****************************************************************************/
 JsonValue JsonArray::GetEntry(std::uint32_t index)
@@ -115,6 +144,33 @@ void JsonObject::AddValue(const std::string &name, const JsonValue &value)
     mObject[name] = value;
 }
 /*****************************************************************************/
+bool JsonObject::ReplaceValue(const std::string &keyPath, const JsonValue &value)
+{
+    bool ret = false;
+    std::vector<std::string> keys = Util::Split(keyPath, ":");
+    std::string name = keys[0];
+    keys.erase(keys.begin());
+
+    for (std::map<std::string, JsonValue>::iterator it = mObject.begin(); it != mObject.end(); ++it)
+    {
+        if (it->first == name)
+        {
+            if (keys.size() == 0)
+            {
+                // The key is in this object, replace it with the new value
+                it->second = value;
+                ret = true;
+            }
+            else
+            {
+                ret = it->second.ReplaceValue(Util::Join(keys, ":"), value); // go deeper
+            }
+        }
+    }
+
+    return ret;
+}
+/*****************************************************************************/
 bool JsonObject::HasValue(const std::string &key)
 {
     bool ret = false;
@@ -153,7 +209,9 @@ std::string JsonValue::ToString(std::uint32_t level)
 
     if (IsString())
     {
-        text = "\"" + GetString() + "\"";
+        std::regex reg("\\\\");
+        std::string escapedString = std::regex_replace(GetString(), reg, "\\\\");
+        text = "\"" + escapedString + "\"";
     }
     else if (GetTag() == INTEGER)
     {
@@ -317,7 +375,7 @@ void JsonValue::Clear()
     mArray.Clear();
 }
 /*****************************************************************************/
-bool JsonValue::GetValue(const std::string &nodePath, std::string &value)
+bool JsonValue::GetValue(const std::string &nodePath, std::string &value) const
 {
     bool ret = false;
 
@@ -331,7 +389,7 @@ bool JsonValue::GetValue(const std::string &nodePath, std::string &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonValue::GetValue(const std::string &nodePath, std::uint32_t &value)
+bool JsonValue::GetValue(const std::string &nodePath, std::uint32_t &value) const
 {
     bool ret = false;
 
@@ -345,7 +403,7 @@ bool JsonValue::GetValue(const std::string &nodePath, std::uint32_t &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonValue::GetValue(const std::string &nodePath, std::uint16_t &value)
+bool JsonValue::GetValue(const std::string &nodePath, std::uint16_t &value) const
 {
     bool ret = false;
 
@@ -359,7 +417,7 @@ bool JsonValue::GetValue(const std::string &nodePath, std::uint16_t &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonValue::GetValue(const std::string &nodePath, std::int32_t &value)
+bool JsonValue::GetValue(const std::string &nodePath, std::int32_t &value) const
 {
     bool ret = false;
 
@@ -373,7 +431,7 @@ bool JsonValue::GetValue(const std::string &nodePath, std::int32_t &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonValue::GetValue(const std::string &nodePath, bool &value)
+bool JsonValue::GetValue(const std::string &nodePath, bool &value) const
 {
     bool ret = false;
 
@@ -387,7 +445,7 @@ bool JsonValue::GetValue(const std::string &nodePath, bool &value)
     return ret;
 }
 /*****************************************************************************/
-bool JsonValue::GetValue(const std::string &nodePath, double &value)
+bool JsonValue::GetValue(const std::string &nodePath, double &value) const
 {
     bool ret = false;
 
@@ -401,9 +459,9 @@ bool JsonValue::GetValue(const std::string &nodePath, double &value)
     return ret;
 }
 /*****************************************************************************/
-JsonValue JsonValue::FindValue(const std::string &keyPath)
+JsonValue JsonValue::FindValue(const std::string &keyPath) const
 {
-    std::vector<std::string> keys = Split(keyPath);
+    std::vector<std::string> keys = Util::Split(keyPath, ":");
 
     JsonValue temp = *this;
     for (std::uint32_t i = 0U; i < keys.size(); i++)
@@ -437,33 +495,24 @@ JsonValue JsonValue::FindValue(const std::string &keyPath)
     return temp;
 }
 /*****************************************************************************/
-std::vector<std::string> JsonValue::Split(const std::string &obj)
+bool JsonValue::ReplaceValue(const std::string &keyPath, const JsonValue &value)
 {
-    std::vector<std::string> path;
-    std::size_t found = std::string::npos;
-    int pos = 0;
+    bool ret = false;
 
-    do
+    if (IsObject())
     {
-        int size;
-        found = obj.find(':', pos);
-        if (found != std::string::npos)
-        {
-            // calculate size of the string between the delimiters
-            size = found - pos;
-        }
-        else
-        {
-            // last: get remaining characters
-            size = obj.size() - pos;
-        }
-
-        std::string key = obj.substr(pos, size);
-        pos = found + 1;
-        path.push_back(key);
+        ret = GetObject().ReplaceValue(keyPath, value);
     }
-    while (found != std::string::npos);
-    return path;
+    else if (IsArray())
+    {
+        ret = GetArray().ReplaceValue(keyPath, value);
+    }
+    else
+    {
+        // Nothing
+    }
+
+    return ret;
 }
 
 //=============================================================================
