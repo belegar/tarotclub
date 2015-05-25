@@ -320,8 +320,7 @@ bool ClientConfig::Save(const std::string &fileName)
 ClientOptions ClientConfig::GetDefault()
 {
     const ServerInfo DefaultServers[2U] = {
-        {"tarotclub.duckdns.org", 4269 },
-        {"tarot.fun-center.fr", 4269 },
+        {"tarotclub.fr", 4269 }
     };
 
     const std::uint32_t NumberOfServers = (sizeof(DefaultServers) / sizeof(ServerInfo));
