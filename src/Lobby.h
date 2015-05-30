@@ -20,14 +20,12 @@
 #define LOBBY_H
 
 #include "TcpServer.h"
-#include "Controller.h"
 #include "ServerConfig.h"
-#include "Bot.h"
-#include "Users.h"
 #include "Observer.h"
+#include "LobbyController.h"
 
 /*****************************************************************************/
-class Lobby : public Protocol::IWorkItem, public TcpServer::IEvent, public Controller::IData
+class Lobby : private TcpServer::IEvent, private LobbyController::IPacketNotifier
 {
 
 public:
@@ -37,7 +35,7 @@ public:
     {
         static const std::uint32_t cIncPlayer    = 0U;
         static const std::uint32_t cDecPlayer    = 1U;
-        static const std::uint32_t cProtocolData = 2U;
+        static const std::uint32_t cDataSent = 2U;
 
         Event(std::uint32_t type)
             : mType(type)
@@ -47,69 +45,43 @@ public:
         ByteArray mBlock;
     };
 
-
-    Lobby();
+    Lobby(LobbyController *controller);
     ~Lobby();
 
     void Initialize(const ServerOptions &opt);
     void Stop();
     void WaitForEnd();
 
-    // Users management
-    std::uint32_t GetNumberOfPlayers();
-
-    // Bots management
-    bool AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile);
-    std::uint32_t GetNumberOfBots(std::uint32_t tableId);
-    bool RemoveBot(std::uint32_t uuid);
-    void ChangeBotIdentity(std::uint32_t uuid, const Identity &identity);
-
     // Lobby management
     void CloseClients();
     void RegisterListener(Observer<Event> &i_event);
-    std::string GetName() { return mName; }
-
-    // Tables management
-    std::uint32_t CreateTable(const std::string &tableName, bool adminMode = true, const Tarot::Game &game = Tarot::Game());
-    bool DestroyTable(std::uint32_t id);
 
 private:
 
     // From TcpServer interface
     virtual void NewConnection(int socket);
-    virtual void ReadData(int socket, const std::string &data);
+    virtual void ReadData(int socket, const ByteArray &data);
     virtual void ClientClosed(int socket);
     virtual void ServerTerminated(CloseType type);
 
-    // Called from the table controllers and Lobby
-    void SendData(const ByteArray &block);
+    // From LobbyController::IPacketNotifier
+    virtual void Send(const ByteArray &data, std::list<std::uint32_t> peers);
 
-    // From Protocol::WorkItem
-    bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
-    ByteArray GetPacket();
-
-    void ExecuteRequest(const ByteArray &packet);
-    std::string GetTableName(const std::uint32_t tableId);
-	void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId);
-
+    LobbyController *mLobbyController;
+    Protocol::IWorkItem::Data mWorkItem;
     Subject<Event>  mSubject;
     int             mTcpPort;
     TcpServer       mTcpServer;
     bool            mInitialized;
     bool            mIsFull;
-    ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
 
-    std::vector<Controller *> mTables;
-    UniqueId    mTableIds;
-    std::mutex mTablesMutex;
-    Users       mUsers;
-
-    // Bots management
-    std::list<Bot *> mBots;
-    std::mutex mBotsMutex;
-    std::string mName;
+    // Maintain a list of connected peers
+    std::map<std::uint32_t, std::int32_t> mPeers; // pair of uuid, socket
+    std::mutex mMutex;
 
     void SendDataToPlayer(const ByteArray &data);
+    std::uint32_t GetUuid(std::int32_t socket);
+    bool IsValid(std::uint32_t uuid, int socket);
 };
 
 #endif // LOBBY_H
