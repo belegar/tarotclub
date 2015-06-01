@@ -55,6 +55,7 @@
 
 #include <cstdint>
 #include <string>
+#include "ByteArray.h"
 
 /*****************************************************************************/
 class TcpSocket
@@ -103,7 +104,7 @@ public:
      * @return The new socket descriptor, valid if >0
      */
     int Accept() const;
-    std::int32_t Recv(std::string &output) const;
+    std::int32_t Recv(ByteArray &output) const;
     bool Connect(const std::string &host, const int port);
     bool Send(const std::string &input) const;
 

@@ -352,7 +352,7 @@ function GetOwner(firstPlayer, c, trick)
     var p = firstPlayer;
     for (var i = 0; i < trick.size(); i++)
     {
-        if (c === trick[i])
+        if (c.getName() === trick.get(i).getName())
         {
             break;
         }
@@ -496,7 +496,7 @@ module.Engine = function()
             place = Next(place);
         }
 
-        systemPrint("Suit leader is: " + suitLead);
+        systemPrint("Suit is: " + suitLead);
         // Detect winner of this trick, he will lead the next trick
         place = DetectWinner(place, tricks[i], suitLead);
         systemPrint("Winner of trick: " + turn + " is " + TarotLib.Place.toString(place));

@@ -61,8 +61,12 @@ public:
     void Clear();
     ByteArray SubArray(std::uint32_t index, std::uint32_t len) const;
     void Erase(std::uint32_t index, std::uint32_t len);
+    void Alloc(std::uint32_t size);
+    std::uint8_t *Data();
+    int32_t FindFirstOf(std::uint8_t item);
 
     // Operators
+    bool operator == (const std::string &rhs) const;
     ByteArray &operator=(const ByteArray &rhs);
     ByteArray &operator += (const ByteArray &rhs);
     ByteArray operator+(const ByteArray &rhs) const;

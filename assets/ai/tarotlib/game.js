@@ -526,7 +526,7 @@ var p = Game.prototype;
                     if (card === undefined)
                     {
                         // no any trump played before, cut with a low trump
-                        playedCard = this.bot.playLowestCard('T');
+                        playedCard = this.bot.playLowestCard('T', 1);
                         systemPrint("attack: cut with a low trump");    
                     }
                     else

@@ -77,6 +77,12 @@ public:
         mQueue.pop();
     }
 
+    std::uint32_t Size()
+    {
+        std::unique_lock<std::mutex> lock(mMutex);
+        return mQueue.size();
+    }
+
 private:
     std::queue<Data> mQueue;
     mutable std::mutex mMutex;

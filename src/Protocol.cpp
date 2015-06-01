@@ -134,15 +134,30 @@ void Protocol::Stop()
 {
     if (mInitialized)
     {
-        mQueue.Push(std::pair<bool, Protocol::IWorkItem*>(false, NULL));
+        mMutex.lock();
+        while (!mQueue.Empty()); // Empty the queue
+        mQueue.Push(IWorkItem::Data(true));
         mThread.join();
+        mMutex.unlock();
         mInitialized = false;
     }
 }
 /*****************************************************************************/
-void Protocol::Execute(IWorkItem *item)
+void Protocol::Execute(const IWorkItem::Data &item)
 {
-    mQueue.Push(std::pair<bool, Protocol::IWorkItem*>(true, item));
+    mMutex.lock();
+    mQueue.Push(item);
+    mMutex.unlock();
+}
+/*****************************************************************************/
+std::uint32_t Protocol::QueueSize()
+{
+    std::uint32_t size;
+    mMutex.lock();
+    size = mQueue.Size();
+    mMutex.unlock();
+
+    return size;
 }
 /*****************************************************************************/
 void Protocol::EntryPoint(void *pthis)
@@ -162,32 +177,35 @@ void Protocol::EntryPoint(void *pthis)
 void Protocol::Run()
 {
    // (void) pthis;
-    std::pair<bool, IWorkItem *> request;
-    bool continueThread = true;
+    IWorkItem::Data request;
 
-    while (continueThread)
+    while (!request.exit)
     {
         mQueue.WaitAndPop(request);
 
-        if (request.first)
+        if (!request.exit)
         {
-            IWorkItem *item = request.second;
-            if (item != NULL)
+            if (request.item)
             {
-                ByteArray data = item->GetPacket();
-                continueThread = DataManagement(item, data);
+#ifdef PROTOCOL_DEBUG
+                std::cout << "Count: " << (int)request.item.use_count() << std::endl;
+#endif
+                request.exit = DataManagement(request.item.get(), request.data);
             }
         }
-        else
-        {
-            continueThread = false;
-        }
     }
+
+#ifdef PROTOCOL_DEBUG
+    std::cout << "Exiting Protocol::Run() thread." << std::endl;
+#endif
 }
 /*****************************************************************************/
+/**
+ * @return true to ask to exit the upper thread loop
+ */
 bool Protocol::DataManagement(IWorkItem *item, const ByteArray &data)
 {
-    bool ret = true;
+    bool ret = false;
     std::vector<Protocol::PacketInfo> packets = Protocol::DecodePacket(data);
 
     // Execute all packets
@@ -202,7 +220,7 @@ bool Protocol::DataManagement(IWorkItem *item, const ByteArray &data)
         subArray.Erase(0U, HEADER_SIZE);
         if (!item->DoAction(cmd, src_uuid, dest_uuid, subArray))
         {
-            ret = false;
+            ret = true;
         }
     }
     return ret;

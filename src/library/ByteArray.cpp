@@ -26,6 +26,7 @@
 #include <vector>
 #include <cstdint>
 #include <iostream>
+#include <algorithm>
 #include "ByteArray.h"
 
 
@@ -85,6 +86,28 @@ void ByteArray::Erase(std::uint32_t index, std::uint32_t len)
     }
 }
 /*****************************************************************************/
+void ByteArray::Alloc(uint32_t size)
+{
+    mData.resize(size);
+}
+/*****************************************************************************/
+uint8_t *ByteArray::Data()
+{
+    return mData.data();
+}
+/*****************************************************************************/
+std::int32_t ByteArray::FindFirstOf(uint8_t item)
+{
+    std::int32_t ret = -1;
+    std::vector<std::uint8_t>::iterator pos = std::find(mData.begin(), mData.end(), item);
+
+    if (pos != mData.end())
+    {
+        ret = pos - mData.begin();
+    }
+    return ret;
+}
+/*****************************************************************************/
 void ByteArray::Put(std::uint32_t index, std::uint8_t value)
 {
     if (index < mData.size())
@@ -101,6 +124,27 @@ std::uint8_t ByteArray::Get(std::uint32_t index) const
         value = mData[index];
     }
     return value;
+}
+/*****************************************************************************/
+bool ByteArray::operator ==(const std::string &rhs) const
+{
+    bool ret = true;
+
+    if (mData.size() >= rhs.size())
+    {
+        for (std::uint32_t i = 0U; i < rhs.size(); i++)
+        {
+            if (rhs[i] != mData[i])
+            {
+                ret = false;
+            }
+        }
+    }
+    else
+    {
+        ret = false;
+    }
+    return ret;
 }
 /*****************************************************************************/
 ByteArray &ByteArray::operator=(const ByteArray &rhs)

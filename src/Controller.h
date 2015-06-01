@@ -43,7 +43,7 @@
  * calls within the thread context. This mechanism allow a protection by design against
  * multi-threaded application.
  */
-class Controller : public Protocol::IWorkItem
+class Controller
 {
 
 public:
@@ -61,7 +61,7 @@ public:
     virtual ~Controller () { /* nothing to do */ }
 
     void Initialize();
-    void ExecuteRequest(const ByteArray &packet);
+    bool ExecuteRequest(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
 
     std::string GetName() { return mName; }
     void SetName(const std::string &name) { mName = name; }
@@ -78,8 +78,6 @@ public:
 private:
     IData     &mDataHandler;
     TarotEngine mEngine;
-    ThreadQueue<ByteArray> mQueue;      //!< Queue of network packets received
-    std::mutex mMutex;
     bool mFull;
     std::uint32_t mAdmin;   ///< Admin player (first player connected)
     std::string mName;      ///< Name of this table
@@ -89,7 +87,6 @@ private:
     bool mAdminMode;
 
     // From Protocol::WorkItem
-    bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
     ByteArray GetPacket();
 
     void NewGame();

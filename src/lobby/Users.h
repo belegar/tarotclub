@@ -37,7 +37,6 @@ class Users
 public:
     struct Entry
     {
-        std::int32_t socket;    // valid if > 0
         std::uint32_t tableId;  // zero if not playing
         bool connected;         // true if the user is connected (not in login process)
         Place place;            // place around the table (if joined a table)
@@ -47,15 +46,13 @@ public:
     Users();
 
     // Players management
-    bool IsValid(std::uint32_t uuid, int socket);
     bool IsHere(std::uint32_t uuid);
-    std::uint32_t NewStagingUser(int socket);
+    std::uint32_t AddUser();
     bool AccessGranted(std::uint32_t uuid, const Identity &ident);
     void RemoveUser(std::uint32_t uuid);
     std::uint32_t GetPlayerTable(std::uint32_t uuid);
-    std::int32_t GetSocket(std::uint32_t uuid);
     Identity GetIdentity(std::uint32_t uuid);
-    std::uint32_t GetUuid(std::int32_t socket);
+    void Clear();
 
     void SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId, Place place);
 
@@ -64,8 +61,6 @@ public:
     std::map<Place, Identity> GetTablePlayers(std::uint32_t tableId);
     std::map<std::uint32_t, std::string> GetLobbyUserNames();
     std::list<std::uint32_t> GetLobbyUsers();
-
-    void CloseClients();
 
 private:
     UniqueId mIdManager;

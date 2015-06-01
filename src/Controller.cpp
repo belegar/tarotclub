@@ -47,44 +47,26 @@ void Controller::Initialize()
     mEngine.Initialize();
 }
 /*****************************************************************************/
-void Controller::ExecuteRequest(const ByteArray &packet)
-{
-    mMutex.lock();
-    // Only execute commands if the table is full
-    mQueue.Push(packet); // Add packet to the queue
-    Protocol::GetInstance().Execute(this); // Actually decode the packet
-    mMutex.unlock();
-}
-/*****************************************************************************/
 void Controller::SetupGame(const Tarot::Game &game)
 {
-    mMutex.lock();
     mGame = game;
-    mMutex.unlock();
 }
 /*****************************************************************************/
 void Controller::SetAdminMode(bool enable)
 {
-    mMutex.lock();
     mAdminMode = enable;
-    mMutex.unlock();
 }
 /*****************************************************************************/
 void Controller::CreateTable(std::uint8_t nbPlayers)
 {
-    mMutex.lock();
     mEngine.CreateTable(nbPlayers);
     mFull = false;
     mAdmin = Protocol::INVALID_UID;
-    mMutex.unlock();
 }
 /*****************************************************************************/
 Place Controller::AddPlayer(std::uint32_t uuid, std::uint8_t &nbPlayers)
 {
     Place assigned;
-
-    mMutex.lock();
-
     nbPlayers = mEngine.GetNbPlayers();
 
     // Check if player is not already connected
@@ -106,9 +88,6 @@ Place Controller::AddPlayer(std::uint32_t uuid, std::uint8_t &nbPlayers)
             Send(Protocol::TableFullMessage(uuid, mId));
         }
     }
-
-    mMutex.unlock();
-
     return assigned;
 }
 /*****************************************************************************/
@@ -116,7 +95,6 @@ bool Controller::RemovePlayer(std::uint32_t kicked_player)
 {
     bool removeAllPlayers = false;
 
-    mMutex.lock();
     // Check if the uuid exists
     Place place = mEngine.GetPlayerPlace(kicked_player);
     if (place != Place::NOWHERE)
@@ -151,12 +129,11 @@ bool Controller::RemovePlayer(std::uint32_t kicked_player)
             mEngine.CreateTable(mEngine.GetNbPlayers()); // recreate the table (== reset it)
         }
     }
-    mMutex.unlock();
 
     return removeAllPlayers;
 }
 /*****************************************************************************/
-bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
+bool Controller::ExecuteRequest(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
 {
     (void) dest_uuid;
     bool ret = true;
@@ -506,16 +483,6 @@ bool Controller::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
     }
 
     return ret;
-}
-/*****************************************************************************/
-ByteArray Controller::GetPacket()
-{
-    ByteArray data;
-    if (!mQueue.TryPop(data))
-    {
-        TLogError("Work item called without any data in the queue!");
-    }
-    return data;
 }
 /*****************************************************************************/
 void Controller::EndOfDeal()

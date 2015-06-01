@@ -29,12 +29,10 @@
 
 /*****************************************************************************/
 Client::Client(IEvent &handler)
-    : mEventHandler(handler)
-    , mNbPlayers(4U)
+    : mNbPlayers(4U)
     , mTableId(0U)
     , mSequence(STOPPED)
-    , mInitialized(false)
-    , mConnected(false)
+    , mEventHandler(handler)
 {
 
 }
@@ -44,44 +42,6 @@ void Client::Initialize()
     mSequence = STOPPED;
     mPlayersIdent.clear();
     mPlace = Place::NOWHERE;
-
-    if (!mInitialized)
-    {
-        mInitialized = mTcpClient.Start();
-        if (mInitialized)
-        {
-            mThread = std::thread(Client::EntryPoint, this);
-        }
-        else
-        {
-            TLogError("Cannot initialize socket client");
-        }
-    }
-}
-/*****************************************************************************/
-Deck::Statistics &Client::GetStatistics()
-{
-    return stats;
-}
-/*****************************************************************************/
-Deck Client::GetCurrentTrick()
-{
-    return currentTrick;
-}
-/*****************************************************************************/
-Deck &Client::GetDogDeck()
-{
-    return mDog;
-}
-/*****************************************************************************/
-Deck &Client::GetHandleDeck()
-{
-    return handleDeck;
-}
-/*****************************************************************************/
-Deck Client::GetMyDeck()
-{
-    return mPlayer;
 }
 /*****************************************************************************/
 bool Client::TestHandle(const Deck &handle)
@@ -94,33 +54,6 @@ bool Client::TestDiscard(const Deck &discard)
     return mPlayer.TestDiscard(discard, mDog, mNbPlayers);
 }
 /*****************************************************************************/
-void Client::SetDiscard(const Deck &discard)
-{
-    mPlayer += mDog;
-    mPlayer.RemoveDuplicates(discard);
-}
-/*****************************************************************************/
-void Client::SetPlayedCard(const Card &c)
-{
-    mPlayer.Remove(c);
-}
-/*****************************************************************************/
-void Client::SetMyDeck(const Deck &deck)
-{
-    mPlayer.Clear();
-    mPlayer.Append(deck);
-}
-/*****************************************************************************/
-Points Client::GetPoints()
-{
-    return mPoints;
-}
-/*****************************************************************************/
-Place Client::GetPlace()
-{
-    return mPlace;
-}
-/*****************************************************************************/
 std::string Client::GetTablePlayerName(Place p)
 {
     std::string name;
@@ -131,17 +64,6 @@ std::string Client::GetTablePlayerName(Place p)
     return name;
 }
 /*****************************************************************************/
-void Client::SetMyIdentity(const Identity &ident)
-{
-    mIdentity = ident;
-
-    if (IsConnected())
-    {
-        // Send the new client identity to the server
-        SendChangeIdentity();
-    }
-}
-/*****************************************************************************/
 Contract Client::CalculateBid()
 {
     int total = 0;
@@ -150,25 +72,25 @@ Contract Client::CalculateBid()
     UpdateStatistics();
 
     // Set points according to the card values
-    if (stats.bigTrump == true)
+    if (mStats.bigTrump == true)
     {
         total += 9;
     }
-    if (stats.fool == true)
+    if (mStats.fool == true)
     {
         total += 7;
     }
-    if (stats.littleTrump == true)
+    if (mStats.littleTrump == true)
     {
-        if (stats.trumps == 5)
+        if (mStats.trumps == 5)
         {
             total += 5;
         }
-        else if (stats.trumps == 6 || stats.trumps == 7)
+        else if (mStats.trumps == 6 || mStats.trumps == 7)
         {
             total += 7;
         }
-        else if (stats.trumps > 7)
+        else if (mStats.trumps > 7)
         {
             total += 8;
         }
@@ -176,17 +98,17 @@ Contract Client::CalculateBid()
 
     // Each trump is 1 point
     // Each major trump is 1 more point
-    total += stats.trumps * 2;
-    total += stats.majorTrumps * 2;
-    total += stats.kings * 6;
-    total += stats.queens * 3;
-    total += stats.knights * 2;
-    total += stats.jacks;
-    total += stats.weddings;
-    total += stats.longSuits * 5;
-    total += stats.cuts * 5;
-    total += stats.singletons * 3;
-    total += stats.sequences * 4;
+    total += mStats.trumps * 2;
+    total += mStats.majorTrumps * 2;
+    total += mStats.kings * 6;
+    total += mStats.queens * 3;
+    total += mStats.knights * 2;
+    total += mStats.jacks;
+    total += mStats.weddings;
+    total += mStats.longSuits * 5;
+    total += mStats.cuts * 5;
+    total += mStats.singletons * 3;
+    total += mStats.sequences * 4;
 
     // We can decide the bid
     if (total <= 35)
@@ -214,9 +136,9 @@ Contract Client::CalculateBid()
 /*****************************************************************************/
 void Client::UpdateStatistics()
 {
-    stats.Reset();
-    mPlayer.AnalyzeTrumps(stats);
-    mPlayer.AnalyzeSuits(stats);
+    mStats.Reset();
+    mPlayer.AnalyzeTrumps(mStats);
+    mPlayer.AnalyzeSuits(mStats);
 }
 /*****************************************************************************/
 Card Client::Play()
@@ -245,115 +167,6 @@ Deck Client::AutoDiscard()
     mPlayer.RemoveDuplicates(discard);
     TLogInfo("Auto discard: " + discard.ToString());
     return discard;
-}
-/*****************************************************************************/
-bool Client::IsConnected()
-{
-    return mConnected;
-}
-/*****************************************************************************/
-void Client::Disconnect()
-{
-    mConnected = false;
-    mTcpClient.Close();
-}
-/*****************************************************************************/
-void Client::ConnectToHost(const std::string &hostName, std::uint16_t port)
-{
-    Disconnect();
-    if (!mTcpClient.IsValid())
-    {
-        // Create a socket before connection
-        mTcpClient.Create();
-    }
-
-    mHostName = hostName;
-    mTcpPort = port;
-    mQueue.Push(START);
-}
-/*****************************************************************************/
-void Client::Close()
-{
-    Disconnect();
-
-    if (mInitialized)
-    {
-        mQueue.Push(EXIT);
-        mThread.join();
-        mInitialized = false;
-    }
-}
-/*****************************************************************************/
-void Client::EntryPoint(void *pthis)
-{
-    Client *pt = static_cast<Client *>(pthis);
-    pt->Run();
-}
-/*****************************************************************************/
-void Client::Run()
-{
-    std::string buffer;
-    Command cmd;
-
-    while (true)
-    {
-        mQueue.WaitAndPop(cmd);
-        if (cmd == START)
-        {
-            if (mTcpClient.Connect(mHostName, mTcpPort) == true)
-            {
-                mConnected = true;
-                while (mConnected)
-                {
-                    std::int32_t ret = mTcpClient.Recv(buffer);
-                    if (ret > 0)
-                    {
-                      //  ByteArray data(buffer);
-                      //  mConnected = Protocol::DataManagement(this, data);
-
-                        mProtocolQueue.Push(buffer); // Add packet to the queue
-                        Protocol::GetInstance().Execute(this); // Actually decode the packet
-                    }
-                    else if (ret == 0)
-                    {
-                        mConnected = false;
-                        TLogNetwork("Lost connection! Place: " + mPlace.ToString());
-                    }
-                    else if (ret == -2)
-                    {
-                        // try again, ignore and select again the socket
-                        std::cout << "Sock: try again" << std::endl;
-                    }
-                    else
-                    {
-                        mConnected = false;
-                        TLogNetwork("Connection reset by peer.");
-                    }
-                }
-                mPlayer.SetUuid(Protocol::INVALID_UID);
-                mEventHandler.Error(IEvent::ErrDisconnectedFromServer);
-            }
-            else
-            {
-                TLogError("Client cannot connect to server.");
-                mEventHandler.Error(IEvent::ErrCannotConnectToServer);
-            }
-        }
-        else if (cmd == EXIT)
-        {
-            return;
-        }
-    }
-}
-/*****************************************************************************/
-ByteArray Client::GetPacket()
-{
-    ByteArray data;
-    if (!mProtocolQueue.TryPop(data))
-    {
-        TLogError("Lobby: work item called without any data in the queue!");
-    }
-    return data;
 }
 /*****************************************************************************/
 bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
@@ -387,9 +200,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
     case Protocol::LOBBY_DISCONNECT:
     {
-        mTcpClient.Close();
-        mConnected = false;
-        ret = false;
+        mEventHandler.KickedFromLobby();
         break;
     }
 
@@ -398,7 +209,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         std::uint32_t myUuid;
         in >> myUuid;
         mPlayer.SetUuid(myUuid);
-        SendIdentity();
+        mEventHandler.RequestLogin();
         break;
     }
 
@@ -474,7 +285,6 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         if (status)
         {
             mEventHandler.TableJoinEvent(mTableId);
-            SendSyncJoinTable();
         }
         else
         {
@@ -528,7 +338,6 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
             mPoints.Clear();
             UpdateStatistics();
             mEventHandler.NewDeal();
-            SendSyncCards();
         }
         else
         {
@@ -663,6 +472,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         in >> winner;
         mSequence = SYNC_TRICK;
         mEventHandler.WaitTrick(winner);
+        currentTrick.Clear();
         break;
     }
 
@@ -691,169 +501,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
     }
     return ret;
 }
-/*****************************************************************************/
-void Client::AdminNewGame(const Tarot::Game &game)
-{
-    ByteArray packet = Protocol::AdminNewGame(game, mPlayer.GetUuid(), mTableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendJoinTable(std::uint32_t tableId)
-{
-    ByteArray packet = Protocol::ClientJoinTable(mPlayer.GetUuid(), tableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendQuitTable(std::uint32_t tableId)
-{
-    ByteArray packet = Protocol::ClientQuitTable(mPlayer.GetUuid(), tableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendIdentity()
-{
-    ByteArray packet = Protocol::ClientReplyLogin(mPlayer.GetUuid(), mIdentity);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendChangeIdentity()
-{
-    ByteArray packet = Protocol::ClientChangeIdentity(mPlayer.GetUuid(), mIdentity);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendTableMessage(const std::string &message)
-{
-    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid(), mTableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendLobbyMessage(const std::string &message)
-{
-    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid(), Protocol::LOBBY_UID);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendSyncNewGame()
-{
-    ByteArray packet = Protocol::ClientSyncNewGame(mPlayer.GetUuid(), mTableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendError()
-{
-    ByteArray packet = Protocol::ClientError(mPlayer.GetUuid());
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendBid(Contract c, bool slam)
-{
-    ByteArray packet = Protocol::ClientBid(c, slam, mPlayer.GetUuid(), mTableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendDiscard(const Deck &discard)
-{
-    ByteArray packet = Protocol::ClientDiscard(discard, mPlayer.GetUuid(), mTableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendHandle(const Deck &handle)
-{
-    SendPacket(Protocol::ClientHandle(handle, mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendCard(const Card &c)
-{
-    if (c.IsValid())
-    {
-        ByteArray packet = Protocol::ClientCard(c.GetName(), mPlayer.GetUuid(), mTableId);
-        SendPacket(packet);
-    }
-    else
-    {
-        SendError();
-    }
-}
-/*****************************************************************************/
-void Client::SendSyncDog()
-{
-    mSequence = IDLE;
 
-    ByteArray packet = Protocol::ClientSyncDog(mPlayer.GetUuid(), mTableId);
-    SendPacket(packet);
-}
-/*****************************************************************************/
-void Client::SendSyncStart()
-{
-    mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncStart(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncShowCard()
-{
-    mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncShowCard(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncCards()
-{
-    mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncCards(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncBid()
-{
-    mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncBid(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncJoinTable()
-{
-    mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncJoinTable(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncAllPassed()
-{
-    mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncAllPassed(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncTrick()
-{
-    mSequence = IDLE;
-    currentTrick.Clear();
-    SendPacket(Protocol::ClientSyncTrick(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncEndOfDeal()
-{
-    mSequence = IDLE;
-    SendPacket(Protocol::ClientSyncEndOfDeal(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendSyncHandle()
-{
-    SendPacket(Protocol::ClientSyncHandle(mPlayer.GetUuid(), mTableId));
-}
-/*****************************************************************************/
-void Client::SendPacket(const ByteArray &packet)
-{
-    std::uint8_t cmd = Protocol::GetCommand(packet);
-    std::stringstream dbg;
-    dbg << "Client sending packet: 0x" << std::hex << (int)cmd;
-    TLogNetwork(dbg.str());
-
-    if (IsConnected())
-    {
-        mTcpClient.Send(packet.ToSring());
-    }
-    else
-    {
-        TLogNetwork("WARNING! try to send packet without any connection.");
-    }
-}
 
 //=============================================================================
 // End of file Client.cpp

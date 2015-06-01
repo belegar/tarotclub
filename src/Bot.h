@@ -26,12 +26,12 @@
 #ifndef BOT_H
 #define BOT_H
 
-#include "Client.h"
+#include "NetClient.h"
 #include "JSEngine.h"
 #include "Log.h"
 
 /*****************************************************************************/
-class Bot : public Client::IEvent
+class Bot : public Client::IEvent, public NetClient::IEvent
 {
 
 public:
@@ -45,14 +45,15 @@ public:
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
     void Close()
     {
-        mClient.Close();
+        mNet.Close();
     }
     void SetTableToJoin(std::uint32_t table) { mTableToJoin = table; }
-    std::uint32_t GetUuid() { return mClient.GetUuid(); }
-    bool IsConnected() { return mClient.IsConnected(); }
+    std::uint32_t GetUuid() { return mClient->mPlayer.GetUuid(); }
+    bool IsConnected() { return mNet.IsConnected(); }
 
 private:
-    Client  mClient;
+    std::shared_ptr<Client> mClient;
+    NetClient mNet;
     std::uint16_t  mTimeBeforeSend;
     JSEngine mBotEngine;
     std::uint32_t mTableToJoin;
@@ -61,8 +62,10 @@ private:
     bool InitializeScriptContext();
 
     // Client events
+    virtual void RequestLogin();
     virtual void Error(std::uint32_t errorId);
     virtual void EnteredLobby();
+    virtual void KickedFromLobby();
     virtual void AdminGameFull();
     virtual void TableQuitEvent(std::uint32_t tableId);
     virtual void TableMessage(const std::string &message);
@@ -86,6 +89,9 @@ private:
     virtual void WaitTrick(Place winner);
     virtual void EndOfDeal();
     virtual void EndOfGame(Place winner);
+
+    // From NetClient::IEvent
+    virtual void NetSignal(std::uint32_t sig);
 
 };
 
