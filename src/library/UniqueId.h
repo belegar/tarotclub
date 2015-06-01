@@ -41,6 +41,7 @@ public:
     bool IsTaken(std::uint32_t id);
     std::uint32_t GetMin() { return mMin; }
     std::uint32_t GetMax() { return mMax; }
+    void Clear() { mUsedIds.clear(); }
 
 private:
     std::uint32_t mMin;
