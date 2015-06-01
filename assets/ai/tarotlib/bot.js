@@ -223,7 +223,7 @@ var p = Bot.prototype;
         }
 
 		// ok, we have to play a lowest card ; try to play the excuse to save it
-		if (this.stats.fool)
+		if (this.stats.fool && minValue === undefined)
 		{
 			playedCard = "00-T";
 		}
