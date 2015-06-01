@@ -455,25 +455,23 @@ bool TcpSocket::HostNameToIpAddress(const std::string &address, sockaddr_in &ipv
     return status;
 }
 /*****************************************************************************/
-std::int32_t TcpSocket::Recv(std::string &output) const
+std::int32_t TcpSocket::Recv(ByteArray &output) const
 {
-    char buf [MAXRECV + 1];
-    memset(buf, 0, sizeof(buf));
-
-    output = std::string();
     int result = 0; // changed from int to ssize_t
-
+    output.Alloc(MAXRECV); // book maximum space
     // Most likely, we will read a packet, or if the message
     // is very short, we will receive the entire message in
     // a short packet. But it might be a long one.
-    result = ::recv(mSock, buf, MAXRECV, 0);
+    result = ::recv(mSock, reinterpret_cast<char *>(output.Data()), MAXRECV, 0);
 
     if (result > 0)
     {
-        output.append(buf, static_cast<size_t>(result));
+        // Resize to real size
+        output.Alloc(static_cast<std::uint32_t>(result));
     }
     else if (result < 0)
     {
+        output.Alloc(0U); // resize to no size because of the error
         result = AnalyzeSocketError("recv()");
     }
 

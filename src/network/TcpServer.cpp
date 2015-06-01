@@ -83,7 +83,6 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections, bool loca
     if (!mInitialized)
     {
         mThread = std::thread(TcpServer::EntryPoint, this);
-        mExecutor = std::thread(TcpServer::ExecutorEntry, this);
         mInitialized = true;
     }
 
@@ -109,7 +108,6 @@ void TcpServer::Join()
     if (mInitialized)
     {
         mThread.join();
-        mExecutor.join();
         mInitialized = false;
     }
 }
@@ -206,10 +204,7 @@ void TcpServer::Run()
             /* The select call failed.                                */
             /**********************************************************/
             end_server = true;
-            EventData data;
-            data.action = IEvent::SERVER_TERMINATED;
-            data.type = IEvent::WAIT_SOCK_FAILED;
-            mExecQueue.Push(data);
+            mEventHandler.ServerTerminated(IEvent::WAIT_SOCK_FAILED);
         }
         else if (rc == 0)
         {
@@ -217,10 +212,7 @@ void TcpServer::Run()
             /* The time out expired.                                  */
             /**********************************************************/
             end_server = true;
-            EventData data;
-            data.action = IEvent::SERVER_TERMINATED;
-            data.type = IEvent::TIMEOUT;
-            mExecQueue.Push(data);
+            mEventHandler.ServerTerminated(IEvent::TIMEOUT);
         }
         else
         {
@@ -233,10 +225,7 @@ void TcpServer::Run()
                 if (FD_ISSET(mReceiveFd, &working_set))
                 {
                     end_server = true;
-                    EventData data;
-                    data.action = IEvent::SERVER_TERMINATED;
-                    data.type = IEvent::CLOSED;
-                    mExecQueue.Push(data);
+                    mEventHandler.ServerTerminated(IEvent::CLOSED);
                     break;
                 }
                 else if (FD_ISSET(GetSocket(), &working_set))
@@ -293,43 +282,6 @@ void TcpServer::EntryPoint(void *pthis)
     pt->Run();
 }
 /*****************************************************************************/
-void TcpServer::ExecutorEntry(void *pthis)
-{
-    TcpServer *pt = static_cast<TcpServer *>(pthis);
-    pt->RunExecutor();
-}
-/*****************************************************************************/
-void TcpServer::RunExecutor()
-{
-    while(true)
-    {
-        EventData data;
-        mExecQueue.WaitAndPop(data);
-
-        if (data.action == IEvent::SERVER_TERMINATED)
-        {
-            mEventHandler.ServerTerminated(data.type);
-            break;
-        }
-        else if (data.action == IEvent::NEW_CONNECTION)
-        {
-            mEventHandler.NewConnection(data.socket);
-        }
-        else if (data.action == IEvent::READ_DATA)
-        {
-            mEventHandler.ReadData(data.socket, data.data);
-        }
-        else if (data.action == IEvent::CLIENT_CLOSED)
-        {
-            mEventHandler.ClientClosed(data.socket);
-        }
-        else
-        {
-            // nothing to do
-        }
-    }
-}
-/*****************************************************************************/
 void TcpServer::IncommingConnection()
 {
     int new_sd;
@@ -369,10 +321,7 @@ void TcpServer::IncommingConnection()
             UpdateMaxSocket();
 
             // Signal a new client
-            EventData data;
-            data.action = IEvent::NEW_CONNECTION;
-            data.socket = new_sd;
-            mExecQueue.Push(data);
+            mEventHandler.NewConnection(new_sd);
         }
 
         /**********************************************/
@@ -387,8 +336,8 @@ bool TcpServer::IncommingData(int in_sock)
 {
     TcpSocket socket;
     bool ret = false;
-    std::string buffer;
     int rc;
+    ByteArray data;
 
     socket.SetSocket(in_sock);
 
@@ -404,18 +353,14 @@ bool TcpServer::IncommingData(int in_sock)
     /* failure occurs, we will close the          */
     /* connection.                                */
     /**********************************************/
-    rc = socket.Recv(buffer);
+    rc = socket.Recv(data);
 
     if (rc > 0)
     {
         ret = true;
 
         // Send the received data
-        EventData data;
-        data.action = IEvent::READ_DATA;
-        data.socket = in_sock;
-        data.data = buffer,
-        mExecQueue.Push(data);
+        mEventHandler.ReadData(in_sock, data);
     }
     else if (rc == -2)
     {
@@ -445,10 +390,7 @@ bool TcpServer::IncommingData(int in_sock)
         UpdateMaxSocket();
 
         // Signal the disconnection
-        EventData data;
-        data.action = IEvent::CLIENT_CLOSED;
-        data.socket = in_sock;
-        mExecQueue.Push(data);
+        mEventHandler.ClientClosed(in_sock);
     }
 
     return ret;

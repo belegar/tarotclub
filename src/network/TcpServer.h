@@ -55,14 +55,6 @@ public:
             CLOSED
         };
 
-        enum Action
-        {
-            NEW_CONNECTION,
-            READ_DATA,
-            CLIENT_CLOSED,
-            SERVER_TERMINATED
-        };
-
         /**
          * @brief NewConnection
          * Called when a new TCP/IP connection has been created
@@ -76,7 +68,7 @@ public:
          * @param socket
          * @param data
          */
-        virtual void ReadData(int socket, const std::string &data) = 0;
+        virtual void ReadData(int socket, const ByteArray &data) = 0;
 
         /**
          * @brief ClientClosed
@@ -102,17 +94,7 @@ public:
     std::string GetPeerName(int s);
 
 private:
-    struct EventData
-    {
-        int socket;
-        std::string data;
-        IEvent::CloseType type;
-        IEvent::Action action;
-    };
-
     std::thread mThread;
-    std::thread mExecutor;
-    ThreadQueue<EventData> mExecQueue;
     int  mMaxSd;
     fd_set mMasterSet;
     std::vector<int> mClients;
@@ -125,8 +107,6 @@ private:
     int mSendFd;
 
     static void EntryPoint(void *pthis);
-    static void ExecutorEntry(void *pthis);
-    void RunExecutor();
     void Run();
     void IncommingConnection();
     bool IncommingData(int in_sock);
