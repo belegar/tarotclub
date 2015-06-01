@@ -34,6 +34,7 @@
 /*****************************************************************************/
 Bot::Bot()
     : mClient(*this)
+    , mNet(std::shared_ptr<Protocol::IWorkItem>(&mClient), *this)
     , mTimeBeforeSend(0U)
     , mTableToJoin(0U)
 {
@@ -59,8 +60,7 @@ void Bot::LobbyMessage(const std::string &message)
 /*****************************************************************************/
 void Bot::TableJoinEvent(std::uint32_t tableId)
 {
-    (void) tableId;
-    // Nothing to do
+    mNet.SendPacket(Protocol::ClientSyncJoinTable(mClient.mPlayer.GetUuid(), tableId));
 }
 /*****************************************************************************/
 void Bot::TablePlayersList()
@@ -76,8 +76,9 @@ void Bot::LobbyPlayersList()
 void Bot::NewDeal()
 {
     JSEngine::StringList args;
-    args.push_back(mClient.GetMyDeck().ToString());
+    args.push_back(mClient.mPlayer.ToString());
     mBotEngine.Call("ReceiveCards", args);
+    mNet.SendPacket(Protocol::ClientSyncCards(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::SelectPlayer(Place p)
@@ -126,7 +127,7 @@ void Bot::RequestBid(Contract highestBid)
         botContract = Contract::PASS;
     }
 
-    mClient.SendBid(botContract, slam);
+    mNet.SendPacket(Protocol::ClientBid(botContract, slam, mClient.mPlayer.GetUuid(),  mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::ShowBid(Place place, bool slam, Contract contract)
@@ -134,12 +135,12 @@ void Bot::ShowBid(Place place, bool slam, Contract contract)
     (void)(place);
     (void)(contract);
     (void)(slam);
-    mClient.SendSyncBid();
+    mNet.SendPacket(Protocol::ClientSyncBid(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::AllPassed()
 {
-    mClient.SendSyncAllPassed();
+    mNet.SendPacket(Protocol::ClientSyncAllPassed(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::StartDeal()
@@ -147,17 +148,17 @@ void Bot::StartDeal()
     // FIXME: pass the game type to the script
     // FIXME: pass the slam declared bolean to the script
     JSEngine::StringList args;
-    args.push_back(mClient.GetBid().taker.ToString());
-    args.push_back(mClient.GetBid().contract.ToString());
+    args.push_back(mClient.mBid.taker.ToString());
+    args.push_back(mClient.mBid.contract.ToString());
     mBotEngine.Call("StartDeal", args);
 
     // We are ready, let's inform the server about that
-    mClient.SendSyncStart();
+    mNet.SendPacket(Protocol::ClientSyncStart(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::ShowDog()
 {
-    mClient.SendSyncDog();
+    mNet.SendPacket(Protocol::ClientSyncDog(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::AskForHandle()
@@ -205,7 +206,8 @@ void Bot::AskForHandle()
     if (valid)
     {
         TLogInfo(std::string("Sending handle") + handle.ToString());
-        mClient.SendHandle(handle);
+        mNet.SendPacket(Protocol::ClientHandle(handle, mClient.mPlayer.GetUuid(), mClient.mTableId));
+
     }
     else
     {
@@ -218,8 +220,8 @@ void Bot::ShowHandle()
     JSEngine::StringList args;
 
     // Send the handle to the bot
-    args.push_back(mClient.GetHandleDeck().ToString());
-    if (mClient.GetHandleDeck().GetOwner() == ATTACK)
+    args.push_back(mClient.handleDeck.ToString());
+    if (mClient.handleDeck.GetOwner() == ATTACK)
     {
         args.push_back("0");
     }
@@ -230,7 +232,7 @@ void Bot::ShowHandle()
     mBotEngine.Call("ShowHandle", args);
 
     // We have seen the handle, let's inform the server about that
-    mClient.SendSyncHandle();
+    mNet.SendPacket(Protocol::ClientSyncHandle(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::BuildDiscard()
@@ -239,7 +241,7 @@ void Bot::BuildDiscard()
     JSEngine::StringList args;
     Deck discard;
 
-    args.push_back(mClient.GetDogDeck().ToString());
+    args.push_back(mClient.mDog.ToString());
     Value ret = mBotEngine.Call("BuildDiscard", args);
 
     if (ret.IsValid())
@@ -247,7 +249,7 @@ void Bot::BuildDiscard()
         if (ret.GetType() == Value::STRING)
         {
             std::uint8_t count = discard.SetCards(ret.GetString());
-            if (count == Tarot::NumberOfDogCards(mClient.GetNumberOfPlayers()))
+            if (count == Tarot::NumberOfDogCards(mClient.mNbPlayers))
             {
                 valid = mClient.TestDiscard(discard);
             }
@@ -268,9 +270,10 @@ void Bot::BuildDiscard()
 
     if (valid)
     {
-        mClient.SetDiscard(discard);
+        mClient.mPlayer += mClient.mDog;
+        mClient.mPlayer.RemoveDuplicates(discard);
 
-        TLogInfo("Player deck: " + mClient.GetMyDeck().ToString());
+        TLogInfo("Player deck: " + mClient.mPlayer.ToString());
         TLogInfo("Discard: " + discard.ToString());
     }
     else
@@ -281,7 +284,7 @@ void Bot::BuildDiscard()
         NewDeal(); // Resend cards to the bot!
     }
 
-    mClient.SendDiscard(discard);
+    mNet.SendPacket(Protocol::ClientDiscard(discard, mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::NewGame()
@@ -290,8 +293,8 @@ void Bot::NewGame()
     if (InitializeScriptContext() == true)
     {
         JSEngine::StringList args;
-        args.push_back(mClient.GetPlace().ToString());
-        Tarot::Game game = mClient.GetGame();
+        args.push_back(mClient.mPlace.ToString());
+        Tarot::Game game = mClient.mGame;
         std::string modeString;
         if (game.mode == Tarot::Game::cQuickDeal)
         {
@@ -304,11 +307,11 @@ void Bot::NewGame()
         args.push_back(modeString);
         mBotEngine.Call("EnterGame", args);
 
-        mClient.SendSyncNewGame();
+        mNet.SendPacket(Protocol::ClientSyncNewGame(mClient.mPlayer.GetUuid(), mClient.mTableId));
     }
     else
     {
-        mClient.SendError();
+        mNet.SendPacket(Protocol::ClientError(mClient.mPlayer.GetUuid()));
     }
 }
 /*****************************************************************************/
@@ -328,13 +331,13 @@ void Bot::PlayCard()
     }
 
     // Test validity of card
-    c = mClient.GetMyDeck().GetCard(ret.GetString());
+    c = mClient.mPlayer.GetCard(ret.GetString());
     if (c.IsValid())
     {
         if (!mClient.IsValid(c))
         {
             std::stringstream message;
-            message << mClient.GetPlace().ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.GetMyDeck().ToString();
+            message << mClient.mPlace.ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.mPlayer.ToString();
             TLogInfo(message.str());
             // The show must go on, play a random card
             c = mClient.Play();
@@ -348,8 +351,8 @@ void Bot::PlayCard()
     else
     {
         std::stringstream message;
-        message << mClient.GetPlace().ToString() << " played an unknown card: " << ret.GetString()
-                << " Client deck is: " << mClient.GetMyDeck().ToString();
+        message << mClient.mPlace.ToString() << " played an unknown card: " << ret.GetString()
+                << " Client deck is: " << mClient.mPlayer.ToString();
 
         // The show must go on, play a random card
         c = mClient.Play();
@@ -365,8 +368,15 @@ void Bot::PlayCard()
         }
     }
 
-    mClient.SetPlayedCard(c);
-    mClient.SendCard(c);
+    mClient.mPlayer.Remove(c);
+    if (c.IsValid())
+    {
+        mNet.SendPacket(Protocol::ClientCard(c.GetName(), mClient.mPlayer.GetUuid(), mClient.mTableId));
+    }
+    else
+    {
+        mNet.SendPacket(Protocol::ClientError(mClient.mPlayer.GetUuid()));
+    }
 }
 /*****************************************************************************/
 void Bot::ShowCard(Place p, const std::string &name)
@@ -377,26 +387,31 @@ void Bot::ShowCard(Place p, const std::string &name)
     mBotEngine.Call("PlayedCard", args);
 
     // We have seen the card, let's inform the server about that
-    mClient.SendSyncShowCard();
+    mNet.SendPacket(Protocol::ClientSyncShowCard(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::WaitTrick(Place winner)
 {
     (void)(winner);
     // FIXME Call script and pass the winner
-
-    mClient.SendSyncTrick();
+    mNet.SendPacket(Protocol::ClientSyncTrick(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::EndOfDeal()
 {
     // FIXME Call the script and pass the score?
-    mClient.SendSyncEndOfDeal();
+    mNet.SendPacket(Protocol::ClientSyncEndOfDeal(mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::EndOfGame(Place winner)
 {
     (void) winner;
+}
+/*****************************************************************************/
+void Bot::NetSignal(uint32_t sig)
+{
+    (void) sig;
+    mClient.mPlayer.SetUuid(Protocol::INVALID_UID);
 }
 /*****************************************************************************/
 void Bot::SetTimeBeforeSend(std::uint16_t t)
@@ -406,7 +421,13 @@ void Bot::SetTimeBeforeSend(std::uint16_t t)
 /*****************************************************************************/
 void Bot::SetIdentity(const Identity &ident)
 {
-    mClient.SetMyIdentity(ident);
+    mClient.mIdentity = ident;
+
+    if (mNet.IsConnected())
+    {
+        // Send the new client identity to the server
+        mNet.SendPacket(Protocol::ClientChangeIdentity(mClient.mPlayer.GetUuid(), ident));
+    }
 }
 /*****************************************************************************/
 void Bot::SetAiScript(const std::string &path)
@@ -421,7 +442,7 @@ void Bot::Initialize()
 /*****************************************************************************/
 void Bot::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
-    mClient.ConnectToHost(hostName, port);
+    mNet.ConnectToHost(hostName, port);
 }
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()
@@ -537,6 +558,11 @@ bool Bot::InitializeScriptContext()
     return retCode;
 }
 /*****************************************************************************/
+void Bot::RequestLogin()
+{
+    mNet.SendPacket(Protocol::ClientReplyLogin(mClient.mPlayer.GetUuid(), mClient.mIdentity));
+}
+/*****************************************************************************/
 void Bot::Error(std::uint32_t errorId)
 {
     std::stringstream ss;
@@ -547,7 +573,13 @@ void Bot::Error(std::uint32_t errorId)
 void Bot::EnteredLobby()
 {
     // As soon as we have entered into the lobby, join the assigned table
-    mClient.SendJoinTable(mTableToJoin);
+    mNet.SendPacket(Protocol::ClientJoinTable(mClient.mPlayer.GetUuid(), mTableToJoin));
+}
+/*****************************************************************************/
+void Bot::KickedFromLobby()
+{
+    TLogInfo("Bot has been kicked from lobby.");
+    mNet.Close();
 }
 /*****************************************************************************/
 void Bot::AdminGameFull()
@@ -556,7 +588,7 @@ void Bot::AdminGameFull()
     Tarot::Game game;
     game.mode = Tarot::Game::cQuickDeal;
     game.deals.push_back(Tarot::Distribution());
-    mClient.AdminNewGame(game);
+    mNet.SendPacket(Protocol::AdminNewGame(game, mClient.mPlayer.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void Bot::TableQuitEvent(std::uint32_t tableId)

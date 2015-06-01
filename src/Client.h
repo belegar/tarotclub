@@ -26,20 +26,19 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <thread>
+
 #include <string>
 #include <map>
-#include "TcpClient.h"
+
 #include "Card.h"
 #include "Deck.h"
 #include "Player.h"
 #include "Protocol.h"
 #include "Common.h"
 #include "Score.h"
-#include "ThreadQueue.h"
 
 /*****************************************************************************/
-class Client : public Protocol::IWorkItem
+struct Client : public Protocol::IWorkItem
 {
 
 public:
@@ -65,11 +64,11 @@ public:
         static const std::uint32_t ErrLobbyAccessRefused        = 4000U;
         static const std::uint32_t ErrTableAccessRefused        = 5000U;
         static const std::uint32_t ErrTableFull                 = 5001U;
-        static const std::uint32_t ErrDisconnectedFromServer    = 6000U;
-        static const std::uint32_t ErrCannotConnectToServer     = 6001U;
 
         virtual void Error(std::uint32_t errorId) = 0;
+        virtual void RequestLogin() = 0;
         virtual void EnteredLobby() = 0;
+        virtual void KickedFromLobby() = 0;
         virtual void AdminGameFull() = 0;
         virtual void TableQuitEvent(std::uint32_t tableId) = 0;
         virtual void TableMessage(const std::string &message) = 0;
@@ -95,114 +94,10 @@ public:
         virtual void EndOfGame(Place winner) = 0;
     };
 
-    Client(IEvent &handler);
-
-    // Helpers
-    void Initialize();
-    bool TestHandle(const Deck &handle);
-    bool TestDiscard(const Deck &discard);
-    Contract CalculateBid();
-    void UpdateStatistics();
-    Card Play();
-    bool IsValid(const Card &c);
-    Deck AutoDiscard();
-
-    // Getters
-    Deck::Statistics &GetStatistics();
-    Deck GetCurrentTrick();
-    Deck &GetDogDeck();
-    Deck &GetHandleDeck();
-    Deck GetMyDeck();
-    Points GetPoints();
-    std::string GetResult() { return mResult; }
-    Place GetPlace();
-    std::uint8_t GetNumberOfPlayers()
-    {
-        return mNbPlayers;
-    }
-    std::map<Place, Identity> GetTablePlayersList()
-    {
-        return mPlayersIdent;
-    }
-
-    std::map<std::uint32_t, std::string> GetLobbyPlayersList()
-    {
-        return mLobbyUsers;
-    }
-
-    Tarot::Game GetGame()
-    {
-        return mGame;
-    }
-
-    Sequence GetSequence()
-    {
-        return mSequence;
-    }
-    Tarot::Bid      GetBid()
-    {
-        return mBid;
-    }
-    Tarot::Distribution GetShuffle()
-    {
-        return mShuffle;
-    }
-    std::uint32_t GetUuid() { return mPlayer.GetUuid(); }
-
-    std::map<std::string, std::uint32_t>  GetTableList() { return mTableList; }
-
-    std::string GetTablePlayerName(Place p);
-
-    // Setters
-    void SetMyIdentity(const Identity &ident);
-    void SetDiscard(const Deck &discard);
-    void SetPlayedCard(const Card &c);
-    void SetMyDeck(const Deck &deck);
-
-    // Network
-    void ConnectToHost(const std::string &hostName, std::uint16_t port);
-    bool IsConnected();
-    void Disconnect();
-    void Close();
-
-    // Protocol methods
-    void AdminNewGame(const Tarot::Game &game);
-    void SendJoinTable(std::uint32_t tableId);
-    void SendQuitTable(std::uint32_t tableId);
-    void SendBid(Contract c, bool slam);
-    void SendSyncDog();
-    void SendDiscard(const Deck &discard);
-    void SendSyncNewGame();
-    void SendError();
-    void SendCard(const Card &c);
-    void SendSyncTrick();
-    void SendHandle(const Deck &handle);
-    void SendSyncStart();
-    void SendSyncShowCard();
-    void SendSyncCards();
-    void SendSyncBid();
-    void SendSyncAllPassed();
-    void SendSyncHandle();
-    void SendSyncEndOfDeal();
-    void SendTableMessage(const std::string &message);
-    void SendLobbyMessage(const std::string &message);
-    void SendSyncJoinTable();
-    void SendChangeIdentity();
-
-private:
-    enum Command
-    {
-        START,
-        EXIT
-    };
-
-    IEvent     &mEventHandler;
-
+    // Memorized game states and parameters
     Player      mPlayer;    // Player's deck, utilities and assigned UUID
     Place       mPlace;     // assigned place around the table
     Identity    mIdentity;  // Player's identity
-
-    // Memorized game states and parameters
     Tarot::Game mGame;
     std::map<Place, Identity> mPlayersIdent;  // players around the table
     std::map<std::uint32_t, std::string> mLobbyUsers; // pair of uuid, names
@@ -216,30 +111,30 @@ private:
     Deck        handleDeck;     // declared poignee by a player
     Deck        currentTrick;
     std::uint32_t mTableId;
-
     Sequence    mSequence;
-    Deck::Statistics   stats;   // statistics on player's cards
+    Deck::Statistics   mStats;   // statistics on player's cards
 
-    TcpClient   mTcpClient;
-    std::thread mThread;
-    bool        mInitialized;
-    ThreadQueue<Command> mQueue;
-    ThreadQueue<ByteArray> mProtocolQueue;
-    bool        mConnected;
-    std::string mHostName;
-    std::uint16_t mTcpPort;
+    Client(IEvent &handler);
 
-    static void EntryPoint(void *pthis);
-    void Run();
+    // Helpers
+    void Initialize();
+    bool TestHandle(const Deck &handle);
+    bool TestDiscard(const Deck &discard);
+    Contract CalculateBid();
+    void UpdateStatistics();
+    Card Play();
+    bool IsValid(const Card &c);
+    Deck AutoDiscard();
+    std::string GetTablePlayerName(Place p);
+
+private:
+    IEvent     &mEventHandler;
 
     // From Protocol::WorkItem
     bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
-    ByteArray GetPacket();
-
-    // TarotClub Protocol methods
-    void SendIdentity();
-    void SendPacket(const ByteArray &packet);
 };
+
+
 
 #endif // CLIENT_H
 
