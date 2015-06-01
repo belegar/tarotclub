@@ -48,11 +48,11 @@ public:
         mNet.Close();
     }
     void SetTableToJoin(std::uint32_t table) { mTableToJoin = table; }
-    std::uint32_t GetUuid() { return mClient.mPlayer.GetUuid(); }
+    std::uint32_t GetUuid() { return mClient->mPlayer.GetUuid(); }
     bool IsConnected() { return mNet.IsConnected(); }
 
 private:
-    Client  mClient;
+    std::shared_ptr<Client> mClient;
     NetClient mNet;
     std::uint16_t  mTimeBeforeSend;
     JSEngine mBotEngine;

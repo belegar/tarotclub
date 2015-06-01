@@ -472,6 +472,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         in >> winner;
         mSequence = SYNC_TRICK;
         mEventHandler.WaitTrick(winner);
+        currentTrick.Clear();
         break;
     }
 

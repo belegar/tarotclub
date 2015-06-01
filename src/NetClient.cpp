@@ -26,39 +26,6 @@ void NetClient::Initialize()
         }
     }
 }
-
-/*
-void NetClient::SendQuitTable(std::uint32_t tableId)
-{
-    ByteArray packet = Protocol::ClientQuitTable(mPlayer.GetUuid(), tableId);
-    SendPacket(packet);
-}
-
-void NetClient::SendIdentity(const Identity &identity)
-{
-    ByteArray packet = Protocol::ClientReplyLogin(mPlayer.GetUuid(), identity);
-    SendPacket(packet);
-}
-
-void NetClient::SendChangeIdentity(const Identity &identity)
-{
-    ByteArray packet = Protocol::ClientChangeIdentity(mPlayer.GetUuid(), identity);
-    SendPacket(packet);
-}
-
-void NetClient::SendTableMessage(const std::string &message)
-{
-    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid(), mTableId);
-    SendPacket(packet);
-}
-
-void NetClient::SendLobbyMessage(const std::string &message)
-{
-    ByteArray packet = Protocol::ClientLobbyMessage(message, mPlayer.GetUuid(), Protocol::LOBBY_UID);
-    SendPacket(packet);
-}
-*/
-
 /*****************************************************************************/
 void NetClient::SendPacket(const ByteArray &packet)
 {
