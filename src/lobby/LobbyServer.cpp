@@ -44,6 +44,7 @@ LobbyServer::LobbyServer(Lobby &lobby)
     , mWorkItem(std::shared_ptr<Protocol::IWorkItem>(&lobby, D()))
     , mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
+    , mInitialized(false)
 {
 
 }

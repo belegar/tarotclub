@@ -79,7 +79,6 @@ private:
     int             mTcpPort;
     TcpServer       mTcpServer;
     bool            mInitialized;
-    bool            mIsFull;
 
     // Maintain a list of connected peers
     std::map<std::uint32_t, std::int32_t> mPeers; // pair of uuid, socket
