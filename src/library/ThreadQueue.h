@@ -79,6 +79,7 @@ public:
 
     std::uint32_t Size()
     {
+        std::unique_lock<std::mutex> lock(mMutex);
         return mQueue.size();
     }
 
