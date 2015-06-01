@@ -126,8 +126,44 @@ public:
     class IWorkItem
     {
     public:
-          virtual bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data) = 0;
-          virtual ByteArray GetPacket() = 0;
+        struct Data
+        {
+            std::shared_ptr<IWorkItem> item;
+            ByteArray data;
+            bool exit;
+
+            Data()
+                : item(nullptr)
+                , exit(false)
+            {
+
+            }
+
+            Data(bool e)
+                : item(nullptr)
+                , exit(e)
+            {
+
+            }
+
+            Data(const std::shared_ptr<IWorkItem> &w)
+                : item(w)
+                , exit(false)
+            {
+
+            }
+
+            Data(std::shared_ptr<IWorkItem> &w, const ByteArray &d)
+                : item(w)
+                , data(d)
+                , exit(false)
+            {
+
+            }
+        };
+
+        virtual ~IWorkItem() {}
+        virtual bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data) = 0;
     };
 
     Protocol();
@@ -141,7 +177,8 @@ public:
 
     void Initialize();
     void Stop();
-    void Execute(IWorkItem *item);
+    void Execute(const IWorkItem::Data &item);
+    std::uint32_t QueueSize();
 
     /**
      * @brief DecodePacket
@@ -213,7 +250,6 @@ public:
     static ByteArray LobbyChatMessage(const std::string &message, std::uint32_t target);
     static ByteArray LobbyPlayersList(const std::map<std::uint32_t, std::string> &players);
 
-
 private:
 
     /**
@@ -235,8 +271,9 @@ private:
 
     // Work thread that can execute work items
     std::thread mThread;
-    ThreadQueue<std::pair<bool, IWorkItem*> > mQueue; //!< Queue of network packets received
+    ThreadQueue<IWorkItem::Data> mQueue; //!< Queue of network packets received
     bool mInitialized;
+    std::mutex mMutex;
 };
 
 #endif // PROTOCOL_H
