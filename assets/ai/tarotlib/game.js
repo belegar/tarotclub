@@ -364,8 +364,33 @@ var p = Game.prototype;
                     }
                     else
                     {
-                        playedCard = this.bot.playLowestCard();
-						systemPrint("defense: taker is the leader, play low card");
+                        if (this.bot.hasSuit(TarotLib.Suit.TRUMPS))
+                        {
+                            // We have to play higher than any trumps played, if we can!!
+                            var card = this.highestTrump();
+
+                            if (card === undefined)
+                            {
+                                // We are the first to cut, try to save the little
+                                playedCard = this.bot.playLowestCard("T", 1);
+                            }
+                            else if (this.bot.hasHigherCard("T", card.value))
+                            {
+                                playedCard = this.bot.playHighestCard("T", card.value);
+                                systemPrint("defense: play higher trump, just over than the taker :)");                             
+                            }
+                            else
+                            {
+                                // Try to play whatever trump, except the little
+                                playedCard = this.bot.playLowestCard("T", 1);
+                            }
+                        }
+                        else
+                        {
+                            // Whatever, play any low card
+                            playedCard = this.bot.playLowestCard();
+                            systemPrint("defense: taker is the leader, play a low card after him");
+                        }
                     }
                 }
                 else

@@ -386,28 +386,17 @@ function DetectWinner(firstPlayer, trick, suitLead)
     return winner;
 };
 /*****************************************************************************/
-module.Engine = function()
+function RunEngine(dog, cards, firstPlayer)
 {
-    systemPrint("********** TEST_9: AI full game test **********");
-
-    var dog = "08-T;03-H;09-D;03-S;12-C;14-T";
-    var firstPlayer = TarotLib.Place.EAST;
-
-	var mPlayers = new Array(4);
-    var cards = new Array(4);
-    cards[0] = "03-C;00-T;09-H;13-D;16-T;11-T;05-S;07-C;12-H;05-H;08-D;19-T;14-H;21-T;06-D;06-S;04-S;18-T";
-    cards[1] = "03-D;04-H;15-T;01-D;13-S;04-D;04-T;04-C;10-H;13-C;20-T;01-C;02-D;01-T;07-D;09-S;14-D;07-T";
-    cards[2] = "11-H;05-T;12-S;06-H;08-C;09-C;09-T;14-S;08-H;06-T;10-D;13-T;05-C;02-T;03-T;01-H;02-S;08-S";
-    cards[3] = "14-C;07-S;11-D;05-D;07-H;10-S;01-S;12-D;10-T;02-C;02-H;12-T;11-S;06-C;10-C;17-T;13-H;11-C";
-
+    var mPlayers = new Array(4);
     var contract = 0;
     var dealer = Previous(firstPlayer); // dealer
     var place = firstPlayer;
     var taker = 0;
 
     // ----------- BID SEQUENCE
-	for (var i = 0; i < 4; i++) {
-		mPlayers[place] = new TarotLib.Game();
+    for (var i = 0; i < 4; i++) {
+        mPlayers[place] = new TarotLib.Game();
 
         // EnterGame
         mPlayers[place].botPlace = place;
@@ -429,12 +418,16 @@ module.Engine = function()
         systemPrint("The bot " + TarotLib.Place.toString(mPlayers[place].botPlace) + " is announcing bid: " + TarotLib.Contract.toString(cont));
 
         place = Next(place);
-	}
-	
+    }
+    
     systemPrint("");
-
     systemPrint("Taker is: " + TarotLib.Place.toString(taker) + " with contract: " + TarotLib.Contract.toString(contract));
     
+    // Update taker and contract info for all the players
+    for (var i = 0; i < 4; i++) {
+        mPlayers[i].taker = taker;
+        mPlayers[i].contract = contract;
+    }
 
     // ----------- DISCARD SEQUENCE
 
@@ -455,6 +448,9 @@ module.Engine = function()
         // Cards played during this trick
         tricks[i] = new TarotLib.Deck();
         foolDetected = false;
+
+        systemPrint("");
+        systemPrint(" --------------- TURN " + turn + " ---------------");
 
         for (var j = 0; j < 4; j++) {
 
@@ -501,6 +497,34 @@ module.Engine = function()
         place = DetectWinner(place, tricks[i], suitLead);
         systemPrint("Winner of trick: " + turn + " is " + TarotLib.Place.toString(place));
     }
+
+};
+/*****************************************************************************/
+module.Engine = function()
+{
+    var cards = new Array(4);
+
+    systemPrint("********** TEST_9: AI full game test **********");
+
+    systemPrint("********** Example deal 1 **********");
+    var dog = "08-T;03-H;09-D;03-S;12-C;14-T";
+
+    cards[0] = "03-C;00-T;09-H;13-D;16-T;11-T;05-S;07-C;12-H;05-H;08-D;19-T;14-H;21-T;06-D;06-S;04-S;18-T";
+    cards[1] = "03-D;04-H;15-T;01-D;13-S;04-D;04-T;04-C;10-H;13-C;20-T;01-C;02-D;01-T;07-D;09-S;14-D;07-T";
+    cards[2] = "11-H;05-T;12-S;06-H;08-C;09-C;09-T;14-S;08-H;06-T;10-D;13-T;05-C;02-T;03-T;01-H;02-S;08-S";
+    cards[3] = "14-C;07-S;11-D;05-D;07-H;10-S;01-S;12-D;10-T;02-C;02-H;12-T;11-S;06-C;10-C;17-T;13-H;11-C";
+
+    RunEngine(dog, cards, TarotLib.Place.EAST);
+
+    systemPrint("********** Example deal 2 **********");
+    dog = "08-H;05-T;05-S;03-S;05-C;08-C";
+
+    cards[0] = "09-C;13-S;04-T;03-T;14-T;12-T;12-C;11-S;13-T;14-D;05-H;04-H;12-H;04-D;06-C;09-T;15-T;09-H";
+    cards[1] = "07-D;02-H;02-D;01-S;14-S;04-S;06-T;18-T;06-H;12-D;01-T;10-D;10-S;03-D;08-S;02-C;05-D;06-D";
+    cards[2] = "11-H;10-H;02-S;21-T;12-S;04-C;10-T;01-H;14-C;11-D;13-C;01-D;14-H;00-T;13-H;03-H;02-T;10-C";
+    cards[3] = "17-T;13-D;11-C;08-D;07-H;01-C;07-T;03-C;16-T;06-S;07-S;07-C;19-T;08-T;11-T;09-D;20-T;09-S";
+
+    RunEngine(dog, cards, TarotLib.Place.NORTH);
 
 };
 /*****************************************************************************/
