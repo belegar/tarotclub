@@ -56,18 +56,6 @@ std::uint32_t Users::GetPlayerTable(std::uint32_t uuid)
 }
 /*****************************************************************************/
 // Fixme: change the API, return a bool
-std::int32_t Users::GetSocket(std::uint32_t uuid)
-{
-    std::lock_guard<std::mutex> lock(mMutex);
-    std::int32_t socket = -1;
-    if (mUsers.find(uuid) != mUsers.end())
-    {
-        socket = mUsers[uuid].socket;
-    }
-    return socket;
-}
-/*****************************************************************************/
-// Fixme: change the API, return a bool
 Identity Users::GetIdentity(std::uint32_t uuid)
 {
     std::lock_guard<std::mutex> lock(mMutex);
@@ -79,18 +67,12 @@ Identity Users::GetIdentity(std::uint32_t uuid)
     return ident;
 }
 /*****************************************************************************/
-std::uint32_t Users::GetUuid(std::int32_t socket)
+void Users::Clear()
 {
-    std::lock_guard<std::mutex> lock(mMutex);
-    std::uint32_t uuid = Protocol::INVALID_UID;
-    for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
-    {
-        if (iter->second.socket == socket)
-        {
-            uuid = iter->first;
-        }
-    }
-    return uuid;
+    mMutex.lock();
+    mUsers.clear();
+    mIdManager.Clear();
+    mMutex.unlock();
 }
 /*****************************************************************************/
 void Users::SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId, Place place)
@@ -163,34 +145,6 @@ std::list<std::uint32_t> Users::GetLobbyUsers()
     return theList;
 }
 /*****************************************************************************/
-void Users::CloseClients()
-{
-    std::lock_guard<std::mutex> lock(mMutex);
-    TcpSocket peer;
-
-    for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
-    {
-        peer.SetSocket(iter->second.socket);
-        peer.Close();
-    }
-    mUsers.clear();
-}
-/*****************************************************************************/
-bool Users::IsValid(std::uint32_t uuid, int socket)
-{
-    std::lock_guard<std::mutex> lock(mMutex);
-    bool valid = false;
-
-    if (mUsers.find(uuid) != mUsers.end())
-    {
-        if (mUsers[uuid].socket == socket)
-        {
-            valid = true;
-        }
-    }
-    return valid;
-}
-/*****************************************************************************/
 bool Users::IsHere(std::uint32_t uuid)
 {
     std::lock_guard<std::mutex> lock(mMutex);
@@ -198,22 +152,21 @@ bool Users::IsHere(std::uint32_t uuid)
 }
 /*****************************************************************************/
 /**
- * @brief Users::NewStagingUser
+ * @brief Users::AddUser
  *
  * Add a user in the staging area while the login is processing
  *
- * @param socket
  * @return
  */
-std::uint32_t Users::NewStagingUser(int socket)
+std::uint32_t Users::AddUser()
 {
-    std::lock_guard<std::mutex> lock(mMutex);
+    mMutex.lock();
     std::uint32_t uuid = mIdManager.TakeId();
     // Add the user to the main users list
-    mUsers[uuid].socket = socket;
     mUsers[uuid].tableId = Protocol::NO_TABLE;
     mUsers[uuid].connected = false;
 
+    mMutex.unlock();
     return uuid;
 }
 /*****************************************************************************/
