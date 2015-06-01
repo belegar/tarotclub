@@ -140,6 +140,10 @@ bool ByteArray::operator ==(const std::string &rhs) const
             }
         }
     }
+    else
+    {
+        ret = false;
+    }
     return ret;
 }
 /*****************************************************************************/
