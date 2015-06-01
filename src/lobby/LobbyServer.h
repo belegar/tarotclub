@@ -1,35 +1,41 @@
 /*=============================================================================
- * TarotClub - Lobby.h
+ * TarotClub - LobbyServer.h
  *=============================================================================
- * Manage temporary connections to join free game tables
+ * Tcp peers management for the Lobby
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
  * anthony@tarotclub.fr
  *
- * This file must be used under the terms of the CeCILL.
- * This source file is licensed as described in the file COPYING, which
- * you should have received as part of this distribution.  The terms
- * are also available at
- * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
  *
  *=============================================================================
  */
 
-#ifndef LOBBY_H
-#define LOBBY_H
+#ifndef LOBBY_SERVER_H
+#define LOBBY_SERVER_H
 
 #include "TcpServer.h"
 #include "ServerConfig.h"
 #include "Observer.h"
-#include "LobbyController.h"
+#include "Lobby.h"
 
 /*****************************************************************************/
-class Lobby : private TcpServer::IEvent, private LobbyController::IPacketNotifier
+class LobbyServer : private TcpServer::IEvent, private Lobby::IPacketNotifier
 {
 
 public:
-    static const std::string LOBBY_VERSION_STRING;
 
     struct Event
     {
@@ -45,14 +51,14 @@ public:
         ByteArray mBlock;
     };
 
-    Lobby(LobbyController *controller);
-    ~Lobby();
+    LobbyServer(Lobby &lobby);
+    ~LobbyServer();
 
     void Initialize(const ServerOptions &opt);
     void Stop();
     void WaitForEnd();
 
-    // Lobby management
+    // LobbyServer management
     void CloseClients();
     void RegisterListener(Observer<Event> &i_event);
 
@@ -64,10 +70,10 @@ private:
     virtual void ClientClosed(int socket);
     virtual void ServerTerminated(CloseType type);
 
-    // From LobbyController::IPacketNotifier
+    // From Lobby::IPacketNotifier
     virtual void Send(const ByteArray &data, std::list<std::uint32_t> peers);
 
-    LobbyController *mLobbyController;
+    Lobby &mLobby;
     Protocol::IWorkItem::Data mWorkItem;
     Subject<Event>  mSubject;
     int             mTcpPort;
@@ -84,8 +90,8 @@ private:
     bool IsValid(std::uint32_t uuid, int socket);
 };
 
-#endif // LOBBY_H
+#endif // LOBBY_SERVER_H
 
 //=============================================================================
-// End of file Lobby.h
+// End of file LobbyServer.h
 //=============================================================================

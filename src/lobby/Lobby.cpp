@@ -1,8 +1,33 @@
-#include "LobbyController.h"
+/*=============================================================================
+ * TarotClub - Lobby.cpp
+ *=============================================================================
+ * Central meeting point of a server to chat and join game tables
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
+
+#include "Lobby.h"
 #include "Log.h"
 #include <sstream>
 
-LobbyController::LobbyController()
+Lobby::Lobby()
     : mPacketNotifier(nullptr)
     , mInitialized(false)
     , mTableIds(Protocol::TABLES_UID, Protocol::TABLES_UID + Protocol::MAXIMUM_TABLES)
@@ -10,7 +35,7 @@ LobbyController::LobbyController()
 
 }
 /*****************************************************************************/
-LobbyController::~LobbyController()
+Lobby::~Lobby()
 {
     mTablesMutex.lock();
     // Kill tables
@@ -21,7 +46,7 @@ LobbyController::~LobbyController()
     mTablesMutex.unlock();
 }
 /*****************************************************************************/
-void LobbyController::Initialize(const std::string &name, const std::vector<std::string> &tables, IPacketNotifier *notifier)
+void Lobby::Initialize(const std::string &name, const std::vector<std::string> &tables, IPacketNotifier *notifier)
 {
     mPacketNotifier = notifier;
     mName = name;
@@ -31,17 +56,17 @@ void LobbyController::Initialize(const std::string &name, const std::vector<std:
     }
 }
 /*****************************************************************************/
-std::uint32_t LobbyController::GetNumberOfPlayers()
+std::uint32_t Lobby::GetNumberOfPlayers()
 {
     return mUsers.GetLobbyUsers().size();
 }
 /*****************************************************************************/
-uint32_t LobbyController::AddUser()
+uint32_t Lobby::AddUser()
 {
     return mUsers.AddUser();
 }
 /*****************************************************************************/
-void LobbyController::RemoveUser(uint32_t uuid)
+void Lobby::RemoveUser(uint32_t uuid)
 {
     std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
     if (tableId != 0U)
@@ -56,12 +81,12 @@ void LobbyController::RemoveUser(uint32_t uuid)
     TLogNetwork(ss.str());
 }
 /*****************************************************************************/
-void LobbyController::RemoveAllUsers()
+void Lobby::RemoveAllUsers()
 {
-
+    mUsers.Clear();
 }
 /*****************************************************************************/
-std::uint32_t LobbyController::CreateTable(const std::string &tableName, bool adminMode, const Tarot::Game &game)
+std::uint32_t Lobby::CreateTable(const std::string &tableName, bool adminMode, const Tarot::Game &game)
 {
     mTablesMutex.lock();
 
@@ -88,7 +113,7 @@ std::uint32_t LobbyController::CreateTable(const std::string &tableName, bool ad
     return id;
 }
 /*****************************************************************************/
-bool LobbyController::DestroyTable(std::uint32_t id)
+bool Lobby::DestroyTable(std::uint32_t id)
 {
     bool ret = false;
     mTablesMutex.lock();
@@ -107,7 +132,7 @@ bool LobbyController::DestroyTable(std::uint32_t id)
     return ret;
 }
 /*****************************************************************************/
-bool LobbyController::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
+bool Lobby::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
 {
     bool ret = true;
     ByteStreamReader in(data);
@@ -288,7 +313,7 @@ bool LobbyController::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::ui
     return ret;
 }
 /*****************************************************************************/
-void LobbyController::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
+void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId)
 {
     bool removeAllPlayers = false;
     mTablesMutex.lock();
@@ -331,7 +356,7 @@ void LobbyController::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t ta
     SendData(Protocol::TablePlayersList(mUsers.GetTablePlayers(tableId), tableId));
 }
 /*****************************************************************************/
-std::string LobbyController::GetTableName(const std::uint32_t tableId)
+std::string Lobby::GetTableName(const std::uint32_t tableId)
 {
     std::string name = "error_table_not_found";
 
@@ -349,7 +374,7 @@ std::string LobbyController::GetTableName(const std::uint32_t tableId)
     return name;
 }
 /*****************************************************************************/
-void LobbyController::SendData(const ByteArray &block)
+void Lobby::SendData(const ByteArray &block)
 {
     std::uint32_t dest_uuid = Protocol::GetDestUuid(block);
 

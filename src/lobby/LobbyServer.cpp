@@ -1,51 +1,64 @@
 /*=============================================================================
- * TarotClub - Lobby.cpp
+ * TarotClub - LobbyServerServer.h
  *=============================================================================
- * Manage temporary connections to join free game tables
+ * Tcp peers management for the LobbyServer
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
  * anthony@tarotclub.fr
  *
- * This file must be used under the terms of the CeCILL.
- * This source file is licensed as described in the file COPYING, which
- * you should have received as part of this distribution.  The terms
- * are also available at
- * http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
  *
  *=============================================================================
  */
 
-#include "Lobby.h"
+#include "LobbyServer.h"
 #include "Log.h"
 #include "Util.h"
 #include <sstream>
 #include <vector>
 
-
-const std::string Lobby::LOBBY_VERSION_STRING = std::string("TarotClub Lobby v") + std::string("2");
+struct D {
+    void operator()(Protocol::IWorkItem* p) const
+    {
+        (void) p;
+        // No destructor for this single object.
+        // It will be naturally deleted while exiting from main
+    }
+};
 
 /*****************************************************************************/
-Lobby::Lobby(LobbyController *controller)
-    : mLobbyController(controller)
-    , mWorkItem(controller)
+LobbyServer::LobbyServer(Lobby &lobby)
+    : mLobby(lobby)
+    , mWorkItem(std::shared_ptr<Protocol::IWorkItem>(&lobby, D()))
     , mTcpPort(ServerConfig::DEFAULT_GAME_TCP_PORT)
     , mTcpServer(*this)
 {
 
 }
 /*****************************************************************************/
-Lobby::~Lobby()
+LobbyServer::~LobbyServer()
 {
     Stop();
 }
 /*****************************************************************************/
-void Lobby::Initialize(const ServerOptions &opt)
+void LobbyServer::Initialize(const ServerOptions &opt)
 {
     if (!mInitialized)
     {
         // Initialize the controller
-        mLobbyController->Initialize(opt.name, opt.tables, this);
+        mLobby.Initialize(opt.name, opt.tables, this);
 
         // Initialize all the tables, starting with the TCP port indicated
         mTcpPort = opt.game_tcp_port;
@@ -54,15 +67,15 @@ void Lobby::Initialize(const ServerOptions &opt)
     }
 }
 /*****************************************************************************/
-void Lobby::WaitForEnd()
+void LobbyServer::WaitForEnd()
 {
     mTcpServer.Join();
 }
 /*****************************************************************************/
-void Lobby::NewConnection(int socket)
+void LobbyServer::NewConnection(int socket)
 {
     mMutex.lock();
-    std::uint32_t uuid = mLobbyController->AddUser();
+    std::uint32_t uuid = mLobby.AddUser();
     mPeers[uuid] = socket;
     mMutex.unlock();
 
@@ -82,7 +95,7 @@ void Lobby::NewConnection(int socket)
 /*****************************************************************************/
 
 /**
- * @brief Lobby::ReadData
+ * @brief LobbyServer::ReadData
  *
  * This callback is executed within the Tcp context. To miximize bandwidth,
  * we immediately manage the packet analysis in a worker thread.
@@ -90,7 +103,7 @@ void Lobby::NewConnection(int socket)
  * @param socket
  * @param data
  */
-void Lobby::ReadData(int socket, const ByteArray &data)
+void LobbyServer::ReadData(int socket, const ByteArray &data)
 {
     if (IsValid(Protocol::GetSourceUuid(data), socket))
     {
@@ -99,24 +112,23 @@ void Lobby::ReadData(int socket, const ByteArray &data)
     }
 }
 /*****************************************************************************/
-void Lobby::ClientClosed(int socket)
+void LobbyServer::ClientClosed(int socket)
 {
-    std::stringstream ss;
     std::uint32_t uuid = GetUuid(socket);
 
-    mLobbyController->RemoveUser(uuid);
+    mLobby.RemoveUser(uuid);
 
     Event event(Event::cDecPlayer);
     mSubject.Notify(event);
 }
 /*****************************************************************************/
-void Lobby::ServerTerminated(TcpServer::IEvent::CloseType type)
+void LobbyServer::ServerTerminated(TcpServer::IEvent::CloseType type)
 {
     (void) type;
     TLogError("Server terminated (internal error)");
 }
 /*****************************************************************************/
-void Lobby::Send(const ByteArray &data, std::list<std::uint32_t> peers)
+void LobbyServer::Send(const ByteArray &data, std::list<std::uint32_t> peers)
 {
     // Send the data to a(all) peer(s)
     for (std::list<std::uint32_t>::iterator iter = peers.begin(); iter != peers.end(); ++iter)
@@ -142,15 +154,15 @@ void Lobby::Send(const ByteArray &data, std::list<std::uint32_t> peers)
     }
 }
 /*****************************************************************************/
-void Lobby::Stop()
+void LobbyServer::Stop()
 {
     mInitialized = false;
     CloseClients();
     mTcpServer.Stop();
-    mLobbyController->RemoveAllUsers();
+    mLobby.RemoveAllUsers();
 }
 /*****************************************************************************/
-void Lobby::CloseClients()
+void LobbyServer::CloseClients()
 {
     mMutex.lock();
 
@@ -163,12 +175,12 @@ void Lobby::CloseClients()
     mMutex.unlock();
 }
 /*****************************************************************************/
-void Lobby::RegisterListener(Observer<Event> &i_event)
+void LobbyServer::RegisterListener(Observer<Event> &i_event)
 {
     mSubject.Attach(i_event);
 }
 /*****************************************************************************/
-bool Lobby::IsValid(std::uint32_t uuid, int socket)
+bool LobbyServer::IsValid(std::uint32_t uuid, int socket)
 {
     mMutex.lock();
     bool valid = false;
@@ -184,7 +196,7 @@ bool Lobby::IsValid(std::uint32_t uuid, int socket)
     return valid;
 }
 /*****************************************************************************/
-std::uint32_t Lobby::GetUuid(std::int32_t socket)
+std::uint32_t LobbyServer::GetUuid(std::int32_t socket)
 {
     mMutex.lock();
     std::uint32_t uuid = Protocol::INVALID_UID;
@@ -200,5 +212,5 @@ std::uint32_t Lobby::GetUuid(std::int32_t socket)
 }
 
 //=============================================================================
-// End of file Lobby.cpp
+// End of file LobbyServer.cpp
 //=============================================================================
