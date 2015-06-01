@@ -225,8 +225,8 @@ bool TarotEngine::SetCard(const Card &c, Place p)
     else
     {
         std::stringstream ss;
-        ss << "The player cannot play the card: " << c.GetName()
-           << " Engine deck is: " << mPlayers[p.Value()].ToString();
+        ss << "The player " << p.ToString() << " cannot play the card: " << c.GetName()
+           << " on turn " << (int)mTrickCounter + 1 << " Engine deck is: " << mPlayers[p.Value()].ToString();
 
         TLogError(ss.str());
     }
