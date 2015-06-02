@@ -217,10 +217,10 @@ void MainWindow::slotClientError(std::uint32_t errorId)
     switch(errorId)
     {
 
-    case Client::IEvent::ErrCannotConnectToServer:
+    case NetClient::IEvent::ErrCannotConnectToServer:
         mLobbyDock->SystemMessage(tr("Cannot connect to server"));
         break;
-    case Client::IEvent::ErrDisconnectedFromServer:
+    case NetClient::IEvent::ErrDisconnectedFromServer:
         mLobbyDock->SystemMessage(tr("Disconnected from server"));
         DisconnectedFromServer();
         break;

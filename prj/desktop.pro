@@ -52,6 +52,7 @@ VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/src/network
 VPATH += $$BASE_DIR/src/zip
+VPATH += $$BASE_DIR/src/lobby
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
@@ -71,6 +72,7 @@ INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/network
 INCLUDEPATH += $$BASE_DIR/src/zip
+INCLUDEPATH += $$BASE_DIR/src/lobby
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -210,8 +212,12 @@ HEADERS += ServerConfig.h \
     Protocol.h \
     Controller.h \
     Lobby.h \
+    LobbyServer.h \
+    BotManager.h \
+    NetClient.h \
     Common.h \
-    Users.h
+    Users.h \
+    JsonClient.h
 
 SOURCES += ServerConfig.cpp \
     ClientConfig.cpp \
@@ -228,7 +234,11 @@ SOURCES += ServerConfig.cpp \
     Lobby.cpp \
     Score.cpp \
     Common.cpp \
-    Users.cpp
+    LobbyServer.cpp \
+    BotManager.cpp \
+    NetClient.cpp \
+    Users.cpp \
+    JsonClient.cpp
 
 # ------------------------------------------------------------------------------
 # Gfx library files

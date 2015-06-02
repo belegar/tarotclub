@@ -27,15 +27,18 @@
 #define TAROT_WIDGET_H_
 
 #include <QWidget>
+#include <QEvent>
 
 // Game includes
-#include "Client.h"
+#include "JsonClient.h"
+#include "NetClient.h"
 #include "Common.h"
-#include "Lobby.h"
+#include "LobbyServer.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
 #include "GfxCard.h"
 #include "Canvas.h"
+#include "BotManager.h"
 
 /*****************************************************************************/
 /**
@@ -44,7 +47,7 @@
  * joueur 2 : ordi NORD (ou NORD-EST)
  * joueur 3 : ordi OUEST
  */
-class TarotWidget : public QWidget, public Client::IEvent
+class TarotWidget : public QWidget, public JsonClient::IEvent, public NetClient::IEvent
 {
     Q_OBJECT
 
@@ -54,6 +57,35 @@ public:
         NO_CONNECTION,
         LOCAL,
         REMOTE
+    };
+
+    enum Sequence
+    {
+        STOPPED,
+        IDLE,
+        SHOW_DOG,
+        BUILD_DISCARD,
+        BUILD_HANDLE,
+        SYNC_START,
+        SHOW_HANDLE,
+        SYNC_CARD,
+        PLAY_TRICK,
+        SYNC_TRICK,
+        SYNC_READY,
+        SHOW_SCORE
+    };
+
+    class TarotEvent : public QEvent
+    {
+    public:
+
+        static const QEvent::Type staticType = static_cast<QEvent::Type>(QEvent::User + 462);
+        TarotEvent()
+            : QEvent(staticType)
+        {
+
+        }
+        std::string event;
     };
 
     TarotWidget(QWidget *parent = 0);
@@ -74,38 +106,38 @@ public:
     // Getters about various current game information, external usage
     std::map<Place, Identity> GetTablePlayersList()
     {
-        return mClient.GetTablePlayersList();
+        return mClient.mPlayersIdent;
     }
 
     std::map<std::uint32_t, std::string> GetLobbyPlayersList()
     {
-        return mClient.GetLobbyPlayersList();
+        return mClient.mLobbyUsers;
     }
 
     Tarot::Bid GetBid()
     {
-        return mClient.GetBid();
+        return mClient.mBid;
     }
     Tarot::Distribution GetShuffle()
     {
-        return mClient.GetShuffle();
+        return mClient.mShuffle;
     }
     Points GetPoints()
     {
-        return mClient.GetPoints();
+        return mClient.mPoints;
     }
     std::string GetResult()
     {
-        return mClient.GetResult();
+        return mClient.mResult;
     }
     Deck GetDeck()
     {
-        return mClient.GetMyDeck();
+        return mClient;
     }
 
     std::map<std::string, std::uint32_t> GetTableList()
     {
-        return mClient.GetTableList();
+        return mClient.mTableList;
     }
 
     ConnectionType GetConnectionType() { return mConnectionType; }
@@ -140,19 +172,23 @@ public slots:
     void slotStartGame();
 
 private:
+    std::shared_ptr<JsonClient> mDecoder;
+    NetClient mNet;
     Lobby           mLobby;    // Embedded lobby into this executable
+    LobbyServer     mLobbyServer;
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
-    Client          mClient; // The human player
+    ClientHelper    mClient;
     Deck            mDiscard;
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;
     Deck            mMyHandle;
     bool            mAutoPlay;
     Deck            mMySavedDeck;
-    Tarot::Game     mGame;
-    Tarot::Distribution  mShuffle;
     bool            mShutdown;
+    BotManager      mBotManager;
+    Sequence        mSequence;
+    std::map<std::uint32_t, Identity> mBotIds; // bot id, identity
 
     // Helpers
     void ShowSouthCards();
@@ -160,6 +196,13 @@ private:
     void InitScreen(bool rawClear = false);
     bool HasLocalConnection();
 
+    // From JsonClient::IEvent
+    virtual void EmitEvent(const std::string &event);
+
+    // From NetClient::IEvent
+    virtual void NetSignal(std::uint32_t sig);
+
+/*
     // Client events
     virtual void Error(std::uint32_t errorId)
     {
@@ -284,23 +327,9 @@ private:
     {
         emit sigEndOfGame(winner);
     }
+    */
 
-    // Private signals, not accessible to external entities
-signals:
-    void sigAutoJoinTable();
-    void sigGameFull();
-    void sigAssignedPlace();
-    void sigSelectPlayer(Place);
-    void sigRequestBid(Contract);
-    void sigShowBid(Place, bool, Contract);
-    void sigShowDog();
-    void sigAskForHandle();
-    void sigShowHandle();
-    void sigBuildDiscard();
-    void sigAllPassed();
-    void sigPlayCard();
-    void sigEndOfDeal();
-    void sigEndOfGame(Place winner);
+    void customEvent(QEvent *e);
 
 private slots:
     // Client events

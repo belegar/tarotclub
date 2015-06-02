@@ -1,10 +1,10 @@
 #ifndef NETCLIENT_H
 #define NETCLIENT_H
 
-#include "Client.h"
 #include <thread>
 #include "ThreadQueue.h"
 #include "TcpClient.h"
+#include "Protocol.h"
 
 /*****************************************************************************/
 class NetClient
