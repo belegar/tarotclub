@@ -26,6 +26,7 @@
 #ifndef BOT_H
 #define BOT_H
 
+#include "Client.h"
 #include "NetClient.h"
 #include "JSEngine.h"
 #include "Log.h"
@@ -50,6 +51,7 @@ public:
     void SetTableToJoin(std::uint32_t table) { mTableToJoin = table; }
     std::uint32_t GetUuid() { return mClient->mPlayer.GetUuid(); }
     bool IsConnected() { return mNet.IsConnected(); }
+    void JoinTable(std::uint32_t tableId);
 
 private:
     std::shared_ptr<Client> mClient;

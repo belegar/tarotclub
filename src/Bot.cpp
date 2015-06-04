@@ -43,7 +43,7 @@ Bot::Bot()
 /*****************************************************************************/
 Bot::~Bot()
 {
-
+    mNet.Close();
 }
 /*****************************************************************************/
 void Bot::TableMessage(const std::string &message)
@@ -78,7 +78,7 @@ void Bot::NewDeal()
     JSEngine::StringList args;
     args.push_back(mClient->mPlayer.ToString());
     mBotEngine.Call("ReceiveCards", args);
-    mNet.SendPacket(Protocol::ClientSyncCards(mClient->mPlayer.GetUuid(), mClient->mTableId));
+    mNet.SendPacket(Protocol::ClientSyncNewDeal(mClient->mPlayer.GetUuid(), mClient->mTableId));
 }
 /*****************************************************************************/
 void Bot::SelectPlayer(Place p)
@@ -433,6 +433,11 @@ void Bot::SetIdentity(const Identity &ident)
 void Bot::SetAiScript(const std::string &path)
 {
     mScriptPath = path;
+}
+/*****************************************************************************/
+void Bot::JoinTable(std::uint32_t tableId)
+{
+    mNet.SendPacket(Protocol::ClientJoinTable(mClient->mPlayer.GetUuid(), tableId));
 }
 /*****************************************************************************/
 void Bot::Initialize()
