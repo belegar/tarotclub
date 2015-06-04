@@ -76,7 +76,7 @@ void InfosDock::Clear()
     }
 }
 /*****************************************************************************/
-void InfosDock::SetPlayers(const std::map<Place, Identity> &players)
+void InfosDock::SetPlayers(const QMap<Place, Identity> &players)
 {
     QStringList header;
 
@@ -85,10 +85,10 @@ void InfosDock::SetPlayers(const std::map<Place, Identity> &players)
     for (std::uint8_t i = 0; i < 4; i++)
     {
         Place place(i);
-        std::map<Place, Identity>::const_iterator iter = players.find(place);
+        QMap<Place, Identity>::const_iterator iter = players.find(place);
         if (iter != players.end())
         {
-            header += iter->second.nickname.data();
+            header += iter.value().nickname.c_str();
         }
         else
         {

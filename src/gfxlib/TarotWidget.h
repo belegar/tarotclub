@@ -62,16 +62,12 @@ public:
     enum Sequence
     {
         STOPPED,
-        IDLE,
         SHOW_DOG,
         BUILD_DISCARD,
         BUILD_HANDLE,
-        SYNC_START,
         SHOW_HANDLE,
-        SYNC_CARD,
         PLAY_TRICK,
         SYNC_TRICK,
-        SYNC_READY,
         SHOW_SCORE
     };
 
@@ -85,7 +81,20 @@ public:
         {
 
         }
-        std::string event;
+        QByteArray data;
+    };
+
+    class ErrorEvent : public QEvent
+    {
+    public:
+
+        static const QEvent::Type staticType = static_cast<QEvent::Type>(QEvent::User + 463);
+        ErrorEvent()
+            : QEvent(staticType)
+        {
+
+        }
+        QString reason;
     };
 
     TarotWidget(QWidget *parent = 0);
@@ -104,14 +113,21 @@ public:
     void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
 
     // Getters about various current game information, external usage
-    std::map<Place, Identity> GetTablePlayersList()
+    QMap<Place, Identity> GetTablePlayersList()
     {
-        return mClient.mPlayersIdent;
+        QMap<Place, Identity> opponents;
+        for (QMap<Place, std::uint32_t>::iterator iter = mTablePlayers.begin();
+             iter != mTablePlayers.end();
+             ++iter)
+        {
+            opponents[iter.key()] = mLobbyUsers[iter.value()];
+        }
+        return opponents;
     }
 
-    std::map<std::uint32_t, std::string> GetLobbyPlayersList()
+    QMap<std::uint32_t, Identity> GetLobbyPlayersList()
     {
-        return mClient.mLobbyUsers;
+        return mLobbyUsers;
     }
 
     Tarot::Bid GetBid()
@@ -124,7 +140,7 @@ public:
     }
     Points GetPoints()
     {
-        return mClient.mPoints;
+        return mPoints;
     }
     std::string GetResult()
     {
@@ -135,16 +151,16 @@ public:
         return mClient;
     }
 
-    std::map<std::string, std::uint32_t> GetTableList()
+    QMap<QString, std::uint32_t> GetTableList()
     {
-        return mClient.mTableList;
+        return mTables;
     }
 
     ConnectionType GetConnectionType() { return mConnectionType; }
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
-    void sigClientError(std::uint32_t errorId);
+    void sigClientError(QString);
     void sigDisconnectedFromServer();
     void sigEnteredLobby();
     void sigTableQuitEvent(std::uint32_t tableId);
@@ -155,8 +171,8 @@ signals:
     void sigShowCard(Place, std::string);
     void sigWaitTrick(Place);
     void sigStartDeal();
-    void sigTableMessage(std::string);
-    void sigLobbyMessage(std::string);
+    void sigTableMessage(QString);
+    void sigLobbyMessage(QString);
     void sigAddScore();
     void sigNewDeal();
 
@@ -169,7 +185,6 @@ public slots:
     void slotCleanBeforeExit();
     void slotSendChatMessage(const QString &message);
     void slotSendLobbyMessage(const QString &message);
-    void slotStartGame();
 
 private:
     std::shared_ptr<JsonClient> mDecoder;
@@ -188,174 +203,31 @@ private:
     bool            mShutdown;
     BotManager      mBotManager;
     Sequence        mSequence;
+    Points          mPoints;
     std::map<std::uint32_t, Identity> mBotIds; // bot id, identity
+    QMap<Place, std::uint32_t> mTablePlayers;  // players around the table
+    QMap<std::uint32_t, Identity> mLobbyUsers; // pair of uuid, names
+    QMap<QString, std::uint32_t> mTables;
 
     // Helpers
     void ShowSouthCards();
     void HideTrick();
     void InitScreen(bool rawClear = false);
     bool HasLocalConnection();
+    void AutoJoinTable();
+    void AddBots();
+    void AskForHandle();
 
     // From JsonClient::IEvent
     virtual void EmitEvent(const std::string &event);
+    virtual void EmitError(std::uint32_t errorId);
 
     // From NetClient::IEvent
     virtual void NetSignal(std::uint32_t sig);
 
-/*
-    // Client events
-    virtual void Error(std::uint32_t errorId)
-    {
-        switch(errorId)
-        {
-        default:
-        case Client::IEvent::ErrCannotConnectToServer:
-        case Client::IEvent::ErrDisconnectedFromServer:
-        case Client::IEvent::ErrLobbyAccessRefused:
-            mConnectionType = NO_CONNECTION;
-            emit sigDisconnectedFromServer();
-            break;
-        }
-
-        // Progagate the error code only if the software is not in exit process
-        if (!mShutdown)
-        {
-            emit sigClientError(errorId);
-        }
-    }
-
-    virtual void EnteredLobby()
-    {
-        emit sigEnteredLobby();
-        emit sigAutoJoinTable();
-    }
-
-    virtual void TableMessage(const std::string &message)
-    {
-        emit sigTableMessage(message);
-    }
-    virtual void LobbyMessage(const std::string &message)
-    {
-        emit sigLobbyMessage(message);
-    }
-
-    virtual void TableQuitEvent(std::uint32_t tableId)
-    {
-        emit sigTableQuitEvent(tableId);
-    }
-
-    virtual void TableJoinEvent(std::uint32_t tableId)
-    {
-        emit sigTableJoinEvent(tableId);
-        emit sigAssignedPlace();
-    }
-    virtual void TablePlayersList()
-    {
-        emit sigTablePlayersList();
-    }
-
-    virtual void LobbyPlayersList()
-    {
-        emit sigLobbyPlayersList();
-    }
-
-    virtual void AdminGameFull()
-    {
-        emit sigGameFull();
-    }
-    virtual void NewGame()
-    {
-        emit sigNewGame();
-    }
-    virtual void NewDeal()
-    {
-        emit sigNewDeal();
-    }
-    virtual void SelectPlayer(Place p)
-    {
-        emit sigSelectPlayer(p);
-    }
-    virtual void RequestBid(Contract highestBid)
-    {
-        emit sigRequestBid(highestBid);
-    }
-    virtual void ShowBid(Place p, bool slam, Contract c)
-    {
-        emit sigShowBid(p, slam, c);
-    }
-    virtual void StartDeal()
-    {
-        emit sigStartDeal();
-    }
-    virtual void ShowDog()
-    {
-        emit sigShowDog();
-    }
-    virtual void AskForHandle()
-    {
-        emit sigAskForHandle();
-    }
-    virtual void ShowHandle()
-    {
-        emit sigShowHandle();
-    }
-    virtual void BuildDiscard()
-    {
-        emit sigBuildDiscard();
-    }
-    virtual void AllPassed()
-    {
-        emit sigAllPassed();
-    }
-    virtual void PlayCard()
-    {
-        emit sigPlayCard();
-    }
-    virtual void ShowCard(Place p, const std::string &name)
-    {
-        emit sigShowCard(p, name);
-    }
-    virtual void WaitTrick(Place winner)
-    {
-        emit sigWaitTrick(winner);
-    }
-    virtual void EndOfDeal()
-    {
-        emit sigEndOfDeal();
-    }
-    virtual void EndOfGame(Place winner)
-    {
-        emit sigEndOfGame(winner);
-    }
-    */
-
     void customEvent(QEvent *e);
 
 private slots:
-    // Client events
-    void slotAutoJoinTable();
-    void slotNewGame();
-    void slotNewDeal();
-    void slotAssignedPlace();
-    void slotPlayersList();
-    void slotMessage(std::string message);
-    void slotSelectPlayer(Place p);
-    void slotRequestBid(Contract highestBid);
-    void slotShowBid(Place p, bool slam, Contract c);
-    void slotShowDog();
-    void slotStartDeal();
-    void slotAskForHandle();
-    void slotShowHandle();
-    void slotBuildDiscard();
-    void slotAllPassed();
-    void slotPlayCard();
-    void slotShowCard(Place p, std::string name);
-    void slotWaitTrick(Place p);
-    void slotEndOfDeal();
-    void slotEndOfGame(Place winner);
-    void slotTableQuitEvent(std::uint32_t tableId);
-    void slotDisconnectedFromServer();
-
     // Board events
     void slotAcceptHandle();
     void slotAcceptDiscard();

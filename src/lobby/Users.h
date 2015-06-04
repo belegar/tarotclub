@@ -58,8 +58,8 @@ public:
 
     // Get some lists of specific group
     std::list<std::uint32_t> GetUsersOfTable(std::uint32_t tableId);
-    std::map<Place, Identity> GetTablePlayers(std::uint32_t tableId);
-    std::map<std::uint32_t, std::string> GetLobbyUserNames();
+    std::map<Place, uint32_t> GetTablePlayers(std::uint32_t tableId);
+    std::map<uint32_t, Identity> GetLobbyUsersIdentity();
     std::list<std::uint32_t> GetLobbyUsers();
 
 private:

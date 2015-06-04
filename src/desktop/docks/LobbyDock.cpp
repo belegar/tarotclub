@@ -72,11 +72,11 @@ void LobbyDock::slotDisconnect()
     emit sigDisconnect();
 }
 /*****************************************************************************/
-void LobbyDock::slotChatMessage(std::string message)
+void LobbyDock::slotChatMessage(QString message)
 {
     if (mConnected)
     {
-        ui.textArea->append(QString(message.c_str()));
+        ui.textArea->append(message);
     }
 }
 /*****************************************************************************/
@@ -85,16 +85,16 @@ void LobbyDock::SystemMessage(const QString &message)
     ui.textArea->append(QString("<b>") + message + QString("</b>"));
 }
 /*****************************************************************************/
-void LobbyDock::SetPlayersNames(const std::map<std::uint32_t, std::string> &players)
+void LobbyDock::SetPlayersNames(const QMap<std::uint32_t, Identity> &players)
 {
     if (mConnected)
     {
         ui.infoLabel->setText(trUtf8("Connected."));
         ui.playerList->clear();
         mPlayerList = players;
-        for (std::map<std::uint32_t, std::string>::const_iterator iter = mPlayerList.begin(); iter != mPlayerList.end(); ++iter)
+        for (QMap<std::uint32_t, Identity>::const_iterator iter = mPlayerList.begin(); iter != mPlayerList.end(); ++iter)
         {
-            ui.playerList->addItem(QString(iter->second.c_str()));
+            ui.playerList->addItem(iter.value().nickname.c_str());
         }
     }
 }
@@ -119,14 +119,14 @@ void LobbyDock::DisconnectedFromServer()
     Initialize();
 }
 /*****************************************************************************/
-void LobbyDock::SetTables(const std::map<std::string, std::uint32_t> &tableList)
+void LobbyDock::SetTables(const QMap<QString, std::uint32_t> &tableList)
 {
     mConnected = true;
     ui.tableList->clear();
     mTableList = tableList;
-    for (std::map<std::string, std::uint32_t>::const_iterator iter = tableList.begin(); iter != tableList.end(); ++iter)
+    for (QMap<QString, std::uint32_t>::const_iterator iter = tableList.begin(); iter != tableList.end(); ++iter)
     {
-        ui.tableList->addItem(QString(iter->first.c_str()));
+        ui.tableList->addItem(iter.key());
     }
 
     ui.connectButton->setEnabled(false);
@@ -171,8 +171,8 @@ void LobbyDock::slotJoin()
     QListWidgetItem * item = ui.tableList->currentItem();
     if (item != NULL)
     {
-        std::string name = item->text().toStdString();
-        if (mTableList.find(name) != mTableList.end())
+        QString name = item->text();
+        if (mTableList.contains(name))
         {
             emit sigJoinTable(mTableList[name]);
         }
@@ -185,8 +185,8 @@ void LobbyDock::slotQuit()
     QListWidgetItem * item = ui.tableList->currentItem();
     if (item != NULL)
     {
-        std::string name = item->text().toStdString();
-        if (mTableList.find(name) != mTableList.end())
+        QString name = item->text();
+        if (mTableList.contains(name))
         {
             emit sigQuitTable(mTableList[name]);
         }

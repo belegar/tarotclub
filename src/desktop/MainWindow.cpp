@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     tarotWidget = new TarotWidget(this);
+    tarotWidget->setObjectName("TarotWidget"); // for position & size saving
     tarotWidget->show();
 
     mdiArea = new QMdiArea;
@@ -212,33 +213,9 @@ void MainWindow::slotTableJoinEvent(std::uint32_t tableId)
     }
 }
 /*****************************************************************************/
-void MainWindow::slotClientError(std::uint32_t errorId)
+void MainWindow::slotClientError(QString error)
 {
-    switch(errorId)
-    {
-
-    case NetClient::IEvent::ErrCannotConnectToServer:
-        mLobbyDock->SystemMessage(tr("Cannot connect to server"));
-        break;
-    case NetClient::IEvent::ErrDisconnectedFromServer:
-        mLobbyDock->SystemMessage(tr("Disconnected from server"));
-        DisconnectedFromServer();
-        break;
-    case Client::IEvent::ErrLobbyAccessRefused:
-        mLobbyDock->SystemMessage(tr("Lobby access refused"));
-        break;
-    case Client::IEvent::ErrTableAccessRefused:
-        mLobbyDock->SystemMessage(tr("Table access refused"));
-        break;
-    case Client::IEvent::ErrTableFull:
-        mLobbyDock->SystemMessage(tr("Table is full, cannot join the game"));
-        break;
-    default:
-        mLobbyDock->SystemMessage(tr("Unknown error"));
-        DisconnectedFromServer();
-        break;
-    }
-
+    mLobbyDock->SystemMessage(error);
 }
 /*****************************************************************************/
 void MainWindow::DisconnectedFromServer()
@@ -497,7 +474,7 @@ void MainWindow::slotLaunchHelp()
 /*****************************************************************************/
 void MainWindow::slotPlayersListEvent()
 {
-    std::map<Place, Identity> players = tarotWidget->GetTablePlayersList();
+    QMap<Place, Identity> players = tarotWidget->GetTablePlayersList();
     scoresDock->SetPlayers(players);
     infosDock->SetPlayers(players);
 }
@@ -557,7 +534,7 @@ void MainWindow::slotNewDealEvent()
     infosDock->PrintStats(stats);
 }
 /*****************************************************************************/
-void MainWindow::slotMessageEvent(std::string message)
+void MainWindow::slotMessageEvent(QString message)
 {
     chatDock->message(message);
 }
@@ -568,17 +545,17 @@ void MainWindow::slotStartDealEvent()
     mFirstPlayer = true;
     Tarot::Bid bid = tarotWidget->GetBid();
     Tarot::Distribution shuffle = tarotWidget->GetShuffle();
-    std::map<Place, Identity> players = tarotWidget->GetTablePlayersList();
+    QMap<Place, Identity> players = tarotWidget->GetTablePlayersList();
 
     infosDock->Clear();
     infosDock->SetContract(bid.contract);
 
     QString name = "ERROR";
 
-    std::map<Place, Identity>::const_iterator iter = players.find(bid.taker);
+    QMap<Place, Identity>::const_iterator iter = players.find(bid.taker);
     if (iter != players.end())
     {
-        name = QString(iter->second.nickname.data());
+        name = QString(iter.value().nickname.data());
     }
     infosDock->SetTaker(name, bid.taker);
 

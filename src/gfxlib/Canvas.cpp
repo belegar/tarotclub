@@ -435,12 +435,12 @@ Place Canvas::SwapPlace(Place my_place, Place absolute)
 /**
  * Show names on the board, bottom player is always south
  */
-void Canvas::SetPlayerIdentity(const std::map<Place, Identity> &players, Place myPlace)
+void Canvas::SetPlayerIdentity(const QMap<Place, Identity> &players, Place myPlace)
 {
-    for (std::map<Place, Identity>::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+    for (QMap<Place, Identity>::const_iterator iter = players.begin(); iter != players.end(); ++iter)
     {
-        Place rel = SwapPlace(myPlace, iter->first);  // relative place
-        Identity ident = iter->second;
+        Place rel = SwapPlace(myPlace, iter.key());  // relative place
+        Identity ident = iter.value();
         mPlayerBox.value(rel)->SetPlayerName(ident.nickname.c_str());
         mPlayerBox.value(rel)->SetAvatar(ident.avatar.c_str());
         mPlayerBox.value(rel)->EnableAvatar(mShowAvatars); // forward the config

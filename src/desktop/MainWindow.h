@@ -74,12 +74,12 @@ private slots:
     void slotShowCardEvent(Place p, std::string cardName);
     void slotStartDealEvent();
     void slotWaitTrickEvent(Place winner);
-    void slotMessageEvent(std::string message);
+    void slotMessageEvent(QString message);
     void slotEndOfDeal();
     void slotNewDealEvent();
     void slotTableQuitEvent(std::uint32_t tableId);
     void slotTableJoinEvent(std::uint32_t tableId);
-    void slotClientError(std::uint32_t errorId);
+    void slotClientError(QString error);
     void DisconnectedFromServer();
     void slotEnteredLobby();
 

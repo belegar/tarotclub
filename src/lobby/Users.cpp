@@ -100,31 +100,31 @@ std::list<std::uint32_t> Users::GetUsersOfTable(std::uint32_t tableId)
     return theList;
 }
 /*****************************************************************************/
-std::map<Place, Identity> Users::GetTablePlayers(std::uint32_t tableId)
+std::map<Place, std::uint32_t> Users::GetTablePlayers(std::uint32_t tableId)
 {
     std::lock_guard<std::mutex> lock(mMutex);
 
-    std::map<Place, Identity> theList;
+    std::map<Place, std::uint32_t> theList;
     for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
         if (iter->second.tableId == tableId)
         {
-            theList[iter->second.place] = iter->second.identity;
+            theList[iter->second.place] = iter->first;
         }
     }
     return theList;
 }
 /*****************************************************************************/
-std::map<std::uint32_t, std::string> Users::GetLobbyUserNames()
+std::map<std::uint32_t, Identity> Users::GetLobbyUsersIdentity()
 {
     std::lock_guard<std::mutex> lock(mMutex);
-    std::map<std::uint32_t, std::string> theList;
+    std::map<std::uint32_t, Identity> theList;
     for (std::map<std::uint32_t, Entry>::iterator iter = mUsers.begin(); iter != mUsers.end(); ++iter)
     {
         // Do not include users in login process
         if (iter->second.connected)
         {
-            theList[iter->first] = iter->second.identity.nickname;
+            theList[iter->first] = iter->second.identity;
         }
     }
     return theList;

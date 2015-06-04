@@ -48,7 +48,7 @@ public:
     InfosDock(QWidget *parent);
 
     void Clear();
-    void SetPlayers(const std::map<Place, Identity> &players);
+    void SetPlayers(const QMap<Place, Identity> &players);
     void SetContract(Contract contract);
     void SetTaker(const QString &name, Place place);
     void SetDealNumber(std::uint32_t n);

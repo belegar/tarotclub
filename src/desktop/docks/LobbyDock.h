@@ -41,10 +41,10 @@ public:
     LobbyDock(QWidget *parent);
 
     void Initialize();
-    void SetPlayersNames(const std::map<std::uint32_t, std::string> &players);
+    void SetPlayersNames(const QMap<uint32_t, Identity> &players);
     void SetTableStatus(std::uint32_t tableId, bool status);
     void DisconnectedFromServer();
-    void SetTables(const std::map<std::string, std::uint32_t> &tableList);
+    void SetTables(const QMap<QString, uint32_t> &tableList);
     void SetServersList(const std::vector<ServerInfo> &servers);
     void SystemMessage(const QString &message);
 
@@ -56,7 +56,7 @@ signals:
     void sigQuitTable(std::uint32_t);
 
 public slots:
-    void slotChatMessage(std::string message);
+    void slotChatMessage(QString message);
 
 private slots:
     void slotConnect();
@@ -68,8 +68,8 @@ private slots:
 private:
     Ui::LobbyUI  ui;
 
-    std::map<std::string, std::uint32_t> mTableList;    // key = table name, value = table ID
-    std::map<std::uint32_t, std::string> mPlayerList; // key = user name, value = uuid
+    QMap<QString, std::uint32_t> mTableList;    // key = table name, value = table ID
+    QMap<std::uint32_t, Identity> mPlayerList; // key = user name, value = uuid
     std::vector<ServerInfo> mServerList;
     bool mConnected;
 

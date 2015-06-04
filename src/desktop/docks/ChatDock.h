@@ -55,7 +55,7 @@ signals:
 
 public slots:
     void slotReturnPressed();
-    void message(const std::string &message);
+    void message(const QString &message);
 
 };
 
