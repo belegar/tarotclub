@@ -40,7 +40,7 @@ Client::Client(IEvent &handler)
 void Client::Initialize()
 {
     mSequence = STOPPED;
-    mPlayersIdent.clear();
+    mTablePlayers.clear();
     mPlace = Place::NOWHERE;
 }
 /*****************************************************************************/
@@ -52,16 +52,6 @@ bool Client::TestHandle(const Deck &handle)
 bool Client::TestDiscard(const Deck &discard)
 {
     return mPlayer.TestDiscard(discard, mDog, mNbPlayers);
-}
-/*****************************************************************************/
-std::string Client::GetTablePlayerName(Place p)
-{
-    std::string name;
-    if (mPlayersIdent.find(p) != mPlayersIdent.end())
-    {
-        name = mPlayersIdent[p].nickname;
-    }
-    return name;
 }
 /*****************************************************************************/
 Contract Client::CalculateBid()
@@ -222,7 +212,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
             std::uint32_t tableSize;
             in >> tableSize;
 
-            mTableList.clear();
+            mTables.clear();
             for (std::uint32_t i = 0U; i < tableSize; i++)
             {
                 std::string name;
@@ -230,7 +220,7 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
 
                 in >> name;
                 in >> id;
-                mTableList[name] = id;
+                mTables[name] = id;
             }
             mEventHandler.EnteredLobby();
         }
@@ -250,12 +240,12 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         mLobbyUsers.clear();
         for (int i = 0; i < size; i++)
         {
-            std::string name;
+            Identity ident;
             std::uint32_t uuid;
 
             in >> uuid;
-            in >> name;
-            mLobbyUsers[uuid] = name;
+            in >> ident;
+            mLobbyUsers[uuid] = ident;
         }
         mEventHandler.LobbyPlayersList();
         break;
@@ -307,15 +297,15 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         std::uint8_t size;
         in >> size;
 
-        mPlayersIdent.clear();
+        mTablePlayers.clear();
         for (int i = 0; i < size; i++)
         {
-            Identity ident;
+            std::uint32_t id;
             Place place;
 
             in >> place;
-            in >> ident;
-            mPlayersIdent[place] = ident;
+            in >> id;
+            mTablePlayers[place] = id;
         }
         mEventHandler.TablePlayersList();
         break;

@@ -99,9 +99,9 @@ public:
     Place       mPlace;     // assigned place around the table
     Identity    mIdentity;  // Player's identity
     Tarot::Game mGame;
-    std::map<Place, Identity> mPlayersIdent;  // players around the table
-    std::map<std::uint32_t, std::string> mLobbyUsers; // pair of uuid, names
-    std::map<std::string, std::uint32_t> mTableList;
+    std::map<Place, std::uint32_t> mTablePlayers;  // pair of Place, uuid (players around the table)
+    std::map<std::uint32_t, Identity> mLobbyUsers; // pair of uuid, identity
+    std::map<std::string, std::uint32_t> mTables; // pair of tables name, id
     std::uint8_t mNbPlayers;
     Tarot::Bid  mBid;
     Tarot::Distribution mShuffle;
@@ -125,7 +125,6 @@ public:
     Card Play();
     bool IsValid(const Card &c);
     Deck AutoDiscard();
-    std::string GetTablePlayerName(Place p);
 
 private:
     IEvent     &mEventHandler;
