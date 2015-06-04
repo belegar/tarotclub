@@ -34,6 +34,20 @@ void BotManager::KillBots()
     mBotsMutex.unlock();
 }
 /*****************************************************************************/
+bool BotManager::JoinTable(uint32_t botId, uint32_t tableId)
+{
+    bool ret = false;
+    mBotsMutex.lock();
+    // Connect the bot to the server
+    if (mBots.count(botId) > 0)
+    {
+        mBots[botId]->JoinTable(tableId);
+        ret = true;
+    }
+    mBotsMutex.unlock();
+    return ret;
+}
+/*****************************************************************************/
 /**
  * @brief Table::AddBot
  *

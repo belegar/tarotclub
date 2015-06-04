@@ -16,6 +16,7 @@ public:
     void ChangeBotIdentity(std::uint32_t uuid, const Identity &identity);
     void Close();
     void KillBots();
+    bool JoinTable(std::uint32_t botId, std::uint32_t tableId);
 
 private:
     // Bots management
