@@ -61,13 +61,13 @@ public:
 
     enum Sequence
     {
-        STOPPED,
+        IDLE,
         SHOW_DOG,
         BUILD_DISCARD,
         BUILD_HANDLE,
         SHOW_HANDLE,
         PLAY_TRICK,
-        SYNC_TRICK,
+        SYNC_END_OF_TRICK,
         SHOW_SCORE
     };
 

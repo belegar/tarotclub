@@ -44,6 +44,7 @@ TarotWidget::TarotWidget(QWidget *parent)
     , mConnectionType(NO_CONNECTION)
     , mAutoPlay(false)
     , mShutdown(false)
+    , mSequence(IDLE)
 
 {
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
@@ -87,6 +88,7 @@ void TarotWidget::Initialize()
     Protocol::GetInstance().Initialize();
     mNet.Initialize();
     mCanvas->Initialize();
+    mSequence = IDLE;
     mCanvas->SetFilter(Canvas::MENU);
     mCanvas->DisplayMainMenu(true);
 }
@@ -332,6 +334,7 @@ void TarotWidget::customEvent(QEvent *e)
         }
         else if (cmd == "AllPassed")
         {
+            mSequence = IDLE;
             mCanvas->SetFilter(Canvas::BLOCK_ALL);
             mCanvas->InitBoard();
 
@@ -352,18 +355,19 @@ void TarotWidget::customEvent(QEvent *e)
             }
             else
             {
+                mSequence = SHOW_DOG;
                 mCanvas->DrawCardsInPopup(mClient.mDog);
                 mCanvas->SetFilter(Canvas::BOARD);
             }
         }
         else if (cmd == "BuildDiscard")
         {
-            mSequence = BUILD_DISCARD;
             // We add the dog to the player's deck for discard building
             mMySavedDeck = mClient;  // locally save the legacy player's deck
             mClient.Append(mClient.mDog); // Add the dog
 
             mDiscard.Clear();
+            mSequence = BUILD_DISCARD;
             mCanvas->SetFilter(Canvas::CARDS | Canvas::MENU);
 
             // Player's cards are shown
@@ -377,6 +381,7 @@ void TarotWidget::customEvent(QEvent *e)
 
             emit sigStartDeal();
 
+            mSequence = IDLE;
             mCanvas->SetFilter(Canvas::BLOCK_ALL);
             mCanvas->ShowTaker(mClient.mBid.taker, mClient.mPlace);
             mClient.mCurrentTrick.Clear();
@@ -402,6 +407,7 @@ void TarotWidget::customEvent(QEvent *e)
             mMyHandle.SetOwner(team);
 
             mCanvas->DrawCardsInPopup(mMyHandle);
+            mSequence = SHOW_HANDLE;
             mCanvas->SetFilter(Canvas::BOARD);
         }
         else if (cmd == "ShowCard")
@@ -425,6 +431,7 @@ void TarotWidget::customEvent(QEvent *e)
             {
                 if (mAutoPlay)
                 {
+                    mSequence = IDLE;
                     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
                     Card c = mClient.Play();
@@ -434,6 +441,7 @@ void TarotWidget::customEvent(QEvent *e)
                 }
                 else
                 {
+                    mSequence = PLAY_TRICK;
                     mCanvas->SetFilter(Canvas::CARDS);
                 }
             }
@@ -443,8 +451,8 @@ void TarotWidget::customEvent(QEvent *e)
             Place winner = Place(object["place"].toString().toStdString());
             emit sigWaitTrick(winner);
 
+            mSequence = SYNC_END_OF_TRICK;
             mCanvas->SetFilter(Canvas::BOARD);
-            mClient.mCurrentTrick.Clear();
 
             // launch timer to clean cards, if needed
             if (mClientOptions.clickToClean == true)
@@ -464,6 +472,8 @@ void TarotWidget::customEvent(QEvent *e)
             mCanvas->InitBoard();
             mCanvas->ResetCards();
             mCanvas->SetResult(mPoints, mClient.mBid);
+
+            mSequence = SHOW_SCORE;
             mCanvas->SetFilter(Canvas::BOARD);
 
             if (mClient.mGame.mode == Tarot::Game::cSimpleTournament)
@@ -535,6 +545,7 @@ void TarotWidget::AddBots()
                 QThread::msleep(50U);
                 std::uint32_t botId = mBotManager.AddBot(Protocol::TABLES_UID, iter->second.identity, mClientOptions.timer, iter->second.scriptFilePath);
                 mBotIds[botId] = iter->second.identity;
+                mBotManager.ConnectBot(botId, "127.0.0.1", mServerOptions.game_tcp_port);
             }
         }
     }
@@ -602,6 +613,7 @@ void TarotWidget::InitScreen(bool rawClear)
     // GUI initialization
     mCanvas->InitBoard(rawClear);
     mCanvas->ResetCards();
+    mSequence = IDLE;
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 }
 /*****************************************************************************/
@@ -690,6 +702,7 @@ void TarotWidget::slotAcceptHandle()
     }
 
     mCanvas->DisplayHandleMenu(false);
+    mSequence = PLAY_TRICK;
     mCanvas->SetFilter(Canvas::CARDS);
     mNet.SendPacket(Protocol::ClientHandle(mMyHandle, mClient.GetUuid(), mClient.mTableId));
     ShowSouthCards();
@@ -716,6 +729,7 @@ void TarotWidget::slotClickBoard()
         // We have seen the dog, let's inform the server about that
         mNet.SendPacket(Protocol::ClientSyncDog(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
+        mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
     else if (mSequence == SHOW_HANDLE)
@@ -725,13 +739,16 @@ void TarotWidget::slotClickBoard()
         // We have seen the handle, let's inform the server about that
         mNet.SendPacket(Protocol::ClientSyncHandle(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
+        mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
-    else if (mSequence == SYNC_TRICK)
+    else if (mSequence == SYNC_END_OF_TRICK)
     {
         HideTrick();
+        mClient.mCurrentTrick.Clear();
         mNet.SendPacket(Protocol::ClientSyncTrick(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
+        mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
     else if (mSequence == SHOW_SCORE)
@@ -739,6 +756,7 @@ void TarotWidget::slotClickBoard()
         mCanvas->HideMessageBox();
         mNet.SendPacket(Protocol::ClientSyncEndOfDeal(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
+        mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
     }
 
@@ -909,6 +927,7 @@ void TarotWidget::AskForHandle()
 
     if (declareHandle)
     {
+        mSequence = BUILD_HANDLE;
         mCanvas->SetFilter(Canvas::CARDS);
     }
     else
