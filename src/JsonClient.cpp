@@ -151,7 +151,6 @@ JsonClient::JsonClient(IEvent &handler)
 /*****************************************************************************/
 bool JsonClient::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data)
 {
-    (void) dest_uuid;
     bool ret = true;
     ByteStreamReader in(data);
     std::string command;
@@ -165,7 +164,7 @@ bool JsonClient::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
     {
         std::string message;
         in >> message;
-        arg.AddValue("origin", src_uuid);
+        arg.AddValue("target", dest_uuid);
         arg.AddValue("message", message);
         command = "ChatMessage";
         break;

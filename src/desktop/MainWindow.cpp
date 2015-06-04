@@ -50,8 +50,8 @@ MainWindow::MainWindow(QWidget *parent)
     mdiArea = new QMdiArea;
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    QMdiSubWindow *widget = mdiArea->addSubWindow(tarotWidget, Qt::WindowMinMaxButtonsHint);
-    widget->setAttribute(Qt::WA_DeleteOnClose);
+    subWindow = mdiArea->addSubWindow(tarotWidget, Qt::WindowMinMaxButtonsHint);
+    subWindow->setAttribute(Qt::WA_DeleteOnClose);
     setCentralWidget(mdiArea);
 
     SetupDialogs();
@@ -127,6 +127,7 @@ void MainWindow::Initialize()
     QSettings settings("TarotCorp.", "TarotClub");
     restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
     restoreState(settings.value("mainWindowState").toByteArray());
+    subWindow->restoreGeometry(settings.value("tarotwidgetGeometry").toByteArray());
 }
 /*****************************************************************************/
 void MainWindow::slotAboutToQuit()
@@ -137,6 +138,7 @@ void MainWindow::slotAboutToQuit()
     QSettings settings("TarotCorp.", "TarotClub");
     settings.setValue("mainWindowGeometry", saveGeometry());
     settings.setValue("mainWindowState", saveState());
+    settings.setValue("tarotwidgetGeometry", subWindow->saveGeometry());
 }
 /*****************************************************************************/
 void MainWindow::slotDisplayDeals()

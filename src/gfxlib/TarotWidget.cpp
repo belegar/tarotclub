@@ -107,6 +107,8 @@ void TarotWidget::slotCleanBeforeExit()
     // Close ourself
     mNet.Close();
     mLobbyServer.Stop();
+    mBotManager.Close();
+    mBotManager.KillBots();
 }
 /*****************************************************************************/
 void TarotWidget::slotNewTournamentGame()
@@ -211,9 +213,9 @@ void TarotWidget::customEvent(QEvent *e)
         }
         else if (cmd == "ChatMessage")
         {
-            std::uint32_t src_uuid = static_cast<std::uint32_t>(object["origin"].toInt());
+            std::uint32_t target = static_cast<std::uint32_t>(object["target"].toInt());
             QString message = object["message"].toString();
-            if (src_uuid == mClient.mTableId)
+            if (target == mClient.mTableId)
             {
                 emit sigTableMessage(message);
             }

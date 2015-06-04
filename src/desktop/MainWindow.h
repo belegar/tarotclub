@@ -97,6 +97,7 @@ private:
 
 
     QMdiArea *mdiArea;
+    QMdiSubWindow *subWindow;
 
     std::uint8_t mTrickCounter;
     bool mFirstPlayer;
