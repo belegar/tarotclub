@@ -332,7 +332,7 @@ ByteArray Protocol::ClientSyncAllPassed(std::uint32_t client_uuid, std::uint32_t
     return BuildCommand(Protocol::CLIENT_SYNC_ALL_PASSED, client_uuid, tableId);
 }
 /*****************************************************************************/
-ByteArray Protocol::ClientSyncCards(std::uint32_t client_uuid, std::uint32_t tableId)
+ByteArray Protocol::ClientSyncNewDeal(std::uint32_t client_uuid, std::uint32_t tableId)
 {
     return BuildCommand(Protocol::CLIENT_SYNC_NEW_DEAL, client_uuid, tableId);
 }
@@ -522,7 +522,7 @@ ByteArray Protocol::TableShowBid(Contract c, bool slam, Place p, std::uint32_t t
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::TablePlayersList(const std::map<Place, Identity> &players, std::uint32_t tableId)
+ByteArray Protocol::TablePlayersList(const std::map<Place, uint32_t> &players, std::uint32_t tableId)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -530,7 +530,7 @@ ByteArray Protocol::TablePlayersList(const std::map<Place, Identity> &players, s
     BuildHeader(packet, Protocol::TABLE_PLAYERS_LIST, tableId, tableId);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)players.size();
-    std::map<Place, Identity>::const_iterator iter;
+    std::map<Place, std::uint32_t>::const_iterator iter;
 
     for (iter = players.begin(); iter != players.end(); ++iter)
     {
@@ -743,7 +743,7 @@ ByteArray Protocol::LobbyLoginResult(bool accepted, const std::map<std::string, 
     return packet;
 }
 /*****************************************************************************/
-ByteArray Protocol::LobbyPlayersList(const std::map<std::uint32_t, std::string> &players)
+ByteArray Protocol::LobbyPlayersList(const std::map<std::uint32_t, Identity> &players)
 {
     ByteArray packet;
     ByteStreamWriter out(packet);
@@ -751,7 +751,7 @@ ByteArray Protocol::LobbyPlayersList(const std::map<std::uint32_t, std::string> 
     BuildHeader(packet, Protocol::LOBBY_PLAYERS_LIST, LOBBY_UID, LOBBY_UID);
     out.Seek(HEADER_SIZE);
     out << (std::uint8_t)players.size();
-    std::map<std::uint32_t, std::string>::const_iterator iter;
+    std::map<std::uint32_t, Identity>::const_iterator iter;
 
     for (iter = players.begin(); iter != players.end(); ++iter)
     {

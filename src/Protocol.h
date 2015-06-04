@@ -205,7 +205,7 @@ public:
     static ByteArray ClientSyncHandle(std::uint32_t client_uuid, std::uint32_t tableId);
     static ByteArray ClientSyncTrick(std::uint32_t client_uuid, std::uint32_t tableId);
     static ByteArray ClientSyncShowCard(std::uint32_t client_uuid, std::uint32_t tableId);
-    static ByteArray ClientSyncCards(std::uint32_t client_uuid, std::uint32_t tableId);
+    static ByteArray ClientSyncNewDeal(std::uint32_t client_uuid, std::uint32_t tableId);
     static ByteArray ClientSyncStart(std::uint32_t client_uuid, std::uint32_t tableId);
     static ByteArray ClientSyncBid(std::uint32_t client_uuid, std::uint32_t tableId);
     static ByteArray ClientSyncEndOfDeal(std::uint32_t client_uuid, std::uint32_t tableId);
@@ -223,7 +223,7 @@ public:
     static ByteArray TableAskForHandle(std::uint32_t uuid, std::uint32_t tableId);
     static ByteArray TableNewGame(const Tarot::Game &game, std::uint32_t tableId);
     static ByteArray TableShowBid(Contract c, bool slam, Place p, std::uint32_t tableId);
-    static ByteArray TablePlayersList(const std::map<Place, Identity> &players, std::uint32_t tableId);
+    static ByteArray TablePlayersList(const std::map<Place, std::uint32_t> &players, std::uint32_t tableId);
     static ByteArray TableShowCard(const Card &c, Place p, std::uint32_t tableId);
     static ByteArray TableShowHandle(Deck &handle, Place p, std::uint32_t tableId);
     static ByteArray TableNewDeal(Player *player, std::uint32_t tableId);
@@ -248,7 +248,7 @@ public:
     static ByteArray LobbyLoginResult(bool accepted, const std::map<std::string, std::uint32_t> &tableList, std::uint32_t uuid);
     static ByteArray LobbyDisconnect(std::uint32_t uuid);
     static ByteArray LobbyChatMessage(const std::string &message, std::uint32_t target);
-    static ByteArray LobbyPlayersList(const std::map<std::uint32_t, std::string> &players);
+    static ByteArray LobbyPlayersList(const std::map<uint32_t, Identity> &players);
 
 private:
 
