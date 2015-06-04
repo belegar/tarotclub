@@ -319,7 +319,7 @@ bool ClientConfig::Save(const std::string &fileName)
 /*****************************************************************************/
 ClientOptions ClientConfig::GetDefault()
 {
-    const ServerInfo DefaultServers[2U] = {
+    const ServerInfo DefaultServers[1U] = {
         {"tarotclub.fr", 4269 }
     };
 
