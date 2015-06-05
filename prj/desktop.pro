@@ -283,7 +283,8 @@ FORMS += AboutUI.ui \
     QuickJoin.ui \
     LobbyUI.ui \
     NewServerUI.ui \
-    ImportAvatar.ui
+    ImportAvatar.ui \
+    NewTurnUI.ui
 
 HEADERS += AboutWindow.h \
     MainWindow.h \
@@ -296,6 +297,7 @@ HEADERS += AboutWindow.h \
     LobbyDock.h \
     DealsWindow.h \
     ImportAvatarWindow.h \
+    NewTurnWindow.h \
     Defines.h \
 
 SOURCES += AboutWindow.cpp \
@@ -309,6 +311,7 @@ SOURCES += AboutWindow.cpp \
     LobbyDock.cpp \
     DealsWindow.cpp \
     ImportAvatarWindow.cpp \
+    NewTurnWindow.cpp \
     main.cpp
 
 # End of project file
