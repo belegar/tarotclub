@@ -250,8 +250,8 @@ public:
     struct Distribution
     {
         static const std::uint8_t RANDOM_DEAL   = 0U;
-        static const std::uint8_t CUSTOM_DEAL   = 1U;
-        static const std::uint8_t NUMBERED_DEAL = 2U;
+        static const std::uint8_t NUMBERED_DEAL = 1U;
+        static const std::uint8_t CUSTOM_DEAL   = 2U;
 
         std::uint8_t    mType;
         std::string     mFile;

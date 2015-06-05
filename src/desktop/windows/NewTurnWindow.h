@@ -37,6 +37,11 @@ public:
     NewTurnWindow(QWidget *parent = 0, const QStringList &dealTypes = QStringList());
 
     void SetFilePath(const QString &filePath);
+
+    std::uint32_t GetDealNumber();
+    QString GetDealFilePath();
+    std::uint8_t GetDealType();
+
 private:
     Ui::newTurnUI ui;
 

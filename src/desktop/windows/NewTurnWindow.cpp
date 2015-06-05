@@ -35,11 +35,15 @@ NewTurnWindow::NewTurnWindow(QWidget *parent, const QStringList &dealTypes)
 {
     ui.setupUi(this);
     ui.comboDealType->addItems(dealTypes);
+    ui.lineEditDealPath->setEnabled(false);
 
     connect (ui.buttonBrowse, &QPushButton::clicked, this, &NewTurnWindow::slotBrowse);
     connect (ui.comboDealType, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, NewTurnWindow::slotIndexChanged);
     connect (ui.buttonBox, &QDialogButtonBox::accepted, this, &NewTurnWindow::slotOk);
     connect (ui.buttonBox, &QDialogButtonBox::rejected, this, &NewTurnWindow::reject);
+
+    ui.comboDealType->setCurrentIndex(0);
+    slotIndexChanged(0);
 }
 /*****************************************************************************/
 void NewTurnWindow::SetFilePath(const QString &filePath)
@@ -47,39 +51,63 @@ void NewTurnWindow::SetFilePath(const QString &filePath)
     ui.lineEditDealPath->setText(filePath);
 }
 /*****************************************************************************/
+uint32_t NewTurnWindow::GetDealNumber()
+{
+    return static_cast<std::uint32_t>(ui.spinDealNumber->value());
+}
+/*****************************************************************************/
+QString NewTurnWindow::GetDealFilePath()
+{
+    return ui.lineEditDealPath->text();
+}
+/*****************************************************************************/
+uint8_t NewTurnWindow::GetDealType()
+{
+    return static_cast<std::uint8_t>(ui.comboDealType->currentIndex());
+}
+/*****************************************************************************/
 void NewTurnWindow::slotIndexChanged(int index)
 {
     if (index == 0)
     {
         // Random deal
+        ui.lineEditDealPath->setText("");
+        ui.buttonBrowse->setEnabled(false);
+        ui.spinDealNumber->setEnabled(false);
     }
     else if (index == 1)
     {
         // Numbered deal
+        ui.lineEditDealPath->setText("");
+        ui.buttonBrowse->setEnabled(false);
+        ui.spinDealNumber->setEnabled(true);
     }
     else
     {
         // Custom deal
+        ui.buttonBrowse->setEnabled(true);
+        ui.spinDealNumber->setEnabled(false);
     }
 }
 /*****************************************************************************/
 void NewTurnWindow::slotOk()
 {
- /*   {
+    if ((ui.comboDealType->currentIndex() == 2) && (ui.lineEditDealPath->text().isEmpty()))
+    {
         (void) QMessageBox::information(this, tr("TarotClub"),
-                                    tr("The avatar cannot be fetched from\n"
-                                       "the specified url or path."),
+                                    tr("Please select a file for the custom deal"),
                                     QMessageBox::Ok);
     }
-    ui.okButton->setEnabled(true);
-    */
-
-    accept();
+    else
+    {
+        accept();
+    }
 }
 /*****************************************************************************/
 void NewTurnWindow::slotBrowse()
 {
-    ui.lineEditDealPath->setText(QFileDialog::getOpenFileName(this));
+    ui.lineEditDealPath->setText(QFileDialog::getOpenFileName(this, tr("Choose a deal file"), "",
+                                                              tr("Deal file (*.json)")));
 }
 
 //=============================================================================

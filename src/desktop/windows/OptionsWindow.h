@@ -38,6 +38,7 @@
 #include "ServerConfig.h"
 #include "Card.h"
 #include "ImportAvatarWindow.h"
+#include "NewTurnWindow.h"
 
 class QDragEnterEvent;
 class QDropEvent;
@@ -135,12 +136,16 @@ private slots:
     void slotAddServer();
     void slotRemoveServer();
 
+    // Tournament tab widgets
+    void slotAddTurn();
+    void slotRemoveTurn();
+
 private:
     Ui::OptionsUI  ui;
     Ui::Avatars mAvatarsUi;
     QDialog *mAvatarsDiag;
-    ClientOptions    clientOptions;
-    ServerOptions    serverOptions;
+    ClientOptions    mClientOptions;
+    ServerOptions    mServerOptions;
     int     indexLangue; // Detect any language change to inform that a reboot is needed
     QString colorName;
     DragWidget *dragWidget;
@@ -149,6 +154,7 @@ private:
     int mPreviousSelectedBot;
     QButtonGroup mRadioGroup;
     ImportAvatarWindow mImportAvatarWindow;
+    QStringList mDealTypes;
 
     QString ChooseAvatar(const QString &defaultAvatar);
     void UpdateServersList();

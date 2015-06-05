@@ -263,6 +263,20 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     mAvatarsDiag = new QDialog(this);
     mAvatarsUi.setupUi(mAvatarsDiag);
 
+    // Setup the tournament ui table
+
+    ui.tournamentList->horizontalHeader()->setVisible(true);
+    ui.tournamentList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui.tournamentList->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui.tournamentList->setHorizontalHeaderLabels(QStringList()
+                                                 << tr("Turn")
+                                                 << tr("Deal type")
+                                                 << tr("Deal number")
+                                                 << tr("Deal file")
+                                                 );
+
+    mDealTypes << tr("Random deal") << tr("Numbered deal") << tr("Custom deal");
+
     // Create the scroll area widget
     QWidget *contents = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout();
@@ -330,8 +344,13 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     mRadioGroup.addButton(ui.radioPredefined, cPredefinedRadioButtonId);
     connect (&mRadioGroup, SIGNAL(buttonToggled(int,bool)), this, SLOT(slotButtonToggled(int,bool)));
 
+    // Server tab
     connect(ui.addServerButton, &QPushButton::clicked, this, &OptionsWindow::slotAddServer);
     connect(ui.removeServerButton, &QPushButton::clicked, this, &OptionsWindow::slotRemoveServer);
+
+    // Tournament tab
+    connect(ui.btnAddTurn, &QPushButton::clicked, this, &OptionsWindow::slotAddTurn);
+    connect(ui.btnRemoveTurn, &QPushButton::clicked, this, &OptionsWindow::slotRemoveTurn);
 
     connect(ui.botsList, &QListWidget::currentRowChanged, this, &OptionsWindow::slotBotSelected);
     ui.botsList->addItem(PlaceToString(Place::EAST));
@@ -344,23 +363,23 @@ OptionsWindow::OptionsWindow(QWidget *parent)
 /*****************************************************************************/
 void OptionsWindow::SetClientOptions(const ClientOptions &opt)
 {
-    clientOptions = opt;
+    mClientOptions = opt;
     ui.botsList->setCurrentRow(0);
 }
 /*****************************************************************************/
 void OptionsWindow::SetServerOptions(const ServerOptions &opt)
 {
-    serverOptions = opt;
+    mServerOptions = opt;
 }
 /*****************************************************************************/
 ClientOptions &OptionsWindow::GetClientOptions()
 {
-    return clientOptions;
+    return mClientOptions;
 }
 /*****************************************************************************/
 ServerOptions &OptionsWindow::GetServerOptions()
 {
-    return serverOptions;
+    return mServerOptions;
 }
 /*****************************************************************************/
 void OptionsWindow::slotColorPicker()
@@ -386,13 +405,13 @@ void OptionsWindow::slotBotSelected(int currentRow)
                 // Save previous bot configuration
                 if (ui.botMale->isChecked())
                 {
-                    clientOptions.bots[place].identity.gender = Identity::cGenderMale;
+                    mClientOptions.bots[place].identity.gender = Identity::cGenderMale;
                 }
                 else
                 {
-                    clientOptions.bots[place].identity.gender = Identity::cGenderFemale;
+                    mClientOptions.bots[place].identity.gender = Identity::cGenderFemale;
                 }
-                clientOptions.bots[place].identity.nickname = ui.botName->text().toStdString();
+                mClientOptions.bots[place].identity.nickname = ui.botName->text().toStdString();
 
                 // other elements are saved on widget action (AI path, avatar ...)
             }
@@ -423,52 +442,82 @@ void OptionsWindow::slotButtonToggled(int id, bool checked)
 /*****************************************************************************/
 void OptionsWindow::slotBtnOk()
 {
-    clientOptions.identity.nickname = ui.nomJoueurSud->text().toStdString();
+    bool valid = true;
+
+    mClientOptions.identity.nickname = ui.nomJoueurSud->text().toStdString();
     if (ui.sexeM->isChecked())
     {
-        clientOptions.identity.gender = Identity::cGenderMale;
+        mClientOptions.identity.gender = Identity::cGenderMale;
     }
     else
     {
-        clientOptions.identity.gender = Identity::cGenderFemale;
+        mClientOptions.identity.gender = Identity::cGenderFemale;
     }
 
     if (ui.afficheAvatars->isChecked())
     {
-        clientOptions.showAvatars = true;
+        mClientOptions.showAvatars = true;
     }
     else
     {
-        clientOptions.showAvatars = false;
+        mClientOptions.showAvatars = false;
     }
-    clientOptions.language = ui.langList->currentIndex();
-    if (indexLangue != clientOptions.language)
+    mClientOptions.language = ui.langList->currentIndex();
+    if (indexLangue != mClientOptions.language)
     {
         QMessageBox::information(this, tr("Information"),
                                  tr("You must restart TarotClub to enable the new language.") + "\n\n");
     }
-    clientOptions.backgroundColor = colorName.toStdString();
-    clientOptions.timer = ui.slider1->value();
-    clientOptions.delayBeforeCleaning = ui.slider2->value();
-    //serverOptions.tournamentTurns = static_cast<std::uint8_t>(ui.turns->value());
+    mClientOptions.backgroundColor = colorName.toStdString();
+    mClientOptions.timer = ui.slider1->value();
+    mClientOptions.delayBeforeCleaning = ui.slider2->value();
 
     if (ui.clic->isChecked())
     {
-        clientOptions.clickToClean = true;
+        mClientOptions.clickToClean = true;
     }
     else
     {
-        clientOptions.clickToClean = false;
+        mClientOptions.clickToClean = false;
     }
-    clientOptions.cardsOrder = dragWidget->GetOrder();
+    mClientOptions.cardsOrder = dragWidget->GetOrder();
 
-    accept();
+
+    // -------------  TOURNAMENT TAB --------------
+
+    if (ui.tournamentList->rowCount() == 0)
+    {
+        valid = false;
+        (void) QMessageBox::information(this, tr("TarotClub"),
+                                    tr("Please define at least one tournament turn"),
+                                    QMessageBox::Ok);
+    }
+
+    mServerOptions.tournament.clear();
+    for (int i = 0; i < ui.tournamentList->rowCount(); i++)
+    {
+        QString dealType = ui.tournamentList->item(i, 1)->text();
+        QString seed = ui.tournamentList->item(i, 2)->text();
+        QString path = ui.tournamentList->item(i, 3)->text();
+        Tarot::Distribution deal;
+
+        deal.mFile = path.toStdString();
+        deal.mSeed = seed.toInt();
+        deal.mType = static_cast<std::uint8_t>(dealType.toInt());
+
+        mServerOptions.tournament.push_back(deal);
+    }
+
+    if (valid)
+    {
+        accept();
+    }
 }
 /*****************************************************************************/
 void OptionsWindow::slotBtnDefaut()
 {
-    clientOptions = ClientConfig::GetDefault();
-    serverOptions = ServerConfig::GetDefault();
+    mClientOptions = ClientConfig::GetDefault();
+    mServerOptions = ServerConfig::GetDefault();
 
     mPreviousSelectedBot = -1;
     ui.botsList->setCurrentRow(0);
@@ -551,12 +600,12 @@ void OptionsWindow::slotBtnPixSud()
     QString s;
     QPixmap im;
 
-    s = ChooseAvatar(QString(clientOptions.identity.avatar.data()));
+    s = ChooseAvatar(QString(mClientOptions.identity.avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    clientOptions.identity.avatar = s.toStdString();
+    mClientOptions.identity.avatar = s.toStdString();
     ui.pixSud->setPixmap(im);
 }
 /*****************************************************************************/
@@ -567,21 +616,21 @@ void OptionsWindow::slotButtonBotAvatar()
 
     Place place(ui.botsList->currentRow() + 1U);
 
-    s = ChooseAvatar(QString(clientOptions.bots[place].identity.avatar.data()));
+    s = ChooseAvatar(QString(mClientOptions.bots[place].identity.avatar.data()));
     if (im.load(s) == false)
     {
         return;
     }
-    clientOptions.bots[place].identity.avatar = s.toStdString();
+    mClientOptions.bots[place].identity.avatar = s.toStdString();
     ui.botAvatar->setPixmap(im);
 }
 /*****************************************************************************/
 void OptionsWindow::slotImportAvatar()
 {
-    mImportAvatarWindow.SetFilePath(QString(clientOptions.identity.avatar.c_str()));
+    mImportAvatarWindow.SetFilePath(QString(mClientOptions.identity.avatar.c_str()));
     if (mImportAvatarWindow.exec() == QDialog::Accepted)
     {
-        clientOptions.identity.avatar = mImportAvatarWindow.GetFilePath().toStdString();
+        mClientOptions.identity.avatar = mImportAvatarWindow.GetFilePath().toStdString();
         ui.pixSud->setPixmap(mImportAvatarWindow.GetPixmap());
     }
 }
@@ -596,7 +645,7 @@ void OptionsWindow::slotChooseScriptPath()
     {
         Place place(ui.botsList->currentRow() + 1U);
 
-        clientOptions.bots[place].scriptFilePath = fileName.toStdString();
+        mClientOptions.bots[place].scriptFilePath = fileName.toStdString();
         ui.scriptPath->setText(fileName);
     }
     else
@@ -620,7 +669,7 @@ void OptionsWindow::slotAddServer()
         server.address = srvUi.address->text().toStdString();
         server.game_tcp_port = srvUi.gamePort->value();
 
-        clientOptions.serverList.push_back(server);
+        mClientOptions.serverList.push_back(server);
         UpdateServersList();
     }
 }
@@ -628,23 +677,64 @@ void OptionsWindow::slotAddServer()
 void OptionsWindow::slotRemoveServer()
 {
     std::uint32_t item = ui.serverList->currentRow();
-    if (item < clientOptions.serverList.size())
+    if (item < mClientOptions.serverList.size())
     {
-        clientOptions.serverList.erase(clientOptions.serverList.begin() + item);
+        mClientOptions.serverList.erase(mClientOptions.serverList.begin() + item);
         UpdateServersList();
+    }
+}
+/*****************************************************************************/
+void OptionsWindow::slotAddTurn()
+{
+    NewTurnWindow *newTurn = new NewTurnWindow(this, mDealTypes);
+
+    if (newTurn->exec() == QDialog::Accepted)
+    {
+        int row = ui.tournamentList->rowCount() + 1;
+        ui.tournamentList->setRowCount(row);
+        for (int col = 0; col < 4; col++)
+        {
+            QTableWidgetItem *item = new QTableWidgetItem();
+            if (col == 0)
+            {
+                item->setText(QString().setNum(row));
+            }
+            else if (col == 1)
+            {
+                item->setText(mDealTypes[newTurn->GetDealType()]);
+            }
+            else if (col == 2)
+            {
+                item->setText(QString().setNum(newTurn->GetDealNumber()));
+            }
+            else
+            {
+                item->setText(newTurn->GetDealFilePath());
+            }
+            ui.tournamentList->setItem(row-1, col, item);
+        }
+    }
+}
+/*****************************************************************************/
+void OptionsWindow::slotRemoveTurn()
+{
+    int row = ui.tournamentList->rowCount();
+    if (row > 0)
+    {
+        ui.tournamentList->setRowCount(row - 1);
     }
 }
 /*****************************************************************************/
 void OptionsWindow::UpdateServersList()
 {
     ui.serverList->clear();
-    for (std::vector<ServerInfo>::iterator iter = clientOptions.serverList.begin(); iter != clientOptions.serverList.end(); ++iter)
+    for (std::vector<ServerInfo>::iterator iter = mClientOptions.serverList.begin(); iter != mClientOptions.serverList.end(); ++iter)
     {
         QString server = QString(iter->address.c_str()) + QString(" (%1)").arg(iter->game_tcp_port);
         ui.serverList->addItem(server);
     }
 
-    if (clientOptions.serverList.size() > 0)
+    if (mClientOptions.serverList.size() > 0)
     {
         // Select first element
         ui.serverList->setCurrentRow(0);
@@ -656,8 +746,8 @@ void OptionsWindow::UpdateServersList()
  */
 void OptionsWindow::Refresh()
 {
-    ui.nomJoueurSud->setText(QString::fromStdString(clientOptions.identity.nickname));
-    if (clientOptions.identity.gender == Identity::cGenderMale)
+    ui.nomJoueurSud->setText(QString::fromStdString(mClientOptions.identity.nickname));
+    if (mClientOptions.identity.gender == Identity::cGenderMale)
     {
         ui.sexeM->setChecked(true);
     }
@@ -665,12 +755,12 @@ void OptionsWindow::Refresh()
     {
         ui.sexeF->setChecked(true);
     }
-    ui.afficheAvatars->setChecked(clientOptions.showAvatars);
-    ui.langList->setCurrentIndex(clientOptions.language);
+    ui.afficheAvatars->setChecked(mClientOptions.showAvatars);
+    ui.langList->setCurrentIndex(mClientOptions.language);
   //  ui.turns->setValue(static_cast<int>(serverOptions.tournamentTurns));
-    indexLangue = clientOptions.language;
+    indexLangue = mClientOptions.language;
 
-    Avatar avatar(QString(clientOptions.identity.avatar.c_str()));
+    Avatar avatar(QString(mClientOptions.identity.avatar.c_str()));
 
     if (avatar.IsPredefined())
     {
@@ -691,17 +781,17 @@ void OptionsWindow::Refresh()
         ui.btnPixSud->setEnabled(false);
     }
 
-    QColor color(clientOptions.backgroundColor.c_str());
+    QColor color(mClientOptions.backgroundColor.c_str());
     if (color.isValid())
     {
         colorName = color.name();
         ui.tapisColor->setPalette(QPalette(color));
         ui.tapisColor->setAutoFillBackground(true);
     }
-    ui.slider1->setValue(clientOptions.timer);
-    ui.slider2->setValue(clientOptions.delayBeforeCleaning);
+    ui.slider1->setValue(mClientOptions.timer);
+    ui.slider2->setValue(mClientOptions.delayBeforeCleaning);
 
-    if (clientOptions.clickToClean == true)
+    if (mClientOptions.clickToClean == true)
     {
         ui.clic->setChecked(true);
         // Force refresh
@@ -713,13 +803,48 @@ void OptionsWindow::Refresh()
         // Force refresh
         slotClickOptionChanged(Qt::Unchecked);
     }
-    dragWidget->SetOrder(clientOptions.cardsOrder);
+    dragWidget->SetOrder(mClientOptions.cardsOrder);
 
     // -------------  BOTS TAB --------------
     RefreshBots();
 
-    // -------------  NETWORK TAB --------------
+    // -------------  SERVERS LIST TAB --------------
     UpdateServersList();
+
+    // -------------  TOURNAMENT TAB --------------
+    std::vector<Tarot::Distribution>::iterator iter;
+
+    ui.tournamentList->setRowCount(0);
+    int row;
+    for (iter = mServerOptions.tournament.begin();
+         iter != mServerOptions.tournament.end();
+         ++iter)
+    {
+        row = ui.tournamentList->rowCount();
+        ui.tournamentList->setRowCount(row+1);
+
+        for (int col = 0; col < 4; col++)
+        {
+            QTableWidgetItem *item = new QTableWidgetItem();
+            if (col == 0)
+            {
+                item->setText(QString().setNum(row+1));
+            }
+            else if (col == 1)
+            {
+                item->setText(mDealTypes[iter->mType]);
+            }
+            else if (col == 2)
+            {
+                item->setText(QString().setNum(iter->mSeed));
+            }
+            else
+            {
+                item->setText(QString(iter->mFile.c_str()));
+            }
+            ui.tournamentList->setItem(row, col, item);
+        }
+    }
 }
 /*****************************************************************************/
 void OptionsWindow::RefreshBots()
@@ -727,10 +852,10 @@ void OptionsWindow::RefreshBots()
     // Get the place of the selected bot
     Place place(ui.botsList->currentRow() + 1U);
 
-    ui.botName->setText(QString::fromStdString(clientOptions.bots[place].identity.nickname));
-    ui.scriptPath->setText(QString::fromStdString(clientOptions.bots[place].scriptFilePath));
+    ui.botName->setText(QString::fromStdString(mClientOptions.bots[place].identity.nickname));
+    ui.scriptPath->setText(QString::fromStdString(mClientOptions.bots[place].scriptFilePath));
 
-    if (clientOptions.bots[place].identity.gender == Identity::cGenderMale)
+    if (mClientOptions.bots[place].identity.gender == Identity::cGenderMale)
     {
         ui.botMale->setChecked(true);
     }
@@ -740,7 +865,7 @@ void OptionsWindow::RefreshBots()
     }
 
     QPixmap im;
-    if (im.load(QString(clientOptions.bots[place].identity.avatar.data())) == true)
+    if (im.load(QString(mClientOptions.bots[place].identity.avatar.data())) == true)
     {
         ui.botAvatar->setPixmap(im);
     }

@@ -507,7 +507,10 @@ void MainWindow::slotWaitTrickEvent(Place winner)
 /*****************************************************************************/
 void MainWindow::slotEndOfDeal()
 {
-    scoresDock->SetNewScore(tarotWidget->GetPoints(), tarotWidget->GetBid());
+    if (tarotWidget->GetGameMode() == Tarot::Game::cSimpleTournament)
+    {
+        scoresDock->SetNewScore(tarotWidget->GetPoints(), tarotWidget->GetBid());
+    }
 
     // Generate end of deal log
     std::string fileName = System::GamePath() + System::ProjectName() + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";

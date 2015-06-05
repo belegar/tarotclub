@@ -56,6 +56,11 @@ TarotWidget::TarotWidget(QWidget *parent)
     mainLayout->addWidget(mCanvas);
     setLayout(mainLayout);
 
+    qRegisterMetaType<Place>("Place");
+    qRegisterMetaType<Contract>("Contract");
+    qRegisterMetaType<Tarot::Distribution>("Tarot::Shuffle");
+    qRegisterMetaType<std::string>("std::string");
+
     // Board click events
     connect(mCanvas, &Canvas::sigViewportClicked, this, &TarotWidget::slotClickBoard);
     connect(mCanvas, &Canvas::sigClickCard, this, &TarotWidget::slotClickCard);
