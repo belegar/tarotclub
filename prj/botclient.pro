@@ -147,12 +147,12 @@ HEADERS += ClientConfig.h \
     Player.h \
     Client.h \
     Bot.h \
-    Defines.h \
     Common.h \
     Deal.h \
     Identity.h \
     Score.h \
     Protocol.h \
+    NetClient.h \
     System.h
 
 SOURCES += ClientConfig.cpp \
@@ -165,6 +165,7 @@ SOURCES += ClientConfig.cpp \
     Deal.cpp \
     Protocol.cpp \
     Score.cpp \
+    NetClient.cpp \
     System.cpp
 
 # -------------------------------------------------------------
