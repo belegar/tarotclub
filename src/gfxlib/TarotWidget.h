@@ -151,6 +151,11 @@ public:
         return mClient;
     }
 
+    std::uint8_t GetGameMode()
+    {
+        return mClient.mGame.mode;
+    }
+
     QMap<QString, std::uint32_t> GetTableList()
     {
         return mTables;

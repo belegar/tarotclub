@@ -56,11 +56,6 @@ TarotWidget::TarotWidget(QWidget *parent)
     mainLayout->addWidget(mCanvas);
     setLayout(mainLayout);
 
-    qRegisterMetaType<Place>("Place");
-    qRegisterMetaType<Contract>("Contract");
-    qRegisterMetaType<Tarot::Distribution>("Tarot::Shuffle");
-    qRegisterMetaType<std::string>("std::string");
-
     // Board click events
     connect(mCanvas, &Canvas::sigViewportClicked, this, &TarotWidget::slotClickBoard);
     connect(mCanvas, &Canvas::sigClickCard, this, &TarotWidget::slotClickCard);
@@ -69,7 +64,6 @@ TarotWidget::TarotWidget(QWidget *parent)
     connect(mCanvas, &Canvas::sigAcceptDiscard, this, &TarotWidget::slotAcceptDiscard);
     connect(mCanvas, &Canvas::sigAcceptHandle, this, &TarotWidget::slotAcceptHandle);
     connect(mCanvas, &Canvas::sigStartGame, this, &TarotWidget::slotNewQuickGame);
-
 }
 /*****************************************************************************/
 TarotWidget::~TarotWidget()
@@ -471,6 +465,8 @@ void TarotWidget::customEvent(QEvent *e)
             mPoints.handlePoints = object["handle_bonus"].toInt();
             mPoints.slamPoints = object["slam_bonus"].toInt();
 
+            mClient.mResult = object["result"].toString().toStdString();
+
             mCanvas->InitBoard();
             mCanvas->ResetCards();
             mCanvas->SetResult(mPoints, mClient.mBid);
@@ -478,10 +474,7 @@ void TarotWidget::customEvent(QEvent *e)
             mSequence = SHOW_SCORE;
             mCanvas->SetFilter(Canvas::BOARD);
 
-            if (mClient.mGame.mode == Tarot::Game::cSimpleTournament)
-            {
-                emit sigAddScore();
-            }
+            emit sigAddScore();
         }
         else if (cmd == "EndOfGame")
         {
