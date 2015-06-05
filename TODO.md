@@ -18,7 +18,8 @@
   * Don't display the avatar box when no avatar is selected
   * Un truc pas clair dans la logique, le preneur fait tomber les atouts, mais continue même quand les autres n'en ont plus ?!
     Tout ça pour finir avec son petit... qu'il aurait pu garder pour la fin du jeu.
-  * Synchronize the Bid algorithm with the C++ version
+  * Allow a multi-language AI script execution by using standard input/ouput and launching external process
+  * Add Duktape debug and JSEditor for in-game modification of scripts
 
 ## UI improvements / Gfx engine
   
@@ -33,15 +34,12 @@
 ## Code architecture / engine / network
 
   * New network commands: change nick, change avatar (Hizoka (ubuntu-fr) les avatars ne sont changés que lors du redémarrage du logiciel, on ne peut pas le faire en direct )
-  * Use TCP_NODELAY in socket option ???
-  
   
   
 # ---------------------------------------------- BACKLOG --------------------------------------------------  
   
 ## Code architecture / engine / network
 
-  * Use a shared_ptr to pass a reference of the Protocol work thread to users (Lobby, client, )
   * Change the network protocol into JSON-RPC
   * Encrypted protocol / authenticated server
   * WebSocket server (allow HTML5 JS clients)
