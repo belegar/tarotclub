@@ -38,7 +38,7 @@ NewTurnWindow::NewTurnWindow(QWidget *parent, const QStringList &dealTypes)
     ui.lineEditDealPath->setEnabled(false);
 
     connect (ui.buttonBrowse, &QPushButton::clicked, this, &NewTurnWindow::slotBrowse);
-    connect (ui.comboDealType, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, NewTurnWindow::slotIndexChanged);
+    connect (ui.comboDealType, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &NewTurnWindow::slotIndexChanged);
     connect (ui.buttonBox, &QDialogButtonBox::accepted, this, &NewTurnWindow::slotOk);
     connect (ui.buttonBox, &QDialogButtonBox::rejected, this, &NewTurnWindow::reject);
 
