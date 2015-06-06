@@ -1181,7 +1181,7 @@ the specified url or path.</source>
     </message>
     <message>
         <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="491"/>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="653"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="657"/>
         <source>TarotClub</source>
         <translation>TarotClub</translation>
     </message>
@@ -1197,19 +1197,22 @@ the specified url or path.</source>
         <translation>%1 secondes</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="640"/>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="643"/>
+        <source>Choose a script directory</source>
+        <translation>Choisir un répertoire de script</translation>
+    </message>
+    <message>
+        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="658"/>
+        <source>No file or directory.</source>
+        <translation>Aucun fichier ou répertoire</translation>
+    </message>
+    <message>
         <source>Choose File</source>
-        <translation>Choisir un fichier</translation>
+        <translation type="vanished">Choisir un fichier</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="642"/>
         <source>TarotClub script package (package.json)</source>
-        <translation type="unfinished">TarotClub (package.json)</translation>
-    </message>
-    <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="654"/>
-        <source>Bad package file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">TarotClub (package.json)</translation>
     </message>
 </context>
 <context>
@@ -1316,7 +1319,7 @@ New deal will start.</source>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="230"/>
         <source>Kicked from lobby</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous avez été éjecté du hall</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="918"/>
@@ -1332,33 +1335,33 @@ Do you want to declare it?</source>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="947"/>
         <source>Cannot connect to server</source>
-        <translation type="unfinished">Impossible de se connecter au serveur</translation>
+        <translation>Impossible de se connecter au serveur</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="951"/>
         <source>Disconnected from server</source>
-        <translation type="unfinished">Déconnecté du serveur</translation>
+        <translation>Déconnecté du serveur</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="955"/>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="984"/>
         <source>Unknown error</source>
-        <translation type="unfinished">Erreur inconnue</translation>
+        <translation>Erreur inconnue</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="975"/>
         <source>Lobby access refused</source>
-        <translation type="unfinished">Accès au hall refusé</translation>
+        <translation>Accès au hall refusé</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="978"/>
         <source>Table access refused</source>
-        <translation type="unfinished">Accès à la table de jeu refusé</translation>
+        <translation>Accès à la table de jeu refusé</translation>
     </message>
     <message>
         <location filename="../../src/gfxlib/TarotWidget.cpp" line="981"/>
         <source>Table is full, cannot join the game</source>
-        <translation type="unfinished">La table de jeu est complète, impossible de la rejoindre</translation>
+        <translation>La table de jeu est complète, impossible de la rejoindre</translation>
     </message>
 </context>
 <context>
@@ -1497,27 +1500,27 @@ Do you want to declare it?</source>
     <message>
         <location filename="../../src/desktop/forms/NewTurnUI.ui" line="14"/>
         <source>New tournament turn</source>
-        <translation type="unfinished"></translation>
+        <translation>Nouveau tour de tournoi</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/NewTurnUI.ui" line="20"/>
         <source>Turn parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Paramètres du tour</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/NewTurnUI.ui" line="28"/>
         <source>Deal type</source>
-        <translation type="unfinished"></translation>
+        <translation>Type de donne</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/NewTurnUI.ui" line="55"/>
         <source>Deal number</source>
-        <translation type="unfinished"></translation>
+        <translation>Numéro de donne</translation>
     </message>
     <message>
         <location filename="../../src/desktop/forms/NewTurnUI.ui" line="92"/>
         <source>Deal file</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier de donne</translation>
     </message>
 </context>
 <context>
