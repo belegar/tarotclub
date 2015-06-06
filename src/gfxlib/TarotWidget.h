@@ -91,10 +91,12 @@ public:
         static const QEvent::Type staticType = static_cast<QEvent::Type>(QEvent::User + 463);
         ErrorEvent()
             : QEvent(staticType)
+            , quitServer(false)
         {
 
         }
         QString reason;
+        bool quitServer;
     };
 
     TarotWidget(QWidget *parent = 0);
@@ -165,7 +167,7 @@ public:
 
 signals:
     // These signals are used internally and made accessible in public for any external entity
-    void sigClientError(QString);
+    void sigClientError(QString, bool);
     void sigDisconnectedFromServer();
     void sigEnteredLobby();
     void sigTableQuitEvent(std::uint32_t tableId);

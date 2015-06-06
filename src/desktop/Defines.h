@@ -28,7 +28,7 @@
 
 #include <cstdint>
 
-#define VERSION_STRING "2.6.0"
+#define VERSION_STRING "2.6.1"
 
 #ifndef ISPP_INVOKED
 /// @brief The version string uses Semantic Versioning format

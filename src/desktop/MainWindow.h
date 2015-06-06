@@ -79,7 +79,7 @@ private slots:
     void slotNewDealEvent();
     void slotTableQuitEvent(std::uint32_t tableId);
     void slotTableJoinEvent(std::uint32_t tableId);
-    void slotClientError(QString error);
+    void slotClientError(QString error, bool quitServer);
     void DisconnectedFromServer();
     void slotEnteredLobby();
 

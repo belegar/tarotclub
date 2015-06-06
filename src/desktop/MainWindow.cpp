@@ -215,9 +215,13 @@ void MainWindow::slotTableJoinEvent(std::uint32_t tableId)
     }
 }
 /*****************************************************************************/
-void MainWindow::slotClientError(QString error)
+void MainWindow::slotClientError(QString error, bool quitServer)
 {
     mLobbyDock->SystemMessage(error);
+    if (quitServer)
+    {
+        DisconnectedFromServer();
+    }
 }
 /*****************************************************************************/
 void MainWindow::DisconnectedFromServer()

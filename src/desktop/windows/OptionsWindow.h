@@ -97,6 +97,7 @@ private:
     int mId;
     QString mFileName;
 };
+
 /*****************************************************************************/
 class OptionsWindow : public QDialog
 {

@@ -635,25 +635,30 @@ void OptionsWindow::slotImportAvatar()
     }
 }
 /*****************************************************************************/
+
+
 void OptionsWindow::slotChooseScriptPath()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"),
-                                                    "",
-                                                    tr("TarotClub script package (package.json)"));
 
-    if (QFileInfo(fileName).exists())
+    QString path = QFileDialog::getExistingDirectory(this, tr("Choose a script directory"),
+                                                    "",
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+    if (QFileInfo(path).exists() ||
+        QDir(path).exists())
     {
         Place place(ui.botsList->currentRow() + 1U);
 
-        mClientOptions.bots[place].scriptFilePath = fileName.toStdString();
-        ui.scriptPath->setText(fileName);
+        mClientOptions.bots[place].scriptFilePath = path.toStdString();
+        ui.scriptPath->setText(path);
     }
     else
     {
         (void) QMessageBox::critical(this, tr("TarotClub"),
-                                     tr("Bad package file."),
+                                     tr("No file or directory."),
                                      QMessageBox::Ok );
     }
+
 }
 /*****************************************************************************/
 void OptionsWindow::slotAddServer()

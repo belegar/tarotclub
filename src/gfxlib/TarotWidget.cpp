@@ -227,7 +227,7 @@ void TarotWidget::customEvent(QEvent *e)
         {
             mConnectionType = NO_CONNECTION;
             mNet.Close();
-            emit sigClientError(tr("Kicked from lobby"));
+            emit sigClientError(tr("Kicked from lobby"), false);
             InitScreen(true);
         }
         else if (cmd == "LobbyPlayersList")
@@ -504,7 +504,7 @@ void TarotWidget::customEvent(QEvent *e)
         // Progagate the error code only if the software is not in exit process
         if (!mShutdown)
         {
-            emit sigClientError(err->reason);
+            emit sigClientError(err->reason, err->quitServer);
         }
     }
 }
@@ -945,9 +945,11 @@ void TarotWidget::NetSignal(uint32_t sig)
     {
     case NetClient::IEvent::ErrCannotConnectToServer:
         err->reason = tr("Cannot connect to server");
+        err->quitServer = true;
         break;
     case NetClient::IEvent::ErrDisconnectedFromServer:
         err->reason = tr("Disconnected from server");
+        err->quitServer = true;
         break;
     default:
         err->reason = tr("Unknown error");
