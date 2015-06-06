@@ -26,11 +26,12 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#include <cstdint>
-
 #define VERSION_STRING "2.6.1"
 
 #ifndef ISPP_INVOKED
+
+#include <cstdint>
+
 /// @brief The version string uses Semantic Versioning format
 /// @see http://semver.org
 static const std::string TAROT_VERSION  = VERSION_STRING;

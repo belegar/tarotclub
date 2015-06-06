@@ -308,6 +308,7 @@ bool ClientConfig::Save(const std::string &fileName)
         srv.AddValue("game_port", inf.game_tcp_port);
         servers.AddValue(srv);
     }
+    json.AddValue("servers", servers);
 
     if (!JsonWriter::SaveToFile(json, fileName))
     {
