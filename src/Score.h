@@ -48,6 +48,7 @@ struct Points
     std::int32_t GetAttackScore() const;
     std::int32_t GetDefenseScore() const;
     std::int32_t Difference() const;
+    std::int32_t GetLittleEndianPoints() const;
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Points &points)
     {

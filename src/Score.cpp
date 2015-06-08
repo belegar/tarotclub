@@ -35,12 +35,12 @@ Points::Points()
 void Points::Clear()
 {
     // Points for one deal
-    pointsAttack        = 0U;
-    scoreAttack         = 0U;
-    oudlers             = 0U;
-    littleEndianPoints  = 0U;
-    handlePoints        = 0U;
-    slamPoints          = 0U;
+    pointsAttack        = 0;
+    scoreAttack         = 0;
+    oudlers             = 0;
+    littleEndianPoints  = 0;
+    handlePoints        = 0;
+    slamPoints          = 0;
 }
 /*****************************************************************************/
 Team Points::Winner() const
@@ -80,6 +80,17 @@ std::int32_t Points::GetDefenseScore() const
 std::int32_t Points::Difference() const
 {
     return pointsAttack - Tarot::PointsToDo(oudlers);
+}
+/*****************************************************************************/
+std::int32_t Points::GetLittleEndianPoints() const
+{
+    std::int32_t sign = 1;
+
+    if (Winner() == DEFENSE)
+    {
+        sign = -1;
+    }
+    return (littleEndianPoints * sign);
 }
 /*****************************************************************************/
 
