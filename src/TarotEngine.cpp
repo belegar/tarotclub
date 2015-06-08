@@ -511,7 +511,18 @@ void TarotEngine::CreateDeal(Tarot::Distribution &shuffle)
 
     if (shuffle.mType == Tarot::Distribution::CUSTOM_DEAL)
     {
-        std::string fullPath = System::HomePath() + shuffle.mFile;
+        std::string fullPath;
+
+        // If not an absolute path, then it is a path relative to the home directory
+        if (!Util::FileExists(shuffle.mFile))
+        {
+            fullPath = System::HomePath() + shuffle.mFile;
+        }
+        else
+        {
+            fullPath = shuffle.mFile;
+        }
+
         if (!editor.LoadFile(fullPath))
         {
             // Fall back to default mode
