@@ -1,11 +1,24 @@
 
 # Branch 2.6
 
+## Changes in 2.6.2
+
+  * Corrected score calculation with the little oudler played at the last trick
+  * Corrected score calculation with the slam declared but not performed
+  * Corrected deal log generation
+  * Corrected manual deal loading (absolute/full path management)
+  * Corrected statistics client update (handle was not proposed)
+  * Corrected deal loading: handles
+  * Corrected contract multiplier in the end of deal panel
+
+TODO:
+  * Corrected Z-value of handle display
+
 ## Changes in 2.6.1
 
   * Correction of a major bug in Tcp Server generating a client socket closure
   * Correction of a major Javascript AI bug generating a engine failure
-  * TcpSocket: Better handling of WOULDBLOCK error code under windows (avoid a disconnection)  
+  * TcpSocket: Better handling of WOULDBLOCK error code under windows (avoid a disconnection)
   * New Javascript AI unit test of a full game (light Tarot engine)
   * New tournament configuration tab in the option Window
   * Identities of player and bots can now be changed at any time
