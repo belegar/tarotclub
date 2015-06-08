@@ -517,7 +517,7 @@ void MainWindow::slotEndOfDeal()
     }
 
     // Generate end of deal log
-    std::string fileName = System::GamePath() + System::ProjectName() + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
+    std::string fileName = System::GamePath() + System::ProjectName() + "_" + Util::CurrentDateTime("%Y-%m-%d.%H%M%S") + ".json";
     JsonValue json;
 
     if (JsonReader::ParseString(json, tarotWidget->GetResult()))
