@@ -137,7 +137,6 @@ public:
 
     // Constructors
     Contract();
-    Contract(int c);
     Contract(std::uint8_t c);
     Contract(std::uint32_t c);
     Contract(std::string c);
