@@ -345,12 +345,29 @@ void Deal::CalculateScore(Points &points)
     {
         if (littleEndianOwner == ATTACK)
         {
-            points.littleEndianPoints = 10;
+            // Bonus belong to the attack
+            if (points.Winner() == ATTACK)
+            {
+                points.littleEndianPoints = 10;
+            }
+            else
+            {
+                points.littleEndianPoints = -10;
+            }
         }
         else
         {
-            points.littleEndianPoints = -10;
+            // Bonus belong to the defense
+            if (points.Winner() == ATTACK)
+            {
+                points.littleEndianPoints = -10;
+            }
+            else
+            {
+                points.littleEndianPoints = 10;
+            }
         }
+
     }
 
     // Slam bonus
@@ -370,7 +387,15 @@ void Deal::CalculateScore(Points &points)
         // announced but not realized
         if (mBid.slam == true)
         {
-            points.slamPoints = -200;
+            if (points.Winner() == ATTACK)
+            {
+                points.slamPoints = -200;
+            }
+            else
+            {
+                // points go to the defense!
+                points.slamPoints = 200;
+            }
         }
     }
 
@@ -492,6 +517,24 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
         if (json.GetValue("deal_info:dog", str_value))
         {
             mDog.SetCards(str_value);
+        }
+        else
+        {
+            ret = false;
+        }
+
+        if (json.GetValue("deal_info:attack_handle", str_value))
+        {
+            mAttackHandle.SetCards(str_value);
+        }
+        else
+        {
+            ret = false;
+        }
+
+        if (json.GetValue("deal_info:defense_handle", str_value))
+        {
+            mDefenseHandle.SetCards(str_value);
         }
         else
         {
