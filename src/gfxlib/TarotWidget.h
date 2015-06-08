@@ -146,7 +146,7 @@ public:
     }
     std::string GetResult()
     {
-        return mClient.mResult;
+        return mResult;
     }
     Deck GetDeck()
     {
@@ -211,6 +211,7 @@ private:
     BotManager      mBotManager;
     Sequence        mSequence;
     Points          mPoints;
+    std::string     mResult;
     std::map<std::uint32_t, Identity> mBotIds; // bot id, identity
     QMap<Place, std::uint32_t> mTablePlayers;  // players around the table
     QMap<std::uint32_t, Identity> mLobbyUsers; // pair of uuid, names

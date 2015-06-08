@@ -470,7 +470,10 @@ void TarotWidget::customEvent(QEvent *e)
             mPoints.handlePoints = object["handle_bonus"].toInt();
             mPoints.slamPoints = object["slam_bonus"].toInt();
 
-            mClient.mResult = object["result"].toString().toStdString();
+            QJsonValue val = object["result"];
+            QJsonObject resultObj = val.toObject();
+            QJsonDocument resultDoc(resultObj);
+            mResult = resultDoc.toJson().toStdString();
 
             mCanvas->InitBoard();
             mCanvas->ResetCards();

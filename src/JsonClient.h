@@ -61,7 +61,6 @@ public:
     Deck mCurrentTrick;
     Deck mDog;
     std::uint8_t mNbPlayers;
-    std::string mResult;
     std::uint32_t mTableId;
     Place mPlace;
 };
