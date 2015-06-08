@@ -297,6 +297,7 @@ void TarotWidget::customEvent(QEvent *e)
         else if (cmd == "NewDeal")
         {
             mClient.SetCards(object["cards"].toString().toStdString());
+            mClient.UpdateStatistics();
             emit sigNewDeal();
             mCanvas->ResetCards();
             ShowSouthCards();
@@ -379,13 +380,14 @@ void TarotWidget::customEvent(QEvent *e)
             mClient.mBid.taker = Place(object["taker"].toString().toStdString());
             mClient.mBid.contract = Contract(object["contract"].toString().toStdString());
             mClient.mBid.slam = object["slam"].toBool();
+            mClient.UpdateStatistics();
+            mClient.mCurrentTrick.Clear();
 
             emit sigStartDeal();
 
             mSequence = IDLE;
             mCanvas->SetFilter(Canvas::BLOCK_ALL);
-            mCanvas->ShowTaker(mClient.mBid.taker, mClient.mPlace);
-            mClient.mCurrentTrick.Clear();
+            mCanvas->ShowTaker(mClient.mBid.taker, mClient.mPlace);            
 
             // We are ready, let's inform the server about that
             mNet.SendPacket(Protocol::ClientSyncStart(mClient.GetUuid(), mClient.mTableId));
