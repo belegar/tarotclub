@@ -41,9 +41,6 @@ class InfosDock : public QDockWidget
 {
     Q_OBJECT
 
-private:
-    Ui::infosDock  ui;
-
 public:
     InfosDock(QWidget *parent);
 
@@ -53,9 +50,15 @@ public:
     void SetTaker(const QString &name, Place place);
     void SetDealNumber(std::uint32_t n);
     void PrintStats(const Deck::Statistics &stats);
-    void AddRound(std::uint8_t trickCounter, Place p, const std::string &cardName);
-    void SelectWinner(std::uint8_t trickCounter, Place p);
+    void AddRound(Place p, const std::string &cardName);
+    void SelectWinner(Place p);
     void SelectFirstPlayer(std::uint8_t trickCounter, Place p);
+
+private:
+    Ui::infosDock  ui;
+
+    std::uint8_t mTrickCounter;
+    bool mFirstPlayer;
 };
 
 #endif // INFOSDOCK_H

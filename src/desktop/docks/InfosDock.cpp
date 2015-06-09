@@ -56,6 +56,9 @@ InfosDock::InfosDock(QWidget *parent)
 /*****************************************************************************/
 void InfosDock::Clear()
 {
+    mTrickCounter = 0U;
+    mFirstPlayer = true;
+
     ui.donneVar->setText("");
     ui.preneurVar->setText("");
     ui.contratVar->setText("");
@@ -151,7 +154,7 @@ void InfosDock::PrintStats(const Deck::Statistics &stats)
     ui.statsEdit->setPlainText(buffer);
 }
 /*****************************************************************************/
-void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &cardName)
+void InfosDock::AddRound(Place p, const std::string &cardName)
 {
     QString txt;
 
@@ -194,7 +197,7 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
         txt += suits[card.GetSuit()];
     }
 
-    QTableWidgetItem *item = ui.tableWidget->item(trickCounter, p.Value());
+    QTableWidgetItem *item = ui.tableWidget->item(mTrickCounter, p.Value());
     if (item != NULL)
     {
         item->setText(txt);
@@ -208,12 +211,21 @@ void InfosDock::AddRound(std::uint8_t trickCounter, Place p, const std::string &
             item->setForeground(QColor(Qt::black));
         }
     }
+
+    if (mFirstPlayer)
+    {
+        mFirstPlayer = false;
+        SelectFirstPlayer(mTrickCounter, p);
+    }
 }
 /*****************************************************************************/
-void InfosDock::SelectWinner(std::uint8_t trickCounter, Place p)
+void InfosDock::SelectWinner(Place p)
 {
     QBrush brush(QColor("#6D9D26"));
-    ui.tableWidget->item(trickCounter, p.Value())->setBackground(brush);
+    ui.tableWidget->item(mTrickCounter, p.Value())->setBackground(brush);
+
+    mTrickCounter++;
+    mFirstPlayer = true;
 }
 /*****************************************************************************/
 void InfosDock::SelectFirstPlayer(std::uint8_t trickCounter, Place p)
