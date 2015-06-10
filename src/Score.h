@@ -35,40 +35,36 @@
 /*****************************************************************************/
 struct Points
 {
-    std::int32_t pointsAttack;   // Points of cards
-    std::int32_t scoreAttack;    // Final score calculated, including all bonuses
+    std::int32_t pointsAttack;   // Points of cards won by the attack
     std::int32_t oudlers;
-    std::int32_t littleEndianPoints; // positive if attack bonus, otherwise negative
     std::int32_t handlePoints;
-    std::int32_t slamPoints;
+    bool slamDone;
+    Team littleEndianOwner;    // who has won the bonus of the one of trump at last trick
 
     Points();
     void Clear();
     Team Winner() const;
-    std::int32_t GetAttackScore() const;
-    std::int32_t GetDefenseScore() const;
     std::int32_t Difference() const;
     std::int32_t GetLittleEndianPoints() const;
+    std::int32_t GetPoints(const Team team, const Tarot::Bid &bid) const;
 
     friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Points &points)
     {
         out << points.pointsAttack
-            << points.scoreAttack
             << points.oudlers
-            << points.littleEndianPoints
             << points.handlePoints
-            << points.slamPoints;
+            << points.slamDone
+            << points.littleEndianOwner;
         return out;
     }
 
     friend ByteStreamReader &operator>>(ByteStreamReader &in, Points &points)
     {
         in >> points.pointsAttack;
-        in >> points.scoreAttack;
         in >> points.oudlers;
-        in >> points.littleEndianPoints;
         in >> points.handlePoints;
-        in >> points.slamPoints;
+        in >> points.slamDone;
+        in >> points.littleEndianOwner;
         return in;
     }
 };

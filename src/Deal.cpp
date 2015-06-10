@@ -49,11 +49,6 @@ void Deal::NewDeal()
     {
         mTricks[i].Clear();
     }
-
-    littleEndianOudler = false;
-    littleEndianOwner = NO_TEAM;
-    slamDone = false;
-    slamOwner = NO_TEAM;
     mTricksWon = 0;
     statsAttack.Reset();
 }
@@ -129,8 +124,8 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
                 else
                 {
                     Place foolPlace = GetOwner(firstPlayer, cFool, turn);
-                    Team winnerTeam = (winner == mBid.taker) ? ATTACK : DEFENSE;
-                    Team foolTeam = (foolPlace == mBid.taker) ? ATTACK : DEFENSE;
+                    Team winnerTeam = (winner == mBid.taker) ? Team::ATTACK : Team::DEFENSE;
+                    Team foolTeam = (foolPlace == mBid.taker) ? Team::ATTACK : Team::DEFENSE;
 
                     if (Tarot::IsDealFinished(trickCounter, numberOfPlayers))
                     {
@@ -165,7 +160,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
 
         if (winner == mBid.taker)
         {
-            mTricks[turn].SetOwner(ATTACK);
+            mTricks[turn].SetOwner(Team::ATTACK);
             mTricks[turn].AnalyzeTrumps(statsAttack);
             mTricksWon++;
 
@@ -177,7 +172,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
         }
         else
         {
-            mTricks[turn].SetOwner(DEFENSE);
+            mTricks[turn].SetOwner(Team::DEFENSE);
             if (foolSwap)
             {
                 statsAttack.points += 4; // get back the points
@@ -236,7 +231,7 @@ Place Deal::GetWinner(std::uint8_t turn, std::uint8_t numberOfPlayers)
 /*****************************************************************************/
 void Deal::SetHandle(const Deck &handle, Team team)
 {
-    if (team == ATTACK)
+    if (team == Team::ATTACK)
     {
         mAttackHandle = handle;
     }
@@ -273,29 +268,23 @@ void Deal::AnalyzeGame(Points &points, std::uint8_t numberOfPlayers)
     std::uint8_t lastTrick = numberOfTricks - 1U;
 
     // 1. Slam detection
-    if (mTricksWon == numberOfTricks)
+    if ((mTricksWon == numberOfTricks) || (mTricksWon == 0U))
     {
-        slamDone = true;
-        slamOwner = ATTACK;
-    }
-    else if (mTricksWon == 0)
-    {
-        slamDone = true;
-        slamOwner = DEFENSE;
+        points.slamDone = true;
     }
     else
     {
-        slamDone = false;
+        points.slamDone = false;
     }
 
     // 2. Attacker points, we add the dog if needed
-    if (mDiscard.GetOwner() == ATTACK)
+    if (mDiscard.GetOwner() == Team::ATTACK)
     {
         mDiscard.AnalyzeTrumps(statsAttack);
     }
 
     // 3. One of trumps in the last trick bonus detection
-    if (slamDone)
+    if (points.slamDone)
     {
         // With a slam, the 1 of Trump bonus is valid if played
         // in the penultimate trick AND if the fool is played in the last trick
@@ -306,8 +295,11 @@ void Deal::AnalyzeGame(Points &points, std::uint8_t numberOfPlayers)
     }
     if (mTricks[lastTrick].HasOneOfTrump())
     {
-        littleEndianOudler = true;
-        littleEndianOwner = mTricks[lastTrick].GetOwner();
+        points.littleEndianOwner = mTricks[lastTrick].GetOwner();
+    }
+    else
+    {
+        points.littleEndianOwner = Team::NO_TEAM;
     }
 
     // 4. The number of oudler(s) decides the points to do
@@ -315,92 +307,11 @@ void Deal::AnalyzeGame(Points &points, std::uint8_t numberOfPlayers)
 
     // 5. We save the points done by the attacker
     points.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma
-}
-/*****************************************************************************/
-/**
- * @brief Calculate the final score of all players
- *
- * We calculate the points with the following formula:
- *   points = ((25 + pt + pb) * mu) + pg + ch
- *
- * pt = difference between the card points the taker actually won and the minimum number of points he needed
- * pb = the petit au bout bonus is added or subtracted if applicable
- * mu = factor (mu) depending on the bid (1, 2, 4 or 6)
- * pg = the handle bonus (20, 30 or 40)
- * ch = the slam bonus (200 or 400)
- *
- */
-void Deal::CalculateScore(Points &points)
-{
-    // Handle bonus: Ces primes gardent la même valeur quel que soit le contrat.
+
+    // 6. Handle bonus: Ces primes gardent la même valeur quel que soit le contrat.
     // La prime est acquise au camp vainqueur de la donne.
     points.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mAttackHandle.Size()));
     points.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mDefenseHandle.Size()));
-
-    // Little endian bonus:
-    // Le camp qui réalise la dernière levée, à condition que cette levée
-    // comprenne le Petit, bénéficie d'une prime de 10 points,
-    // multipliable selon le contrat, quel que soit le résultat de la donne.
-    if (littleEndianOudler == true)
-    {
-        if (littleEndianOwner == ATTACK)
-        {
-            // Bonus belong to the attack
-            if (points.Winner() == ATTACK)
-            {
-                points.littleEndianPoints = 10;
-            }
-            else
-            {
-                points.littleEndianPoints = -10;
-            }
-        }
-        else
-        {
-            // Bonus belong to the defense
-            if (points.Winner() == ATTACK)
-            {
-                points.littleEndianPoints = -10;
-            }
-            else
-            {
-                points.littleEndianPoints = 10;
-            }
-        }
-
-    }
-
-    // Slam bonus
-    if (slamDone)
-    {
-        if (mBid.slam == true)
-        {
-            points.slamPoints = 400;
-        }
-        else
-        {
-            points.slamPoints = 200;
-        }
-    }
-    else
-    {
-        // announced but not realized
-        if (mBid.slam == true)
-        {
-            if (points.Winner() == ATTACK)
-            {
-                points.slamPoints = -200;
-            }
-            else
-            {
-                // points go to the defense!
-                points.slamPoints = 200;
-            }
-        }
-    }
-
-    // Final scoring
-    points.scoreAttack = (25 + abs(points.Difference()) + points.littleEndianPoints) * Tarot::GetMultiplier(mBid.contract) + points.handlePoints + points.slamPoints;
 }
 /*****************************************************************************/
 /**
@@ -602,11 +513,11 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
                     // Give the cards to the right team owner
                     if (bid.contract == Contract::GUARD_AGAINST)
                     {
-                        mDiscard.SetOwner(DEFENSE);
+                        mDiscard.SetOwner(Team::DEFENSE);
                     }
                     else
                     {
-                        mDiscard.SetOwner(ATTACK);
+                        mDiscard.SetOwner(Team::ATTACK);
                     }
                 }
                 else

@@ -27,6 +27,11 @@
 #include "Log.h"
 
 /*****************************************************************************/
+const std::uint8_t Team::ATTACK     = 0U;
+const std::uint8_t Team::DEFENSE    = 1U;
+const std::uint8_t Team::NO_TEAM    = 0xFFU;
+
+/*****************************************************************************/
 const std::string Place::STR_SOUTH      = "South";
 const std::string Place::STR_EAST       = "East";
 const std::string Place::STR_NORTH      = "North";

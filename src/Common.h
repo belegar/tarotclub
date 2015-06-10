@@ -35,7 +35,48 @@
 
 
 /*****************************************************************************/
-enum Team           { ATTACK = 0, DEFENSE = 1, NO_TEAM = 0xFF };
+class Team
+{
+public:
+    static const std::uint8_t ATTACK;
+    static const std::uint8_t DEFENSE;
+    static const std::uint8_t NO_TEAM;
+
+    Team() : mTeam(NO_TEAM) {  }
+    Team(std::uint8_t team) : mTeam(team) {  }
+
+    std::uint8_t Value() { return mTeam; }
+
+    Team &operator = (Team const &rhs)
+    {
+        mTeam = rhs.mTeam;
+        return *this;
+    }
+
+    inline bool operator == (const Team &rhs) const
+    {
+        return (this->mTeam == rhs.mTeam);
+    }
+    inline bool operator != (const Team &rhs) const
+    {
+        return (this->mTeam != rhs.mTeam);
+    }
+
+    friend ByteStreamWriter &operator<<(ByteStreamWriter &out, const Team &t)
+    {
+        out << t.mTeam;
+        return out;
+    }
+
+    friend ByteStreamReader &operator>>(ByteStreamReader &s, Team &t)
+    {
+        s >> t.mTeam;
+        return s;
+    }
+
+private:
+    std::uint8_t mTeam;
+};
 
 /*****************************************************************************/
 class Place

@@ -50,7 +50,6 @@ public:
     void NewDeal();
     void StartDeal(Place firstPlayer, const Tarot::Bid &bid);
     void AnalyzeGame(Points &points, std::uint8_t numberOfPlayers);
-    void CalculateScore(Points &points);
     std::string GenerateEndDealLog(std::uint8_t numberOfPlayers);
     bool LoadGameDealLog(const std::string &fileName);
     bool LoadGameDeal(const std::string &buffer);
@@ -84,14 +83,6 @@ private:
     int mTricksWon;
     Deck::Statistics statsAttack;
     Tarot::Bid mBid;
-
-    // Bonus: little oudler (1 of trump) played at the last trick
-    bool littleEndianOudler;     // true if the little oudler has been played at the last trick
-    Team littleEndianOwner;    // who has won the bonus
-
-    // Bonus: Slam
-    bool slamDone;  // true if the slam has been successfully done
-    Team slamOwner; // the defense can also perform a slam if everything goes wrong
 };
 
 

@@ -36,45 +36,22 @@ void Points::Clear()
 {
     // Points for one deal
     pointsAttack        = 0;
-    scoreAttack         = 0;
     oudlers             = 0;
-    littleEndianPoints  = 0;
     handlePoints        = 0;
-    slamPoints          = 0;
+    slamDone            = false;
+    littleEndianOwner   = Team::NO_TEAM;
 }
 /*****************************************************************************/
 Team Points::Winner() const
 {
     if (pointsAttack >= Tarot::PointsToDo(oudlers))
     {
-        return ATTACK;
+        return Team::ATTACK;
     }
     else
     {
-        return DEFENSE;
+        return Team::DEFENSE;
     }
-}
-/*****************************************************************************/
-std::int32_t Points::GetAttackScore() const
-{
-    std::int32_t sign = -1;
-
-    if (Winner() == ATTACK)
-    {
-        sign = 1;
-    }
-    return (scoreAttack * sign * 3);
-}
-/*****************************************************************************/
-std::int32_t Points::GetDefenseScore() const
-{
-    std::int32_t sign = 1;
-
-    if (Winner() == ATTACK)
-    {
-        sign = -1;
-    }
-    return (scoreAttack * sign);
 }
 /*****************************************************************************/
 std::int32_t Points::Difference() const
@@ -84,15 +61,121 @@ std::int32_t Points::Difference() const
 /*****************************************************************************/
 std::int32_t Points::GetLittleEndianPoints() const
 {
-    std::int32_t sign = 1;
+    std::int32_t littleEndianPoints = 0;
 
-    if (Winner() == DEFENSE)
+    // Little endian bonus:
+    // Le camp qui réalise la dernière levée, à condition que cette levée
+    // comprenne le Petit, bénéficie d'une prime de 10 points,
+    // multipliable selon le contrat, quel que soit le résultat de la donne.
+    if (littleEndianOwner == Team::ATTACK)
     {
-        sign = -1;
+        // Bonus belong to the attack
+        if (Winner() == Team::ATTACK)
+        {
+            littleEndianPoints = 10; // added to the attack
+        }
+        else
+        {
+            littleEndianPoints = -10; // deducted from the defense
+        }
     }
-    return (littleEndianPoints * sign);
+    else if (littleEndianOwner == Team::DEFENSE)
+    {
+        // Bonus belong to the defense
+        if (Winner() == Team::ATTACK)
+        {
+            littleEndianPoints = -10; // deducted to the attack (defense bonus)
+        }
+        else
+        {
+            littleEndianPoints = 10; // added to the defense
+        }
+    }
+    else
+    {
+        // no team, no bonus!
+        littleEndianPoints = 0;
+    }
+    return littleEndianPoints;
 }
 /*****************************************************************************/
+/**
+ * @brief Calculate the final score of all players
+ *
+ * We calculate the points with the following formula:
+ *   points = ((25 + pt + pb) * mu) + pg + ch
+ *
+ * pt = difference between the card points the taker actually won and the minimum number of points he needed
+ * pb = the petit au bout bonus is added or subtracted if applicable
+ * mu = factor (mu) depending on the bid (1, 2, 4 or 6)
+ * pg = the handle bonus (20, 30 or 40)
+ * ch = the slam bonus (200 or 400)
+ *
+ */
+std::int32_t Points::GetPoints(const Team team, const Tarot::Bid &bid) const
+{
+    std::int32_t slamPoints = 0;
+    std::int32_t littleEndianPoints = GetLittleEndianPoints();
+
+    if (slamDone)
+    {
+        if (Winner() == Team::ATTACK)
+        {
+            if (bid.slam == true)
+            {
+                slamPoints = 400; // Announced AND realized
+            }
+            else
+            {
+                slamPoints = 200; // not announced but realized
+            }
+        }
+        else
+        {
+            // Defense has won the game and realized a slam!
+            slamPoints = 200;
+        }
+    }
+    else
+    {
+        if (bid.slam == true)
+        {
+            if (Winner() == Team::ATTACK)
+            {
+                slamPoints = -200; // Announced but not ealized :(
+            }
+            else
+            {
+                slamPoints = 200; // deducted from the winner
+            }
+        }
+    }
+
+    // Final scoring
+    std::int32_t score = (25 + abs(Difference()) + littleEndianPoints) * Tarot::GetMultiplier(bid.contract) + handlePoints + slamPoints;
+    std::int32_t sign = 1;
+    std::int32_t multiplier = 1;
+
+    if (team == Team::ATTACK)
+    {
+        if (Winner() == Team::DEFENSE)
+        {
+            sign = -1;
+        }
+        multiplier = 3;
+    }
+    else
+    {
+        if (Winner() == Team::ATTACK)
+        {
+            sign = -1;
+        }
+    }
+
+    return (score * sign * multiplier);
+}
+/*****************************************************************************/
+
 
 
 /*****************************************************************************/
@@ -135,11 +218,11 @@ bool Score::AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t 
     {
         if (Place(i) == bid.taker)
         {
-            scores[dealCounter][i] = points.GetAttackScore();
+            scores[dealCounter][i] = points.GetPoints(Team::ATTACK, bid);
         }
         else
         {
-            scores[dealCounter][i] = points.GetDefenseScore();
+            scores[dealCounter][i] = points.GetPoints(Team::DEFENSE, bid);
         }
     }
     dealCounter++;
