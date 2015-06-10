@@ -665,7 +665,7 @@ void Canvas::SetResult(const Points &points, const Tarot::Bid &bid)
 {
     QString result_str = "<html><head></head><body>";
 
-    if (points.Winner() == ATTACK)
+    if (points.Winner() == Team::ATTACK)
     {
         result_str = QString("<h2><center><font color=\"darkgreen\">") + tr("Contract succeded by ");
     }
@@ -691,17 +691,17 @@ void Canvas::SetResult(const Points &points, const Tarot::Bid &bid)
     result_str += QString("<tr><td colspan=\"2\" align=\"center\"><b>") + tr("Calculation") + QString("</b><td /></tr>");
     result_str += QString("<tr><td>") + tr("Contract") + QString("</td><td>&nbsp;&nbsp;&nbsp;25</td></tr>");
     result_str += QString("<tr><td>") + tr("Earn / loss") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(abs(points.Difference())) + QString("</td>");
-    result_str += QString("<tr><td>") + tr("Little endian bonus") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.littleEndianPoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Little endian bonus") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetLittleEndianPoints()) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Contract multiplier") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(Tarot::GetMultiplier(bid.contract)) + QString("</td></tr>");
     result_str += QString("<tr><td>") + tr("Handle") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.handlePoints) + QString("</td></tr>");
-    result_str += QString("<tr><td>") + tr("Slam") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.slamPoints) + QString("</td></tr>");
+    result_str += QString("<tr><td>") + tr("Slam") + QString("</td><td>&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetSlamPoints(bid)) + QString("</td></tr>");
     result_str += "</table></td>";
 
     result_str += "</tr></table><hr />";
 
 
-    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetDefenseScore()) + QString(" ")  + tr("points") + "<br />";
-    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(points.GetAttackScore()) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetPoints(Team::DEFENSE, bid)) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(points.GetPoints(Team::ATTACK, bid)) + QString(" ")  + tr("points") + "<br />";
 
 
     result_str += "</body></html>";

@@ -416,11 +416,11 @@ bool Client::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t de
         in >> handleDeck;
         if (mBid.taker == p)
         {
-            handleDeck.SetOwner(ATTACK);
+            handleDeck.SetOwner(Team::ATTACK);
         }
         else
         {
-            handleDeck.SetOwner(DEFENSE);
+            handleDeck.SetOwner(Team::DEFENSE);
         }
         mSequence = SHOW_HANDLE;
         mEventHandler.ShowHandle();

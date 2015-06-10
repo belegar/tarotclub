@@ -465,11 +465,10 @@ bool JsonClient::DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_
             command = "EndOfDeal";
             arg.AddValue("result", json.GetObject());           
             arg.AddValue("points", points.pointsAttack);
-            arg.AddValue("score", points.scoreAttack);
             arg.AddValue("oudlers", points.oudlers);
-            arg.AddValue("little_bonus", points.littleEndianPoints);
+            arg.AddValue("little_bonus", points.littleEndianOwner.Value());
             arg.AddValue("handle_bonus", points.handlePoints);
-            arg.AddValue("slam_bonus", points.slamPoints);
+            arg.AddValue("slam_bonus", points.slamDone);
         }
         break;
     }

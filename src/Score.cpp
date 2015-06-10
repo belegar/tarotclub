@@ -59,6 +59,50 @@ std::int32_t Points::Difference() const
     return pointsAttack - Tarot::PointsToDo(oudlers);
 }
 /*****************************************************************************/
+std::int32_t Points::GetSlamPoints(const Tarot::Bid &bid) const
+{
+    std::int32_t slamPoints = 0;
+
+    if (slamDone)
+    {
+        if (Winner() == Team::ATTACK)
+        {
+            if (bid.slam == true)
+            {
+                slamPoints = 400; // Announced AND realized
+            }
+            else
+            {
+                slamPoints = 200; // not announced but realized
+            }
+        }
+        else
+        {
+            // Defense has won the game and realized a slam!
+            slamPoints = 200;
+        }
+    }
+    else
+    {
+        if (bid.slam == true)
+        {
+            if (Winner() == Team::ATTACK)
+            {
+                slamPoints = -200; // Announced but not ealized :(
+            }
+            else
+            {
+                slamPoints = 200; // deducted from the winner
+            }
+        }
+        else
+        {
+            slamPoints = 0;
+        }
+    }
+    return slamPoints;
+}
+/*****************************************************************************/
 std::int32_t Points::GetLittleEndianPoints() const
 {
     std::int32_t littleEndianPoints = 0;
@@ -114,42 +158,8 @@ std::int32_t Points::GetLittleEndianPoints() const
  */
 std::int32_t Points::GetPoints(const Team team, const Tarot::Bid &bid) const
 {
-    std::int32_t slamPoints = 0;
+    std::int32_t slamPoints = GetSlamPoints(bid);
     std::int32_t littleEndianPoints = GetLittleEndianPoints();
-
-    if (slamDone)
-    {
-        if (Winner() == Team::ATTACK)
-        {
-            if (bid.slam == true)
-            {
-                slamPoints = 400; // Announced AND realized
-            }
-            else
-            {
-                slamPoints = 200; // not announced but realized
-            }
-        }
-        else
-        {
-            // Defense has won the game and realized a slam!
-            slamPoints = 200;
-        }
-    }
-    else
-    {
-        if (bid.slam == true)
-        {
-            if (Winner() == Team::ATTACK)
-            {
-                slamPoints = -200; // Announced but not ealized :(
-            }
-            else
-            {
-                slamPoints = 200; // deducted from the winner
-            }
-        }
-    }
 
     // Final scoring
     std::int32_t score = (25 + abs(Difference()) + littleEndianPoints) * Tarot::GetMultiplier(bid.contract) + handlePoints + slamPoints;

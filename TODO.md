@@ -38,6 +38,10 @@
 
 # ---------------------------------------------- BACKLOG --------------------------------------------------  
 
+## Bugs
+
+  * Correct the Z-value of handle display (triple handle is shown under the avatar boxes)
+
 ## Code architecture / engine / network
 
   * Change the network protocol into JSON-RPC

@@ -45,6 +45,7 @@ struct Points
     void Clear();
     Team Winner() const;
     std::int32_t Difference() const;
+    std::int32_t GetSlamPoints(const Tarot::Bid &bid) const;
     std::int32_t GetLittleEndianPoints() const;
     std::int32_t GetPoints(const Team team, const Tarot::Bid &bid) const;
 

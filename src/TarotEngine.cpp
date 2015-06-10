@@ -165,7 +165,7 @@ bool TarotEngine::SetDiscard(const Deck &discard)
         ss << "Taker's deck after the discard: " << mPlayers[mBid.taker.Value()].ToString();
         TLogInfo(ss.str());
 
-        mDeal.SetDiscard(discard, ATTACK);
+        mDeal.SetDiscard(discard, Team::ATTACK);
         ResetAck();
         mSequence = WAIT_FOR_START_DEAL;
     }
@@ -188,11 +188,11 @@ bool TarotEngine::SetHandle(const Deck &handle, Place p)
 
         if (p == mBid.taker)
         {
-            team = ATTACK;
+            team = Team::ATTACK;
         }
         else
         {
-            team = DEFENSE;
+            team = Team::DEFENSE;
         }
 
         ResetAck();
@@ -427,7 +427,6 @@ std::string TarotEngine::EndOfDeal()
 {
     mCurrentPoints.Clear();
     mDeal.AnalyzeGame(mCurrentPoints, mNbPlayers);
-    mDeal.CalculateScore(mCurrentPoints);
     std::string result = mDeal.GenerateEndDealLog(mNbPlayers);
 
     ResetAck();
@@ -459,12 +458,12 @@ void TarotEngine::BidSequence()
                 // No discard is made, set the owner of the dog
                 if (mBid.contract != Contract::GUARD_AGAINST)
                 {
-                    mDeal.SetDiscard(mDeal.GetDog(), ATTACK);
+                    mDeal.SetDiscard(mDeal.GetDog(), Team::ATTACK);
                 }
                 else
                 {
                     // Guard _against_, the dog belongs to the defense
-                    mDeal.SetDiscard(mDeal.GetDog(), DEFENSE);
+                    mDeal.SetDiscard(mDeal.GetDog(), Team::DEFENSE);
                 }
 
                 // We do not display the dog and start the deal immediatly

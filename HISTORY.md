@@ -10,9 +10,8 @@
   * Corrected statistics client update (handle was not proposed)
   * Corrected deal loading: handles
   * Corrected contract multiplier in the end of deal panel
-
-TODO:
-  * Corrected Z-value of handle display
+  * Changed menu organization
+  * Deal Editor is now a MDI window
 
 ## Changes in 2.6.1
 

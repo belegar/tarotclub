@@ -221,7 +221,7 @@ void Bot::ShowHandle()
 
     // Send the handle to the bot
     args.push_back(mClient->handleDeck.ToString());
-    if (mClient->handleDeck.GetOwner() == ATTACK)
+    if (mClient->handleDeck.GetOwner() == Team::ATTACK)
     {
         args.push_back("0");
     }

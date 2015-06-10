@@ -402,10 +402,10 @@ void TarotWidget::customEvent(QEvent *e)
             Place place = Place(object["place"].toString().toStdString());
             mMyHandle.SetCards(object["handle"].toString().toStdString());
 
-            Team team = DEFENSE;
+            Team team(Team::DEFENSE);
             if (place == mClient.mBid.taker)
             {
-                team = ATTACK;
+                team = Team::ATTACK;
             }
             mMyHandle.SetOwner(team);
 
@@ -466,11 +466,10 @@ void TarotWidget::customEvent(QEvent *e)
         else if (cmd == "EndOfDeal")
         {
             mPoints.pointsAttack = object["points"].toInt();
-            mPoints.scoreAttack = object["score"].toInt();
             mPoints.oudlers = object["oudlers"].toInt();
-            mPoints.littleEndianPoints = object["little_bonus"].toInt();
+            mPoints.littleEndianOwner = static_cast<std::uint8_t>(object["little_bonus"].toInt());
             mPoints.handlePoints = object["handle_bonus"].toInt();
-            mPoints.slamPoints = object["slam_bonus"].toInt();
+            mPoints.slamDone = object["slam_bonus"].toBool();
 
             QJsonValue val = object["result"];
             QJsonObject resultObj = val.toObject();
