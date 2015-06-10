@@ -45,10 +45,15 @@ public:
     void Initialize();
     void AddToList(int id, QListWidget *list, QListWidgetItem *item);
 
+signals:
+    void sigHide();
+
 public slots:
     void slotOpenDeal();
     void slotSaveDeal();
     void slotRandomDeal();
+    void slotClear();
+    void slotClose();
 
     void slotToSouth();
     void slotToNorth();

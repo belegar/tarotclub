@@ -43,15 +43,9 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    tarotWidget = new TarotWidget(this);
-    tarotWidget->setObjectName("TarotWidget"); // for position & size saving
-    tarotWidget->show();
-
     mdiArea = new QMdiArea;
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    subWindow = mdiArea->addSubWindow(tarotWidget, Qt::WindowMinMaxButtonsHint);
-    subWindow->setAttribute(Qt::WA_DeleteOnClose);
     setCentralWidget(mdiArea);
 
     SetupDialogs();
@@ -59,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     SetupMenus();
 
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
+
     // Game menu to TarotWidget
     connect(newQuickGameAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewQuickGame);
     connect(newTournamentAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewTournamentGame);
@@ -97,6 +92,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mLobbyDock, &LobbyDock::sigJoinTable, this, &MainWindow::slotJoinTable);
     connect(mLobbyDock, &LobbyDock::sigQuitTable, this, &MainWindow::slotQuitTable);
     connect(mLobbyDock, &LobbyDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendLobbyMessage);
+
+    // Deal editor
+    connect(editorWindow, &EditorWindow::sigHide, this, &MainWindow::slotHideDealEditor);
 
     // Exit catching to terminate the game properly
     connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
@@ -279,6 +277,13 @@ void MainWindow::slotShowOptions()
 /*****************************************************************************/
 void MainWindow::SetupDialogs()
 {
+    // TarotWidget window
+    tarotWidget = new TarotWidget(this);
+    tarotWidget->setObjectName("TarotWidget"); // for position & size saving
+    tarotWidget->show();
+    subWindow = mdiArea->addSubWindow(tarotWidget, Qt::WindowMinMaxButtonsHint);
+    subWindow->setAttribute(Qt::WA_DeleteOnClose);
+
     // Deals Window
     dealsWindow = new DealsWindow(this);
     dealsWindow->hide();
@@ -295,7 +300,9 @@ void MainWindow::SetupDialogs()
     // Deal editor
     editorWindow = new EditorWindow(this);
     editorWindow->setAttribute(Qt::WA_ShowModal, true);
-    editorWindow->hide();
+    mdiEditor = mdiArea->addSubWindow(editorWindow, Qt::WindowMinMaxButtonsHint);
+    mdiEditor->setAttribute(Qt::WA_DeleteOnClose);
+    mdiEditor->hide();
 
     // Quick join a network game
     quickJoinWindow = new QDialog(this);
@@ -402,13 +409,9 @@ void MainWindow::SetupMenus()
     gameMenu->addAction(newNumberedDealAct);
     gameMenu->addAction(newCustomDealAct);
     gameMenu->addSeparator();
+    gameMenu->addAction(mLobbyDock->toggleViewAction());
+    gameMenu->addSeparator();
     gameMenu->addAction(exitAct);
-
-    //---------------
-    // Network menu
-    //---------------
-    netMenu = menuBar()->addMenu(tr("Network game"));
-    netMenu->addAction(mLobbyDock->toggleViewAction());
 
     /*
     netMenu->addSeparator();
@@ -434,8 +437,6 @@ void MainWindow::SetupMenus()
 
     paramsMenu = menuBar()->addMenu(tr("Parameters"));
     paramsMenu->addAction(optionsAct);
-    paramsMenu->addAction(dealEditorAct);
-    paramsMenu->addAction(dealsAct);
     paramsMenu->addSeparator();
 
     // Dock windows
@@ -444,14 +445,19 @@ void MainWindow::SetupMenus()
     paramsMenu->addAction(chatDock->toggleViewAction());
 
     // ----------------
-    // Developer menu
+    // TarotStudio menu
     // ----------------
-    mDevMenu = menuBar()->addMenu(tr("Debug"));
+    mStudioMenu = menuBar()->addMenu(tr("TarotStudio"));
+
+    mStudioMenu->addAction(dealEditorAct);
+    mStudioMenu->addAction(dealsAct);
+
+    mStudioMenu->addSeparator();
     newAutoPlayAct = new QAction(tr("New auto& play"), this);
     newAutoPlayAct->setShortcut(tr("Ctrl+Y"));
     newAutoPlayAct->setStatusTip(tr("Auto play, to train your AI script!"));
-    mDevMenu->addAction(newAutoPlayAct);
-    mDevMenu->addAction(debugDock->toggleViewAction());
+    mStudioMenu->addAction(newAutoPlayAct);
+    mStudioMenu->addAction(debugDock->toggleViewAction());
 
     //-----------
     // Menu Help
@@ -493,20 +499,12 @@ void MainWindow::slotNewGameEvent()
 /*****************************************************************************/
 void MainWindow::slotShowCardEvent(Place p, std::string cardName)
 {
-    infosDock->AddRound(mTrickCounter, p, cardName);
-
-    if (mFirstPlayer)
-    {
-        mFirstPlayer = false;
-        infosDock->SelectFirstPlayer(mTrickCounter, p);
-    }
+    infosDock->AddRound(p, cardName);
 }
 /*****************************************************************************/
 void MainWindow::slotWaitTrickEvent(Place winner)
 {
-    infosDock->SelectWinner(mTrickCounter, winner);
-    mTrickCounter++;
-    mFirstPlayer = true;
+    infosDock->SelectWinner(winner);
 }
 /*****************************************************************************/
 void MainWindow::slotEndOfDeal()
@@ -550,8 +548,6 @@ void MainWindow::slotMessageEvent(QString message)
 /*****************************************************************************/
 void MainWindow::slotStartDealEvent()
 {
-    mTrickCounter = 0U;
-    mFirstPlayer = true;
     Tarot::Bid bid = tarotWidget->GetBid();
     Tarot::Distribution shuffle = tarotWidget->GetShuffle();
     QMap<Place, Identity> players = tarotWidget->GetTablePlayersList();
@@ -577,13 +573,17 @@ void MainWindow::slotStartDealEvent()
         // Numbered deal
         infosDock->SetDealNumber(0U);
     }
-
 }
 /*****************************************************************************/
 void MainWindow::slotDealEditor()
 {
     editorWindow->Initialize();
-    editorWindow->exec();
+    mdiEditor->show();
+}
+/*****************************************************************************/
+void MainWindow::slotHideDealEditor()
+{
+    mdiEditor->hide();
 }
 
 //=============================================================================

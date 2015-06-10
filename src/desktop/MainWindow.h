@@ -90,6 +90,9 @@ private slots:
     void slotDisconnectFromLobby();
     void slotLobbyPlayersList();
 
+    // Events from EditorWindow
+    void slotHideDealEditor();
+
 private:
     void SetupDialogs();
     void SetupMenus();
@@ -98,18 +101,15 @@ private:
 
     QMdiArea *mdiArea;
     QMdiSubWindow *subWindow;
-
-    std::uint8_t mTrickCounter;
-    bool mFirstPlayer;
+    QMdiSubWindow *mdiEditor;
 
     ClientConfig    mClientConfig;
     ServerConfig    mServerConfig;
 
     // Menus
     QMenu *gameMenu;
-    QMenu *netMenu;
     QMenu *paramsMenu;
-    QMenu *mDevMenu;
+    QMenu *mStudioMenu;
     QMenu *helpMenu;
 
     // Menu Jeu
@@ -126,11 +126,11 @@ private:
 
     // Menu Paramètres
     QAction *dealEditorAct;
+
+    //---- TarotStudio
+    QAction *newAutoPlayAct;
     QAction *optionsAct;
     QAction *dealsAct;
-
-    // Menu développeur
-    QAction *newAutoPlayAct;
 
     TarotWidget *tarotWidget;
 

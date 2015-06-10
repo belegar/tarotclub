@@ -160,6 +160,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="buttonClear">
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="randomButton">
        <property name="text">
         <string>Random</string>
@@ -181,7 +188,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_5">
+      <widget class="QPushButton" name="closeButton">
        <property name="text">
         <string>Close</string>
        </property>
@@ -194,22 +201,5 @@
  <resources>
   <include location="../../../assets/desktop.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>pushButton_5</sender>
-   <signal>clicked()</signal>
-   <receiver>DealEditorUI</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>498</x>
-     <y>472</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>556</x>
-     <y>458</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

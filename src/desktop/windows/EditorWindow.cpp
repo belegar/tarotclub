@@ -37,6 +37,8 @@ EditorWindow::EditorWindow(QWidget *parent)
 
     connect(ui.openButton, SIGNAL(clicked()), this, SLOT(slotOpenDeal()));
     connect(ui.saveButton, SIGNAL(clicked()), this, SLOT(slotSaveDeal()));
+    connect(ui.buttonClear, &QPushButton::clicked, this, &EditorWindow::slotClear);
+    connect(ui.closeButton, &QPushButton::clicked, this, EditorWindow::slotClose);
 
     // Arrow to dispatch cards
     connect(ui.toSouth, SIGNAL(clicked()), this, SLOT(slotToSouth()));
@@ -87,6 +89,16 @@ void EditorWindow::slotRandomDeal()
     editor.CreateRandomDeal(4U);
     editor.SetFirstPlayer(DealFile::RandomPlace(4U));
     RefreshUi(editor);
+}
+/*****************************************************************************/
+void EditorWindow::slotClear()
+{
+    Initialize();
+}
+/*****************************************************************************/
+void EditorWindow::slotClose()
+{
+    emit sigHide();
 }
 /*****************************************************************************/
 void EditorWindow::slotToSouth()
