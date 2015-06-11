@@ -26,7 +26,7 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#define VERSION_STRING "2.6.1"
+#define VERSION_STRING "2.6.2"
 
 #ifndef ISPP_INVOKED
 

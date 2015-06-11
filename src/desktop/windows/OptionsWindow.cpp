@@ -254,6 +254,7 @@ int DragWidget::DetectLabel(int x)
 /*****************************************************************************/
 OptionsWindow::OptionsWindow(QWidget *parent)
     : QDialog(parent)
+    , mLanguageIndex(0U)
     , mPreviousSelectedBot(-1)
     , mImportAvatarWindow(this)
 {
@@ -463,7 +464,7 @@ void OptionsWindow::slotBtnOk()
         mClientOptions.showAvatars = false;
     }
     mClientOptions.language = ui.langList->currentIndex();
-    if (indexLangue != mClientOptions.language)
+    if (mLanguageIndex != mClientOptions.language)
     {
         QMessageBox::information(this, tr("Information"),
                                  tr("You must restart TarotClub to enable the new language.") + "\n\n");
@@ -763,7 +764,7 @@ void OptionsWindow::Refresh()
     ui.afficheAvatars->setChecked(mClientOptions.showAvatars);
     ui.langList->setCurrentIndex(mClientOptions.language);
   //  ui.turns->setValue(static_cast<int>(serverOptions.tournamentTurns));
-    indexLangue = mClientOptions.language;
+    mLanguageIndex = mClientOptions.language;
 
     Avatar avatar(QString(mClientOptions.identity.avatar.c_str()));
 

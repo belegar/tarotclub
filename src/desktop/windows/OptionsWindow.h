@@ -147,7 +147,7 @@ private:
     QDialog *mAvatarsDiag;
     ClientOptions    mClientOptions;
     ServerOptions    mServerOptions;
-    int     indexLangue; // Detect any language change to inform that a reboot is needed
+    std::uint8_t     mLanguageIndex; // Detect any language change to inform that a reboot is needed
     QString colorName;
     DragWidget *dragWidget;
     QMap<int, AvatarLabel *> mAvatarFiles;

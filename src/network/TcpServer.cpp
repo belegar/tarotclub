@@ -37,6 +37,7 @@ TcpServer::TcpServer(IEvent &handler)
     , mReceiveFd(-1)
     , mSendFd(-1)
 {
+    FD_ZERO(&mMasterSet);
 }
 /*****************************************************************************/
 bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections, bool localHostOnly)
@@ -310,7 +311,7 @@ void TcpServer::IncommingConnection()
         /**********************************************/
         new_sd = Accept();
 
-        if (new_sd > 0)
+        if (new_sd >= 0)
         {
             // Save socket descriptor
             mClients.push_back(new_sd);
@@ -334,7 +335,7 @@ void TcpServer::IncommingConnection()
         /* connection                                 */
         /**********************************************/
     }
-    while (new_sd > 0);
+    while (new_sd >= 0);
 }
 /*****************************************************************************/
 bool TcpServer::IncommingData(int in_sock)
