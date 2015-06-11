@@ -46,6 +46,7 @@
 #include "LobbyDock.h"
 #include "ui_QuickJoin.h"
 #include "DealsWindow.h"
+#include "ScoreCalculatorWindow.h"
 
 /*****************************************************************************/
 class MainWindow : public QMainWindow
@@ -90,9 +91,6 @@ private slots:
     void slotDisconnectFromLobby();
     void slotLobbyPlayersList();
 
-    // Events from EditorWindow
-    void slotHideDealEditor();
-
 private:
     void SetupDialogs();
     void SetupMenus();
@@ -102,6 +100,7 @@ private:
     QMdiArea *mdiArea;
     QMdiSubWindow *subWindow;
     QMdiSubWindow *mdiEditor;
+    QMdiSubWindow *mdiScoreCalc;
 
     ClientConfig    mClientConfig;
     ServerConfig    mServerConfig;
@@ -124,13 +123,14 @@ private:
     QAction *onlineGameAct;
 //    QAction *netQuickJoinAct;
 
-    // Menu Paramètres
-    QAction *dealEditorAct;
+    // Menu Windows
+    QAction *optionsAct;
 
     //---- TarotStudio
     QAction *newAutoPlayAct;
-    QAction *optionsAct;
+    QAction *dealEditorAct;
     QAction *dealsAct;
+    QAction *scoreCalcAct;
 
     TarotWidget *tarotWidget;
 
@@ -141,6 +141,7 @@ private:
     QDialog *quickJoinWindow;
     Ui::quickJoin uiQuickJoin;
     DealsWindow *dealsWindow;
+    ScoreCalculatorWindow *scoreCalcWindow;
 
     // Dock windows
     ScoresDock *scoresDock;

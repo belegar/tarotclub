@@ -10,8 +10,9 @@
   * Corrected statistics client update (handle was not proposed)
   * Corrected deal loading: handles
   * Corrected contract multiplier in the end of deal panel
-  * Changed menu organization
+  * Changed menu organization, TarotStudio menu now contains all the Tarot related utilities
   * Deal Editor is now a MDI window
+  * New score calculator Window
 
 ## Changes in 2.6.1
 

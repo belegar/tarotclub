@@ -93,8 +93,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mLobbyDock, &LobbyDock::sigQuitTable, this, &MainWindow::slotQuitTable);
     connect(mLobbyDock, &LobbyDock::sigEmitMessage, tarotWidget, &TarotWidget::slotSendLobbyMessage);
 
-    // Deal editor
-    connect(editorWindow, &EditorWindow::sigHide, this, &MainWindow::slotHideDealEditor);
+    // TarotStudio windows
+    connect(editorWindow, &EditorWindow::sigHide, mdiEditor, &QMdiSubWindow::hide);
+    connect(scoreCalcWindow, &ScoreCalculatorWindow::sigHide, mdiScoreCalc, &MainWindow::hide);
 
     // Exit catching to terminate the game properly
     connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::slotAboutToQuit);
@@ -299,10 +300,15 @@ void MainWindow::SetupDialogs()
 
     // Deal editor
     editorWindow = new EditorWindow(this);
-    editorWindow->setAttribute(Qt::WA_ShowModal, true);
     mdiEditor = mdiArea->addSubWindow(editorWindow, Qt::WindowMinMaxButtonsHint);
     mdiEditor->setAttribute(Qt::WA_DeleteOnClose);
     mdiEditor->hide();
+
+    // Score calculcator window
+    scoreCalcWindow = new ScoreCalculatorWindow(this);
+    mdiScoreCalc = mdiArea->addSubWindow(scoreCalcWindow, Qt::WindowMinMaxButtonsHint);
+    mdiScoreCalc->setAttribute(Qt::WA_DeleteOnClose);
+    mdiScoreCalc->hide();
 
     // Quick join a network game
     quickJoinWindow = new QDialog(this);
@@ -420,22 +426,17 @@ void MainWindow::SetupMenus()
 */
 
     //---------------
-    // Parameter menu
+    // Windows menu
     //---------------
     optionsAct = new QAction(tr("&Options"), this);
     optionsAct->setShortcut(tr("Ctrl+O"));
     optionsAct->setStatusTip(tr("Game options"));
 
-    dealEditorAct = new QAction(tr("Deal e&ditor"), this);
-    dealEditorAct->setShortcut(tr("Ctrl+D"));
-    dealEditorAct->setStatusTip(tr("Create a pre-defined deal by choosing the cards of each player"));
-    connect(dealEditorAct, &QAction::triggered, this, &MainWindow::slotDealEditor);
-
     dealsAct = new QAction(tr("&Deals viewer"), this);
     dealsAct->setShortcut(tr("Ctrl+W"));
     dealsAct->setStatusTip(tr("Display previously played deals"));
 
-    paramsMenu = menuBar()->addMenu(tr("Parameters"));
+    paramsMenu = menuBar()->addMenu(tr("Windows"));
     paramsMenu->addAction(optionsAct);
     paramsMenu->addSeparator();
 
@@ -447,10 +448,21 @@ void MainWindow::SetupMenus()
     // ----------------
     // TarotStudio menu
     // ----------------
+    dealEditorAct = new QAction(tr("Deal e&ditor"), this);
+    dealEditorAct->setShortcut(tr("Ctrl+D"));
+    dealEditorAct->setStatusTip(tr("Create a pre-defined deal by choosing the cards of each player"));
+    connect(dealEditorAct, &QAction::triggered, mdiEditor, &MainWindow::show);
+
+    scoreCalcAct = new QAction(tr("Score calculator"), this);
+    scoreCalcAct->setShortcut(tr("Ctrl+S"));
+    scoreCalcAct->setStatusTip(tr("Tool to easily calculate a score of a deal"));
+    connect(scoreCalcAct, &QAction::triggered, mdiScoreCalc, &QMdiSubWindow::show);
+
     mStudioMenu = menuBar()->addMenu(tr("TarotStudio"));
 
     mStudioMenu->addAction(dealEditorAct);
     mStudioMenu->addAction(dealsAct);
+    mStudioMenu->addAction(scoreCalcAct);
 
     mStudioMenu->addSeparator();
     newAutoPlayAct = new QAction(tr("New auto& play"), this);
@@ -580,11 +592,7 @@ void MainWindow::slotDealEditor()
     editorWindow->Initialize();
     mdiEditor->show();
 }
-/*****************************************************************************/
-void MainWindow::slotHideDealEditor()
-{
-    mdiEditor->hide();
-}
+
 
 //=============================================================================
 // End of file MainWindow.cpp

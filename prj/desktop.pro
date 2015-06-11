@@ -284,7 +284,8 @@ FORMS += AboutUI.ui \
     LobbyUI.ui \
     NewServerUI.ui \
     ImportAvatar.ui \
-    NewTurnUI.ui
+    NewTurnUI.ui \
+    ScoreCalculatorUI.ui
 
 HEADERS += AboutWindow.h \
     MainWindow.h \
@@ -299,6 +300,7 @@ HEADERS += AboutWindow.h \
     ImportAvatarWindow.h \
     NewTurnWindow.h \
     Defines.h \
+    ScoreCalculatorWindow.h
 
 SOURCES += AboutWindow.cpp \
     MainWindow.cpp \
@@ -312,6 +314,7 @@ SOURCES += AboutWindow.cpp \
     DealsWindow.cpp \
     ImportAvatarWindow.cpp \
     NewTurnWindow.cpp \
+    ScoreCalculatorWindow.cpp \
     main.cpp
 
 # End of project file
