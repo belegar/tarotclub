@@ -54,8 +54,12 @@ DealsWindow::DealsWindow(QWidget *parent)
 
     mText = new QGraphicsSimpleTextItem();
     mScene.addItem(mText);
+    QFont font;
+    font.setBold(true);
+    mText->setFont(font);
+    mText->setBrush(QBrush(QColor(Qt::white)));
     mText->setX(0);
-    mText->setY(0);
+    mText->setY(50);
     mText->setText("Discard:");
 
     connect(mOkButton, &QPushButton::clicked, this, &QDialog::accept);
@@ -167,6 +171,7 @@ void DealsWindow::RefreshDeals()
     QDir dir(QString(System::GamePath().c_str()));
     dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
     mList = dir.entryInfoList();
+    mComboBox->clear();
 
     for (int i = 0; i < mList.size(); i++)
     {
