@@ -31,9 +31,8 @@
 #include <QtNetwork>
 
 /*****************************************************************************/
-class Avatar : public QObject
+class Avatar
 {
-    Q_OBJECT
 
 public:
     Avatar();

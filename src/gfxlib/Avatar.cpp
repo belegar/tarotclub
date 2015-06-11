@@ -61,7 +61,7 @@ bool Avatar::LoadFile()
             QNetworkReply *reply = mNetworkManager.get(QNetworkRequest(url));
 
             QEventLoop loop;
-            connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+            QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
             loop.exec();
 
             const QByteArray data(reply->readAll());

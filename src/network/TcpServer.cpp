@@ -118,16 +118,14 @@ std::string TcpServer::GetPeerName(int s)
     std::stringstream ss;
     socklen_t len;
     struct sockaddr_storage addr;
-    char ipv6str[INET6_ADDRSTRLEN];
-    std::memset(ipv6str, 0, INET6_ADDRSTRLEN);
-    char *ipstr = ipv6str;
+    char *ipstr = NULL;
     int port = 0;
 
     len = sizeof(addr);
-    getpeername(s, (struct sockaddr*)&addr, &len);
+    int ret = getpeername(s, (struct sockaddr*)&addr, &len);
 
     // deal with IPv4
-    if (addr.ss_family == AF_INET)
+    if ((addr.ss_family == AF_INET) && (ret == 0))
     {
         struct sockaddr_in *s = (struct sockaddr_in *)&addr;
         port = ntohs(s->sin_port);
@@ -136,7 +134,14 @@ std::string TcpServer::GetPeerName(int s)
     // FIXME: inet_ntoa is deprecated. Use inet_ntop instead, with IPv6 support
     // See the Boost implementation for Windows
 
-    ss << ipstr << ":" << port;
+    if (ipstr != NULL)
+    {
+        ss << ipstr << ":" << port;
+    }
+    else
+    {
+        ss << "Cannot get peer name!";
+    }
 
     return ss.str();
 }

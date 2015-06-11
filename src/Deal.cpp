@@ -85,6 +85,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     }
     else
     {
+        // trick counter 2 and beyond
         firstPlayer = mWinner[turn - 1U];
     }
 
@@ -179,14 +180,15 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
                 statsAttack.oudlers++; // hey, it was MY oudler!
             }
         }
+
+        // Save the current winner for the next turn
+        mWinner[turn] = winner;
     }
     else
     {
         TLogError("Index out of scope!");
     }
 
-    // Save the current winner for the next turn
-    mWinner[turn] = winner;
     return winner;
 }
 /*****************************************************************************/

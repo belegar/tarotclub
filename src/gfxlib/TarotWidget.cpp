@@ -506,7 +506,7 @@ void TarotWidget::customEvent(QEvent *e)
         ErrorEvent *err = dynamic_cast<ErrorEvent *>(e);
 
         // Progagate the error code only if the software is not in exit process
-        if (!mShutdown)
+        if ((!mShutdown) && err != nullptr)
         {
             emit sigClientError(err->reason, err->quitServer);
         }

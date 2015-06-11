@@ -52,6 +52,12 @@ DealsWindow::DealsWindow(QWidget *parent)
     mLayout->addWidget(mView);
     mLayout->addLayout(layout2);
 
+    mText = new QGraphicsSimpleTextItem();
+    mScene.addItem(mText);
+    mText->setX(0);
+    mText->setY(0);
+    mText->setText("Discard:");
+
     connect(mOkButton, &QPushButton::clicked, this, &QDialog::accept);
     connect(mComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &DealsWindow::slotActivated);
 }
@@ -124,12 +130,6 @@ void DealsWindow::Initialize()
     mCardsPics.clear();
 
     mScene.setBackgroundBrush(QColor("#004f00"));
-
-    mText = new QGraphicsSimpleTextItem();
-    mScene.addItem(mText);
-    mText->setX(0);
-    mText->setY(0);
-    mText->setText("Discard:");
 
     qreal x = 0;
     qreal y = 115;

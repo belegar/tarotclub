@@ -95,7 +95,7 @@ std::string Util::ExecutablePath()
     if (hModule != NULL)
     {
         // When passing NULL to GetModuleHandle, it returns handle of exe itself
-        GetModuleFileName(hModule, buf, (sizeof(buf)));
+        GetModuleFileName(hModule, buf, MAX_PATH);
     }
     std::wstring wstr(buf);
     path = std::string(wstr.begin(), wstr.end());

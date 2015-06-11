@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Client.h
+ * TarotClub - JsonClient.h
  *=============================================================================
- * This class manages the network protocol and is used to join a online game
+ * Network client implementation that translates commands into JSON
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -97,5 +97,5 @@ private:
 #endif // JSON_CLIENT_H
 
 //=============================================================================
-// End of file Client.h
+// End of file JsonClient.h
 //=============================================================================

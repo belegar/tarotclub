@@ -36,6 +36,8 @@
 /*****************************************************************************/
 InfosDock::InfosDock(QWidget *parent)
     : QDockWidget(trUtf8("Informations"), parent)
+    , mTrickCounter(0U)
+    , mFirstPlayer(true)
 {
     int i, j;
     ui.setupUi(this);
