@@ -102,7 +102,6 @@ HEADERS += Log.h \
     ByteStreamWriter.h \
     ByteArray.h \
     TcpSocket.h \
-    TcpServer.h \
     TcpClient.h \
     UniqueId.h \
     Value.h \
@@ -115,7 +114,6 @@ SOURCES += Log.cpp \
     ByteStreamReader.cpp \
     ByteStreamWriter.cpp \
     TcpSocket.cpp \
-    TcpServer.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
     Value.cpp \

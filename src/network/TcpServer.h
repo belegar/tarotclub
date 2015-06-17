@@ -29,9 +29,11 @@
 #include <thread>
 #include <vector>
 #include <mutex>
-#include "TcpSocket.h"
+#include <map>
 #include "Observer.h"
 #include "ThreadQueue.h"
+#include "WebSocket.h"
+#include "TcpServerBase.h"
 
 /*****************************************************************************/
 /**
@@ -42,7 +44,7 @@
  * must be implemented in the user side of this class. The event handler is
  * required in the constructor.
  */
-class TcpServer : public TcpSocket
+class TcpServer
 {
 public:
     class IEvent
@@ -88,16 +90,78 @@ public:
 
     virtual ~TcpServer(void) { }
 
-    bool Start(std::uint16_t port, std::int32_t maxConnections, bool localHostOnly);
+    /**
+     * @brief Start the Tcp thread server, with an optional WebSocket port to listen at
+     * @param tcpPort
+     * @param maxConnections
+     * @param localHostOnly
+     * @param wsPort
+     * @return
+     */
+    bool Start(std::int32_t maxConnections, bool localHostOnly, std::uint16_t tcpPort, std::uint16_t wsPort = 0U);
     void Stop();
     void Join();
     std::string GetPeerName(int s);
 
 private:
+    class Peer
+    {
+    public:
+        static const std::uint8_t cStateClosed = 0U;
+
+        Peer()
+            : mSocket(-1)
+            , mState(0U)
+            , mIsWebSocket(false)
+        {
+
+        }
+
+        Peer(std::int32_t socket, bool ws)
+            : mSocket(socket)
+            , mState(0U)
+            , mIsWebSocket(ws)
+        {
+
+        }
+
+        inline bool operator ==(const std::int32_t &rhs)
+        {
+            return (mSocket == rhs);
+        }
+
+        inline Peer & operator =(const std::int32_t &rhs)
+        {
+           mSocket = rhs;
+           return *this;
+        }
+
+        inline bool operator >(const std::int32_t &rhs)
+        {
+            return (mSocket > rhs);
+        }
+
+        inline bool operator <(const Peer &rhs)
+        {
+            return (mSocket < rhs.mSocket);
+        }
+
+        bool IsWebSocket() const { return mIsWebSocket; }
+
+        std::int32_t GetSocket() const { return mSocket; }
+    private:
+        std::int32_t mSocket;
+        std::uint8_t mState;
+        bool mIsWebSocket;
+
+    };
+
+    TcpServerBase   mTcpServer;
+    TcpServerBase   mWsServer;
     std::thread mThread;
     int  mMaxSd;
     fd_set mMasterSet;
-    std::vector<int> mClients;
+    std::vector<Peer> mClients;
     std::mutex mMutex; // To protect mClients
     bool mInitialized;
     IEvent     &mEventHandler;
@@ -108,9 +172,10 @@ private:
 
     static void EntryPoint(void *pthis);
     void Run();
-    void IncommingConnection();
-    bool IncommingData(int in_sock);
+    void IncommingConnection(bool isWebSocket);
+    bool IncommingData(const Peer &peer);
     void UpdateMaxSocket();
+    void ManageWsData(const Peer &peer, const ByteArray &data);
 };
 
 

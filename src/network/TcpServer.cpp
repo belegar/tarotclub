@@ -39,45 +39,14 @@ TcpServer::TcpServer(IEvent &handler)
 {
     FD_ZERO(&mMasterSet);
 }
+
 /*****************************************************************************/
-bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections, bool localHostOnly)
+bool TcpServer::Start(std::int32_t maxConnections, bool localHostOnly, std::uint16_t tcpPort, std::uint16_t wsPort)
 {
-    /*************************************************************/
-    /* Create an AF_INET stream socket to receive incoming       */
-    /* connections on                                            */
-    /*************************************************************/
-    if (!Create())
+    mTcpServer.CreateServer(tcpPort, localHostOnly, maxConnections);
+    if (wsPort > 0U)
     {
-        return false;
-    }
-
-    /*************************************************************/
-    /* Set socket to be non-blocking.  All of the sockets for    */
-    /* the incoming connections will also be non-blocking since  */
-    /* they will inherit that state from the listening socket.   */
-    /*************************************************************/
-    if (!SetBlocking(false))
-    {
-        Close();
-        return false;
-    }
-
-    /*************************************************************/
-    /* Bind the socket                                           */
-    /*************************************************************/
-    if (!Bind(port, localHostOnly))
-    {
-        Close();
-        return false;
-    }
-
-    /*************************************************************/
-    /* Set the listen back log                                   */
-    /*************************************************************/
-    if (!Listen(maxConnections))
-    {
-        Close();
-        return false;
+        mWsServer.CreateServer(wsPort, localHostOnly, maxConnections);
     }
 
     // Create the thread the first time only
@@ -87,7 +56,7 @@ bool TcpServer::Start(std::uint16_t port, std::int32_t maxConnections, bool loca
         mInitialized = true;
     }
 
-    return true;
+    return mInitialized;
 }
 /*****************************************************************************/
 void TcpServer::Stop()
@@ -100,7 +69,8 @@ void TcpServer::Stop()
 		write(mSendFd, "1", 1);
 #endif
     }
-    Close();
+    mTcpServer.Close();
+    mWsServer.Close();
     Join();
 }
 /*****************************************************************************/
@@ -157,8 +127,12 @@ void TcpServer::Run()
     /* Initialize the master fd_set                              */
     /*************************************************************/
     FD_ZERO(&mMasterSet);
-    mMaxSd = GetSocket();
-    FD_SET(mMaxSd, &mMasterSet);
+    UpdateMaxSocket();
+    FD_SET(mTcpServer.GetSocket(), &mMasterSet);
+    if (mWsServer.IsValid())
+    {
+        FD_SET(mWsServer.GetSocket(), &mMasterSet);
+    }
 
 #ifdef USE_UNIX_OS
     /*************************************************************/
@@ -234,13 +208,22 @@ void TcpServer::Run()
                     mEventHandler.ServerTerminated(IEvent::CLOSED);
                     break;
                 }
-                else if (FD_ISSET(GetSocket(), &working_set))
+                else if (FD_ISSET(mTcpServer.GetSocket(), &working_set))
                 {
                     /****************************************************/
                     /* This is the listening socket                     */
                     /****************************************************/
                     mMutex.lock();
-                    IncommingConnection();
+                    IncommingConnection(false);
+                    mMutex.unlock();
+                }
+                else if (FD_ISSET(mWsServer.GetSocket(), &working_set))
+                {
+                    /****************************************************/
+                    /* This is the listening socket                     */
+                    /****************************************************/
+                    mMutex.lock();
+                    IncommingConnection(true);
                     mMutex.unlock();
                 }
                 else
@@ -250,7 +233,7 @@ void TcpServer::Run()
                     // Scan for already connected clients
                     for (size_t j = 0; j < mClients.size(); j++)
                     {
-                        if (FD_ISSET(mClients[j], &working_set))
+                        if (FD_ISSET(mClients[j].GetSocket(), &working_set))
                         {
                             /****************************************************/
                             /* This is not the listening socket, therefore an   */
@@ -272,10 +255,10 @@ void TcpServer::Run()
     mMutex.lock();
     for (size_t i = 0; i < mClients.size(); i++)
     {
-        if (FD_ISSET(mClients[i], &mMasterSet))
+        if (FD_ISSET(mClients[i].GetSocket(), &mMasterSet))
         {
             TcpSocket socket;
-            socket.SetSocket(i);
+            socket.SetSocket(mClients[i].GetSocket());
             socket.Close();
         }
     }
@@ -288,9 +271,10 @@ void TcpServer::EntryPoint(void *pthis)
     pt->Run();
 }
 /*****************************************************************************/
-void TcpServer::IncommingConnection()
+void TcpServer::IncommingConnection(bool isWebSocket)
 {
     int new_sd;
+    bool webSocket = false;
 
     //    printf("  Listening socket is readable\n");
     /*************************************************/
@@ -309,12 +293,20 @@ void TcpServer::IncommingConnection()
         /* failure on accept will cause us to end the */
         /* server.                                    */
         /**********************************************/
-        new_sd = Accept();
+        if (isWebSocket)
+        {
+            new_sd = mWsServer.Accept();
+            webSocket = true;
+        }
+        else
+        {
+            new_sd = mTcpServer.Accept();
+        }
 
         if (new_sd >= 0)
         {
             // Save socket descriptor
-            mClients.push_back(new_sd);
+            mClients.push_back(Peer(new_sd, webSocket));
 
             /**********************************************/
             /* Add the new incoming connection to the     */
@@ -326,8 +318,11 @@ void TcpServer::IncommingConnection()
             // Update the maximum socket file identifier
             UpdateMaxSocket();
 
-            // Signal a new client
-            mEventHandler.NewConnection(new_sd);
+            if (!webSocket)
+            {
+                // Signal a new client only if not a web socket (need a handshake)
+                mEventHandler.NewConnection(new_sd);
+            }
         }
 
         /**********************************************/
@@ -338,13 +333,13 @@ void TcpServer::IncommingConnection()
     while (new_sd >= 0);
 }
 /*****************************************************************************/
-bool TcpServer::IncommingData(int in_sock)
+bool TcpServer::IncommingData(const Peer &peer)
 {
     TcpSocket socket;
     bool ret = false;
     int rc;
     ByteArray data;
-
+    std::int32_t in_sock = peer.GetSocket();
     socket.SetSocket(in_sock);
 
     // printf("  Descriptor %d is readable\n", in_sock);
@@ -365,8 +360,15 @@ bool TcpServer::IncommingData(int in_sock)
     {
         ret = true;
 
-        // Send the received data
-        mEventHandler.ReadData(in_sock, data);
+        if (peer.IsWebSocket())
+        {
+            ManageWsData(peer, data);
+        }
+        else
+        {
+            // Send the received data
+            mEventHandler.ReadData(in_sock, data);
+        }
     }
     else if (rc == -2)
     {
@@ -404,19 +406,38 @@ bool TcpServer::IncommingData(int in_sock)
 /*****************************************************************************/
 void TcpServer::UpdateMaxSocket()
 {
-    std::vector<int>::iterator pos;
+    std::vector<Peer>::iterator pos;
 
     // find the maximum socket file descriptor with the clients
     pos = std::max_element(mClients.begin(), mClients.end());
-	mMaxSd = GetSocket();
+
+    // Find max socket of the servers
+    mMaxSd = mTcpServer.GetSocket();
+    if (mWsServer.GetSocket() > mMaxSd)
+    {
+        mMaxSd = mWsServer.GetSocket();
+    }
 
 	if (pos != mClients.end())
 	{
 		if (*pos > mMaxSd)
 		{
-			mMaxSd = *pos;
+            mMaxSd = pos->GetSocket();
 		}
 	}
+}
+/*****************************************************************************/
+void TcpServer::ManageWsData(const Peer &peer, const ByteArray &data)
+{
+    WebSocketRequest ws;
+
+    ws.Parse(data.ToSring());
+    if (ws.IsValid())
+    {
+        TcpSocket socket;
+        socket.SetSocket(peer.GetSocket());
+        socket.Send(ws.Upgrade("tarotclub"));
+    }
 }
 
 //=============================================================================

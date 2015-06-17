@@ -114,7 +114,7 @@ public:
 
     bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
 
-private:
+protected:
     std::string mHost;
     std::uint16_t mPort;
     int mSock;

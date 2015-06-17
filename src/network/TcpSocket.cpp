@@ -238,6 +238,7 @@ bool TcpSocket::Bind(std::uint16_t port, bool localHostOnly)
                    sizeof(mAddr)) == 0)
         {
             ret = true;
+            mPort = port;
         }
     }
     return ret;

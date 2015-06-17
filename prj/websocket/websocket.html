@@ -1,36 +1,40 @@
 <html>
 <head>
 <script>
-  var socket = null;	
 
-	try {
-		socket = new WebSocket('ws://localhost:4242', 'tarotclub');
-		console.log('WebSocket - status ' + socket.readyState);
-		socket.onopen = function (msg)
-		{ 
-			console.log("Connected - status " + this.readyState);
-		};
+	var socket = null;
+	function Initialize()
+	{
+		try {
+			socket = new WebSocket('ws://localhost:4270', 'tarotclub');
+			console.log('WebSocket - status ' + socket.readyState);
+			socket.onopen = function (msg)
+			{ 
+				console.log("Connected - status " + this.readyState);
+			};
 
-		socket.onmessage = function (msg)
+			socket.onmessage = function (msg)
+			{
+				console.log("Recv: " + msg.data); 
+			};
+
+			socket.onclose = function (msg)
+			{
+				console.log("Disconnected - status " + this.readyState + ", code=" + msg.code 
+						+ ", wasClean=" + msg.wasClean + ", Reason=" + msg.reason,	"Closed");
+			};
+		}
+		catch (ex)
 		{
-			console.log("Recv: " + msg.data); 
-        };
-
-		socket.onclose = function (msg)
-		{
-			console.log("Disconnected - status " + this.readyState + ", code=" + msg.code 
-					+ ", wasClean=" + msg.wasClean + ", Reason=" + msg.reason,	"Closed");
-		};
-    }
-    catch (ex) { console.log(ex); }
-
+			console.log(ex);
+		}
+	}
 </script>
 
 
 </head>
 
-<body>
+<body onload="Initialize()">
 	
-
 </body>
 </html>

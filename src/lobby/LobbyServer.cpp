@@ -63,7 +63,7 @@ void LobbyServer::Initialize(const ServerOptions &opt)
 
         // Initialize all the tables, starting with the TCP port indicated
         mTcpPort = opt.game_tcp_port;
-        mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn, opt.localHostOnly);
+        mTcpServer.Start(opt.lobby_max_conn, opt.localHostOnly, opt.game_tcp_port, 4270);
         mInitialized = true;
     }
 }

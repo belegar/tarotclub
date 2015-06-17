@@ -129,7 +129,6 @@ DEFINES += DESKTOP_PROJECT
 # JavaScript files
 # ------------------------------------------------------------------------------
 OTHER_FILES = noob.js \
-              system.js \
               card.js \
               util.js \
               deck.js \
@@ -156,11 +155,15 @@ HEADERS += Log.h \
     ByteArray.h \
     TcpSocket.h \
     TcpServer.h \
+    TcpServerBase.h \
     TcpClient.h \
     UniqueId.h \
     System.h \
     Value.h \
     Avatar.h \
+    WebSocket.h \
+    Base64.h \
+    Sha1.h \
     Zip.h
 
 SOURCES += Log.cpp \
@@ -170,11 +173,15 @@ SOURCES += Log.cpp \
     ByteStreamWriter.cpp \
     TcpSocket.cpp \
     TcpServer.cpp \
+    TcpServerBase.cpp \
     TcpClient.cpp \
     UniqueId.cpp \
     System.cpp \
     Value.cpp \
     Avatar.cpp \
+    WebSocket.cpp \
+    Base64.cpp \
+    Sha1.cpp \
     Zip.cpp
 
 # ------------------------------------------------------------------------------
