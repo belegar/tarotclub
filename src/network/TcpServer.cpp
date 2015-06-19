@@ -546,24 +546,24 @@ void TcpServer::DeliverWsData(Conn &conn, const ByteArray &data)
       that is set.
 
       */
-    if(opcode == WEBSOCKET_OPCODE_PING)
+    if(opcode == TcpSocket::WEBSOCKET_OPCODE_PING)
     {
-        // FIXME: send pong!
+        TcpSocket::Send(TcpSocket::BuildWsFrame(TcpSocket::WEBSOCKET_OPCODE_PONG, ByteArray()), conn);
     }
-    else if (opcode == WEBSOCKET_OPCODE_CONNECTION_CLOSE)
+    else if (opcode == TcpSocket::WEBSOCKET_OPCODE_CONNECTION_CLOSE)
     {
         conn.wsPayload.Clear();
         conn.state = Conn::cStateClosed;
     }
     else
     {
-        if ((opcode == WEBSOCKET_OPCODE_TEXT) ||
-            (opcode == WEBSOCKET_OPCODE_BINARY))
+        if ((opcode == TcpSocket::WEBSOCKET_OPCODE_TEXT) ||
+            (opcode == TcpSocket::WEBSOCKET_OPCODE_BINARY))
         {
             conn.wsPayload.Clear();
             conn.wsPayload += copy.SubArray(header_len, data_len);
         }
-        else if(opcode == WEBSOCKET_OPCODE_CONTINUATION)
+        else if(opcode == TcpSocket::WEBSOCKET_OPCODE_CONTINUATION)
         {
             conn.wsPayload += copy.SubArray(header_len, data_len);
         }
@@ -580,27 +580,27 @@ void TcpServer::DeliverWsData(Conn &conn, const ByteArray &data)
 std::string TcpServer::WsOpcodeToString(std::uint8_t opcode)
 {
     std::string ocString;
-    if (opcode == WEBSOCKET_OPCODE_CONTINUATION)
+    if (opcode == TcpSocket::WEBSOCKET_OPCODE_CONTINUATION)
     {
         ocString = "WebSocket opcode: continuation";
     }
-    else if (opcode == WEBSOCKET_OPCODE_TEXT)
+    else if (opcode == TcpSocket::WEBSOCKET_OPCODE_TEXT)
     {
         ocString = "WebSocket opcode: text data";
     }
-    else if (opcode == WEBSOCKET_OPCODE_BINARY)
+    else if (opcode == TcpSocket::WEBSOCKET_OPCODE_BINARY)
     {
         ocString = "WebSocket opcode: binary data";
     }
-    else if (opcode == WEBSOCKET_OPCODE_CONNECTION_CLOSE)
+    else if (opcode == TcpSocket::WEBSOCKET_OPCODE_CONNECTION_CLOSE)
     {
         ocString = "WebSocket opcode: connection close";
     }
-    else if (opcode == WEBSOCKET_OPCODE_PING)
+    else if (opcode == TcpSocket::WEBSOCKET_OPCODE_PING)
     {
         ocString = "WebSocket opcode: ping";
     }
-    else if (opcode == WEBSOCKET_OPCODE_PONG)
+    else if (opcode == TcpSocket::WEBSOCKET_OPCODE_PONG)
     {
         ocString = "WebSocket opcode: pong";
     }

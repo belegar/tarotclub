@@ -32,6 +32,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include "ByteStreamWriter.h"
 
 // Larger values will read larger chunks of data.
 static const std::int32_t MAXRECV = 2048;
@@ -145,15 +146,65 @@ int TcpSocket::AnalyzeSocketError(const char* context)
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Send(const std::string &input, const Peer &peer)
+bool TcpSocket::Send(const ByteArray &input, const Peer &peer)
+{
+    bool ret = false;
+
+    if (peer.isWebSocket)
+    {
+        ret = SendToSocket(BuildWsFrame(WEBSOCKET_OPCODE_TEXT, input), peer.socket);
+    }
+    else
+    {
+        ret = SendToSocket(input, peer.socket);
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+ByteArray TcpSocket::BuildWsFrame(std::uint8_t opcode, const ByteArray &data)
+{
+    ByteArray packet;
+    ByteStreamWriter writer(packet);
+    std::uint32_t data_len = data.Size();
+
+    // We do not use fragmentation when sending data, so raise the FIN flag
+    writer << static_cast<std::uint8_t>(0x80U + (opcode & 0x0FU));
+
+    // Frame format: http://tools.ietf.org/html/rfc6455#section-5.2
+    if (data_len < 126)
+    {
+        // Inline 7-bit length field
+        writer << static_cast<std::uint8_t>(data_len);
+    }
+    else if (data_len <= 0xFFFF)
+    {
+        // 16-bit length field
+        writer << static_cast<std::uint8_t>(126);
+        writer << static_cast<std::uint16_t>(data_len);
+    }
+    else
+    {
+        // 64-bit length field
+        writer << static_cast<std::uint8_t>(127);
+        writer << static_cast<std::uint32_t>(0U); // hi part always zero (ByteArray is 32bits max!
+        writer << static_cast<std::uint32_t>(data_len);
+    }
+
+    // Finally, append our data
+    packet += data;
+    return packet;
+}
+/*****************************************************************************/
+bool TcpSocket::SendToSocket(const ByteArray &input, std::int32_t socket)
 {
     bool ret = true;
-    size_t size = input.size();
-    const char *buf = input.data(); // bytes are linear in the string memory, so no problem to get the pointer
+    size_t size = input.Size();
+    const char *buf = input.Data(); // bytes are linear in the string memory, so no problem to get the pointer
 
     while( size > 0 )
     {
-        int n = ::send(peer.socket, buf, size, 0);
+        int n = ::send(socket, buf, size, 0);
         if (n < 0)
         {
             if (AnalyzeSocketError("send()") == -1)
@@ -399,7 +450,7 @@ bool TcpSocket::Connect(const std::string &host, const int port)
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Send(const std::string &input) const
+bool TcpSocket::Send(const ByteArray &input) const
 {
     return Send(input, mPeer);
 }

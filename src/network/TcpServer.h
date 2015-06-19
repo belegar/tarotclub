@@ -104,14 +104,6 @@ public:
     std::string GetPeerName(int s);
 
 private:
-    // Websocket opcodes, from http://tools.ietf.org/html/rfc6455
-    static const std::uint8_t WEBSOCKET_OPCODE_CONTINUATION     = 0x00U;
-    static const std::uint8_t WEBSOCKET_OPCODE_TEXT             = 0x01U;
-    static const std::uint8_t WEBSOCKET_OPCODE_BINARY           = 0x02U;
-    static const std::uint8_t WEBSOCKET_OPCODE_CONNECTION_CLOSE = 0x08U;
-    static const std::uint8_t WEBSOCKET_OPCODE_PING             = 0x09U;
-    static const std::uint8_t WEBSOCKET_OPCODE_PONG             = 0x0AU;
-
     struct Conn : public Peer
     {
         static const std::uint8_t cStateClosed      = 0U;
