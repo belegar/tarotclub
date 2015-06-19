@@ -58,17 +58,52 @@
 #include "ByteArray.h"
 
 /*****************************************************************************/
+struct Peer
+{
+    Peer()
+        : socket(-1)
+        , isWebSocket(false)
+    {
+
+    }
+
+    Peer(std::int32_t s, bool ws)
+        : socket(s)
+        , isWebSocket(ws)
+    {
+
+    }
+
+    bool IsValid() const
+    {
+        return socket != -1;
+    }
+
+    bool operator == (const Peer &rhs)
+    {
+        bool ret = false;
+        if ((socket == rhs.socket) && (isWebSocket == rhs.isWebSocket))
+        {
+            ret = true;
+        }
+        return ret;
+    }
+
+    std::int32_t socket;
+    bool isWebSocket;
+};
+/*****************************************************************************/
 class TcpSocket
 {
 public:
     TcpSocket();
-    TcpSocket(int sock);
+    TcpSocket(const Peer &peer);
     virtual ~TcpSocket();
 
     // Getters
     int  GetSocket() const
     {
-        return mSock;
+        return mPeer.socket;
     }
     int  GetIPAddr() const
     {
@@ -81,27 +116,24 @@ public:
 
     // Setters
     bool SetBlocking(bool block);
-    void SetSocket(int sock)
-    {
-        mSock = sock;
-    }
 
     // Helpers
     bool IsValid() const
     {
-        return mSock != -1;
+        return mPeer.IsValid();
     }
+
     bool Create();
     bool Bind(std::uint16_t port, bool localHostOnly);
     void Close();
     bool Listen(std::int32_t maxConnections) const;
-
+    bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
     // return true if socket has data waiting to be read
     bool DataWaiting(uint32_t timeout);
 
     /**
      * @brief Accept
-     * @return The new socket descriptor, valid if >0
+     * @return The new socket descriptor, valid if >=0
      */
     int Accept() const;
     std::int32_t Recv(ByteArray &output) const;
@@ -111,13 +143,13 @@ public:
     // Static
     static bool Initialize();
     static int AnalyzeSocketError(const char* context);
-
-    bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
+    static bool Send(const std::string &input, const Peer &peer);
+    static void Close(Peer &peer);
 
 protected:
     std::string mHost;
     std::uint16_t mPort;
-    int mSock;
+    Peer mPeer;
     sockaddr_in mAddr;
     static bool mOneTimeInit;
 };

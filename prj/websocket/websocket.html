@@ -11,11 +11,16 @@
 			socket.onopen = function (msg)
 			{ 
 				console.log("Connected - status " + this.readyState);
+				socket.send("coucou");
 			};
 
 			socket.onmessage = function (msg)
 			{
-				console.log("Recv: " + msg.data); 
+				if (typeof msg.data === "string"){
+					console.log("received text data from the server: " + msg.data);
+				} else if (msg.data instanceof Blob){
+					console.log("Blob data received")
+				}
 			};
 
 			socket.onclose = function (msg)

@@ -62,7 +62,7 @@ public:
          * Called when a new TCP/IP connection has been created
          * @param socket
          */
-        virtual void NewConnection(int socket) = 0;
+        virtual void NewConnection(const Peer &peer) = 0;
 
         /**
          * @brief ReadData
@@ -70,14 +70,14 @@ public:
          * @param socket
          * @param data
          */
-        virtual void ReadData(int socket, const ByteArray &data) = 0;
+        virtual void ReadData(const Peer &peer, const ByteArray &data) = 0;
 
         /**
          * @brief ClientClosed
          * Called when a client has closed its connection
          * @param socket
          */
-        virtual void ClientClosed(int socket) = 0;
+        virtual void ClientClosed(const Peer &peer) = 0;
 
         /**
          * @brief ServerTerminated
@@ -104,56 +104,82 @@ public:
     std::string GetPeerName(int s);
 
 private:
-    class Peer
-    {
-    public:
-        static const std::uint8_t cStateClosed = 0U;
+    // Websocket opcodes, from http://tools.ietf.org/html/rfc6455
+    static const std::uint8_t WEBSOCKET_OPCODE_CONTINUATION     = 0x00U;
+    static const std::uint8_t WEBSOCKET_OPCODE_TEXT             = 0x01U;
+    static const std::uint8_t WEBSOCKET_OPCODE_BINARY           = 0x02U;
+    static const std::uint8_t WEBSOCKET_OPCODE_CONNECTION_CLOSE = 0x08U;
+    static const std::uint8_t WEBSOCKET_OPCODE_PING             = 0x09U;
+    static const std::uint8_t WEBSOCKET_OPCODE_PONG             = 0x0AU;
 
-        Peer()
-            : mSocket(-1)
-            , mState(0U)
-            , mIsWebSocket(false)
+    struct Conn : public Peer
+    {
+        static const std::uint8_t cStateClosed      = 0U;
+        static const std::uint8_t cStateConnected   = 1U;
+
+        Conn()
+            : Peer()
+            , state(cStateClosed)
         {
 
         }
 
-        Peer(std::int32_t socket, bool ws)
-            : mSocket(socket)
-            , mState(0U)
-            , mIsWebSocket(ws)
+        Conn(std::int32_t s, bool ws)
+            : Peer(s, ws)
         {
 
+        }
+
+        Conn(const Peer &peer)
+            : Peer(peer)
+        {
+
+        }
+
+        bool IsClosed() const { return state == cStateClosed; }
+        bool IsConnected()
+        {
+            bool connected = false;
+            if (IsValid())
+            {
+                if (isWebSocket)
+                {
+                    if (state == cStateConnected)
+                    {
+                        connected = true;
+                    }
+                }
+                else
+                {
+                    connected = true;
+                }
+            }
+            return connected;
         }
 
         inline bool operator ==(const std::int32_t &rhs)
         {
-            return (mSocket == rhs);
+            return (socket == rhs);
         }
 
-        inline Peer & operator =(const std::int32_t &rhs)
+        inline Conn & operator =(const std::int32_t &rhs)
         {
-           mSocket = rhs;
+           socket = rhs;
            return *this;
         }
 
         inline bool operator >(const std::int32_t &rhs)
         {
-            return (mSocket > rhs);
+            return (socket > rhs);
         }
 
-        inline bool operator <(const Peer &rhs)
+        inline bool operator <(const Conn &rhs)
         {
-            return (mSocket < rhs.mSocket);
+            return (socket < rhs.socket);
         }
 
-        bool IsWebSocket() const { return mIsWebSocket; }
-
-        std::int32_t GetSocket() const { return mSocket; }
-    private:
-        std::int32_t mSocket;
-        std::uint8_t mState;
-        bool mIsWebSocket;
-
+        std::uint8_t state;
+        ByteArray wsPayload;
     };
 
     TcpServerBase   mTcpServer;
@@ -161,7 +187,7 @@ private:
     std::thread mThread;
     int  mMaxSd;
     fd_set mMasterSet;
-    std::vector<Peer> mClients;
+    std::vector<Conn> mClients;
     std::mutex mMutex; // To protect mClients
     bool mInitialized;
     IEvent     &mEventHandler;
@@ -173,9 +199,11 @@ private:
     static void EntryPoint(void *pthis);
     void Run();
     void IncommingConnection(bool isWebSocket);
-    bool IncommingData(const Peer &peer);
+    bool IncommingData(Conn &conn);
     void UpdateMaxSocket();
-    void ManageWsData(const Peer &peer, const ByteArray &data);
+    void ManageWsData(Conn &conn, const ByteArray &data);
+    void DeliverWsData(Conn &conn, const ByteArray &data);
+    std::string WsOpcodeToString(std::uint8_t opcode);
 };
 
 
