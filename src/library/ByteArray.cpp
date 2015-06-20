@@ -31,12 +31,10 @@
 
 
 /*****************************************************************************/
-ByteArray::ByteArray(const char *data, std::uint32_t size)
+ByteArray::ByteArray(const char *data)
+    : ByteArray(std::string(data))
 {
-    for (std::uint32_t i = 0U; i < size; i++)
-    {
-        mData.push_back(static_cast<std::uint8_t>(data[i]));
-    }
+
 }
 /*****************************************************************************/
 ByteArray::ByteArray(const std::string &data)
@@ -94,6 +92,11 @@ void ByteArray::Alloc(uint32_t size)
 uint8_t *ByteArray::Data()
 {
     return mData.data();
+}
+/*****************************************************************************/
+const char *ByteArray::Data() const
+{
+    return reinterpret_cast<const char *>(mData.data());
 }
 /*****************************************************************************/
 std::int32_t ByteArray::FindFirstOf(uint8_t item)

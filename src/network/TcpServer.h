@@ -29,9 +29,11 @@
 #include <thread>
 #include <vector>
 #include <mutex>
-#include "TcpSocket.h"
+#include <map>
 #include "Observer.h"
 #include "ThreadQueue.h"
+#include "WebSocket.h"
+#include "TcpServerBase.h"
 
 /*****************************************************************************/
 /**
@@ -42,7 +44,7 @@
  * must be implemented in the user side of this class. The event handler is
  * required in the constructor.
  */
-class TcpServer : public TcpSocket
+class TcpServer
 {
 public:
     class IEvent
@@ -60,7 +62,7 @@ public:
          * Called when a new TCP/IP connection has been created
          * @param socket
          */
-        virtual void NewConnection(int socket) = 0;
+        virtual void NewConnection(const Peer &peer) = 0;
 
         /**
          * @brief ReadData
@@ -68,14 +70,14 @@ public:
          * @param socket
          * @param data
          */
-        virtual void ReadData(int socket, const ByteArray &data) = 0;
+        virtual void ReadData(const Peer &peer, const ByteArray &data) = 0;
 
         /**
          * @brief ClientClosed
          * Called when a client has closed its connection
          * @param socket
          */
-        virtual void ClientClosed(int socket) = 0;
+        virtual void ClientClosed(const Peer &peer) = 0;
 
         /**
          * @brief ServerTerminated
@@ -88,16 +90,96 @@ public:
 
     virtual ~TcpServer(void) { }
 
-    bool Start(std::uint16_t port, std::int32_t maxConnections, bool localHostOnly);
+    /**
+     * @brief Start the Tcp thread server, with an optional WebSocket port to listen at
+     * @param tcpPort
+     * @param maxConnections
+     * @param localHostOnly
+     * @param wsPort
+     * @return
+     */
+    bool Start(std::int32_t maxConnections, bool localHostOnly, std::uint16_t tcpPort, std::uint16_t wsPort = 0U);
     void Stop();
     void Join();
     std::string GetPeerName(int s);
 
 private:
+    struct Conn : public Peer
+    {
+        static const std::uint8_t cStateClosed      = 0U;
+        static const std::uint8_t cStateConnected   = 1U;
+
+        Conn()
+            : Peer()
+            , state(cStateClosed)
+        {
+
+        }
+
+        Conn(std::int32_t s, bool ws)
+            : Peer(s, ws)
+        {
+
+        }
+
+        Conn(const Peer &peer)
+            : Peer(peer)
+        {
+
+        }
+
+        bool IsClosed() const { return state == cStateClosed; }
+        bool IsConnected()
+        {
+            bool connected = false;
+            if (IsValid())
+            {
+                if (isWebSocket)
+                {
+                    if (state == cStateConnected)
+                    {
+                        connected = true;
+                    }
+                }
+                else
+                {
+                    connected = true;
+                }
+            }
+            return connected;
+        }
+
+        inline bool operator ==(const std::int32_t &rhs)
+        {
+            return (socket == rhs);
+        }
+
+        inline Conn & operator =(const std::int32_t &rhs)
+        {
+           socket = rhs;
+           return *this;
+        }
+
+        inline bool operator >(const std::int32_t &rhs)
+        {
+            return (socket > rhs);
+        }
+
+        inline bool operator <(const Conn &rhs)
+        {
+            return (socket < rhs.socket);
+        }
+
+        std::uint8_t state;
+        ByteArray wsPayload;
+    };
+
+    TcpServerBase   mTcpServer;
+    TcpServerBase   mWsServer;
     std::thread mThread;
     int  mMaxSd;
     fd_set mMasterSet;
-    std::vector<int> mClients;
+    std::vector<Conn> mClients;
     std::mutex mMutex; // To protect mClients
     bool mInitialized;
     IEvent     &mEventHandler;
@@ -108,9 +190,12 @@ private:
 
     static void EntryPoint(void *pthis);
     void Run();
-    void IncommingConnection();
-    bool IncommingData(int in_sock);
+    void IncommingConnection(bool isWebSocket);
+    bool IncommingData(Conn &conn);
     void UpdateMaxSocket();
+    void ManageWsData(Conn &conn, const ByteArray &data);
+    void DeliverWsData(Conn &conn, const ByteArray &data);
+    std::string WsOpcodeToString(std::uint8_t opcode);
 };
 
 

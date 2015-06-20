@@ -63,7 +63,7 @@ void LobbyServer::Initialize(const ServerOptions &opt)
 
         // Initialize all the tables, starting with the TCP port indicated
         mTcpPort = opt.game_tcp_port;
-        mTcpServer.Start(opt.game_tcp_port, opt.lobby_max_conn, opt.localHostOnly);
+        mTcpServer.Start(opt.lobby_max_conn, opt.localHostOnly, opt.game_tcp_port, 4270);
         mInitialized = true;
     }
 }
@@ -73,22 +73,20 @@ void LobbyServer::WaitForEnd()
     mTcpServer.Join();
 }
 /*****************************************************************************/
-void LobbyServer::NewConnection(int socket)
+void LobbyServer::NewConnection(const Peer &peer)
 {
     mMutex.lock();
     std::uint32_t uuid = mLobby.AddUser();
-    mPeers[uuid] = socket;
+    mPeers[uuid] = peer;
     mMutex.unlock();
 
     std::stringstream ss;
-    ss << "New connection: socket=" << socket
-       << ", IP=" << mTcpServer.GetPeerName(socket)
+    ss << "New connection: socket=" << peer.socket
+       << ", IP=" << mTcpServer.GetPeerName(peer.socket)
        << ", UUID=" << uuid;
     TLogNetwork(ss.str());
 
-    TcpSocket peer;
-    peer.SetSocket(socket);
-    peer.Send(Protocol::LobbyRequestLogin(uuid).ToSring());
+    TcpSocket::Send(Protocol::LobbyRequestLogin(uuid).ToSring(), peer);
 
     Event event(Event::cIncPlayer);
     mSubject.Notify(event);
@@ -104,18 +102,18 @@ void LobbyServer::NewConnection(int socket)
  * @param socket
  * @param data
  */
-void LobbyServer::ReadData(int socket, const ByteArray &data)
+void LobbyServer::ReadData(const Peer &peer, const ByteArray &data)
 {
-    if (IsValid(Protocol::GetSourceUuid(data), socket))
+    if (IsValid(Protocol::GetSourceUuid(data), peer))
     {
         mWorkItem.data = data;
         Protocol::GetInstance().Execute(mWorkItem); // Actually decode the packet
     }
 }
 /*****************************************************************************/
-void LobbyServer::ClientClosed(int socket)
+void LobbyServer::ClientClosed(const Peer &peer)
 {
-    std::uint32_t uuid = GetUuid(socket);
+    std::uint32_t uuid = GetUuid(peer);
 
     mLobby.RemoveUser(uuid);
 
@@ -138,9 +136,7 @@ void LobbyServer::Send(const ByteArray &data, std::list<std::uint32_t> peers)
         mMutex.lock();
         if (mPeers.count(uuid) > 0)
         {
-            TcpSocket peer;
-            peer.SetSocket(mPeers[uuid]);
-            peer.Send(data.ToSring());
+            TcpSocket::Send(data.ToSring(), mPeers[uuid]);
         }
         mMutex.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(20U));
@@ -167,11 +163,9 @@ void LobbyServer::CloseClients()
 {
     mMutex.lock();
 
-    for (std::map<std::uint32_t, std::int32_t>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
+    for (std::map<std::uint32_t, Peer>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
     {
-        TcpSocket peer;
-        peer.SetSocket(iter->second);
-        peer.Close();
+        TcpSocket::Close(iter->second);
     }
     mMutex.unlock();
 }
@@ -181,14 +175,14 @@ void LobbyServer::RegisterListener(Observer<Event> &i_event)
     mSubject.Attach(i_event);
 }
 /*****************************************************************************/
-bool LobbyServer::IsValid(std::uint32_t uuid, int socket)
+bool LobbyServer::IsValid(std::uint32_t uuid, const Peer &peer)
 {
     mMutex.lock();
     bool valid = false;
 
     if (mPeers.count(uuid) > 0U)
     {
-        if (mPeers[uuid] == socket)
+        if (mPeers[uuid] == peer)
         {
             valid = true;
         }
@@ -197,13 +191,13 @@ bool LobbyServer::IsValid(std::uint32_t uuid, int socket)
     return valid;
 }
 /*****************************************************************************/
-std::uint32_t LobbyServer::GetUuid(std::int32_t socket)
+std::uint32_t LobbyServer::GetUuid(const Peer &peer)
 {
     mMutex.lock();
     std::uint32_t uuid = Protocol::INVALID_UID;
-    for (std::map<std::uint32_t, std::int32_t>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
+    for (std::map<std::uint32_t, Peer>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
     {
-        if (iter->second == socket)
+        if (iter->second == peer)
         {
             uuid = iter->first;
         }

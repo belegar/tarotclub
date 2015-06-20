@@ -32,6 +32,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include "ByteStreamWriter.h"
 
 // Larger values will read larger chunks of data.
 static const std::int32_t MAXRECV = 2048;
@@ -145,18 +146,106 @@ int TcpSocket::AnalyzeSocketError(const char* context)
     return ret;
 }
 /*****************************************************************************/
+bool TcpSocket::Send(const ByteArray &input, const Peer &peer)
+{
+    bool ret = false;
+
+    if (peer.isWebSocket)
+    {
+        ret = SendToSocket(BuildWsFrame(WEBSOCKET_OPCODE_TEXT, input), peer.socket);
+    }
+    else
+    {
+        ret = SendToSocket(input, peer.socket);
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+ByteArray TcpSocket::BuildWsFrame(std::uint8_t opcode, const ByteArray &data)
+{
+    ByteArray packet;
+    ByteStreamWriter writer(packet);
+    std::uint32_t data_len = data.Size();
+
+    // We do not use fragmentation when sending data, so raise the FIN flag
+    writer << static_cast<std::uint8_t>(0x80U + (opcode & 0x0FU));
+
+    // Frame format: http://tools.ietf.org/html/rfc6455#section-5.2
+    if (data_len < 126)
+    {
+        // Inline 7-bit length field
+        writer << static_cast<std::uint8_t>(data_len);
+    }
+    else if (data_len <= 0xFFFF)
+    {
+        // 16-bit length field
+        writer << static_cast<std::uint8_t>(126);
+        writer << static_cast<std::uint16_t>(data_len);
+    }
+    else
+    {
+        // 64-bit length field
+        writer << static_cast<std::uint8_t>(127);
+        writer << static_cast<std::uint32_t>(0U); // hi part always zero (ByteArray is 32bits max!
+        writer << static_cast<std::uint32_t>(data_len);
+    }
+
+    // Finally, append our data
+    packet += data;
+    return packet;
+}
+/*****************************************************************************/
+bool TcpSocket::SendToSocket(const ByteArray &input, std::int32_t socket)
+{
+    bool ret = true;
+    size_t size = input.Size();
+    const char *buf = input.Data(); // bytes are linear in the string memory, so no problem to get the pointer
+
+    while( size > 0 )
+    {
+        int n = ::send(socket, buf, size, 0);
+        if (n < 0)
+        {
+            if (AnalyzeSocketError("send()") == -1)
+            {
+                ret = false;
+                break;
+            }
+        }
+        else
+        {
+            size -= n;
+            buf += n;
+        }
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+void TcpSocket::Close(Peer &peer)
+{
+#ifdef USE_UNIX_OS
+        ::shutdown(peer.socket, SHUT_RDWR);
+        ::close(peer.socket);
+#else
+        ::shutdown(peer.socket, SD_BOTH);
+        ::closesocket(peer.socket);
+#endif
+    peer.socket = -1;
+}
+/*****************************************************************************/
 TcpSocket::TcpSocket()
     : mHost("127.0.0.1")
     , mPort(0U)
-    , mSock(-1)
 {
     std::memset(&mAddr, 0, sizeof(mAddr));
 }
 /*****************************************************************************/
-TcpSocket::TcpSocket(int sock)
+TcpSocket::TcpSocket(const Peer &peer)
     : mHost("127.0.0.1")
     , mPort(0U)
-    , mSock(sock)
+    , mPeer(peer)
 {
     memset(&mAddr, 0, sizeof(mAddr));
 }
@@ -174,7 +263,7 @@ TcpSocket::~TcpSocket()
 bool TcpSocket::Create()
 {
     bool ret = false;
-    mSock = socket(AF_INET, SOCK_STREAM, 0);
+    mPeer.socket = socket(AF_INET, SOCK_STREAM, 0);
 
     if (IsValid())
     {
@@ -182,9 +271,9 @@ bool TcpSocket::Create()
 
         // Allows the socket to be bound to an address that is already in use.
         // For more information, see bind. Not applicable on ATM sockets.
-        if ((setsockopt(mSock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&on), sizeof(on)) == 0) &&
-            (setsockopt(mSock, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<const char *>(&on), sizeof(on)) == 0) &&
-            (setsockopt(mSock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&on), sizeof(on)) == 0))
+        if ((setsockopt(mPeer.socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&on), sizeof(on)) == 0) &&
+            (setsockopt(mPeer.socket, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<const char *>(&on), sizeof(on)) == 0) &&
+            (setsockopt(mPeer.socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&on), sizeof(on)) == 0))
         {
             ret = true;
         }
@@ -203,9 +292,9 @@ bool TcpSocket::SetBlocking(bool block)
     }
 
 #ifdef USE_UNIX_OS
-    std::int32_t rc = ioctl(mSock, FIONBIO, (char *)&on);
+    std::int32_t rc = ioctl(mPeer.socket, FIONBIO, (char *)&on);
 #else
-    std::int32_t rc = ioctlsocket(mSock, FIONBIO, &on);
+    std::int32_t rc = ioctlsocket(mPeer.socket, FIONBIO, &on);
 #endif
     if (rc == 0)
     {
@@ -233,11 +322,12 @@ bool TcpSocket::Bind(std::uint16_t port, bool localHostOnly)
         }
         mAddr.sin_port        = htons(port);
 
-        if (::bind(mSock,
+        if (::bind(mPeer.socket,
                    reinterpret_cast<struct sockaddr *>(&mAddr),
                    sizeof(mAddr)) == 0)
         {
             ret = true;
+            mPort = port;
         }
     }
     return ret;
@@ -247,14 +337,7 @@ void TcpSocket::Close()
 {
     if (IsValid())
     {
-#ifdef USE_UNIX_OS
-        ::shutdown(mSock, SHUT_RDWR);
-        ::close(mSock);
-#else
-        ::shutdown(mSock, SD_BOTH);
-        ::closesocket(mSock);
-#endif
-        mSock = -1;
+        Close(mPeer);
     }
 }
 /*****************************************************************************/
@@ -264,7 +347,7 @@ bool TcpSocket::Listen(std::int32_t maxConnections) const
 
     if (IsValid())
     {
-        if (::listen(mSock, maxConnections) == 0)
+        if (::listen(mPeer.socket, maxConnections) == 0)
         {
             ret = true;
         }
@@ -276,7 +359,7 @@ bool TcpSocket::DataWaiting(std::uint32_t timeout)
 {
     fd_set fds;
     FD_ZERO( &fds );
-    FD_SET( mSock, &fds );
+    FD_SET( mPeer.socket, &fds );
 
     struct timeval tv;
     tv.tv_sec = (long)timeout;
@@ -285,7 +368,7 @@ bool TcpSocket::DataWaiting(std::uint32_t timeout)
     bool ok = true;
     while(ok)
     {
-        int r = select( mSock+1, &fds, NULL, NULL, &tv);
+        int r = select( mPeer.socket + 1, &fds, NULL, NULL, &tv);
         if (r < 0)
         {
             if (AnalyzeSocketError("select()") == -1)
@@ -299,7 +382,7 @@ bool TcpSocket::DataWaiting(std::uint32_t timeout)
         }
     }
 
-    if( FD_ISSET( mSock, &fds ) )
+    if( FD_ISSET( mPeer.socket, &fds ) )
     {
         return true;
     }
@@ -311,8 +394,7 @@ bool TcpSocket::DataWaiting(std::uint32_t timeout)
 /*****************************************************************************/
 int TcpSocket::Accept() const
 {
-    int new_sd = ::accept(mSock, NULL, NULL);
-
+    int new_sd = ::accept(mPeer.socket, NULL, NULL);
 
 #ifdef _WIN32
     (void) SetHandleInformation((HANDLE) new_sd, HANDLE_FLAG_INHERIT, 0);
@@ -357,7 +439,7 @@ bool TcpSocket::Connect(const std::string &host, const int port)
             return false;
         }
         mAddr.sin_port = htons(mPort);
-        int retcode = ::connect(mSock, reinterpret_cast<sockaddr *>(&mAddr), sizeof(mAddr));
+        int retcode = ::connect(mPeer.socket, reinterpret_cast<sockaddr *>(&mAddr), sizeof(mAddr));
         if (retcode == 0)
         {
             ret = true;
@@ -368,31 +450,9 @@ bool TcpSocket::Connect(const std::string &host, const int port)
     return ret;
 }
 /*****************************************************************************/
-bool TcpSocket::Send(const std::string &input) const
+bool TcpSocket::Send(const ByteArray &input) const
 {
-    bool ret = true;
-    size_t size = input.size();
-    const char *buf = input.data(); // bytes are linear in the string memory, so no problem to get the pointer
-
-    while( size > 0 )
-    {
-        int n = ::send( mSock, buf, size, 0 );
-        if (n < 0)
-        {
-            if (AnalyzeSocketError("send()") == -1)
-            {
-                ret = false;
-                break;
-            }
-        }
-        else
-        {
-            size -= n;
-            buf += n;
-        }
-    }
-
-    return ret;
+    return Send(input, mPeer);
 }
 /*****************************************************************************/
 /**
@@ -462,7 +522,7 @@ std::int32_t TcpSocket::Recv(ByteArray &output) const
     // Most likely, we will read a packet, or if the message
     // is very short, we will receive the entire message in
     // a short packet. But it might be a long one.
-    result = ::recv(mSock, reinterpret_cast<char *>(output.Data()), MAXRECV, 0);
+    result = ::recv(mPeer.socket, reinterpret_cast<char *>(output.Data()), MAXRECV, 0);
 
     if (result > 0)
     {

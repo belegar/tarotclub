@@ -42,7 +42,7 @@ class ByteArray
 public:
 
     // Constructors
-    ByteArray(const char *data, std::uint32_t size);
+    ByteArray(const char *data);
     ByteArray(const std::string &data);
     ByteArray();
 
@@ -63,6 +63,7 @@ public:
     void Erase(std::uint32_t index, std::uint32_t len);
     void Alloc(std::uint32_t size);
     std::uint8_t *Data();
+    const char *Data() const;
     int32_t FindFirstOf(std::uint8_t item);
 
     // Operators

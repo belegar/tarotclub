@@ -58,17 +58,60 @@
 #include "ByteArray.h"
 
 /*****************************************************************************/
+struct Peer
+{
+    Peer()
+        : socket(-1)
+        , isWebSocket(false)
+    {
+
+    }
+
+    Peer(std::int32_t s, bool ws)
+        : socket(s)
+        , isWebSocket(ws)
+    {
+
+    }
+
+    bool IsValid() const
+    {
+        return socket != -1;
+    }
+
+    bool operator == (const Peer &rhs)
+    {
+        bool ret = false;
+        if ((socket == rhs.socket) && (isWebSocket == rhs.isWebSocket))
+        {
+            ret = true;
+        }
+        return ret;
+    }
+
+    std::int32_t socket;
+    bool isWebSocket;
+};
+/*****************************************************************************/
 class TcpSocket
 {
 public:
+    // Websocket opcodes, from http://tools.ietf.org/html/rfc6455
+    static const std::uint8_t WEBSOCKET_OPCODE_CONTINUATION     = 0x00U;
+    static const std::uint8_t WEBSOCKET_OPCODE_TEXT             = 0x01U;
+    static const std::uint8_t WEBSOCKET_OPCODE_BINARY           = 0x02U;
+    static const std::uint8_t WEBSOCKET_OPCODE_CONNECTION_CLOSE = 0x08U;
+    static const std::uint8_t WEBSOCKET_OPCODE_PING             = 0x09U;
+    static const std::uint8_t WEBSOCKET_OPCODE_PONG             = 0x0AU;
+
     TcpSocket();
-    TcpSocket(int sock);
+    TcpSocket(const Peer &peer);
     virtual ~TcpSocket();
 
     // Getters
     int  GetSocket() const
     {
-        return mSock;
+        return mPeer.socket;
     }
     int  GetIPAddr() const
     {
@@ -81,45 +124,46 @@ public:
 
     // Setters
     bool SetBlocking(bool block);
-    void SetSocket(int sock)
-    {
-        mSock = sock;
-    }
 
     // Helpers
     bool IsValid() const
     {
-        return mSock != -1;
+        return mPeer.IsValid();
     }
+
     bool Create();
     bool Bind(std::uint16_t port, bool localHostOnly);
     void Close();
     bool Listen(std::int32_t maxConnections) const;
-
+    bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
     // return true if socket has data waiting to be read
     bool DataWaiting(uint32_t timeout);
 
     /**
      * @brief Accept
-     * @return The new socket descriptor, valid if >0
+     * @return The new socket descriptor, valid if >=0
      */
     int Accept() const;
     std::int32_t Recv(ByteArray &output) const;
     bool Connect(const std::string &host, const int port);
-    bool Send(const std::string &input) const;
+    bool Send(const ByteArray &input) const;
 
     // Static
     static bool Initialize();
     static int AnalyzeSocketError(const char* context);
+    static bool Send(const ByteArray &input, const Peer &peer);
+    static void Close(Peer &peer);
+    static ByteArray BuildWsFrame(std::uint8_t opcode, const ByteArray &data);
 
-    bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
-
-private:
+protected:
     std::string mHost;
     std::uint16_t mPort;
-    int mSock;
+    Peer mPeer;
     sockaddr_in mAddr;
     static bool mOneTimeInit;
+
+private:
+    static bool SendToSocket(const ByteArray &input, std::int32_t socket);
 };
 
 #endif // TCPSOCKET_H
