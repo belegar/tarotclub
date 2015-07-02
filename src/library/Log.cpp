@@ -97,12 +97,16 @@ void Log::Save(const std::string &line)
 
     fileName = mLogPath + "/log_" + Util::CurrentDateTime("%Y-%m-%d") + ".csv";
 
-    f.open(fileName, std::ios_base::out | std::ios_base::binary  | std::ios_base::app);
-
-    if (f.is_open())
+    // Avoid generating too much log for the server
+    if (Util::FileSize(fileName) < SizeLimit)
     {
-        f << line << std::endl;
-        f.close();
+        f.open(fileName, std::ios_base::out | std::ios_base::binary  | std::ios_base::app);
+
+        if (f.is_open())
+        {
+            f << line << std::endl;
+            f.close();
+        }
     }
     mMutex.unlock();
 }

@@ -51,6 +51,8 @@ public:
     static const std::uint8_t Script;
     static const std::uint8_t Server;
 
+    static const std::uint32_t SizeLimit = 50 * (1024U * 1024U); // Filesize limit to 50MB per log
+
     Log();
 
     static void AddEntry(std::uint8_t event, const std::string &file, const int line, const std::string &message);
