@@ -216,7 +216,6 @@ public:
     static ByteArray ClientQuitTable(std::uint32_t client_uuid, std::uint32_t tableId);
 
     // table -> client (player): manage the Tarot game protocol and all the table related stuff
-    static ByteArray LobbyJoinTableReply(bool status, Place p, std::uint8_t nbPlayers, std::uint32_t uuid, std::uint32_t tableId);
     static ByteArray TableAllPassed(std::uint32_t tableId);
     static ByteArray TableFullMessage(std::uint32_t uuid, std::uint32_t tableId);
     static ByteArray TableAskForDiscard(std::uint32_t uuid, std::uint32_t tableId);
@@ -244,6 +243,7 @@ public:
     static ByteArray AdminGameFull(bool full, std::uint32_t uuid, std::uint32_t tableId);
 
     // Lobby -> client(s)
+    static ByteArray LobbyJoinTableReply(bool status, Place p, std::uint8_t nbPlayers, std::uint32_t uuid, std::uint32_t tableId);
     static ByteArray LobbyRequestLogin(std::uint32_t uuid);
     static ByteArray LobbyLoginResult(bool accepted, const std::map<std::string, std::uint32_t> &tableList, std::uint32_t uuid);
     static ByteArray LobbyDisconnect(std::uint32_t uuid);

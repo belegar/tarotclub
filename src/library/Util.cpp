@@ -179,6 +179,22 @@ bool Util::FileExists(const std::string &fileName)
     return ret;
 }
 /*****************************************************************************/
+/**
+ * @brief Util::FileSize
+ * @param fileName
+ * @return -1 means file not found
+ */
+std::int64_t Util::FileSize(const std::string &fileName)
+{
+    std::int64_t size = -1;
+    struct stat st;
+    if (::stat(fileName.c_str(), &st) == 0)
+    {
+        size = st.st_size;
+    }
+    return size;
+}
+/*****************************************************************************/
 std::string Util::GetFileName(const std::string &path)
 {
     return path.substr( path.find_last_of(DIR_SEPARATOR) + 1 );

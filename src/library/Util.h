@@ -53,6 +53,7 @@ public:
     static std::int32_t GetMaximumMemoryUsage();
     static std::string GetFileName(const std::string &path);
     static std::string GetDirectoryPath(const std::string &path);
+    static std::int64_t FileSize(const std::string &fileName);
 };
 
 #endif // UTIL_H
