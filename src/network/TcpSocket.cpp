@@ -108,7 +108,7 @@ const char* GetWinsockErrorString( int err )
  * @param context
  * @return -2 if not an error (retry later), -1 if it is a real error
  */
-int TcpSocket::AnalyzeSocketError(const char* context)
+int TcpSocket::AnalyzeSocketError(const Peer &peer, const char* context)
 {
     bool real_error = true;
     int e;
@@ -136,6 +136,7 @@ int TcpSocket::AnalyzeSocketError(const char* context)
     {
         std::stringstream ss;
         ss << "Socket error (" << e << ") in " << context << ": " << msg;
+        TcpSocket(peer).Close();
         TLogNetwork(ss.str());
     }
     else
@@ -144,6 +145,11 @@ int TcpSocket::AnalyzeSocketError(const char* context)
     }
 
     return ret;
+}
+/*****************************************************************************/
+int TcpSocket::AnalyzeSocketError(const char* context)
+{
+    return AnalyzeSocketError(mPeer, context);
 }
 /*****************************************************************************/
 bool TcpSocket::Send(const ByteArray &input, const Peer &peer)
@@ -207,7 +213,7 @@ bool TcpSocket::SendToSocket(const ByteArray &input, std::int32_t socket)
         int n = ::send(socket, buf, size, 0);
         if (n < 0)
         {
-            if (AnalyzeSocketError("send()") == -1)
+            if (TcpSocket::AnalyzeSocketError(Peer(socket, false), "send()") == -1)
             {
                 ret = false;
                 break;
@@ -392,6 +398,10 @@ bool TcpSocket::DataWaiting(std::uint32_t timeout)
     }
 }
 /*****************************************************************************/
+/**
+ * @brief Accept
+ * @return The new socket descriptor, valid if >=0
+ */
 int TcpSocket::Accept() const
 {
     int new_sd = ::accept(mPeer.socket, NULL, NULL);
@@ -515,7 +525,7 @@ bool TcpSocket::HostNameToIpAddress(const std::string &address, sockaddr_in &ipv
     return status;
 }
 /*****************************************************************************/
-std::int32_t TcpSocket::Recv(ByteArray &output) const
+std::int32_t TcpSocket::Recv(ByteArray &output)
 {
     int result = 0; // changed from int to ssize_t
     output.Alloc(MAXRECV); // book maximum space

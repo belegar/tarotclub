@@ -184,16 +184,24 @@ void TcpServer::Run()
             /**********************************************************/
             /* The select call failed.                                */
             /**********************************************************/
-            end_server = true;
-            mEventHandler.ServerTerminated(IEvent::WAIT_SOCK_FAILED);
+            int err = mTcpServer.AnalyzeSocketError("select()");
+            if (err == -1)
+            {
+                end_server = true;
+                mEventHandler.ServerTerminated(IEvent::WAIT_SOCK_FAILED);
+            }
         }
         else if (rc == 0)
         {
             /**********************************************************/
             /* The time out expired.                                  */
             /**********************************************************/
-            end_server = true;
-            mEventHandler.ServerTerminated(IEvent::TIMEOUT);
+            int err = mTcpServer.AnalyzeSocketError("select()");
+            if (err == -1)
+            {
+                end_server = true;
+                mEventHandler.ServerTerminated(IEvent::TIMEOUT);
+            }
         }
         else
         {
@@ -243,6 +251,8 @@ void TcpServer::Run()
                             IncommingData(mClients[j]);
                         }
                     }
+
+                    UpdateClients(); // refresh status, manage proper closing if necessary
                     mMutex.unlock();
                 }
             }
@@ -333,10 +343,9 @@ void TcpServer::IncommingConnection(bool isWebSocket)
     while (new_sd >= 0);
 }
 /*****************************************************************************/
-bool TcpServer::IncommingData(Conn &conn)
+void TcpServer::IncommingData(Conn &conn)
 {
     TcpSocket socket(conn);
-    bool ret = false;
     int rc;
     ByteArray data;
 
@@ -356,8 +365,6 @@ bool TcpServer::IncommingData(Conn &conn)
 
     if (rc > 0)
     {
-        ret = true;
-
         if (conn.isWebSocket)
         {
             ManageWsData(conn, data);
@@ -374,38 +381,53 @@ bool TcpServer::IncommingData(Conn &conn)
     }
     else
     {
-        /*************************************************/
-        /* Check to see if the connection has been       */
-        /* closed by the client.                         */
-        /* This clean up process includes removing the   */
-        /* descriptor from the master set and            */
-        /* determining the new maximum descriptor value  */
-        /* based on the bits that are still turned on in */
-        /* the master set.                               */
-        /*************************************************/
-        socket.Close();
+        // Peer has closed the connection, schedule the cleaning
+        conn.state = Conn::cStateDeleteLater;
+    }
+}
+/*****************************************************************************/
+void TcpServer::UpdateClients()
+{
+    bool cleanUp = true;
+    /*************************************************/
+    /* Check to see if the connection has been       */
+    /* closed by the client.                         */
+    /* This clean up process includes removing the   */
+    /* descriptor from the master set and            */
+    /* determining the new maximum descriptor value  */
+    /* based on the bits that are still turned on in */
+    /* the master set.                               */
+    /*************************************************/
 
+    while (cleanUp)
+    {
+        bool haveDeleted = false;
         for (size_t i = 0; i < mClients.size(); i++)
         {
-            if (mClients[i] == conn.socket)
+            Conn conn = mClients[i];
+            if (conn.state == Conn::cStateDeleteLater)
             {
+                FD_CLR((u_int)conn.socket, &mMasterSet); // need a cast here because of the macro
+
                 mClients.erase(mClients.begin() + i);
+
+                // Signal the disconnection
+                // In case of the websocket, only warn upper layers if the handshake process has been done
+                if (conn.IsConnected())
+                {
+                    mEventHandler.ClientClosed(conn);
+                }
+                conn.wsPayload.Clear();
+                conn.state = Conn::cStateClosed;
+
+                haveDeleted = true;
+                break; // we have modified the array so we can't continue, leave the loop!!
             }
         }
-        FD_CLR((u_int)conn.socket, &mMasterSet); // need a cast here because of the macro
-        UpdateMaxSocket();
-
-        // Signal the disconnection
-        // In case of the websocket, only warn upper layers if the handshake process has been done
-        if (conn.IsConnected())
-        {
-            mEventHandler.ClientClosed(conn);
-        }
-        conn.wsPayload.Clear();
-        conn.state = Conn::cStateClosed;
+        cleanUp = haveDeleted; // continue cleanup
     }
 
-    return ret;
+    UpdateMaxSocket();
 }
 /*****************************************************************************/
 void TcpServer::UpdateMaxSocket()

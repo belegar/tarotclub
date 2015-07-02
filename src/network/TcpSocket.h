@@ -138,19 +138,15 @@ public:
     bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
     // return true if socket has data waiting to be read
     bool DataWaiting(uint32_t timeout);
-
-    /**
-     * @brief Accept
-     * @return The new socket descriptor, valid if >=0
-     */
+    int AnalyzeSocketError(const char* context);
     int Accept() const;
-    std::int32_t Recv(ByteArray &output) const;
+    std::int32_t Recv(ByteArray &output);
     bool Connect(const std::string &host, const int port);
     bool Send(const ByteArray &input) const;
 
     // Static
     static bool Initialize();
-    static int AnalyzeSocketError(const char* context);
+    static int AnalyzeSocketError(const Peer &peer, const char* context);
     static bool Send(const ByteArray &input, const Peer &peer);
     static void Close(Peer &peer);
     static ByteArray BuildWsFrame(std::uint8_t opcode, const ByteArray &data);

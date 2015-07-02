@@ -108,6 +108,7 @@ private:
     {
         static const std::uint8_t cStateClosed      = 0U;
         static const std::uint8_t cStateConnected   = 1U;
+        static const std::uint8_t cStateDeleteLater = 2U;
 
         Conn()
             : Peer()
@@ -191,11 +192,12 @@ private:
     static void EntryPoint(void *pthis);
     void Run();
     void IncommingConnection(bool isWebSocket);
-    bool IncommingData(Conn &conn);
+    void IncommingData(Conn &conn);
     void UpdateMaxSocket();
     void ManageWsData(Conn &conn, const ByteArray &data);
     void DeliverWsData(Conn &conn, const ByteArray &data);
     std::string WsOpcodeToString(std::uint8_t opcode);
+    void UpdateClients();
 };
 
 
