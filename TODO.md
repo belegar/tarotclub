@@ -82,6 +82,15 @@
   * Dynamically create SVG images (usage of one card "background" for all the cards, and a set of illustrations for all the cards)
   * Create a old-style gradient (pale-yellow) in all the cards
 
+keywords:
+Ornament svg
+Underline Swirl
+decorative frame
+vintage
+interlaced border
+celtic knot
+table felt
+
 ## Porting to other OS
 
   * Mac OS X version
