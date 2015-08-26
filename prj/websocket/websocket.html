@@ -1,45 +1,39 @@
+
+<!DOCTYPE html>
 <html>
 <head>
+
+<!-- Required for non-UTF encodings -->
+<script src="lib/encoding-indexes.js"></script>
+<script src="lib/encoding.js"></script>
+<script data-main="app" src="lib/require.js"></script>
+
+<!--
 <script>
+var littleEndian = (function() {
+  var buffer = new ArrayBuffer(2);
+  new DataView(buffer).setInt16(0, 256); // , true); // true arg make it little endian?
+  return new Int16Array(buffer)[0] === 256;
+})();
+console.log(littleEndian); // true or false
 
-	var socket = null;
-	function Initialize()
-	{
-		try {
-			socket = new WebSocket('ws://localhost:4270', 'tarotclub');
-			console.log('WebSocket - status ' + socket.readyState);
-			socket.onopen = function (msg)
-			{ 
-				console.log("Connected - status " + this.readyState);
-				socket.send("coucou");
-			};
+var data = new ArrayBuffer(2);
+var view = new DataView(data);
 
-			socket.onmessage = function (msg)
-			{
-				if (typeof msg.data === "string"){
-					console.log("received text data from the server: " + msg.data);
-				} else if (msg.data instanceof Blob){
-					console.log("Blob data received")
-				}
-			};
+view.setInt8(0, 1);
+view.setInt8(0, 2);
 
-			socket.onclose = function (msg)
-			{
-				console.log("Disconnected - status " + this.readyState + ", code=" + msg.code 
-						+ ", wasClean=" + msg.wasClean + ", Reason=" + msg.reason,	"Closed");
-			};
-		}
-		catch (ex)
-		{
-			console.log(ex);
-		}
-	}
+
+ var buffer = new ArrayBuffer(3 + data.byteLength);
+
+
+//        buffer = data.slice(0);
+//        new DataView(buffer).setInt16(0, 256, true);
+
 </script>
-
+-->
 
 </head>
 
-<body onload="Initialize()">
-	
 </body>
 </html>
