@@ -109,6 +109,10 @@ void LobbyServer::ReadData(const Peer &peer, const ByteArray &data)
         mWorkItem.data = data;
         Protocol::GetInstance().Execute(mWorkItem); // Actually decode the packet
     }
+    else
+    {
+        TLogNetwork("Invalid packet received");
+    }
 }
 /*****************************************************************************/
 void LobbyServer::ClientClosed(const Peer &peer)

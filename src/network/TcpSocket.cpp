@@ -158,7 +158,7 @@ bool TcpSocket::Send(const ByteArray &input, const Peer &peer)
 
     if (peer.isWebSocket)
     {
-        ret = SendToSocket(BuildWsFrame(WEBSOCKET_OPCODE_TEXT, input), peer.socket);
+        ret = SendToSocket(BuildWsFrame(WEBSOCKET_OPCODE_BINARY, input), peer.socket);
     }
     else
     {

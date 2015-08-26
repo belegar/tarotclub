@@ -594,7 +594,6 @@ void TcpServer::DeliverWsData(Conn &conn, const ByteArray &data)
         {
             // Send the received data
             mEventHandler.ReadData(conn, conn.wsPayload);
-            TLogNetwork("WebSocket data: " + conn.wsPayload.ToSring());
         }
     }
 }
