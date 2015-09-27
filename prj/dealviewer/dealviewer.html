@@ -3,52 +3,73 @@
 	<title>TarotClub deal viewer</title>
         <style media="screen">
         body {
-            background: #030 url("bg.png");
+					background-image:url("tarot1.jpg");
+					background-repeat:no-repeat;
+					height: 1080px;
+					width: 1920px;
         }
         </style>
+
+				<link href="jquery-ui.min.css" rel="stylesheet">
 
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<script type="text/javascript" src="system.js"></script>
 	<script type="text/javascript" src="../../assets/ai/tarotlib/util.js"></script>
 	<script type="text/javascript" src="../../assets/ai/tarotlib/card.js"></script>
 	<script type="text/javascript" src="../../assets/ai/tarotlib/deck.js"></script>
-	
+
 	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 	<script type="text/javascript" src="jquery-ui.min.js"></script>
 	<script type="text/javascript" src="snap.svg-min.js"></script>
-	
+
+	<link type="text/css" href="jquery.ui.chatbox.css" rel="stylesheet" />
+  <script type="text/javascript" src="jquery.ui.chatbox.js"></script>
+
 <script type="text/javascript">
-	
+
 	var dealFile;
 	var snap;
-	
-	function init() 
-    {
-		snap = Snap("#svg");
-		
-		CreateTarotDeck(snap);
 
-		var dropzone = document.getElementById("dropzone");
-		dropzone.ondragover = dropzone.ondragenter = function(event)
-		{
-			event.stopPropagation();
-			event.preventDefault();
-		}
-    
-		dropzone.ondrop = function(event)
-		{
-			event.stopPropagation();
-			event.preventDefault();
+	/*
 
-			var filesArray = event.dataTransfer.files;
-			
-			if (filesArray.length > 0)
-			{
-				DisplayDeal(filesArray[0]);
-			}
-		}	
+	var filesArray = event.dataTransfer.files;
+
+	if (filesArray.length > 0)
+	{
+		DisplayDeal(filesArray[0]);
 	}
-	
+
+
+	*/
+
+
+	function Initialize()
+  {
+		var box = null;
+          $("input[type='button']").click(function(event, ui) {
+              if(box) {
+                  box.chatbox("option", "boxManager").toggleBox();
+              }
+              else {
+                  box = $("#chat_div").chatbox({id:"chat_div",
+                                                user:{key : "value"},
+                                                title : "test chat",
+                                                messageSent : function(id, user, msg) {
+                                                    $("#log").append(id + " said: " + msg + "<br/>");
+                                                    $("#chat_div").chatbox("option", "boxManager").addMsg(id, msg);
+                                                }});
+              }
+          });
+
+
+			snap = Snap(1920, 1080);
+		g = snap.group();
+		var miniDeck = Snap.load("minideck.svg", function(fragment) {
+				g.append(fragment);
+				CreateTarotDeck();
+		});
+  }
+
 	function DisplayDeal(file)
 	{
 		var reader = new FileReader();
@@ -58,11 +79,11 @@
 			try {
 				deal = JSON.parse(reader.result);
 			} catch (e) {
-				console.error("Parsing error:", e); 
+				console.error("Parsing error:", e);
 				alert('Parsing error');
 				deal = undefined;
 			}
-			
+
 			if (deal != undefined)
 			{
 				var x = 0;
@@ -70,14 +91,14 @@
 				for (var i = 0; i < deal.tricks.length; i++) {
 					var deck = new TarotLib.Deck();
 					deck.setCards(deal.tricks[i]);
-					
+
 					for (var j = 0; j < deck.size(); j++) {
 						var card = deck.get(j);
 						g = snap.select("#c" + card.getName());
 						g.attr({
 							transform: "translate(" + x + ", " + y + ")"
 						});
-						
+
 						x += 65;
 					}
 					x = 0;
@@ -87,28 +108,29 @@
 		};
 		reader.readAsText(file);
 	}
-	
-	function CreateTarotDeck(snap)
+
+	function CreateTarotDeck()
 	{
 		var deck = new TarotLib.Deck();
 		deck.makeTarotDeck();
-		
+
 		var x = 0;
 		var y = 0;
 		for (var i = 0; i < deck.size(); i++)
 		{
 			var card = deck.get(i);
-			var cardSvg = snap.select("#c" + card.getName());
+			var cardSvg = snap.selectAll("#c" + card.getName());
 			cardSvg.attr({
 				transform: "translate(" + x + ", " + y + ")"
 			});
-			
+
+
 			var limit = 14;
 			if (card.suit == "T")
 			{
 				limit = 13;
 			}
-			
+
 			if (card.value == limit)
 			{
 				x = 0;
@@ -120,20 +142,22 @@
 			}
 		}
 	}
- 
+
 </script>
 
 
 </head>
 
-<body onload="init()">
-	
-	<div>
-        <div id="dropzone" style="margin:30px; width:500px; height:100px; border:4px dotted grey;">Drag & drop your deal file here...</div>
-    </div>
-	
-	<object type="image/svg+xml" data="../../assets/cards/minideck.svg" />
-	
+<body onload="Initialize()">
+
+	<p>It will not work untill necessary scripts and stylesheets are
+	    properly loaded, check out the code.</p>  <input type="button"
+	    name="toggle" value="toggle" />
+	    <div id="chat_div">
+	    </div>
+	    <hr />
+	    <div id="log">
+	    </div>
+
 </body>
 </html>
- 

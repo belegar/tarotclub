@@ -112,7 +112,7 @@ public:
     void Disconnect();
 
     // Configuration management
-    void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
+    void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt, const TournamentOptions &i_tournamentOpt);
 
     // Getters about various current game information, external usage
     QMap<Place, Identity> GetTablePlayersList()
@@ -200,6 +200,7 @@ private:
     LobbyServer     mLobbyServer;
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
+    TournamentOptions mTournamentOptions;
     ClientHelper    mClient;
     Deck            mDiscard;
     ConnectionType  mConnectionType;

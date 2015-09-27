@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - ServerConfig.h
  *=============================================================================
- * Classe de gestion du fichier d'options en XML (serveur)
+ * Network server parameters
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -37,7 +37,6 @@ struct ServerOptions
     bool localHostOnly; // if true, restrict to local host server
     std::string name;
     std::vector<std::string> tables; // table list names
-    std::vector<Tarot::Distribution> tournament; // one game parameter per turn (vector size is the number of turns)
 };
 
 /*****************************************************************************/
@@ -49,8 +48,6 @@ public:
     static const std::uint16_t  DEFAULT_CONSOLE_TCP_PORT    = 8090U;
     static const std::uint32_t  DEFAULT_LOBBY_MAX_CONN      = 250U;
     static const std::string    DEFAULT_SERVER_CONFIG_FILE;
-    static const std::uint8_t   DEFAULT_NUMBER_OF_TURNS     = 5U;
-    static const std::uint8_t   MAX_NUMBER_OF_TURNS         = 40U;
     static const std::string    DEFAULT_SERVER_NAME;
 
     ServerConfig();

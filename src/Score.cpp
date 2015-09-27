@@ -191,13 +191,13 @@ std::int32_t Points::GetPoints(const Team team, const Tarot::Bid &bid) const
 /*****************************************************************************/
 Score::Score()
 {
-    NewGame(ServerConfig::DEFAULT_NUMBER_OF_TURNS);
+    NewGame(TournamentConfig::DEFAULT_NUMBER_OF_TURNS);
 }
 /*****************************************************************************/
 void Score::NewGame(std::uint8_t numberOfTurns)
 {
     // Reset tournament information
-    for (std::uint32_t i = 0U; i < ServerConfig::MAX_NUMBER_OF_TURNS; i++)
+    for (std::uint32_t i = 0U; i < TournamentConfig::MAX_NUMBER_OF_TURNS; i++)
     {
         for (std::uint32_t j = 0U; j < 5U; j++)
         {

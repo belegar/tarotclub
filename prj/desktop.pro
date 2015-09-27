@@ -53,6 +53,7 @@ VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/src/network
 VPATH += $$BASE_DIR/src/zip
 VPATH += $$BASE_DIR/src/lobby
+VPATH += $$BASE_DIR/src/config
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
@@ -73,6 +74,7 @@ INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/network
 INCLUDEPATH += $$BASE_DIR/src/zip
 INCLUDEPATH += $$BASE_DIR/src/lobby
+INCLUDEPATH += $$BASE_DIR/src/config
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -206,6 +208,7 @@ SOURCES += duktape.c \
 # ------------------------------------------------------------------------------
 HEADERS += ServerConfig.h \
     ClientConfig.h \
+    TournamentConfig.h \
     DealFile.h \
     Deck.h \
     Card.h \
@@ -228,6 +231,7 @@ HEADERS += ServerConfig.h \
 
 SOURCES += ServerConfig.cpp \
     ClientConfig.cpp \
+    TournamentConfig.cpp \
     DealFile.cpp \
     Deck.cpp \
     Card.cpp \
