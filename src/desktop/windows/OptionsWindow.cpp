@@ -373,6 +373,11 @@ void OptionsWindow::SetServerOptions(const ServerOptions &opt)
     mServerOptions = opt;
 }
 /*****************************************************************************/
+void OptionsWindow::SetTournamentOptions(const TournamentOptions &opt)
+{
+    mTournamentOptions = opt;
+}
+/*****************************************************************************/
 ClientOptions &OptionsWindow::GetClientOptions()
 {
     return mClientOptions;
@@ -381,6 +386,11 @@ ClientOptions &OptionsWindow::GetClientOptions()
 ServerOptions &OptionsWindow::GetServerOptions()
 {
     return mServerOptions;
+}
+/*****************************************************************************/
+TournamentOptions &OptionsWindow::GetTournamentOptions()
+{
+    return mTournamentOptions;
 }
 /*****************************************************************************/
 void OptionsWindow::slotColorPicker()
@@ -494,7 +504,7 @@ void OptionsWindow::slotBtnOk()
                                     QMessageBox::Ok);
     }
 
-    mServerOptions.tournament.clear();
+    mTournamentOptions.turns.clear();
     for (int i = 0; i < ui.tournamentList->rowCount(); i++)
     {
         QString dealType = ui.tournamentList->item(i, 1)->text();
@@ -506,7 +516,7 @@ void OptionsWindow::slotBtnOk()
         deal.mSeed = seed.toInt();
         deal.mType = static_cast<std::uint8_t>(dealType.toInt());
 
-        mServerOptions.tournament.push_back(deal);
+        mTournamentOptions.turns.push_back(deal);
     }
 
     if (valid)
@@ -822,8 +832,8 @@ void OptionsWindow::Refresh()
 
     ui.tournamentList->setRowCount(0);
     int row;
-    for (iter = mServerOptions.tournament.begin();
-         iter != mServerOptions.tournament.end();
+    for (iter = mTournamentOptions.turns.begin();
+         iter != mTournamentOptions.turns.end();
          ++iter)
     {
         row = ui.tournamentList->rowCount();

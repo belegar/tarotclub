@@ -113,7 +113,7 @@ void TarotWidget::slotCleanBeforeExit()
 void TarotWidget::slotNewTournamentGame()
 {
     mClient.mGame.mode = Tarot::Game::cSimpleTournament;
-    mClient.mGame.deals = mServerOptions.tournament;
+    mClient.mGame.deals = mTournamentOptions.turns;
 
     LaunchLocalGame(false);
 }
@@ -621,7 +621,7 @@ void TarotWidget::InitScreen(bool rawClear)
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 }
 /*****************************************************************************/
-void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt)
+void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt, const TournamentOptions &i_tournamentOpt)
 {
     // Save option structures locally
     mClientOptions = i_clientOpt;

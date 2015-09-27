@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - ServerConfig.cpp
  *=============================================================================
- * Classe de gestion du fichier d'options en XML (serveur)
+ * Network server parameters
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -30,7 +30,7 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "6"; // increase the version to force any incompatible update in the file structure
+static const std::string SERVER_CONFIG_VERSION  = "7"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
 const std::string ServerConfig::DEFAULT_SERVER_NAME = "desktop";
 
@@ -98,62 +98,6 @@ bool ServerConfig::Load(const std::string &fileName)
                     mOptions.name = value;
                 }
 
-                // Setup tournament configuration
-                mOptions.tournament.clear();
-                JsonValue tournament = json.FindValue("tournament");
-                if (tournament.GetArray().Size() > 0U)
-                {
-                    for (JsonArray::Iterator iter = tournament.GetArray().Begin(); iter != tournament.GetArray().End(); ++iter)
-                    {
-                        if (iter->IsObject())
-                        {
-                            JsonValue value = iter->GetObject().GetValue("type");
-                            Tarot::Distribution shuffle;
-                            if (value.IsString())
-                            {
-                                if (value.GetString() == "custom")
-                                {
-                                    shuffle.mType = Tarot::Distribution::CUSTOM_DEAL;
-                                    value = iter->GetObject().GetValue("file");
-                                    if (value.IsString())
-                                    {
-                                        shuffle.mFile = value.GetString();
-                                    }
-                                    else
-                                    {
-                                        ret = false;
-                                    }
-                                }
-                                else if (value.GetString() == "random")
-                                {
-                                    shuffle.mType = Tarot::Distribution::RANDOM_DEAL;
-                                }
-                                else  if (value.GetString() == "numbered")
-                                {
-                                    shuffle.mType = Tarot::Distribution::NUMBERED_DEAL;
-                                    shuffle.mSeed = iter->GetObject().GetValue("number").GetInteger();
-                                    // FIXME we can add a test on the type here before setting the seed
-                                }
-                                else
-                                {
-                                    TLogError("Unsupported deal type value");
-                                    ret = false;
-                                }
-                            }
-
-                            if (ret)
-                            {
-                                mOptions.tournament.push_back(shuffle);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    TLogError("No tournament details");
-                    ret = false;
-                }
-
                 mOptions.tables.clear();
                 JsonValue tables = json.FindValue("tables");
 
@@ -206,37 +150,6 @@ bool ServerConfig::Save(const std::string &fileName)
     json.AddValue("local_host_only", mOptions.localHostOnly);
     json.AddValue("name", mOptions.name);
 
-    JsonArray tournament;
-    for (std::vector<Tarot::Distribution>::iterator iter =  mOptions.tournament.begin(); iter !=  mOptions.tournament.end(); ++iter)
-    {
-        std::string type;
-        std::string file;
-        std::uint32_t number = 0U;
-        JsonObject obj;
-
-        if (iter->mType == Tarot::Distribution::RANDOM_DEAL)
-        {
-            type = "random";
-            file = "";
-        }
-        else if (iter->mType == Tarot::Distribution::CUSTOM_DEAL)
-        {
-            type = "custom";
-            file = iter->mFile;
-        }
-        else
-        {
-            type = "numbered";
-            number = iter->mSeed;
-        }
-
-        obj.AddValue("type", type);
-        obj.AddValue("file", file);
-        obj.AddValue("number", number);
-        tournament.AddValue(obj);
-    }
-    json.AddValue("tournament", tournament);
-
     JsonArray tables;
     for (std::vector<std::string>::iterator iter =  mOptions.tables.begin(); iter !=  mOptions.tables.end(); ++iter)
     {
@@ -263,11 +176,6 @@ ServerOptions ServerConfig::GetDefault()
     opt.name                = DEFAULT_SERVER_NAME;
     opt.tables.push_back("Table 1"); // default table name (one table minimum)
 
-    // Default tournament is some random deals
-    for (std::uint32_t i = 0U; i < DEFAULT_NUMBER_OF_TURNS; i++)
-    {
-        opt.tournament.push_back(Tarot::Distribution());
-    }
     return opt;
 }
 

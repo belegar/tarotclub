@@ -104,6 +104,7 @@ private:
 
     ClientConfig    mClientConfig;
     ServerConfig    mServerConfig;
+    TournamentConfig mTournamentConfig;
 
     // Menus
     QMenu *gameMenu;

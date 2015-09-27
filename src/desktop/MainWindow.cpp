@@ -114,10 +114,12 @@ void MainWindow::Initialize()
 
     mClientConfig.Load(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
     mServerConfig.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
+    mTournamentConfig.Load(System::HomePath() + TournamentConfig::DEFAULT_FILE_NAME);
 
     tarotWidget->Initialize();
     tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
-                              mServerConfig.GetOptions());
+                              mServerConfig.GetOptions(),
+                              mTournamentConfig.GetOptions());
 
     mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
     debugDock->Initialize();
@@ -261,17 +263,22 @@ void MainWindow::slotShowOptions()
 {
     optionsWindow->SetClientOptions(mClientConfig.GetOptions());
     optionsWindow->SetServerOptions(mServerConfig.GetOptions());
+    optionsWindow->SetTournamentOptions(mTournamentConfig.GetOptions());
     optionsWindow->Refresh();
 
     if (optionsWindow->exec() == QDialog::Accepted)
     {
         mClientConfig.SetOptions(optionsWindow->GetClientOptions());
         mServerConfig.SetOptions(optionsWindow->GetServerOptions());
+        mTournamentConfig.SetOptions(optionsWindow->GetTournamentOptions());
 
         mClientConfig.Save(System::HomePath() + ClientConfig::DEFAULT_CLIENT_CONFIG_FILE);
         mServerConfig.Save(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
+        mTournamentConfig.Save(System::HomePath() + TournamentConfig::DEFAULT_FILE_NAME);
+
         tarotWidget->ApplyOptions(mClientConfig.GetOptions(),
-                                  mServerConfig.GetOptions());
+                                  mServerConfig.GetOptions(),
+                                  mTournamentConfig.GetOptions());
         mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
     }
 }
