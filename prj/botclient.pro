@@ -52,6 +52,7 @@ VPATH += $$TAROTCLUB_DIR/ai
 VPATH += $$TAROTCLUB_DIR/ai/tarotlib
 VPATH += $$TAROTCLUB_DIR/src/network
 VPATH += $$TAROTCLUB_DIR/src/zip
+VPATH += $$TAROTCLUB_DIR/src/config
 
 # ------------------------------------------------------------------------------
 # Where to find header files
@@ -63,6 +64,7 @@ INCLUDEPATH += $$TAROTCLUB_DIR/src/jsengine
 INCLUDEPATH += $$TAROTCLUB_DIR/src/json
 INCLUDEPATH += $$TAROTCLUB_DIR/src/network
 INCLUDEPATH += $$TAROTCLUB_DIR/src/zip
+INCLUDEPATH += $$TAROTCLUB_DIR/src/config
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -140,6 +142,7 @@ SOURCES += duktape.c \
 # TarotClub core files
 # -------------------------------------------------------------
 HEADERS += ClientConfig.h \
+    ServerConfig.h \
     Deck.h \
     Card.h \
     Player.h \
@@ -154,6 +157,7 @@ HEADERS += ClientConfig.h \
     System.h
 
 SOURCES += ClientConfig.cpp \
+    ServerConfig.cpp \
     Deck.cpp \
     Card.cpp \
     Player.cpp \

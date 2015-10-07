@@ -187,7 +187,7 @@ public slots:
     // These slots are made available to link them to any external widget
     void slotNewTournamentGame();
     void slotNewQuickGame();
-    void slotCreateNetworkGame();
+    void slotCreateHostedGame();
     void slotNewAutoPlay();
     void slotCleanBeforeExit();
     void slotSendChatMessage(const QString &message);

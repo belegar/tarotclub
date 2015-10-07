@@ -54,11 +54,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
 
-    // Game menu to TarotWidget
-    connect(newQuickGameAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewQuickGame);
-    connect(newTournamentAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewTournamentGame);
-//    connect(netGameServerAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateNetworkGame);
-
     // TarotWidget events
     connect(tarotWidget, &TarotWidget::sigTablePlayersList, this, &MainWindow::slotPlayersListEvent, Qt::QueuedConnection);
     connect(tarotWidget, &TarotWidget::sigShowCard, this, &MainWindow::slotShowCardEvent, Qt::QueuedConnection);
@@ -76,9 +71,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tarotWidget, &TarotWidget::sigEnteredLobby, this, &MainWindow::slotEnteredLobby, Qt::QueuedConnection);
 
     // Game menu specific to desktop version
+    connect(newQuickGameAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewQuickGame);
+    connect(newTournamentAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewTournamentGame);
+
     connect(newNumberedDealAct, &QAction::triggered, this, &MainWindow::slotNewNumberedDeal);
     connect(newCustomDealAct, &QAction::triggered, this, &MainWindow::slotNewCustomDeal);
-//    connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
+
+    connect(netQuickJoinAct, &QAction::triggered, this, &MainWindow::slotQuickJoinNetworkGame);
+    connect(netHostGameAct, &QAction::triggered, tarotWidget, &TarotWidget::slotCreateHostedGame);
+
     connect(optionsAct, &QAction::triggered, this, &MainWindow::slotShowOptions);
     connect(newAutoPlayAct, &QAction::triggered, tarotWidget, &TarotWidget::slotNewAutoPlay);
     connect(dealsAct, &QAction::triggered, this, &MainWindow::slotDisplayDeals);
@@ -401,15 +402,14 @@ void MainWindow::SetupMenus()
     onlineGameAct->setShortcut(tr("Ctrl+P"));
     onlineGameAct->setStatusTip(tr("Join a TarotClub game server"));
 
-    /*
-    netGameServerAct = new QAction(tr("Create a network game serve&r"), this);
-    netGameServerAct->setShortcut(tr("Ctrl+R"));
-    netGameServerAct->setStatusTip(tr("Create a network game and invite friends to join the game"));
+    netHostGameAct = new QAction(tr("Create a network game serve&r"), this);
+    netHostGameAct->setShortcut(tr("Ctrl+R"));
+    netHostGameAct->setStatusTip(tr("Create a network game and invite friends to join the game"));
 
     netQuickJoinAct = new QAction(tr("&Quick join a network game"), this);
     netQuickJoinAct->setShortcut(tr("Ctrl+U"));
     netQuickJoinAct->setStatusTip(tr("Join a game server created using TarotClub"));
-*/
+
     QAction *exitAct = new QAction(tr("&Quit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Quit the game"));
@@ -421,16 +421,14 @@ void MainWindow::SetupMenus()
     gameMenu->addAction(newTournamentAct);
     gameMenu->addAction(newNumberedDealAct);
     gameMenu->addAction(newCustomDealAct);
+
     gameMenu->addSeparator();
     gameMenu->addAction(mLobbyDock->toggleViewAction());
+    gameMenu->addAction(netHostGameAct);
+    gameMenu->addAction(netQuickJoinAct);
+
     gameMenu->addSeparator();
     gameMenu->addAction(exitAct);
-
-    /*
-    netMenu->addSeparator();
-    netMenu->addAction(netGameServerAct);
-    netMenu->addAction(netQuickJoinAct);
-*/
 
     //---------------
     // Windows menu

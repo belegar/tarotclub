@@ -28,6 +28,7 @@
 #include "Bot.h"
 #include "GetOptions.h"
 #include "ClientConfig.h"
+#include "ServerConfig.h"
 #include "Util.h"
 #include "JsonReader.h"
 
