@@ -56,7 +56,8 @@ public:
     {
         NO_CONNECTION,
         LOCAL,
-        REMOTE
+        REMOTE,
+        HOSTED
     };
 
     enum Sequence
@@ -107,6 +108,7 @@ public:
     void NewCustomDeal(const std::string &file);
     void LaunchLocalGame(bool autoPlay);
     void LaunchRemoteGame(const std::string &ip, std::uint16_t port);
+    void LaunchHostedGame();
     void JoinTable(std::uint32_t tableId);
     void QuitTable(std::uint32_t tableId);
     void Disconnect();

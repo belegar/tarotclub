@@ -201,7 +201,7 @@ void MainWindow::slotQuitTable(std::uint32_t tableId)
 /*****************************************************************************/
 void MainWindow::slotTableQuitEvent(std::uint32_t tableId)
 {
-    if (tarotWidget->GetConnectionType() == TarotWidget::REMOTE)
+    if (tarotWidget->GetConnectionType() != TarotWidget::LOCAL)
     {
         mLobbyDock->SetTableStatus(tableId, false);
     }
@@ -211,7 +211,7 @@ void MainWindow::slotTableQuitEvent(std::uint32_t tableId)
 /*****************************************************************************/
 void MainWindow::slotTableJoinEvent(std::uint32_t tableId)
 {
-    if (tarotWidget->GetConnectionType() == TarotWidget::REMOTE)
+    if (tarotWidget->GetConnectionType() != TarotWidget::LOCAL)
     {
         mLobbyDock->SetTableStatus(tableId, true);
     }
@@ -235,7 +235,7 @@ void MainWindow::DisconnectedFromServer()
 /*****************************************************************************/
 void MainWindow::slotEnteredLobby()
 {
-    if (tarotWidget->GetConnectionType() == TarotWidget::REMOTE)
+    if (tarotWidget->GetConnectionType() != TarotWidget::LOCAL)
     {
         mLobbyDock->SetTables(tarotWidget->GetTableList());
     }
@@ -243,7 +243,7 @@ void MainWindow::slotEnteredLobby()
 /*****************************************************************************/
 void MainWindow::slotLobbyPlayersList()
 {
-    if (tarotWidget->GetConnectionType() == TarotWidget::REMOTE)
+    if (tarotWidget->GetConnectionType() != TarotWidget::LOCAL)
     {
         mLobbyDock->SetPlayersNames(tarotWidget->GetLobbyPlayersList());
     }

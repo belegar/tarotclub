@@ -147,7 +147,7 @@ void TarotWidget::NewCustomDeal(const std::string &file)
 /*****************************************************************************/
 void TarotWidget::slotCreateHostedGame()
 {   
-    LaunchRemoteGame("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
+    LaunchHostedGame();
 }
 /*****************************************************************************/
 void TarotWidget::slotNewAutoPlay()
@@ -585,15 +585,33 @@ void TarotWidget::LaunchLocalGame(bool autoPlay)
 /*****************************************************************************/
 void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
 {
+    if (mConnectionType != HOSTED)
+    {
+        // Destroy any local stuff before connecting elsewhere
+        mNet.Disconnect();
+        mLobbyServer.Stop();
+        mLobbyServer.WaitForEnd();
+        InitScreen(true);
+        mConnectionType = REMOTE;
+    }
+
+    // Connect us to the server
+    mNet.ConnectToHost(ip, port);
+}
+/*****************************************************************************/
+void TarotWidget::LaunchHostedGame()
+{
     // Destroy any local stuff before connecting elsewhere
     mNet.Disconnect();
     mLobbyServer.Stop();
     mLobbyServer.WaitForEnd();
     InitScreen(true);
-    mConnectionType = REMOTE;
+    mConnectionType = HOSTED;
 
-    // Connect us to the server
-    mNet.ConnectToHost(ip, port);
+    ServerOptions opt = mServerOptions;
+    opt.localHostOnly = false;
+
+    mLobbyServer.Initialize(opt);
 }
 /*****************************************************************************/
 void TarotWidget::JoinTable(std::uint32_t tableId)
