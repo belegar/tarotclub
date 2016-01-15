@@ -26,9 +26,6 @@
 #ifndef TAROT_WIDGET_H_
 #define TAROT_WIDGET_H_
 
-#include <QWidget>
-#include <QEvent>
-
 // Game includes
 #include "JsonClient.h"
 #include "NetClient.h"
@@ -39,6 +36,9 @@
 #include "GfxCard.h"
 #include "Canvas.h"
 #include "BotManager.h"
+
+#include <QWidget>
+#include <QEvent>
 
 /*****************************************************************************/
 /**

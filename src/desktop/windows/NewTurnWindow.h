@@ -23,6 +23,8 @@
  *=============================================================================
  */
 
+#include <cstdint>
+
 // Qt includes
 #include <QLabel>
 #include <QDialog>

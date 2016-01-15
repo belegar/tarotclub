@@ -30,6 +30,7 @@
 #include <list>
 #include <thread>
 #include <map>
+#include <memory>
 #include "Player.h"
 #include "Identity.h"
 #include "ByteArray.h"

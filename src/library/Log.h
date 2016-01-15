@@ -26,6 +26,7 @@
 #ifndef LOG_H
 #define LOG_H
 
+#include <cstdint>
 #include <mutex>
 #include <map>
 #include "Observer.h"
