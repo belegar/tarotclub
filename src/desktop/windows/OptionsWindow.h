@@ -36,6 +36,7 @@
 #include "Common.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
+#include "TournamentConfig.h"
 #include "Card.h"
 #include "ImportAvatarWindow.h"
 #include "NewTurnWindow.h"
@@ -109,10 +110,12 @@ public:
     // Getters
     ClientOptions &GetClientOptions();
     ServerOptions &GetServerOptions();
+    TournamentOptions &GetTournamentOptions();
 
     // Setters
     void SetClientOptions(const ClientOptions &opt);
     void SetServerOptions(const ServerOptions &opt);
+    void SetTournamentOptions(const TournamentOptions &opt);
 
     void Refresh();
 
@@ -147,6 +150,7 @@ private:
     QDialog *mAvatarsDiag;
     ClientOptions    mClientOptions;
     ServerOptions    mServerOptions;
+    TournamentOptions mTournamentOptions;
     std::uint8_t     mLanguageIndex; // Detect any language change to inform that a reboot is needed
     QString colorName;
     DragWidget *dragWidget;

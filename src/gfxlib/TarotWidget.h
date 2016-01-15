@@ -112,7 +112,7 @@ public:
     void Disconnect();
 
     // Configuration management
-    void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt);
+    void ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt, const TournamentOptions &i_tournamentOpt);
 
     // Getters about various current game information, external usage
     QMap<Place, Identity> GetTablePlayersList()
@@ -187,7 +187,7 @@ public slots:
     // These slots are made available to link them to any external widget
     void slotNewTournamentGame();
     void slotNewQuickGame();
-    void slotCreateNetworkGame();
+    void slotCreateHostedGame();
     void slotNewAutoPlay();
     void slotCleanBeforeExit();
     void slotSendChatMessage(const QString &message);
@@ -200,6 +200,7 @@ private:
     LobbyServer     mLobbyServer;
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
+    TournamentOptions mTournamentOptions;
     ClientHelper    mClient;
     Deck            mDiscard;
     ConnectionType  mConnectionType;

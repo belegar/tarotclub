@@ -1,4 +1,13 @@
 
+## Changes in 2.7.0
+
+DONE:
+  * Tournament configuration is now in a dedicated Json file
+
+TODO:
+  * Added new menu entry: creation of a hosted game server
+  * 
+
 # Branch 2.6
 
 ## Changes in 2.6.2

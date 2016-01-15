@@ -30,7 +30,7 @@
 #include "Common.h"
 #include "ByteStreamReader.h"
 #include "ByteStreamWriter.h"
-#include "ServerConfig.h"
+#include "TournamentConfig.h"
 
 /*****************************************************************************/
 struct Points
@@ -89,7 +89,7 @@ public:
 private:
     // scores of previous deals
     std::uint32_t dealCounter;
-    int scores[ServerConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
+    int scores[TournamentConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
     std::uint8_t mNumberOfTurns;
 };
 

@@ -113,7 +113,7 @@ void TarotWidget::slotCleanBeforeExit()
 void TarotWidget::slotNewTournamentGame()
 {
     mClient.mGame.mode = Tarot::Game::cSimpleTournament;
-    mClient.mGame.deals = mServerOptions.tournament;
+    mClient.mGame.deals = mTournamentOptions.turns;
 
     LaunchLocalGame(false);
 }
@@ -145,10 +145,9 @@ void TarotWidget::NewCustomDeal(const std::string &file)
     LaunchLocalGame(false);
 }
 /*****************************************************************************/
-void TarotWidget::slotCreateNetworkGame()
-{
-    // Connect us to the server
-    mNet.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
+void TarotWidget::slotCreateHostedGame()
+{   
+    LaunchRemoteGame("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
 }
 /*****************************************************************************/
 void TarotWidget::slotNewAutoPlay()
@@ -621,11 +620,12 @@ void TarotWidget::InitScreen(bool rawClear)
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 }
 /*****************************************************************************/
-void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt)
+void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOptions &i_servOpt, const TournamentOptions &i_tournamentOpt)
 {
     // Save option structures locally
     mClientOptions = i_clientOpt;
     mServerOptions = i_servOpt;
+    mTournamentOptions = i_tournamentOpt;
 
     // Initialize all the objects with the user preferences
     if (mNet.IsConnected())

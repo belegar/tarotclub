@@ -126,7 +126,7 @@ int TcpSocket::AnalyzeSocketError(const Peer &peer, const char* context)
 
     e = errno;
     const char* msg = strerror( e );
-    if (e == EAGAIN)
+    if (e == EAGAIN) // equals EWOULDBLOCK
     {
         real_error = false;
     }

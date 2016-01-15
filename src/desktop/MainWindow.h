@@ -114,6 +114,7 @@ private:
 
     ClientConfig    mClientConfig;
     ServerConfig    mServerConfig;
+    TournamentConfig mTournamentConfig;
 
     // Menus
     QMenu *gameMenu;
@@ -129,9 +130,9 @@ private:
     QAction *newCustomDealAct;
 
     //----network
-//    QAction *netGameServerAct;
+    QAction *netHostGameAct;
     QAction *onlineGameAct;
-//    QAction *netQuickJoinAct;
+    QAction *netQuickJoinAct;
 
     // Menu Windows
     QAction *optionsAct;
