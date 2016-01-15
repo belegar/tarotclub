@@ -73,6 +73,7 @@
   * Develop a TarotStudio : tournament manager (print score papers, record players, add scores manually, quick score calculation ...)
   * Move the DealCreator in the TarotStudio
   * TarotStudio --> new child UI in the TarotClub MDI window
+  * JavaScript Editor
 
 ## UI improvements / Gfx engine
 
