@@ -23,13 +23,6 @@
  *=============================================================================
  */
 
-// Qt includes
-#include <QStatusBar>
-#include <QMenuBar>
-#include <QDateTime>
-#include <QDir>
-#include <QDesktopServices>
-
 // Game includes
 #include "MainWindow.h"
 #include "ui_NumberedDealUI.h"
@@ -38,6 +31,18 @@
 #include "Defines.h"
 #include "JsonReader.h"
 #include "JsonWriter.h"
+#include "MiniBrowser.h"
+
+
+// Qt includes
+#include <QStatusBar>
+#include <QMenuBar>
+#include <QDateTime>
+#include <QDir>
+#include <QDesktopServices>
+
+#include <iostream>
+
 
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
@@ -51,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     SetupDialogs();
     SetupDocks();
     SetupMenus();
+    SetupCanvas2D();
 
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
 
@@ -127,6 +133,103 @@ void MainWindow::Initialize()
     restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
     restoreState(settings.value("mainWindowState").toByteArray());
     subWindow->restoreGeometry(settings.value("tarotwidgetGeometry").toByteArray());
+}
+/*****************************************************************************/
+void MainWindow::SetupCanvas2D()
+{
+    mEnv = new Environment(this);
+    QObject::connect(mEnv, SIGNAL(scriptError(QJSValue)),
+                     this, SLOT(slotReportScriptError(QJSValue)));
+
+    Context2D *context = new Context2D(this);
+    context->setSize(600, 550);
+    mCanvas = new QContext2DCanvas(context, mEnv, this);
+    mCanvas->setFixedSize(context->size());
+    mCanvas->setObjectName("canvas");
+    mEnv->addCanvas(mCanvas);
+
+    mRunScriptButton = new QPushButton("RunMe", this);
+    connect (mRunScriptButton, &QPushButton::clicked, this, &MainWindow::slotRun);
+
+    mCanvasMdiSubWindow = mdiArea->addSubWindow(mCanvas, Qt::WindowMinMaxButtonsHint);
+    mCanvasMdiSubWindow->setAttribute(Qt::WA_DeleteOnClose);
+    mCanvasMdiSubWindow->show();
+
+
+    test::MiniBrowser *view = new test::MiniBrowser;
+    view->setSource(QUrl::fromLocalFile("U:/tarotclub/assets/canvasjs/canvas.qml"));
+    view->show();
+/*
+    QString fileName = "U:/tarotclub/assets/canvasjs/document.js";
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly);
+    QString contents = file.readAll();
+    file.close();
+
+
+
+  //  QJSValue ret = view->engine()->evaluate(contents, fileName);
+    if (ret.isError())
+    {
+       slotReportScriptError(ret);
+    }
+    */
+}
+
+void MainWindow::slotReportScriptError(const QJSValue &error)
+{
+
+    std::cout <<  tr("Line %0: %1")
+                  .arg(error.property("lineNumber").toInt())
+                  .arg(error.toString()).toStdString() << std::endl;
+}
+
+void MainWindow::slotRun()
+{
+    mEnv->reset();
+
+  //  RunScript("U:/tarotclub/assets/canvasjs/easeljs-0.8.2.combined.js" ,true);
+    RunScript("U:/tarotclub/assets/canvasjs/goo.js" ,true);
+/*
+
+#ifndef QT_NO_SCRIPTTOOLS
+        if (!mDebugger) {
+            mDebugger = new QScriptEngineDebugger(this);
+            mDebugWindow = mDebugger->standardWindow();
+            mDebugWindow->setWindowModality(Qt::ApplicationModal);
+            mDebugWindow->resize(1280, 704);
+        }
+        mDebugger->attachTo(mEnv->engine());
+        mDebugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
+
+//        if (mDebugger)
+//            mDebugger->detach();
+#endif
+*/
+    RunScript("U:/tarotclub/assets/canvasjs/events.js" ,true);
+
+/*
+#ifndef QT_NO_SCRIPTTOOLS
+    if (mDebugWindow)
+        mDebugWindow->hide();
+#endif
+*/
+
+}
+
+void MainWindow::RunScript(const QString &fileName, bool debug)
+{
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly);
+    QString contents = file.readAll();
+    file.close();
+
+    QJSValue ret = mEnv->evaluate(contents, fileName);
+
+    if (ret.isError())
+    {
+       slotReportScriptError(ret);
+    }
 }
 /*****************************************************************************/
 void MainWindow::slotAboutToQuit()
