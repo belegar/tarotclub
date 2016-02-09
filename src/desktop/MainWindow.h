@@ -41,17 +41,15 @@
 #include "ui_QuickJoin.h"
 #include "DealsWindow.h"
 #include "ScoreCalculatorWindow.h"
-#include "qcontext2dcanvas.h"
-#include "environment.h"
+#include "MiniBrowser.h"
+#include "QCanvas.h"
+#include "Environment.h"
 
 // Qt includes
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
 #include <QMdiArea>
-#include <QScriptEngineDebugger>
-
-#include <QtQuickWidgets>
 
 /*****************************************************************************/
 class MainWindow : public QMainWindow
@@ -96,6 +94,7 @@ private slots:
     void slotDisconnectFromLobby();
     void slotLobbyPlayersList();
 
+    // Canvas
     void slotRun();
     void slotReportScriptError(const QJSValue &error);
 
@@ -104,8 +103,7 @@ private:
     void SetupMenus();
     void SetupDocks();
     void SetupCanvas2D();
-    void RunScript(const QString &fileName, bool debug);
-
+    void RunScript(const QString &fileName);
 
     QMdiArea *mdiArea;
     QMdiSubWindow *subWindow;
@@ -147,11 +145,11 @@ private:
 
     // Experimental Canvas2D back-end
     QMdiSubWindow *mCanvasMdiSubWindow;
+    test::MiniBrowser *mView;
+
     Environment *mEnv;
     QContext2DCanvas *mCanvas;
     QPushButton *mRunScriptButton;
-    QScriptEngineDebugger *mDebugger;
-    QMainWindow *mDebugWindow;
 
     // Modal windows
     AboutWindow *about;

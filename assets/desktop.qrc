@@ -75,5 +75,6 @@
         <file>images/join.png</file>
         <file>images/quit.png</file>
         <file>fonts/kanzlei.ttf</file>
+        <file>cards/default/14-H.svg</file>
     </qresource>
 </RCC>

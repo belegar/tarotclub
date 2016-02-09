@@ -48,10 +48,12 @@ var Goo = function(o) {
       y -= obj.offsetTop;
       x -= obj.offsetLeft;
       obj = obj.offsetParent;
-    }    
+    }
+
+*/
     self.prevMouseX = self.mouseX;
     self.prevMouseY = self.mouseY;
-    */
+
     self.mouseX = x;
     self.mouseY = y;
   }
@@ -61,10 +63,10 @@ var Goo = function(o) {
         self.updateMouse(e.pageX, e.pageY);
         if (self.onMouseDown)
           self.onMouseDown(self);
-        self.dragging = true;
+    //    self.dragging = true;
     //  }
     }, false);
-    /*
+
   document.addEventListener("mouseup", function(e) {
       if (self.dragging) {
       self.updateMouse(e.pageX, e.pageY);
@@ -79,19 +81,19 @@ var Goo = function(o) {
       if (self.mouseX != self.prevMouseX || self.mouseY != self.prevMouseY) {
         if (self.dragging && self.onMouseDrag)
           self.onMouseDrag(self);
-        else if (self.onMouseMove && e.target == self.canvas)
+        else if (self.onMouseMove)// && e.target == self.canvas)
           self.onMouseMove(self);
       }
     }, false);
 
 
   document.addEventListener("touchstart", function(e) {
-      if (e.target == self.canvas) {
+  //    if (e.target == self.canvas) {
         self.updateMouse(e.pageX, e.pageY);
         if (self.onMouseDown)
           self.onMouseDown(self);
         self.dragging = true;
-      }
+  //    }
     }, false);
     
   document.addEventListener("touchend", function(e) {
@@ -134,7 +136,6 @@ var Goo = function(o) {
       self.key =  String.fromCharCode(self.keyCode);
       if (self.onKeyPress) self.onKeyPress(self)
     }, false);
-*/
 
    var sizeCanvas = (function() {
     if (self.fullscreen) {

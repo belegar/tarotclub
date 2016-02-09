@@ -58,7 +58,7 @@ VPATH += $$BASE_DIR/src/config
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
-VPATH += $$BASE_DIR/assets/qml
+VPATH += $$BASE_DIR/assets/canvasjs
 
 # ------------------------------------------------------------------------------
 # Where to find header files
@@ -112,14 +112,14 @@ unix {
 CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
     DEFINES += DUK_OPT_DEBUG
+#    DEFINES += DUK_OPT_DPRINT
+#    DEFINES += DUK_OPT_DDPRINT
 
     unix {
         QMAKE_CXXFLAGS  +=-fsanitize=address -fno-omit-frame-pointer
         QMAKE_CFLAGS    +=-fsanitize=address -fno-omit-frame-pointer
         QMAKE_LFLAGS    +=-fsanitize=address
     }
-    #DEFINES += DUK_OPT_DEBUG DUK_OPT_DDDEBUG DUK_OPT_DDEBUG
-
 }
 
 
@@ -140,8 +140,9 @@ OTHER_FILES = noob.js \
               game.js \
               player.js \
               bot.js \
-              main.js \
               unit_test.js
+
+#               main.js \
 
 # ------------------------------------------------------------------------------
 # Translation files
@@ -289,9 +290,9 @@ SOURCES += Canvas.cpp \
 # Context 2D files
 # ------------------------------------------------------------------------------
 
-HEADERS +=  MiniBrowser.h
+HEADERS +=  MiniBrowser.h Context2d.h Environment.h QCanvas.h
 
-SOURCES +=  MiniBrowser.cpp
+SOURCES +=  MiniBrowser.cpp Context2d.cpp Environment.cpp QCanvas.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files

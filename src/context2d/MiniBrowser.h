@@ -20,6 +20,8 @@ class QMouseEvent;
 class QKeyEvent;
 QT_END_NAMESPACE
 
+#include "JSEngine.h"
+
 
 namespace test
 {
@@ -94,6 +96,7 @@ private:
 
 */
 
+
 class Window : public QObject
 {
     Q_OBJECT
@@ -148,11 +151,11 @@ public slots:
 //    QJSValue getElementsByTagName(const QString &name) const;
 //    QJSValue createElement(const QString &name) const;
 
-    /*
+
     // EventTarget
-    void addEventListener(const QString &type, const QJSValue &listener,
-                          bool useCapture);
-*/
+//    void addEventListener(const QString &type, const QJSValue &listener,
+//                          bool useCapture);
+
     void Print(int step);
 
 private:
@@ -171,21 +174,25 @@ public:
 
     void reset();
 
+    void moveTo(qreal x, qreal y);
+    void lineTo(qreal x, qreal y);
+
+
 public slots:
     // EventTarget
     void addEventListener(const QString &type, const QJSValue &listener,
                           bool useCapture);
 
 protected:
-    /*
+
 //    virtual void paintEvent(QPaintEvent *e);
-    virtual void mouseMoveEvent(QMouseEvent *e);
-    virtual void mousePressEvent(QMouseEvent *e);
-    virtual void mouseReleaseEvent(QMouseEvent *e);
-    virtual void keyPressEvent(QKeyEvent *e);
-    virtual void keyReleaseEvent(QKeyEvent *e);
-    virtual void resizeEvent(QResizeEvent *e);
-*/
+//    virtual void mouseMoveEvent(QMouseEvent *e);
+//    virtual void mousePressEvent(QMouseEvent *e);
+//    virtual void mouseReleaseEvent(QMouseEvent *e);
+//    virtual void keyPressEvent(QKeyEvent *e);
+//    virtual void keyReleaseEvent(QKeyEvent *e);
+//    virtual void resizeEvent(QResizeEvent *e);
+
 
 private slots:
     void contentsChanged(const QImage &image);
@@ -194,6 +201,28 @@ private slots:
 private:
 
 };
+
+
+/*
+class MiniBrowser : public QWidget
+{
+public:
+    MiniBrowser(QWidget *parent)
+        : QWidget(parent)
+    {
+        setMouseTracking(true);
+    }
+
+    void Initialize()
+    {
+        mEngine.Initialize();
+      //  mEngine.EvaluateFile("U:/tarotclub/assets/canvasjs/easeljs-0.8.2.min.js");
+    }
+
+private:
+    JSEngine mEngine;
+};
+*/
 
 
 } // namespace test

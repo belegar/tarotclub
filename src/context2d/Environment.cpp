@@ -38,17 +38,12 @@
 **
 ****************************************************************************/
 
-
-#include "MiniBrowser.h"
+#include "environment.h"
+#include "QCanvas.h"
+#include "context2d.h"
 #include <QJSValueIterator>
 #include <QDateTime>
-#include <QQmlEngine>
-#include <iostream>
 
-namespace test
-{
-
-/*
 struct FakeDomEvent
 {
     enum KeyCodes  {
@@ -207,14 +202,12 @@ int FakeDomEvent::qtToDomKey(int keyCode)
     return keyCode;
 }
 
-*/
-
-/*
-BrowserEnvironment::Environment(QJSEngine *engine, QObject *parent)
+//! [0]
+Environment::Environment(QObject *parent)
     : QObject(parent)
-    , m_engine(engine)
 {
 
+    m_engine = new QJSEngine(this);
     mDocument = new Document(this);
 
     m_document = m_engine->newQObject(mDocument);
@@ -231,15 +224,15 @@ BrowserEnvironment::Environment(QJSEngine *engine, QObject *parent)
 
 
     fakeEnv = m_engine->newQObject(this);
-
+/*
     {
-   //     QJSValueIterator it(mGlobalObject);
-   //     while (it.hasNext()) {
-   //         it.next();
-  //          self.setProperty(it.name(), it.value());
-  //      }
+        QJSValueIterator it(mGlobalObject);
+        while (it.hasNext()) {
+            it.next();
+            self.setProperty(it.name(), it.value());
+        }
     }
-
+    */
 
     mGlobalObject.setProperty("self", fakeEnv);
     mGlobalObject.setProperty("window", fakeEnv);
@@ -263,16 +256,16 @@ BrowserEnvironment::Environment(QJSEngine *engine, QObject *parent)
 }
 //! [0]
 
-BrowserEnvironment::~Environment()
+Environment::~Environment()
 {
 }
 
-QJSEngine *BrowserEnvironment::engine() const
+QJSEngine *Environment::engine() const
 {
     return m_engine;
 }
 
-int BrowserEnvironment::setTimeout(const QJSValue &expression, int delay)
+int Environment::setTimeout(const QJSValue &expression, int delay)
 {
     if (expression.isString() || expression.isCallable()) {
         int timerId = startTimer(delay);
@@ -282,13 +275,13 @@ int BrowserEnvironment::setTimeout(const QJSValue &expression, int delay)
     return -1;
 }
 
-void BrowserEnvironment::clearTimeout(int timerId)
+void Environment::clearTimeout(int timerId)
 {
     killTimer(timerId);
     m_timeoutHash.remove(timerId);
 }
 
-QJSValue BrowserEnvironment::getComputedStyle()
+QJSValue Environment::getComputedStyle()
 {
     QJSValue styles = m_engine->newObject();
 
@@ -305,7 +298,7 @@ QJSValue BrowserEnvironment::getComputedStyle()
 }
 
 //! [1]
-int BrowserEnvironment::setInterval(const QJSValue &expression, int delay)
+int Environment::setInterval(const QJSValue &expression, int delay)
 {
     if (expression.isString() || expression.isCallable()) {
         int timerId = startTimer(delay);
@@ -315,13 +308,13 @@ int BrowserEnvironment::setInterval(const QJSValue &expression, int delay)
     return -1;
 }
 
-void BrowserEnvironment::clearInterval(int timerId)
+void Environment::clearInterval(int timerId)
 {
     killTimer(timerId);
     m_intervalHash.remove(timerId);
 }
 
-void BrowserEnvironment::timerEvent(QTimerEvent *event)
+void Environment::timerEvent(QTimerEvent *event)
 {
     int id = event->timerId();
     QJSValue expression;
@@ -347,7 +340,7 @@ void BrowserEnvironment::timerEvent(QTimerEvent *event)
 //! [1]
 
 //! [5]
-void BrowserEnvironment::addCanvas(MiniBrowser *canvas)
+void Environment::addCanvas(QContext2DCanvas *canvas)
 {
     m_canvases.append(canvas);
 
@@ -355,10 +348,10 @@ void BrowserEnvironment::addCanvas(MiniBrowser *canvas)
     height = canvas->getHeight();
 }
 
-MiniBrowser *BrowserEnvironment::canvasByName(const QString &name) const
+QContext2DCanvas *Environment::canvasByName(const QString &name) const
 {
     for (int i = 0; i < m_canvases.size(); ++i) {
-        MiniBrowser *canvas = m_canvases.at(i);
+        QContext2DCanvas *canvas = m_canvases.at(i);
         if (canvas->objectName() == name)
             return canvas;
     }
@@ -366,24 +359,24 @@ MiniBrowser *BrowserEnvironment::canvasByName(const QString &name) const
 }
 //! [5]
 
-QList<MiniBrowser*> BrowserEnvironment::canvases() const
+QList<QContext2DCanvas*> Environment::canvases() const
 {
     return m_canvases;
 }
 
 
-QJSValue BrowserEnvironment::evaluate(const QString &code, const QString &fileName)
+QJSValue Environment::evaluate(const QString &code, const QString &fileName)
 {
     return m_engine->evaluate(code, fileName);
 }
 
-bool BrowserEnvironment::hasIntervalTimers() const
+bool Environment::hasIntervalTimers() const
 {
     return !m_intervalHash.isEmpty();
 }
 
 // This is used by the Context2D Qt Script benchmark.
-void BrowserEnvironment::triggerTimers()
+void Environment::triggerTimers()
 {
     for (int x = 0; x < 2; ++x) {
         QList<int> timerIds = x ? m_intervalHash.keys() : m_timeoutHash.keys();
@@ -394,7 +387,7 @@ void BrowserEnvironment::triggerTimers()
     }
 }
 
-void BrowserEnvironment::reset()
+void Environment::reset()
 {
     QHash<int, QJSValue>::const_iterator it;
     for (it = m_intervalHash.constBegin(); it != m_intervalHash.constEnd(); ++it)
@@ -403,10 +396,15 @@ void BrowserEnvironment::reset()
     for (it = m_timeoutHash.constBegin(); it != m_timeoutHash.constEnd(); ++it)
         killTimer(it.key());
     m_timeoutHash.clear();
+
+    for (int i = 0; i <m_canvases.size(); i++)
+    {
+        m_canvases.at(i)->reset();
+    }
 }
 
 //! [2]
-QJSValue BrowserEnvironment::toWrapper(QObject *object)
+QJSValue Environment::toWrapper(QObject *object)
 {
     return m_engine->newQObject(object);
 }
@@ -414,7 +412,7 @@ QJSValue BrowserEnvironment::toWrapper(QObject *object)
 
 
 //! [3]
-void BrowserEnvironment::handleEvent(MiniBrowser *canvas, QMouseEvent *e)
+void Environment::handleEvent(QContext2DCanvas *canvas, QMouseEvent *e)
 {
     QString type;
     switch (e->type()) {
@@ -461,7 +459,7 @@ void BrowserEnvironment::handleEvent(MiniBrowser *canvas, QMouseEvent *e)
 }
 //! [3]
 
-void BrowserEnvironment::handleEvent(MiniBrowser *canvas, QKeyEvent *e)
+void Environment::handleEvent(QContext2DCanvas *canvas, QKeyEvent *e)
 {
     QString type;
     switch (e->type()) {
@@ -490,7 +488,7 @@ void BrowserEnvironment::handleEvent(MiniBrowser *canvas, QKeyEvent *e)
     maybeEmitScriptError();
 }
 
-QJSValue BrowserEnvironment::eventHandler(MiniBrowser *canvas, const QString &type,
+QJSValue Environment::eventHandler(QContext2DCanvas *canvas, const QString &type,
                                        QJSValue *who)
 {
     QString handlerName = "on" + type;
@@ -506,7 +504,7 @@ QJSValue BrowserEnvironment::eventHandler(MiniBrowser *canvas, const QString &ty
 }
 
 //! [4]
-QJSValue BrowserEnvironment::newFakeDomEvent(const QString &type, const QJSValue &target)
+QJSValue Environment::newFakeDomEvent(const QString &type, const QJSValue &target)
 {
     QJSValue e = m_engine->newObject();
     // Event
@@ -524,18 +522,18 @@ QJSValue BrowserEnvironment::newFakeDomEvent(const QString &type, const QJSValue
 }
 //! [4]
 
-void BrowserEnvironment::maybeEmitScriptError()
+void Environment::maybeEmitScriptError()
 {
     // FIXME : handle errors properly
-
-  //  if (m_engine->hasUncaughtException())
-  //      emit scriptError(m_engine->uncaughtException());
-
+    /*
+    if (m_engine->hasUncaughtException())
+        emit scriptError(m_engine->uncaughtException());
+        */
 }
-*/
 
 
-Document::Document()
+Document::Document(Environment *env)
+    : QObject(env)
 {
 
 }
@@ -544,7 +542,32 @@ Document::~Document()
 {
 }
 
-/*
+QJSValue Document::getElementById(const QString &id) const
+{
+    Environment *env = qobject_cast<Environment*>(parent());
+    QContext2DCanvas *canvas = env->canvasByName(id);
+    if (!canvas)
+        return QJSValue();
+    return env->toWrapper(canvas);
+}
+
+QJSValue Document::getElementsByTagName(const QString &name) const
+{
+    if (name != "canvas")
+        return QJSValue();
+    Environment *env = qobject_cast<Environment*>(parent());
+    QList<QContext2DCanvas*> list = env->canvases();
+    QJSValue result = env->engine()->newArray(list.size());
+    for (int i = 0; i < list.size(); ++i)
+        result.setProperty(i, env->toWrapper(list.at(i)));
+    return result;
+}
+
+QJSValue Document::createElement(const QString &name) const
+{
+    return getElementsByTagName(name);
+}
+
 void Document::addEventListener(const QString &type, const QJSValue &listener,
                                 bool useCapture)
 {
@@ -556,204 +579,33 @@ void Document::addEventListener(const QString &type, const QJSValue &listener,
         mEventList.insert("on" + type, listener);
     }
 }
-*/
 
 void Document::Print(int step)
 {
     std::cout << "Step: " << step << std::endl;
 }
 
-
-//! [3]
-MiniBrowser::MiniBrowser(QWidget *parent)
-    : QQuickWidget(parent)
-{
-//    QObject::connect(context, SIGNAL(changed(QImage)), this, SLOT(contentsChanged(QImage)));
-    setMouseTracking(true);
-
-    // On précise au QML qu'il est possible d'instancier des Document et WindowElement, présent dans TarotClub 1.0
-    qmlRegisterType<Document>("TarotClub", 1, 0, "Document");
-    qmlRegisterType<Window>("TarotClub", 1, 0, "WindowElement");
-}
-//! [3]
-
-MiniBrowser::~MiniBrowser()
-{
-}
-
-//! [0]
-
-//! [1]
-void MiniBrowser::contentsChanged(const QImage &image)
-{
-  //  m_image = image;
-  //  update();
-}
 /*
-void MiniBrowser::paintEvent(QPaintEvent *e)
-{
-    QPainter p(this);
-#ifdef Q_OS_SYMBIAN
-    // Draw white rect first since in with some themes the js-file content will produce black-on-black.
-    QBrush whiteBgBrush(Qt::white);
-    p.fillRect(e->rect(), whiteBgBrush);
-#endif
-    p.setClipRect(e->rect());
-    p.drawImage(0, 0, m_image);
-}
-*/
+QColor colorFromString(const QString &name);
 
-/*
-//! [2]
-void MiniBrowser::mouseMoveEvent(QMouseEvent *e)
-{
-//    m_env->handleEvent(this, e);
-}
-
-void MiniBrowser::mousePressEvent(QMouseEvent *e)
-{
-//    m_env->handleEvent(this, e);
-}
-
-void MiniBrowser::mouseReleaseEvent(QMouseEvent *e)
-{
-//    m_env->handleEvent(this, e);
-}
-
-void MiniBrowser::keyPressEvent(QKeyEvent *e)
-{
-//    m_env->handleEvent(this, e);
-}
-
-void MiniBrowser::keyReleaseEvent(QKeyEvent *e)
-{
-//    m_env->handleEvent(this, e);
-}
-
-
-void MiniBrowser::resizeEvent(QResizeEvent *e)
-{
-
-}
-*/
-
-
-void MiniBrowser::moveTo(qreal x, qreal y)
-{
-
-}
-
-void MiniBrowser::lineTo(qreal x, qreal y)
-{
-    /*
-    QVariant returnedValue;
-    QVariant msg = "Hello from C++";
-    QMetaObject::invokeMethod(object, "myQmlFunction",
-            Q_RETURN_ARG(QVariant, returnedValue),
-            Q_ARG(QVariant, msg));
-            */
-}
-
-
-
-void MiniBrowser::reset()
-{
-  //  m_context->reset();
-}
-
-void MiniBrowser::addEventListener(const QString &type, const QJSValue &listener,
-                                        bool useCapture)
-{
-    Q_UNUSED(useCapture);
-    if (listener.isCallable()) {
-     //   QJSValue self = m_env->toWrapper(this);
-     //   self.setProperty("on" + type, listener);
-    }
-}
-
-Window::Window(QObject *parent)
+CanvasGradientPrototype::CanvasGradientPrototype(QObject *parent)
     : QObject(parent)
 {
-
 }
 
-Window::~Window()
+void CanvasGradientPrototype::addColorStop(qreal offset, const QString &color)
 {
-
+    CanvasGradient *self = qjsvalue_cast<CanvasGradient*>(thisObject());
+    if (!self || (self->value.type() == QGradient::NoGradient))
+        return;
+    self->value.setColorAt(offset, colorFromString(color));
 }
 
-bool Window::hasIntervalTimers() const
+void CanvasGradientPrototype::setup(QJSEngine *engine)
 {
-    return !m_intervalHash.isEmpty();
+    CanvasGradientPrototype *proto = new CanvasGradientPrototype();
+    engine->setDefaultPrototype(qMetaTypeId<CanvasGradient>(),
+        engine->newQObject(proto, QJSEngine::ScriptOwnership,
+                           QJSEngine::ExcludeSuperClassContents));
 }
-
-void Window::triggerTimers()
-{
-    for (int x = 0; x < 2; ++x) {
-        QList<int> timerIds = x ? m_intervalHash.keys() : m_timeoutHash.keys();
-        for (int i = 0; i < timerIds.size(); ++i) {
-            QTimerEvent fakeEvent(timerIds.at(i));
-            timerEvent(&fakeEvent);
-        }
-    }
-}
-
-int Window::setInterval(const QJSValue &expression, int delay)
-{
-    if (expression.isString() || expression.isCallable()) {
-        int timerId = startTimer(delay);
-        m_intervalHash.insert(timerId, expression);
-        return timerId;
-    }
-    return -1;
-}
-
-void Window::clearInterval(int timerId)
-{
-    killTimer(timerId);
-    m_intervalHash.remove(timerId);
-}
-
-int Window::setTimeout(const QJSValue &expression, int delay)
-{
-    if (expression.isString() || expression.isCallable()) {
-        int timerId = startTimer(delay);
-        m_timeoutHash.insert(timerId, expression);
-        return timerId;
-    }
-    return -1;
-}
-
-void Window::clearTimeout(int timerId)
-{
-    killTimer(timerId);
-    m_timeoutHash.remove(timerId);
-}
-
-void Window::timerEvent(QTimerEvent *event)
-{
-    int id = event->timerId();
-    QJSValue expression;
-
-    if (m_intervalHash.contains(id))
-    {
-       expression = m_intervalHash.value(id);
-    }
-    else
-    {
-        expression = m_timeoutHash.value(id);
-        // A timeout is one-time callable, clear it immediately
-        clearTimeout(id);
-    }
-
-    if (expression.isString()) {
-        QQmlEngine *engine = qmlEngine(this);
-        engine->evaluate(expression.toString());
-    } else if (expression.isCallable()) {
-        expression.call();
-    }
-    // FIXME: print error if any
-}
-
-} // namespace test
-
+*/
