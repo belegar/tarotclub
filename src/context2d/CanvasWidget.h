@@ -38,8 +38,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCONTEXT2DCANVAS_H
-#define QCONTEXT2DCANVAS_H
+#ifndef CANVAS_WIDGET_H
+#define CANVAS_WIDGET_H
 
 //#include <qscriptengine.h>
 //#include <qscriptcontext.h>
@@ -59,51 +59,16 @@ class Environment;
 
 #include "context2d.h"
 
-//! [0]
-class QContext2DCanvas : public QWidget
+
+class CanvasWidget : public QWidget
 {
     Q_OBJECT
 
-    // Canvas properties
-    Q_PROPERTY( int width READ getWidth )
-    Q_PROPERTY( int height READ getHeight )
-
 public:
-    QContext2DCanvas(Context2D *context, Environment *env, QWidget *parent = 0);
-    ~QContext2DCanvas();
+    CanvasWidget(Environment *env, QWidget *parent = 0);
+    ~CanvasWidget();
 
-    Context2D *context() const;
-    void reset();
-
-public slots:
-    QJSValue getContext(const QString &str);
-    void resize(int width, int height);
-
-    int getWidth()
-    {
-        int width = 0;
-        if (m_context != NULL)
-        {
-           width = m_context->getWidth();
-        }
-
-        return width;
-    }
-
-    int getHeight()
-    {
-        int height = 0;
-        if (m_context != NULL)
-        {
-           height = m_context->getHeight();
-        }
-
-        return height;
-    }
-
-    // EventTarget
-    void addEventListener(const QString &type, const QJSValue &listener,
-                          bool useCapture);
+    void SetSize(int width, int height);
 
 protected:
     virtual void paintEvent(QPaintEvent *e);
@@ -116,12 +81,10 @@ protected:
 
 private slots:
     void contentsChanged(const QImage &image);
-//! [0]
 
 private:
-    Context2D *m_context;
-    Environment *m_env;
+    Environment *mEnv;
     QImage m_image;
 };
 
-#endif
+#endif // CANVAS_WIDGET_H

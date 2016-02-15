@@ -524,11 +524,11 @@ void Context2D::closePath()
 
 void Context2D::moveTo(qreal x, qreal y)
 {
-    std::cout << "moveTo before x: " << x << " y: " << y << std::endl;
+//    std::cout << "moveTo before x: " << x << " y: " << y << std::endl;
     QPointF pt = m_state.matrix.map(QPointF(x, y));
     m_path.moveTo(pt);
 
-    std::cout << "moveTo after x: " << pt.x() << " y: " << pt.y() << std::endl;
+ //   std::cout << "moveTo after x: " << pt.x() << " y: " << pt.y() << std::endl;
 }
 
 
@@ -715,9 +715,14 @@ void Context2D::fillText(QString text, qreal x, qreal y, qreal maxWidth)
     scheduleChange();
 }
 
-Context2D::Context2D(test::MiniBrowser *browser, QObject *parent)
+void Context2D::strokeText(QString text, qreal x, qreal y, qreal maxWidth)
+{
+    fillText(text, x, y, maxWidth);
+}
+
+Context2D::Context2D(QObject *parent)
     : QObject(parent), m_changeTimerId(-1)
-    , mBrowser(browser)
+   // , mBrowser(browser)
     , mWidth(0U)
     , mHeight(0U)
 {

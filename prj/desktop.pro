@@ -81,7 +81,7 @@ INCLUDEPATH += $$BASE_DIR/src/config
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += svg network qml quickwidgets
+QT += svg network qml
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
@@ -290,9 +290,12 @@ SOURCES += Canvas.cpp \
 # Context 2D files
 # ------------------------------------------------------------------------------
 
-HEADERS +=  MiniBrowser.h Context2d.h Environment.h QCanvas.h
+HEADERS += Context2d.h Environment.h CanvasElement.h CanvasWidget.h IEnvironment.h
+# MiniBrowser.h
 
-SOURCES +=  MiniBrowser.cpp Context2d.cpp Environment.cpp QCanvas.cpp
+
+SOURCES += Context2d.cpp Environment.cpp CanvasElement.cpp CanvasWidget.cpp
+# MiniBrowser.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files

@@ -41,8 +41,8 @@
 #include "ui_QuickJoin.h"
 #include "DealsWindow.h"
 #include "ScoreCalculatorWindow.h"
-#include "MiniBrowser.h"
-#include "QCanvas.h"
+//#include "MiniBrowser.h"
+#include "CanvasWidget.h"
 #include "Environment.h"
 
 // Qt includes
@@ -145,10 +145,10 @@ private:
 
     // Experimental Canvas2D back-end
     QMdiSubWindow *mCanvasMdiSubWindow;
-    test::MiniBrowser *mView;
+ //   test::MiniBrowser *mView;
 
     Environment *mEnv;
-    QContext2DCanvas *mCanvas;
+    CanvasWidget *mCanvasWidget;
     QPushButton *mRunScriptButton;
 
     // Modal windows

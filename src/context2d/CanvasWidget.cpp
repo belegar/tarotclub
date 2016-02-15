@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "QCanvas.h"
+#include "CanvasWidget.h"
 
 #include "context2d.h"
 #include "environment.h"
@@ -47,41 +47,29 @@
 #include <QPainter>
 #include <QPaintEvent>
 
-//! [3]
-QContext2DCanvas::QContext2DCanvas(Context2D *context, Environment *env, QWidget *parent)
-    : QWidget(parent), m_context(context), m_env(env)
+CanvasWidget::CanvasWidget(Environment *env, QWidget *parent)
+    : QWidget(parent), mEnv(env)
 {
-    QObject::connect(context, SIGNAL(changed(QImage)), this, SLOT(contentsChanged(QImage)));
     setMouseTracking(true);
 }
-//! [3]
 
-QContext2DCanvas::~QContext2DCanvas()
+CanvasWidget::~CanvasWidget()
 {
 }
 
-Context2D *QContext2DCanvas::context() const
+void CanvasWidget::SetSize(int width, int height)
 {
-    return m_context;
+    QWidget::setFixedSize(width, height);
+    QWidget::resize(width, height);
 }
 
-//! [0]
-QJSValue QContext2DCanvas::getContext(const QString &str)
-{
-    if (str != "2d")
-        return QJSValue();
-    return m_env->toWrapper(m_context);
-}
-//! [0]
-
-//! [1]
-void QContext2DCanvas::contentsChanged(const QImage &image)
+void CanvasWidget::contentsChanged(const QImage &image)
 {
     m_image = image;
     update();
 }
 
-void QContext2DCanvas::paintEvent(QPaintEvent *e)
+void CanvasWidget::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
 #ifdef Q_OS_SYMBIAN
@@ -92,56 +80,33 @@ void QContext2DCanvas::paintEvent(QPaintEvent *e)
     p.setClipRect(e->rect());
     p.drawImage(0, 0, m_image);
 }
-//! [1]
 
-//! [2]
-void QContext2DCanvas::mouseMoveEvent(QMouseEvent *e)
+void CanvasWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    m_env->handleEvent(this, e);
+    mEnv->handleEvent(e);
 }
 
-void QContext2DCanvas::mousePressEvent(QMouseEvent *e)
+void CanvasWidget::mousePressEvent(QMouseEvent *e)
 {
-    m_env->handleEvent(this, e);
+    mEnv->handleEvent(e);
 }
 
-void QContext2DCanvas::mouseReleaseEvent(QMouseEvent *e)
+void CanvasWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    m_env->handleEvent(this, e);
+    mEnv->handleEvent(e);
 }
 
-void QContext2DCanvas::keyPressEvent(QKeyEvent *e)
+void CanvasWidget::keyPressEvent(QKeyEvent *e)
 {
-    m_env->handleEvent(this, e);
+    mEnv->handleEvent(e);
 }
 
-void QContext2DCanvas::keyReleaseEvent(QKeyEvent *e)
+void CanvasWidget::keyReleaseEvent(QKeyEvent *e)
 {
-    m_env->handleEvent(this, e);
-}
-//! [2]
-
-void QContext2DCanvas::resizeEvent(QResizeEvent *e)
-{
-    m_context->setSize(e->size().width(), e->size().height());
+    mEnv->handleEvent(e);
 }
 
-void QContext2DCanvas::resize(int width, int height)
+void CanvasWidget::resizeEvent(QResizeEvent *e)
 {
-    QWidget::resize(width, height);
-}
-
-void QContext2DCanvas::reset()
-{
-    m_context->reset();
-}
-
-void QContext2DCanvas::addEventListener(const QString &type, const QJSValue &listener,
-                                        bool useCapture)
-{
-    Q_UNUSED(useCapture);
-    if (listener.isCallable()) {
-        QJSValue self = m_env->toWrapper(this);
-        self.setProperty("on" + type, listener);
-    }
+    mEnv->SetSize(e->size().width(), e->size().height());
 }

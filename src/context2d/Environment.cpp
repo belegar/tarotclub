@@ -39,7 +39,7 @@
 ****************************************************************************/
 
 #include "environment.h"
-#include "QCanvas.h"
+#include "CanvasElement.h"
 #include "context2d.h"
 #include <QJSValueIterator>
 #include <QDateTime>
@@ -254,10 +254,16 @@ Environment::Environment(QObject *parent)
 
     m_engine->collectGarbage();
 }
-//! [0]
+
 
 Environment::~Environment()
 {
+}
+
+void Environment::SetSize(int width, int height)
+{
+    mWidth = width;
+    mHeight = height;
 }
 
 QJSEngine *Environment::engine() const
@@ -297,7 +303,6 @@ QJSValue Environment::getComputedStyle()
     return styles;
 }
 
-//! [1]
 int Environment::setInterval(const QJSValue &expression, int delay)
 {
     if (expression.isString() || expression.isCallable()) {
@@ -337,29 +342,35 @@ void Environment::timerEvent(QTimerEvent *event)
     }
     maybeEmitScriptError();
 }
-//! [1]
 
-//! [5]
-void Environment::addCanvas(QContext2DCanvas *canvas)
+void Environment::slotContentsChanged(const QImage &image)
 {
-    m_canvases.append(canvas);
-
-    width = canvas->getWidth();
-    height = canvas->getHeight();
+    emit sigContentsChanged(image);
 }
 
-QContext2DCanvas *Environment::canvasByName(const QString &name) const
+CanvasElement *Environment::createCanvas(const QString &name)
+{
+    CanvasElement *canvas = nullptr;
+    canvas = new CanvasElement(this);
+    canvas->setObjectName(name);
+    m_canvases.append(canvas);
+
+    QObject::connect(canvas->context(), SIGNAL(changed(QImage)), this, SLOT(slotContentsChanged(QImage)));
+
+    return canvas;
+}
+
+CanvasElement *Environment::canvasByName(const QString &name) const
 {
     for (int i = 0; i < m_canvases.size(); ++i) {
-        QContext2DCanvas *canvas = m_canvases.at(i);
+        CanvasElement *canvas = m_canvases.at(i);
         if (canvas->objectName() == name)
             return canvas;
     }
     return 0;
 }
-//! [5]
 
-QList<QContext2DCanvas*> Environment::canvases() const
+QList<CanvasElement *> Environment::canvases() const
 {
     return m_canvases;
 }
@@ -403,16 +414,13 @@ void Environment::reset()
     }
 }
 
-//! [2]
+
 QJSValue Environment::toWrapper(QObject *object)
 {
     return m_engine->newQObject(object);
 }
-//! [2]
 
-
-//! [3]
-void Environment::handleEvent(QContext2DCanvas *canvas, QMouseEvent *e)
+void Environment::handleEvent(QMouseEvent *e)
 {
     QString type;
     switch (e->type()) {
@@ -428,11 +436,11 @@ void Environment::handleEvent(QContext2DCanvas *canvas, QMouseEvent *e)
         return;
 
     QJSValue handlerObject;
-    QJSValue handler = eventHandler(canvas, type, &handlerObject);
+    QJSValue handler;// = eventHandler(canvas, type, &handlerObject);// FIXME: search for suitable event registered in canvases
     if (!handler.isCallable())
         return;
 
-    QJSValue scriptEvent = newFakeDomEvent(type, toWrapper(canvas));
+    QJSValue scriptEvent;// = newFakeDomEvent(type, toWrapper(canvas));
     // MouseEvent
     scriptEvent.setProperty("preventDefault", m_engine->evaluate("function preventDefault() {}"));
     scriptEvent.setProperty("screenX", e->globalX());
@@ -457,9 +465,8 @@ void Environment::handleEvent(QContext2DCanvas *canvas, QMouseEvent *e)
     handler.callWithInstance(handlerObject, QJSValueList() << scriptEvent);
     maybeEmitScriptError();
 }
-//! [3]
 
-void Environment::handleEvent(QContext2DCanvas *canvas, QKeyEvent *e)
+void Environment::handleEvent(QKeyEvent *e)
 {
     QString type;
     switch (e->type()) {
@@ -473,11 +480,11 @@ void Environment::handleEvent(QContext2DCanvas *canvas, QKeyEvent *e)
         return;
 
     QJSValue handlerObject;
-    QJSValue handler = eventHandler(canvas, type, &handlerObject);
+    QJSValue handler;// = eventHandler(canvas, type, &handlerObject); // FIXME: search for suitable event registered in canvases
     if (!handler.isCallable())
         return;
 
-    QJSValue scriptEvent = newFakeDomEvent(type, toWrapper(canvas));
+    QJSValue scriptEvent;// = newFakeDomEvent(type, toWrapper(canvas)); // FIXME same as above
     // KeyEvent
     scriptEvent.setProperty("isChar", !e->text().isEmpty());
     scriptEvent.setProperty("charCode", e->text());
@@ -488,7 +495,7 @@ void Environment::handleEvent(QContext2DCanvas *canvas, QKeyEvent *e)
     maybeEmitScriptError();
 }
 
-QJSValue Environment::eventHandler(QContext2DCanvas *canvas, const QString &type,
+QJSValue Environment::eventHandler(CanvasElement *canvas, const QString &type,
                                        QJSValue *who)
 {
     QString handlerName = "on" + type;
@@ -520,7 +527,6 @@ QJSValue Environment::newFakeDomEvent(const QString &type, const QJSValue &targe
     e.setProperty("view", m_engine->globalObject());
     return e;
 }
-//! [4]
 
 void Environment::maybeEmitScriptError()
 {
@@ -545,7 +551,7 @@ Document::~Document()
 QJSValue Document::getElementById(const QString &id) const
 {
     Environment *env = qobject_cast<Environment*>(parent());
-    QContext2DCanvas *canvas = env->canvasByName(id);
+    CanvasElement *canvas = env->canvasByName(id);
     if (!canvas)
         return QJSValue();
     return env->toWrapper(canvas);
@@ -556,7 +562,7 @@ QJSValue Document::getElementsByTagName(const QString &name) const
     if (name != "canvas")
         return QJSValue();
     Environment *env = qobject_cast<Environment*>(parent());
-    QList<QContext2DCanvas*> list = env->canvases();
+    QList<CanvasElement*> list = env->canvases();
     QJSValue result = env->engine()->newArray(list.size());
     for (int i = 0; i < list.size(); ++i)
         result.setProperty(i, env->toWrapper(list.at(i)));
@@ -565,7 +571,9 @@ QJSValue Document::getElementsByTagName(const QString &name) const
 
 QJSValue Document::createElement(const QString &name) const
 {
-    return getElementsByTagName(name);
+    Environment *env = qobject_cast<Environment*>(parent());
+    CanvasElement *canvas = env->createCanvas(name);
+    return env->toWrapper(canvas);
 }
 
 void Document::addEventListener(const QString &type, const QJSValue &listener,

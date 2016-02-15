@@ -47,18 +47,17 @@
 #include <QTimerEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>
-//#include <QJSEngine>
-//#include <QScriptable>
-
 #include <QJSValue>
 #include <QJSEngine>
 #include <QMap>
 
-class QContext2DCanvas;
+#include "IEnvironment.h"
+#include "CanvasElement.h"
+
 class Document;
 
 //! [0]
-class Environment : public QObject
+class Environment : public QObject, public IEnvironment
 {
     Q_OBJECT
 
@@ -69,20 +68,20 @@ public:
     Environment(QObject *parent = 0);
     ~Environment();
 
-    int getInnerWidth() { return width; }
-    int getInnerHeight() { return height; }
+    void SetSize(int width, int height);
 
-    void addCanvas(QContext2DCanvas *canvas);
-    QContext2DCanvas *canvasByName(const QString &name) const;
-    QList<QContext2DCanvas*> canvases() const;
+    int getInnerWidth() { return mWidth; }
+    int getInnerHeight() { return mHeight; }
+
+    CanvasElement *createCanvas(const QString &name);
+    CanvasElement *canvasByName(const QString &name) const;
+    QList<CanvasElement*> canvases() const;
 
     QJSValue evaluate(const QString &code,
                           const QString &fileName = QString());
 
-    QJSValue toWrapper(QObject *object);
-
-    void handleEvent(QContext2DCanvas *canvas, QMouseEvent *e);
-    void handleEvent(QContext2DCanvas *canvas, QKeyEvent *e);
+    void handleEvent(QMouseEvent *e);
+    void handleEvent(QKeyEvent *e);
 
     QJSEngine *engine() const;
     bool hasIntervalTimers() const;
@@ -90,7 +89,9 @@ public:
 
     void reset();
 
-//! [1]
+    // From IEnvironment
+    virtual QJSValue toWrapper(QObject *object);
+
 public slots:
 
     int setInterval(const QJSValue &expression, int delay);
@@ -100,18 +101,19 @@ public slots:
     void clearTimeout(int timerId);
 
     QJSValue getComputedStyle();
-//! [1]
 
-//! [2]
 signals:
     void scriptError(const QJSValue &error);
-//! [2]
+    void sigContentsChanged(const QImage &image);
 
 protected:
     void timerEvent(QTimerEvent *event);
 
+private slots:
+    void slotContentsChanged(const QImage &image);
+
 private:
-    QJSValue eventHandler(QContext2DCanvas *canvas,
+    QJSValue eventHandler(CanvasElement *canvas,
                               const QString &type, QJSValue *who);
     QJSValue newFakeDomEvent(const QString &type,
                                  const QJSValue &target);
@@ -121,17 +123,16 @@ private:
     QJSValue mGlobalObject;
     QJSValue m_document;
     QJSValue fakeEnv;
-    QList<QContext2DCanvas*> m_canvases;
+    QList<CanvasElement*> m_canvases;
     QHash<int, QJSValue> m_intervalHash;
     QHash<int, QJSValue> m_timeoutHash;
 
     Document *mDocument;
 
-    int width;
-    int height;
+    int mWidth;
+    int mHeight;
 };
 
-//! [3]
 class Document : public QObject
 {
     Q_OBJECT
@@ -154,6 +155,8 @@ public:
 public slots:
     QJSValue getElementById(const QString &id) const;
     QJSValue getElementsByTagName(const QString &name) const;
+
+    // Only create new Canvas elements
     QJSValue createElement(const QString &name) const;
 
     // EventTarget

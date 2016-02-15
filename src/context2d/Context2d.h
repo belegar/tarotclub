@@ -52,7 +52,7 @@
 
 #include <iostream>
 
-#include "MiniBrowser.h"
+//#include "MiniBrowser.h"
 
 /*
 class CanvasGradient : public QObject
@@ -81,7 +81,7 @@ Q_DECLARE_METATYPE(CanvasGradient*)
 class ImageData {
 };
 
-class QContext2DCanvas;
+
 
 //! [0]
 class Context2D : public QObject
@@ -106,7 +106,7 @@ class Context2D : public QObject
 //! [0]
 
 public:
-    Context2D(test::MiniBrowser *browser, QObject *parent = 0);
+    Context2D(QObject *parent = 0);
     void setSize(int width, int height);
     void setSize(const QSize &size);
     QSize size() const;
@@ -206,6 +206,7 @@ public slots:
     void putImageData(ImageData image, qreal dx, qreal dy);
 
     void fillText(QString text, qreal x, qreal y, qreal maxWidth = 0);
+    void strokeText(QString text, qreal x, qreal y, qreal maxWidth = 0);
 
 //! [2]
 signals:
@@ -220,7 +221,7 @@ private:
     const QImage &endPainting();
     void scheduleChange();
 
-    test::MiniBrowser *mBrowser;
+ //   test::MiniBrowser *mBrowser;
 
     int m_changeTimerId;
     QImage  m_image;

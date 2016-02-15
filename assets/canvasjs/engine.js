@@ -1,6 +1,6 @@
 // CopyRight (c) 2013 John Robinson - http://www.storminthecastle.com
 
-var Goo = function(o) {
+var Engine = function(o) {
 
   var self = this;
   
@@ -30,11 +30,6 @@ var Goo = function(o) {
   self.width = self.canvas.width;
   self.height = self.canvas.height;
 
-  // shim layer with setTimeout fallback
- // function requestAnimFrame (callback) {
- //   window.setTimeout(callback, 1000 / 30.0);
- // }
-
   var getTick = Date.now?Date.now: function () {
       return new Date().getTime();
     }
@@ -42,7 +37,7 @@ var Goo = function(o) {
   self.updateMouse = function(x, y) {
 
     var self = this;
-    /*
+    
       var obj = self.canvas;
     while (obj) {
       y -= obj.offsetTop;
@@ -50,7 +45,6 @@ var Goo = function(o) {
       obj = obj.offsetParent;
     }
 
-*/
     self.prevMouseX = self.mouseX;
     self.prevMouseY = self.mouseY;
 
@@ -173,9 +167,9 @@ var Goo = function(o) {
         fpsCounter = 0;
         fpsStartTime = tick;
       }
-    //  window.requestAnimationFrame(update);
+      window.requestAnimationFrame(self.update);
     }
   };
 
-  //window.requestAnimationFrame(update);
+  window.requestAnimationFrame(self.update);
 };
