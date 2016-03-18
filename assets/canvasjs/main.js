@@ -5,7 +5,7 @@ var foreThings = new Things();
 var backThings = new Things();
 var displayList = new DisplayList();
 
-var addBall = function(s) {
+var addBall = function(g, s) {
 
   var x = 90 + (g.width - 180)*Math.random();
   var y = 90 + 100 * Math.random();
@@ -106,30 +106,6 @@ var addSign = function(g,s,b,f,z,m,t) {
   else backThings.add(thing);
 };
 
-
-
-var addButton = function(x, y, width, height)
-{
-    var button = new Thing( {xLeft: x, yLeft: y, bWidth: width, bHeight: height, color: "black", keep: true, onDraw: function(g, t){
-        g.ctx.fillStyle = this.color;
-      g.ctx.fillRect(this.xLeft, this.yLeft, this.bWidth, this.bHeight);
-        return true;
-    },
-    onMouseMove: function(g, newX, newY) {
-        if ((newX > this.xLeft) && (newX<(this.xLeft+this.bWidth)) &&
-            (newY > this.yLeft) && (newY<(this.yLeft+this.bHeight)))
-        {
-            this.color = "blue";
-        }
-        else
-        {
-            this.color = "black";
-        }
-   }});
-
-    foreThings.add(button);
-}
-
 var buttonObj = new Button("coucou", 120, 120, 50, 40);
 
 function init()
@@ -146,7 +122,7 @@ function init()
       //    addSign(g.mouseX, g.mouseY, "g.onMouseUp()", "#E30B5D", "white", 1.5, 10, true);
       },
       onKeyDown:function(g){
-      //    addBall(g.keyCode);
+          addBall(g, g.keyCode);
         },
       onMouseMove: function(g) {
           backThings.handleEvent(g, g.mouseX, g.mouseY);
@@ -162,10 +138,10 @@ function init()
       });
 
     // Add our buttons
-    addButton(100, 20, 50, 40);
+  //  addButton(100, 20, 50, 40);
 
 	displayList.add(buttonObj);
 	
-    addButton(120, 120, 50, 40);
+  //  addButton(120, 120, 50, 40);
     initialized = true;
 }

@@ -1,7 +1,7 @@
 var Thing = function(o) {
   var self = this;
 
-  self.animated = {x: 0, y: 0, r: 0, a: 1.0, s: 1.0};
+  self.animated = {x: 0.0, y: 0.0, r: 0, a: 1.0, s: 1.0};
 
 
   if (o) {
@@ -40,9 +40,9 @@ var Thing = function(o) {
       var a = self.animated;
       var r = a.r * Math.PI / 180;
       c.save();
-      c.globalAlpha = a.a;
+      c.globalAlpha = a.a; 
       c.translate(a.x, a.y);
-      c.scale(a.s, a.s);
+	  c.scale(a.s, a.s);
       c.rotate(r);
       self.onDraw(g, t);
       c.restore();

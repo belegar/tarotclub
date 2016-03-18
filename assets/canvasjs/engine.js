@@ -37,8 +37,8 @@ var Engine = function(o) {
   self.updateMouse = function(x, y) {
 
     var self = this;
-    
-      var obj = self.canvas;
+    	
+    var obj = self.canvas;
     while (obj) {
       y -= obj.offsetTop;
       x -= obj.offsetLeft;
