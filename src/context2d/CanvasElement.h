@@ -11,6 +11,9 @@ class CanvasElement : public QObject
     // Canvas properties made available in JavaScript world
     Q_PROPERTY( int width READ getWidth WRITE setWidth )
     Q_PROPERTY( int height READ getHeight WRITE setHeight )
+    Q_PROPERTY( int offsetTop READ getOffsetTop )
+    Q_PROPERTY( int offsetLeft READ getOffsetLeft )
+    Q_PROPERTY( int offsetParent READ getOffsetParent )
 
 public:
     CanvasElement(IEnvironment *env);
@@ -23,6 +26,9 @@ public:
 
     int getWidth();
     int getHeight();
+    int getOffsetTop() { return 0; }
+    int getOffsetLeft() { return 0; }
+    int getOffsetParent() { return 0; }
 
     void setHeight(int height);
     void setWidth(int width);

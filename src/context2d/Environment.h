@@ -100,6 +100,8 @@ public slots:
     int setTimeout(const QJSValue &expression, int delay);
     void clearTimeout(int timerId);
 
+    void requestAnimationFrame(QJSValue callback);
+
     QJSValue getComputedStyle();
 
 signals:
@@ -117,7 +119,6 @@ private:
                               const QString &type, QJSValue *who);
     QJSValue newFakeDomEvent(const QString &type,
                                  const QJSValue &target);
-    void maybeEmitScriptError();
 
     QJSEngine *m_engine;
     QJSValue mGlobalObject;
@@ -164,6 +165,7 @@ public slots:
                           bool useCapture);
 
     void Print(int step);
+    void log(const QString &text);
 
 private:
 

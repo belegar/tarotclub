@@ -39,7 +39,7 @@
 ****************************************************************************/
 
 #include "context2d.h"
-
+#include <cmath>
 #include <QVariant>
 
 #include <math.h>
@@ -238,6 +238,8 @@ void Context2D::rotate(qreal angle)
 
 void Context2D::translate(qreal x, qreal y)
 {
+//    if (std::isnan(x) || std::isnan(y))
+
     m_state.matrix.translate(x, y);
     m_state.flags |= DirtyTransformationMatrix;
 }
@@ -358,7 +360,6 @@ void Context2D::setLineWidth(qreal w)
     m_state.flags |= DirtyLineWidth;
 }
 
-//! [0]
 QString Context2D::lineCap() const
 {
     switch (m_state.lineCap) {
@@ -385,7 +386,6 @@ void Context2D::setLineCap(const QString &capString)
     m_state.lineCap = style;
     m_state.flags |= DirtyLineCap;
 }
-//! [0]
 
 QString Context2D::lineJoin() const
 {
@@ -706,11 +706,24 @@ void Context2D::putImageData(ImageData image, qreal dx, qreal dy)
 
 void Context2D::fillText(QString text, qreal x, qreal y, qreal maxWidth)
 {
+    (void) maxWidth; // FIXME: to implement
     beginPainting();
     m_painter.save();
     m_painter.setMatrix(m_state.matrix, false);
-    // FIXME: how to manage maxWidth, pen and font?
-    m_painter.drawText(QPointF(x, y), text);
+    m_painter.setFont(m_state.font);
+    const qreal size = 32767.0;
+    QPointF corner(x, y - size);
+    if (m_state.textAlign & Qt::AlignHCenter) corner.rx() -= size/2.0;
+    else if (m_state.textAlign & Qt::AlignRight) corner.rx() -= size;
+
+    if (m_state.textAlign & Qt::AlignVCenter) corner.ry() += size/2.0;
+    else if (m_state.textAlign & Qt::AlignTop) corner.ry() += size;
+    else m_state.textAlign |= Qt::AlignBottom;
+    QRectF rect(corner, QSizeF(size, size));
+    m_painter.drawText(rect, m_state.textAlign, text);
+
+
+   // m_painter.drawText(QPointF(x, y), text);
     m_painter.restore();
     scheduleChange();
 }
@@ -807,6 +820,87 @@ void Context2D::reset()
     m_state.shadowColor = qRgba(0, 0, 0, 0);
     m_state.flags = AllIsFullOfDirt;
     clear();
+}
+
+QString Context2D::getTextAlign()
+{
+    // FIXME: to implement
+    return "center";
+}
+
+void Context2D::setTextAlign(const QString &mode)
+{
+    // center|end|left|right|start
+    if (mode == "center")
+    {
+        m_state.textAlign = Qt::AlignHCenter;
+    }
+    else if ((mode == "start") || (mode == "left"))
+    {
+        m_state.textAlign = Qt::AlignLeft;
+    }
+    else if ((mode == "right") || (mode == "end"))
+    {
+        m_state.textAlign = Qt::AlignRight;
+    }
+    else
+    {
+        m_state.textAlign = Qt::AlignHCenter;
+    }
+
+}
+
+QString Context2D::getFont()
+{
+    //FIXME: to implement
+    return "12px Arial, sans-serif";
+}
+
+void Context2D::setFont(const QString &font)
+{
+    bool sans = false;
+    bool serif = false;
+
+    // Quick and dirty parsing!!
+    QStringList list = font.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+
+    for (int i = 0; i < list.size(); i++)
+    {
+        QString word = list.at(i);
+
+        std::cout << word.toStdString() << std::endl;
+        if (word.contains("px"))
+        {
+            // This word contains font size
+            QRegExp rxlen("(\\d+)px");
+            int pos = rxlen.indexIn(word);
+            if (pos > -1) {
+                m_state.font.setWeight(rxlen.cap(1).toInt());
+            }
+        }
+        else if (word.contains("sans"))
+        {
+            sans = true;
+        }
+        else if (word.contains("serif"))
+        {
+            serif = true;
+        }
+        else
+        {
+            // Maybe the font family?
+            m_state.font.setFamily(word);
+        }
+    }
+
+    if (serif && sans)
+    {
+        m_state.font.setStyleHint(QFont::SansSerif);
+    }
+    else
+    {
+        m_state.font.setStyleHint(QFont::Serif);
+    }
 }
 
 void Context2D::setSize(int width, int height)

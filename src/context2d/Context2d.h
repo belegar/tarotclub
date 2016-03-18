@@ -82,8 +82,6 @@ class ImageData {
 };
 
 
-
-//! [0]
 class Context2D : public QObject
 {
     Q_OBJECT
@@ -102,8 +100,9 @@ class Context2D : public QObject
     Q_PROPERTY(qreal shadowOffsetY READ shadowOffsetY WRITE setShadowOffsetY)
     Q_PROPERTY(qreal shadowBlur READ shadowBlur WRITE setShadowBlur)
     Q_PROPERTY(QString shadowColor READ shadowColor WRITE setShadowColor)
-
-//! [0]
+    // text
+    Q_PROPERTY(QString textAlign READ getTextAlign WRITE setTextAlign)
+    Q_PROPERTY(QString font READ getFont WRITE setFont)
 
 public:
     Context2D(QObject *parent = 0);
@@ -116,6 +115,12 @@ public:
 
     int getWidth() { return mWidth; }
     int getHeight() { return mHeight; }
+
+    // Text
+    QString getTextAlign();
+    void setTextAlign(const QString &mode);
+    QString getFont();
+    void setFont(const QString &font);
 
     // compositing
     qreal globalAlpha() const; // (default 1.0)

@@ -287,6 +287,11 @@ void Environment::clearTimeout(int timerId)
     m_timeoutHash.remove(timerId);
 }
 
+void Environment::requestAnimationFrame(QJSValue callback)
+{
+    setTimeout(callback, 1000 / 60.0);
+}
+
 QJSValue Environment::getComputedStyle()
 {
     QJSValue styles = m_engine->newObject();
@@ -340,7 +345,6 @@ void Environment::timerEvent(QTimerEvent *event)
     } else if (expression.isCallable()) {
         expression.call();
     }
-    maybeEmitScriptError();
 }
 
 void Environment::slotContentsChanged(const QImage &image)
@@ -435,35 +439,39 @@ void Environment::handleEvent(QMouseEvent *e)
     if (type.isEmpty())
         return;
 
-    QJSValue handlerObject;
-    QJSValue handler;// = eventHandler(canvas, type, &handlerObject);// FIXME: search for suitable event registered in canvases
-    if (!handler.isCallable())
-        return;
+    for (int i = 0; i <m_canvases.size(); i++)
+    {
+        CanvasElement *canvas = m_canvases.at(i);
 
-    QJSValue scriptEvent;// = newFakeDomEvent(type, toWrapper(canvas));
-    // MouseEvent
-    scriptEvent.setProperty("preventDefault", m_engine->evaluate("function preventDefault() {}"));
-    scriptEvent.setProperty("screenX", e->globalX());
-    scriptEvent.setProperty("screenY", e->globalY());
-    scriptEvent.setProperty("clientX", e->x());
-    scriptEvent.setProperty("clientY", e->y());
-    scriptEvent.setProperty("layerX", e->x());
-    scriptEvent.setProperty("layerY", e->y());
-    scriptEvent.setProperty("pageX", e->x());
-    scriptEvent.setProperty("pageY", e->y());
-    scriptEvent.setProperty("altKey", (e->modifiers() & Qt::AltModifier) != 0);
-    scriptEvent.setProperty("ctrlKey", (e->modifiers() & Qt::ControlModifier) != 0);
-    scriptEvent.setProperty("metaKey", (e->modifiers() & Qt::MetaModifier) != 0);
-    scriptEvent.setProperty("shiftKey", (e->modifiers() & Qt::ShiftModifier) != 0);
-    int button = 0;
-    if (e->button() == Qt::RightButton)
-        button = 2;
-    else if (e->button() == Qt::MidButton)
-        button = 1;
-    scriptEvent.setProperty("button", button);
-    scriptEvent.setProperty("relatedTarget", QJSValue::NullValue);
-    handler.callWithInstance(handlerObject, QJSValueList() << scriptEvent);
-    maybeEmitScriptError();
+        QJSValue handlerObject;
+        QJSValue handler = eventHandler(canvas, type, &handlerObject);
+        if (!handler.isCallable())
+            return;
+
+        QJSValue scriptEvent = newFakeDomEvent(type, toWrapper(canvas));
+        // MouseEvent
+        scriptEvent.setProperty("preventDefault", m_engine->evaluate("function preventDefault() {}"));
+        scriptEvent.setProperty("screenX", e->globalX());
+        scriptEvent.setProperty("screenY", e->globalY());
+        scriptEvent.setProperty("clientX", e->x());
+        scriptEvent.setProperty("clientY", e->y());
+        scriptEvent.setProperty("layerX", e->x());
+        scriptEvent.setProperty("layerY", e->y());
+        scriptEvent.setProperty("pageX", e->x());
+        scriptEvent.setProperty("pageY", e->y());
+        scriptEvent.setProperty("altKey", (e->modifiers() & Qt::AltModifier) != 0);
+        scriptEvent.setProperty("ctrlKey", (e->modifiers() & Qt::ControlModifier) != 0);
+        scriptEvent.setProperty("metaKey", (e->modifiers() & Qt::MetaModifier) != 0);
+        scriptEvent.setProperty("shiftKey", (e->modifiers() & Qt::ShiftModifier) != 0);
+        int button = 0;
+        if (e->button() == Qt::RightButton)
+            button = 2;
+        else if (e->button() == Qt::MidButton)
+            button = 1;
+        scriptEvent.setProperty("button", button);
+        scriptEvent.setProperty("relatedTarget", QJSValue::NullValue);
+        handler.callWithInstance(handlerObject, QJSValueList() << scriptEvent);
+    }
 }
 
 void Environment::handleEvent(QKeyEvent *e)
@@ -479,20 +487,23 @@ void Environment::handleEvent(QKeyEvent *e)
     if (type.isEmpty())
         return;
 
-    QJSValue handlerObject;
-    QJSValue handler;// = eventHandler(canvas, type, &handlerObject); // FIXME: search for suitable event registered in canvases
-    if (!handler.isCallable())
-        return;
+    for (int i = 0; i <m_canvases.size(); i++)
+    {
+        CanvasElement *canvas = m_canvases.at(i);
+        QJSValue handlerObject;
+        QJSValue handler = eventHandler(canvas, type, &handlerObject);
+        if (!handler.isCallable())
+            return;
 
-    QJSValue scriptEvent;// = newFakeDomEvent(type, toWrapper(canvas)); // FIXME same as above
-    // KeyEvent
-    scriptEvent.setProperty("isChar", !e->text().isEmpty());
-    scriptEvent.setProperty("charCode", e->text());
-    scriptEvent.setProperty("keyCode", FakeDomEvent::qtToDomKey(e->key()));
-    scriptEvent.setProperty("which", e->key());
+        QJSValue scriptEvent = newFakeDomEvent(type, toWrapper(canvas));
+        // KeyEvent
+        scriptEvent.setProperty("isChar", !e->text().isEmpty());
+        scriptEvent.setProperty("charCode", e->text());
+        scriptEvent.setProperty("keyCode", FakeDomEvent::qtToDomKey(e->key()));
+        scriptEvent.setProperty("which", e->key());
 
-    handler.callWithInstance(handlerObject, QJSValueList() << scriptEvent);
-    maybeEmitScriptError();
+        handler.callWithInstance(handlerObject, QJSValueList() << scriptEvent);
+    }
 }
 
 QJSValue Environment::eventHandler(CanvasElement *canvas, const QString &type,
@@ -503,7 +514,7 @@ QJSValue Environment::eventHandler(CanvasElement *canvas, const QString &type,
     QJSValue handler = obj.property(handlerName);
     if (!handler.isCallable()) {
         obj = m_document;
-        handler = mDocument->FindEventCallback(handlerName);//obj.property(handlerName);
+        handler = mDocument->FindEventCallback(handlerName);
     }
     if (who && handler.isCallable())
         *who = obj;
@@ -526,15 +537,6 @@ QJSValue Environment::newFakeDomEvent(const QString &type, const QJSValue &targe
     e.setProperty("detail", 0);
     e.setProperty("view", m_engine->globalObject());
     return e;
-}
-
-void Environment::maybeEmitScriptError()
-{
-    // FIXME : handle errors properly
-    /*
-    if (m_engine->hasUncaughtException())
-        emit scriptError(m_engine->uncaughtException());
-        */
 }
 
 
@@ -580,10 +582,8 @@ void Document::addEventListener(const QString &type, const QJSValue &listener,
                                 bool useCapture)
 {
     Q_UNUSED(useCapture);
-    if (listener.isCallable()) {
-    //    Environment *env = qobject_cast<Environment*>(parent());
-    //    QJSValue self = env->toWrapper(this);
-    //    self.setProperty("on" + type, listener);
+    if (listener.isCallable())
+    {
         mEventList.insert("on" + type, listener);
     }
 }
@@ -591,6 +591,11 @@ void Document::addEventListener(const QString &type, const QJSValue &listener,
 void Document::Print(int step)
 {
     std::cout << "Step: " << step << std::endl;
+}
+
+void Document::log(const QString &text)
+{
+    std::cout << text.toStdString() << std::endl;
 }
 
 /*
