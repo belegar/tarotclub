@@ -25,6 +25,7 @@
 
 #include "Lobby.h"
 #include "LobbyServer.h"
+#include "TournamentConfig.h"
 #include "System.h"
 #include "GetOptions.h"
 #include "Console.h"
@@ -86,14 +87,18 @@ int main(int argc, char *argv[])
     Log::RegisterListener(logger);
 
     ServerConfig conf;
+    TournamentConfig tournament;
+
     conf.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
+    tournament.Load(System::HomePath() + TournamentConfig::DEFAULT_FILE_NAME);
+
     ServerOptions options = conf.GetOptions();
     std::cout << "Starting lobby on TCP port: " << options.game_tcp_port << std::endl;
 
     Protocol::GetInstance().Initialize();
 
     Server server;
-    server.Start(options); // Blocking call. On exit, quit the executable
+    server.Start(options, tournament.GetOptions()); // Blocking call. On exit, quit the executable
 
     Protocol::GetInstance().Stop();
     return 0;

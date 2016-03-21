@@ -49,14 +49,14 @@ Server::Server()
 
 }
 /*****************************************************************************/
-void Server::Start(const ServerOptions &options)
+void Server::Start(const ServerOptions &options, const TournamentOptions &tournamentOpt)
 {
     // Init lobby
     mLobbyServer.Initialize(options);
     mLobbyServer.RegisterListener(*this);
 
     // Init server
-    mAiContest = options.tournament;
+    mAiContest = tournamentOpt.turns;
     mGamePort = options.game_tcp_port;
     mInitialized = true;
     mThread = std::thread(Server::EntryPoint, this);

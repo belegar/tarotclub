@@ -74,7 +74,7 @@ public:
 
     Server();
 
-    void Start(const ServerOptions &options);
+    void Start(const ServerOptions &options, const TournamentOptions &tournamentOpt);
     void Stop() { mStopRequested = true; mThread.join(); }
 
     // From Lobby::Event

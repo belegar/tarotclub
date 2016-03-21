@@ -49,10 +49,11 @@ VPATH += $$TAROTCLUB_DIR/src/json
 VPATH += $$TAROTCLUB_DIR/src/network
 VPATH += $$TAROTCLUB_DIR/src/zip
 VPATH += $$TAROTCLUB_DIR/src/lobby
+VPATH += $$TAROTCLUB_DIR/src/config
 VPATH += $$TAROTCLUB_DIR/ai
 VPATH += $$TAROTCLUB_DIR/ai/tarotlib
 
-VPATH += $$BASE_DIR/src
+VPATH += $$TAROTCLUB_DIR/tcds
 
 # ------------------------------------------------------------------------------
 # Where to find header files
@@ -64,8 +65,9 @@ INCLUDEPATH += $$TAROTCLUB_DIR/src/json
 INCLUDEPATH += $$TAROTCLUB_DIR/src/network
 INCLUDEPATH += $$TAROTCLUB_DIR/src/zip
 INCLUDEPATH += $$TAROTCLUB_DIR/src/lobby
+INCLUDEPATH += $$TAROTCLUB_DIR/src/config
 
-INCLUDEPATH += $$BASE_DIR/src
+INCLUDEPATH += $$TAROTCLUB_DIR/tcds
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -84,7 +86,7 @@ TARGET = tcds # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = src/icon.rc
+    RC_FILE = $$TAROTCLUB_DIR/tcds/icon.rc
     LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
     # Let's make everything's static so that we don't need any DLL
@@ -122,7 +124,7 @@ HEADERS += Log.h \
     Base64.h \
     Sha1.h \
     Zip.h \
-    ../tarotclub/src/network/TcpServerBase.h
+    TcpServerBase.h
 
 SOURCES += Log.cpp \
     Util.cpp \
@@ -138,7 +140,7 @@ SOURCES += Log.cpp \
     Base64.cpp \
     Sha1.cpp \
     Zip.cpp \
-    ../tarotclub/src/network/TcpServerBase.cpp
+    TcpServerBase.cpp
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
@@ -170,7 +172,7 @@ SOURCES +=  DataBase.cpp \
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-HEADERS += ServerConfig.h \
+HEADERS += ServerConfig.h TournamentConfig.h \
     DealFile.h \
     Deck.h \
     Card.h \
@@ -191,7 +193,7 @@ HEADERS += ServerConfig.h \
     BotManager.h \
     LobbyServer.h
 
-SOURCES += ServerConfig.cpp \
+SOURCES += ServerConfig.cpp TournamentConfig.cpp \
     DealFile.cpp \
     Deck.cpp \
     Card.cpp \
