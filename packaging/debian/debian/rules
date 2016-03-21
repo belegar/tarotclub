@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+
+%:
+	dh ${@} --parallel
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf build-desktop icons
+
+override_dh_auto_configure:
+	qmake prj/desktop.pro -o Makefile.desktop
+	qmake prj/botclient.pro -o Makefile.botclient
+
+override_dh_auto_build:
+	make -f Makefile.desktop
+	make -f Makefile.botclient
+	
+	$(CURDIR)/debian/copy_icons.sh 
+
+override_dh_installchangelogs:
+	dh_installchangelogs HISTORY.md
+
+override_dh_builddeb:
+	dh_builddeb -- -Zxz -z9
+

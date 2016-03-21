@@ -1,0 +1,24 @@
+{
+  "name": "www.tarotclub.fr",
+  "version": "0.0.1",
+  "description": "TarotClub web site",
+  "main": "app.js",
+  "private": true,
+  "dependencies": {
+    "async": "^0.9.0",
+    "bcryptjs": "^2.1.0",
+    "body-parser": "^1.12.0",
+    "cookie-parser": "^1.3.4",
+    "cookie-session": "^1.1.0",
+    "csurf": "^1.7.0",
+    "emailjs": "^0.3.13",
+    "express": "4.12.x",
+    "hbs": "*",
+    "jszip": "^2.5.0",
+    "log4js": "^0.6.22",
+    "multer": "0.1.x",
+    "nano": "6.1.x",
+    "serialize-javascript": "^1.0.0"
+  },
+  "author": "Anthony Rabine"
+}

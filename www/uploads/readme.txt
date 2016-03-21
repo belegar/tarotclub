@@ -1,0 +1,1 @@
+This is the directory where user uploads are located.

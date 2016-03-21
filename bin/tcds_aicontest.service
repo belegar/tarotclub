@@ -1,0 +1,14 @@
+[Unit]
+Description=tcds
+
+[Service]
+WorkingDirectory=/opt/tcds/bin
+ExecStart=/opt/tcds/bin/tcds -w /opt/tcds/bin/aicontest
+Restart=alway
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=tcds
+Environment='PATH=/usr/bin:/usr/local/bin:/opt/tcds/bin'
+
+[Install]
+WantedBy=multi-user.target

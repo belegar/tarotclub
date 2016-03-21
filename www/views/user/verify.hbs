@@ -1,0 +1,11 @@
+<div class="container">    
+    <div class="jumbotron">
+        {{#if message}}
+        <h1>La validation de votre compte a échoué: {{message}}</h1>
+        <p>Merci de prévenir le mainteneur du site.</p>
+        {{else}}
+        <h1>Votre compte est validé.</h1>
+        <p>Bienvenue sur le site!</p>
+        {{/if}}
+    </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="container-fluid">
+
+	{{> user_topics}}
+    
+    <!-- Main page -->
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h1 class="page-header">Gestion des bots</h1>
+
+        {{#if failure}}
+            <div id="error-box" class="alert alert-danger">{{failure}}</div>
+        {{else}}
+            {{#if success}}
+            <div id="success-box" class="alert alert-success">{{success}}</div>
+            {{/if}}
+        {{/if}}
+
+        <script>
+        $(function() {
+            $('input[name="iaFile"]').change(function(){
+               var filename = $(this).val();
+              $("#ia-path").val(filename);
+            });
+        });
+        </script>
+
+        <div style="padding-top:30px" class="col-md-7">
+            <h2 class="page-header">Liste des bots</h2>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom du bot</th>
+                        <th>Ajouté le</th>
+                        <th>Statut</th>
+                        <th>Supprimer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each bots}}
+                        <tr>
+                            <td>{{incr @index}}</td>
+                            <td>{{botname}}</td>
+                            <td>{{added_date}}</td>
+                            <td>{{status}}</td>
+                            <td>
+                            <a href="/user/delbot/{{@index}}"><span class="glyphicon glyphicon-remove" aria-hidden="true" style="color: red;" /></a>
+                            </td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="padding-top:30px" class="col-md-7">
+            <h2 class="page-header">Ajouter un bot</h2>
+					
+			<form id="userform" class="form-horizontal" role="form" action="/user/bots?_csrf={{csrf}}" method="post" enctype="multipart/form-data">
+
+                <input id="csrfinput" type="hidden" name="_csrf" value="{{csrf}}" />
+
+				<div style="margin-bottom: 25px" class="input-group">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+					<input id="botname" type="text" class="form-control" name="botname" value="" placeholder="Nom du bot" />
+				</div>
+
+                <p>Une archive d'IA est un fichier ZIP contenant des fichiers Javascript. L'arborescence requise est décrite dans la 
+                <a href="/doc/scripts">documentation du jeu</a>.</p>
+
+				<div style="margin-bottom: 25px" class="input-group">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-upload"></i></span>
+					<input id="ia-path" type="text" class="form-control" name="ia-path" value="" placeholder="Archive d'IA" />
+					<span class="input-group-addon btn btn-default btn-file">
+				    Browse <input type="file" name="iaFile">
+					</span>
+				</div>
+
+				<div style="margin-top:10px" class="form-group">
+					<div class="col-sm-12 controls">
+					<input type="submit" value="Ajouter le bot" name="submit" class="btn btn-primary" />
+					</div>
+				</div>
+
+			</form>
+		</div> 
+
+          
+
+<!--
+        <h2 class="sub-header">Concours d'intelligence artificielle</h2>
+
+	-->
+
+    </div>
+</div> <!-- Container -->

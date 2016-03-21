@@ -1,0 +1,33 @@
+{
+    "deal_info": {
+        "attack_handle": "",
+        "contract": "Guard against",
+        "defense_handle": "",
+        "dog": "01-S;02-S;03-S;04-S;05-S;06-S",
+        "first_trick_lead": "South",
+        "number_of_players": 4,
+        "slam": false,
+        "taker": "South"
+    },
+    "tricks": [
+        "14-C;08-T;09-T;00-T",
+        "01-D;01-T;06-D;10-T",
+        "07-S;11-T;21-T;09-D",
+        "02-T;13-C;14-S;14-H",
+        "03-T;12-C;13-S;13-H",
+        "04-T;11-C;12-S;12-H",
+        "05-T;10-C;11-S;11-H",
+        "06-T;09-C;10-S;14-D",
+        "07-T;08-C;09-S;13-D",
+        "12-T;07-C;08-S;12-D",
+        "13-T;06-C;10-H;11-D",
+        "14-T;05-C;09-H;10-D",
+        "15-T;06-H;08-H;08-D",
+        "16-T;07-H;05-H;07-D",
+        "17-T;04-C;04-H;05-D",
+        "18-T;03-C;03-H;04-D",
+        "19-T;02-C;02-H;03-D",
+        "20-T;01-C;01-H;02-D"
+    ],
+    "version": "3"
+}

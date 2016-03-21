@@ -1,0 +1,89 @@
+<div class="container">    
+    <div class="row">
+        <div class="col-md-3">
+
+            {{> doc_topics}}
+
+        <div class="col-md-9">
+		<h1>Game development</h1>
+		<hr>
+            <article>
+
+  <h2>Project</h2>
+
+  <p>
+  The TarotClub source code client is hosted on the Bitbucket platform <a href="https://bitbucket.org/tarotclub/tarotclub">https://bitbucket.org/tarotclub/tarotclub</a>. Feel free to submit bugs, improvements or open new tickets if you have found bugs or ideas.</p>
+
+  <p>
+  There is also a dedicated repository for the packaging scripts on all the supported platforms (Windows, Linux) <a href="https://bitbucket.org/tarotclub/packaging">https://bitbucket.org/tarotclub/packaging</a>.</p>
+
+  <p>
+  The dedicated server is currently not available as an open source project.
+  </p>
+
+  <h2>Technologies used</h2>
+
+  <p>
+  The Qt library is used for the GUI interface (FIXME: Link to the project page). It is a wonderful library that help me a lot to provide the same software on all the supported platforms. The configuration files are in JSON format (FIXME: Link to the Wikipedia page).
+  </p>	
+  	
+  <h2>Development tools</h2> 
+
+  Qt Creator must be the only editor to be used to edit C++ files. Any other tool can be used to edit the JavaScript files if the coding rules are respected.
+  				
+  								
+  <h2>Coding rules</h2> 
+
+  <p>Here is a quick-and-dirty coding rules list:
+  	<ul>
+  		<li>Indentation takes 4-spaces, to tabulations allowed. BSD style brackets.</li>
+  		<li>Class members are prefixed by a 'm' letter, followed by mixed-case: mMyMemberVariable;</li>
+  		<li>Class/Enum/Structure names are mixed-case: class MyClass() { ... };</li>
+  	</ul>
+  AStyle is used to automatically reformat the source code according to the project coding rules.</p>
+
+
+  <h2>Release process</h2>
+
+  <h3>Version numbering</h3>
+
+  <p>
+  TODO: explain when and how to increment the version
+  </p>
+
+  <h3>Game manual tests</h3>
+  <p>
+  Some parts of the game are not easy to test automatically. Here is a check list of manual tests to perform.
+  </p>
+
+  <ul>
+    <li>Check translations (dock windows, about box, editor)</li>
+    <li>Check different bids (guard, guard without...) with discard creation</li>
+    <li>Check handle creation using predefined deals</li>
+    <li>Check game modes (tournament ==> play two or more consecutive games, one deal)</li>
+    <li>Check option change, game exit</li>
+    <li>Check menus (help, options ...)</li>
+    <li>Finally, check the generated log and debug output to look for problems especially bot related errors</li>
+  </ul>
+
+  <h3>Delivery process</h3>
+
+  <ul>
+    <li>Increase the version number in Defines.h file</li>
+    <li>Check and update the TODO, HISTORY and README files</li>
+    <li>Create the setup executables or install packages</li>
+    <li>Install the packages on all the supported platforms, execute manual tests (criteria: all passed)</li>
+    <li>Save the code quality checker results for this version</li>
+    <li>Create a delivery report</li>
+    <li>Tag the new version (format: VERSION_2_1_3), push the Mercurial depot</li>
+    <li>Upload the setup executables on Bitbucket</li>
+    <li>Update the website versions</li>
+    <li>Make an announcement</li>
+  </ul>
+
+                  </article>
+                     
+            </div>
+        </div>
+    </div>
+</div> <!-- Container -->

@@ -1,0 +1,14 @@
+icons             		  /usr/share
+pixmaps             		  /usr/share
+assets/ai                         /usr/share/tarotclub
+assets/cards/default              /usr/share/tarotclub
+assets/icons/icon256x256.png      /usr/share/tarotclub
+assets/doc/index.html             /usr/share/tarotclub/doc
+assets/doc/rules_en.html          /usr/share/tarotclub/doc
+assets/doc/rules_fr.html          /usr/share/tarotclub/doc
+assets/doc/images                 /usr/share/tarotclub/doc
+debian/tarotclub.desktop          /usr/share/applications
+prj/desktop/tarotclub_fr.qm       /usr/share/tarotclub
+build-desktop/release/TarotClub   /usr/share/tarotclub
+build-botclient/release/botclient /usr/share/tarotclub
+

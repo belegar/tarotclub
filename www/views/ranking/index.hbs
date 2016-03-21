@@ -1,0 +1,62 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+
+            {{> ranking_topics}}
+
+        </div>
+        <div class="col-md-9">
+            <h1>Concours d'IA</h1>
+            <hr />
+            <article>
+	            <div class="row">
+				    <div class="col-md-6">
+						<p>Le concours d'IA permanent vous permet de confronter vos Javascripts d'intelligence artificielle à l'IA de référence. Chaque bot enregistré 
+						joue 20 parties pré-déterminées et le score final est enregistré. Le tableau ci-dessous affiche le classement en cours.</p>
+						<p>
+						Pour apprendre comment développer et tester votre propre IA de Tarot, consultez la documentation en ligne.
+						</p>
+				    </div>
+				    <div class="col-md-3">
+				    	<img src="images/ai.jpg" class="img-responsive" alt="AI" /> 
+				    </div>
+				</div>
+
+				<p>
+				Une fois votre IA prête, créez une archive ZIP et uploadez le fichier via votre compte dans la section "Gestion des bots". Le serveur de jeu lancera le 
+				tournoi automatiquement. Attendez environ 15 minutes avant de consulter le résultat sur cette page.
+				</p>
+						
+                <p>
+                Attention, pour développer vos scripts d'IA, il est préférable de partir de la version 2.6.0 de TarotClub. Une version de test est disponible, uniquement sous Ubuntu pour le moment. Les 
+                packages sont disponibles sur le PPA tarotclub : <a href="https://launchpad.net/~tarotclub/+archive/ubuntu/ppa/+packages">https://launchpad.net/~tarotclub/+archive/ubuntu/ppa/+packages</a> et le code source sur le <a href="https://bitbucket.org/tarotclub/tarotclub">projet Bitbucket de TarotClub</a>.
+
+                </p>
+
+
+				<div style="padding-top:30px" class="col-md-9">
+		            <h2 class="page-header">Classement des bots</h2>
+		            <table class="table table-condensed">
+		                <thead>
+		                    <tr>
+		                        <th>#</th>
+		                        <th>Nom du bot</th>
+		                        <th>Points</th>
+		                    </tr>
+		                </thead>
+		                <tbody>
+		                    {{#each bots}}
+		                        <tr>
+		                            <td>{{incr @index}}</td>
+		                            <td>{{botname}}</td>
+		                            <td>{{score}}</td>
+		                        </tr>
+		                    {{/each}}
+		                </tbody>
+		            </table>
+		        </div>
+
+            </article>
+        </div>
+    </div>
+</div> <!-- Container -->

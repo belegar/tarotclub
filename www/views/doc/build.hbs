@@ -1,0 +1,88 @@
+<div class="container">    
+    <div class="row">
+        <div class="col-md-3">
+
+            {{> doc_topics}}
+	
+        <div class="col-md-9">
+			<h1>How to build the game</h1>
+			<hr>
+            <article>
+
+    <h2>Getting the source code</h2> 
+    <p>
+    The source code is available on the Mercurial BitBucket depot. To get the source code, execute the following command:
+    </p>
+
+    <pre>
+    hg clone https://tarotclub@bitbucket.org/tarotclub/tarotclub
+    </pre>
+
+    <p>
+    You will need to install the Mercurial source code management client, available here <a href="http://mercurial.selenic.com">http://mercurial.selenic.com</a> or from your Linux distribution software center. A wonderful GUI tool named TortoiseHG can be installed to simplify the source code management.
+    </p>
+
+    <pre>
+    apt-get install tortoisehg
+    </pre>
+
+    <p>
+    It is also possible to see the code by using the Web interface: [https://bitbucket.org/tarotclub/tarotclub/overview]
+    </p>
+
+
+    <h2>How to build TarotClub under Ubuntu</h2>
+
+    <p>
+    The following commands will help you to install everything to build TarotClub:
+    </p>
+
+    <pre>
+    apt-get install build-essential
+    apt-get install libglw1-mesa-dev
+    apt-get install libegl1-mesa-dev
+    apt-get install libgl1-mesa-dev
+    apt-get install qt5-default qttools5-dev-tools qttools5-doc libqt5svg5-dev
+    </pre>
+
+    <p>
+    Then, best option is to use QtCreator since qmake projects (.pro files) are available.
+    Another way is to use the command line:
+    </p>
+
+    <pre>
+    cd tarotclub
+    qmake prj/desktop.pro
+    make
+    </pre>
+
+    <p>
+    The executable can be found on the build-desktop/release sub-directory. Take into account that the executable must be launched 
+    from a specific directory tree containing the game assets.
+    </p>
+
+    <h2>How to build TarotClub under Fedora</h2>
+
+    <p>
+    Install the following packages
+    </p>
+
+    <pre>
+    yum install gcc-c++ qt5-qtsvg-devel qt5-qtsvg qt5-base qt5-qtbase-devel
+    </pre>
+
+    <p>
+    Then run Qmake:
+    </p>
+
+    <pre>
+    cd tarotclub
+    qmake-qt5 prj/desktop.pro
+    make
+    </pre>
+
+              </article> 
+            </div>
+        </div>
+    </div>
+</div> <!-- Container -->
