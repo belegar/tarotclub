@@ -41,15 +41,23 @@
 #endif
 
 #ifdef USE_WINDOWS_OS
-#include <ws2tcpip.h>
 
-#ifdef __MINGW32__
-#include <unistd.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
 
 #ifdef _MSC_VER
 #include <io.h>
 #endif
+
+#include <ws2tcpip.h>
+#include <Windows.h>
+
+#ifdef __MINGW32__
+#include <unistd.h>
+#endif
+
+
 
 #endif // USE_WINDOWS_OS
 

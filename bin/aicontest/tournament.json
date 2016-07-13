@@ -1,0 +1,32 @@
+{
+    "version": "6",
+    "game_tcp_port": 4270,
+	"console_tcp_port": 8091,
+    "lobby_max_conn": 250,
+	"local_host_only": true,
+	"name": "aicontest",
+    "tournament": [
+        { "type": "custom", "file": "contest_deal01.json" },
+		{ "type": "custom", "file": "contest_deal02.json" },
+		{ "type": "custom", "file": "contest_deal03.json" },
+		{ "type": "custom", "file": "contest_deal04.json" },
+		{ "type": "custom", "file": "contest_deal05.json" },
+		{ "type": "custom", "file": "contest_deal06.json" },
+		{ "type": "custom", "file": "contest_deal07.json" },
+		{ "type": "custom", "file": "contest_deal08.json" },
+		{ "type": "custom", "file": "contest_deal09.json" },
+		{ "type": "custom", "file": "contest_deal10.json" },
+		{ "type": "custom", "file": "contest_deal11.json" },
+		{ "type": "custom", "file": "contest_deal12.json" },
+		{ "type": "custom", "file": "contest_deal13.json" },
+		{ "type": "custom", "file": "contest_deal14.json" },
+		{ "type": "custom", "file": "contest_deal15.json" },
+		{ "type": "custom", "file": "contest_deal16.json" },
+		{ "type": "custom", "file": "contest_deal17.json" },
+		{ "type": "custom", "file": "contest_deal18.json" },
+		{ "type": "custom", "file": "contest_deal19.json" },
+		{ "type": "custom", "file": "contest_deal20.json" }
+    ],
+    "tables": [
+    ]
+}

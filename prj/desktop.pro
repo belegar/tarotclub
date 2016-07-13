@@ -53,11 +53,12 @@ VPATH += $$BASE_DIR/src/gfxlib
 VPATH += $$BASE_DIR/src/network
 VPATH += $$BASE_DIR/src/zip
 VPATH += $$BASE_DIR/src/lobby
+VPATH += $$BASE_DIR/src/context2d
 VPATH += $$BASE_DIR/src/config
 VPATH += $$BASE_DIR/lib
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
-VPATH += $$BASE_DIR/assets/qml
+VPATH += $$BASE_DIR/assets/canvasjs
 
 # ------------------------------------------------------------------------------
 # Where to find header files
@@ -74,12 +75,13 @@ INCLUDEPATH += $$BASE_DIR/src/gfxlib
 INCLUDEPATH += $$BASE_DIR/src/network
 INCLUDEPATH += $$BASE_DIR/src/zip
 INCLUDEPATH += $$BASE_DIR/src/lobby
+INCLUDEPATH += $$BASE_DIR/src/context2d
 INCLUDEPATH += $$BASE_DIR/src/config
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += svg network
+QT += svg network qml
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++11
@@ -98,6 +100,7 @@ win32 {
     RC_FILE = desktop/icon.rc
     LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
+
     # Let's make everything's static so that we don't need any DLL
     QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
 }
@@ -109,14 +112,14 @@ unix {
 CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
     DEFINES += DUK_OPT_DEBUG
+#    DEFINES += DUK_OPT_DPRINT
+#    DEFINES += DUK_OPT_DDPRINT
 
     unix {
-      #  QMAKE_CXXFLAGS  +=-fsanitize=address -fno-omit-frame-pointer
-      #  QMAKE_CFLAGS    +=-fsanitize=address -fno-omit-frame-pointer
-      #  QMAKE_LFLAGS    +=-fsanitize=address
+        QMAKE_CXXFLAGS  +=-fsanitize=address -fno-omit-frame-pointer
+        QMAKE_CFLAGS    +=-fsanitize=address -fno-omit-frame-pointer
+        QMAKE_LFLAGS    +=-fsanitize=address
     }
-# DUK_OPT_DEBUG DUK_OPT_DDDEBUG DUK_OPT_DDEBUG
-
 }
 
 
@@ -137,8 +140,9 @@ OTHER_FILES = noob.js \
               game.js \
               player.js \
               bot.js \
-              main.js \
               unit_test.js
+
+#               main.js \
 
 # ------------------------------------------------------------------------------
 # Translation files
@@ -281,6 +285,17 @@ SOURCES += Canvas.cpp \
     ButtonItem.cpp \
     MessageBoxItem.cpp \
     Translations.cpp
+
+# ------------------------------------------------------------------------------
+# Context 2D files
+# ------------------------------------------------------------------------------
+
+HEADERS += Context2d.h Environment.h CanvasElement.h CanvasWidget.h IEnvironment.h
+# MiniBrowser.h
+
+
+SOURCES += Context2d.cpp Environment.cpp CanvasElement.cpp CanvasWidget.cpp
+# MiniBrowser.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files

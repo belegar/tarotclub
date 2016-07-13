@@ -26,12 +26,6 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
-// Qt includes
-#include <QMainWindow>
-#include <QMenu>
-#include <QAction>
-#include <QMdiArea>
-
 // Game includes
 #include "Common.h"
 #include "TarotWidget.h"
@@ -47,6 +41,15 @@
 #include "ui_QuickJoin.h"
 #include "DealsWindow.h"
 #include "ScoreCalculatorWindow.h"
+//#include "MiniBrowser.h"
+#include "CanvasWidget.h"
+#include "Environment.h"
+
+// Qt includes
+#include <QMainWindow>
+#include <QMenu>
+#include <QAction>
+#include <QMdiArea>
 
 /*****************************************************************************/
 class MainWindow : public QMainWindow
@@ -91,11 +94,16 @@ private slots:
     void slotDisconnectFromLobby();
     void slotLobbyPlayersList();
 
+    // Canvas
+    void slotRun();
+    void slotReportScriptError(const QJSValue &error);
+
 private:
     void SetupDialogs();
     void SetupMenus();
     void SetupDocks();
-
+    void SetupCanvas2D();
+    void RunScript(const QString &fileName);
 
     QMdiArea *mdiArea;
     QMdiSubWindow *subWindow;
@@ -134,6 +142,14 @@ private:
     QAction *scoreCalcAct;
 
     TarotWidget *tarotWidget;
+
+    // Experimental Canvas2D back-end
+    QMdiSubWindow *mCanvasMdiSubWindow;
+ //   test::MiniBrowser *mView;
+
+    Environment *mEnv;
+    CanvasWidget *mCanvasWidget;
+    QPushButton *mRunScriptButton;
 
     // Modal windows
     AboutWindow *about;

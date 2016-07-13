@@ -24,10 +24,16 @@
  */
 
 #ifdef USE_WINDOWS_OS
-#include <windows.h>
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <direct.h>
 #include <sys/stat.h>
+#include <windows.h>
 #include <psapi.h>
+
 #endif
 
 #ifdef USE_UNIX_OS

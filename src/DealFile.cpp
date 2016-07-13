@@ -23,6 +23,7 @@
  *=============================================================================
  */
 
+#include <random>
 #include <sstream>
 #include "JsonReader.h"
 #include "JsonWriter.h"

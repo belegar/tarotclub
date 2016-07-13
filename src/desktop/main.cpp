@@ -23,20 +23,20 @@
  *=============================================================================
  */
 
+// Specific game includes
+#include "Log.h"
+#include "System.h"
+#include "Util.h"
+#include "MainWindow.h"
+#include "DebugDock.h"
+#include "ClientConfig.h"
+
 // Qt includes
 #include <QApplication>
 #include <QSplashScreen>
 #include <QDesktopWidget>
 #include <QtGlobal>
 #include <QTranslator>
-
-// Specific game includes
-#include "MainWindow.h"
-#include "DebugDock.h"
-#include "ClientConfig.h"
-#include "Log.h"
-#include "System.h"
-#include "Util.h"
 
 /*****************************************************************************/
 QString GetLocale()

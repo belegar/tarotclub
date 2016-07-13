@@ -1,0 +1,166 @@
+tarotclub (2.6.2-0ubuntu0) vivid; urgency=medium
+
+  * Corrected score calculation with the little oudler played at the last trick
+  * Corrected score calculation with the slam declared but not performed
+  * Corrected deal log generation
+  * Corrected manual deal loading (absolute/full path management)
+  * Corrected statistics client update (handle was not proposed)
+  * Corrected deal loading: handles
+  * Corrected contract multiplier in the end of deal panel
+  * Changed menu organization, TarotStudio menu now contains all the Tarot related utilities
+  * Deal Editor is now a MDI window
+  * New score calculator Window
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Fri, 12 Jun 2015 09:03:39 +0200
+
+tarotclub (2.6.0-0ubuntu0) vivid; urgency=medium
+
+  * TarotClub preference file now contains the bots configuration
+  * New tournament configuration (per deal configuration) in the JSON file
+  * Added a "random" button in the deal editor window
+  * Removed "Check server" lobby button
+  * Removed dedicated server web interface
+  * AI script files can now be located inside a ZIP archive file
+  * Updated Duktape JavaScript Engine version to 1.2.1
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Wed, 13 May 2015 21:49:30 +0200
+
+tarotclub (2.5.3-0ubuntu2) trusty; urgency=medium
+
+  * Corrected package script
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Mon, 09 Feb 2015 21:20:01 +0100
+
+tarotclub (2.5.3-0ubuntu1) trusty; urgency=medium
+
+  * Kanzlei font is now included in the executable. Updated all packages setup to remove it from the installation.
+  * The bot AI JavaScript path can now be configured in the options window
+  * Corrected issue #50: display of trumps cards in the history dock widget for values between 11 and 14
+  * NEW added botclient executable in the release packages to help debugging custom AI for bots
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Mon, 09 Feb 2015 16:20:39 +0100
+
+tarotclub (2.5.2-0ubuntu4) trusty; urgency=medium
+
+  * Again, correction...
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Sun, 25 Jan 2015 17:49:09 +0100
+
+tarotclub (2.5.2-0ubuntu2) trusty; urgency=medium
+
+  * Corrected script
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Thu, 22 Jan 2015 22:48:24 +0100
+
+tarotclub (2.5.2-0ubuntu1) trusty; urgency=medium
+
+  * Corrected package installation of icons
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Thu, 22 Jan 2015 22:39:56 +0100
+
+tarotclub (2.5.2-0ubuntu0) trusty; urgency=medium
+
+  * Corrected the selection colour around the name box
+  * Try of a new box colour for the bid (less flashy than the red one)
+  * NEW lobby hall dock-able window GUI
+  * Corrected slow server performance and hazardous disconnections by adding a Tcp Server event thread
+  * Corrected the lobby player list not cleared on disconnection
+  * Removed version name and icon, updated AboutBox with links
+  * Removed SVG avatars to keep one design style
+  * Correction: Lobby GUI is not updated when playing a local game
+  * Corrected blocking game under linux (EGAIN was closing the client socket())
+  * Duktape updated to version 1.1.0
+  * AI correction: sometimes, the discard was not valid (more than 6 cards)
+  * Auto discard correction
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Wed, 21 Jan 2015 22:25:15 +0100
+
+tarotclub (2.5.1-0ubuntu0) trusty; urgency=medium
+
+  * Lobby window: removed default focus on buttons while chatting
+  * "Petit sec" deals are avoided
+  * [Arch] Added missing icon in the menu launcher
+  * [Ubuntu] Added missing documentation in the package
+  * Corrected generated deal filename for the desktop version
+  * Corrected deals visualizer
+  * Corrected defense AI script bug
+  * Deleted the quote parameter (obsolete)
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Fri, 02 Jan 2015 14:15:26 +0100
+
+tarotclub (2.5.0-0ubuntu1) trusty; urgency=medium
+
+  * Information dock window: display king/queen etc. instead of 14, 13 .. and make hearts and diamonds in red
+  * Add a GUI option to choose the number of tournament turns
+  * Added more default avatar images
+  * Lobby: add buttons to manage the server list (add/remove)
+  * New option window for bots, allowing future custom bots configuration
+  * Allow to choose an local avatar file or import/use a remote image file via an URL
+  * The Deal Editor can now load a custom deal file
+  * Add new protocol command to get the list of tables instead of using a REST api, protocol version updated to V2
+  * Removed lobby window initialization before showing it
+  * Deal table widget is now correctly stretched
+  * Issue #26: impossible to play a local game after a network game
+  * Issue #33: Excuse must be played when no more trumps
+  * Issue #28, #34: Game blocked if handle declaration is refused
+  * Use a different log filename than the desktop version (prefixed by "tcds" instead of "desktop")
+  * New option: the number of tournament turns is now configurable
+  * New option: parameter to choose the server web port (default 8080)
+  * Duktape upgraded to 1.02
+  * Integration of the SQLite database for statistics
+  * Embedded webpage to manage the server (first version)
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Sat, 27 Dec 2014 21:55:49 +0100
+
+tarotclub (2.4-0ubuntu1) trusty; urgency=medium
+
+  * Mkdir utility did not manage the disk name separator properly (Windows only)
+  * Excuse (fool) card was not correctly assigned at the end of a deal
+  * Deck class, change the list of Card pointers into a list of Card objects (2 bytes instead of 4), deleted TarotDeck files
+  * Update Duktape version to 0.12
+  * Display a more comprehensive card name in the history of tricks dock window (eg: 13-D ==> display D with a diamond icon)
+  * Improved board organization and graphics, cards are showed in the middle of the screen
+  * New avatars and avatar chooser
+  * New window to display the previously played deals
+  * Corrected defense playing after the taker if he has cut a suit
+  * Plays the excuse as early as possible to avoid playing it at the last trick
+  * Defense try to save the one of trump of a partner
+  * Removed the rooms, a Tarot server now simply has some tables
+  * Use a command line TCDS configuration file, new dynamic creation of tables (number, names)
+  * Usage of a work thread to share packets analysis
+  * Dynamic bot creation (per table)
+  * New Lobby
+  * New experimental embedded HTTP server on port 8080, REST API available
+  * Corrected build and some crashes under Visual C++ 2013
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Mon, 03 Nov 2014 22:07:09 +0100
+
+tarotclub (2.3.7-0ubuntu2) trusty; urgency=medium
+
+  * Simplification of the installation files (all in /usr/share/tarotclub)
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Fri, 26 Sep 2014 22:01:22 +0200
+
+tarotclub (2.3.7-0ubuntu1) trusty; urgency=medium
+
+  * New version
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Fri, 26 Sep 2014 21:07:17 +0200
+
+tarotclub (2.3.6-1ubuntu1) trusty; urgency=medium
+
+  * First Ubuntu package
+
+ -- Anthony Rabine <anthony.rabine@tarotclub.fr>  Thu, 25 Sep 2014 15:26:57 +0200
+
+tarotclub (2.3.6-1) trusty; urgency=low
+
+  * New release version
+
+ -- Marshall Banana <djcj@gmx.de>  Wed, 06 Aug 2014 23:35:30 +0200
+
+tarotclub (2.3.6) trusty; urgency=low
+
+  * Debianized
+
+ -- Marshall Banana <djcj@gmx.de>  Wed, 06 Aug 2014 23:35:00 +0200

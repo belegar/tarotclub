@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\tarotclub\src\Bot.cpp" />
+    <ClCompile Include="..\tarotclub\src\BotManager.cpp" />
+    <ClCompile Include="..\tarotclub\src\Card.cpp" />
+    <ClCompile Include="..\tarotclub\src\Client.cpp" />
+    <ClCompile Include="..\tarotclub\src\Common.cpp" />
+    <ClCompile Include="..\tarotclub\src\Controller.cpp" />
+    <ClCompile Include="..\tarotclub\src\Deal.cpp" />
+    <ClCompile Include="..\tarotclub\src\DealFile.cpp" />
+    <ClCompile Include="..\tarotclub\src\Deck.cpp" />
+    <ClCompile Include="..\tarotclub\src\jsengine\duktape.c" />
+    <ClCompile Include="..\tarotclub\src\jsengine\JSEngine.cpp" />
+    <ClCompile Include="..\tarotclub\src\json\JsonReader.cpp" />
+    <ClCompile Include="..\tarotclub\src\json\JsonValue.cpp" />
+    <ClCompile Include="..\tarotclub\src\json\JsonWriter.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\Base64.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\ByteArray.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\ByteStreamReader.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\ByteStreamWriter.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\Log.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\Sha1.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\UniqueId.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\Util.cpp" />
+    <ClCompile Include="..\tarotclub\src\library\Value.cpp" />
+    <ClCompile Include="..\tarotclub\src\lobby\Lobby.cpp" />
+    <ClCompile Include="..\tarotclub\src\lobby\LobbyServer.cpp" />
+    <ClCompile Include="..\tarotclub\src\lobby\Users.cpp" />
+    <ClCompile Include="..\tarotclub\src\NetClient.cpp" />
+    <ClCompile Include="..\tarotclub\src\network\TcpClient.cpp" />
+    <ClCompile Include="..\tarotclub\src\network\TcpServer.cpp" />
+    <ClCompile Include="..\tarotclub\src\network\TcpServerBase.cpp" />
+    <ClCompile Include="..\tarotclub\src\network\TcpSocket.cpp" />
+    <ClCompile Include="..\tarotclub\src\network\WebSocket.cpp" />
+    <ClCompile Include="..\tarotclub\src\Player.cpp" />
+    <ClCompile Include="..\tarotclub\src\Protocol.cpp" />
+    <ClCompile Include="..\tarotclub\src\Score.cpp" />
+    <ClCompile Include="..\tarotclub\src\ServerConfig.cpp" />
+    <ClCompile Include="..\tarotclub\src\System.cpp" />
+    <ClCompile Include="..\tarotclub\src\TarotEngine.cpp" />
+    <ClCompile Include="..\tarotclub\src\zip\Zip.cpp" />
+    <ClCompile Include="src\Console.cpp" />
+    <ClCompile Include="src\CouchDb.cpp" />
+    <ClCompile Include="src\DataBase.cpp" />
+    <ClCompile Include="src\Http.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Server.cpp" />
+    <ClCompile Include="src\sqlite3.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\tarotclub\src\Bot.h" />
+    <ClInclude Include="..\tarotclub\src\BotManager.h" />
+    <ClInclude Include="..\tarotclub\src\Card.h" />
+    <ClInclude Include="..\tarotclub\src\Client.h" />
+    <ClInclude Include="..\tarotclub\src\Common.h" />
+    <ClInclude Include="..\tarotclub\src\Controller.h" />
+    <ClInclude Include="..\tarotclub\src\database\IDataBase.h" />
+    <ClInclude Include="..\tarotclub\src\Deal.h" />
+    <ClInclude Include="..\tarotclub\src\DealFile.h" />
+    <ClInclude Include="..\tarotclub\src\Deck.h" />
+    <ClInclude Include="..\tarotclub\src\Defines.h" />
+    <ClInclude Include="..\tarotclub\src\Identity.h" />
+    <ClInclude Include="..\tarotclub\src\jsengine\duktape.h" />
+    <ClInclude Include="..\tarotclub\src\jsengine\IScriptEngine.h" />
+    <ClInclude Include="..\tarotclub\src\jsengine\JSEngine.h" />
+    <ClInclude Include="..\tarotclub\src\json\JsonReader.h" />
+    <ClInclude Include="..\tarotclub\src\json\JsonValue.h" />
+    <ClInclude Include="..\tarotclub\src\json\JsonWriter.h" />
+    <ClInclude Include="..\tarotclub\src\library\Base64.h" />
+    <ClInclude Include="..\tarotclub\src\library\ByteArray.h" />
+    <ClInclude Include="..\tarotclub\src\library\ByteStreamReader.h" />
+    <ClInclude Include="..\tarotclub\src\library\ByteStreamWriter.h" />
+    <ClInclude Include="..\tarotclub\src\library\GetOptions.h" />
+    <ClInclude Include="..\tarotclub\src\library\Log.h" />
+    <ClInclude Include="..\tarotclub\src\library\Observer.h" />
+    <ClInclude Include="..\tarotclub\src\library\Sha1.h" />
+    <ClInclude Include="..\tarotclub\src\library\ThreadQueue.h" />
+    <ClInclude Include="..\tarotclub\src\library\UniqueId.h" />
+    <ClInclude Include="..\tarotclub\src\library\Util.h" />
+    <ClInclude Include="..\tarotclub\src\library\Value.h" />
+    <ClInclude Include="..\tarotclub\src\lobby\Lobby.h" />
+    <ClInclude Include="..\tarotclub\src\lobby\LobbyServer.h" />
+    <ClInclude Include="..\tarotclub\src\lobby\Users.h" />
+    <ClInclude Include="..\tarotclub\src\NetClient.h" />
+    <ClInclude Include="..\tarotclub\src\network\TcpClient.h" />
+    <ClInclude Include="..\tarotclub\src\network\TcpServer.h" />
+    <ClInclude Include="..\tarotclub\src\network\TcpServerBase.h" />
+    <ClInclude Include="..\tarotclub\src\network\TcpSocket.h" />
+    <ClInclude Include="..\tarotclub\src\network\WebSocket.h" />
+    <ClInclude Include="..\tarotclub\src\Player.h" />
+    <ClInclude Include="..\tarotclub\src\Protocol.h" />
+    <ClInclude Include="..\tarotclub\src\Score.h" />
+    <ClInclude Include="..\tarotclub\src\ServerConfig.h" />
+    <ClInclude Include="..\tarotclub\src\System.h" />
+    <ClInclude Include="..\tarotclub\src\TarotEngine.h" />
+    <ClInclude Include="..\tarotclub\src\zip\Zip.h" />
+    <ClInclude Include="src\Console.h" />
+    <ClInclude Include="src\CouchDb.h" />
+    <ClInclude Include="src\DataBase.h" />
+    <ClInclude Include="src\Http.h" />
+    <ClInclude Include="src\Server.h" />
+    <ClInclude Include="src\sqlite3.h" />
+    <ClInclude Include="src\sqlite3ext.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E3D02ADA-9A51-45D4-82B3-29636624F1C2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>tcds</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)/../tarotclub/src/zip;$(SolutionDir)/../tarotclub/src/lobby;$(SolutionDir)/../tarotclub/src;$(SolutionDir)/../tarotclub/src/library;$(SolutionDir)/../tarotclub/src/json;$(SolutionDir)/../tarotclub/src/jsengine;$(SolutionDir)/../tarotclub/src/network;$(SolutionDir)/../tarotclub/src/database;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)/../tarotclub/src/zip;$(SolutionDir)/../tarotclub/src/lobby;$(SolutionDir)/../tarotclub/src;$(SolutionDir)/../tarotclub/src/library;$(SolutionDir)/../tarotclub/src/json;$(SolutionDir)/../tarotclub/src/jsengine;$(SolutionDir)/../tarotclub/src/network;$(SolutionDir)/../tarotclub/src/database;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;USE_WINDOWS_OS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;USE_WINDOWS_OS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
