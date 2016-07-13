@@ -6,7 +6,8 @@ DONE:
 
 TODO:
   * Added new menu entry: creation of a hosted game server
-  * 
+  * Ajouter un titre aux fenêtres popup
+  * Ajouter l'annonceur d'une poignée lorsque celle ci est montrée
 
 # Branch 2.6
 
