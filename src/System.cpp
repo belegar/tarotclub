@@ -111,7 +111,7 @@ void System::Initialize(const std::string &homePath)
         Util::Mkdir(AvatarPath());
     }
 
-    if (!TcpSocket::Initialize())
+    if (!tcp::TcpSocket::Initialize())
     {
         TLogError("Cannot initialize TCP context");
     }
