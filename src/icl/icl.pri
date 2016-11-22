@@ -7,7 +7,8 @@ HEADERS += $$ICL_DIR/util/Log.h \
     $$ICL_DIR/util/ThreadQueue.h \
     $$ICL_DIR/util/GetOptions.h \
     $$ICL_DIR/util/Value.h \
-    $$ICL_DIR/util/UniqueId.h
+    $$ICL_DIR/util/UniqueId.h \
+    $$PWD/util/Semaphore.h
 
 SOURCES += $$ICL_DIR/util/Log.cpp \
     $$ICL_DIR/util/Util.cpp \
