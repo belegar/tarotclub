@@ -4,11 +4,15 @@
 #include <QCoreApplication>
 #include <cstdint>
 #include <iostream>
-#include <Bot.h>
 
 #include "tst_tarot_protocol.h"
+
+#include "Bot.h"
 #include "Lobby.h"
 #include "Protocol.h"
+#include "TcpServer.h"
+#include "TcpClient.h"
+#include "Semaphore.h"
 
 TarotProtocol::TarotProtocol()
 {
@@ -33,30 +37,19 @@ bool Dump(const std::vector<helper::Reply> &reply)
     return endOfGame;
 }
 
-void CopyString(std::vector<char> &to, const std::string &from)
-{
-    if (from.size() >= to.capacity())
-    {
-        // Just provide the desired number of bytes
-        for (size_t i = 0; i < to.capacity(); i++)
-        {
-            to.push_back(from[i]);
-        }
-    }
-}
 
 // Basic packet with no data
 static const std::string test1 = "4F:8B5C:00AC:0000:QUIT:";
 
 void TarotProtocol::TestPacketCodec()
 {
-    std::vector<char> buffer;
     Protocol proto;
+    std::string output;
 
-    buffer.reserve(Protocol::cHeaderSize);
-    CopyString(buffer, test1);
-    QCOMPARE(proto.Parse(buffer), true);
+    proto.Add(test1);
 
+    QCOMPARE(proto.Parse(output), true);
+    QCOMPARE(output, std::string());
     QCOMPARE(proto.GetOption(), (std::uint32_t)0x4F);
     QCOMPARE(proto.GetDestUuid(), (std::uint32_t)0x00AC);
     QCOMPARE(proto.GetSourceUuid(), (std::uint32_t)0x8B5C);
@@ -65,68 +58,79 @@ void TarotProtocol::TestPacketCodec()
 }
 
 // Test data streaming with fragmented packets, last packet is not complete
-std::string data = test1 + test1 + test1 + test1.substr(0, 10);
-int offset = 0;
+std::string gThreeAndHalf = test1 + test1 + test1 + test1.substr(0, 10);
+
+
+Semaphore gSem;
+
+/**
+ * @brief Simple echo server
+ */
+class ProtoServer : public tcp::TcpServer::IEvent
+{
+
+public:
+
+    virtual void NewConnection(const tcp::Conn &conn)
+    {
+        (void) conn;
+    }
+
+    virtual void ReadData(const tcp::Conn &conn)
+    {
+        std::string payload;
+
+        proto.Add(conn.payload);
+
+        while (proto.Parse(payload))
+        {
+            std::cout << "Found one packet with data: " << payload << std::endl;
+        }
+
+        gSem.Notify();
+    }
+
+    virtual void ClientClosed(const tcp::Conn &conn)
+    {
+        (void) conn;
+    }
+
+    virtual void ServerTerminated(tcp::TcpServer::IEvent::CloseType type)
+    {
+        (void) type;
+    }
+
+private:
+    Protocol proto;
+};
 
 void TarotProtocol::TestPacketStream()
 {
-    /*
-    Protocol proto;
-    bool waitForData = false;
-    std::uint32_t start = 0U;
+    ProtoServer protoSrv;
 
-    // most efficient: v1.insert(v1.end(), v2.begin(), v2.end());
+    tcp::TcpServer server(protoSrv);
 
-    std::vector<char> buffer;
+    // Init the whole Tcp stack
+    tcp::TcpSocket::Initialize();
 
-    for(;;)
-    {
-        if (waitForData)
-        {
+    server.Start(10U, false, 61617);
 
-        }
-        else
-        {
-            // We must first receive the header
-            if (buffer.size() < Protocol::cHeaderSize)
-            {
-                if (buffer.capacity() == 0)
-                {
-                    buffer.reserve(Protocol::cHeaderSize);
-                }
-                SimulateSocketPartial(buffer);
-            }
-            else
-            {
-                TLogInfo("Detected header");
-                QCOMPARE(proto.Parse(test1), true);
-                waitForData = true;
-            }
-        }
+    // Then simulate the client sending multiple packets
+    tcp::TcpClient client;
+
+    client.Initialize();
+    client.Connect("127.0.0.1", 61617);
+
+    // Send packets and wait for them...
+    QCOMPARE(client.Send(test1), true);
+    QCOMPARE(gSem.Wait(2000), true);
+
+    QCOMPARE(client.Send(gThreeAndHalf), true);
+    QCOMPARE(gSem.Wait(2000), true);
 
 
-
-
-        if (data.size() >= Protocol::cHeaderSize)
-        {
-
-
-            std::uint32_t copied = proto.Append(data.substr(start, ));
-
-            if (proto.GetFreeSize() == 0U)
-            {
-                TLogInfo("Detected 1 packet");
-            }
-        }
-        else
-        {
-            mBuffer += data;
-            TLogInfo("Partial packet: " + mBuffer);
-            waitForData = true;
-        }
-    }
-
-    */
+    server.Stop();
+    server.Join();
 }
 
 

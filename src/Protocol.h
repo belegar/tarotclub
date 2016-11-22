@@ -63,25 +63,22 @@ public:
     std::uint32_t GetDestUuid();
     std::uint32_t GetOption() { return mOption; }
     std::string GetType();
-    std::string GetData();
     std::uint32_t GetSize() { return mSize; }
-    std::uint32_t GetFreeSize() { return (mSize - mData.size()); }
 
-    // Append some data, to a maximum size determined by mSize
-    // Returns the number of missing bytes to reach mSize
-    std::uint32_t Append(const std::string &data);
-    bool Parse(const std::vector<char> &data);
+    void Add(const std::string &packet) { mPacket += packet; }
+    bool Parse(std::string &payload);
     static std::string Build(std::uint32_t option, std::uint32_t src, std::uint32_t dst, const std::string &type, const std::string &arg);
 
-private:
+private:    
     std::uint32_t mSrcUuid;
     std::uint32_t mDstUuid;
     std::uint32_t mOption;
     std::uint32_t mSize;
-    std::string mData;
+    std::string mPacket;
     std::string mType;
 
     bool ParseUint32(const char *data, uint32_t size, std::uint32_t &value);
+    bool Extract(const std::string &header);
 };
 
 #endif // PROTOCOL_H

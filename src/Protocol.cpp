@@ -86,52 +86,71 @@ bool Protocol::ParseUint32(const char* data, std::uint32_t size, std::uint32_t &
     return ret;
 }
 /*****************************************************************************/
-bool Protocol::Parse(const std::vector<char> &data)
+bool Protocol::Parse(std::string &payload)
+{
+    bool valid = false;
+
+    if (mPacket.size() >= cHeaderSize)
+    {
+        if (Extract(mPacket))
+        {
+            // Compute if we have a full payload
+            std::uint32_t computedSize = cHeaderSize + mSize;
+            if (mPacket.size() >= computedSize)
+            {
+                payload = mPacket.substr(cHeaderSize, mSize);
+                mPacket.erase(0, computedSize);
+                valid = true;
+            }
+        }
+    }
+
+    return valid;
+}
+/*****************************************************************************/
+bool Protocol::Extract(const std::string &header)
 {
     bool ret = false;
 
     std::uint32_t cpt = 0U;
 
     // Analyze the packet without buffer copy
-    if (data.size() >= cHeaderSize)
-    {
-        std::uint32_t start = 0U, end = 0U;
+    std::uint32_t start = 0U, end = 0U;
 
-        while (end < data.size())
+    while (end < header.size())
+    {
+        if (header[end] == ':')
         {
-            if (data[end] == ':')
+            std::uint32_t size = end-start;
+            if ((cpt == 0U) && (size == 2U))
             {
-                std::uint32_t size = end-start;
-                if ((cpt == 0U) && (size == 2U))
-                {
-                    ret = ParseUint32(&data[start], size, mOption);
-                }
-                else if ((cpt == 1U) && (size == 4U))
-                {
-                    ret = ret && ParseUint32(&data[start], size, mSrcUuid);
-                }
-                else if ((cpt == 2U) && (size == 4U))
-                {
-                    ret = ret && ParseUint32(&data[start], size, mDstUuid);
-                }
-                else if ((cpt == 3U) && (size == 4U))
-                {
-                    ret = ret && ParseUint32(&data[start], size, mSize);
-                }
-                else if ((cpt == 4U) && (size == 4U))
-                {
-                    mType.assign(&data[start], size);
-                }
-                else
-                {
-                    TLogError("Bad header");
-                    break;
-                }
-                cpt++;
-                start = end + 1U;
+                ret = ParseUint32(&header[start], size, mOption);
             }
-            end++;
+            else if ((cpt == 1U) && (size == 4U))
+            {
+                ret = ret && ParseUint32(&header[start], size, mSrcUuid);
+            }
+            else if ((cpt == 2U) && (size == 4U))
+            {
+                ret = ret && ParseUint32(&header[start], size, mDstUuid);
+            }
+            else if ((cpt == 3U) && (size == 4U))
+            {
+                ret = ret && ParseUint32(&header[start], size, mSize);
+            }
+            else if ((cpt == 4U) && (size == 4U))
+            {
+                mType.assign(&header[start], size);
+            }
+            else
+            {
+                // bad header or partial one
+                break;
+            }
+            cpt++;
+            start = end + 1U;
         }
+        end++;
     }
 
     if (cpt != 5U)
@@ -156,21 +175,6 @@ std::uint32_t Protocol::GetDestUuid()
 std::string Protocol::GetType()
 {
     return mType;
-}
-/*****************************************************************************/
-std::string Protocol::GetData()
-{
-    return mData;
-}
-/*****************************************************************************/
-uint32_t Protocol::Append(const std::string &data)
-{
-    std::uint32_t free_size = GetFreeSize();
-    std::uint32_t copied = (data.size() <= free_size) ? data.size() : free_size;
-
-    mData += data.substr(0, copied);
-
-    return copied;
 }
 /*****************************************************************************/
 std::string Protocol::Build(std::uint32_t option, std::uint32_t src, std::uint32_t dst, const std::string &type, const std::string &arg)

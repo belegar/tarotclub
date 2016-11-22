@@ -20,11 +20,8 @@ private Q_SLOTS:
     void TestPacketStream();
 
 private:
-
     void TestPlayerJoinAndQuit();
     void TestBotsFullGame();
-
-
 };
 
 #endif // TST_TAROT_RULES_H
