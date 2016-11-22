@@ -1,0 +1,23 @@
+{
+    "version": "1.5",
+    "show_avatars": true,
+    "array_of_int": [ 1, 2, 3, 4, 5 ],
+    "delay_before_cleaning": 1500,
+	"double_value": 42.7809, 
+    "click_to_clean": false,
+    "identity": {
+        "name": "Moi",
+        "genre": 0,
+        "array_of_strings": [ "je", "suis", "un", "tableau" ]
+    },
+    "array_of_objects": [
+        { "address": "tarot.fun-center.fr",
+          "game_port": 4269,
+          "web_port": 8080
+        },
+        { "address": "tarotclub.duckdns.org",
+          "game_port": 4444,
+          "web_port": 8181
+        }
+    ]
+}
