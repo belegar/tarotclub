@@ -1,0 +1,4 @@
+*.gcno
+*.o
+*.pro.user
+build-icl_tests
