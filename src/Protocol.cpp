@@ -102,6 +102,15 @@ bool Protocol::Parse(std::string &payload)
                 mPacket.erase(0, computedSize);
                 valid = true;
             }
+            else
+            {
+                TLogNetwork("Proto: partial packet received, waiting for full one");
+            }
+        }
+        else
+        {
+            TLogNetwork("Bad packet, cleaning...");
+            mPacket.erase(0, cHeaderSize); // Skip this header, try to find another one
         }
     }
 
