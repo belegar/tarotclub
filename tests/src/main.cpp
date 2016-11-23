@@ -16,7 +16,7 @@ class Logger : public Observer<std::string>
 {
 public:
     Logger()
-        : Observer(Log::Error | Log::Info)
+        : Observer(Log::Error | Log::Info | Log::Network)
     {
 
     }

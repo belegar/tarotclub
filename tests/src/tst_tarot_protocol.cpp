@@ -59,9 +59,11 @@ void TarotProtocol::TestPacketCodec()
 
 // Test data streaming with fragmented packets, last packet is not complete
 std::string gThreeAndHalf = test1 + test1 + test1 + test1.substr(0, 10);
-
+std::string gEndAndTwo = test1.substr(10, test1.size() - 10) + test1 + test1;
+std::string gBadPacket = test1.substr(5, 10) + test1.substr(2, 13) + "::56BFGTWF9076:4400";
 
 Semaphore gSem;
+int nb_packets = 0;
 
 /**
  * @brief Simple echo server
@@ -85,6 +87,7 @@ public:
         while (proto.Parse(payload))
         {
             std::cout << "Found one packet with data: " << payload << std::endl;
+            nb_packets++;
         }
 
         gSem.Notify();
@@ -128,6 +131,13 @@ void TarotProtocol::TestPacketStream()
     QCOMPARE(client.Send(gThreeAndHalf), true);
     QCOMPARE(gSem.Wait(2000), true);
 
+    QCOMPARE(client.Send(gEndAndTwo), true);
+    QCOMPARE(gSem.Wait(2000), true);
+
+    QCOMPARE(client.Send(gBadPacket), true);
+    QCOMPARE(gSem.Wait(2000), true);
+
+    QCOMPARE(nb_packets, 7);
 
     server.Stop();
     server.Join();
