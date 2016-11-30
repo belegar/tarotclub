@@ -46,29 +46,29 @@ Bot::~Bot()
 
 }
 /*****************************************************************************/
-bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<helper::Reply> &out)
+bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
 {
     bool ret = true;
 
     // Generic client decoder, fill the context and the client structure
-    helper::BasicClient::Event event = mClient.Decode(src_uuid, dest_uuid, arg, mCtx, out);
+    BasicClient::Event event = mClient.Decode(src_uuid, dest_uuid, arg, mCtx, out);
 
     switch (event)
     {
-    case helper::BasicClient::ACCESS_GRANTED:
+    case BasicClient::ACCESS_GRANTED:
     {
         // As soon as we have entered into the lobby, join the assigned table
         mClient.JoinTable(mTableToJoin, out);
         break;
     }
-    case helper::BasicClient::NEW_DEAL:
+    case BasicClient::NEW_DEAL:
     {
         JSEngine::StringList args;
         args.push_back(mClient.mDeck.ToString());
         mBotEngine.Call("ReceiveCards", args);
         break;
     }
-    case helper::BasicClient::REQ_BID:
+    case BasicClient::REQ_BID:
     {
         // Only reply a bid if it is our place to anwser
         if (mClient.mBid.taker == mClient.mPlace)
@@ -77,32 +77,32 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
         }
         break;
     }
-    case helper::BasicClient::START_DEAL:
+    case BasicClient::START_DEAL:
     {
         StartDeal();
         break;
     }
-    case helper::BasicClient::SHOW_HANDLE:
+    case BasicClient::SHOW_HANDLE:
     {
         ShowHandle();
         break;
     }
-    case helper::BasicClient::BUILD_DISCARD:
+    case BasicClient::BUILD_DISCARD:
     {
         BuildDiscard(out);
         break;
     }
-    case helper::BasicClient::NEW_GAME:
+    case BasicClient::NEW_GAME:
     {
         NewGame();
         break;
     }
-    case helper::BasicClient::SHOW_CARD:
+    case BasicClient::SHOW_CARD:
     {
         ShowCard();
         break;
     }
-    case helper::BasicClient::PLAY_CARD:
+    case BasicClient::PLAY_CARD:
     {
         // Only reply a bid if it is our place to anwser
         if (mClient.mCurrentPlayer == mClient.mPlace)
@@ -111,33 +111,33 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
         }
         break;
     }
-    case helper::BasicClient::ASK_FOR_HANDLE:
+    case BasicClient::ASK_FOR_HANDLE:
     {
         AskForHandle(out);
         break;
     }
-    case helper::BasicClient::END_OF_TRICK:
+    case BasicClient::END_OF_TRICK:
     {
         mClient.Sync("EndOfTrick", out);
         break;
     }
-    case helper::BasicClient::END_OF_GAME:
+    case BasicClient::END_OF_GAME:
     {
         mClient.Sync("Ready", out);
         break;
     }
-    case helper::BasicClient::JSON_ERROR:
-    case helper::BasicClient::BAD_EVENT:
-    case helper::BasicClient::REQ_LOGIN:
-    case helper::BasicClient::MESSAGE:
-    case helper::BasicClient::PLAYER_LIST:
-    case helper::BasicClient::QUIT_TABLE:
-    case helper::BasicClient::SHOW_BID:
+    case BasicClient::JSON_ERROR:
+    case BasicClient::BAD_EVENT:
+    case BasicClient::REQ_LOGIN:
+    case BasicClient::MESSAGE:
+    case BasicClient::PLAYER_LIST:
+    case BasicClient::QUIT_TABLE:
+    case BasicClient::SHOW_BID:
         // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
-    case helper::BasicClient::ALL_PASSED:
-    case helper::BasicClient::SHOW_DOG:       
-    case helper::BasicClient::END_OF_DEAL:
-    case helper::BasicClient::SYNC:
+    case BasicClient::ALL_PASSED:
+    case BasicClient::SHOW_DOG:
+    case BasicClient::END_OF_DEAL:
+    case BasicClient::SYNC:
     {
         // Nothing to do for that event
         break;
@@ -151,7 +151,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     return ret;
 }
 /*****************************************************************************/
-void Bot::RequestBid(std::vector<helper::Reply> &out)
+void Bot::RequestBid(std::vector<Reply> &out)
 {
     bool slam = false;
     JSEngine::StringList args;
@@ -206,7 +206,7 @@ void Bot::StartDeal()
     mBotEngine.Call("StartDeal", args);
 }
 /*****************************************************************************/
-void Bot::AskForHandle(std::vector<helper::Reply> &out)
+void Bot::AskForHandle(std::vector<Reply> &out)
 {
     bool valid = false;
     JSEngine::StringList args;
@@ -275,7 +275,7 @@ void Bot::ShowHandle()
     mBotEngine.Call("ShowHandle", args);
 }
 /*****************************************************************************/
-void Bot::BuildDiscard(std::vector<helper::Reply> &out)
+void Bot::BuildDiscard(std::vector<Reply> &out)
 {
     bool valid = false;
     JSEngine::StringList args;
@@ -352,7 +352,7 @@ void Bot::NewGame()
     }
 }
 /*****************************************************************************/
-void Bot::PlayCard(std::vector<helper::Reply> &out)
+void Bot::PlayCard(std::vector<Reply> &out)
 {
     Card c;
 
@@ -427,7 +427,7 @@ void Bot::SetTimeBeforeSend(std::uint16_t t)
     mTimeBeforeSend = t;
 }
 /*****************************************************************************/
-void Bot::ChangeNickname(const std::string &nickname, std::vector<helper::Reply> &out)
+void Bot::ChangeNickname(const std::string &nickname, std::vector<Reply> &out)
 {
     mClient.mNickName = nickname;
     mClient.BuildChangeNickname(out);

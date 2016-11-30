@@ -26,7 +26,11 @@
 #ifndef BOT_H
 #define BOT_H
 
-#include "NetHelper.h"
+// Tarot files
+#include "Network.h"
+#include "BasicClient.h"
+
+// ICL files
 #include "JSEngine.h"
 #include "Log.h"
 
@@ -38,7 +42,7 @@ public:
     Bot();
     virtual ~Bot();
 
-    bool Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<helper::Reply> &out);
+    bool Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
 
     std::uint32_t GetUuid() { return mClient.mUuid; }
     std::uint32_t GetCurrentTable() { return mClient.mTableId; }
@@ -46,15 +50,15 @@ public:
     Place GetPlace() { return mClient.mPlace; }
 
     void SetTimeBeforeSend(std::uint16_t t);
-    void ChangeNickname(const std::string &nickname, std::vector<helper::Reply> &out);
+    void ChangeNickname(const std::string &nickname, std::vector<Reply> &out);
     void SetAiScript(const std::string &path);
     void SetTableToJoin(std::uint32_t table) { mTableToJoin = table; }
     void SetUuid(std::uint32_t uuid) { mClient.mUuid = uuid; }
     void SetUser(const std::string &nickname, const std::string &username);
 
 private:
-    helper::BasicClient mClient;
-    helper::EmptyContext mCtx;  ///< The bot does not need some network informations
+    BasicClient mClient;
+    EmptyContext mCtx;  ///< The bot does not need some network informations
     std::uint16_t  mTimeBeforeSend;
     JSEngine mBotEngine;
     std::uint32_t mTableToJoin;
@@ -62,13 +66,13 @@ private:
 
     bool InitializeScriptContext();
     void StartDeal();
-    void RequestBid(std::vector<helper::Reply> &out);
-    void AskForHandle(std::vector<helper::Reply> &out);
+    void RequestBid(std::vector<Reply> &out);
+    void AskForHandle(std::vector<Reply> &out);
     void ShowHandle();
-    void BuildDiscard(std::vector<helper::Reply> &out);
+    void BuildDiscard(std::vector<Reply> &out);
     void NewGame();
     void ShowCard();
-    void PlayCard(std::vector<helper::Reply> &out);
+    void PlayCard(std::vector<Reply> &out);
 };
 
 #endif // BOT_H
