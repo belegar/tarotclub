@@ -111,10 +111,10 @@ HEADERS += ServerConfig.h \
     System.h \
     Users.h \
     Lobby.h \
-    NetClient.h \
-    BotManager.h \
-    NetHelper.h \
-    Server.h
+    ClientManager.h \
+    Server.h \
+    BasicClient.h \
+    Network.h
 
 SOURCES += ServerConfig.cpp \
     TournamentConfig.cpp \
@@ -133,9 +133,10 @@ SOURCES += ServerConfig.cpp \
     System.cpp \
     Users.cpp \
     Lobby.cpp \
-    NetClient.cpp \
-    BotManager.cpp \
-    Server.cpp
+    ClientManager.cpp \
+    Server.cpp \
+    BasicClient.cpp \
+    Network.cpp
 
 # ------------------------------------------------------------------------------
 # Console files

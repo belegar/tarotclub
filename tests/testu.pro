@@ -112,7 +112,8 @@ HEADERS += Deck.h \
     DealFile.h \
     Lobby.h \
     PlayingTable.h \
-    NetHelper.h \
+    Network.h \
+    BasicClient.h \
     Users.h \
     Bot.h \
     Protocol.h
@@ -130,7 +131,8 @@ SOURCES += Deck.cpp \
     Score.cpp \
     Lobby.cpp \
     PlayingTable.cpp \
-    NetHelper.cpp \
+    Network.cpp \
+    BasicClient.cpp \
     Users.cpp \
     Bot.cpp \
     Protocol.cpp
