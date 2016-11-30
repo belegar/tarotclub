@@ -26,9 +26,12 @@
 #ifndef LOBBY_H
 #define LOBBY_H
 
+// Tarot files
 #include "Protocol.h"
 #include "PlayingTable.h"
 #include "Users.h"
+
+// ICL files
 #include "Observer.h"
 
 /*****************************************************************************/
@@ -44,12 +47,12 @@ public:
 
     void Initialize(const std::string &name, const std::vector<std::string> &tables);
     std::string GetName() { return mName; }
-    bool Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<helper::Reply> &out);
+    bool Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
 
     // Users management
     std::uint32_t GetNumberOfPlayers();
-    std::uint32_t AddUser(std::vector<helper::Reply> &out);
-    void RemoveUser(std::uint32_t uuid, std::vector<helper::Reply> &out);
+    std::uint32_t AddUser(std::vector<Reply> &out);
+    void RemoveUser(std::uint32_t uuid, std::vector<Reply> &out);
     void RemoveAllUsers();
 
     // Tables management
@@ -65,9 +68,9 @@ private:
     bool mAdminMode;
 
     std::string GetTableName(const std::uint32_t tableId);
-    void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<helper::Reply> &out);
-    void SendPlayerList(const std::vector<uint32_t> &players, const std::string &event, std::vector<helper::Reply> &out);
-    void Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<helper::Reply> &out);
+    void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<Reply> &out);
+    void SendPlayerList(const std::vector<uint32_t> &players, const std::string &event, std::vector<Reply> &out);
+    void Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<Reply> &out);
 };
 
 #endif // LOBBY_H

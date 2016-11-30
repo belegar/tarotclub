@@ -23,10 +23,15 @@
  *=============================================================================
  */
 
+// C++ files
 #include <sstream>
+
+// Tarot files
 #include "Lobby.h"
+#include "Network.h"
+
+// ICL files
 #include "Log.h"
-#include "NetHelper.h"
 #include "JsonReader.h"
 #include "JsonWriter.h"
 
@@ -61,7 +66,7 @@ std::uint32_t Lobby::GetNumberOfPlayers()
     return mUsers.GetLobbyUsers().size();
 }
 /*****************************************************************************/
-uint32_t Lobby::AddUser(std::vector<helper::Reply> &out)
+uint32_t Lobby::AddUser(std::vector<Reply> &out)
 {
     std::uint32_t uuid = mUsers.AddUser();
 
@@ -69,12 +74,12 @@ uint32_t Lobby::AddUser(std::vector<helper::Reply> &out)
     json.AddValue("cmd", "RequestLogin");
     json.AddValue("uuid", uuid);
 
-    out.push_back(helper::Reply(uuid, json));
+    out.push_back(Reply(uuid, json));
 
     return uuid;
 }
 /*****************************************************************************/
-void Lobby::RemoveUser(uint32_t uuid, std::vector<helper::Reply> &out)
+void Lobby::RemoveUser(uint32_t uuid, std::vector<Reply> &out)
 {
     std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
     if (tableId != Protocol::LOBBY_UID)
@@ -131,7 +136,7 @@ bool Lobby::DestroyTable(std::uint32_t id)
     return ret;
 }
 /*****************************************************************************/
-void Lobby::Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<helper::Reply> &out)
+void Lobby::Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<Reply> &out)
 {
     static const char* errors[] { "Table is full", "Nickname already used" };
     JsonObject reply;
@@ -143,11 +148,11 @@ void Lobby::Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<help
     {
         reply.AddValue("reason", errors[error]);
 
-        out.push_back(helper::Reply(dest_uuid, reply));
+        out.push_back(Reply(dest_uuid, reply));
     }
 }
 /*****************************************************************************/
-bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<helper::Reply> &out)
+bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
 {
     bool ret = true;
     JsonReader reader;
@@ -191,7 +196,7 @@ bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg
             if (json.GetObject().GetSize() == 3U)
             {
                 std::uint32_t target = json.FindValue("target").GetInteger();
-                out.push_back(helper::Reply(target, json.GetObject()));
+                out.push_back(Reply(target, json.GetObject()));
             }
         }
         else if (cmd == "ReplyLogin")
@@ -216,7 +221,7 @@ bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg
                 reply.AddValue("tables", tables);
 
                 // Send to the player the final step of the login process
-                out.push_back(helper::Reply(src_uuid, reply));
+                out.push_back(Reply(src_uuid, reply));
 
                 std::vector<std::uint32_t> peers;
                 peers.push_back(src_uuid);
@@ -277,7 +282,7 @@ bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg
                     }
 
                     reply.AddValue("players", array);
-                    out.push_back(helper::Reply(src_uuid, reply));
+                    out.push_back(Reply(src_uuid, reply));
                 }
                 else
                 {
@@ -329,7 +334,7 @@ bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg
     return ret;
 }
 /*****************************************************************************/
-void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<helper::Reply> &out)
+void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<Reply> &out)
 {
     bool removeAllPlayers = false;
 
@@ -366,7 +371,7 @@ void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std
     SendPlayerList(peers, "QuitTable", out);
 }
 /*****************************************************************************/
-void Lobby::SendPlayerList(const std::vector<std::uint32_t> &players, const std::string &event, std::vector<helper::Reply> &out)
+void Lobby::SendPlayerList(const std::vector<std::uint32_t> &players, const std::string &event, std::vector<Reply> &out)
 {
     std::vector<Users::Entry> users = mUsers.GetLobbyUsers();
 
@@ -397,7 +402,7 @@ void Lobby::SendPlayerList(const std::vector<std::uint32_t> &players, const std:
     obj.AddValue("cmd", "PlayerList");
     obj.AddValue("players", array);
 
-    out.push_back(helper::Reply(Protocol::LOBBY_UID, obj));
+    out.push_back(Reply(Protocol::LOBBY_UID, obj));
 }
 
 /*****************************************************************************/
