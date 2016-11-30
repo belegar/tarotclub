@@ -87,12 +87,16 @@ keywords:
   * Add an option to display the deals window at the end of a played deal
   * Pourrait on choisir une image pour le tapis au lieu d'une couleur unie
 
+##  Desktop client
+
+  * Server: mail game server, maybe develop a save state feature at the same time
+  
 # ---------------------------------------------- TOOLS / WEBSITE --------------------------------------------------
 
   * Develop a TarotStudio : tournament manager (print score papers, record players, add scores manually, quick score calculation ...)
   * TarotWorld website: allow variant games with tarot cards (magic-like, role-play, solitaire)
 
-
+  
 # ---------------------------------------------- TAROT 2 PLAYERS --------------------------------------------------
 
 (TarotBattle!)
