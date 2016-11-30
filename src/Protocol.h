@@ -27,14 +27,6 @@
 
 #include <cstdint>
 #include <string>
-#include <list>
-#include <thread>
-#include <map>
-#include <memory>
-#include "Player.h"
-#include "Identity.h"
-#include "ThreadQueue.h"
-#include "Score.h"
 
 class Protocol
 {
