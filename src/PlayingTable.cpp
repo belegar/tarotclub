@@ -27,7 +27,7 @@
 #include <string>
 #include "Log.h"
 #include "PlayingTable.h"
-#include "NetHelper.h"
+#include "Network.h"
 #include "System.h"
 #include "Protocol.h"
 
@@ -255,7 +255,7 @@ bool PlayingTable::RemovePlayer(std::uint32_t kicked_player)
     return removeAllPlayers;
 }
 /*****************************************************************************/
-void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<helper::Reply> &out)
+void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out)
 {
     (void) dest_uuid;
 
@@ -308,7 +308,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                     JsonObject obj;
 
                     obj.AddValue("cmd", "BuildDiscard");
-                    out.push_back(helper::Reply(GetPlayerUuid(mEngine.GetBid().taker), obj));
+                    out.push_back(Reply(GetPlayerUuid(mEngine.GetBid().taker), obj));
                     break;
                 }
                 case Engine::WAIT_FOR_START_DEAL:
@@ -343,7 +343,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                 JsonObject obj = deals.GetEntry(i).GetObject();
 
                 Tarot::Distribution dist;
-                helper::FromJson(dist, obj);
+                FromJson(dist, obj);
                 mGame.deals.push_back(dist);
             }
 
@@ -375,7 +375,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                     obj.AddValue("contract", cont.ToString());
                     obj.AddValue("slam", slam);
 
-                    out.push_back(helper::Reply(mId, obj));
+                    out.push_back(Reply(mId, obj));
                 }
                 else
                 {
@@ -434,7 +434,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                     obj.AddValue("place", p.ToString());
                     obj.AddValue("handle", handle.ToString());
 
-                    out.push_back(helper::Reply(mId, obj));
+                    out.push_back(Reply(mId, obj));
                 }
                 else
                 {
@@ -467,7 +467,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                         obj.AddValue("place", p.ToString());
                         obj.AddValue("card", c.ToString());
 
-                        out.push_back(helper::Reply(mId, obj));
+                        out.push_back(Reply(mId, obj));
                     }
                 }
                 else
@@ -491,7 +491,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
     }
 }
 /*****************************************************************************/
-void PlayingTable::EndOfDeal(std::vector<helper::Reply> &out)
+void PlayingTable::EndOfDeal(std::vector<Reply> &out)
 {
     bool continueGame = mScore.AddPoints(mEngine.GetCurrentGamePoints(), mEngine.GetBid(), mEngine.GetNbPlayers());
 
@@ -508,11 +508,11 @@ void PlayingTable::EndOfDeal(std::vector<helper::Reply> &out)
         obj.AddValue("cmd", "EndOfGame");
         obj.AddValue("winner", mScore.GetWinner().ToString());
 
-        out.push_back(helper::Reply(mId, obj));
+        out.push_back(Reply(mId, obj));
     }
 }
 /*****************************************************************************/
-void PlayingTable::NewGame(std::vector<helper::Reply> &out)
+void PlayingTable::NewGame(std::vector<Reply> &out)
 {
     JsonObject obj;
     mScore.NewGame(mGame.deals.size());
@@ -523,10 +523,10 @@ void PlayingTable::NewGame(std::vector<helper::Reply> &out)
     obj.AddValue("cmd", "NewGame");
     obj.AddValue("mode", mGame.Get());
 
-    out.push_back(helper::Reply(mId, obj));
+    out.push_back(Reply(mId, obj));
 }
 /*****************************************************************************/
-void PlayingTable::NewDeal(std::vector<helper::Reply> &out)
+void PlayingTable::NewDeal(std::vector<Reply> &out)
 {
     if (mScore.GetCurrentCounter() >= mGame.deals.size())
     {
@@ -545,11 +545,11 @@ void PlayingTable::NewDeal(std::vector<helper::Reply> &out)
         obj.AddValue("cmd", "NewDeal");
         obj.AddValue("cards", deck.ToString());
 
-        out.push_back(helper::Reply(GetPlayerUuid(place), obj));
+        out.push_back(Reply(GetPlayerUuid(place), obj));
     }
 }
 /*****************************************************************************/
-void PlayingTable::StartDeal(std::vector<helper::Reply> &out)
+void PlayingTable::StartDeal(std::vector<Reply> &out)
 {
     Place first = mEngine.StartDeal();
     Tarot::Bid bid = mEngine.GetBid();
@@ -561,12 +561,12 @@ void PlayingTable::StartDeal(std::vector<helper::Reply> &out)
     obj.AddValue("contract", bid.contract.ToString());
     obj.AddValue("slam", bid.slam);
 
-    helper::ToJson(mGame.deals[mScore.GetCurrentCounter()], obj);
+    ToJson(mGame.deals[mScore.GetCurrentCounter()], obj);
 
-    out.push_back(helper::Reply(mId, obj));
+    out.push_back(Reply(mId, obj));
 }
 /*****************************************************************************/
-void PlayingTable::BidSequence(std::vector<helper::Reply> &out)
+void PlayingTable::BidSequence(std::vector<Reply> &out)
 {
     // Launch/continue the bid sequence
     mEngine.BidSequence();
@@ -581,7 +581,7 @@ void PlayingTable::BidSequence(std::vector<helper::Reply> &out)
         obj.AddValue("cmd", "RequestBid");
         obj.AddValue("place", mEngine.GetCurrentPlayer().ToString());
         obj.AddValue("contract", mEngine.GetBid().contract.ToString());
-        out.push_back(helper::Reply(mId, obj));
+        out.push_back(Reply(mId, obj));
         break;
     }
 
@@ -590,7 +590,7 @@ void PlayingTable::BidSequence(std::vector<helper::Reply> &out)
         JsonObject obj;
 
         obj.AddValue("cmd", "AllPassed");
-        out.push_back(helper::Reply(mId, obj));
+        out.push_back(Reply(mId, obj));
         break;
     }
     case Engine::WAIT_FOR_START_DEAL:
@@ -605,7 +605,7 @@ void PlayingTable::BidSequence(std::vector<helper::Reply> &out)
 
         obj.AddValue("cmd", "ShowDog");
         obj.AddValue("dog", mEngine.GetDog().ToString());
-        out.push_back(helper::Reply(mId, obj));
+        out.push_back(Reply(mId, obj));
         break;
     }
 
@@ -615,7 +615,7 @@ void PlayingTable::BidSequence(std::vector<helper::Reply> &out)
     }
 }
 /*****************************************************************************/
-void PlayingTable::GameSequence(std::vector<helper::Reply> &out)
+void PlayingTable::GameSequence(std::vector<Reply> &out)
 {
     mEngine.GameSequence();
 
@@ -635,7 +635,7 @@ void PlayingTable::GameSequence(std::vector<helper::Reply> &out)
         obj.AddValue("handle_bonus", points.handlePoints);
         obj.AddValue("slam_bonus", points.slamDone);
 
-        out.push_back(helper::Reply(mId, obj));
+        out.push_back(Reply(mId, obj));
     }
     else
     {
@@ -651,7 +651,7 @@ void PlayingTable::GameSequence(std::vector<helper::Reply> &out)
 
             obj.AddValue("cmd", "EndOfTrick");
             obj.AddValue("place", p.ToString());
-            out.push_back(helper::Reply(mId, obj));
+            out.push_back(Reply(mId, obj));
             break;
         }
         case Engine::WAIT_FOR_PLAYED_CARD:
@@ -660,7 +660,7 @@ void PlayingTable::GameSequence(std::vector<helper::Reply> &out)
 
             obj.AddValue("cmd", "PlayCard");
             obj.AddValue("place", p.ToString());
-            out.push_back(helper::Reply(mId, obj));
+            out.push_back(Reply(mId, obj));
             break;
         }
         case Engine::WAIT_FOR_HANDLE:
@@ -668,7 +668,7 @@ void PlayingTable::GameSequence(std::vector<helper::Reply> &out)
             JsonObject obj;
 
             obj.AddValue("cmd", "AskForHandle");
-            out.push_back(helper::Reply(GetPlayerUuid(p), obj));
+            out.push_back(Reply(GetPlayerUuid(p), obj));
         }
         break;
 

@@ -30,7 +30,7 @@
 #include "Engine.h"
 #include "JsonValue.h"
 #include "Observer.h"
-#include "NetHelper.h"
+#include "Network.h"
 
 /*****************************************************************************/
 class PlayingTable
@@ -41,7 +41,7 @@ public:
     virtual ~PlayingTable () { /* nothing to do */ }
 
     void Initialize();
-    void ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<helper::Reply> &out);
+    void ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out);
 
     std::string GetName() { return mName; }
     void SetName(const std::string &name) { mName = name; }
@@ -96,13 +96,13 @@ private:
     Tarot::Game mGame;      ///< Game mode
     bool mAdminMode;
 
-    void NewGame(std::vector<helper::Reply> &out);
-    void NewDeal(std::vector<helper::Reply> &out);
-    void StartDeal(std::vector<helper::Reply> &out);
-    void BidSequence(std::vector<helper::Reply> &out);
-    void GameSequence(std::vector<helper::Reply> &out);
+    void NewGame(std::vector<Reply> &out);
+    void NewDeal(std::vector<Reply> &out);
+    void StartDeal(std::vector<Reply> &out);
+    void BidSequence(std::vector<Reply> &out);
+    void GameSequence(std::vector<Reply> &out);
     void Send(const std::string &block);
-    void EndOfDeal(std::vector<helper::Reply> &out);
+    void EndOfDeal(std::vector<Reply> &out);
     bool Sync(Engine::Sequence sequence, std::uint32_t uuid);
     Place GetPlayerPlace(std::uint32_t uuid);
     void ResetAck();
