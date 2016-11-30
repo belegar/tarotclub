@@ -19,7 +19,7 @@ TarotProtocol::TarotProtocol()
 }
 
 
-bool Dump(const std::vector<helper::Reply> &reply)
+bool Dump(const std::vector<Reply> &reply)
 {
     bool endOfGame = false;
     for (std::uint32_t i = 0U; i < reply.size(); i++)
@@ -80,13 +80,13 @@ public:
 
     virtual void ReadData(const tcp::Conn &conn)
     {
-        std::string payload;
+        std::string data;
 
-        proto.Add(conn.payload);
+        mProto.Add(conn.payload);
 
-        while (proto.Parse(payload))
+        while (mProto.Parse(data))
         {
-            std::cout << "Found one packet with data: " << payload << std::endl;
+            std::cout << "Found one packet with data: " << data << std::endl;
             nb_packets++;
         }
 
@@ -104,7 +104,7 @@ public:
     }
 
 private:
-    Protocol proto;
+    Protocol mProto;
 };
 
 void TarotProtocol::TestPacketStream()
@@ -152,7 +152,7 @@ void TarotProtocol::TestPlayerJoinAndQuit()
 
     lobby.Initialize("test", tables);
 
-    std::vector<helper::Reply> reply;
+    std::vector<Reply> reply;
 
     std::uint32_t src = Protocol::INVALID_UID;
     std::uint32_t dest = Protocol::LOBBY_UID;
@@ -179,11 +179,11 @@ void TarotProtocol::TestBotsFullGame()
 
     lobby.Initialize("test", tables);
 
-    std::vector<helper::Reply> lobby_data;
+    std::vector<Reply> lobby_data;
 
     struct BotManager
     {
-        std::vector<helper::Reply> reply;
+        std::vector<Reply> reply;
         Bot bot;
         std::uint32_t uuid;
     };
