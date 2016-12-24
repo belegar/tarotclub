@@ -33,42 +33,26 @@
 
 
 /*****************************************************************************/
-Server::Server()
-    : mServer(mLobby)
-    , mStopRequested(false)
-    , mGamePort(ServerConfig::DEFAULT_GAME_TCP_PORT)
+Server::Server(net::IEvent &listener)
+    : mListener(listener)
+    , mTcpServer(*this)
 {
 
 }
 /*****************************************************************************/
-void Server::Start(const ServerOptions &opt, const TournamentOptions &tournamentOpt)
+void Server::Start(const ServerOptions &opt)
 {
-    (void) tournamentOpt;
-
-    // Init lobby
-    mLobby.Initialize(opt.name, opt.tables);
-    mLobby.Register(this);
-
-    // Initialize all the tables, starting with the TCP port indicated
-    mGamePort = opt.game_tcp_port;
     mTcpServer.Start(opt.lobby_max_conn, opt.localHostOnly, opt.game_tcp_port, 4270); // FIXME: make the WS port configurable
+}
+/*****************************************************************************/
+void Server::NewConnection(const tcp::Conn &conn)
+{
+    GameSession session;
+    std::vector<Reply> out;
 
-    // Init server
-    mGamePort = options.game_tcp_port;
-}
-/*****************************************************************************/
-void Server::Stop()
-{
-    // Properly stop the threads
-    mBotManager.Close();
-    mServer.Stop();
-    mServer.WaitForEnd();
-}
-/*****************************************************************************/
-void Server::NewConnection(const Peer &peer)
-{
-    std::uint32_t uuid = mLobby.AddUser(mTcpServer.GetPeerName(peer.socket));
-    mPeers[uuid] = peer;
+    std::uint32_t uuid = mListener.AddUser(out);
+    session.peer = conn.peer;
+    mPeers[uuid] = session;
 }
 /*****************************************************************************/
 
@@ -78,106 +62,73 @@ void Server::NewConnection(const Peer &peer)
  * This callback is executed within the Tcp context. Here we are receiving data
  * from peers.
  */
-void Server::ReadData(const Peer &peer, const std::string &data)
+void Server::ReadData(const tcp::Conn &conn)
 {
-    Protocol proto;
+    std::string data;
+    std::uint32_t uuid = GetUuid(conn.peer);
 
-    if (proto.Parse(data))
+    if (uuid != Protocol::INVALID_UID)
     {
-        // If it is a valid player (already connected, send the packet to the lobby
-        if (IsValid(proto.GetSourceUuid(), peer))
+        Protocol &proto = mPeers[uuid].proto;
+        proto.Add(conn.payload);
+
+        while (proto.Parse(data))
         {
-            mLobby.Decode(proto.GetSourceUuid(), proto.GetDestUuid(), proto.GetData());
-        }
-        else
-        {
-            TLogNetwork("Invalid packet received");
+            std::vector<Reply> out;
+
+            //std::cout << "Found one packet with data: " << data << std::endl;
+            mListener.Deliver(proto.GetSourceUuid(), proto.GetDestUuid(), data, out);
+            Send(out);
         }
     }
 }
 /*****************************************************************************/
-void Server::ClientClosed(const Peer &peer)
+void Server::ClientClosed(const tcp::Conn &conn)
 {
-    std::uint32_t uuid = GetUuid(peer);
+    std::vector<Reply> out;
+    std::uint32_t uuid = GetUuid(conn.peer);
 
-    mLobby.RemoveUser(uuid);
+    mListener.RemoveUser(uuid, out);
+    Send(out);
 }
 /*****************************************************************************/
-void Server::ServerTerminated(TcpServer::IEvent::CloseType type)
+void Server::ServerTerminated(tcp::TcpServer::IEvent::CloseType type)
 {
     (void) type;
     TLogError("Server terminated (internal error)");
 }
 /*****************************************************************************/
-void Server::SendData(const JsonValue &data, std::uint32_t src_uuid, std::uint32_t dest_uuid)
-{
-    std::vector<std::uint32_t> peers; // list of users to send the data
-
-    if (mTableIds.IsTaken(dest_uuid))
-    {
-        // If the player is connected to a table, send data to the table players only
-        peers = mUsers.GetTablePlayers(dest_uuid);
-    }
-    else if (dest_uuid == Protocol::LOBBY_UID)
-    {
-        // Send data to all the connected users
-        peers = mUsers.GetTablePlayers(Protocol::LOBBY_UID);
-    }
-    else if (mUsers.IsHere(dest_uuid))
-    {
-        // Only send the data to one connected client
-        peers.push_back(dest_uuid);
-    }
-
-
-    // Send the data to a(all) peer(s)
-    for (std::uint32_t i = 0U; i < peers.size(); i++)
-    {
-        std::uint32_t uuid = peers[i];
-        if (mPeers.count(uuid) > 0)
-        {
-            TcpSocket::Send(Protocol::Build(0U, src_uuid, dest_uuid, "tarot", data), mPeers.at(uuid));
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20U));
-    }
-}
-/*****************************************************************************/
 void Server::Stop()
 {
-    mInitialized = false;
     CloseClients();
+    // Properly stop the thread
     mTcpServer.Stop();
-    mLobby.RemoveAllUsers();
+    mTcpServer.Join();
+}
+/*****************************************************************************/
+void Server::Send(const std::vector<Reply> &out)
+{
+    for (std::uint32_t i = 0U; i < out.size(); i++)
+    {
+        std::uint32_t uuid = out[i].dest;
+        tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, uuid, out[i].data.ToString(0U)), mPeers[uuid].peer);
+    }
 }
 /*****************************************************************************/
 void Server::CloseClients()
 {
-    for (std::map<std::uint32_t, Peer>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
+    for (std::map<std::uint32_t, GameSession>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
     {
-        TcpSocket::Close(iter->second);
+        tcp::TcpSocket::Close(iter->second.peer);
     }
 }
 /*****************************************************************************/
-bool Server::IsValid(std::uint32_t uuid, const Peer &peer)
-{
-    bool valid = false;
-
-    if (mPeers.count(uuid) > 0U)
-    {
-        if (mPeers[uuid] == peer)
-        {
-            valid = true;
-        }
-    }
-    return valid;
-}
-/*****************************************************************************/
-std::uint32_t Server::GetUuid(const Peer &peer)
+std::uint32_t Server::GetUuid(const tcp::Peer &peer)
 {
     std::uint32_t uuid = Protocol::INVALID_UID;
-    for (std::map<std::uint32_t, Peer>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
+    for (std::map<std::uint32_t, GameSession>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
     {
-        if (iter->second == peer)
+        if (iter->second.peer == peer)
         {
             uuid = iter->first;
         }

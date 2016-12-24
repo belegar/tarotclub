@@ -119,6 +119,24 @@ private:
     std::map<std::uint32_t, IContext::Member> mMembers;
 };
 
+namespace net
+{
+class IEvent
+{
+public:
+    static const std::uint32_t ErrDisconnectedFromServer    = 6000U;
+    static const std::uint32_t ErrCannotConnectToServer     = 6001U;
+
+    virtual ~IEvent() { }
+
+    virtual void Signal(std::uint32_t sig) = 0;
+    virtual bool Deliver(std::uint32_t src_uuid, std::uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out) = 0;
+    virtual std::uint32_t AddUser(std::vector<Reply> &out) = 0;
+    virtual void RemoveUser(std::uint32_t uuid, std::vector<Reply> &out) = 0;
+};
+
+} // end of namespace net
+
 
 class Session
 {
@@ -129,17 +147,7 @@ public:
         EXIT
     };
 
-    class IEvent
-    {
-    public:
-        static const std::uint32_t ErrDisconnectedFromServer    = 6000U;
-        static const std::uint32_t ErrCannotConnectToServer     = 6001U;
-
-        virtual void Signal(std::uint32_t sig) = 0;
-        virtual bool Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out) = 0;
-    };
-
-    Session(IEvent &client)
+    Session(net::IEvent &client)
         : mListener(client)
     {
 
@@ -152,7 +160,7 @@ public:
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
     void Close();
 private:
-    IEvent &mListener;
+    net::IEvent &mListener;
 
     // Client management over the TCP network
     ThreadQueue<Command> mQueue;

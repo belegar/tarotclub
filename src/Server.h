@@ -33,41 +33,47 @@
 #include "JsonValue.h"
 #include "BotManager.h"
 #include "TcpServer.h"
+#include "Observer.h"
 #include <mutex>
 #include <thread>
 #include <chrono>
 
 /*****************************************************************************/
-class Server : private TcpServer::IEvent
+/**
+ * @brief The Tarot TCP/IP Server class
+ *
+ * This server does not know nothing about the tarot, it is only the network part.
+ * The TCP/IP server class has a thread, so we execute everything on that context.
+ *
+ */
+class Server : private tcp::TcpServer::IEvent
 {
 public:
-    Server();
+    Server(net::IEvent &listener);
 
-    void Start(const ServerOptions &opt, const TournamentOptions &tournamentOpt);
-    void Register(Lobby::IPacketNotifier *notifier) { mLobby.Register(notifier); }
+    void Start(const ServerOptions &opt);
     void Stop();
+    void Send(const std::vector<Reply> &out);
 
 private:
-
     // From TcpServer interface
-    virtual void NewConnection(const Peer &peer);
-    virtual void ReadData(const Peer &peer, const std::string &data);
-    virtual void ClientClosed(const Peer &peer);
-    virtual void ServerTerminated(CloseType type);
+    virtual void NewConnection(const tcp::Conn &conn);
+    virtual void ReadData(const tcp::Conn &conn);
+    virtual void ClientClosed(const tcp::Conn &conn);
+    virtual void ServerTerminated(tcp::TcpServer::IEvent::CloseType type);
 
-    // A TarotClub server contains:
-    // 1. A lobby, to manage chat between players and playing tables
-    Lobby mLobby;
-    // 2. A way to add opponents
-    BotManager mBotManager;
-    // 3. Network stuff
-    int             mGamePort;
-    TcpServer       mTcpServer;
-    std::map<std::uint32_t, Peer> mPeers; // pair of uuid, Peer info
 
-    void SendDataToPlayer(const ByteArray &data);
-    std::uint32_t GetUuid(const Peer &peer);
-    bool IsValid(std::uint32_t uuid, const Peer &peer);
+    struct GameSession {
+        Protocol proto;
+        tcp::Peer peer;
+    };
+
+    net::IEvent &mListener;
+    tcp::TcpServer       mTcpServer;
+    std::map<std::uint32_t, GameSession> mPeers; // uuid <--> GameSession
+
+    void CloseClients();
+    std::uint32_t GetUuid(const tcp::Peer &peer);
 };
 
 

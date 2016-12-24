@@ -24,11 +24,11 @@
 BASE_DIR = $${PWD}
 
 CONFIG(debug, debug|release) {
-debug:      DESTDIR = $$BASE_DIR/build-tcds/debug
+debug:      DESTDIR = $$BASE_DIR/build-console/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$BASE_DIR/build-tcds/release
+release:    DESTDIR = $$BASE_DIR/build-console/release
 }
 
 UI_DIR          = $$DESTDIR/ui
@@ -68,7 +68,7 @@ QMAKE_CFLAGS_RELEASE    += -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame
 # ------------------------------------------------------------------------------
 # Targer definitions
 # ------------------------------------------------------------------------------
-TARGET = tcds # name of the output executable
+TARGET = tarotclub-cli # name of the output executable
 
 # Specific OS stuff
 win32 {
@@ -111,7 +111,7 @@ HEADERS += ServerConfig.h \
     System.h \
     Users.h \
     Lobby.h \
-    ClientManager.h \
+    BotManager.h \
     Server.h \
     BasicClient.h \
     Network.h
@@ -133,7 +133,7 @@ SOURCES += ServerConfig.cpp \
     System.cpp \
     Users.cpp \
     Lobby.cpp \
-    ClientManager.cpp \
+    BotManager.cpp \
     Server.cpp \
     BasicClient.cpp \
     Network.cpp

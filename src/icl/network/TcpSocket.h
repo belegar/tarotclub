@@ -94,6 +94,18 @@ struct Peer
         return socket != -1;
     }
 
+    inline bool operator ==(const Peer &rhs)
+    {
+        return (socket == rhs.socket);
+    }
+
+    inline Peer & operator =(const Peer &rhs)
+    {
+       socket = rhs.socket;
+       isWebSocket = rhs.isWebSocket;
+       return *this;
+    }
+
     std::int32_t socket;
     bool isWebSocket;
 };

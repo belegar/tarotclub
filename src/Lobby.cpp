@@ -61,98 +61,12 @@ void Lobby::Initialize(const std::string &name, const std::vector<std::string> &
     }
 }
 /*****************************************************************************/
-std::uint32_t Lobby::GetNumberOfPlayers()
+void Lobby::Signal(uint32_t sig)
 {
-    return mUsers.GetLobbyUsers().size();
+    (void) sig;
 }
 /*****************************************************************************/
-uint32_t Lobby::AddUser(std::vector<Reply> &out)
-{
-    std::uint32_t uuid = mUsers.AddUser();
-
-    JsonObject json;
-    json.AddValue("cmd", "RequestLogin");
-    json.AddValue("uuid", uuid);
-
-    out.push_back(Reply(uuid, json));
-
-    return uuid;
-}
-/*****************************************************************************/
-void Lobby::RemoveUser(uint32_t uuid, std::vector<Reply> &out)
-{
-    std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
-    if (tableId != Protocol::LOBBY_UID)
-    {
-        // First, remove the player from the table
-        RemovePlayerFromTable(uuid, tableId, out);
-    }
-    // Remove the player from the lobby list
-    mUsers.RemoveUser(uuid);
-}
-/*****************************************************************************/
-void Lobby::RemoveAllUsers()
-{
-    mUsers.Clear();
-}
-/*****************************************************************************/
-std::uint32_t Lobby::CreateTable(const std::string &tableName, const Tarot::Game &game)
-{
-    std::uint32_t id = mTableIds.TakeId();
-
-    if (id > 0U)
-    {
-        std::cout << "Creating table \"" << tableName << "\": id=" << id << std::endl;
-        PlayingTable *table = new PlayingTable();
-        table->SetId(id);
-        table->SetName(tableName);
-        table->SetAdminMode(mAdminMode);
-        table->SetupGame(game);
-        table->Initialize();
-        table->CreateTable(4U);
-        mTables.push_back(table);
-    }
-    else
-    {
-        TLogError("Cannot create table: maximum number of tables reached.");
-    }
-    return id;
-}
-/*****************************************************************************/
-bool Lobby::DestroyTable(std::uint32_t id)
-{
-    bool ret = false;
-    for (std::vector<PlayingTable *>::iterator it = mTables.begin(); it != mTables.end(); ++it)
-    {
-        if ((*it)->GetId() == id)
-        {
-            delete *it; // Delete the PlayingTable object in heap
-            mTables.erase(it);
-            ret = true;
-            break;
-        }
-    }
-    mTableIds.ReleaseId(id);
-    return ret;
-}
-/*****************************************************************************/
-void Lobby::Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<Reply> &out)
-{
-    static const char* errors[] { "Table is full", "Nickname already used" };
-    JsonObject reply;
-
-    reply.AddValue("cmd", "Error");
-    reply.AddValue("code", error);
-
-    if (error < (sizeof(errors)/sizeof(errors[0])))
-    {
-        reply.AddValue("reason", errors[error]);
-
-        out.push_back(Reply(dest_uuid, reply));
-    }
-}
-/*****************************************************************************/
-bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
+bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
 {
     bool ret = true;
     JsonReader reader;
@@ -193,10 +107,10 @@ bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg
         if (cmd == "ChatMessage")
         {
             // cmd, source, target elements
-            if (json.GetObject().GetSize() == 3U)
+            if (json.GetObj().GetSize() == 3U)
             {
                 std::uint32_t target = json.FindValue("target").GetInteger();
-                out.push_back(Reply(target, json.GetObject()));
+                out.push_back(Reply(target, json.GetObj()));
             }
         }
         else if (cmd == "ReplyLogin")
@@ -332,6 +246,97 @@ bool Lobby::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg
     }
 
     return ret;
+}
+/*****************************************************************************/
+std::uint32_t Lobby::GetNumberOfPlayers()
+{
+    return mUsers.GetLobbyUsers().size();
+}
+/*****************************************************************************/
+uint32_t Lobby::AddUser(std::vector<Reply> &out)
+{
+    std::uint32_t uuid = mUsers.AddUser();
+
+    JsonObject json;
+    json.AddValue("cmd", "RequestLogin");
+    json.AddValue("uuid", uuid);
+
+    out.push_back(Reply(uuid, json));
+
+    return uuid;
+}
+/*****************************************************************************/
+void Lobby::RemoveUser(uint32_t uuid, std::vector<Reply> &out)
+{
+    std::uint32_t tableId = mUsers.GetPlayerTable(uuid);
+    if (tableId != Protocol::LOBBY_UID)
+    {
+        // First, remove the player from the table
+        RemovePlayerFromTable(uuid, tableId, out);
+    }
+    // Remove the player from the lobby list
+    mUsers.RemoveUser(uuid);
+}
+/*****************************************************************************/
+void Lobby::RemoveAllUsers()
+{
+    mUsers.Clear();
+}
+/*****************************************************************************/
+std::uint32_t Lobby::CreateTable(const std::string &tableName, const Tarot::Game &game)
+{
+    std::uint32_t id = mTableIds.TakeId();
+
+    if (id > 0U)
+    {
+        std::cout << "Creating table \"" << tableName << "\": id=" << id << std::endl;
+        PlayingTable *table = new PlayingTable();
+        table->SetId(id);
+        table->SetName(tableName);
+        table->SetAdminMode(mAdminMode);
+        table->SetupGame(game);
+        table->Initialize();
+        table->CreateTable(4U);
+        mTables.push_back(table);
+    }
+    else
+    {
+        TLogError("Cannot create table: maximum number of tables reached.");
+    }
+    return id;
+}
+/*****************************************************************************/
+bool Lobby::DestroyTable(std::uint32_t id)
+{
+    bool ret = false;
+    for (std::vector<PlayingTable *>::iterator it = mTables.begin(); it != mTables.end(); ++it)
+    {
+        if ((*it)->GetId() == id)
+        {
+            delete *it; // Delete the PlayingTable object in heap
+            mTables.erase(it);
+            ret = true;
+            break;
+        }
+    }
+    mTableIds.ReleaseId(id);
+    return ret;
+}
+/*****************************************************************************/
+void Lobby::Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<Reply> &out)
+{
+    static const char* errors[] { "Table is full", "Nickname already used" };
+    JsonObject reply;
+
+    reply.AddValue("cmd", "Error");
+    reply.AddValue("code", error);
+
+    if (error < (sizeof(errors)/sizeof(errors[0])))
+    {
+        reply.AddValue("reason", errors[error]);
+
+        out.push_back(Reply(dest_uuid, reply));
+    }
 }
 /*****************************************************************************/
 void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<Reply> &out)

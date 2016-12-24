@@ -73,6 +73,21 @@ Protocol::~Protocol()
 
 }
 /*****************************************************************************/
+std::string Protocol::Build(std::uint32_t src, std::uint32_t dst, const std::string &arg)
+{
+    std::stringstream stream;
+    static const std::uint32_t option = 0U;
+
+    stream << ":" << std::setfill ('0') << std::setw(2) << std::hex << option;
+    stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << src;
+    stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << dst;
+    stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << arg.size();
+    stream << ":" << Protocol::cTypeData;
+    stream << ":" << arg;
+
+    return stream.str();
+}
+/*****************************************************************************/
 bool Protocol::ParseUint32(const char* data, std::uint32_t size, std::uint32_t &value)
 {
     bool ret = false;
@@ -185,19 +200,7 @@ std::string Protocol::GetType()
 {
     return mType;
 }
-/*****************************************************************************/
-std::string Protocol::Build(std::uint32_t option, std::uint32_t src, std::uint32_t dst, const std::string &type, const std::string &arg)
-{
-    std::stringstream stream;
 
-    stream << ":" << std::setfill ('0') << std::setw(2) << std::hex << option;
-    stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << src;
-    stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << dst;
-    stream << ":" << std::setfill ('0') << type;
-    stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << arg.size() << arg;
-
-    return stream.str();
-}
 
 //=============================================================================
 // End of file Protocol.cpp

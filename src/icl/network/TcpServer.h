@@ -60,6 +60,8 @@ public:
             CLOSED
         };
 
+        virtual ~IEvent() {}
+
         /**
          * @brief NewConnection
          * Called when a new TCP/IP connection has been created

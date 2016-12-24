@@ -109,13 +109,13 @@ void Session::Run()
                         connected = IsConnected(); // determine origine of failure
                     }
                 }
-                mListener.Signal(IEvent::ErrDisconnectedFromServer);
+                mListener.Signal(net::IEvent::ErrDisconnectedFromServer);
                 TLogNetwork("Client connection closed.");
             }
             else
             {
                 TLogError("Client cannot connect to server.");
-                mListener.Signal(IEvent::ErrCannotConnectToServer);
+                mListener.Signal(net::IEvent::ErrCannotConnectToServer);
             }
         }
         else if (cmd == EXIT)

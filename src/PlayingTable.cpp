@@ -340,7 +340,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
 
             for (std::uint32_t i = 0U; i < deals.Size(); i++)
             {
-                JsonObject obj = deals.GetEntry(i).GetObject();
+                JsonObject obj = deals.GetEntry(i).GetObj();
 
                 Tarot::Distribution dist;
                 FromJson(dist, obj);

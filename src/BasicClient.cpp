@@ -190,6 +190,8 @@ void BasicClient::Sync(const std::string &step, std::vector<Reply> &out)
 /*****************************************************************************/
 BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, IContext &ctx, std::vector<Reply> &out)
 {
+    (void) src_uuid;
+    (void) dest_uuid;
     BasicClient::Event event = BAD_EVENT;
     JsonReader reader;
     JsonValue json;
@@ -223,7 +225,7 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
 
         for (std::uint32_t i = 0U; i < tables.Size(); i++)
         {
-           JsonObject table = tables.GetEntry(i).GetObject();
+           JsonObject table = tables.GetEntry(i).GetObj();
            std::uint32_t uuid = static_cast<std::uint32_t>(table.GetValue("uuid").GetInteger());
            std::string name = table.GetValue("name").GetString();
            ctx.AddTable(name, uuid);
@@ -247,7 +249,7 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         for (std::uint32_t i = 0U; i < players.Size(); i++)
         {
             IContext::Member member;
-            JsonObject player = players.GetEntry(i).GetObject();
+            JsonObject player = players.GetEntry(i).GetObj();
 
             std::uint32_t uuid = static_cast<std::uint32_t>(player.GetValue("uuid").GetInteger());
             member.table = static_cast<std::uint32_t>(player.GetValue("table").GetInteger());
@@ -384,7 +386,7 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         mPoints.handlePoints = json.FindValue("handle_bonus").GetInteger();
         mPoints.slamDone = json.FindValue("slam_bonus").GetBool();
 
-        JsonObject deal = json.FindValue("deal").GetObject();
+        JsonObject deal = json.FindValue("deal").GetObj();
 
         ctx.SetResult(deal);
 

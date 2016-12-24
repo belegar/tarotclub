@@ -479,9 +479,9 @@ JsonValue JsonValue::FindValue(const std::string &keyPath) const
     {
         if (temp.IsObject())
         {
-            if (temp.GetObject().HasValue(keys[i]))
+            if (temp.GetObj().HasValue(keys[i]))
             {
-                temp = temp.GetObject().GetValue(keys[i]);
+                temp = temp.GetObj().GetValue(keys[i]);
             }
         }
         else if (temp.IsArray())
@@ -490,9 +490,9 @@ JsonValue JsonValue::FindValue(const std::string &keyPath) const
             {
                 if (iter->IsObject())
                 {
-                    if (iter->GetObject().HasValue(keys[i]))
+                    if (iter->GetObj().HasValue(keys[i]))
                     {
-                        temp = iter->GetObject().GetValue(keys[i]);
+                        temp = iter->GetObj().GetValue(keys[i]);
                         break;
                     }
                 }
@@ -512,7 +512,7 @@ bool JsonValue::ReplaceValue(const std::string &keyPath, const JsonValue &value)
 
     if (IsObject())
     {
-        ret = GetObject().ReplaceValue(keyPath, value);
+        ret = GetObj().ReplaceValue(keyPath, value);
     }
     else if (IsArray())
     {

@@ -14,37 +14,37 @@ BotManager::~BotManager()
 /*****************************************************************************/
 void BotManager::Close()
 {
-    mBotsMutex.lock();
+    mMutex.lock();
     // Close local bots
-    for (std::map<std::uint32_t, Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    for (std::map<std::uint32_t, NetBot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
     {
-        iter->second->Close();
+        iter->second->mSession.Close();
     }
-    mBotsMutex.unlock();
+    mMutex.unlock();
 }
 /*****************************************************************************/
 void BotManager::KillBots()
 {
     // Kill bots
-    mBotsMutex.lock();
-    for (std::map<std::uint32_t, Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    mMutex.lock();
+    for (std::map<std::uint32_t, NetBot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
     {
         delete (iter->second);
     }
-    mBotsMutex.unlock();
+    mMutex.unlock();
 }
 /*****************************************************************************/
 bool BotManager::JoinTable(uint32_t botId, uint32_t tableId)
 {
     bool ret = false;
-    mBotsMutex.lock();
+    mMutex.lock();
     // Connect the bot to the server
     if (mBots.count(botId) > 0)
     {
-        mBots[botId]->JoinTable(tableId);
+        mBots[botId]->mBot.SetTableToJoin(tableId);
         ret = true;
     }
-    mBotsMutex.unlock();
+    mMutex.unlock();
     return ret;
 }
 /*****************************************************************************/
@@ -62,24 +62,23 @@ bool BotManager::JoinTable(uint32_t botId, uint32_t tableId)
 uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile)
 {
     // Place is free (not found), we dynamically add our bot here
-    Bot *bot = new Bot();
+    NetBot *netBot = new NetBot();
 
     // Initialize the bot
-    bot->ChangeNickname(ident);
-    bot->SetTimeBeforeSend(delay);
-    bot->SetTableToJoin(tableToJoin);
-    bot->SetAiScript(scriptFile);
-    bot->Initialize();
+    netBot->mBot.SetUser("", ident.nickname);
+    netBot->mBot.SetTimeBeforeSend(delay);
+    netBot->mBot.SetTableToJoin(tableToJoin);
+    netBot->mBot.SetAiScript(scriptFile);
 
-    mBotsMutex.lock();
+    mMutex.lock();
     // Add it to the list (save the pointer to the allocated object)
     std::uint32_t botid = mBotsIds.TakeId();
     if (mBots.count(botid) > 0)
     {
         TLogError("Internal problem, bot id exists");
     }
-    mBots[botid] = bot;
-    mBotsMutex.unlock();
+    mBots[botid] = netBot;
+    mMutex.unlock();
 
     return botid;
 }
@@ -87,14 +86,14 @@ uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &ident, st
 bool BotManager::ConnectBot(std::uint32_t botId, const std::string &ip, uint16_t port)
 {
     bool ret = false;
-    mBotsMutex.lock();
+    mMutex.lock();
     // Connect the bot to the server
     if (mBots.count(botId) > 0)
     {
-        mBots[botId]->ConnectToHost(ip, port);
+        mBots[botId]->mSession.ConnectToHost(ip, port);
         ret = true;
     }
-    mBotsMutex.unlock();
+    mMutex.unlock();
     return ret;
 }
 /*****************************************************************************/
@@ -109,13 +108,13 @@ bool BotManager::ConnectBot(std::uint32_t botId, const std::string &ip, uint16_t
  */
 bool BotManager::RemoveBot(std::uint32_t botid)
 {
-    mBotsMutex.lock();
+    mMutex.lock();
     bool ret = false;
 
     if (mBots.count(botid) > 0U)
     {
         // Gracefully close the bot from the server
-        mBots[botid]->Close();
+        mBots[botid]->mSession.Close();
         // delete the object
         delete (mBots[botid]);
         // Remove it from the list
@@ -124,18 +123,21 @@ bool BotManager::RemoveBot(std::uint32_t botid)
     }
 
     mBotsIds.ReleaseId(botid);
-    mBotsMutex.unlock();
+    mMutex.unlock();
     return ret;
 }
 /*****************************************************************************/
+
+/*
 void BotManager::ChangeBotIdentity(std::uint32_t uuid, const Identity &identity)
 {
-    for (std::map<std::uint32_t, Bot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    for (std::map<std::uint32_t, NetBot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
     {
-        if (iter->second->GetUuid() == uuid)
+        if (iter->second->mBot.GetUuid() == uuid)
         {
-            iter->second->SetIdentity(identity);
+            iter->second->mBot.SetIdentity(identity);
         }
     }
 }
+*/
 

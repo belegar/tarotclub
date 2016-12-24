@@ -59,7 +59,7 @@ public:
 
     void Add(const std::string &packet) { mPacket += packet; }
     bool Parse(std::string &payload);
-    static std::string Build(std::uint32_t option, std::uint32_t src, std::uint32_t dst, const std::string &type, const std::string &arg);
+    static std::string Build(std::uint32_t src, std::uint32_t dst, const std::string &arg);
 
 private:    
     std::uint32_t mSrcUuid;

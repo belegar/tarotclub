@@ -166,7 +166,7 @@ void TarotProtocol::TestPlayerJoinAndQuit()
     json.AddValue("cmd", "ReplyLogin");
     json.AddValue("nickname", "Casimir");
 
-    QCOMPARE(lobby.Decode(src, dest, json.ToString(0U), reply), true);
+    QCOMPARE(lobby.Deliver(src, dest, json.ToString(0U), reply), true);
     Dump(reply);
     reply.clear();
 }
@@ -241,7 +241,7 @@ void TarotProtocol::TestBotsFullGame()
             // Send bot replies to the lobby (destination should be always the lobby or a table)
             for (std::uint32_t j = 0U; j < bots[i].reply.size(); j++)
             {
-                QCOMPARE(lobby.Decode(bots[i].uuid, bots[i].reply[j].dest, bots[i].reply[j].data.ToString(0U), lobby_data), true);
+                QCOMPARE(lobby.Deliver(bots[i].uuid, bots[i].reply[j].dest, bots[i].reply[j].data.ToString(0U), lobby_data), true);
             }
         }
         if (Dump(lobby_data))

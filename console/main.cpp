@@ -24,7 +24,7 @@
  */
 
 #include "Lobby.h"
-#include "LobbyServer.h"
+#include "Server.h"
 #include "TournamentConfig.h"
 #include "System.h"
 #include "GetOptions.h"
@@ -55,11 +55,17 @@ static const char* TAROTCLUB_CONSOLE_VERSION = "1.0";
  */
 int main(int argc, char *argv[])
 {
+    /*
     std::cout << "TarotClub  " << TAROTCLUB_CONSOLE_VERSION << std::endl;
     homePath = System::HomePath();
     System::Initialize(); // default home path
 
     std::cout << "Using home path: " << homePath << std::endl;
+
+    // Init lobby
+    mLobby.Initialize(opt.name, opt.tables);
+    mLobby.Register(this);
+
 
     Logger logger;
     Log::SetLogPath(System::LogPath());
@@ -74,12 +80,13 @@ int main(int argc, char *argv[])
     ServerOptions options = conf.GetOptions();
     std::cout << "Starting lobby on TCP port: " << options.game_tcp_port << std::endl;
 
-    Protocol::GetInstance().Initialize();
 
     Server server;
     server.Start(options, tournament.GetOptions()); // Blocking call. On exit, quit the executable
 
     Protocol::GetInstance().Stop();
+
+    */
     return 0;
 }
 

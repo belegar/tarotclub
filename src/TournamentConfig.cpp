@@ -77,14 +77,14 @@ bool TournamentConfig::Load(const std::string &fileName)
                     {
                         if (iter->IsObject())
                         {
-                            JsonValue value = iter->GetObject().GetValue("type");
+                            JsonValue value = iter->GetObj().GetValue("type");
                             Tarot::Distribution shuffle;
                             if (value.IsString())
                             {
                                 if (value.GetString() == "custom")
                                 {
                                     shuffle.mType = Tarot::Distribution::CUSTOM_DEAL;
-                                    value = iter->GetObject().GetValue("file");
+                                    value = iter->GetObj().GetValue("file");
                                     if (value.IsString())
                                     {
                                         shuffle.mFile = value.GetString();
@@ -101,7 +101,7 @@ bool TournamentConfig::Load(const std::string &fileName)
                                 else  if (value.GetString() == "numbered")
                                 {
                                     shuffle.mType = Tarot::Distribution::NUMBERED_DEAL;
-                                    shuffle.mSeed = iter->GetObject().GetValue("number").GetInteger();
+                                    shuffle.mSeed = iter->GetObj().GetValue("number").GetInteger();
                                     // FIXME we can add a test on the type here before setting the seed
                                 }
                                 else

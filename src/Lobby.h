@@ -30,12 +30,13 @@
 #include "Protocol.h"
 #include "PlayingTable.h"
 #include "Users.h"
+#include "Network.h"
 
 // ICL files
 #include "Observer.h"
 
 /*****************************************************************************/
-class Lobby
+class Lobby : public net::IEvent
 {
 
 public:
@@ -47,12 +48,15 @@ public:
 
     void Initialize(const std::string &name, const std::vector<std::string> &tables);
     std::string GetName() { return mName; }
-    bool Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
+
+    // From IEvent
+    void Signal(std::uint32_t sig);
+    bool Deliver(std::uint32_t src_uuid, std::uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
+    std::uint32_t AddUser(std::vector<Reply> &out);
+    void RemoveUser(std::uint32_t uuid, std::vector<Reply> &out);
 
     // Users management
     std::uint32_t GetNumberOfPlayers();
-    std::uint32_t AddUser(std::vector<Reply> &out);
-    void RemoveUser(std::uint32_t uuid, std::vector<Reply> &out);
     void RemoveAllUsers();
 
     // Tables management

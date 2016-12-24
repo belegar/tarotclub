@@ -126,7 +126,7 @@ public:
     bool IsBoolean() const    { return mTag == BOOLEAN; }
     bool IsDouble() const     { return mTag == DOUBLE; }
 
-    JsonObject &GetObject() { return mObject; }
+    JsonObject &GetObj() { return mObject; }
     JsonArray &GetArray() { return mArray; }
 
     std::int32_t    GetInteger() const   { return mIntegerValue; }
