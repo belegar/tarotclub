@@ -55,38 +55,37 @@ static const char* TAROTCLUB_CONSOLE_VERSION = "1.0";
  */
 int main(int argc, char *argv[])
 {
-    /*
     std::cout << "TarotClub  " << TAROTCLUB_CONSOLE_VERSION << std::endl;
-    homePath = System::HomePath();
+    std::string homePath = System::HomePath();
     System::Initialize(); // default home path
 
     std::cout << "Using home path: " << homePath << std::endl;
 
     // Init lobby
-    mLobby.Initialize(opt.name, opt.tables);
-    mLobby.Register(this);
-
+    Lobby lobby;
+    Server server(lobby);
 
     Logger logger;
+
     Log::SetLogPath(System::LogPath());
     Log::RegisterListener(logger);
 
-    ServerConfig conf;
-    TournamentConfig tournament;
+    ServerOptions options = ServerConfig::GetDefault();
 
-    conf.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
-    tournament.Load(System::HomePath() + TournamentConfig::DEFAULT_FILE_NAME);
-
-    ServerOptions options = conf.GetOptions();
     std::cout << "Starting lobby on TCP port: " << options.game_tcp_port << std::endl;
+    server.Start(options); // Blocking call. On exit, quit the executable
 
+    std::cout << "'q' to exit:" << std::endl;
 
-    Server server;
-    server.Start(options, tournament.GetOptions()); // Blocking call. On exit, quit the executable
+    char input;
+    do
+    {
+        std::cin >> input;
+        std::cout << input;
+    } while (input != 'q');
 
-    Protocol::GetInstance().Stop();
+    server.Stop();
 
-    */
     return 0;
 }
 
