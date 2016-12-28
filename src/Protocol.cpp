@@ -78,7 +78,7 @@ std::string Protocol::Build(std::uint32_t src, std::uint32_t dst, const std::str
     std::stringstream stream;
     static const std::uint32_t option = 0U;
 
-    stream << ":" << std::setfill ('0') << std::setw(2) << std::hex << option;
+    stream << std::setfill ('0') << std::setw(2) << std::hex << option;
     stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << src;
     stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << dst;
     stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << arg.size();
