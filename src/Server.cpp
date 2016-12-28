@@ -53,6 +53,8 @@ void Server::NewConnection(const tcp::Conn &conn)
     std::uint32_t uuid = mListener.AddUser(out);
     session.peer = conn.peer;
     mPeers[uuid] = session;
+
+    Send(out);
 }
 /*****************************************************************************/
 
@@ -111,7 +113,19 @@ void Server::Send(const std::vector<Reply> &out)
     for (std::uint32_t i = 0U; i < out.size(); i++)
     {
         std::uint32_t uuid = out[i].dest;
-        tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, uuid, out[i].data.ToString(0U)), mPeers[uuid].peer);
+        if (uuid == Protocol::LOBBY_UID)
+        {
+            // Broadcast to all peers
+            for (auto iter = mPeers.begin(); iter != mPeers.end(); ++iter)
+            {
+                std::uint32_t peer_uuid = iter->first;
+                tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, peer_uuid, out[i].data.ToString(0U)), iter->second.peer);
+            }
+        }
+        else
+        {
+            tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, uuid, out[i].data.ToString(0U)), mPeers[uuid].peer);
+        }
     }
 }
 /*****************************************************************************/
