@@ -42,6 +42,7 @@ const std::uint8_t Log::Info    = 2U;
 const std::uint8_t Log::Network = 4U;
 const std::uint8_t Log::Script  = 8U;
 const std::uint8_t Log::Server  = 16U;
+const std::uint8_t Log::All     = Log::Error | Log::Info | Log::Network | Log::Script | Log::Server;
 
 static std::map<std::uint8_t, std::string> LogInit();
 static std::map<std::uint8_t, std::string> eventString = LogInit();

@@ -51,6 +51,7 @@ public:
     static const std::uint8_t Network;
     static const std::uint8_t Script;
     static const std::uint8_t Server;
+    static const std::uint8_t All;
 
     static const std::uint32_t SizeLimit = 50 * (1024U * 1024U); // Filesize limit to 50MB per log
 
