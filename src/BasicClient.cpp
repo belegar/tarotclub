@@ -6,7 +6,24 @@
 // ICL files
 #include "Log.h"
 #include "JsonReader.h"
+#include "Protocol.h"
 
+/*****************************************************************************/
+BasicClient::BasicClient()
+    : mUuid(Protocol::INVALID_UID)
+{
+
+}
+/*****************************************************************************/
+void BasicClient::Start()
+{
+    mUuid = Protocol::INVALID_UID;
+}
+/*****************************************************************************/
+void BasicClient::Stop()
+{
+    mUuid = Protocol::INVALID_UID;
+}
 /*****************************************************************************/
 bool BasicClient::TestDiscard(const Deck &discard)
 {

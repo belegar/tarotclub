@@ -35,6 +35,10 @@ public:
         END_OF_GAME
     };
 
+    BasicClient();
+
+    void Start();
+    void Stop();
     bool TestDiscard(const Deck &discard);
     Contract CalculateBid();
     void UpdateStatistics();
