@@ -294,8 +294,6 @@ void TcpServer::IncommingConnection(bool isWebSocket)
     /*************************************************/
     do
     {
-        new_sd = -1;
-
         /**********************************************/
         /* Accept each incoming connection.  If       */
         /* accept fails with EWOULDBLOCK, then we     */
