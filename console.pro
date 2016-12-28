@@ -99,7 +99,6 @@ HEADERS += ServerConfig.h \
     Deck.h \
     Card.h \
     Player.h \
-    Client.h \
     Bot.h \
     Common.h \
     Engine.h \
@@ -122,7 +121,6 @@ SOURCES += ServerConfig.cpp \
     Deck.cpp \
     Card.cpp \
     Player.cpp \
-    Client.cpp \
     Bot.cpp \
     Common.cpp \
     Engine.cpp \
