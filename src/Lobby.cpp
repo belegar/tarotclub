@@ -156,7 +156,7 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
             if (mUsers.GetPlayerTable(src_uuid) == Protocol::LOBBY_UID)
             {
                 Place assignedPlace;
-                std::uint8_t nbPlayers;
+                std::uint8_t nbPlayers = 0U;
 
                 // Forward it to the table PlayingTable
                 for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
