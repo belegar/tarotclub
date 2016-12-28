@@ -44,7 +44,7 @@ void Session::ConnectToHost(const std::string &hostName, std::uint16_t port)
     if (!mTcpClient.IsValid())
     {
         // Create a socket before connection
-        mTcpClient.Create();
+        mTcpClient.Initialize();
     }
 
     mHostName = hostName;
@@ -82,13 +82,13 @@ void Session::Run()
             if (mTcpClient.Connect(mHostName, mTcpPort) == true)
             {
                 bool connected = true;
-                std::string payload;
                 Protocol proto;
 
                 while (connected)
                 {
                     if (mTcpClient.DataWaiting(10U))
                     {
+                        std::string payload;
                         if (mTcpClient.Recv(payload))
                         {
                             proto.Add(payload);
@@ -97,15 +97,25 @@ void Session::Run()
                             {
                                 std::cout << "Found one packet with data: " << data << std::endl;
                                 std::vector<Reply> out;
-                                mListener.Deliver(proto.GetSourceUuid(), proto.GetDestUuid(), data, out);
+                                std::uint32_t client_uuid = proto.GetDestUuid();
 
-                                // Send syncrhonous data to the server
+                                bool ret = mListener.Deliver(proto.GetSourceUuid(), client_uuid, data, out);
+
+                                // Send synchronous data to the server
+                                if (ret)
+                                {
+                                    for (std::uint32_t i = 0U; i < out.size(); i++)
+                                    {
+                                        std::uint32_t uuid = out[i].dest;
+                                        Send(Protocol::Build(client_uuid, uuid, out[i].data.ToString(0U)));
+                                    }
+                                }
                             }
                         }
                     }
                     else
                     {
-                        std::cout << "client wait timeout or failure" << std::endl;
+                        //std::cout << "client wait timeout or failure" << std::endl;
                         connected = IsConnected(); // determine origine of failure
                     }
                 }
