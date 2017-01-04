@@ -46,7 +46,10 @@ public:
     std::string     username;   ///< Empty username means no account
 
     Identity()
-        : gender(cGenderInvalid)
+        : nickname("John Doe")
+        , avatar("")
+        , gender(cGenderInvalid)
+        , username("")
     {
 
     }
