@@ -29,6 +29,12 @@
 #include "System.h"
 #include "GetOptions.h"
 #include "Log.h"
+#include "BotManager.h"
+#include "Embedded.h"
+
+#include <fcntl.h>
+#include <io.h>
+#include <stdio.h>
 
 /*****************************************************************************/
 class Logger : public Observer<std::string>
@@ -48,29 +54,48 @@ public:
 
 static const char* TAROTCLUB_CONSOLE_VERSION = "1.0";
 
-
 /*****************************************************************************/
 struct ConsoleClient : public net::IEvent
 {
     Session mSession;
     BasicClient mClient;
     Context mCtx;
+    BotManager mBots;
+    std::list<std::uint32_t> mIds;
 
     ConsoleClient()
      : mSession(*this)
     {
-
+        mClient.mNickName = "Humain";
     }
 
     void Start()
     {
+        std::string localIp = "127.0.0.1";
         mSession.Initialize();
-        mSession.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
+        mSession.ConnectToHost(localIp, ServerConfig::DEFAULT_GAME_TCP_PORT);
+        static const Identity ident[3] = {
+         Identity("Bender", "", Identity::cGenderRobot, ""),
+         Identity("T800", "", Identity::cGenderRobot, ""),
+         Identity("C3PO", "", Identity::cGenderRobot, "")
+        };
+
+        ArrayPtr<const std::uint8_t> array = gen::GetFile();
+        std::string buffer((const char *)array.Data(), array.Size());
+
+        for (std::uint32_t i = 0U; i < 3; i++)
+        {
+            std::uint32_t botId = mBots.AddBot(Protocol::TABLES_UID, ident[i], 0U, buffer);
+            mIds.push_back(botId);
+            mBots.ConnectBot(botId, localIp, ServerConfig::DEFAULT_GAME_TCP_PORT);
+        }
     }
 
     void Stop()
     {
         mSession.Close();
+        mBots.Close();
+        mBots.KillBots();
     }
 
     virtual void Signal(std::uint32_t sig) { (void) sig; }
@@ -96,17 +121,13 @@ struct ConsoleClient : public net::IEvent
             case BasicClient::ACCESS_GRANTED:
             {
                 // As soon as we have entered into the lobby, join the assigned table
-              //  mClient.JoinTable(mTableToJoin, out);
+                mClient.JoinTable(Protocol::TABLES_UID, out);
                 std::cout << "Connected to Lobby" << std::endl;
                 break;
             }
             case BasicClient::NEW_DEAL:
             {
-                /*
-                JSEngine::StringList args;
-                args.push_back(mClient.mDeck.ToString());
-                mBotEngine.Call("ReceiveCards", args);
-                */
+                std::cout << "Received cards: " << mClient.mDeck.ToString();
                 break;
             }
             case BasicClient::REQ_BID:
@@ -196,15 +217,19 @@ struct ConsoleClient : public net::IEvent
     virtual void RemoveUser(std::uint32_t /* uuid */, std::vector<Reply> &/*out*/) {}
 };
 
-
+#include <iostream>
+#include <string>
+#include <locale>
+#include <fstream>
+#include <codecvt>
 
 /*****************************************************************************/
 /**
  * @brief Entry point of the dedicated game server
  */
-int main(int /*argc*/, char */*argv[]*/)
+int main(int /*argc*/, char ** /*argv[]*/)
 {
-    std::cout << "TarotClub  " << TAROTCLUB_CONSOLE_VERSION << std::endl;
+    std::cout << "TarotClub Console " << TAROTCLUB_CONSOLE_VERSION << std::endl;
     std::string homePath = System::HomePath();
     System::Initialize(); // default home path
 
@@ -227,6 +252,17 @@ int main(int /*argc*/, char */*argv[]*/)
     server.Start(options); // Blocking call. On exit, quit the executable
 
     std::cout << "'q' to exit, 'c' to connect, 's' to start game" << std::endl;
+
+
+    // (S) U+2660	(H) U+2665	(D) U+2666	(C) U+2663
+
+  //  _setmode(_fileno(stdout), _O_U16TEXT);
+ //   std::cout << "Try 1: ♠	♥	♦	♣" << std::endl;
+ //   std::wcout << L"Try 2: \u2660 \u2665 \u2666 \u2663" << std::endl;
+
+//    std::wstring s = L"Try 2: \u2660 \u2665 \u2666 \u2663";
+
+//    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), s.c_str(), s.size(), NULL, NULL);
 
     ConsoleClient client;
 
