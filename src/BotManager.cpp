@@ -37,14 +37,20 @@ void BotManager::KillBots()
 bool BotManager::JoinTable(uint32_t botId, uint32_t tableId)
 {
     bool ret = false;
+    (void) botId;
+    (void) tableId;
+
+    // FIXME: send asynchronous message to the server to join a specific table
+    /*
     mMutex.lock();
-    // Connect the bot to the server
+
     if (mBots.count(botId) > 0)
     {
-        mBots[botId]->mBot.SetTableToJoin(tableId);
+        mBots[botId]->mBot.(tableId);
         ret = true;
     }
     mMutex.unlock();
+    */
     return ret;
 }
 /*****************************************************************************/
@@ -65,10 +71,13 @@ uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &ident, st
     NetBot *netBot = new NetBot();
 
     // Initialize the bot
-    netBot->mBot.SetUser("", ident.nickname);
+    netBot->mBot.SetUser(ident.nickname, "");
     netBot->mBot.SetTimeBeforeSend(delay);
     netBot->mBot.SetTableToJoin(tableToJoin);
     netBot->mBot.SetAiScript(scriptFile);
+
+    // Initialize the session
+    netBot->mSession.Initialize();
 
     mMutex.lock();
     // Add it to the list (save the pointer to the allocated object)
