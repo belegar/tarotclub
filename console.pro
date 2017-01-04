@@ -136,10 +136,11 @@ SOURCES += ServerConfig.cpp \
     BasicClient.cpp \
     Network.cpp
 
+
 # ------------------------------------------------------------------------------
 # Console files
 # ------------------------------------------------------------------------------
-SOURCES +=  main.cpp
-
+SOURCES +=  main.cpp Console.cpp Embedded.cpp
+HEADERS +=  Console.h Embedded.h
 
 # End of project file
