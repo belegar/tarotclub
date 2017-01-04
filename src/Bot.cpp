@@ -453,7 +453,7 @@ bool Bot::InitializeScriptContext()
     if (Util::FileExists(mScriptPath))
     {
         // Seems to be an archive file
-        if (!zip.Open(mScriptPath))
+        if (!zip.Open(mScriptPath, true))
         {
             TLogError("Invalid AI Zip file.");
             retCode = false;
@@ -468,8 +468,13 @@ bool Bot::InitializeScriptContext()
         }
         else
         {
-            TLogError("Invalid AI script path " + mScriptPath);
-            retCode = false;
+            // Last try, maybe a zipped memory buffer
+            if (!zip.Open(mScriptPath, false))
+            {
+                TLogError("Invalid AI Zip buffer.");
+                retCode = false;
+            }
+            useZip = true;
         }
     }
 
