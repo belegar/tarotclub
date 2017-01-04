@@ -54,6 +54,15 @@ public:
 
     }
 
+    Identity(const std::string &n, const std::string &a, std::uint8_t g, const std::string &u)
+        : nickname(n)
+        , avatar(a)
+        , gender(g)
+        , username(u)
+    {
+
+    }
+
     std::string GenderToString()
     {
         std::string txt = "Unknown";
