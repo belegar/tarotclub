@@ -1,0 +1,66 @@
+/*=============================================================================
+ * TarotClub - Embedded.cpp
+ *=============================================================================
+ * This file contains a file contents provided in an array
+ *=============================================================================
+ * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
+ * Copyright (C) 2003-2999 - Anthony Rabine
+ * anthony@tarotclub.fr
+ *
+ * TarotClub is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TarotClub is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TarotClub.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *=============================================================================
+ */
+
+/********************************************************************************
+ * \file    Embedded.cpp
+ * \brief   Generated on GENERATION_DATE_TIME
+ *******************************************************************************/
+
+#include "Embedded.h"
+
+/*****************************************************************************/
+namespace gen
+{
+
+static const std::uint8_t gFileContents[FILE_SIZE] =
+FILE_CONTENTS
+/* size = FILE_SIZE bytes */
+
+static const std::uint8_t gFileSha1[20U] = {FILE_SHA1};
+static const std::uint32_t gFileCrc = FILE_CRC;
+
+ArrayPtr<const std::uint8_t> GetFile()
+{
+    ArrayPtr<const std::uint8_t> file(gFileContents);
+    return file;
+}
+
+ArrayPtr<const std::uint8_t> GetFileSignature()
+{
+	ArrayPtr<const std::uint8_t> signature(&gFileSha1[0], 20U);
+	return signature;
+}
+
+
+std::uint32_t GetFileCrc()
+{
+    return gFileCrc;
+}
+
+} // end of gen namespace
+
+//=============================================================================
+// End of file Embedded.cpp
+//=============================================================================
