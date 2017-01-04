@@ -42,6 +42,7 @@ class Lobby : public net::IEvent
 public:
     static const std::uint32_t cErrorFull           = 0U;
     static const std::uint32_t cErrorNickNameUsed   = 1U;
+    static const std::uint32_t cErrorTableIdUnknown = 2U;
 
     Lobby(bool adminMode = false);
     ~Lobby();

@@ -157,18 +157,24 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
             {
                 Place assignedPlace;
                 std::uint8_t nbPlayers = 0U;
+                bool foundTable = false;
 
                 // Forward it to the table PlayingTable
                 for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
                 {
                     if ((*iter)->GetId() == tableId)
                     {
+                        foundTable = true;
                         assignedPlace = (*iter)->AddPlayer(src_uuid, nbPlayers);
                         break;
                     }
                 }
 
-                if (assignedPlace.IsValid())
+                if (!foundTable)
+                {
+                    Error(cErrorTableIdUnknown, src_uuid, out);
+                }
+                else if (assignedPlace.IsValid())
                 {
                     mUsers.SetPlayingTable(src_uuid, tableId, assignedPlace);
 
@@ -325,7 +331,7 @@ bool Lobby::DestroyTable(std::uint32_t id)
 /*****************************************************************************/
 void Lobby::Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<Reply> &out)
 {
-    static const char* errors[] { "Table is full", "Nickname already used" };
+    static const char* errors[] { "Table is full", "Nickname already used", "Unknown table ID" };
     JsonObject reply;
 
     reply.AddValue("cmd", "Error");
