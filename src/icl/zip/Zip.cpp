@@ -43,7 +43,7 @@ Zip::~Zip()
 }
 
 /*****************************************************************************/
-bool Zip::Open(const std::string &fileName)
+bool Zip::Open(const std::string &zip, bool isFile)
 {
     mz_bool status;
     mIsValid = false;
@@ -51,7 +51,18 @@ bool Zip::Open(const std::string &fileName)
     mNumberOfFiles = 0U;
 
     std::memset(&mZipArchive, 0, sizeof(mZipArchive));
-    status = mz_zip_reader_init_file(&mZipArchive, fileName.c_str(), 0);
+
+    if (isFile)
+    {
+        // Physical file on disk
+        status = mz_zip_reader_init_file(&mZipArchive, zip.c_str(), 0);
+    }
+    else
+    {
+        // Zipped memory
+        status = mz_zip_reader_init_mem(&mZipArchive, zip.c_str(), zip.size(), 0);
+    }
+
     if (status)
     {
         // Get and print information about each file in the archive.

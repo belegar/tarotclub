@@ -42,7 +42,7 @@ public:
     Zip();
     ~Zip();
 
-    bool Open(const std::string &fileName);
+    bool Open(const std::string &zip, bool isFile);
     std::uint32_t NumberOfFiles() { return mNumberOfFiles; }
     bool GetFile(const std::string &fileName, std::string &contents);
     void Close();
