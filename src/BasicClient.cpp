@@ -202,6 +202,8 @@ void BasicClient::Sync(const std::string &step, std::vector<Reply> &out)
     obj.AddValue("cmd", "Ack");
     obj.AddValue("step", step);
 
+    TLogNetwork("Client send ack for step: " + step);
+
     out.push_back(Reply(mTableId, obj));
 }
 /*****************************************************************************/
@@ -283,7 +285,9 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         mTableId = static_cast<std::uint32_t>(json.FindValue("table_id").GetInteger());
         mNbPlayers = static_cast<std::uint32_t>(json.FindValue("size").GetInteger());
 
-        Sync("JoinTable", out);
+        event = JOIN_TABLE;
+
+        Sync("AckJoinTable", out);
     }
     else if (cmd == "RequestQuitTable")
     {

@@ -131,6 +131,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::REQ_LOGIN:
     case BasicClient::MESSAGE:
     case BasicClient::PLAYER_LIST:
+    case BasicClient::JOIN_TABLE:
     case BasicClient::QUIT_TABLE:
     case BasicClient::SHOW_BID:
         // FIXME: send all the declared bids to the bot so he can use them (AI improvements)

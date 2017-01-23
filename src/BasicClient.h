@@ -16,6 +16,7 @@ public:
         ACCESS_GRANTED,
         MESSAGE,
         PLAYER_LIST,
+        JOIN_TABLE,
         SYNC,
         QUIT_TABLE,
         NEW_GAME,
