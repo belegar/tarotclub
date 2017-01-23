@@ -7,10 +7,7 @@
 #include "BasicClient.h"
 
 #include <list>
-
-#include <fcntl.h>
-#include <io.h>
-#include <stdio.h>
+#include <deque>
 
 /*****************************************************************************/
 class ConsoleClient : public Observer<std::string>, public net::IEvent
@@ -40,7 +37,15 @@ private:
     BotManager mBots;
     std::list<std::uint32_t> mIds;
     Console mConsole;
+    std::deque<std::wstring> mLog;
 
+    std::wstring ToString(const Card &c);
+    void DrawLine(const std::wstring &left, const std::wstring &middle, const std::wstring &right);
+    void BuildBoard();
+    void DrawBox(uint32_t size, std::uint32_t middle_pos = 0U);
+    void DrawHLine(const std::wstring &left, const std::wstring &fill, const std::wstring &right, const std::wstring &middle = L"", std::uint32_t middle_pos = 0U);
+    void FillBox(std::uint32_t size, std::uint32_t middle_pos = 0U);
+    void AddLog(const std::wstring &str);
 };
 
 #endif // CONSOLECLIENT_H
