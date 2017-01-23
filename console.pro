@@ -140,7 +140,7 @@ SOURCES += ServerConfig.cpp \
 # ------------------------------------------------------------------------------
 # Console files
 # ------------------------------------------------------------------------------
-SOURCES +=  main.cpp Console.cpp Embedded.cpp
-HEADERS +=  Console.h Embedded.h
+SOURCES +=  main.cpp Console.cpp Embedded.cpp ConsoleClient.cpp
+HEADERS +=  Console.h Embedded.h ConsoleClient.h
 
 # End of project file
