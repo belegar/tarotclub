@@ -295,7 +295,10 @@ std::uint32_t Lobby::CreateTable(const std::string &tableName, const Tarot::Game
 
     if (id > 0U)
     {
-        std::cout << "Creating table \"" << tableName << "\": id=" << id << std::endl;
+        std::stringstream ss;
+        ss << "Creating table \"" << tableName << "\": id=" << id << std::endl;
+        TLogInfo(ss.str());
+
         PlayingTable *table = new PlayingTable();
         table->SetId(id);
         table->SetName(tableName);
