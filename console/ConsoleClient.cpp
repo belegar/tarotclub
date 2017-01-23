@@ -291,7 +291,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         {
             //std::wstring s = std::wstring(mClient.mPlace.ToString());
             std::wstringstream ss;
-            ss << L"Entered table in position: " << std::endl;
+            ss << L"Entered table in position: ";
             AddLog(ss.str());
             break;
         }
@@ -343,12 +343,8 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
 
                 TLogInfo("Console client is playing: " + c.ToString());
 
-
-
                 std::wstringstream ss;
-                ss << L"You are playing: " << ToString(c) << std::endl;
-                //mConsole.Write(ss.str());
-
+                ss << L"You are playing: " << ToString(c);
                 AddLog(ss.str());
 
                 mClient.mDeck.Remove(c);
