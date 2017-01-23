@@ -95,7 +95,7 @@ void Session::Run()
                             std::string data;
                             while (proto.Parse(data))
                             {
-                                std::cout << "Found one packet with data: " << data << std::endl;
+                            //    TLogNetwork("Found one packet with data: " + data);
                                 std::vector<Reply> out;
                                 std::uint32_t client_uuid = proto.GetDestUuid();
 
@@ -104,10 +104,15 @@ void Session::Run()
                                 // Send synchronous data to the server
                                 if (ret)
                                 {
+                                    // Send all messages
                                     for (std::uint32_t i = 0U; i < out.size(); i++)
                                     {
-                                        std::uint32_t uuid = out[i].dest;
-                                        Send(Protocol::Build(client_uuid, uuid, out[i].data.ToString(0U)));
+                                        // To all indicated peers
+                                        for (std::uint32_t j = 0U; j < out[i].dest.size(); j++)
+                                        {
+                                            std::uint32_t uuid = out[i].dest[j];
+                                            Send(Protocol::Build(client_uuid, uuid, out[i].data.ToString(0U)));
+                                        }
                                     }
                                 }
                             }

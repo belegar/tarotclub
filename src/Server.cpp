@@ -110,21 +110,15 @@ void Server::Stop()
 /*****************************************************************************/
 void Server::Send(const std::vector<Reply> &out)
 {
+    // Send all data
     for (std::uint32_t i = 0U; i < out.size(); i++)
     {
-        std::uint32_t uuid = out[i].dest;
-        if (uuid == Protocol::LOBBY_UID)
+        std::string data = out[i].data.ToString(0U);
+        // To all indicated peers
+        for (std::uint32_t j = 0U; j < out[i].dest.size(); j++)
         {
-            // Broadcast to all peers
-            for (auto iter = mPeers.begin(); iter != mPeers.end(); ++iter)
-            {
-                std::uint32_t peer_uuid = iter->first;
-                tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, peer_uuid, out[i].data.ToString(0U)), iter->second.peer);
-            }
-        }
-        else
-        {
-            tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, uuid, out[i].data.ToString(0U)), mPeers[uuid].peer);
+            std::uint32_t uuid = out[i].dest[j];
+            tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, uuid, data), mPeers[uuid].peer);
         }
     }
 }

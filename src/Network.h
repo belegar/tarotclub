@@ -11,11 +11,17 @@
 
 struct Reply
 {
-    std::uint32_t dest;
+    std::vector<std::uint32_t> dest;
     JsonObject data;
 
     Reply(std::uint32_t d, const JsonObject &obj)
-        : dest(d)
+        : data(obj)
+    {
+        dest.push_back(d);
+    }
+
+    Reply(std::vector<std::uint32_t> dlist, const JsonObject &obj)
+        : dest(dlist)
         , data(obj)
     {
 

@@ -39,7 +39,7 @@ struct Ack
 };
 
 static const Ack gAckList[] = {
-    {"JoinTable", Engine::WAIT_FOR_PLAYERS},
+    {"AckJoinTable", Engine::WAIT_FOR_PLAYERS},
     {"Ready", Engine::WAIT_FOR_READY },
     {"NewDeal", Engine::WAIT_FOR_CARDS },
     {"ShowBid", Engine::WAIT_FOR_SHOW_BID },
@@ -127,6 +127,19 @@ Place PlayingTable::GetPlayerPlace(std::uint32_t uuid)
 std::uint32_t PlayingTable::GetPlayerUuid(Place p)
 {
     return mPlayers[p.Value()].uuid;
+}
+/*****************************************************************************/
+void PlayingTable::SendToAllPlayers(std::vector<Reply> &out, JsonObject &obj)
+{
+    std::vector<std::uint32_t> list;
+    for (std::uint32_t i = 0U; i < mEngine.GetNbPlayers(); i++)
+    {
+        if (!mPlayers[i].IsFree())
+        {
+            list.push_back(mPlayers[i].uuid);
+        }
+    }
+    out.push_back(Reply(list, obj));
 }
 /*****************************************************************************/
 bool PlayingTable::Sync(Engine::Sequence sequence, std::uint32_t uuid)
@@ -275,57 +288,62 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
             {
                 TLogError("Bad acknowledge sequence");
             }
-
-            // Returns true if all the players have send their sync signal
-            if (Sync(seq, src_uuid))
+            else
             {
-                switch (seq) {
-                case Engine::WAIT_FOR_PLAYERS:
-                {
-                    if (!mAdminMode)
-                    {
-                        // Automatic start of the game. Otherwise the Admin is in charge of starting manually the game
-                        NewGame(out);
-                    }
-                    break;
-                }
-                case Engine::WAIT_FOR_READY:
-                case Engine::WAIT_FOR_ALL_PASSED:
-                {
-                    NewDeal(out);
-                    break;
-                }
-                case Engine::WAIT_FOR_CARDS:
-                case Engine::WAIT_FOR_SHOW_BID:
-                {
-                    BidSequence(out);
-                    break;
-                }
-                case Engine::WAIT_FOR_SHOW_DOG:
-                {
-                    // When all the players have seen the dog, ask to the taker to build a discard
-                    mEngine.DiscardSequence();
-                    JsonObject obj;
+                TLogNetwork("Received sync() for step: " + step);
 
-                    obj.AddValue("cmd", "BuildDiscard");
-                    out.push_back(Reply(GetPlayerUuid(mEngine.GetBid().taker), obj));
-                    break;
-                }
-                case Engine::WAIT_FOR_START_DEAL:
-                case Engine::WAIT_FOR_SHOW_HANDLE:
-                case Engine::WAIT_FOR_SHOW_CARD:
-                case Engine::WAIT_FOR_END_OF_TRICK:
+                // Returns true if all the players have send their sync signal
+                if (Sync(seq, src_uuid))
                 {
-                    GameSequence(out);
-                    break;
-                }
-                case Engine::WAIT_FOR_END_OF_DEAL:
-                {
-                    EndOfDeal(out);
-                    break;
-                }
-                default:
-                    break;
+                    TLogNetwork("All players have sync() for step: " + step);
+                    switch (seq) {
+                    case Engine::WAIT_FOR_PLAYERS:
+                    {
+                        if (!mAdminMode)
+                        {
+                            // Automatic start of the game. Otherwise the Admin is in charge of starting manually the game
+                            NewGame(out);
+                        }
+                        break;
+                    }
+                    case Engine::WAIT_FOR_READY:
+                    case Engine::WAIT_FOR_ALL_PASSED:
+                    {
+                        NewDeal(out);
+                        break;
+                    }
+                    case Engine::WAIT_FOR_CARDS:
+                    case Engine::WAIT_FOR_SHOW_BID:
+                    {
+                        BidSequence(out);
+                        break;
+                    }
+                    case Engine::WAIT_FOR_SHOW_DOG:
+                    {
+                        // When all the players have seen the dog, ask to the taker to build a discard
+                        mEngine.DiscardSequence();
+                        JsonObject obj;
+
+                        obj.AddValue("cmd", "BuildDiscard");
+                        out.push_back(Reply(GetPlayerUuid(mEngine.GetBid().taker), obj));
+                        break;
+                    }
+                    case Engine::WAIT_FOR_START_DEAL:
+                    case Engine::WAIT_FOR_SHOW_HANDLE:
+                    case Engine::WAIT_FOR_SHOW_CARD:
+                    case Engine::WAIT_FOR_END_OF_TRICK:
+                    {
+                        GameSequence(out);
+                        break;
+                    }
+                    case Engine::WAIT_FOR_END_OF_DEAL:
+                    {
+                        EndOfDeal(out);
+                        break;
+                    }
+                    default:
+                        break;
+                    }
                 }
             }
         }
@@ -375,7 +393,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                     obj.AddValue("contract", cont.ToString());
                     obj.AddValue("slam", slam);
 
-                    out.push_back(Reply(mId, obj));
+                    SendToAllPlayers(out, obj);
                 }
                 else
                 {
@@ -434,7 +452,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                     obj.AddValue("place", p.ToString());
                     obj.AddValue("handle", handle.ToString());
 
-                    out.push_back(Reply(mId, obj));
+                    SendToAllPlayers(out, obj);
                 }
                 else
                 {
@@ -467,7 +485,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                         obj.AddValue("place", p.ToString());
                         obj.AddValue("card", c.ToString());
 
-                        out.push_back(Reply(mId, obj));
+                        SendToAllPlayers(out, obj);
                     }
                 }
                 else
@@ -508,7 +526,7 @@ void PlayingTable::EndOfDeal(std::vector<Reply> &out)
         obj.AddValue("cmd", "EndOfGame");
         obj.AddValue("winner", mScore.GetWinner().ToString());
 
-        out.push_back(Reply(mId, obj));
+        SendToAllPlayers(out, obj);
     }
 }
 /*****************************************************************************/
@@ -523,7 +541,7 @@ void PlayingTable::NewGame(std::vector<Reply> &out)
     obj.AddValue("cmd", "NewGame");
     obj.AddValue("mode", mGame.Get());
 
-    out.push_back(Reply(mId, obj));
+    SendToAllPlayers(out, obj);
 }
 /*****************************************************************************/
 void PlayingTable::NewDeal(std::vector<Reply> &out)
@@ -563,7 +581,7 @@ void PlayingTable::StartDeal(std::vector<Reply> &out)
 
     ToJson(mGame.deals[mScore.GetCurrentCounter()], obj);
 
-    out.push_back(Reply(mId, obj));
+    SendToAllPlayers(out, obj);
 }
 /*****************************************************************************/
 void PlayingTable::BidSequence(std::vector<Reply> &out)
@@ -581,7 +599,7 @@ void PlayingTable::BidSequence(std::vector<Reply> &out)
         obj.AddValue("cmd", "RequestBid");
         obj.AddValue("place", mEngine.GetCurrentPlayer().ToString());
         obj.AddValue("contract", mEngine.GetBid().contract.ToString());
-        out.push_back(Reply(mId, obj));
+        SendToAllPlayers(out, obj);
         break;
     }
 
@@ -590,7 +608,7 @@ void PlayingTable::BidSequence(std::vector<Reply> &out)
         JsonObject obj;
 
         obj.AddValue("cmd", "AllPassed");
-        out.push_back(Reply(mId, obj));
+        SendToAllPlayers(out, obj);
         break;
     }
     case Engine::WAIT_FOR_START_DEAL:
@@ -605,7 +623,7 @@ void PlayingTable::BidSequence(std::vector<Reply> &out)
 
         obj.AddValue("cmd", "ShowDog");
         obj.AddValue("dog", mEngine.GetDog().ToString());
-        out.push_back(Reply(mId, obj));
+        SendToAllPlayers(out, obj);
         break;
     }
 
@@ -635,7 +653,7 @@ void PlayingTable::GameSequence(std::vector<Reply> &out)
         obj.AddValue("handle_bonus", points.handlePoints);
         obj.AddValue("slam_bonus", points.slamDone);
 
-        out.push_back(Reply(mId, obj));
+        SendToAllPlayers(out, obj);
     }
     else
     {
@@ -651,7 +669,7 @@ void PlayingTable::GameSequence(std::vector<Reply> &out)
 
             obj.AddValue("cmd", "EndOfTrick");
             obj.AddValue("place", p.ToString());
-            out.push_back(Reply(mId, obj));
+            SendToAllPlayers(out, obj);
             break;
         }
         case Engine::WAIT_FOR_PLAYED_CARD:
@@ -660,7 +678,7 @@ void PlayingTable::GameSequence(std::vector<Reply> &out)
 
             obj.AddValue("cmd", "PlayCard");
             obj.AddValue("place", p.ToString());
-            out.push_back(Reply(mId, obj));
+            SendToAllPlayers(out, obj);
             break;
         }
         case Engine::WAIT_FOR_HANDLE:

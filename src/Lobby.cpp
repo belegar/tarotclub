@@ -385,6 +385,8 @@ void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std
 void Lobby::SendPlayerList(const std::vector<std::uint32_t> &players, const std::string &event, std::vector<Reply> &out)
 {
     std::vector<Users::Entry> users = mUsers.GetLobbyUsers();
+    std::vector<std::uint32_t> list;
+
 
     JsonObject obj;
     JsonArray array;
@@ -392,7 +394,10 @@ void Lobby::SendPlayerList(const std::vector<std::uint32_t> &players, const std:
     for (uint32_t i = 0U; i < users.size(); i++)
     {
         JsonObject player;
-        player.AddValue("uuid", users[i].uuid);
+        std::uint32_t uuid = users[i].uuid;
+        list.push_back(uuid);
+
+        player.AddValue("uuid", uuid);
         player.AddValue("nickname", users[i].nickname);
         player.AddValue("table", users[i].tableId);
 
@@ -413,7 +418,7 @@ void Lobby::SendPlayerList(const std::vector<std::uint32_t> &players, const std:
     obj.AddValue("cmd", "PlayerList");
     obj.AddValue("players", array);
 
-    out.push_back(Reply(Protocol::LOBBY_UID, obj));
+    out.push_back(Reply(list, obj));
 }
 
 /*****************************************************************************/

@@ -74,7 +74,7 @@ private:
 
         bool IsFree()
         {
-            if (uuid == 0U)
+            if (uuid == Protocol::INVALID_UID)
             {
                 return true;
             }
@@ -101,13 +101,13 @@ private:
     void StartDeal(std::vector<Reply> &out);
     void BidSequence(std::vector<Reply> &out);
     void GameSequence(std::vector<Reply> &out);
-    void Send(const std::string &block);
     void EndOfDeal(std::vector<Reply> &out);
     bool Sync(Engine::Sequence sequence, std::uint32_t uuid);
     Place GetPlayerPlace(std::uint32_t uuid);
     void ResetAck();
     bool AckFromAllPlayers();
     std::uint32_t GetPlayerUuid(Place p);
+    void SendToAllPlayers(std::vector<Reply> &out, JsonObject &obj);
 };
 
 #endif // PLAYING_TABLE_H
