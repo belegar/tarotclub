@@ -3,8 +3,14 @@
 Console::Console()
 {
     mHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    _setmode(_fileno(stdout), _O_U16TEXT);
 }
 
+void Console::Write(const std::wstring &s)
+{
+    WriteConsoleW(mHandle, s.c_str(), s.size(), NULL, NULL);
+}
 
 std::int32_t Console::WhereX()
 {

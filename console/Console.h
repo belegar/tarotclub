@@ -7,6 +7,15 @@
 #include <windows.h>
 #endif
 
+#include <iostream>
+#include <string>
+#include <locale>
+#include <fstream>
+#include <codecvt>
+#include <fcntl.h>
+#include <io.h>
+#include <stdio.h>
+
 class Console
 {
 public:
@@ -15,6 +24,7 @@ public:
     std::int32_t WhereY();
     void Cls();
     void GotoXY(std::int32_t x, std::int32_t y);
+    void Write(const std::wstring &s);
 private:
 
 #ifdef USE_WINDOWS_OS
