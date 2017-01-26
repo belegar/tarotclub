@@ -169,6 +169,7 @@ public:
     void Append(const Deck &deck);
     Deck Mid(std::uint32_t from_pos);
     Deck Mid(std::uint32_t from_pos, std::uint32_t size);
+    Card At(std::uint32_t pos);
     std::uint32_t Remove(const Card &card);
     std::uint32_t Count(const Card &c) const;
     bool HasCard(const Card &c) const;

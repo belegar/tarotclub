@@ -147,6 +147,23 @@ Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t size)
     return deck;
 }
 /*****************************************************************************/
+Card Deck::At(uint32_t pos)
+{
+    Card c;
+    std::uint32_t counter = 0U;
+
+    for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
+    {
+        if (pos == counter)
+        {
+            c = (*iter);
+            break;
+        }
+        counter++;
+    }
+    return c;
+}
+/*****************************************************************************/
 /**
  * @brief Deck::Remove
  * @param c
