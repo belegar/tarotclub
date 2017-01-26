@@ -347,6 +347,15 @@ bool Util::Compare(std::string const& a, std::string const& b)
     }
 }
 /*****************************************************************************/
+std::wstring Util::ToWString(const std::string &str)
+{
+    const size_t len = str.size() + 1U;
+    wchar_t wstr[len];
+
+    swprintf(wstr, len, L"%s", str.c_str());
+    return wstr;
+}
+/*****************************************************************************/
 /**
  * @brief Util::GetCurrentMemoryUsage
  *
