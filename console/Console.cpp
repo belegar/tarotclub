@@ -34,27 +34,32 @@ Console::KeyEvent Console::ReadKeyboard()
 
     ReadConsoleInput(hInput, &irInput, 1, &InputsRead);
 
-    switch(irInput.Event.KeyEvent.wVirtualKeyCode)
+    if (irInput.Event.KeyEvent.bKeyDown)
     {
-    case VK_LEFT:
-            event = KEY_LEFT;
-        break;
+        switch(irInput.Event.KeyEvent.wVirtualKeyCode)
+        {
+        case VK_LEFT:
+                event = KEY_LEFT;
+            break;
 
-    case VK_RIGHT:
-            event = KEY_RIGHT;
-        break;
+        case VK_RIGHT:
+                event = KEY_RIGHT;
+            break;
 
-    case VK_SPACE:
-            event = KEY_SPACE;
-        break;
-    case VK_F1:
-            event = KEY_F1;
-        break;
-    case VK_F2:
-            event = KEY_F2;
-        break;
-    default:
-        break;
+        case VK_SPACE:
+                event = KEY_SPACE;
+            break;
+        case VK_F1:
+                event = KEY_F1;
+            break;
+        case VK_F2:
+                event = KEY_F2;
+            break;
+        default:
+            break;
+        }
+
+        // FlushConsoleInputBuffer(hInput); // in case of problems of multiple events, enable this...
     }
 
     return event;
