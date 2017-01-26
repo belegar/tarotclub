@@ -113,7 +113,8 @@ HEADERS += ServerConfig.h \
     BotManager.h \
     Server.h \
     BasicClient.h \
-    Network.h
+    Network.h \
+    Session.h
 
 SOURCES += ServerConfig.cpp \
     TournamentConfig.cpp \
@@ -134,7 +135,8 @@ SOURCES += ServerConfig.cpp \
     BotManager.cpp \
     Server.cpp \
     BasicClient.cpp \
-    Network.cpp
+    Network.cpp \
+    Session.cpp
 
 
 # ------------------------------------------------------------------------------
