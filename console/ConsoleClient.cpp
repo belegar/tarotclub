@@ -1,19 +1,8 @@
 
-
-// (S) U+2660	(H) U+2665	(D) U+2666	(C) U+2663
-
-//  _setmode(_fileno(stdout), _O_U16TEXT);
-//   std::cout << "Try 1: ♠	♥	♦	♣" << std::endl;
-//   std::wcout << L"Try 2: \u2660 \u2665 \u2666 \u2663" << std::endl;
-
-//    std::wstring s = L"Try 2: \u2660 \u2665 \u2666 \u2663";
-
-//    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), s.c_str(), s.size(), NULL, NULL);
-
-
 #include "ConsoleClient.h"
 #include "Embedded.h"
 #include "Protocol.h"
+#include "Util.h"
 
 #include <sstream>
 #include <iomanip>
@@ -28,6 +17,8 @@ std::wstring gBlank;
 ConsoleClient::ConsoleClient()
     : Observer(Log::Error)
     , mSession(*this)
+    , mCanPlay(false)
+    , mArrowPosition(0U)
 {
     mClient.mNickName = "Humain";
 
@@ -157,7 +148,7 @@ std::wstring ConsoleClient::ToString(const Card &c)
     std::wstringstream ss;
 
     // Cast internal value to ingeter to interpret the char as an "integer"
-    ss << (std::uint32_t)c.GetValue();
+    ss <<  std::setfill(L' ') << std::setw(2) << (std::uint32_t)c.GetValue();
 
     // (S) U+2660	(H) U+2665	(D) U+2666	(C) U+2663
     if (c.GetSuit() == Card::CLUBS)
@@ -191,11 +182,6 @@ void ConsoleClient::Update(const std::string &info)
 
 void ConsoleClient::Start(std::uint16_t tcp_port)
 {
-    std::wstringstream ss;
-
-    ss << L"Starting lobby on TCP port: " << (std::uint32_t)tcp_port;
-    AppendToLog(ss.str());
-
     std::string localIp = "127.0.0.1";
     mSession.Initialize();
     mSession.ConnectToHost(localIp, tcp_port);
@@ -237,6 +223,9 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
     mConsole.GotoXY(2, 2);
     mConsole.Write(L"Press 'F1' to connect and start the game, 'F2' to exit.");
 
+    mConsole.GotoXY(2, 3);
+    mConsole.Write(L"Use 'left' and 'right' keys to select a card, 'space' to validate.");
+
     mConsole.GotoXY(14, 10);
     mConsole.Write(L"South");
     mConsole.GotoXY(14, 6);
@@ -247,6 +236,7 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
     mConsole.Write(L"East");
 
     bool quitGame = false;
+    bool gameStarted = false;
     while (!quitGame)
     {
         Console::KeyEvent event = mConsole.ReadKeyboard();
@@ -254,8 +244,23 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
         switch (event)
         {
         case Console::KEY_F1:
-            Start(tcp_port);
+            if (!gameStarted)
+            {
+                gameStarted = true;
+                Start(tcp_port);
+            }
             break;
+        case Console::KEY_LEFT:
+        case Console::KEY_RIGHT:
+        case Console::KEY_SPACE:
+            mMutex.lock();
+            if (mCanPlay)
+            {
+                HandleEvent(event);
+            }
+            mMutex.unlock();
+            break;
+
         case Console::KEY_F2:
             quitGame = true;
             break;
@@ -263,6 +268,147 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
             break;
         }
     }
+
+    mConsole.Cls();
+    mConsole.GotoXY(1, 1);
+    mConsole.Write(L"Bye!\r\n");
+}
+
+
+void ConsoleClient::DisplayDeck()
+{
+    std::uint32_t offset = 0U;
+
+    mClient.mDeck.Sort("THSDC");
+    mConsole.GotoXY(2, 16);
+    mConsole.Write(L"                                                                        ");
+    for (Deck::ConstIterator it = mClient.mDeck.Begin(); it != mClient.mDeck.End(); ++it, offset++)
+    {
+        mConsole.GotoXY(2 + (4*offset), 16);
+        mConsole.Write(ToString(*it));
+    }
+}
+
+void ConsoleClient::ClearBoard()
+{
+    for (std::uint32_t i = 0U; i < 4; i++)
+    {
+        DisplayText(L"   ", Place(i));
+    }
+}
+
+void ConsoleClient::ClearUserInfos()
+{
+    mConsole.GotoXY(2, 18);
+    mConsole.Write(L"                                                                        ");
+
+}
+
+void ConsoleClient::DisplayUserInfos(const std::wstring &txt)
+{
+    ClearUserInfos();
+    mConsole.GotoXY(2, 18);
+    mConsole.Write(txt);
+}
+
+void ConsoleClient::DisplayText(const std::wstring &txt, Place p)
+{
+    if (p == Place::SOUTH)
+    {
+        mConsole.GotoXY(14, 11);
+    }
+    else if (p == Place::EAST)
+    {
+        mConsole.GotoXY(22, 9);
+    }
+    else if (p == Place::WEST)
+    {
+        mConsole.GotoXY(4, 9);
+    }
+    else
+    {
+        // North
+        mConsole.GotoXY(14, 7);
+    }
+
+    mConsole.Write(txt);
+}
+
+void ConsoleClient::DisplayCard(Card c, Place p)
+{
+    DisplayText(ToString(c), p);
+}
+
+
+void ConsoleClient::HandleEvent(Console::KeyEvent event)
+{
+    switch (event)
+    {
+    case Console::KEY_LEFT:
+        if (mArrowPosition > 1U)
+        {
+            mArrowPosition--;
+            ClearUserInfos();
+        }
+        break;
+    case Console::KEY_RIGHT:
+        if (mArrowPosition < mClient.mDeck.Size())
+        {
+            mArrowPosition++;
+            ClearUserInfos();
+        }
+        break;
+    case Console::KEY_SPACE:
+    {
+        // Validate only if the card is correct
+        Card c = mClient.mDeck.At(mArrowPosition - 1U);
+        // Must be a valid Tarot card
+        if (c.IsValid())
+        {
+            // Must follow the Tarot rules
+            if (mClient.IsValid(c))
+            {
+                ClearUserInfos();
+                mCanPlay = false;
+                std::vector<Reply> out;
+                mClient.BuildSendCard(c, out);
+                mClient.mDeck.Remove(c);
+                DisplayDeck();
+                mSession.Send(out);
+            }
+            else
+            {
+                DisplayUserInfos(L"Invalid card.");
+            }
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    // Some debug code
+    //std::wstringstream ss;
+    //ss << L"Pos: " << mArrowPosition;
+    //AppendToLog(ss.str());
+    DisplayArrow();
+}
+
+void ConsoleClient::ClearArrow()
+{
+    mConsole.GotoXY(2, 17);
+    mConsole.Write(L"                                                                        ");
+}
+
+/**
+ * @brief ConsoleClient::DisplayArrow
+ *
+ * Display arrow in the middle of the deck
+ */
+void ConsoleClient::DisplayArrow()
+{
+    ClearArrow();
+    mConsole.GotoXY(mArrowPosition * 4U, 17); // transform position into a X coordinate
+    mConsole.Write(L"\u2191"); // ⬆
 }
 
 void ConsoleClient::Signal(std::uint32_t sig) { (void) sig; }
@@ -295,15 +441,16 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         }
         case BasicClient::JOIN_TABLE:
         {
-            //std::wstring s = std::wstring(mClient.mPlace.ToString());
             std::wstringstream ss;
-            ss << L"Entered table in position: ";
+            ss << L"Entered table in position: " << Util::ToWString(mClient.mPlace.ToString());
             AppendToLog(ss.str());
             break;
         }
         case BasicClient::NEW_DEAL:
         {
             TLogInfo("Received cards: " + mClient.mDeck.ToString());
+            DisplayDeck();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
             break;
         }
         case BasicClient::REQ_BID:
@@ -317,6 +464,9 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         }
         case BasicClient::START_DEAL:
         {
+            std::wstringstream ss;
+            ss << L"Start deal, taker is: " << Util::ToWString(mClient.mBid.taker.ToString());
+            AppendToLog(ss.str());
             break;
         }
         case BasicClient::SHOW_HANDLE:
@@ -335,10 +485,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         }
         case BasicClient::SHOW_CARD:
         {
-            std::int32_t x = 0;
-            mConsole.GotoXY(2, 19);
-            //if (mClient.mCurrentPlayer.)
-           // mConsole.Write("Player " + mClient.mCurrentPlayer.ToString() + " has played: " + mClient.mCurrentTrick.Last().ToString());
+            DisplayCard(mClient.mCurrentTrick.Last(), mClient.mCurrentPlayer);
             break;
         }
         case BasicClient::PLAY_CARD:
@@ -346,21 +493,14 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             // Only reply a bid if it is our place to anwser
             if (mClient.mCurrentPlayer == mClient.mPlace)
             {
-                // ⇧
 
+                // Display the arrow at initial position
+                mArrowPosition = (mClient.mDeck.Size()/2);
+                DisplayArrow();
 
-                TLogInfo("Console client deck is: " + mClient.mDeck.ToString());
-
-                Card c = mClient.Play();
-
-                TLogInfo("Console client is playing: " + c.ToString());
-
-                std::wstringstream ss;
-                ss << L"You are playing: " << ToString(c);
-                AppendToLog(ss.str());
-
-                mClient.mDeck.Remove(c);
-                mClient.SendCard(c, out);
+                mMutex.lock();
+                mCanPlay = true;
+                mMutex.unlock();
             }
             break;
         }
@@ -371,14 +511,28 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         }
         case BasicClient::END_OF_TRICK:
         {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            ClearBoard();
             mClient.Sync("EndOfTrick", out);
             break;
         }
         case BasicClient::END_OF_GAME:
         {
+            std::wstringstream ss;
+            ss << L"End of game, winner is: " << Util::ToWString(mClient.mCurrentPlayer.ToString());
+            AppendToLog(ss.str());
+
+            ClearBoard();
             mClient.Sync("Ready", out);
             break;
         }
+        case BasicClient::ALL_PASSED:
+        {
+            AppendToLog(L"All players have passed! New turn...");
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            break;
+        }
+
         case BasicClient::JSON_ERROR:
         case BasicClient::BAD_EVENT:
         case BasicClient::REQ_LOGIN:
@@ -387,7 +541,6 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         case BasicClient::QUIT_TABLE:
         case BasicClient::SHOW_BID:
             // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
-        case BasicClient::ALL_PASSED:
         case BasicClient::SHOW_DOG:
         case BasicClient::END_OF_DEAL:
         case BasicClient::SYNC:

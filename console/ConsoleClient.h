@@ -26,10 +26,11 @@ private:
     void Update(const std::string &info);
 
     // From net::IEvent
-    virtual void Signal(std::uint32_t sig);
-    virtual bool Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
-    virtual std::uint32_t AddUser(std::vector<Reply> &/*out*/);
-    virtual void RemoveUser(std::uint32_t /* uuid */, std::vector<Reply> &/*out*/);
+    void Signal(std::uint32_t sig);
+    bool Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
+    std::uint32_t AddUser(std::vector<Reply> &/*out*/);
+    void RemoveUser(std::uint32_t /* uuid */, std::vector<Reply> &/*out*/);
+    std::uint32_t GetUuid() { return mClient.mUuid; }
 
     Session mSession;
     BasicClient mClient;
@@ -39,6 +40,10 @@ private:
     Console mConsole;
     std::deque<std::wstring> mLog;
 
+    std::mutex mMutex;
+    bool mCanPlay;
+    std::uint32_t mArrowPosition;
+
     std::wstring ToString(const Card &c);
     void DrawLine(const std::wstring &left, const std::wstring &middle, const std::wstring &right);
     void BuildBoard();
@@ -46,6 +51,15 @@ private:
     void DrawHLine(const std::wstring &left, const std::wstring &fill, const std::wstring &right, const std::wstring &middle = L"", std::uint32_t middle_pos = 0U);
     void FillBox(std::uint32_t size, std::uint32_t middle_pos = 0U);
     void AppendToLog(const std::wstring &str);
+    void DisplayDeck();
+    void DisplayCard(Card c, Place p);
+    void ClearBoard();
+    void DisplayText(const std::wstring &txt, Place p);
+    void DisplayArrow();
+    void HandleEvent(Console::KeyEvent event);
+    void DisplayUserInfos(const std::wstring &txt);
+    void ClearUserInfos();
+    void ClearArrow();
 };
 
 #endif // CONSOLECLIENT_H
