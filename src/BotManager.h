@@ -1,7 +1,7 @@
 #ifndef BOTMANAGER_H
 #define BOTMANAGER_H
 
-#include "Network.h"
+#include "Session.h"
 #include "Bot.h"
 #include "UniqueId.h"
 #include "Identity.h"
@@ -39,6 +39,7 @@ private:
         }
         virtual std::uint32_t AddUser(std::vector<Reply> &/*out*/) { return 0U; /* stub */ }
         virtual void RemoveUser(std::uint32_t /* uuid */, std::vector<Reply> &/*out*/) {}
+        std::uint32_t GetUuid() { return mBot.GetUuid(); }
     };
 
 

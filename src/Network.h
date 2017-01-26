@@ -139,46 +139,10 @@ public:
     virtual bool Deliver(std::uint32_t src_uuid, std::uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out) = 0;
     virtual std::uint32_t AddUser(std::vector<Reply> &out) = 0;
     virtual void RemoveUser(std::uint32_t uuid, std::vector<Reply> &out) = 0;
+    virtual std::uint32_t GetUuid() = 0;
 };
 
 } // end of namespace net
-
-
-class Session
-{
-public:
-    enum Command
-    {
-        START,
-        EXIT
-    };
-
-    Session(net::IEvent &client)
-        : mListener(client)
-    {
-
-    }
-
-    void Initialize();
-    void Send(const std::string &data);
-    bool IsConnected();
-    void Disconnect();
-    void ConnectToHost(const std::string &hostName, std::uint16_t port);
-    void Close();
-private:
-    net::IEvent &mListener;
-
-    // Client management over the TCP network
-    ThreadQueue<Command> mQueue;
-    tcp::TcpClient   mTcpClient;
-    std::thread mThread;
-    bool        mInitialized;
-    std::string mHostName;
-    std::uint16_t mTcpPort;
-
-    static void EntryPoint(void *pthis);
-    void Run();
-};
 
 
 #endif // NETWORK_H

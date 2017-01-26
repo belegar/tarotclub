@@ -165,7 +165,7 @@ void BasicClient::SendDiscard(const Deck &discard, std::vector<Reply> &out)
     out.push_back(Reply(mTableId, obj));
 }
 /*****************************************************************************/
-void BasicClient::SendCard(Card c, std::vector<Reply> &out)
+void BasicClient::BuildSendCard(Card c, std::vector<Reply> &out)
 {
     JsonObject obj;
 

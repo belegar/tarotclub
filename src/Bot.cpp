@@ -412,7 +412,7 @@ void Bot::PlayCard(std::vector<Reply> &out)
         TLogError("Invalid card!");
     }
 
-    mClient.SendCard(c, out);
+    mClient.BuildSendCard(c, out);
 }
 /*****************************************************************************/
 void Bot::ShowCard()

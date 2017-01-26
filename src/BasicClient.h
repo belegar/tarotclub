@@ -53,7 +53,7 @@ public:
     void JoinTable(std::uint32_t tableId, std::vector<Reply> &out);
     void SendHandle(const Deck &handle, std::vector<Reply> &out);
     void SendDiscard(const Deck &discard, std::vector<Reply> &out);
-    void SendCard(Card c, std::vector<Reply> &out);
+    void BuildSendCard(Card c, std::vector<Reply> &out);
     void Sync(const std::string &step, std::vector<Reply> &out);
 
     Deck::Statistics   mStats;   // statistics on player's cards
