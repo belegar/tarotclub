@@ -12,6 +12,54 @@ void Console::Write(const std::wstring &s)
     WriteConsoleW(mHandle, s.c_str(), s.size(), NULL, NULL);
 }
 
+
+void Console::HideCursor()
+{
+   CONSOLE_CURSOR_INFO info;
+   info.dwSize = 100;
+   info.bVisible = FALSE;
+   SetConsoleCursorInfo(mHandle, &info);
+}
+
+Console::KeyEvent Console::ReadKeyboard()
+{
+    HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD NumInputs = 0;
+    DWORD InputsRead = 0;
+    INPUT_RECORD irInput;
+
+    Console::KeyEvent event = NO_KEY;
+
+    GetNumberOfConsoleInputEvents(hInput, &NumInputs);
+
+    ReadConsoleInput(hInput, &irInput, 1, &InputsRead);
+
+    switch(irInput.Event.KeyEvent.wVirtualKeyCode)
+    {
+    case VK_LEFT:
+            event = KEY_LEFT;
+        break;
+
+    case VK_RIGHT:
+            event = KEY_RIGHT;
+        break;
+
+    case VK_SPACE:
+            event = KEY_SPACE;
+        break;
+    case VK_F1:
+            event = KEY_F1;
+        break;
+    case VK_F2:
+            event = KEY_F2;
+        break;
+    default:
+        break;
+    }
+
+    return event;
+}
+
 std::int32_t Console::WhereX()
 {
 
