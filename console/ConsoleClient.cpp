@@ -20,8 +20,8 @@
 
 static const std::wstring TAROTCLUB_CONSOLE_VERSION = L"1.0";
 static const std::uint32_t gLineLen = 80U;
-static const std::uint32_t gLogSize = 8U;
-static const std::uint32_t gLogWidth = 40U;
+static const std::uint32_t gLogSize = 10U;
+static const std::uint32_t gLogWidth = 38U;
 
 std::wstring gBlank;
 
@@ -30,6 +30,8 @@ ConsoleClient::ConsoleClient()
     , mSession(*this)
 {
     mClient.mNickName = "Humain";
+
+    mConsole.HideCursor();
 
     // Clear log
     gBlank.assign(gLogWidth, L' ');
@@ -40,7 +42,7 @@ ConsoleClient::ConsoleClient()
 }
 
 
-void ConsoleClient::AddLog(const std::wstring &str)
+void ConsoleClient::AppendToLog(const std::wstring &str)
 {
     if (mLog.size() >= gLogSize)
     {
@@ -145,7 +147,7 @@ void ConsoleClient::BuildBoard()
 {
     DrawHLine(L"\u2554", L"\u2550", L"\u2557");
     FillBox(3);
-    DrawBox(10, 35);
+    DrawBox(12, 35);
     FillBox(4);
     DrawHLine(L"\u255A", L"\u2550", L"\u255D");
 }
@@ -191,8 +193,8 @@ void ConsoleClient::Start(std::uint16_t tcp_port)
 {
     std::wstringstream ss;
 
-    ss << L"Starting lobby on TCP port: " << (std::uint32_t)tcp_port << std::endl;
-    AddLog(ss.str());
+    ss << L"Starting lobby on TCP port: " << (std::uint32_t)tcp_port;
+    AppendToLog(ss.str());
 
     std::string localIp = "127.0.0.1";
     mSession.Initialize();
@@ -221,9 +223,9 @@ void ConsoleClient::Stop()
     mBots.KillBots();
 }
 
+
 void ConsoleClient::Run(std::uint16_t tcp_port)
 {
-    char input;
     std::wstringstream ss;
 
     BuildBoard();
@@ -233,7 +235,7 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
     mConsole.Write(ss.str());
 
     mConsole.GotoXY(2, 2);
-    mConsole.Write(L"'q' to exit, 'c' to connect, 's' to start game");
+    mConsole.Write(L"Press 'F1' to connect and start the game, 'F2' to exit.");
 
     mConsole.GotoXY(14, 10);
     mConsole.Write(L"South");
@@ -244,19 +246,23 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
     mConsole.GotoXY(22, 8);
     mConsole.Write(L"East");
 
-    do
+    bool quitGame = false;
+    while (!quitGame)
     {
-        mConsole.GotoXY(2, 19);
+        Console::KeyEvent event = mConsole.ReadKeyboard();
 
-        std::cin >> input;
-        std::cout << input;
-
-        if (input == 'c')
+        switch (event)
         {
+        case Console::KEY_F1:
             Start(tcp_port);
+            break;
+        case Console::KEY_F2:
+            quitGame = true;
+            break;
+        default:
+            break;
         }
-
-    } while (input != 'q');
+    }
 }
 
 void ConsoleClient::Signal(std::uint32_t sig) { (void) sig; }
@@ -284,7 +290,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         {
             // As soon as we have entered into the lobby, join the assigned table
             mClient.JoinTable(Protocol::TABLES_UID, out);
-            AddLog(L"Connected to Lobby");
+            AppendToLog(L"Connected to Lobby");
             break;
         }
         case BasicClient::JOIN_TABLE:
@@ -292,7 +298,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             //std::wstring s = std::wstring(mClient.mPlace.ToString());
             std::wstringstream ss;
             ss << L"Entered table in position: ";
-            AddLog(ss.str());
+            AppendToLog(ss.str());
             break;
         }
         case BasicClient::NEW_DEAL:
@@ -329,6 +335,9 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         }
         case BasicClient::SHOW_CARD:
         {
+            std::int32_t x = 0;
+            mConsole.GotoXY(2, 19);
+            //if (mClient.mCurrentPlayer.)
            // mConsole.Write("Player " + mClient.mCurrentPlayer.ToString() + " has played: " + mClient.mCurrentTrick.Last().ToString());
             break;
         }
@@ -337,6 +346,9 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             // Only reply a bid if it is our place to anwser
             if (mClient.mCurrentPlayer == mClient.mPlace)
             {
+                // ⇧
+
+
                 TLogInfo("Console client deck is: " + mClient.mDeck.ToString());
 
                 Card c = mClient.Play();
@@ -345,7 +357,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
 
                 std::wstringstream ss;
                 ss << L"You are playing: " << ToString(c);
-                AddLog(ss.str());
+                AppendToLog(ss.str());
 
                 mClient.mDeck.Remove(c);
                 mClient.SendCard(c, out);

@@ -45,7 +45,7 @@ private:
     void DrawBox(uint32_t size, std::uint32_t middle_pos = 0U);
     void DrawHLine(const std::wstring &left, const std::wstring &fill, const std::wstring &right, const std::wstring &middle = L"", std::uint32_t middle_pos = 0U);
     void FillBox(std::uint32_t size, std::uint32_t middle_pos = 0U);
-    void AddLog(const std::wstring &str);
+    void AppendToLog(const std::wstring &str);
 };
 
 #endif // CONSOLECLIENT_H
