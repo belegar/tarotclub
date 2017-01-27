@@ -30,12 +30,12 @@
 #include "GetOptions.h"
 #include "ConsoleClient.h"
 
+#ifdef USE_WINDOWS_OS
 #include <windows.h>
 
 // You can fill-in your own behavior, this is just an example handler that
 //   covers most of the most common events.
-BOOL
-ControlHandler (DWORD dwControlEvent)
+BOOL ControlHandler (DWORD dwControlEvent)
 {
   switch (dwControlEvent)
   {
@@ -60,6 +60,7 @@ ControlHandler (DWORD dwControlEvent)
       return FALSE;
   }
 }
+#endif
 
 /*****************************************************************************/
 /**
@@ -88,10 +89,11 @@ int main(int /*argc*/, char ** /*argv[]*/)
     server.Start(options); // Blocking call. On exit, quit the executable
 
 
+#ifdef USE_WINDOWS_OS
     // Set the control handler so the app will be notified upon any special
     //   termination event.
     SetConsoleCtrlHandler ((PHANDLER_ROUTINE) ControlHandler, TRUE);
-
+#endif
 
     client.Run(options.game_tcp_port);
 

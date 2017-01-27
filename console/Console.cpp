@@ -1,34 +1,76 @@
 #include "Console.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#ifdef USE_UNIX_OS
+#define _XOPEN_SOURCE 700
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <locale.h> // to set Unicode locale
+#endif
+
+
 Console::Console()
 {
+#ifdef USE_WINDOWS_OS
     mHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-
     _setmode(_fileno(stdout), _O_U16TEXT);
+#else
+    setlocale(LC_ALL, "");
+
+    struct termios term;
+
+    tcgetattr( STDIN_FILENO, &term );
+    term.c_lflag &= ~( ICANON | ECHO );
+    tcsetattr( STDIN_FILENO, TCSANOW, &term );
+#endif
 }
 
 void Console::Write(const std::wstring &s)
 {
+#ifdef USE_WINDOWS_OS
     WriteConsoleW(mHandle, s.c_str(), s.size(), NULL, NULL);
+#else
+    // On linux, UTF8 is native, so std::cout terminal understand this encoding
+    std::wstring_convert<std::codecvt_utf8<wchar_t>,wchar_t> convert; // converts between UTF-8 and UCS-4 (given sizeof(wchar_t)==4)
+    std::cout << convert.to_bytes(s);
+#endif
 }
 
 
-void Console::HideCursor()
+void Console::SetCursor(bool enable)
 {
+#ifdef USE_WINDOWS_OS
    CONSOLE_CURSOR_INFO info;
    info.dwSize = 100;
    info.bVisible = FALSE;
    SetConsoleCursorInfo(mHandle, &info);
+#else
+    if (enable)
+    {
+        printf("\e[?25h");
+    }
+    else
+    {
+        printf("\e[?25l");
+    }
+#endif
 }
 
 Console::KeyEvent Console::ReadKeyboard()
 {
+    Console::KeyEvent event = KeyEvent::KB_NONE;
+
+#ifdef USE_WINDOWS_OS
+
     HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
     DWORD NumInputs = 0;
     DWORD InputsRead = 0;
     INPUT_RECORD irInput;
-
-    Console::KeyEvent event = NO_KEY;
 
     GetNumberOfConsoleInputEvents(hInput, &NumInputs);
 
@@ -39,21 +81,21 @@ Console::KeyEvent Console::ReadKeyboard()
         switch(irInput.Event.KeyEvent.wVirtualKeyCode)
         {
         case VK_LEFT:
-                event = KEY_LEFT;
+                event = KeyEvent::KEY_LEFT;
             break;
 
         case VK_RIGHT:
-                event = KEY_RIGHT;
+                event = KeyEvent::KEY_RIGHT;
             break;
 
         case VK_SPACE:
-                event = KEY_SPACE;
+                event = KeyEvent::KEY_SPACE;
             break;
         case VK_F1:
-                event = KEY_F1;
+                event = KeyEvent::KEY_F1;
             break;
         case VK_F2:
-                event = KEY_F2;
+                event = KeyEvent::KEY_F2;
             break;
         default:
             break;
@@ -61,6 +103,81 @@ Console::KeyEvent Console::ReadKeyboard()
 
         // FlushConsoleInputBuffer(hInput); // in case of problems of multiple events, enable this...
     }
+
+    return event;
+
+#else
+
+    /*
+    char code[3];
+
+    while (1)
+    {
+        int n = read(fd, &code, sizeof code);
+        if (n == (ssize_t)-1)
+        {
+            if (errno == EINTR)
+                continue;
+            else
+                break;
+        }
+        else
+        {
+
+        }
+    }
+    */
+int ch;
+
+    ch = getchar() & 0xFF;
+
+    if (ch == 27)
+    {
+        ch = getchar() & 0xFF;
+        if (ch == '[')
+        {
+            ch = getchar() & 0xFF;
+            if (ch == 'D')
+            {
+                event = KeyEvent::KB_LEFT;
+            }
+            else if (ch == 'C')
+            {
+                event = KeyEvent::KB_RIGHT;
+            }
+            else
+            {
+                event = KeyEvent::KB_NONE;
+            }
+        }
+    }
+    else
+    {
+        if (ch == 'c')
+        {
+
+        }
+        else if (ch == ' ')
+        {
+            event = KeyEvent::KB_SPACE;
+        }
+        else
+        {
+            event = KeyEvent::KB_NONE;
+        }
+    }
+
+/*
+    for (i = 0; i < 4; i++) {
+        puts("enter arrow");
+
+        ch += getchar() & 0xFF;
+        ch += getchar() & 0xFF;
+        printf("%c | %d\n", ch, ch);
+    }
+    */
+
+#endif
 
     return event;
 }

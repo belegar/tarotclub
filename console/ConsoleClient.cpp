@@ -22,7 +22,7 @@ ConsoleClient::ConsoleClient()
 {
     mClient.mNickName = "Humain";
 
-    mConsole.HideCursor();
+    mConsole.SetCursor(false);
 
     // Clear log
     gBlank.assign(gLogWidth, L' ');
@@ -243,16 +243,16 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
 
         switch (event)
         {
-        case Console::KEY_F1:
+        case Console::KB_F1:
             if (!gameStarted)
             {
                 gameStarted = true;
                 Start(tcp_port);
             }
             break;
-        case Console::KEY_LEFT:
-        case Console::KEY_RIGHT:
-        case Console::KEY_SPACE:
+        case Console::KB_LEFT:
+        case Console::KB_RIGHT:
+        case Console::KB_SPACE:
             mMutex.lock();
             if (mCanPlay)
             {
@@ -261,7 +261,7 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
             mMutex.unlock();
             break;
 
-        case Console::KEY_F2:
+        case Console::KB_F2:
             quitGame = true;
             break;
         default:
@@ -344,21 +344,21 @@ void ConsoleClient::HandleEvent(Console::KeyEvent event)
 {
     switch (event)
     {
-    case Console::KEY_LEFT:
+    case Console::KB_LEFT:
         if (mArrowPosition > 1U)
         {
             mArrowPosition--;
             ClearUserInfos();
         }
         break;
-    case Console::KEY_RIGHT:
+    case Console::KB_RIGHT:
         if (mArrowPosition < mClient.mDeck.Size())
         {
             mArrowPosition++;
             ClearUserInfos();
         }
         break;
-    case Console::KEY_SPACE:
+    case Console::KB_SPACE:
     {
         // Validate only if the card is correct
         Card c = mClient.mDeck.At(mArrowPosition - 1U);

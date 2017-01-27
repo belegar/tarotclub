@@ -5,6 +5,7 @@
 
 #ifdef USE_WINDOWS_OS
 #include <windows.h>
+#include <io.h>
 #endif
 
 #include <iostream>
@@ -13,7 +14,6 @@
 #include <fstream>
 #include <codecvt>
 #include <fcntl.h>
-#include <io.h>
 #include <stdio.h>
 
 class Console
@@ -21,12 +21,12 @@ class Console
 public:
     enum KeyEvent
     {
-        NO_KEY,
-        KEY_SPACE,
-        KEY_LEFT,
-        KEY_RIGHT,
-        KEY_F1,
-        KEY_F2
+        KB_NONE,
+        KB_SPACE,
+        KB_LEFT,
+        KB_RIGHT,
+        KB_F1,
+        KB_F2
     };
 
     Console();
@@ -37,12 +37,14 @@ public:
     void Write(const std::wstring &s);
 
     KeyEvent ReadKeyboard();
-    void HideCursor();
+    void SetCursor(bool enable);
 private:
 
 #ifdef USE_WINDOWS_OS
     HANDLE mHandle;
 #endif
+
+    int fd;
 
 
 };
