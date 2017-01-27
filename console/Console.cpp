@@ -81,15 +81,15 @@ Console::KeyEvent Console::ReadKeyboard()
         switch(irInput.Event.KeyEvent.wVirtualKeyCode)
         {
         case VK_LEFT:
-                event = KeyEvent::KEY_LEFT;
+                event = KeyEvent::KB_LEFT;
             break;
 
         case VK_RIGHT:
-                event = KeyEvent::KEY_RIGHT;
+                event = KeyEvent::KB_RIGHT;
             break;
 
         case VK_SPACE:
-                event = KeyEvent::KEY_SPACE;
+                event = KeyEvent::KB_SPACE;
             break;
         case 'C':
                 event = KB_C;
