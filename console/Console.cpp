@@ -91,11 +91,11 @@ Console::KeyEvent Console::ReadKeyboard()
         case VK_SPACE:
                 event = KeyEvent::KEY_SPACE;
             break;
-        case VK_F1:
-                event = KeyEvent::KEY_F1;
+        case 'C':
+                event = KB_C;
             break;
-        case VK_F2:
-                event = KeyEvent::KEY_F2;
+        case 'Q':
+                event = KB_Q;
             break;
         default:
             break;
@@ -107,29 +107,7 @@ Console::KeyEvent Console::ReadKeyboard()
     return event;
 
 #else
-
-    /*
-    char code[3];
-
-    while (1)
-    {
-        int n = read(fd, &code, sizeof code);
-        if (n == (ssize_t)-1)
-        {
-            if (errno == EINTR)
-                continue;
-            else
-                break;
-        }
-        else
-        {
-
-        }
-    }
-    */
-int ch;
-
-    ch = getchar() & 0xFF;
+    int ch = getchar() & 0xFF;
 
     if (ch == 27)
     {
@@ -155,7 +133,11 @@ int ch;
     {
         if (ch == 'c')
         {
-
+            event = KeyEvent::KB_C;
+        }
+        else if (ch == 'q')
+        {
+            event = KeyEvent::KB_Q;
         }
         else if (ch == ' ')
         {
@@ -166,16 +148,6 @@ int ch;
             event = KeyEvent::KB_NONE;
         }
     }
-
-/*
-    for (i = 0; i < 4; i++) {
-        puts("enter arrow");
-
-        ch += getchar() & 0xFF;
-        ch += getchar() & 0xFF;
-        printf("%c | %d\n", ch, ch);
-    }
-    */
 
 #endif
 
@@ -275,14 +247,6 @@ void Console::GotoXY(std::int32_t x, std::int32_t y)
     coord.Y = y;
     SetConsoleCursorPosition(mHandle, coord);
 #else
-    printf("%c[%d;%df",0x1B,y,x);
+    printf("%c[%d;%df",0x1B, y+1, x);
 #endif
 }
-
-/*
-printf("\033[XA"); // Move up X lines;
-printf("\033[XB"); // Move down X lines;
-printf("\033[XC"); // Move right X column;
-printf("\033[XD"); // Move left X column;
-*/
-

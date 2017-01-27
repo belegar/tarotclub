@@ -25,8 +25,8 @@ public:
         KB_SPACE,
         KB_LEFT,
         KB_RIGHT,
-        KB_F1,
-        KB_F2
+        KB_C,
+        KB_Q
     };
 
     Console();
