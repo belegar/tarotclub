@@ -49,11 +49,11 @@ Console::KeyEvent Console::ReadKeyboard()
         case VK_SPACE:
                 event = KEY_SPACE;
             break;
-        case VK_F1:
-                event = KEY_F1;
+        case 'C':
+                event = KB_C;
             break;
-        case VK_F2:
-                event = KEY_F2;
+        case 'Q':
+                event = KB_Q;
             break;
         default:
             break;

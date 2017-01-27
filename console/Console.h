@@ -26,7 +26,9 @@ public:
         KEY_LEFT,
         KEY_RIGHT,
         KEY_F1,
-        KEY_F2
+        KEY_F2,
+        KB_C,
+        KB_Q
     };
 
     Console();

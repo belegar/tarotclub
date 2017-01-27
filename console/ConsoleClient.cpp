@@ -221,7 +221,7 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
     mConsole.Write(ss.str());
 
     mConsole.GotoXY(2, 2);
-    mConsole.Write(L"Press 'F1' to connect and start the game, 'F2' to exit.");
+    mConsole.Write(L"Press 'c' to connect and start the game, 'q' to exit.");
 
     mConsole.GotoXY(2, 3);
     mConsole.Write(L"Use 'left' and 'right' keys to select a card, 'space' to validate.");
@@ -243,7 +243,7 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
 
         switch (event)
         {
-        case Console::KEY_F1:
+        case Console::KB_C:
             if (!gameStarted)
             {
                 gameStarted = true;
@@ -261,7 +261,7 @@ void ConsoleClient::Run(std::uint16_t tcp_port)
             mMutex.unlock();
             break;
 
-        case Console::KEY_F2:
+        case Console::KB_Q:
             quitGame = true;
             break;
         default:
