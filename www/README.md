@@ -70,6 +70,13 @@ iptables-save > /etc/iptables/rules.v4
 The config file will be used by the iptables-persistent service when the machine boots.
 
 
+## SSL configuration
+
+Copy past the following additionnal intermediate certificates at the send of your .cert file:
+
+https://www.gandi.net/static/CAs/GandiStandardSSLCA2.pem
+
+
 ## Configure IRC bots
 
 wget ftp://ftp.eggheads.org/pub/eggdrop/source/1.6/eggdrop1.6.18.tar.gz
