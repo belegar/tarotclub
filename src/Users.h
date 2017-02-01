@@ -47,22 +47,22 @@ public:
 
     Users();
 
-    // Players management
+    // Accessors
     bool IsHere(std::uint32_t uuid);
-    bool ChangeNickName(std::uint32_t uuid, const std::string &nickname);
-    std::uint32_t AddUser();
-    bool AccessGranted(std::uint32_t uuid, const std::string &nickname);
-    void RemoveUser(std::uint32_t uuid);
     std::uint32_t GetPlayerTable(std::uint32_t uuid);
     bool GetEntry(std::uint32_t uuid, Entry &entry);
     void Clear();
     bool CheckNickName(uint32_t uuid, const std::string &nickname);
-
-    void SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId, Place place);
-
-    // Get some lists of specific group
     std::vector<uint32_t> GetTablePlayers(std::uint32_t tableId);
     std::vector<Entry> GetLobbyUsers();
+
+    // Mutators
+    // Alter the lobby users list, thus the serveur must generate a notification to users
+    bool ChangeNickName(std::uint32_t uuid, const std::string &nickname);
+    std::uint32_t AddUser();
+    bool AccessGranted(std::uint32_t uuid, const std::string &nickname);
+    void RemoveUser(std::uint32_t uuid);
+    void SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId, Place place);
 
 private:
     UniqueId mIdManager;

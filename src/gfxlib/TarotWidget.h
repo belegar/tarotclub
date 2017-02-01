@@ -27,15 +27,15 @@
 #define TAROT_WIDGET_H_
 
 // Game includes
-#include "JsonClient.h"
-#include "NetClient.h"
+#include "Session.h"
 #include "Common.h"
-#include "LobbyServer.h"
+#include "Lobby.h"
 #include "ClientConfig.h"
 #include "ServerConfig.h"
 #include "GfxCard.h"
 #include "Canvas.h"
 #include "BotManager.h"
+#include "Server.h"
 
 #include <QWidget>
 #include <QEvent>
@@ -47,7 +47,7 @@
  * joueur 2 : ordi NORD (ou NORD-EST)
  * joueur 3 : ordi OUEST
  */
-class TarotWidget : public QWidget, public JsonClient::IEvent, public NetClient::IEvent
+class TarotWidget : public QWidget, public net::IEvent
 {
     Q_OBJECT
 
@@ -82,7 +82,9 @@ public:
         {
 
         }
-        QByteArray data;
+        std::uint32_t src_uuid;
+        std::uint32_t dst_uuid;
+        std::string arg;
     };
 
     class ErrorEvent : public QEvent
@@ -96,8 +98,7 @@ public:
         {
 
         }
-        QString reason;
-        bool quitServer;
+        std::uint32_t signal;
     };
 
     TarotWidget(QWidget *parent = 0);
@@ -152,7 +153,7 @@ public:
     }
     Deck GetDeck()
     {
-        return mClient;
+        return mClient.mDeck;
     }
 
     std::uint8_t GetGameMode()
@@ -196,14 +197,15 @@ public slots:
     void slotSendLobbyMessage(const QString &message);
 
 private:
-    std::shared_ptr<JsonClient> mDecoder;
-    NetClient mNet;
-    Lobby           mLobby;    // Embedded lobby into this executable
-    LobbyServer     mLobbyServer;
+    Session     mSession;
+    BasicClient mClient;
+    Context     mCtx;
+    Lobby       mLobby;    // Embedded lobby into this executable
+    Server      mServer;
+
     ClientOptions   mClientOptions;
     ServerOptions   mServerOptions;
     TournamentOptions mTournamentOptions;
-    ClientHelper    mClient;
     Deck            mDiscard;
     ConnectionType  mConnectionType;
     Canvas          *mCanvas;
@@ -216,9 +218,6 @@ private:
     Points          mPoints;
     std::string     mResult;
     std::map<std::uint32_t, Identity> mBotIds; // bot id, identity
-    QMap<Place, std::uint32_t> mTablePlayers;  // players around the table
-    QMap<std::uint32_t, Identity> mLobbyUsers; // pair of uuid, names
-    QMap<QString, std::uint32_t> mTables;
 
     // Helpers
     void ShowSouthCards();
@@ -229,12 +228,12 @@ private:
     void AddBots();
     void AskForHandle();
 
-    // From JsonClient::IEvent
-    virtual void EmitEvent(const std::string &event);
-    virtual void EmitError(std::uint32_t errorId);
-
-    // From NetClient::IEvent
-    virtual void NetSignal(std::uint32_t sig);
+    // From net::IEvent
+    void Signal(std::uint32_t sig);
+    bool Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
+    std::uint32_t AddUser(std::vector<Reply> &/*out*/);
+    void RemoveUser(std::uint32_t /* uuid */, std::vector<Reply> &/*out*/);
+    std::uint32_t GetUuid();
 
     void customEvent(QEvent *e);
 

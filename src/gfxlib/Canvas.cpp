@@ -23,8 +23,10 @@
  *=============================================================================
  */
 
+// Std includes
+#include <iostream>
+
 // Qt includes
-#include "Canvas.h"
 #include <QtCore>
 #include <QResizeEvent>
 #include <QMouseEvent>
@@ -34,6 +36,7 @@
 #include "Log.h"
 #include "System.h"
 #include "Translations.h"
+#include "Canvas.h"
 
 float scaleFactor = 1.25;
 
@@ -247,7 +250,7 @@ bool Canvas::Initialize()
 
     for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
     {
-        image = path + (*it).GetName().c_str() + ".svg";
+        image = path + (*it).ToString().c_str() + ".svg";
 
         // Test if file exists
         QFile fileTest(image);

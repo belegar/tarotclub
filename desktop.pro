@@ -42,41 +42,29 @@ MOC_DIR         = $$DESTDIR/moc
 # The search path to find supplied files
 # ------------------------------------------------------------------------------
 VPATH += $$BASE_DIR/src
-VPATH += $$BASE_DIR/src/library
 VPATH += $$BASE_DIR/src/desktop
 VPATH += $$BASE_DIR/src/desktop/windows
 VPATH += $$BASE_DIR/src/desktop/docks
 VPATH += $$BASE_DIR/src/desktop/forms
-VPATH += $$BASE_DIR/src/jsengine
-VPATH += $$BASE_DIR/src/json
 VPATH += $$BASE_DIR/src/gfxlib
-VPATH += $$BASE_DIR/src/network
-VPATH += $$BASE_DIR/src/zip
-VPATH += $$BASE_DIR/src/lobby
-VPATH += $$BASE_DIR/src/context2d
-VPATH += $$BASE_DIR/src/config
-VPATH += $$BASE_DIR/lib
+
 VPATH += $$BASE_DIR/assets/ai
 VPATH += $$BASE_DIR/assets/ai/tarotlib
 VPATH += $$BASE_DIR/assets/canvasjs
+
+
+ICL_DIR = $$BASE_DIR/src/icl
+include($$ICL_DIR/icl.pri)
 
 # ------------------------------------------------------------------------------
 # Where to find header files
 # ------------------------------------------------------------------------------
 INCLUDEPATH += $$BASE_DIR/src
-INCLUDEPATH += $$BASE_DIR/src/library
 INCLUDEPATH += $$BASE_DIR/src/desktop
 INCLUDEPATH += $$BASE_DIR/src/desktop/windows
 INCLUDEPATH += $$BASE_DIR/src/desktop/docks
 INCLUDEPATH += $$BASE_DIR/src/desktop/forms
-INCLUDEPATH += $$BASE_DIR/src/jsengine
-INCLUDEPATH += $$BASE_DIR/src/json
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
-INCLUDEPATH += $$BASE_DIR/src/network
-INCLUDEPATH += $$BASE_DIR/src/zip
-INCLUDEPATH += $$BASE_DIR/src/lobby
-INCLUDEPATH += $$BASE_DIR/src/context2d
-INCLUDEPATH += $$BASE_DIR/src/config
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -156,110 +144,9 @@ OTHER_FILES += noob.js \
 TRANSLATIONS = $$BASE_DIR/prj/desktop/tarotclub_fr.ts
 
 # ------------------------------------------------------------------------------
-# Library files
-# ------------------------------------------------------------------------------
-HEADERS += Log.h \
-    Observer.h \
-    Util.h \
-    ThreadQueue.h \
-    ByteStreamReader.h \
-    ByteStreamWriter.h \
-    ByteArray.h \
-    TcpSocket.h \
-    TcpServer.h \
-    TcpServerBase.h \
-    TcpClient.h \
-    UniqueId.h \
-    System.h \
-    Value.h \
-    Avatar.h \
-    WebSocket.h \
-    Base64.h \
-    Sha1.h \
-    Zip.h
-
-SOURCES += Log.cpp \
-    Util.cpp \
-    ByteArray.cpp \
-    ByteStreamReader.cpp \
-    ByteStreamWriter.cpp \
-    TcpSocket.cpp \
-    TcpServer.cpp \
-    TcpServerBase.cpp \
-    TcpClient.cpp \
-    UniqueId.cpp \
-    System.cpp \
-    Value.cpp \
-    Avatar.cpp \
-    WebSocket.cpp \
-    Base64.cpp \
-    Sha1.cpp \
-    Zip.cpp
-
-# ------------------------------------------------------------------------------
-# JSEngine and JSON files
-# ------------------------------------------------------------------------------
-
-HEADERS += duktape.h \
-    JsonWriter.h \
-    JsonReader.h \
-    JSEngine.h \
-    IScriptEngine.h \
-    JsonValue.h
-
-SOURCES += duktape.c \
-    JsonWriter.cpp \
-    JsonReader.cpp \
-    JSEngine.cpp \
-    JsonValue.cpp
-
-# ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-HEADERS += ServerConfig.h \
-    ClientConfig.h \
-    TournamentConfig.h \
-    DealFile.h \
-    Deck.h \
-    Card.h \
-    Player.h \
-    Client.h \
-    Bot.h \
-    TarotEngine.h \
-    Deal.h \
-    Identity.h \
-    Score.h \
-    Protocol.h \
-    Controller.h \
-    Lobby.h \
-    LobbyServer.h \
-    BotManager.h \
-    NetClient.h \
-    Common.h \
-    Users.h \
-    JsonClient.h
-
-SOURCES += ServerConfig.cpp \
-    ClientConfig.cpp \
-    TournamentConfig.cpp \
-    DealFile.cpp \
-    Deck.cpp \
-    Card.cpp \
-    Player.cpp \
-    Client.cpp \
-    Bot.cpp \
-    TarotEngine.cpp \
-    Deal.cpp \
-    Protocol.cpp \
-    Controller.cpp \
-    Lobby.cpp \
-    Score.cpp \
-    Common.cpp \
-    LobbyServer.cpp \
-    BotManager.cpp \
-    NetClient.cpp \
-    Users.cpp \
-    JsonClient.cpp
+include(src/tarot_core.pri)
 
 # ------------------------------------------------------------------------------
 # Gfx library files

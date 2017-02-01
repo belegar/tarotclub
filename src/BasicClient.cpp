@@ -259,6 +259,8 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         msg.dst = static_cast<std::uint32_t>(json.FindValue("target").GetInteger());
         msg.msg = json.FindValue("message").GetString();
 
+        ctx.AddMessage(msg);
+
         event = MESSAGE;
     }
     else if (cmd == "PlayerList")

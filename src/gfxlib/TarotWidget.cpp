@@ -38,14 +38,12 @@
 /*****************************************************************************/
 TarotWidget::TarotWidget(QWidget *parent)
     : QWidget(parent)
-    , mDecoder(new JsonClient(*this))
-    , mNet(std::shared_ptr<Protocol::IWorkItem>(mDecoder), *this)
-    , mLobbyServer(mLobby)
+    , mSession(*this)
+    , mServer(mLobby)
     , mConnectionType(NO_CONNECTION)
     , mAutoPlay(false)
     , mShutdown(false)
     , mSequence(IDLE)
-
 {
     setWindowTitle(QString(TAROT_TITLE.c_str()) + " " + QString(TAROT_VERSION.c_str()));
 
@@ -84,8 +82,7 @@ TarotWidget::~TarotWidget()
  */
 void TarotWidget::Initialize()
 {
-    Protocol::GetInstance().Initialize();
-    mNet.Initialize();
+    mSession.Initialize();
     mCanvas->Initialize();
     mSequence = IDLE;
     mCanvas->SetFilter(Canvas::MENU);
@@ -100,12 +97,8 @@ void TarotWidget::slotCleanBeforeExit()
     // Raise a flag
     mShutdown = true;
 
-    // Stop work item thread
-    Protocol::GetInstance().Stop();
-
     // Close ourself
-    mNet.Close();
-    mLobbyServer.Stop();
+    mSession.Close();
     mBotManager.Close();
     mBotManager.KillBots();
 }
@@ -162,7 +155,7 @@ void TarotWidget::slotNewAutoPlay()
 bool TarotWidget::HasLocalConnection()
 {
     if ((mConnectionType == LOCAL) &&
-            (mNet.IsConnected() == true))
+            (mSession.IsConnected() == true))
     {
         return true;
     }
@@ -174,45 +167,123 @@ bool TarotWidget::HasLocalConnection()
 /*****************************************************************************/
 void TarotWidget::customEvent(QEvent *e)
 {
+    std::vector<Reply> out;
+
     if (e->type() == TarotEvent::staticType)
     {
         TarotEvent *ev = dynamic_cast<TarotEvent *>(e);
 
-        QJsonParseError error;
-        QJsonDocument json = QJsonDocument::fromJson(ev->data, &error);
+        // Generic client decoder, fill the context and the client structure
+        BasicClient::Event event = mClient.Decode(ev->src_uuid, ev->dst_uuid, ev->arg, mCtx, out);
 
-        if (error.error != QJsonParseError::NoError)
+        switch (event)
         {
-            TLogError("Json parse error: " + error.errorString().toStdString());
-        }
-
-        QJsonObject object = json.object();
-        QString cmd = object["cmd"].toString();
-
-        if (cmd == "RequestLogin")
+        case BasicClient::ACCESS_GRANTED:
         {
-            int uuid = object["uuid"].toInt();
-            mClient.SetUuid(static_cast<std::uint32_t>(uuid));
-            mNet.SendPacket(Protocol::ClientReplyLogin(mClient.GetUuid(), mClientOptions.identity));
-        }
-        else if (cmd == "EnteredLobby")
-        {
-            QJsonArray tables = object["tables"].toArray();
-            mTables.clear();
-            for (int i = 0; i < tables.size(); i++)
-            {
-               QJsonObject table = tables[i].toObject();
-               std::uint32_t uid = static_cast<std::uint32_t>(table["id"].toInt());
-               QString name = table["name"].toString();
-               mTables[name] = uid;
-            }
             emit sigEnteredLobby();
             AutoJoinTable();
+            break;
         }
-        else if (cmd == "ChatMessage")
+        case BasicClient::JOIN_TABLE:
         {
-            std::uint32_t target = static_cast<std::uint32_t>(object["target"].toInt());
-            QString message = object["message"].toString();
+            emit sigTableJoinEvent(mClient.mTableId);
+            AddBots();
+            break;
+        }
+        case BasicClient::NEW_DEAL:
+        {
+            TLogInfo("Received cards: " + mClient.mDeck.ToString());
+            DisplayDeck();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            break;
+        }
+        case BasicClient::REQ_BID:
+        {
+            // Only reply a bid if it is our place to anwser
+            if (mClient.mBid.taker == mClient.mPlace)
+            {
+                mClient.BuildBid(Contract("Pass"), false, out);
+            }
+            break;
+        }
+        case BasicClient::START_DEAL:
+        {
+            std::wstringstream ss;
+            ss << L"Start deal, taker is: " << Util::ToWString(mClient.mBid.taker.ToString());
+            AppendToLog(ss.str());
+            break;
+        }
+        case BasicClient::SHOW_HANDLE:
+        {
+            break;
+        }
+        case BasicClient::BUILD_DISCARD:
+        {
+
+            break;
+        }
+        case BasicClient::NEW_GAME:
+        {
+
+            break;
+        }
+        case BasicClient::SHOW_CARD:
+        {
+            DisplayCard(mClient.mCurrentTrick.Last(), mClient.mCurrentPlayer);
+            break;
+        }
+        case BasicClient::PLAY_CARD:
+        {
+            // Only reply a bid if it is our place to anwser
+            if (mClient.mCurrentPlayer == mClient.mPlace)
+            {
+
+                // Display the arrow at initial position
+                mArrowPosition = (mClient.mDeck.Size()/2);
+                DisplayArrow();
+
+                mMutex.lock();
+                mCanPlay = true;
+                mMutex.unlock();
+            }
+            break;
+        }
+        case BasicClient::ASK_FOR_HANDLE:
+        {
+            mClient.SendHandle(Deck(), out);
+            break;
+        }
+        case BasicClient::END_OF_TRICK:
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            ClearBoard();
+            mClient.Sync("EndOfTrick", out);
+            break;
+        }
+        case BasicClient::END_OF_GAME:
+        {
+            std::wstringstream ss;
+            ss << L"End of game, winner is: " << Util::ToWString(mClient.mCurrentPlayer.ToString());
+            AppendToLog(ss.str());
+
+            ClearBoard();
+            mClient.Sync("Ready", out);
+            break;
+        }
+        case BasicClient::ALL_PASSED:
+        {
+            AppendToLog(L"All players have passed! New turn...");
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            break;
+        }
+
+        case BasicClient::JSON_ERROR:
+        case BasicClient::BAD_EVENT:
+        case BasicClient::REQ_LOGIN:
+        case BasicClient::MESSAGE:
+        {
+            // FIXME
+            /*
             if (target == mClient.mTableId)
             {
                 emit sigTableMessage(message);
@@ -221,32 +292,47 @@ void TarotWidget::customEvent(QEvent *e)
             {
                 emit sigLobbyMessage(message);
             }
-        }
-        else if (cmd == "KickedFromLobby")
-        {
-            mConnectionType = NO_CONNECTION;
-            mNet.Close();
-            emit sigClientError(tr("Kicked from lobby"), false);
-            InitScreen(true);
-        }
-        else if (cmd == "LobbyPlayersList")
-        {
-            QJsonArray players = object["players"].toArray();
-            mLobbyUsers.clear();
-            for (int i = 0; i < players.size(); i++)
-            {
-               QJsonObject player = players[i].toObject();
-               std::uint32_t uuid = static_cast<std::uint32_t>(player["uuid"].toInt());
-               Identity identity;
+            */
 
-               identity.avatar = player["avatar"].toString().toStdString();
-               identity.nickname = player["nickname"].toString().toStdString();
-               identity.gender = static_cast<std::uint8_t>(player["gender"].toInt());
-               mLobbyUsers[uuid] = identity;
-            }
-
+            break;
+        }
+        case BasicClient::PLAYER_LIST:
             emit sigLobbyPlayersList();
+            break;
+        case BasicClient::QUIT_TABLE:
+        case BasicClient::SHOW_BID:
+            // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
+        case BasicClient::SHOW_DOG:
+        case BasicClient::END_OF_DEAL:
+        case BasicClient::SYNC:
+        {
+            // Nothing to do for that event
+            break;
         }
+
+        default:
+            ret = false;
+            break;
+        }
+    }
+    else if (e->type() == ErrorEvent::staticType)
+    {
+        ErrorEvent *err = dynamic_cast<ErrorEvent *>(e);
+
+        // Progagate the error code only if the software is not in exit process
+        if ((!mShutdown) && err != nullptr)
+        {
+            if (err->signal == net::IEvent::ErrDisconnectedFromServer)
+            {
+                mConnectionType = NO_CONNECTION;
+                mSession.Close();
+                emit sigClientError(tr("Kicked from lobby"), false);
+                InitScreen(true);
+            }
+        }
+    }
+
+
         else if (cmd == "AdminGameFull")
         {
             // FIXME: parameter "full" can be used to display specific things on the GUI
@@ -258,8 +344,7 @@ void TarotWidget::customEvent(QEvent *e)
             mClient.mTableId = static_cast<std::uint32_t>(object["table"].toInt());
             mClient.mNbPlayers = static_cast<std::uint8_t>(object["table"].toInt());
 
-            emit sigTableJoinEvent(mClient.mTableId);
-            AddBots();
+
             mNet.SendPacket(Protocol::ClientSyncJoinTable(mClient.GetUuid(), mClient.mTableId));
         }
         else if (cmd == "TableQuitEvent")
@@ -500,16 +585,7 @@ void TarotWidget::customEvent(QEvent *e)
             TLogError("Command not supported.");
         }
     }
-    if (e->type() == ErrorEvent::staticType)
-    {
-        ErrorEvent *err = dynamic_cast<ErrorEvent *>(e);
 
-        // Progagate the error code only if the software is not in exit process
-        if ((!mShutdown) && err != nullptr)
-        {
-            emit sigClientError(err->reason, err->quitServer);
-        }
-    }
 }
 /*****************************************************************************/
 void TarotWidget::AutoJoinTable()
@@ -840,7 +916,7 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
 {
     Card c(value, suit);
 
-    if (mClient.HasCard(c) == false)
+    if (mClient.mDeck.HasCard(c) == false)
     {
         return;
     }
@@ -852,8 +928,12 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
             return;
         }
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
-        mClient.Remove(c);
-        mNet.SendPacket(Protocol::ClientCard(c.GetName(), mClient.GetUuid(), mClient.mTableId));
+
+        std::vector<Reply> out;
+        mClient.BuildSendCard(c, out);
+        mClient.mDeck.Remove(c);
+        mSession.Send(out);
+
         ShowSouthCards();
     }
     else if (mSequence == BUILD_DISCARD)
@@ -959,55 +1039,61 @@ void TarotWidget::AskForHandle()
     }
 }
 /*****************************************************************************/
-void TarotWidget::NetSignal(uint32_t sig)
+void TarotWidget::Signal(std::uint32_t sig)
 {
     ErrorEvent *err = new ErrorEvent();
 
     switch(sig)
     {
-    case NetClient::IEvent::ErrCannotConnectToServer:
-        err->reason = tr("Cannot connect to server");
-        err->quitServer = true;
-        break;
-    case NetClient::IEvent::ErrDisconnectedFromServer:
-        err->reason = tr("Disconnected from server");
-        err->quitServer = true;
+    // Filter on possible reasons
+    case net::IEvent::ErrCannotConnectToServer:
+    case net::IEvent::ErrDisconnectedFromServer:
+        err->signal = sig;
+        QApplication::postEvent(this, reinterpret_cast<QEvent*>(err));
         break;
     default:
-        err->reason = tr("Unknown error");
         break;
     }
-    QApplication::postEvent(this, reinterpret_cast<QEvent*>(err));
 }
 /*****************************************************************************/
-void TarotWidget::EmitEvent(const std::string &event)
+bool TarotWidget::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
 {
-    TarotEvent *tev = new TarotEvent();
-    tev->data.append(event.c_str());
-    QApplication::postEvent(this, reinterpret_cast<QEvent*>(tev));
-}
-/*****************************************************************************/
-void TarotWidget::EmitError(uint32_t errorId)
-{
-    ErrorEvent *err = new ErrorEvent();
+    bool ret = true;
 
-    switch(errorId)
+    if (mClient.mUuid != Protocol::INVALID_UID)
     {
-    case JsonClient::IEvent::ErrLobbyAccessRefused:
-        err->reason = tr("Lobby access refused");
-        break;
-    case JsonClient::IEvent::ErrTableAccessRefused:
-        err->reason = tr("Table access refused");
-        break;
-    case JsonClient::IEvent::ErrTableFull:
-        err->reason = tr("Table is full, cannot join the game");
-        break;
-    default:
-        err->reason = tr("Unknown error");
-        break;
+        if (dest_uuid != mClient.mUuid)
+        {
+            ret = false;
+        }
     }
 
-    QApplication::postEvent(this, reinterpret_cast<QEvent*>(err));
+    if (ret)
+    {
+        TarotEvent *tev = new TarotEvent();
+
+        tev->src_uuid = src_uuid;
+        tev->dst_uuid = dest_uuid;
+        tev->arg = arg;
+
+        QApplication::postEvent(this, reinterpret_cast<QEvent*>(tev));
+    }
+    return ret;
+}
+/*****************************************************************************/
+uint32_t TarotWidget::AddUser(std::vector<Reply> &)
+{
+
+}
+/*****************************************************************************/
+void TarotWidget::RemoveUser(uint32_t, std::vector<Reply> &)
+{
+
+}
+/*****************************************************************************/
+uint32_t TarotWidget::GetUuid()
+{
+    return mClient.mUuid;
 }
 
 //=============================================================================
