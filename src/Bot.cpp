@@ -58,7 +58,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::ACCESS_GRANTED:
     {
         // As soon as we have entered into the lobby, join the assigned table
-        mClient.JoinTable(mTableToJoin, out);
+        mClient.BuildJoinTable(mTableToJoin, out);
         break;
     }
     case BasicClient::NEW_DEAL:
@@ -85,6 +85,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::SHOW_HANDLE:
     {
         ShowHandle();
+        mClient.Sync("ShowHandle", out);
         break;
     }
     case BasicClient::BUILD_DISCARD:
@@ -137,7 +138,11 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
         // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
     case BasicClient::ALL_PASSED:
     case BasicClient::SHOW_DOG:
+        mClient.Sync("ShowDog", out);
+        break;
     case BasicClient::END_OF_DEAL:
+        mClient.Sync("EndOfDeal", out);
+        break;
     case BasicClient::SYNC:
     {
         // Nothing to do for that event
@@ -256,7 +261,7 @@ void Bot::AskForHandle(std::vector<Reply> &out)
     }
 
     TLogInfo(std::string("Sending handle") + handle.ToString());
-    mClient.SendHandle(handle, out);
+    mClient.BuildHandle(handle, out);
 }
 /*****************************************************************************/
 void Bot::ShowHandle()
@@ -324,7 +329,7 @@ void Bot::BuildDiscard(std::vector<Reply> &out)
         discard = mClient.AutoDiscard(); // build a random valid deck
     }
 
-    mClient.SendDiscard(discard, out);
+    mClient.BuildDiscard(discard, out);
 }
 /*****************************************************************************/
 void Bot::NewGame()

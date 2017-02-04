@@ -46,7 +46,7 @@ static const Ack gAckList[] = {
     {"AllPassed", Engine::WAIT_FOR_ALL_PASSED },
     {"ShowDog", Engine::WAIT_FOR_SHOW_DOG },
     {"StartDeal", Engine::WAIT_FOR_START_DEAL },
-    {"Handle", Engine::WAIT_FOR_SHOW_HANDLE },
+    {"ShowHandle", Engine::WAIT_FOR_SHOW_HANDLE },
     {"Card", Engine::WAIT_FOR_SHOW_CARD },
     {"EndOfTrick", Engine::WAIT_FOR_END_OF_TRICK },
     {"EndOfDeal", Engine::WAIT_FOR_END_OF_DEAL }

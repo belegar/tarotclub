@@ -68,7 +68,7 @@ void EditorWindow::Initialize()
     deck.CreateTarotDeck();
     for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
     {
-        ui.mainCardList->addItem(new QListWidgetItem((*it).GetName().data()));
+        ui.mainCardList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
 }
 /*****************************************************************************/
@@ -212,27 +212,27 @@ void EditorWindow::RefreshUi(const DealFile &editor)
     // Dog
     for (Deck::ConstIterator it = editor.GetDogDeck().Begin(); it != editor.GetDogDeck().End(); ++it)
     {
-        ui.mainCardList->addItem(new QListWidgetItem((*it).GetName().data()));
+        ui.mainCardList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // East
     for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::EAST).Begin(); it != editor.GetPlayerDeck(Place::EAST).End(); ++it)
     {
-        ui.eastList->addItem(new QListWidgetItem((*it).GetName().data()));
+        ui.eastList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // West
     for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::WEST).Begin(); it != editor.GetPlayerDeck(Place::WEST).End(); ++it)
     {
-        ui.westList->addItem(new QListWidgetItem((*it).GetName().data()));
+        ui.westList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // South
     for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::SOUTH).Begin(); it != editor.GetPlayerDeck(Place::SOUTH).End(); ++it)
     {
-        ui.southList->addItem(new QListWidgetItem((*it).GetName().data()));
+        ui.southList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // North
     for (Deck::ConstIterator it = editor.GetPlayerDeck(Place::NORTH).Begin(); it != editor.GetPlayerDeck(Place::NORTH).End(); ++it)
     {
-        ui.northList->addItem(new QListWidgetItem((*it).GetName().data()));
+        ui.northList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
 
     ui.firstPlayerCombo->setCurrentIndex(editor.GetFirstPlayer().Value());

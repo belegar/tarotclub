@@ -63,7 +63,7 @@ TarotWidget::TarotWidget(QWidget *parent)
     connect(mCanvas, &Canvas::sigViewportClicked, this, &TarotWidget::slotClickBoard);
     connect(mCanvas, &Canvas::sigClickCard, this, &TarotWidget::slotClickCard);
     connect(mCanvas, &Canvas::sigCursorOverCard, this, &TarotWidget::slotMoveCursor);
-    connect(mCanvas, &Canvas::sigContract, this, &TarotWidget::slotSetEnchere);
+    connect(mCanvas, &Canvas::sigContract, this, &TarotWidget::slotSetBid);
     connect(mCanvas, &Canvas::sigAcceptDiscard, this, &TarotWidget::slotAcceptDiscard);
     connect(mCanvas, &Canvas::sigAcceptHandle, this, &TarotWidget::slotAcceptHandle);
     connect(mCanvas, &Canvas::sigStartGame, this, &TarotWidget::slotNewQuickGame);
@@ -192,88 +192,148 @@ void TarotWidget::customEvent(QEvent *e)
         }
         case BasicClient::NEW_DEAL:
         {
-            TLogInfo("Received cards: " + mClient.mDeck.ToString());
-            DisplayDeck();
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            mClient.UpdateStatistics();
+            emit sigNewDeal();
+            mCanvas->ResetCards();
+            ShowSouthCards();
+
             break;
         }
         case BasicClient::REQ_BID:
         {
-            // Only reply a bid if it is our place to anwser
-            if (mClient.mBid.taker == mClient.mPlace)
+            mCanvas->ShowSelection(mClient.mCurrentPlayer, mClient.mPlace);
+            if (mClient.IsMyTurn())
             {
-                mClient.BuildBid(Contract("Pass"), false, out);
+                if (mAutoPlay)
+                {
+                    //mNet.SendPacket(Protocol::ClientBid(Contract::PASS, false, mClient.GetUuid(), mClient.mTableId));
+                }
+                else
+                {
+                    mCanvas->ShowBidsChoice(mClient.mBid.contract);
+                    mCanvas->SetFilter(Canvas::MENU);
+                }
             }
             break;
         }
         case BasicClient::START_DEAL:
         {
-            std::wstringstream ss;
-            ss << L"Start deal, taker is: " << Util::ToWString(mClient.mBid.taker.ToString());
-            AppendToLog(ss.str());
+            mClient.UpdateStatistics();
+            mClient.mCurrentTrick.Clear();
+
+            emit sigStartDeal();
+
+            mSequence = IDLE;
+            mCanvas->SetFilter(Canvas::BLOCK_ALL);
+            mCanvas->ShowTaker(mClient.mBid.taker, mClient.mPlace);
             break;
         }
         case BasicClient::SHOW_HANDLE:
         {
+            mMyHandle = mClient.mHandle;
+            mCanvas->DrawCardsInPopup(mMyHandle);
+            mSequence = SHOW_HANDLE;
+            mCanvas->SetFilter(Canvas::BOARD);
             break;
         }
         case BasicClient::BUILD_DISCARD:
         {
+            // We add the dog to the player's deck for discard building
+            mMySavedDeck = mClient.mDeck;  // locally save the legacy player's deck
+            mClient.mDeck.Append(mClient.mDog); // Add the dog
 
+            mDiscard.Clear();
+            mSequence = BUILD_DISCARD;
+            mCanvas->SetFilter(Canvas::CARDS | Canvas::MENU);
+
+            // Player's cards are shown
+            ShowSouthCards();
             break;
         }
         case BasicClient::NEW_GAME:
         {
-
+            emit sigNewGame();
             break;
         }
         case BasicClient::SHOW_CARD:
         {
-            DisplayCard(mClient.mCurrentTrick.Last(), mClient.mCurrentPlayer);
+            Card card = mClient.mCurrentTrick.Last();
+            emit sigShowCard(mClient.mCurrentPlayer, card.ToString());
+
+            mCanvas->DrawCard(card, mClient.mCurrentPlayer, mClient.mPlace);
+            mClient.mCurrentTrick.Append(card);
             break;
         }
         case BasicClient::PLAY_CARD:
         {
-            // Only reply a bid if it is our place to anwser
-            if (mClient.mCurrentPlayer == mClient.mPlace)
+            mCanvas->ShowSelection(mClient.mCurrentPlayer, mClient.mPlace);
+            if (mClient.IsMyTurn())
             {
+                if (mAutoPlay)
+                {
+                    mSequence = IDLE;
+                    mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-                // Display the arrow at initial position
-                mArrowPosition = (mClient.mDeck.Size()/2);
-                DisplayArrow();
-
-                mMutex.lock();
-                mCanPlay = true;
-                mMutex.unlock();
+                    Card c = mClient.Play();
+                    mClient.mDeck.Remove(c);
+                    mClient.BuildSendCard(c, out);
+                    ShowSouthCards();
+                }
+                else
+                {
+                    mSequence = PLAY_TRICK;
+                    mCanvas->SetFilter(Canvas::CARDS);
+                }
             }
             break;
         }
         case BasicClient::ASK_FOR_HANDLE:
         {
-            mClient.SendHandle(Deck(), out);
+            AskForHandle();
             break;
         }
         case BasicClient::END_OF_TRICK:
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            ClearBoard();
-            mClient.Sync("EndOfTrick", out);
+        {          
+            emit sigWaitTrick(mClient.mCurrentPlayer);
+
+            mSequence = SYNC_END_OF_TRICK;
+            mCanvas->SetFilter(Canvas::BOARD);
+
+            // launch timer to clean cards, if needed
+            if (mClientOptions.clickToClean == true)
+            {
+                QTimer::singleShot(mClientOptions.delayBeforeCleaning, this, SLOT(slotClickBoard()));
+            }
+
             break;
         }
         case BasicClient::END_OF_GAME:
         {
-            std::wstringstream ss;
-            ss << L"End of game, winner is: " << Util::ToWString(mClient.mCurrentPlayer.ToString());
-            AppendToLog(ss.str());
+            // FIXME: deserialize the winner of the game
+            /*
+            QMessageBox::information(this, trUtf8("Game result"),
+                                     trUtf8("The winner is ") + QString(winner.ToString().c_str()),
+                                     QMessageBox::Ok);
+            */
+            mCanvas->SetFilter(Canvas::MENU);
+            mCanvas->DisplayMainMenu(true);
 
-            ClearBoard();
             mClient.Sync("Ready", out);
             break;
         }
         case BasicClient::ALL_PASSED:
         {
-            AppendToLog(L"All players have passed! New turn...");
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            mSequence = IDLE;
+            mCanvas->SetFilter(Canvas::BLOCK_ALL);
+            mCanvas->InitBoard();
+
+            if (!mAutoPlay)
+            {
+                QMessageBox::information(this, trUtf8("Information"),
+                                         trUtf8("All the players have passed.\n"
+                                                "New deal will start."));
+            }
             break;
         }
 
@@ -298,12 +358,44 @@ void TarotWidget::customEvent(QEvent *e)
         }
         case BasicClient::PLAYER_LIST:
             emit sigLobbyPlayersList();
+            emit sigTablePlayersList();
+            mCanvas->SetPlayerIdentity(GetTablePlayersList(), mClient.mPlace);
             break;
+
         case BasicClient::QUIT_TABLE:
+            // Clean canvas
+            InitScreen(true);
+            break;
+
         case BasicClient::SHOW_BID:
-            // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
+            mCanvas->ShowBid(mClient.mCurrentPlayer, mClient.mBid.contract, mClient.mPlace);
+            break;
+
         case BasicClient::SHOW_DOG:
+            if (mAutoPlay)
+            {
+                mClient.Sync("ShowDog", out);
+            }
+            else
+            {
+                mSequence = SHOW_DOG;
+                mCanvas->DrawCardsInPopup(mClient.mDog);
+                mCanvas->SetFilter(Canvas::BOARD);
+            }
+            break;
+
         case BasicClient::END_OF_DEAL:
+        {
+            mCanvas->InitBoard();
+            mCanvas->ResetCards();
+            mCanvas->SetResult(mPoints, mClient.mBid);
+
+            mSequence = SHOW_SCORE;
+            mCanvas->SetFilter(Canvas::BOARD);
+
+            emit sigAddScore();
+            break;
+        }
         case BasicClient::SYNC:
         {
             // Nothing to do for that event
@@ -311,7 +403,6 @@ void TarotWidget::customEvent(QEvent *e)
         }
 
         default:
-            ret = false;
             break;
         }
     }
@@ -331,261 +422,6 @@ void TarotWidget::customEvent(QEvent *e)
             }
         }
     }
-
-
-        else if (cmd == "AdminGameFull")
-        {
-            // FIXME: parameter "full" can be used to display specific things on the GUI
-            mNet.SendPacket(Protocol::AdminNewGame(mClient.mGame, mClient.GetUuid(), mClient.mTableId));
-        }
-        else if (cmd == "TableJoinEvent")
-        {
-            mClient.mPlace = Place(object["place"].toString().toStdString());
-            mClient.mTableId = static_cast<std::uint32_t>(object["table"].toInt());
-            mClient.mNbPlayers = static_cast<std::uint8_t>(object["table"].toInt());
-
-
-            mNet.SendPacket(Protocol::ClientSyncJoinTable(mClient.GetUuid(), mClient.mTableId));
-        }
-        else if (cmd == "TableQuitEvent")
-        {
-            std::uint32_t tableId = static_cast<std::uint32_t>(object["table"].toInt());
-            emit sigTableQuitEvent(tableId);
-            // We have been kicked from the table OR this is a simple acknowlegment message
-            // Clean canvas
-            InitScreen(true);
-        }
-        else if (cmd == "TablePlayersList")
-        {
-            QJsonArray players = object["players"].toArray();
-            mTablePlayers.clear();
-            for (int i = 0; i < players.size(); i++)
-            {
-               QJsonObject player = players[i].toObject();
-
-               std::uint32_t uuid = static_cast<std::uint32_t>(player["uuid"].toInt());
-               Place place = Place(player["place"].toString().toStdString());
-               mTablePlayers[place] = uuid;
-            }
-
-            emit sigTablePlayersList();
-            mCanvas->SetPlayerIdentity(GetTablePlayersList(), mClient.mPlace);
-        }
-        else if (cmd == "NewGame")
-        {
-            mClient.mGame.mode = static_cast<std::uint8_t>(object["mode"].toInt());
-
-            emit sigNewGame();
-            mNet.SendPacket(Protocol::ClientSyncNewGame(mClient.GetUuid(), mClient.mTableId));
-        }
-        else if (cmd == "NewDeal")
-        {
-            mClient.SetCards(object["cards"].toString().toStdString());
-            mClient.UpdateStatistics();
-            emit sigNewDeal();
-            mCanvas->ResetCards();
-            ShowSouthCards();
-            mNet.SendPacket(Protocol::ClientSyncNewDeal(mClient.GetUuid(), mClient.mTableId));
-        }
-        else if (cmd == "RequestBid")
-        {
-            Place place = Place(object["place"].toString().toStdString());
-            Contract contract = Contract(object["contract"].toString().toStdString());
-
-            mCanvas->ShowSelection(place, mClient.mPlace);
-            if (place == mClient.mPlace)
-            {
-                if (mAutoPlay)
-                {
-                    mNet.SendPacket(Protocol::ClientBid(Contract::PASS, false, mClient.GetUuid(), mClient.mTableId));
-                }
-                else
-                {
-                    mCanvas->ShowBidsChoice(contract);
-                    mCanvas->SetFilter(Canvas::MENU);
-                }
-            }
-        }
-        else if (cmd == "ShowBid")
-        {
-            Place place = Place(object["place"].toString().toStdString());
-            Contract contract = Contract(object["contract"].toString().toStdString());
-            bool slam = object["slam"].toBool();
-
-            // FIXME: show the announced slam on the screen
-            Q_UNUSED(slam);
-
-            mCanvas->ShowBid(place, contract, mClient.mPlace);
-            mNet.SendPacket(Protocol::ClientSyncBid(mClient.GetUuid(), mClient.mTableId));
-        }
-        else if (cmd == "AllPassed")
-        {
-            mSequence = IDLE;
-            mCanvas->SetFilter(Canvas::BLOCK_ALL);
-            mCanvas->InitBoard();
-
-            if (!mAutoPlay)
-            {
-                QMessageBox::information(this, trUtf8("Information"),
-                                         trUtf8("All the players have passed.\n"
-                                                "New deal will start."));
-            }
-            mNet.SendPacket(Protocol::ClientSyncAllPassed(mClient.GetUuid(), mClient.mTableId));
-        }
-        else if (cmd == "ShowDog")
-        {
-            mClient.mDog.SetCards(object["dog"].toString().toStdString());
-            if (mAutoPlay)
-            {
-                mNet.SendPacket(Protocol::ClientSyncDog(mClient.GetUuid(), mClient.mTableId));
-            }
-            else
-            {
-                mSequence = SHOW_DOG;
-                mCanvas->DrawCardsInPopup(mClient.mDog);
-                mCanvas->SetFilter(Canvas::BOARD);
-            }
-        }
-        else if (cmd == "BuildDiscard")
-        {
-            // We add the dog to the player's deck for discard building
-            mMySavedDeck = mClient;  // locally save the legacy player's deck
-            mClient.Append(mClient.mDog); // Add the dog
-
-            mDiscard.Clear();
-            mSequence = BUILD_DISCARD;
-            mCanvas->SetFilter(Canvas::CARDS | Canvas::MENU);
-
-            // Player's cards are shown
-            ShowSouthCards();
-        }
-        else if (cmd == "StartDeal")
-        {
-            mClient.mBid.taker = Place(object["taker"].toString().toStdString());
-            mClient.mBid.contract = Contract(object["contract"].toString().toStdString());
-            mClient.mBid.slam = object["slam"].toBool();
-            mClient.UpdateStatistics();
-            mClient.mCurrentTrick.Clear();
-
-            emit sigStartDeal();
-
-            mSequence = IDLE;
-            mCanvas->SetFilter(Canvas::BLOCK_ALL);
-            mCanvas->ShowTaker(mClient.mBid.taker, mClient.mPlace);            
-
-            // We are ready, let's inform the server about that
-            mNet.SendPacket(Protocol::ClientSyncStart(mClient.GetUuid(), mClient.mTableId));
-
-        }
-        else if (cmd == "AskForHandle")
-        {
-            AskForHandle();
-        }
-        else if (cmd == "ShowHandle")
-        {
-            Place place = Place(object["place"].toString().toStdString());
-            mMyHandle.SetCards(object["handle"].toString().toStdString());
-
-            Team team(Team::DEFENSE);
-            if (place == mClient.mBid.taker)
-            {
-                team = Team::ATTACK;
-            }
-            mMyHandle.SetOwner(team);
-
-            mCanvas->DrawCardsInPopup(mMyHandle);
-            mSequence = SHOW_HANDLE;
-            mCanvas->SetFilter(Canvas::BOARD);
-        }
-        else if (cmd == "ShowCard")
-        {
-            Place place = Place(object["place"].toString().toStdString());
-            Card card = Card(object["card"].toString().toStdString());
-            emit sigShowCard(place, card.GetName());
-
-            mCanvas->DrawCard(card, place, mClient.mPlace);
-            mClient.mCurrentTrick.Append(card);
-
-            // We have seen the card, let's inform the server about that
-            mNet.SendPacket(Protocol::ClientSyncShowCard(mClient.GetUuid(), mClient.mTableId));
-        }
-        else if (cmd == "PlayCard")
-        {
-            Place place = Place(object["place"].toString().toStdString());
-
-            mCanvas->ShowSelection(place, mClient.mPlace);
-            if (place == mClient.mPlace)
-            {
-                if (mAutoPlay)
-                {
-                    mSequence = IDLE;
-                    mCanvas->SetFilter(Canvas::BLOCK_ALL);
-
-                    Card c = mClient.Play();
-                    mClient.Remove(c);
-                    mNet.SendPacket(Protocol::ClientCard(c.GetName(), mClient.GetUuid(), mClient.mTableId));
-                    ShowSouthCards();
-                }
-                else
-                {
-                    mSequence = PLAY_TRICK;
-                    mCanvas->SetFilter(Canvas::CARDS);
-                }
-            }
-        }
-        else if (cmd == "EndOfTrick")
-        {
-            Place winner = Place(object["place"].toString().toStdString());
-            emit sigWaitTrick(winner);
-
-            mSequence = SYNC_END_OF_TRICK;
-            mCanvas->SetFilter(Canvas::BOARD);
-
-            // launch timer to clean cards, if needed
-            if (mClientOptions.clickToClean == true)
-            {
-                QTimer::singleShot(mClientOptions.delayBeforeCleaning, this, SLOT(slotClickBoard()));
-            }
-        }
-        else if (cmd == "EndOfDeal")
-        {
-            mPoints.pointsAttack = object["points"].toInt();
-            mPoints.oudlers = object["oudlers"].toInt();
-            mPoints.littleEndianOwner = static_cast<std::uint8_t>(object["little_bonus"].toInt());
-            mPoints.handlePoints = object["handle_bonus"].toInt();
-            mPoints.slamDone = object["slam_bonus"].toBool();
-
-            QJsonValue val = object["result"];
-            QJsonObject resultObj = val.toObject();
-            QJsonDocument resultDoc(resultObj);
-            mResult = resultDoc.toJson().toStdString();
-
-            mCanvas->InitBoard();
-            mCanvas->ResetCards();
-            mCanvas->SetResult(mPoints, mClient.mBid);
-
-            mSequence = SHOW_SCORE;
-            mCanvas->SetFilter(Canvas::BOARD);
-
-            emit sigAddScore();
-        }
-        else if (cmd == "EndOfGame")
-        {
-            // FIXME: deserialize the winner of the game
-            /*
-            QMessageBox::information(this, trUtf8("Game result"),
-                                     trUtf8("The winner is ") + QString(winner.ToString().c_str()),
-                                     QMessageBox::Ok);
-            */
-            mCanvas->SetFilter(Canvas::MENU);
-            mCanvas->DisplayMainMenu(true);
-        }
-        else
-        {
-            TLogError("Command not supported.");
-        }
-    }
-
 }
 /*****************************************************************************/
 void TarotWidget::AutoJoinTable()
@@ -593,7 +429,9 @@ void TarotWidget::AutoJoinTable()
     if (HasLocalConnection())
     {
         // Auto join the embedded server in case of local game only
-        mNet.SendPacket(Protocol::ClientJoinTable(mClient.GetUuid(), Protocol::TABLES_UID));
+        std::vector<Reply> out;
+        mClient.BuildJoinTable(Protocol::TABLES_UID, out);
+        mSession.Send(out);
     }
 }
 /*****************************************************************************/
@@ -631,7 +469,7 @@ void TarotWidget::AddBots()
 }
 /*****************************************************************************/
 void TarotWidget::LaunchLocalGame(bool autoPlay)
-{
+{    
     // Save game config
     mAutoPlay = autoPlay;
 
@@ -643,19 +481,22 @@ void TarotWidget::LaunchLocalGame(bool autoPlay)
         mServerOptions.tables.push_back("Default");
     }
 
-    mLobbyServer.Initialize(mServerOptions);
+    //mLobbyServer.Initialize(mServerOptions);
 
     if (!HasLocalConnection())
     {
         InitScreen(true);
         mConnectionType = LOCAL;
         // Connect us to the server
-        mNet.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
+        mSession.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
     }
     else
     {
         InitScreen();
-        mNet.SendPacket(Protocol::AdminNewGame(mClient.mGame, mClient.GetUuid(), mClient.mTableId));
+
+        std::vector<Reply> out;
+        mClient.BuildNewGame(out);
+        mSession.Send(out);
     }
 }
 /*****************************************************************************/
@@ -664,45 +505,45 @@ void TarotWidget::LaunchRemoteGame(const std::string &ip, std::uint16_t port)
     if (mConnectionType != HOSTED)
     {
         // Destroy any local stuff before connecting elsewhere
-        mNet.Disconnect();
-        mLobbyServer.Stop();
-        mLobbyServer.WaitForEnd();
+        mSession.Disconnect();
+        mServer.Stop();
         InitScreen(true);
         mConnectionType = REMOTE;
     }
 
     // Connect us to the server
-    mNet.ConnectToHost(ip, port);
+    mSession.ConnectToHost(ip, port);
 }
 /*****************************************************************************/
 void TarotWidget::LaunchHostedGame()
 {
     // Destroy any local stuff before connecting elsewhere
-    mNet.Disconnect();
-    mLobbyServer.Stop();
-    mLobbyServer.WaitForEnd();
+    mSession.Disconnect();
+    mServer.Stop();
     InitScreen(true);
     mConnectionType = HOSTED;
 
     ServerOptions opt = mServerOptions;
     opt.localHostOnly = false;
-
-    mLobbyServer.Initialize(opt);
 }
 /*****************************************************************************/
 void TarotWidget::JoinTable(std::uint32_t tableId)
 {
-    mNet.SendPacket(Protocol::ClientJoinTable(mClient.GetUuid(), tableId));
+    std::vector<Reply> out;
+    mClient.BuildJoinTable(tableId, out);
+    mSession.Send(out);
 }
 /*****************************************************************************/
 void TarotWidget::QuitTable(std::uint32_t tableId)
 {
-    mNet.SendPacket(Protocol::ClientQuitTable(mClient.GetUuid(), tableId));
+    std::vector<Reply> out;
+    mClient.BuildQuitTable(tableId, out);
+    mSession.Send(out);
 }
 /*****************************************************************************/
 void TarotWidget::Disconnect()
 {
-    mNet.Disconnect();
+    mSession.Disconnect();
 }
 /*****************************************************************************/
 void TarotWidget::InitScreen(bool rawClear)
@@ -722,10 +563,11 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
     mTournamentOptions = i_tournamentOpt;
 
     // Initialize all the objects with the user preferences
-    if (mNet.IsConnected())
+    if (mSession.IsConnected())
     {
         // Send the new client identity to the server
-        mNet.SendPacket(Protocol::ClientChangeIdentity(mClient.GetUuid(), mClientOptions.identity));
+        // FIXME
+      //  mNet.SendPacket(Protocol::ClientChangeIdentity(mClient.GetUuid(), mClientOptions.identity));
     }
 
     mCanvas->ShowAvatars(mClientOptions.showAvatars);
@@ -761,9 +603,11 @@ void TarotWidget::HideTrick()
     }
 }
 /*****************************************************************************/
-void TarotWidget::slotSetEnchere(Contract cont)
+void TarotWidget::slotSetBid(Contract cont)
 {
-    mNet.SendPacket(Protocol::ClientBid(cont, mCanvas->GetSlamOption(), mClient.GetUuid(),  mClient.mTableId));
+    std::vector<Reply> out;
+    mClient.BuildBid(cont, mCanvas->GetSlamOption(), out);
+    mSession.Send(out);
     mCanvas->HideBidsChoice();
 }
 /*****************************************************************************/
@@ -781,17 +625,20 @@ void TarotWidget::slotAcceptDiscard()
     TLogInfo("Hide discard: " + mDiscard.ToString());
 
     // Re-set previous player deck
-    mClient = mMySavedDeck;
+    mClient.mDeck.Set(mMySavedDeck);
     // Then filter out the discard
-    mClient += mClient.mDog;
-    mClient.RemoveDuplicates(mDiscard);
+    mClient.mDeck += mClient.mDog;
+    mClient.mDeck.RemoveDuplicates(mDiscard);
     ShowSouthCards();
-    mNet.SendPacket(Protocol::ClientDiscard(mDiscard, mClient.GetUuid(), mClient.mTableId));
+
+    std::vector<Reply> out;
+    mClient.BuildDiscard(mDiscard, out);
+    mSession.Send(out);
 }
 /*****************************************************************************/
 void TarotWidget::slotAcceptHandle()
 {
-    if (mClient.TestHandle(mMyHandle) == false)
+    if (mClient.mDeck.TestHandle(mMyHandle) == false)
     {
         QMessageBox::information(this, trUtf8("Information"),
                                  trUtf8("Your handle is not valid.\n"
@@ -802,7 +649,10 @@ void TarotWidget::slotAcceptHandle()
     mCanvas->DisplayHandleMenu(false);
     mSequence = PLAY_TRICK;
     mCanvas->SetFilter(Canvas::CARDS);
-    mNet.SendPacket(Protocol::ClientHandle(mMyHandle, mClient.GetUuid(), mClient.mTableId));
+
+    std::vector<Reply> out;
+    mClient.BuildHandle(mMyHandle, out);
+    mSession.Send(out);
     ShowSouthCards();
 }
 /*****************************************************************************/
@@ -815,49 +665,54 @@ void TarotWidget::slotAcceptHandle()
  */
 void TarotWidget::ShowSouthCards()
 {
-    mClient.Sort(mClientOptions.cardsOrder);
-    mCanvas->DrawSouthCards(mClient);
+    mClient.mDeck.Sort(mClientOptions.cardsOrder);
+    mCanvas->DrawSouthCards(mClient.mDeck);
 }
 /*****************************************************************************/
 void TarotWidget::slotClickBoard()
 {
+    std::vector<Reply> out;
+
     if (mSequence == SHOW_DOG)
     {
         mCanvas->HidePopup();
-        // We have seen the dog, let's inform the server about that
-        mNet.SendPacket(Protocol::ClientSyncDog(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
+
+        mClient.Sync("ShowDog", out);
     }
     else if (mSequence == SHOW_HANDLE)
     {
         mCanvas->HidePopup();
         ShowSouthCards(); // refresh our cards if the handle displayed is our own one
-        // We have seen the handle, let's inform the server about that
-        mNet.SendPacket(Protocol::ClientSyncHandle(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
+
+        mClient.Sync("ShowHandle", out);
     }
     else if (mSequence == SYNC_END_OF_TRICK)
     {
         HideTrick();
         mClient.mCurrentTrick.Clear();
-        mNet.SendPacket(Protocol::ClientSyncTrick(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
+
+        mClient.Sync("EndOfTrick", out);
     }
     else if (mSequence == SHOW_SCORE)
     {
         mCanvas->HideMessageBox();
-        mNet.SendPacket(Protocol::ClientSyncEndOfDeal(mClient.GetUuid(), mClient.mTableId));
         // Forbid any further clicks
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
+
+        mClient.Sync("EndOfDeal", out);
     }
 
+    mSession.Send(out);
 }
 /*****************************************************************************/
 /**
@@ -871,7 +726,7 @@ void TarotWidget::slotMoveCursor(std::uint8_t value, std::uint8_t suit)
 {
     Card c(value, suit);
 
-    if (mClient.HasCard(c) == false)
+    if (mClient.mDeck.HasCard(c) == false)
     {
         return;
     }
@@ -983,7 +838,7 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
             {
                 mMyHandle.Remove(c);
             }
-            if (mClient.TestHandle(mMyHandle))
+            if (mClient.mDeck.TestHandle(mMyHandle))
             {
                 mCanvas->SetFilter(Canvas::MENU | Canvas::CARDS);
                 mCanvas->DisplayHandleMenu(true);
@@ -1000,12 +855,12 @@ void TarotWidget::slotClickCard(std::uint8_t value, std::uint8_t suit, bool sele
 /*****************************************************************************/
 void TarotWidget::slotSendChatMessage(const QString &message)
 {
-    mNet.SendPacket(Protocol::ClientLobbyMessage(message.toStdString(), mClient.GetUuid(), mClient.mTableId));
+//    mNet.SendPacket(Protocol::ClientLobbyMessage(message.toStdString(), mClient.GetUuid(), mClient.mTableId));
 }
 /*****************************************************************************/
 void TarotWidget::slotSendLobbyMessage(const QString &message)
 {
-    mNet.SendPacket(Protocol::ClientLobbyMessage(message.toStdString(), mClient.GetUuid(), Protocol::LOBBY_UID));
+//    mNet.SendPacket(Protocol::ClientLobbyMessage(message.toStdString(), mClient.GetUuid(), Protocol::LOBBY_UID));
 }
 /*****************************************************************************/
 void TarotWidget::AskForHandle()
@@ -1035,7 +890,9 @@ void TarotWidget::AskForHandle()
     else
     {
         // no available handle, send an empty deck
-        mNet.SendPacket(Protocol::ClientHandle(mMyHandle, mClient.GetUuid(), mClient.mTableId));
+        std::vector<Reply> out;
+        mClient.BuildHandle(Deck(), out);
+        mSession.Send(out);
     }
 }
 /*****************************************************************************/
@@ -1059,6 +916,7 @@ void TarotWidget::Signal(std::uint32_t sig)
 bool TarotWidget::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
 {
     bool ret = true;
+    (void) out;
 
     if (mClient.mUuid != Protocol::INVALID_UID)
     {
@@ -1083,7 +941,7 @@ bool TarotWidget::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::stri
 /*****************************************************************************/
 uint32_t TarotWidget::AddUser(std::vector<Reply> &)
 {
-
+    return 0U;
 }
 /*****************************************************************************/
 void TarotWidget::RemoveUser(uint32_t, std::vector<Reply> &)

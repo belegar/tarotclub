@@ -145,7 +145,7 @@ void BasicClient::BuildBid(Contract c, bool slam, std::vector<Reply> &out)
     out.push_back(Reply(mTableId, obj));
 }
 /*****************************************************************************/
-void BasicClient::SendHandle(const Deck &handle, std::vector<Reply> &out)
+void BasicClient::BuildHandle(const Deck &handle, std::vector<Reply> &out)
 {
     JsonObject obj;
 
@@ -155,7 +155,7 @@ void BasicClient::SendHandle(const Deck &handle, std::vector<Reply> &out)
     out.push_back(Reply(mTableId, obj));
 }
 /*****************************************************************************/
-void BasicClient::SendDiscard(const Deck &discard, std::vector<Reply> &out)
+void BasicClient::BuildDiscard(const Deck &discard, std::vector<Reply> &out)
 {
     JsonObject obj;
 
@@ -175,23 +175,42 @@ void BasicClient::BuildSendCard(Card c, std::vector<Reply> &out)
     out.push_back(Reply(mTableId, obj));
 }
 /*****************************************************************************/
+void BasicClient::BuildQuitTable(std::uint32_t tableId, std::vector<Reply> &out)
+{
+    JsonObject obj;
+
+    obj.AddValue("cmd", "RequestQuitTable");
+    obj.AddValue("table_id", tableId);
+
+    out.push_back(Reply(mTableId, obj));
+}
+/*****************************************************************************/
 void BasicClient::BuildChangeNickname(std::vector<Reply> &out)
 {
     JsonObject obj;
 
-    obj.AddValue("cmd", "ReqChangeNickname");
+    obj.AddValue("cmd", "RequestChangeNickname");
     obj.AddValue("nickname", mNickName);
 
     out.push_back(Reply(Protocol::LOBBY_UID, obj));
 }
 /*****************************************************************************/
-void BasicClient::JoinTable(uint32_t tableId, std::vector<Reply> &out)
+void BasicClient::BuildJoinTable(uint32_t tableId, std::vector<Reply> &out)
 {
     JsonObject obj;
 
     obj.AddValue("cmd", "RequestJoinTable");
     obj.AddValue("table_id", tableId);
 
+    out.push_back(Reply(Protocol::LOBBY_UID, obj));
+}
+/*****************************************************************************/
+void BasicClient::BuildNewGame(std::vector<Reply> &out)
+{
+    JsonObject obj;
+
+    obj.AddValue("cmd", "RequestNewGame");
+    // FIXME: add new game parameters
     out.push_back(Reply(Protocol::LOBBY_UID, obj));
 }
 /*****************************************************************************/
@@ -335,8 +354,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
     else if (cmd == "ShowDog")
     {
         mDog.SetCards(json.FindValue("dog").GetString());
-        Sync(cmd, out);
-
         event = SHOW_DOG;
     }
     else if (cmd == "BuildDiscard")
@@ -371,9 +388,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
             team = Team::ATTACK;
         }
         mHandle.SetOwner(team);
-
-        Sync("Handle", out);
-
         event = SHOW_HANDLE;
     }
     else if (cmd == "ShowCard")
@@ -412,8 +426,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         JsonObject deal = json.FindValue("deal").GetObj();
 
         ctx.SetResult(deal);
-
-        Sync(cmd, out);
         event = END_OF_DEAL;
     }
     else if (cmd == "EndOfGame")

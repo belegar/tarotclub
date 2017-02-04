@@ -435,7 +435,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         case BasicClient::ACCESS_GRANTED:
         {
             // As soon as we have entered into the lobby, join the assigned table
-            mClient.JoinTable(Protocol::TABLES_UID, out);
+            mClient.BuildJoinTable(Protocol::TABLES_UID, out);
             AppendToLog(L"Connected to Lobby");
             break;
         }
@@ -491,9 +491,8 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         case BasicClient::PLAY_CARD:
         {
             // Only reply a bid if it is our place to anwser
-            if (mClient.mCurrentPlayer == mClient.mPlace)
+            if (mClient.IsMyTurn())
             {
-
                 // Display the arrow at initial position
                 mArrowPosition = (mClient.mDeck.Size()/2);
                 DisplayArrow();
@@ -506,7 +505,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         }
         case BasicClient::ASK_FOR_HANDLE:
         {
-            mClient.SendHandle(Deck(), out);
+            mClient.BuildHandle(Deck(), out);
             break;
         }
         case BasicClient::END_OF_TRICK:
@@ -543,6 +542,8 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
         case BasicClient::SHOW_DOG:
         case BasicClient::END_OF_DEAL:
+            mClient.Sync("EndOfDeal", out);
+            break;
         case BasicClient::SYNC:
         {
             // Nothing to do for that event

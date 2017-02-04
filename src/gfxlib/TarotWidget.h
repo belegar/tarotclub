@@ -94,7 +94,6 @@ public:
         static const QEvent::Type staticType = static_cast<QEvent::Type>(QEvent::User + 463);
         ErrorEvent()
             : QEvent(staticType)
-            , quitServer(false)
         {
 
         }
@@ -121,18 +120,24 @@ public:
     QMap<Place, Identity> GetTablePlayersList()
     {
         QMap<Place, Identity> opponents;
+
+        // FIXME
+        /*
+
         for (QMap<Place, std::uint32_t>::iterator iter = mTablePlayers.begin();
              iter != mTablePlayers.end();
              ++iter)
         {
             opponents[iter.key()] = mLobbyUsers[iter.value()];
         }
+        */
         return opponents;
     }
 
     QMap<std::uint32_t, Identity> GetLobbyPlayersList()
     {
-        return mLobbyUsers;
+        QMap<std::uint32_t, Identity> ident;
+        return ident;
     }
 
     Tarot::Bid GetBid()
@@ -163,7 +168,8 @@ public:
 
     QMap<QString, std::uint32_t> GetTableList()
     {
-        return mTables;
+        QMap<QString, std::uint32_t> tables;
+        return tables;
     }
 
     ConnectionType GetConnectionType() { return mConnectionType; }
@@ -241,7 +247,7 @@ private slots:
     // Board events
     void slotAcceptHandle();
     void slotAcceptDiscard();
-    void slotSetEnchere(Contract cont);
+    void slotSetBid(Contract cont);
     void slotClickCard(std::uint8_t value, std::uint8_t suit, bool selected);
     void slotClickBoard();
     void slotMoveCursor(std::uint8_t value, std::uint8_t suit);

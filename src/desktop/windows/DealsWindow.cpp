@@ -111,7 +111,7 @@ void DealsWindow::DisplayDeck(const Deck &deck, qreal x, qreal y)
     qreal z = 0;
     for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
     {
-       std::string name = "c" + iter->GetName();
+       std::string name = "c" + iter->ToString();
        for (int j = 0U; j < mCardsPics.size(); j++)
        {
            QGraphicsSvgItem *item = mCardsPics[j];
@@ -140,7 +140,7 @@ void DealsWindow::Initialize()
     for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
     {
         QGraphicsSvgItem *item = new QGraphicsSvgItem();
-        item->setElementId("c" + QString(iter->GetName().c_str()));
+        item->setElementId("c" + QString(iter->ToString().c_str()));
         item->setSharedRenderer(&mDeck);
         item->setPos(x, y);
         item->show();

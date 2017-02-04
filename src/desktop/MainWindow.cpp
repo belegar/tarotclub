@@ -540,7 +540,7 @@ void MainWindow::slotEndOfDeal()
 
     if (JsonReader::ParseString(json, tarotWidget->GetResult()))
     {
-        if (!JsonWriter::SaveToFile(json.GetObject(), fileName))
+        if (!JsonWriter::SaveToFile(json.GetObj(), fileName))
         {
             TLogError("Cannot save JSON result file.");
         }

@@ -196,6 +196,11 @@ public:
     // Setters
     void SetOwner(Team o);
     std::uint8_t SetCards(const std::string &cards);
+    void Set(const Deck &d)
+    {
+        mDeck = d.mDeck;
+        mOwner = d.mOwner;
+    }
 
     Deck &operator = (const Deck &d)
     {

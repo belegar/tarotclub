@@ -95,6 +95,7 @@ win32 {
 
 unix {
     DEFINES += USE_UNIX_OS
+    LIBS += -ldl
 }
 
 CONFIG(debug, debug|release) {
@@ -165,7 +166,8 @@ HEADERS += Canvas.h \
     IButtonEvent.h \
     ICardEvent.h \
     Translations.h \
-    RectBase.h
+    RectBase.h \
+    Avatar.h
 
 SOURCES += Canvas.cpp \
     TextBox.cpp \
@@ -177,7 +179,8 @@ SOURCES += Canvas.cpp \
     CheckBoxItem.cpp \
     ButtonItem.cpp \
     MessageBoxItem.cpp \
-    Translations.cpp
+    Translations.cpp \
+    Avatar.cpp
 
 # ------------------------------------------------------------------------------
 # Desktop client files
@@ -208,6 +211,7 @@ HEADERS += AboutWindow.h \
     ImportAvatarWindow.h \
     NewTurnWindow.h \
     Defines.h \
+    ClientConfig.h \
     ScoreCalculatorWindow.h
 
 SOURCES += AboutWindow.cpp \
@@ -223,6 +227,7 @@ SOURCES += AboutWindow.cpp \
     ImportAvatarWindow.cpp \
     NewTurnWindow.cpp \
     ScoreCalculatorWindow.cpp \
+    ClientConfig.cpp \
     main.cpp
 
 # End of project file

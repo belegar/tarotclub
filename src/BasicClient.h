@@ -46,14 +46,17 @@ public:
     Card Play();
     bool IsValid(const Card &c);
     Deck AutoDiscard();
+    bool IsMyTurn() { return mCurrentPlayer == mPlace; }
 
     // Network serializers
+    void BuildNewGame(std::vector<Reply> &out);
     void BuildChangeNickname(std::vector<Reply> &out);
     void BuildBid(Contract c, bool slam, std::vector<Reply> &out);
-    void JoinTable(std::uint32_t tableId, std::vector<Reply> &out);
-    void SendHandle(const Deck &handle, std::vector<Reply> &out);
-    void SendDiscard(const Deck &discard, std::vector<Reply> &out);
+    void BuildJoinTable(std::uint32_t tableId, std::vector<Reply> &out);
+    void BuildHandle(const Deck &handle, std::vector<Reply> &out);
+    void BuildDiscard(const Deck &discard, std::vector<Reply> &out);
     void BuildSendCard(Card c, std::vector<Reply> &out);
+    void BuildQuitTable(std::uint32_t tableId, std::vector<Reply> &out);
     void Sync(const std::string &step, std::vector<Reply> &out);
 
     Deck::Statistics   mStats;   // statistics on player's cards
@@ -74,7 +77,6 @@ public:
     std::uint32_t mUuid;    ///< Assigned UUID
 
     Event Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, IContext &ctx, std::vector<Reply> &out);
-
 };
 
 #endif // BASICCLIENT_H

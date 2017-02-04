@@ -35,6 +35,8 @@
 #include "JsonReader.h"
 #include "JsonWriter.h"
 
+
+/*****************************************************************************/
 Lobby::Lobby(bool adminMode)
     : mInitialized(false)
     , mTableIds(Protocol::TABLES_UID, Protocol::TABLES_UID + Protocol::MAXIMUM_TABLES)
