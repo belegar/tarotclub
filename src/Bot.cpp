@@ -127,6 +127,13 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
         mClient.Sync("Ready", out);
         break;
     }
+    case BasicClient::SHOW_DOG:
+        mClient.Sync("ShowDog", out);
+        break;
+    case BasicClient::END_OF_DEAL:
+        mClient.Sync("EndOfDeal", out);
+        break;
+
     case BasicClient::JSON_ERROR:
     case BasicClient::BAD_EVENT:
     case BasicClient::REQ_LOGIN:
@@ -137,12 +144,6 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::SHOW_BID:
         // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
     case BasicClient::ALL_PASSED:
-    case BasicClient::SHOW_DOG:
-        mClient.Sync("ShowDog", out);
-        break;
-    case BasicClient::END_OF_DEAL:
-        mClient.Sync("EndOfDeal", out);
-        break;
     case BasicClient::SYNC:
     {
         // Nothing to do for that event

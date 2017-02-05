@@ -531,6 +531,9 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             std::this_thread::sleep_for(std::chrono::seconds(1));
             break;
         }
+        case BasicClient::END_OF_DEAL:
+            mClient.Sync("EndOfDeal", out);
+            break;
 
         case BasicClient::JSON_ERROR:
         case BasicClient::BAD_EVENT:
@@ -541,9 +544,6 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         case BasicClient::SHOW_BID:
             // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
         case BasicClient::SHOW_DOG:
-        case BasicClient::END_OF_DEAL:
-            mClient.Sync("EndOfDeal", out);
-            break;
         case BasicClient::SYNC:
         {
             // Nothing to do for that event

@@ -93,7 +93,7 @@ public:
 
     TcpServer(IEvent &handler);
 
-    virtual ~TcpServer(void) { }
+    virtual ~TcpServer(void) { Stop(); }
 
     /**
      * @brief Start the Tcp thread server, with an optional WebSocket port to listen at
@@ -106,6 +106,7 @@ public:
     bool Start(std::int32_t maxConnections, bool localHostOnly, std::uint16_t tcpPort, std::uint16_t wsPort = 0U);
     void Stop();
     void Join();
+    bool IsStarted() { return mInitialized; }
     std::string GetPeerName(int s);
 
 private:

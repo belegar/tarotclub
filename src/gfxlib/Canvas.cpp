@@ -270,26 +270,26 @@ bool Canvas::Initialize()
 
     if (ret)
     {
-        // 4 players by default
-        for (std::uint32_t i = 0U; i < 4U; i++)
-        {
-            PlayerBox::Layout layout = PlayerBox::VERTICAL;
-            if ((i == Place::SOUTH) || (i == Place::NORTH))
-            {
-                layout = PlayerBox::HORIZONTAL;
-            }
-
-            PlayerBox *pb = new PlayerBox(layout);
-            pb->setPos(coordPlayerBox[i]);
-            pb->show();
-            pb->setZValue(50.0);
-            mPlayerBox.insert((Place)i, pb);
-            mScene.addItem(pb);
-        }
-
         // Give canvas element sizes to the popup to allow dynamic resizing
         mPopupItem.SetSizes(border, mCardsPics.at(0)->GetRealSize());
         mMsgBoxItem.SetBorder(border);
+    }
+
+    // 4 players by default
+    for (std::uint32_t i = 0U; i < 4U; i++)
+    {
+        PlayerBox::Layout layout = PlayerBox::VERTICAL;
+        if ((i == Place::SOUTH) || (i == Place::NORTH))
+        {
+            layout = PlayerBox::HORIZONTAL;
+        }
+
+        PlayerBox *pb = new PlayerBox(layout);
+        pb->setPos(coordPlayerBox[i]);
+        pb->show();
+        pb->setZValue(50.0);
+        mPlayerBox.insert((Place)i, pb);
+        mScene.addItem(pb);
     }
 
     return ret;

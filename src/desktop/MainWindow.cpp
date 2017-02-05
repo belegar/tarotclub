@@ -126,7 +126,9 @@ void MainWindow::Initialize()
                               mTournamentConfig.GetOptions());
 
     mLobbyDock->SetServersList(mClientConfig.GetOptions().serverList);
-    debugDock->Initialize();
+
+    // Add debug info
+    Log::RegisterListener(*debugDock);
 
     // Load previously saved settings
     QSettings settings("TarotCorp.", "TarotClub");
@@ -137,6 +139,9 @@ void MainWindow::Initialize()
 /*****************************************************************************/
 void MainWindow::slotAboutToQuit()
 {
+    Log::RemoveListener(*debugDock);
+    Log::Clear();
+
     tarotWidget->slotCleanBeforeExit();
 
     // Save QMainWindow settings

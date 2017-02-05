@@ -8,6 +8,7 @@ class Session
 public:
     enum Command
     {
+        NO_CMD,
         START,
         EXIT
     };

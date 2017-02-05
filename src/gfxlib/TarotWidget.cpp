@@ -337,9 +337,6 @@ void TarotWidget::customEvent(QEvent *e)
             break;
         }
 
-        case BasicClient::JSON_ERROR:
-        case BasicClient::BAD_EVENT:
-        case BasicClient::REQ_LOGIN:
         case BasicClient::MESSAGE:
         {
             // FIXME
@@ -359,7 +356,7 @@ void TarotWidget::customEvent(QEvent *e)
         case BasicClient::PLAYER_LIST:
             emit sigLobbyPlayersList();
             emit sigTablePlayersList();
-            mCanvas->SetPlayerIdentity(GetTablePlayersList(), mClient.mPlace);
+           // mCanvas->SetPlayerIdentity(GetTablePlayersList(), mClient.mPlace);
             break;
 
         case BasicClient::QUIT_TABLE:
@@ -396,6 +393,10 @@ void TarotWidget::customEvent(QEvent *e)
             emit sigAddScore();
             break;
         }
+
+        case BasicClient::JSON_ERROR:
+        case BasicClient::BAD_EVENT:
+        case BasicClient::REQ_LOGIN:
         case BasicClient::SYNC:
         {
             // Nothing to do for that event
@@ -422,6 +423,8 @@ void TarotWidget::customEvent(QEvent *e)
             }
         }
     }
+
+    mSession.Send(out);
 }
 /*****************************************************************************/
 void TarotWidget::AutoJoinTable()
@@ -472,16 +475,6 @@ void TarotWidget::LaunchLocalGame(bool autoPlay)
 {    
     // Save game config
     mAutoPlay = autoPlay;
-
-    // Launch local server if needed
-    // Ensure that we only have one table (embedded lobby, not the dedicated one!)
-    if (mServerOptions.tables.size() != 1)
-    {
-        mServerOptions.tables.clear();
-        mServerOptions.tables.push_back("Default");
-    }
-
-    //mLobbyServer.Initialize(mServerOptions);
 
     if (!HasLocalConnection())
     {
@@ -562,10 +555,21 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
     mServerOptions = i_servOpt;
     mTournamentOptions = i_tournamentOpt;
 
+    // Launch local server if needed
+    // Ensure that we only have one table (embedded lobby, not the dedicated one!)
+    if (mServerOptions.tables.size() != 1)
+    {
+        mServerOptions.tables.clear();
+        mServerOptions.tables.push_back("Default");
+    }
+
+    mLobby.DeleteTables();
+    mLobby.Initialize("Local", mServerOptions.tables);
+
     // Initialize all the objects with the user preferences
     if (mSession.IsConnected())
     {
-        // Send the new client identity to the server
+        // Send the new client identity to the identity server
         // FIXME
       //  mNet.SendPacket(Protocol::ClientChangeIdentity(mClient.GetUuid(), mClientOptions.identity));
     }
@@ -573,8 +577,11 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
     mCanvas->ShowAvatars(mClientOptions.showAvatars);
     mCanvas->SetBackground(mClientOptions.backgroundColor);
 
-    if (mConnectionType == LOCAL)
+    if (mConnectionType != REMOTE)
     {
+        mServer.Start(mServerOptions); // Blocking call. On exit, quit the executable
+
+
         /* FIXME !!!!!!!!
         // Update bot identities if required
         for (std::map<std::uint32_t, Identity>::iterator iter = mBotIds.begin(); iter != mBotIds.end(); ++iter)

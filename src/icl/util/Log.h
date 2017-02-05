@@ -59,11 +59,13 @@ public:
 
     static void AddEntry(std::uint8_t event, const std::string &file, const int line, const std::string &message);
     static void RegisterListener(Observer<std::string> &listener);
+    static void RemoveListener(Observer<std::string> &listener);
     static void SetLogPath(const std::string &path)
     {
         mLogPath = path;
     }
 
+    static void Clear();
     static void EnableLog(bool enable) { mEnableFileOutput = enable; }
 
 private:

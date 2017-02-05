@@ -47,7 +47,12 @@ Lobby::Lobby(bool adminMode)
 /*****************************************************************************/
 Lobby::~Lobby()
 {
-    // Kill tables
+    DeleteTables();
+}
+/*****************************************************************************/
+void Lobby::DeleteTables()
+{
+    // Delete tables
     for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
     {
         delete (*iter);

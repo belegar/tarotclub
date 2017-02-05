@@ -119,8 +119,8 @@ bool TcpClient::DataWaiting(std::uint32_t timeout)
     FD_SET( mPeer.socket, &fds );
 
     struct timeval tv;
-    tv.tv_sec = (long)timeout;
-    tv.tv_usec = 0;
+    tv.tv_sec = 0;
+    tv.tv_usec = ((long)timeout)*1000;
 
     bool ok = false;
     int r = select( mPeer.socket + 1, &fds, NULL, NULL, &tv);

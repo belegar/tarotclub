@@ -54,6 +54,7 @@ public:
     void Start(const ServerOptions &opt);
     void Stop();
     void Send(const std::vector<Reply> &out);
+    bool IsStarted() { return mTcpServer.IsStarted(); }
 
 private:
     // From TcpServer interface

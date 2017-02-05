@@ -42,6 +42,10 @@ Server::Server(net::IEvent &listener)
 /*****************************************************************************/
 void Server::Start(const ServerOptions &opt)
 {
+    if (IsStarted())
+    {
+        mTcpServer.Stop();
+    }
     mTcpServer.Start(opt.lobby_max_conn, opt.localHostOnly, opt.game_tcp_port, 4270); // FIXME: make the WS port configurable
 }
 /*****************************************************************************/

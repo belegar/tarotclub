@@ -41,6 +41,12 @@ public:
 
     bool Initialize();
     bool Connect(const std::string &host, const int port);
+
+    /**
+     * @brief DataWaiting
+     * @param timeout in milliseconds
+     * @return
+     */
     bool DataWaiting(std::uint32_t timeout);
 };
 

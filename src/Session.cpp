@@ -92,6 +92,7 @@ void Session::Run()
         mQueue.WaitAndPop(cmd);
         if (cmd == START)
         {
+            cmd = NO_CMD;
             if (mTcpClient.Connect(mHostName, mTcpPort) == true)
             {
                 bool connected = true;
@@ -99,7 +100,7 @@ void Session::Run()
 
                 while (connected)
                 {
-                    if (mTcpClient.DataWaiting(10U))
+                    if (mTcpClient.DataWaiting(200U))
                     {
                         std::string payload;
                         if (mTcpClient.Recv(payload))

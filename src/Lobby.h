@@ -64,6 +64,7 @@ public:
     // Tables management
     std::uint32_t CreateTable(const std::string &tableName, const Tarot::Game &game = Tarot::Game());
     bool DestroyTable(std::uint32_t id);
+    void DeleteTables();
 
 private:
     bool mInitialized;

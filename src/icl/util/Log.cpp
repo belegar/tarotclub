@@ -73,7 +73,23 @@ Log::Log()
 /*****************************************************************************/
 void Log::RegisterListener(Observer<std::string> &listener)
 {
+    mMutex.lock();
     mSubject.Attach(listener);
+    mMutex.unlock();
+}
+/*****************************************************************************/
+void Log::RemoveListener(Observer<std::string> &listener)
+{
+    mMutex.lock();
+    mSubject.Detach(listener);
+    mMutex.unlock();
+}
+/*****************************************************************************/
+void Log::Clear()
+{
+    mMutex.lock();
+    mSubject.Clear();
+    mMutex.unlock();
 }
 /*****************************************************************************/
 void Log::AddEntry(uint8_t event, const std::string &file, const int line, const std::string &message)
@@ -86,7 +102,9 @@ void Log::AddEntry(uint8_t event, const std::string &file, const int line, const
        line << ", " <<
        message;
 
+    mMutex.lock();
     mSubject.Notify(ss.str(), event);    // send message to all the listeners
+    mMutex.unlock();
 
     if (mEnableFileOutput)
     {

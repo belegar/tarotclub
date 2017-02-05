@@ -73,6 +73,8 @@ public:
         }
     }
 
+    void Clear() { mList.clear(); }
+
 private:
     std::list< Observer<T> *> mList;
 };
