@@ -21,7 +21,7 @@
 # ------------------------------------------------------------------------------
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
-BASE_DIR = $${PWD}
+BASE_DIR = $${PWD}/../..
 
 CONFIG(debug, debug|release) {
 debug:      DESTDIR = $$BASE_DIR/../build-tarotclub/debug
@@ -147,7 +147,7 @@ TRANSLATIONS = $$BASE_DIR/prj/desktop/tarotclub_fr.ts
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-include(src/tarot_core.pri)
+include($$BASE_DIR/src/tarot_core.pri)
 
 # ------------------------------------------------------------------------------
 # Gfx library files
