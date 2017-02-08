@@ -16,14 +16,14 @@ class Logger : public Observer<std::string>
 {
 public:
     Logger()
-        : Observer(Log::Error | Log::Info | Log::Network)
+        : Observer(Log::Error)
     {
-
     }
 
     void Update(const std::string &info)
     {
-        std::cout << info << std::endl;
+        // In case of error, generate an error
+        QFAIL(info.c_str());;
     }
 };
 /*****************************************************************************/
