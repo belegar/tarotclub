@@ -10,12 +10,17 @@ before:
 
 .PHONY: tests
 tests:
-	echo "toto"; \
 	cd build/tests; \
 	qmake ../../tests/testu.pro; \
 	make
 
-all: before tests
+.PHONY: console
+console:
+	cd build/console; \
+	qmake ../../src/console/console.pro; \
+	make
+
+all: before tests console
 
 clean:
 	rm -rf build

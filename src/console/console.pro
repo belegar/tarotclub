@@ -21,14 +21,14 @@
 # ------------------------------------------------------------------------------
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
-BASE_DIR = $${PWD}
+BASE_DIR = $${PWD}/../..
 
 CONFIG(debug, debug|release) {
-debug:      DESTDIR = $$BASE_DIR/build-console/debug
+debug:      DESTDIR = $$BASE_DIR/build/console/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$BASE_DIR/build-console/release
+release:    DESTDIR = $$BASE_DIR/build/console/release
 }
 
 UI_DIR          = $$DESTDIR/ui
@@ -42,13 +42,11 @@ MOC_DIR         = $$DESTDIR/moc
 # Console project: the search path for QtCreator & Make
 # ------------------------------------------------------------------------------
 VPATH += $$BASE_DIR/src
-VPATH += $$BASE_DIR/src/config
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
 VPATH += $$BASE_DIR/console
 
 INCLUDEPATH += $$BASE_DIR/src
-INCLUDEPATH += $$BASE_DIR/src/config
 INCLUDEPATH += $$BASE_DIR/console
 
 
@@ -72,7 +70,7 @@ TARGET = tarotclub-cli # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = $$BASE_DIR/tcds/icon.rc
+    RC_FILE = $$BASE_DIR/src/console/icon.rc
     LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
     # Let's make everything's static so that we don't need any DLL
@@ -93,7 +91,7 @@ debug {
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-include(src/tarot_core.pri)
+include($$BASE_DIR/src/tarot_core.pri)
 
 # ------------------------------------------------------------------------------
 # Console files
