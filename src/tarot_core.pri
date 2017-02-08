@@ -3,6 +3,7 @@
 # TarotClub core files
 # ------------------------------------------------------------------------------
 HEADERS += ServerConfig.h \
+    ClientConfig.h \
     TournamentConfig.h \
     DealFile.h \
     Deck.h \
@@ -26,6 +27,7 @@ HEADERS += ServerConfig.h \
     Session.h
 
 SOURCES += ServerConfig.cpp \
+    ClientConfig.cpp \
     TournamentConfig.cpp \
     DealFile.cpp \
     Deck.cpp \
