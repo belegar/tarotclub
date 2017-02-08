@@ -23,19 +23,17 @@
 # ------------------------------------------------------------------------------
 
 BASE_DIR = $${PWD}/..
-TAROTCLUB_DIR = $${PWD}/../../tarotclub
 
 CONFIG(debug, debug|release) {
-debug:      DESTDIR = $$BASE_DIR/build-testu/debug
+debug:      DESTDIR = $$BASE_DIR/build/tests/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$BASE_DIR/build-testu/release
+release:    DESTDIR = $$BASE_DIR/build/tests/release
 }
 
+
 UI_DIR          = $$DESTDIR/ui
-UI_HEADERS_DIR  = $$DESTDIR/include
-UI_SOURCES_DIR  = $$DESTDIR/src
 OBJECTS_DIR     = $$DESTDIR/obj
 RCC_DIR         = $$DESTDIR/rcc
 MOC_DIR         = $$DESTDIR/moc
@@ -44,19 +42,14 @@ MOC_DIR         = $$DESTDIR/moc
 # ------------------------------------------------------------------------------
 # The search path to find supplied files
 # ------------------------------------------------------------------------------
-VPATH += $$BASE_DIR/src
-VPATH += $$BASE_DIR/src/config
 VPATH += $$BASE_DIR/ai
 VPATH += $$BASE_DIR/ai/tarotlib
 
 INCLUDEPATH += $$BASE_DIR/src
-INCLUDEPATH += $$BASE_DIR/src/config
-
 INCLUDEPATH += $$BASE_DIR/tests/src
-INCLUDEPATH += $$BASE_DIR/src
 
-VPATH += $$BASE_DIR/tests/src
 VPATH += $$BASE_DIR/src
+VPATH += $$BASE_DIR/tests/src
 
 ICL_DIR = $$BASE_DIR/src/icl
 include($$ICL_DIR/icl.pri)
@@ -77,7 +70,7 @@ RESOURCES = $$BASE_DIR/assets/testu.qrc
 
 QMAKE_CXXFLAGS += -std=c++11  -fprofile-arcs -ftest-coverage
 
-QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing  -fprofile-arcs -ftest-coverage
+QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
 DEFINES += DUK_OPT_SELF_TESTS
 DEFINES += DEAL_TEST
 
@@ -99,43 +92,7 @@ CONFIG(debug, debug|release) {
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-HEADERS += Deck.h \
-    Card.h \
-    Player.h \
-    ServerConfig.h \
-    ClientConfig.h \
-    Common.h \
-    System.h \
-    Deal.h \
-    Score.h \
-    Engine.h \
-    DealFile.h \
-    Lobby.h \
-    PlayingTable.h \
-    Network.h \
-    BasicClient.h \
-    Users.h \
-    Bot.h \
-    Protocol.h
-
-SOURCES += Deck.cpp \
-    Card.cpp \
-    Player.cpp \
-    ServerConfig.cpp \
-    ClientConfig.cpp \
-    Common.cpp \
-    System.cpp \
-    Deal.cpp \
-    Engine.cpp \
-    DealFile.cpp \
-    Score.cpp \
-    Lobby.cpp \
-    PlayingTable.cpp \
-    Network.cpp \
-    BasicClient.cpp \
-    Users.cpp \
-    Bot.cpp \
-    Protocol.cpp
+include($$BASE_DIR/src/tarot_core.pri)
 
 # ------------------------------------------------------------------------------
 # Unit test files
@@ -149,5 +106,6 @@ SOURCES +=  main.cpp \
             tst_tarot_base.cpp \
             tst_tarot_rules.cpp \
             tst_tarot_protocol.cpp
+
 
 # End of project file
