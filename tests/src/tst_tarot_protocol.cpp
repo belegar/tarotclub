@@ -25,7 +25,11 @@ bool Dump(const std::vector<Reply> &reply)
     for (std::uint32_t i = 0U; i < reply.size(); i++)
     {
         std::cout << "------------------------------------" << std::endl;
-        std::cout << "Destination: " << (int)reply[i].dest  << std::endl;
+
+        for (std::uint32_t j = 0U; j < reply[i].dest.size(); j++)
+        {
+            std::cout << "Destination #" << j << ": " << (int)reply[i].dest[j]  << std::endl;
+        }
         std::string data = reply[i].data.ToString(0U);
         std::cout << data << std::endl;
 
@@ -66,7 +70,7 @@ Semaphore gSem;
 int nb_packets = 0;
 
 /**
- * @brief Simple echo server
+ * @brief Fake server that only parses the packets
  */
 class ProtoServer : public tcp::TcpServer::IEvent
 {
@@ -86,7 +90,7 @@ public:
 
         while (mProto.Parse(data))
         {
-            std::cout << "Found one packet with data: " << data << std::endl;
+        //    std::cout << "Found one packet with data: " << data << std::endl;
             nb_packets++;
         }
 
@@ -202,7 +206,7 @@ void TarotProtocol::TestBotsFullGame()
     {
         bots[i].uuid = lobby.AddUser(lobby_data);
         bots[i].bot.SetUser(names[i], "");
-        bots[i].bot.SetAiScript(Util::ExecutablePath() + "/../../bin/aicontest/ai.zip");
+        bots[i].bot.SetAiScript(Util::ExecutablePath() + "/../../../bin/aicontest/ai.zip");
         bots[i].bot.SetTableToJoin(tableId);
     }
 
@@ -223,11 +227,15 @@ void TarotProtocol::TestBotsFullGame()
             // Send data to that bot if any
             for (std::uint32_t j = 0U; j < lobby_data.size(); j++)
             {
-                if ((lobby_data[j].dest == bots[i].uuid) ||
-                    (lobby_data[j].dest == Protocol::LOBBY_UID) ||
-                    (lobby_data[j].dest == bots[i].bot.GetCurrentTable()))
+
+                for (std::uint32_t k = 0U; k < lobby_data[j].dest.size(); k++)
                 {
-                    bots[i].bot.Decode(Protocol::LOBBY_UID, lobby_data[j].dest, lobby_data[j].data.ToString(0U), bots[i].reply);
+                    if ((lobby_data[j].dest[k] == bots[i].uuid) ||
+                        (lobby_data[j].dest[k] == Protocol::LOBBY_UID) ||
+                        (lobby_data[j].dest[k] == bots[i].bot.GetCurrentTable()))
+                    {
+                        bots[i].bot.Decode(Protocol::LOBBY_UID, lobby_data[j].dest[k], lobby_data[j].data.ToString(0U), bots[i].reply);
+                    }
                 }
             }
 
@@ -241,7 +249,9 @@ void TarotProtocol::TestBotsFullGame()
             // Send bot replies to the lobby (destination should be always the lobby or a table)
             for (std::uint32_t j = 0U; j < bots[i].reply.size(); j++)
             {
-                QCOMPARE(lobby.Deliver(bots[i].uuid, bots[i].reply[j].dest, bots[i].reply[j].data.ToString(0U), lobby_data), true);
+                // No allowed broadcast for messages from clients
+                QCOMPARE(bots[i].reply[j].dest.size(), 1U);
+                QCOMPARE(lobby.Deliver(bots[i].uuid, bots[i].reply[j].dest[0], bots[i].reply[j].data.ToString(0U), lobby_data), true);
             }
         }
         if (Dump(lobby_data))

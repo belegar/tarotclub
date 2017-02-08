@@ -18,10 +18,11 @@ public:
 private Q_SLOTS:
     void TestPacketCodec();
     void TestPacketStream();
-
-private:
     void TestPlayerJoinAndQuit();
     void TestBotsFullGame();
+
+private:
+
 };
 
 #endif // TST_TAROT_RULES_H

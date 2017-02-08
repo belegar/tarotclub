@@ -148,7 +148,7 @@ void TarotRules::TestScoreCalculation()
     // --------------------------------------------------------------------
     // Test 1: Load the TarotMag issue 17 example deal
 
-    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/tarotmag_17.json");
+    bool actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/tarotmag_17.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -167,7 +167,7 @@ void TarotRules::TestScoreCalculation()
     // On a pris le petit du preneur, et le preneur joue son excuse au dernier pli.
     // Malgré cela, au calcul des points, le logiciel lui conserve les 3 bouts
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/taker_loses_two_oudlers.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/taker_loses_two_oudlers.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -182,7 +182,7 @@ void TarotRules::TestScoreCalculation()
     // --------------------------------------------------------------------
     // Test 3:  Load the TarotMag issue 18 example deal
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/tarotmag_18.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/tarotmag_18.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -199,7 +199,7 @@ void TarotRules::TestScoreCalculation()
     // --------------------------------------------------------------------
     // Test 4: One of trump played at last trick by the defense. North is the taker and loose the game.
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/01-T_lasttrickbydefense_game_lost.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/01-T_lasttrickbydefense_game_lost.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -218,7 +218,7 @@ void TarotRules::TestScoreCalculation()
     // Test 4b: One of trump played at last trick by the defense. North is the taker and win the game.
 
     /* FIXME: deal to be generated
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/01-T_lasttrickbydefense_game_won.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/01-T_lasttrickbydefense_game_won.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -236,7 +236,7 @@ void TarotRules::TestScoreCalculation()
     // --------------------------------------------------------------------
     // Test 5:  3 oudlers at the end of the game
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/3_oudlers.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/3_oudlers.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -253,7 +253,7 @@ void TarotRules::TestScoreCalculation()
     // --------------------------------------------------------------------
     // Test 6:  4 oudlers (bug) at the end of the game
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/4_oudlers_bug.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/4_oudlers_bug.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -266,7 +266,7 @@ void TarotRules::TestScoreCalculation()
     // --------------------------------------------------------------------
     // Test 7: Maximum points possible (guard without + slam + triple handle + little oudler last trick
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/maximum_points.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/maximum_points.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -285,7 +285,7 @@ void TarotRules::TestScoreCalculation()
     // 3 oudlers
     // 81 points realized by the attack
 
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/slam_announced_failure.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/slam_announced_failure.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -306,7 +306,7 @@ void TarotRules::TestScoreCalculation()
 
     // FIXME : deal to be generated
 /*
-    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../tests/played_deals/slam_not_announed_by_defense.json");
+    actual_bool = deal.LoadGameDealLog(Util::ExecutablePath() + "/../../../tests/played_deals/slam_not_announed_by_defense.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
