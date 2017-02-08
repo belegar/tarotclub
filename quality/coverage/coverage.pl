@@ -19,13 +19,12 @@ use Text::TabularDisplay;
 # =========================================================
 # Definitions
 # =========================================================	
-my $OBJECT_DIR 	= $ARGV[0];
-
+my $TEST_DIR 	= $ARGV[0];
+my $OBJECT_DIR 	= $TEST_DIR.'\release\obj';
 my $TEMP_DIR_GCOV		= ".";
 my $GCOV_EXTENSION		= ".gcno";
 my $GCOV_SUMMARY_EXT	= ".summary";
 my $GCOV_GENERATED_EXT	= ".gcov";
-
 my $SCRIPT_DIR	= cwd();
 
 @excluded_files = (
@@ -51,6 +50,8 @@ my $table = Text::TabularDisplay->new(@Header);
 my @Files 		= GetFileList ($OBJECT_DIR, $GCOV_EXTENSION);
 my $totalExecutedLines = 0.0;
 my $totalLines = 0.0;
+
+chdir($TEST_DIR);
 
 print "Run gcov on files ...\n";
 foreach my $File  (@Files) 
