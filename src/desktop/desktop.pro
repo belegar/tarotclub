@@ -211,7 +211,6 @@ HEADERS += AboutWindow.h \
     ImportAvatarWindow.h \
     NewTurnWindow.h \
     Defines.h \
-    ClientConfig.h \
     ScoreCalculatorWindow.h
 
 SOURCES += AboutWindow.cpp \
@@ -227,7 +226,6 @@ SOURCES += AboutWindow.cpp \
     ImportAvatarWindow.cpp \
     NewTurnWindow.cpp \
     ScoreCalculatorWindow.cpp \
-    ClientConfig.cpp \
     main.cpp
 
 # End of project file
