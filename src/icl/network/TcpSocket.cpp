@@ -322,7 +322,7 @@ void TcpSocket::Close(Peer &peer)
         ::shutdown(peer.socket, SD_BOTH);
         ::closesocket(peer.socket);
 #endif
-    peer.socket = -1;
+    peer.socket = cSocketInvalid;
 }
 /*****************************************************************************/
 TcpSocket::TcpSocket()

@@ -38,6 +38,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <netinet/tcp.h>
+
+typedef std::int32_t  SocketType;
+static const std::int32_t cSocketInvalid = -1;
+
 #endif
 
 #ifdef USE_WINDOWS_OS
@@ -57,7 +61,8 @@
 #include <unistd.h>
 #endif
 
-
+typedef SOCKET  SocketType;
+static const SOCKET cSocketInvalid = INVALID_SOCKET;
 
 #endif // USE_WINDOWS_OS
 
@@ -74,9 +79,9 @@ namespace tcp
  * @brief Simple wrapper around the socket
  */
 struct Peer
-{
+{      
     Peer()
-        : socket(-1)
+        : socket(cSocketInvalid)
         , isWebSocket(false)
     {
 
@@ -91,7 +96,7 @@ struct Peer
 
     bool IsValid() const
     {
-        return socket != -1;
+        return socket != cSocketInvalid;
     }
 
     inline bool operator ==(const Peer &rhs)
@@ -106,7 +111,7 @@ struct Peer
        return *this;
     }
 
-    std::int32_t socket;
+    SocketType socket;
     bool isWebSocket;
 };
 
@@ -128,12 +133,14 @@ struct Conn
 
     Conn(std::int32_t s, bool ws)
         : peer(s, ws)
+        , state(cStateClosed)
     {
 
     }
 
     Conn(const Peer &peer)
         : peer(peer)
+        , state(cStateClosed)
     {
 
     }
@@ -159,18 +166,18 @@ struct Conn
         return connected;
     }
 
-    inline bool operator ==(const std::int32_t &rhs)
+    inline bool operator ==(const SocketType &rhs)
     {
         return (peer.socket == rhs);
     }
 
-    inline Conn & operator =(const std::int32_t &rhs)
+    inline Conn & operator =(const SocketType &rhs)
     {
        peer.socket = rhs;
        return *this;
     }
 
-    inline bool operator >(const std::int32_t &rhs)
+    inline bool operator >(const SocketType &rhs)
     {
         return (peer.socket > rhs);
     }
