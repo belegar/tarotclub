@@ -36,6 +36,8 @@ public:
 
     bool LoadFile(const std::string &fileName);
     void SaveFile(const std::string &fileName);
+    std::string ToString();
+    void Build(JsonObject &obj);
 
     void Clear();
 
@@ -56,7 +58,6 @@ public:
     bool CreateRandomDeal(std::uint8_t numberOfPlayers);
 
     static Place RandomPlace(std::uint8_t numberOfPlayers);
-
 private:
     Deck    mPlayers[5]; //!< five players max in Tarot
     Deck    mDogDeck;

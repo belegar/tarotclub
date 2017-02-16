@@ -226,19 +226,31 @@ bool DealFile::LoadFile(const std::string &fileName)
 void DealFile::SaveFile(const std::string &fileName)
 {
     JsonObject json;
-
-    json.AddValue("version", DEAL_FILE_VERSION);
-    json.AddValue("FirstPlayer", mFirstPlayer.ToString());
-    json.AddValue("Dog", mDogDeck.ToString());
-
-    for (std::uint32_t i = 0; i < 5; i++)
-    {
-        json.AddValue(Place(i).ToString(), mPlayers[i].ToString());
-    }
+    Build(json);
 
     if (!JsonWriter::SaveToFile(json, fileName))
     {
         TLogError("Saving custom deal file failed.");
+    }
+}
+/*****************************************************************************/
+std::string DealFile::ToString()
+{
+    JsonObject json;
+    Build(json);
+
+    return json.ToString(0);
+}
+/*****************************************************************************/
+void DealFile::Build(JsonObject &obj)
+{
+    obj.AddValue("version", DEAL_FILE_VERSION);
+    obj.AddValue("FirstPlayer", mFirstPlayer.ToString());
+    obj.AddValue("Dog", mDogDeck.ToString());
+
+    for (std::uint32_t i = 0; i < 5; i++)
+    {
+        obj.AddValue(Place(i).ToString(), mPlayers[i].ToString());
     }
 }
 /*****************************************************************************/
