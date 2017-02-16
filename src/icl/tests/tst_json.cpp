@@ -146,5 +146,12 @@ void JsonTest::GenerateFile()
     std::cout << root.ToString(0U) << std::endl;
 
     QCOMPARE(JsonWriter::SaveToFile(root, "essai.json"), true);
+
+    // FIXME: open-read the generated file and compare the result with a reference file
+}
+
+void JsonTest::ComplexFile()
+{
+    // FIXME: here test the JSON parser compatibility with some complex input and non-valid ones.
 }
 

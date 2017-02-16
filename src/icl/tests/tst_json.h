@@ -17,6 +17,7 @@ private Q_SLOTS:
     void ParseFile();
     void ModifyValue();
     void GenerateFile();
+    void ComplexFile();
 
 private:
 
