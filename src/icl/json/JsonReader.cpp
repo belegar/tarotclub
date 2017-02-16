@@ -110,6 +110,7 @@ JsonReader::ParseStatus JsonReader::Parse(char *s, char **endptr, JsonValue &jso
                     *endptr = s;
                     return JSON_PARSE_BAD_NUMBER;
                 }
+                /* fallthrough */
             case '0':
             case '1':
             case '2':
