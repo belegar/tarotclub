@@ -235,7 +235,7 @@ bool Connection::pump()
     if (m_Outstanding.empty())
         return false;		// no requests outstanding
 
-    if (!mClient.DataWaiting(2U))
+    if (!mClient.DataWaiting(2000U))
         return true;				// recv will block
 
     std::string buf;
