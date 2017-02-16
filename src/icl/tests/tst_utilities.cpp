@@ -324,6 +324,6 @@ void Utilities::TestZip()
 {
     Zip zip;
 
-    QCOMPARE(zip.Open(Util::ExecutablePath() + "/../../bin/aicontest/ai.zip"), true);
+    QCOMPARE(zip.Open(Util::ExecutablePath() + "/../../bin/aicontest/ai.zip", true), true);
 
 }
