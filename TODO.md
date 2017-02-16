@@ -3,7 +3,6 @@
 
 Commencer par la partie protocole et réseau
 
-  * Use epoll under Linux
   * Change the network protocol into JSON-RPC ==> JSON over TarotProtocol
 
 Puis avancer la partie Web:
@@ -16,6 +15,10 @@ Enfin on attaque un peu de refonte graphique en partant sur l'infrastructure Can
   * Remplacer tous les menus "jeu" par un menu sur le Canvas
   * A la fin de la donne, autoriser plusieurs options (voir les donnes passées, les records... voir Ticket To Train)
 
+JSON:
+
+  * Create a ToString() without spaces and indentation to reduce string sizes and network load.
+  
 
 # ---------------------------------------------- JAVASCRIPT / BOT / AI --------------------------------------------------
 
@@ -65,7 +68,7 @@ keywords:
 
 
   * Util.cpp/UserDirectory: under windows (and Linux?), use WinAPI to detect because env variable can be modified
-
+  * Use epoll under Linux
   * Encrypted protocol / authenticated server
   * Log raw bad packets with IPs
   * Create an Observer status to only be a spectator for a current game
