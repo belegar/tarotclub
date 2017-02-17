@@ -61,7 +61,6 @@ void Server::NewConnection(const tcp::Conn &conn)
     Send(out);
 }
 /*****************************************************************************/
-
 /**
  * @brief Server::ReadData
  *
