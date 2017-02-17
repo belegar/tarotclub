@@ -8,7 +8,7 @@ before_install:
   - sudo apt-get update -qq
   
 install:
-  - sudo apt-get install qt5-default qttools5-dev-tools
+  - sudo apt-get install qt57base qt57tools
  
 script:
   - source /opt/qt57/bin/qt57-env.sh
