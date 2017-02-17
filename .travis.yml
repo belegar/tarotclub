@@ -3,17 +3,6 @@ sudo: required
 dist: trusty
 compiler: gcc
 
-matrix:
-  include:
-    - os: linux
-      env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5 COMPILER=g++-5
-      addons:
-        apt:
-          packages:
-            - g++-5
-          sources: &sources
-            - ubuntu-toolchain-r-test
-
 before_install:
   - sudo add-apt-repository --yes ppa:beineri/opt-qt571-trusty
   - sudo apt-get update -qq
