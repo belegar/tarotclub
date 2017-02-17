@@ -147,17 +147,9 @@ void TarotProtocol::TestPacketStream()
     server.Join();
 }
 
-
-void TarotProtocol::TestPlayerJoinAndQuit()
+bool AddUser(const std::string &nickname, Lobby &lobby, std::vector<Reply> &reply)
 {
-    std::vector<std::string> tables;
-    tables.push_back("test");
-    Lobby lobby;
-
-    lobby.Initialize("test", tables);
-
-    std::vector<Reply> reply;
-
+    bool success = false;
     std::uint32_t src = Protocol::INVALID_UID;
     std::uint32_t dest = Protocol::LOBBY_UID;
 
@@ -168,9 +160,40 @@ void TarotProtocol::TestPlayerJoinAndQuit()
     reply.clear();
 
     json.AddValue("cmd", "ReplyLogin");
-    json.AddValue("nickname", "Casimir");
+    json.AddValue("nickname", nickname);
 
-    QCOMPARE(lobby.Deliver(src, dest, json.ToString(0U), reply), true);
+    success = lobby.Deliver(src, dest, json.ToString(0U), reply);
+
+    return success;
+}
+
+
+void TarotProtocol::TestPlayerJoinQuitAndPlayerList()
+{
+    std::vector<std::string> tables;
+    tables.push_back("test");
+    Lobby lobby;
+
+    lobby.Initialize("test", tables);
+
+    std::vector<Reply> reply;
+
+    QCOMPARE(AddUser("Casimir", lobby, reply), true);
+    Dump(reply);
+    reply.clear();
+
+    // Add a second user with the same nickname to the lobby
+    QCOMPARE(AddUser("Casimir", lobby, reply), true);
+    Dump(reply);
+
+    // We should have only one player in the lobby
+    std::uint32_t expected = 1U;
+    QCOMPARE(lobby.GetNumberOfPlayers(), expected);
+
+    reply.clear();
+
+    // Add a second user to the lobby
+    QCOMPARE(AddUser("Popeye", lobby, reply), true);
     Dump(reply);
     reply.clear();
 }
