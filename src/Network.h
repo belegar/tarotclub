@@ -8,6 +8,7 @@
 #include "Common.h"
 #include "ThreadQueue.h"
 #include "TcpClient.h"
+#include "Identity.h"
 
 struct Reply
 {
@@ -44,6 +45,24 @@ inline void ToJson(const Tarot::Distribution &dist, JsonObject &obj)
     obj.AddValue("file", dist.mFile);
     obj.AddValue("seed", dist.mSeed);
     obj.AddValue("type", dist.TypeToString());
+}
+
+inline bool FromJson(Identity &ident, JsonObject &obj)
+{
+    bool ret = true;
+
+    ident.nickname = obj.GetValue("nickname").GetString();
+    ident.avatar = obj.GetValue("avatar").GetInteger();
+    ident.GenderFromString(obj.GetValue("gender").GetString());
+
+    return ret;
+}
+
+inline void ToJson(Identity &ident, JsonObject &obj)
+{
+    obj.AddValue("nickname", ident.nickname);
+    obj.AddValue("avatar", ident.avatar);
+    obj.AddValue("gender", ident.GenderToString());
 }
 
 // Network context storage interface
