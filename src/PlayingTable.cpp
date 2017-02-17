@@ -206,14 +206,19 @@ Place PlayingTable::AddPlayer(std::uint32_t uuid, std::uint8_t &nbPlayers)
                 }
             }
 
-            if (assigned.Value() != Place::NOWHERE)
+            std::uint8_t place = assigned.Value();
+            if (place < Place::NOWHERE)
             {
-                mPlayers[assigned.Value()].uuid = uuid;
+                mPlayers[place].uuid = uuid;
                 // If it is the first player, then it is an admin
                 if (mAdmin == Protocol::INVALID_UID)
                 {
                     mAdmin = uuid;
                 }
+            }
+            else
+            {
+                TLogError("Internal memory problem");
             }
         }
     }
