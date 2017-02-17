@@ -13,7 +13,7 @@ public:
         EXIT
     };
 
-    Session(net::IEvent &client)
+    explicit Session(net::IEvent &client)
         : mListener(client)
         , mInitialized(false)
         , mTcpPort(0U)
@@ -28,6 +28,8 @@ public:
     void ConnectToHost(const std::string &hostName, std::uint16_t port);
     void Close();
 private:
+    void Sorter();
+
     net::IEvent &mListener;
 
     // Client management over the TCP network

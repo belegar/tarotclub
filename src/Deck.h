@@ -46,7 +46,14 @@ public:
     class Sorter
     {
     public:
-        Sorter(const std::string &sorting)
+        static const std::string cDefault;
+
+        Sorter()
+        {
+            SetWeight(cDefault);
+        }
+
+        explicit Sorter(const std::string &sorting)
         {
             std::string order;
             if (sorting.size() == 5)
@@ -55,16 +62,9 @@ public:
             }
             else
             {
-                order = "TCSDH";
+                order = cDefault;
             }
-
-            // Generate a weight for each suit
-            for (int i = 0; i < 5; i++)
-            {
-                std::string letter;
-                letter.push_back(order[4 - i]);
-                mWeight[Card::SuitFromName(letter)] = 100U * i;
-            }
+            SetWeight(order);
         }
 
         bool operator()(const Card &c1, const Card &c2)
@@ -84,6 +84,17 @@ public:
         }
 
     private:
+        void SetWeight(const std::string &order)
+        {
+            // Generate a weight for each suit
+            for (int i = 0; i < 5; i++)
+            {
+                std::string letter;
+                letter.push_back(order[4 - i]);
+                mWeight[Card::SuitFromName(letter)] = 100U * i;
+            }
+        }
+
         std::uint16_t mWeight[5];
     };
 
@@ -129,7 +140,7 @@ public:
     };
 
     Deck();
-    Deck(const std::string &cards);
+    explicit Deck(const std::string &cards);
 
     // STL-compatible iterator types
     typedef std::list<Card>::iterator Iterator;

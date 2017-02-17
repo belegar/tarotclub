@@ -28,6 +28,7 @@
 #include <array>
 #include "Deck.h"
 
+const std::string Deck::Sorter::cDefault = "TCSDH";
 
 /*****************************************************************************/
 Deck::Deck()

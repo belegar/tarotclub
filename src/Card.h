@@ -56,9 +56,9 @@ public:
 
     // Constructors/destructor
     Card();
-    Card(std::uint8_t value, std::uint8_t suit);
-    Card(const std::string &name);
-    Card(const char *name);
+    explicit Card(std::uint8_t value, std::uint8_t suit);
+    explicit Card(const std::string &name);
+    explicit Card(const char *name);
     ~Card();
 
     // Overloaded operators
