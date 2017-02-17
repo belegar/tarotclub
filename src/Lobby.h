@@ -73,11 +73,14 @@ private:
     Users       mUsers;
     std::string mName;
     bool mAdminMode;
+    std::uint32_t mEvCounter;
 
     std::string GetTableName(const std::uint32_t tableId);
     void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<Reply> &out);
-    void SendPlayerList(const std::vector<uint32_t> &players, const std::string &event, std::vector<Reply> &out);
+    void SendPlayerList(uint32_t uuid, std::vector<Reply> &out);
     void Error(std::uint32_t error, std::uint32_t dest_uuid, std::vector<Reply> &out);
+    JsonObject PlayerStatus(std::uint32_t uuid);
+    void SendPlayerEvent(std::uint32_t uuid, const std::string &event, std::vector<Reply> &out);
 };
 
 #endif // LOBBY_H

@@ -41,6 +41,7 @@ Lobby::Lobby(bool adminMode)
     : mInitialized(false)
     , mTableIds(Protocol::TABLES_UID, Protocol::TABLES_UID + Protocol::MAXIMUM_TABLES)
     , mAdminMode(adminMode)
+    , mEvCounter(0U)
 {
 
 }
@@ -62,6 +63,8 @@ void Lobby::DeleteTables()
 void Lobby::Initialize(const std::string &name, const std::vector<std::string> &tables)
 {
     mName = name;
+    mEvCounter = 0U;
+
     for (std::uint32_t i = 0U; i < tables.size(); i++)
     {
         CreateTable(tables[i]);
@@ -144,11 +147,11 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                 // Send to the player the final step of the login process
                 out.push_back(Reply(src_uuid, reply));
 
-                std::vector<std::uint32_t> peers;
-                peers.push_back(src_uuid);
+                // Send also the list of players
+                SendPlayerList(src_uuid, out);
 
-                // Send to all the list of players and the event
-                SendPlayerList(peers, "JoinPlayer", out);
+                // Send the information for all other users
+                SendPlayerEvent(src_uuid, "JoinPlayer", out);
             }
             else
             {
@@ -191,25 +194,9 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                     reply.AddValue("table_id", tableId);
                     reply.AddValue("place", assignedPlace.ToString());
                     reply.AddValue("size", nbPlayers);
-
-                    JsonArray array;
-
-                    std::vector<std::uint32_t> players = mUsers.GetTablePlayers(tableId);
-
-                    for (std::uint32_t i = 0U; i < players.size(); i++)
-                    {
-                        Users::Entry entry;
-                        if (mUsers.GetEntry(players[i], entry))
-                        {
-                            JsonObject obj;
-                            obj.AddValue("uuid", entry.uuid);
-                            obj.AddValue("place", entry.place.ToString());
-                            array.AddValue(obj);
-                        }
-                    }
-
-                    reply.AddValue("players", array);
                     out.push_back(Reply(src_uuid, reply));
+
+                    SendPlayerEvent(src_uuid, "Join", out);
                 }
                 else
                 {
@@ -237,7 +224,7 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                 peers.push_back(src_uuid);
 
                 // Send to all the list of players and the event
-                SendPlayerList(peers, "ChangeNick", out);
+                SendPlayerEvent(src_uuid, "Nick", out);
             }
             else
             {
@@ -387,50 +374,80 @@ void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std
         {
             mUsers.SetPlayingTable(peers[i], 0U, Place::NOWHERE); // refresh lobby state
         }
-    }
 
-    SendPlayerList(peers, "QuitTable", out);
+        SendPlayerEvent(peers[i], "Leave", out);
+    }
 }
 /*****************************************************************************/
-void Lobby::SendPlayerList(const std::vector<std::uint32_t> &players, const std::string &event, std::vector<Reply> &out)
+JsonObject Lobby::PlayerStatus(std::uint32_t uuid)
+{
+    JsonObject obj;
+    Users::Entry entry;
+
+    /**
+    {
+        "uuid": 37,
+        "nickname": "Belegar",
+        "avatar": "http://wwww.fdshjkfjds.com/moi.jpg",
+        "gender": "Male",
+        "table": 0,
+        "place": "South"
+    }
+    */
+    if (mUsers.GetEntry(uuid, entry))
+    {
+        obj.AddValue("uuid", uuid);
+        obj.AddValue("table", entry.tableId);
+        obj.AddValue("place", entry.place.ToString());
+        ToJson(entry.identity, obj);
+    }
+
+    return obj;
+}
+/*****************************************************************************/
+void Lobby::SendPlayerList(std::uint32_t uuid, std::vector<Reply> &out)
 {
     std::vector<Users::Entry> users = mUsers.GetLobbyUsers();
-    std::vector<std::uint32_t> list;
-
-
     JsonObject obj;
     JsonArray array;
 
     for (uint32_t i = 0U; i < users.size(); i++)
     {
-        JsonObject player;
-        std::uint32_t uuid = users[i].uuid;
-        list.push_back(uuid);
-
-        player.AddValue("uuid", uuid);
-        player.AddValue("nickname", users[i].nickname);
-        player.AddValue("table", users[i].tableId);
-
-        std::string ev = "none";
-
-        // search for specific event for that list of players
-        for (std::uint32_t j = 0U; j < players.size(); j++)
-        {
-            if (players[j] == users[j].uuid)
-            {
-                ev = event;
-            }
-        }
-        player.AddValue("event", ev);
-        array.AddValue(player);
+        array.AddValue(PlayerStatus(users[i].uuid));
     }
 
     obj.AddValue("cmd", "PlayerList");
     obj.AddValue("players", array);
 
-    out.push_back(Reply(list, obj));
+    out.push_back(Reply(uuid, obj));
 }
+/*****************************************************************************/
+void Lobby::SendPlayerEvent(std::uint32_t uuid, const std::string &event, std::vector<Reply> &out)
+{
+    Users::Entry entry;
+    if (mUsers.GetEntry(uuid, entry))
+    {
+        /**
+            "cmd": "Event",
+            "type": "Nick",
+            "counter": 3590896,
+            "player": { }
+        */
+        JsonObject obj;
 
+        mEvCounter++;
+        obj.AddValue("cmd", "Event");
+        obj.AddValue("type", event);
+        obj.AddValue("counter", mEvCounter);
+        obj.AddValue("player", PlayerStatus(uuid));
+
+        out.push_back(Reply(mUsers.GetAllExcept(uuid), obj));
+    }
+    else
+    {
+        TLogError("Cannot find player, should be in the list!");
+    }
+}
 /*****************************************************************************/
 std::string Lobby::GetTableName(const std::uint32_t tableId)
 {
