@@ -15,6 +15,8 @@ public:
 
     Session(net::IEvent &client)
         : mListener(client)
+        , mInitialized(false)
+        , mTcpPort(0U)
     {
 
     }
