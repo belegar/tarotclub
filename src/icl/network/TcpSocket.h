@@ -26,6 +26,10 @@
 #ifndef TCPSOCKET_H
 #define TCPSOCKET_H
 
+#include <cstdint>
+#include <string>
+#include <vector>
+
 #ifdef USE_UNIX_OS
 
 // FIXME: use __GNUC__ macro for GCC under Linux
@@ -65,11 +69,6 @@ typedef SOCKET  SocketType;
 static const SOCKET cSocketInvalid = INVALID_SOCKET;
 
 #endif // USE_WINDOWS_OS
-
-#include <cstdint>
-#include <string>
-#include <vector>
-
 
 namespace tcp
 {
