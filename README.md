@@ -1,5 +1,14 @@
 # TarotClub, the free French Tarot card game!
 
+```html
+<a href="https://scan.coverity.com/projects/tarotclub-tarotclub">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/11767/badge.svg"/>
+</a>
+```
+
+[![Build Status](https://travis-ci.org/tarotclub/tarotclub.svg?branch=master)](https://travis-ci.org/tarotclub/tarotclub)
+
 ## Introduction
 
 TarotClub is a Tarot card game (not the divination one) playable on any computer 
@@ -35,19 +44,6 @@ Since I have no Macintosh computer, I cannot provide the game on this system (tr
 # Building the game
 
 See the official documentation on http://www.tarotclub.fr
-
-# ICL dependency
-
-## Add Subtree
-git subtree add --prefix src/icl https://github.com/arabine/icl master --squash
-
-## Update Subtree
-git subtree pull --prefix src/icl https://github.com/arabine/icl master --squash
-
-
-Now we can use the subtree push command like the following:
-git subtree push --prefix src/icl https://github.com/arabine/icl master
-
 
 # Credits / contributions
 
