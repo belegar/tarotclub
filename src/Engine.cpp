@@ -26,6 +26,7 @@
 #include <chrono>
 #include <random>
 #include <sstream>
+#include <iostream>
 
 #include "Engine.h"
 #include "DealFile.h"
@@ -435,6 +436,10 @@ void Engine::CreateDeal(Tarot::Distribution &shuffle)
         shuffle.mSeed = editor.GetSeed();
     }
 
+#ifdef UNIT_TEST
+    editor.SaveFile("unit_test_current_deal.json");
+#endif
+
     // Copy deal editor cards to engine
     for (std::uint32_t i = 0U; i < mNbPlayers; i++)
     {
@@ -442,6 +447,10 @@ void Engine::CreateDeal(Tarot::Distribution &shuffle)
         mPlayers[i].Append(editor.GetPlayerDeck(i));
 
         TLogInfo( "Player " + Place(i).ToString() + " deck: " + mPlayers[i].ToString());
+
+#ifdef UNIT_TEST
+    std::cout << "Player " + Place(i).ToString() + " deck: " + mPlayers[i].ToString() << std::endl;
+#endif
     }
     mDeal.SetDog(editor.GetDogDeck());
 
