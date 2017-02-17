@@ -10,7 +10,8 @@
 
 /*****************************************************************************/
 BasicClient::BasicClient()
-    : mUuid(Protocol::INVALID_UID)
+    : mTableId(Protocol::INVALID_UID)
+    , mUuid(Protocol::INVALID_UID)
 {
 
 }
@@ -299,6 +300,12 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         }
 
         event = PLAYER_LIST;
+    }
+    else if (cmd == "Event")
+    {
+
+
+        event = PLAYER_EVENT;
     }
     else if (cmd == "ReplyJoinTable")
     {
