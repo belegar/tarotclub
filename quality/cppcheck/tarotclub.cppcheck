@@ -11,6 +11,8 @@
     </paths>
     <exclude>
         <path name="U:/tarotclub/src/gfxlib/"/>
+        <path name="U:/tarotclub/src/desktop/"/>
+        <path name="U:/tarotclub/src/icl/"/>
     </exclude>
     <libraries>
         <library>qt</library>
