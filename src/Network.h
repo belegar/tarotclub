@@ -21,7 +21,7 @@ struct Reply
         dest.push_back(d);
     }
 
-    Reply(std::vector<std::uint32_t> dlist, const JsonObject &obj)
+    Reply(const std::vector<std::uint32_t> &dlist, const JsonObject &obj)
         : dest(dlist)
         , data(obj)
     {

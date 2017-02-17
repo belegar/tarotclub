@@ -61,7 +61,7 @@ void TarotBase::TestDeckClass()
 
     // Default is no team
     QCOMPARE(myDeck.GetOwner().Value(), Team::NO_TEAM);
-    myDeck.SetOwner(Team::DEFENSE);
+    myDeck.SetOwner(Team(Team::DEFENSE));
     QCOMPARE(myDeck.GetOwner().Value(), Team::DEFENSE);
 
     // ------------------------------------------------------------------------

@@ -10,7 +10,8 @@
 
 /*****************************************************************************/
 BasicClient::BasicClient()
-    : mTableId(Protocol::INVALID_UID)
+    : mNbPlayers(0U)
+    , mTableId(Protocol::INVALID_UID)
     , mUuid(Protocol::INVALID_UID)
 {
 

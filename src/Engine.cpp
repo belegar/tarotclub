@@ -159,7 +159,7 @@ bool Engine::SetDiscard(const Deck &discard)
         ss << "Taker's deck after the discard: " << mPlayers[mBid.taker.Value()].ToString();
         TLogInfo(ss.str());
 
-        mDeal.SetDiscard(discard, Team::ATTACK);
+        mDeal.SetDiscard(discard, Team(Team::ATTACK));
         mSequence = WAIT_FOR_START_DEAL;
     }
     return valid;
@@ -253,7 +253,7 @@ Deck Engine::GetDeck(Place p)
 {
     Deck deck;
 
-    if (p < Place::NOWHERE)
+    if (p < Place(Place::NOWHERE))
     {
         deck = mPlayers[p.Value()];
     }
@@ -329,14 +329,14 @@ void Engine::BidSequence()
             if ((mBid.contract == Contract::GUARD_WITHOUT) || (mBid.contract == Contract::GUARD_AGAINST))
             {
                 // No discard is made, set the owner of the dog
-                if (mBid.contract != Contract::GUARD_AGAINST)
+                if (mBid.contract != Contract(Contract::GUARD_AGAINST))
                 {
-                    mDeal.SetDiscard(mDeal.GetDog(), Team::ATTACK);
+                    mDeal.SetDiscard(mDeal.GetDog(), Team(Team::ATTACK));
                 }
                 else
                 {
                     // Guard _against_, the dog belongs to the defense
-                    mDeal.SetDiscard(mDeal.GetDog(), Team::DEFENSE);
+                    mDeal.SetDiscard(mDeal.GetDog(), Team(Team::DEFENSE));
                 }
 
                 // We do not display the dog and start the deal immediatly
@@ -443,13 +443,14 @@ void Engine::CreateDeal(Tarot::Distribution &shuffle)
     // Copy deal editor cards to engine
     for (std::uint32_t i = 0U; i < mNbPlayers; i++)
     {
+        Place p(i);
         mPlayers[i].Clear();
-        mPlayers[i].Append(editor.GetPlayerDeck(i));
+        mPlayers[i].Append(editor.GetPlayerDeck(p));
 
-        TLogInfo( "Player " + Place(i).ToString() + " deck: " + mPlayers[i].ToString());
+        TLogInfo( "Player " + p.ToString() + " deck: " + mPlayers[i].ToString());
 
 #ifdef UNIT_TEST
-    std::cout << "Player " + Place(i).ToString() + " deck: " + mPlayers[i].ToString() << std::endl;
+    std::cout << "Player " + p.ToString() + " deck: " + mPlayers[i].ToString() << std::endl;
 #endif
     }
     mDeal.SetDog(editor.GetDogDeck());

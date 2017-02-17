@@ -175,7 +175,7 @@ void Bot::RequestBid(std::vector<Reply> &out)
     Contract botContract(result.GetString());
 
     // security test
-    if ((botContract >= Contract::PASS) && (botContract <= Contract::GUARD_AGAINST))
+    if ((botContract >= Contract(Contract::PASS)) && (botContract <= Contract(Contract::GUARD_AGAINST)))
     {
         // Ask to the bot if a slam has been announced
         args.clear();

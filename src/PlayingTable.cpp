@@ -112,7 +112,7 @@ void PlayingTable::ResetAck()
 /*****************************************************************************/
 Place PlayingTable::GetPlayerPlace(std::uint32_t uuid)
 {
-    Place p = Place::NOWHERE;
+    Place p(Place::NOWHERE);
 
     for (std::uint8_t i = 0U; i < mEngine.GetNbPlayers(); i++)
     {
@@ -194,7 +194,7 @@ Place PlayingTable::AddPlayer(std::uint32_t uuid, std::uint8_t &nbPlayers)
     if (mEngine.GetSequence() == Engine::WAIT_FOR_PLAYERS)
     {
         // Check if player is not already connected
-        if (GetPlayerPlace(uuid) == Place::NOWHERE)
+        if (GetPlayerPlace(uuid) == Place(Place::NOWHERE))
         {
             // Look for free Place and assign the uuid to this player
             for (std::uint32_t i = 0U; i < mEngine.GetNbPlayers(); i++)
@@ -284,7 +284,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
     else if (cmd == "Ack")
     {
         // Check if the uuid exists
-        if (GetPlayerPlace(src_uuid) != Place::NOWHERE)
+        if (GetPlayerPlace(src_uuid) != Place(Place::NOWHERE))
         {
             std::string step = json.FindValue("step").GetString();
             Engine::Sequence seq = FindSequence(step);
@@ -380,7 +380,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
 
         // Check if the uuid exists
         Place p = GetPlayerPlace(src_uuid);
-        if (p != Place::NOWHERE)
+        if (p != Place(Place::NOWHERE))
         {
             // Check if this is the right player
             if (p == mEngine.GetCurrentPlayer())

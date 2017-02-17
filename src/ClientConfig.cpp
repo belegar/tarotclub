@@ -162,31 +162,32 @@ bool ClientConfig::Load(const std::string &fileName)
                 // Load bot configuration
                 for (std::uint32_t i = 1U; i < 4U; i++)
                 {
-                    std::string botPos = Place(i).ToString();
+                    Place p(i);
+                    std::string botPos = p.ToString();
                     if (json.GetValue(botPos + ":name", stringval))
                     {
-                        mOptions.bots[i].identity.nickname = stringval;
+                        mOptions.bots[p].identity.nickname = stringval;
                     }
                     if (json.GetValue(botPos + ":avatar", stringval))
                     {
-                        mOptions.bots[i].identity.avatar = stringval;
+                        mOptions.bots[p].identity.avatar = stringval;
                     }
                     if (json.GetValue(botPos + ":gender", stringval))
                     {
                         if (stringval == "female")
                         {
-                            mOptions.bots[i].identity.gender = Identity::cGenderFemale;
+                            mOptions.bots[p].identity.gender = Identity::cGenderFemale;
                         }
                         else
                         {
-                            mOptions.bots[i].identity.gender = Identity::cGenderMale;
+                            mOptions.bots[p].identity.gender = Identity::cGenderMale;
                         }
 
                     }
 
                     if (json.GetValue(botPos + ":bot_file_path", stringval))
                     {
-                        mOptions.bots[i].scriptFilePath = stringval;
+                        mOptions.bots[p].scriptFilePath = stringval;
                     }
                 }
 
@@ -273,15 +274,16 @@ bool ClientConfig::Save(const std::string &fileName)
     // List of bots
     for (std::uint32_t i = 1U; i < 4U; i++)
     {
+        Place p(i);
         JsonObject botObj;
-        botObj.AddValue("name", mOptions.bots[i].identity.nickname);
+        botObj.AddValue("name", mOptions.bots[p].identity.nickname);
 
         // Make sure to use unix path separator
-        Util::ReplaceCharacter(mOptions.bots[i].identity.avatar, "\\", "/");
+        Util::ReplaceCharacter(mOptions.bots[p].identity.avatar, "\\", "/");
 
-        botObj.AddValue("avatar", mOptions.bots[i].identity.avatar);
+        botObj.AddValue("avatar", mOptions.bots[p].identity.avatar);
         std::string text;
-        if (mOptions.bots[i].identity.gender == Identity::cGenderMale)
+        if (mOptions.bots[p].identity.gender == Identity::cGenderMale)
         {
             text = "male";
         }
@@ -293,9 +295,9 @@ bool ClientConfig::Save(const std::string &fileName)
         botObj.AddValue("gender", text);
 
         // Make sure to use unix path separator
-        Util::ReplaceCharacter(mOptions.bots[i].scriptFilePath, "\\", "/");
-        botObj.AddValue("bot_file_path", mOptions.bots[i].scriptFilePath);
-        json.AddValue(Place(i).ToString(), botObj);
+        Util::ReplaceCharacter(mOptions.bots[p].scriptFilePath, "\\", "/");
+        botObj.AddValue("bot_file_path", mOptions.bots[p].scriptFilePath);
+        json.AddValue(p.ToString(), botObj);
     }
 
     // List of servers
@@ -346,20 +348,20 @@ ClientOptions ClientConfig::GetDefault()
         opt.serverList.push_back(DefaultServers[i]);
     }
 
-    opt.bots[Place::WEST].identity.nickname = "Leela";
-    opt.bots[Place::WEST].identity.avatar   = ":/avatars/FD05.png";
-    opt.bots[Place::WEST].identity.gender   = Identity::cGenderFemale;
-    opt.bots[Place::WEST].scriptFilePath    = System::ScriptPath();
+    opt.bots[Place(Place::WEST)].identity.nickname = "Leela";
+    opt.bots[Place(Place::WEST)].identity.avatar   = ":/avatars/FD05.png";
+    opt.bots[Place(Place::WEST)].identity.gender   = Identity::cGenderFemale;
+    opt.bots[Place(Place::WEST)].scriptFilePath    = System::ScriptPath();
 
-    opt.bots[Place::NORTH].identity.nickname = "Bender";
-    opt.bots[Place::NORTH].identity.avatar  = ":/avatars/N03.png";
-    opt.bots[Place::NORTH].identity.gender  = Identity::cGenderMale;
-    opt.bots[Place::NORTH].scriptFilePath   = System::ScriptPath();
+    opt.bots[Place(Place::NORTH)].identity.nickname = "Bender";
+    opt.bots[Place(Place::NORTH)].identity.avatar  = ":/avatars/N03.png";
+    opt.bots[Place(Place::NORTH)].identity.gender  = Identity::cGenderMale;
+    opt.bots[Place(Place::NORTH)].scriptFilePath   = System::ScriptPath();
 
-    opt.bots[Place::EAST].identity.nickname = "Amy";
-    opt.bots[Place::EAST].identity.avatar   = ":/avatars/FE02.png";
-    opt.bots[Place::EAST].identity.gender   = Identity::cGenderFemale;
-    opt.bots[Place::EAST].scriptFilePath    = System::ScriptPath();
+    opt.bots[Place(Place::EAST)].identity.nickname = "Amy";
+    opt.bots[Place(Place::EAST)].identity.avatar   = ":/avatars/FE02.png";
+    opt.bots[Place(Place::EAST)].identity.gender   = Identity::cGenderFemale;
+    opt.bots[Place(Place::EAST)].scriptFilePath    = System::ScriptPath();
 
     return opt;
 }

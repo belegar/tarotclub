@@ -79,40 +79,17 @@ Place::Place()
 /*****************************************************************************/
 Place::Place(std::uint32_t p)
 {
-    if (p > NOWHERE)
-    {
-        TLogError("Invalid Place value");
-        mPlace = SOUTH;
-    }
-    else
-    {
-        mPlace = static_cast<std::uint8_t>(p);
-    }
+    *this = p;
 }
 /*****************************************************************************/
 Place::Place(std::uint8_t p)
 {
-    if (p > NOWHERE)
-    {
-        TLogError("Invalid Place value");
-        mPlace = SOUTH;
-    }
-    else
-    {
-        mPlace = p;
-    }
+    *this = p;
 }
 /*****************************************************************************/
 Place::Place(std::string p)
 {
-    mPlace = NOWHERE;
-    for (std::uint32_t i = 0U; i < mStrings.size(); i++)
-    {
-        if (p == mStrings[i])
-        {
-            mPlace = static_cast<std::uint8_t>(i);
-        }
-    }
+    *this = p;
 }
 /*****************************************************************************/
 Place::Place(int p)
@@ -141,7 +118,7 @@ Place Place::Next(std::uint8_t numberOfPlayers)
     {
         place = Place::SOUTH;
     }
-    return place;
+    return Place(place);
 }
 /*****************************************************************************/
 Place Place::Previous(std::uint8_t numberOfPlayers)
@@ -156,7 +133,7 @@ Place Place::Previous(std::uint8_t numberOfPlayers)
     {
         place--;
     }
-    return place;
+    return Place(place);
 }
 /*****************************************************************************/
 bool Place::IsValid()
@@ -186,40 +163,17 @@ Contract::Contract()
 /*****************************************************************************/
 Contract::Contract(std::uint32_t c)
 {
-    if (c > GUARD_AGAINST)
-    {
-        TLogError("Invalid contract value");
-        mContract = PASS;
-    }
-    else
-    {
-        mContract = static_cast<std::uint8_t>(c);
-    }
+    *this = c;
 }
 /*****************************************************************************/
 Contract::Contract(std::uint8_t c)
 {
-    if (c > GUARD_AGAINST)
-    {
-        TLogError("Invalid contract value");
-        mContract = PASS;
-    }
-    else
-    {
-        mContract = c;
-    }
+    *this = c;
 }
 /*****************************************************************************/
 Contract::Contract(std::string c)
 {
-    mContract = PASS;
-    for (std::uint32_t i = 0U; i < mStrings.size(); i++)
-    {
-        if (c == mStrings[i])
-        {
-            mContract = static_cast<std::uint8_t>(i);
-        }
-    }
+    *this = c;
 }
 /*****************************************************************************/
 std::string Contract::ToString() const

@@ -76,8 +76,6 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     Place winner;
     std::uint8_t numberOfPlayers = trick.Size();
     Place firstPlayer;
-    // Bonus: Fool
-    bool foolSwap = false;  // true if the fool has been swaped of teams
 
     if (turn == 0U)
     {
@@ -94,6 +92,8 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
 
     if (turn < 24U)
     {
+        // Bonus: Fool
+        bool foolSwap = false;  // true if the fool has been swaped of teams
         mTricks[turn] = trick;
         Card cLeader;
 
@@ -125,8 +125,8 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
                 else
                 {
                     Place foolPlace = GetOwner(firstPlayer, cFool, turn);
-                    Team winnerTeam = (winner == mBid.taker) ? Team::ATTACK : Team::DEFENSE;
-                    Team foolTeam = (foolPlace == mBid.taker) ? Team::ATTACK : Team::DEFENSE;
+                    Team winnerTeam = (winner == mBid.taker) ? Team(Team::ATTACK) : Team(Team::DEFENSE);
+                    Team foolTeam = (foolPlace == mBid.taker) ? Team(Team::ATTACK) : Team(Team::DEFENSE);
 
                     if (Tarot::IsDealFinished(trickCounter, numberOfPlayers))
                     {
@@ -161,7 +161,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
 
         if (winner == mBid.taker)
         {
-            mTricks[turn].SetOwner(Team::ATTACK);
+            mTricks[turn].SetOwner(Team(Team::ATTACK));
             mTricks[turn].AnalyzeTrumps(statsAttack);
             mTricksWon++;
 
@@ -173,7 +173,7 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
         }
         else
         {
-            mTricks[turn].SetOwner(Team::DEFENSE);
+            mTricks[turn].SetOwner(Team(Team::DEFENSE));
             if (foolSwap)
             {
                 statsAttack.points += 4; // get back the points
@@ -461,7 +461,7 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
 #ifdef UNIT_TEST
             std::cout << "First player: " << str_value << std::endl;
 #endif
-            StartDeal(str_value, bid);
+            StartDeal(Place(str_value), bid);
 
             // Load played cards
             JsonValue tricks = json.FindValue("tricks");
@@ -512,11 +512,11 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
                     // Give the cards to the right team owner
                     if (bid.contract == Contract::GUARD_AGAINST)
                     {
-                        mDiscard.SetOwner(Team::DEFENSE);
+                        mDiscard.SetOwner(Team(Team::DEFENSE));
                     }
                     else
                     {
-                        mDiscard.SetOwner(Team::ATTACK);
+                        mDiscard.SetOwner(Team(Team::ATTACK));
                     }
                 }
                 else

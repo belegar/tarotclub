@@ -114,7 +114,7 @@ Place DealFile::RandomPlace(std::uint8_t numberOfPlayers)
     std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
     std::default_random_engine generator(seed);
     std::uniform_int_distribution<std::uint32_t> distribution(0, numberOfPlayers - 1U);
-    return distribution(generator);
+    return Place(static_cast<std::uint8_t>(distribution(generator)));
 }
 /*****************************************************************************/
 const Deck &DealFile::GetDogDeck() const
@@ -164,7 +164,7 @@ bool DealFile::LoadFile(const std::string &fileName)
                 if (json.GetValue("FirstPlayer", stringval))
                 {
                     mFirstPlayer = Place(stringval);
-                    if (mFirstPlayer != Place::NOWHERE)
+                    if (mFirstPlayer != Place(Place::NOWHERE))
                     {
                         ret = true;
                     }

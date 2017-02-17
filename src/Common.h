@@ -31,6 +31,7 @@
 #include <vector>
 #include "Util.h"
 
+#include "Log.h"
 
 /*****************************************************************************/
 class Team
@@ -41,7 +42,7 @@ public:
     static const std::uint8_t NO_TEAM;
 
     Team() : mTeam(NO_TEAM) {  }
-    Team(std::uint8_t team) : mTeam(team) {  }
+    explicit Team(const std::uint8_t team) : mTeam(team) {  }
 
     std::uint8_t Value() { return mTeam; }
 
@@ -51,10 +52,21 @@ public:
         return *this;
     }
 
+    Team &operator = (const std::uint8_t &rhs)
+    {
+        mTeam = rhs;
+        return *this;
+    }
+
     inline bool operator == (const Team &rhs) const
     {
         return (this->mTeam == rhs.mTeam);
     }
+    inline bool operator == (const std::uint8_t &rhs) const
+    {
+        return (this->mTeam == rhs);
+    }
+
     inline bool operator != (const Team &rhs) const
     {
         return (this->mTeam != rhs.mTeam);
@@ -84,10 +96,10 @@ public:
 
     // Constructors
     Place();
-    Place(std::uint32_t p);
-    Place(std::uint8_t p);
-    Place(std::string p);
-    Place(int p);
+    explicit Place(std::uint32_t p);
+    explicit Place(std::uint8_t p);
+    explicit Place(std::string p);
+    explicit Place(int p);
 
     // Helpers
     std::string ToString() const;
@@ -111,6 +123,39 @@ public:
         return *this;
     }
 
+    Place &operator = (std::uint8_t const &rhs)
+    {
+        if (rhs > NOWHERE)
+        {
+            TLogError("Invalid Place value");
+            mPlace = SOUTH;
+        }
+        else
+        {
+            mPlace = rhs;
+        }
+        return *this;
+    }
+
+    Place &operator = (std::uint32_t const &rhs)
+    {
+        *this = static_cast<std::uint8_t>(rhs);
+        return *this;
+    }
+
+    Place &operator = (std::string const &rhs)
+    {
+        mPlace = NOWHERE;
+        for (std::uint32_t i = 0U; i < mStrings.size(); i++)
+        {
+            if (rhs == mStrings[i])
+            {
+                mPlace = static_cast<std::uint8_t>(i);
+            }
+        }
+        return *this;
+    }
+
     inline bool operator == (const Place &rhs) const
     {
         return (this->mPlace == rhs.mPlace);
@@ -119,6 +164,11 @@ public:
     {
         return (this->mPlace != rhs.mPlace);
     }
+    inline bool operator != (const std::uint8_t &rhs) const
+    {
+        return (this->mPlace != rhs);
+    }
+
     inline bool operator < (const Place &rhs) const
     {
         return (this->mPlace < rhs.mPlace);
@@ -152,9 +202,9 @@ public:
 
     // Constructors
     Contract();
-    Contract(std::uint8_t c);
-    Contract(std::uint32_t c);
-    Contract(std::string c);
+    explicit Contract(std::uint8_t c);
+    explicit Contract(std::uint32_t c);
+    explicit Contract(std::string c);
 
     std::string ToString() const;
     std::uint8_t Value();
@@ -165,10 +215,50 @@ public:
         return *this;
     }
 
+    Contract &operator = (const std::uint8_t &rhs)
+    {
+        if (rhs > GUARD_AGAINST)
+        {
+            TLogError("Invalid contract value");
+            mContract = PASS;
+        }
+        else
+        {
+            mContract = rhs;
+        }
+        return *this;
+    }
+
+
+    Contract &operator = (const std::uint32_t &rhs)
+    {
+        *this = static_cast<std::uint8_t>(rhs);
+        return *this;
+    }
+
+    Contract &operator = (const std::string &rhs)
+    {
+        mContract = PASS;
+        for (std::uint32_t i = 0U; i < mStrings.size(); i++)
+        {
+            if (rhs == mStrings[i])
+            {
+                mContract = static_cast<std::uint8_t>(i);
+            }
+        }
+        return *this;
+    }
+
     inline bool operator == (const Contract &rhs) const
     {
         return (this->mContract == rhs.mContract);
     }
+
+    inline bool operator == (const std::uint32_t &rhs) const
+    {
+        return (this->mContract == static_cast<std::uint8_t>(rhs));
+    }
+
     inline bool operator != (const Contract &rhs) const
     {
         return (this->mContract != rhs.mContract);

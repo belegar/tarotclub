@@ -372,7 +372,7 @@ void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std
     {
         if (mUsers.IsHere(peers[i]))
         {
-            mUsers.SetPlayingTable(peers[i], 0U, Place::NOWHERE); // refresh lobby state
+            mUsers.SetPlayingTable(peers[i], 0U, Place(Place::NOWHERE)); // refresh lobby state
         }
 
         SendPlayerEvent(peers[i], "Leave", out);

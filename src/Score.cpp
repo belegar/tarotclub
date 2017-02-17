@@ -46,11 +46,11 @@ Team Points::Winner() const
 {
     if (pointsAttack >= Tarot::PointsToDo(oudlers))
     {
-        return Team::ATTACK;
+        return Team(Team::ATTACK);
     }
     else
     {
-        return Team::DEFENSE;
+        return Team(Team::DEFENSE);
     }
 }
 /*****************************************************************************/
@@ -228,11 +228,11 @@ bool Score::AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t 
     {
         if (Place(i) == bid.taker)
         {
-            scores[dealCounter][i] = points.GetPoints(Team::ATTACK, bid);
+            scores[dealCounter][i] = points.GetPoints(Team(Team::ATTACK), bid);
         }
         else
         {
-            scores[dealCounter][i] = points.GetPoints(Team::DEFENSE, bid);
+            scores[dealCounter][i] = points.GetPoints(Team(Team::DEFENSE), bid);
         }
     }
     dealCounter++;
