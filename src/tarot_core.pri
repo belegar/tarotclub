@@ -47,4 +47,5 @@ SOURCES += ServerConfig.cpp \
     Server.cpp \
     BasicClient.cpp \
     Network.cpp \
-    Session.cpp
+    Session.cpp \
+    Identity.cpp
