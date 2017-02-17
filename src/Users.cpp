@@ -105,6 +105,19 @@ std::vector<std::uint32_t> Users::GetTablePlayers(std::uint32_t tableId)
     return theList;
 }
 /*****************************************************************************/
+std::vector<uint32_t> Users::GetAllExcept(uint32_t uuid)
+{
+    std::vector<std::uint32_t> theList;
+    for (std::uint32_t i = 0; i < mUsers.size(); i++)
+    {
+        if (mUsers[i].uuid != uuid)
+        {
+            theList.push_back(mUsers[i].uuid);
+        }
+    }
+    return theList;
+}
+/*****************************************************************************/
 std::vector<Users::Entry> Users::GetLobbyUsers()
 {
     return mUsers;
@@ -132,7 +145,7 @@ bool Users::CheckNickName(std::uint32_t uuid, const std::string &nickname)
     {
         if (mUsers[i].uuid != uuid)
         {
-            if (mUsers[i].nickname == nickname)
+            if (mUsers[i].identity.nickname == nickname)
             {
                 already_used = true;
                 break;
@@ -154,7 +167,7 @@ bool Users::ChangeNickName(uint32_t uuid, const std::string &nickname)
         {
             if (mUsers[i].uuid == uuid)
             {
-                 mUsers[i].nickname = nickname;
+                 mUsers[i].identity.nickname = nickname;
                  ret = true;
                  break;
             }
@@ -194,11 +207,16 @@ bool Users::AccessGranted(std::uint32_t uuid, const std::string &nickname)
             if (mUsers[i].uuid == uuid)
             {
                 mUsers[i].connected = true;
-                mUsers[i].nickname = nickname;
+                mUsers[i].identity.nickname = nickname;
                 ret = true;
                 break;
             }
         }
+    }
+    else
+    {
+        // Remove the user from the temporary list
+        RemoveUser(uuid);
     }
 
     return ret;

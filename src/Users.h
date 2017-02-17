@@ -42,7 +42,7 @@ public:
         std::uint32_t tableId;  // zero if not playing
         bool connected;         // true if the user is connected (not in login process)
         Place place;            // place around the table (if joined a table)
-        std::string nickname;
+        Identity identity;
     };
 
     Users();
@@ -54,6 +54,7 @@ public:
     void Clear();
     bool CheckNickName(uint32_t uuid, const std::string &nickname);
     std::vector<uint32_t> GetTablePlayers(std::uint32_t tableId);
+    std::vector<uint32_t> GetAllExcept(std::uint32_t uuid);
     std::vector<Entry> GetLobbyUsers();
 
     // Mutators
