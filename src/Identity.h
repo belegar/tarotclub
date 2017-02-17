@@ -40,6 +40,12 @@ public:
     static const std::uint8_t cGenderRobot      = 3U; ///< AI bot attached to a user account
     static const std::uint8_t cGenderDummy      = 4U; ///< Dummy player is to replace missing player
 
+    static const std::string cStrInvalid;
+    static const std::string cStrMale;
+    static const std::string cStrFemale;
+    static const std::string cStrRobot;
+    static const std::string cStrDummy;
+
     std::string     nickname;
     std::string     avatar;     ///< Path to the avatar image (local or network path)
     std::uint8_t    gender;
@@ -65,14 +71,14 @@ public:
 
     std::string GenderToString()
     {
-        std::string txt = "Unknown";
+        std::string txt = cStrInvalid;
         switch(gender)
         {
         case cGenderInvalid:
             txt = "Invalid";
             break;
         case cGenderMale:
-            txt = "Male";
+            txt = cStrMale;
             break;
         case cGenderFemale:
             txt = "Female";
@@ -85,6 +91,37 @@ public:
             break;
         }
         return txt;
+    }
+
+    bool GenderFromString(const std::string &txt)
+    {
+        bool valid = true;
+        if (txt == cStrInvalid)
+        {
+            gender = cGenderInvalid;
+        }
+        else if (txt == cStrMale)
+        {
+            gender = cGenderMale;
+        }
+        else if (txt == cStrFemale)
+        {
+            gender = cGenderFemale;
+        }
+        else if (txt == cStrRobot)
+        {
+            gender = cGenderRobot;
+        }
+        else if (txt == cStrDummy)
+        {
+            gender = cGenderDummy;
+        }
+        else
+        {
+            gender = cGenderInvalid;
+            valid = false;
+        }
+        return valid;
     }
 };
 
