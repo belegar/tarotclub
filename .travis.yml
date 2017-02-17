@@ -12,4 +12,5 @@ install:
  
 script:
   - source /opt/qt57/bin/qt57-env.sh
+  - cd $(TRAVIS_BUILD_DIR)/tarotclub/tarotclub
   - make tests
