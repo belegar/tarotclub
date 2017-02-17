@@ -1,13 +1,5 @@
 # Makefile to build various TarotClub tools
 
-.PHONY: before
-before:
-	mkdir -p build/tests
-	mkdir -p build/desktop
-	mkdir -p build/tcds
-	mkdir -p build/botclient
-	mkdir -p build/console
-
 .PHONY: tests
 tests:
 	cd build/tests; \
@@ -25,4 +17,12 @@ all: before tests console
 clean:
 	rm -rf build
 
+.PHONY: before
+before:
+	mkdir -p build/tests; \
+	mkdir -p build/desktop; \
+	mkdir -p build/tcds; \
+	mkdir -p build/botclient; \
+	mkdir -p build/console;
+	
 # End of Makefile
