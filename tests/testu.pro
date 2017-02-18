@@ -57,7 +57,6 @@ include($$ICL_DIR/icl.pri)
 # ------------------------------------------------------------------------------
 # COMPILER CONFIG
 # ------------------------------------------------------------------------------
-
 QT       += testlib xml
 QT       -= gui
 
@@ -82,6 +81,24 @@ win32 {
 unix {
     DEFINES += USE_UNIX_OS
     LIBS += -ldl -lgcov
+    
+    GCC_VERSION = $$system("g++-6 -dumpversion")
+    contains(GCC_VERSION, 6.[0-9].[0-9]) {
+        message( "g++ version 6.x found" )
+        QMAKE_CC = gcc-6
+        QMAKE_CXX = g++-6
+        
+    } else {
+        contains(GCC_VERSION, 5.[0-9].[0-9]) {
+            message( "g++ version 5.x found" )
+            QMAKE_CC = gcc-5
+            QMAKE_CXX = g++-5
+        } else {
+            message( Unknown GCC configuration $$GCC_VERSION )
+        }
+    }
+    
+    QMAKE_LINK = $(QMAKE_CXX)
 }
 
 CONFIG(debug, debug|release) {
