@@ -89,6 +89,7 @@ unix {
         QMAKE_CXX = g++-6
         
     } else {
+        GCC_VERSION = $$system("g++-5 -dumpversion")
         contains(GCC_VERSION, 5.[0-9].[0-9]) {
             message( "g++ version 5.x found" )
             QMAKE_CC = gcc-5
