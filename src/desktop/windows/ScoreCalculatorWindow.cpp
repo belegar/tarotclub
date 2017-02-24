@@ -8,10 +8,10 @@ ScoreCalculatorWindow::ScoreCalculatorWindow(QWidget *parent) :
     ui.setupUi(this);
 
     // Fill the combo boxes
-    ui.cmbContract->addItems(QStringList() << ContractToString(Contract::TAKE)
-                             << ContractToString(Contract::GUARD)
-                             << ContractToString(Contract::GUARD_WITHOUT)
-                             << ContractToString(Contract::GUARD_AGAINST));
+    ui.cmbContract->addItems(QStringList() << ContractToString(Contract(Contract::TAKE))
+                             << ContractToString(Contract(Contract::GUARD))
+                             << ContractToString(Contract(Contract::GUARD_WITHOUT))
+                             << ContractToString(Contract(Contract::GUARD_AGAINST)));
     ui.cmbHandleType->addItems(QStringList() << tr("No handle") << tr("Simple") << tr("Double") << tr("Triple"));
     ui.cmbLittleEndian->addItems(QStringList() << tr("No bonus") << tr("Attack") << tr("Defense"));
 
@@ -61,8 +61,8 @@ void ScoreCalculatorWindow::Update()
     QString formula = QString("(25 + %1 + %2) * %3 + %4 + %5")
             .arg(abs(mPoints.Difference())).arg(mPoints.GetLittleEndianPoints()).arg(Tarot::GetMultiplier(mBid.contract)).arg(mPoints.handlePoints).arg(mPoints.GetSlamPoints(mBid));
     ui.lblFormula->setText(formula);
-    ui.lblPointsAttack->setText(QString().setNum(mPoints.GetPoints(Team::ATTACK, mBid)));
-    ui.lblPointsDefense->setText(QString().setNum(mPoints.GetPoints(Team::DEFENSE, mBid)));
+    ui.lblPointsAttack->setText(QString().setNum(mPoints.GetPoints(Team(Team::ATTACK), mBid)));
+    ui.lblPointsDefense->setText(QString().setNum(mPoints.GetPoints(Team(Team::DEFENSE), mBid)));
 }
 /*****************************************************************************/
 void ScoreCalculatorWindow::slotActivated(int index)

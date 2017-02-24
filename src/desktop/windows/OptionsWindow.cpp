@@ -354,9 +354,9 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     connect(ui.btnRemoveTurn, &QPushButton::clicked, this, &OptionsWindow::slotRemoveTurn);
 
     connect(ui.botsList, &QListWidget::currentRowChanged, this, &OptionsWindow::slotBotSelected);
-    ui.botsList->addItem(PlaceToString(Place::EAST));
-    ui.botsList->addItem(PlaceToString(Place::NORTH));
-    ui.botsList->addItem(PlaceToString(Place::WEST));
+    ui.botsList->addItem(PlaceToString(Place(Place::EAST)));
+    ui.botsList->addItem(PlaceToString(Place(Place::NORTH)));
+    ui.botsList->addItem(PlaceToString(Place(Place::WEST)));
 
     dragWidget = new DragWidget();
     ui.iconsLayout->addWidget(dragWidget);

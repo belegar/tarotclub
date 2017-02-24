@@ -85,7 +85,7 @@ void ScoresDock::SetNewScore(const Points &points, const Tarot::Bid &bid)
 
     for (std::uint32_t i = 0; i < static_cast<std::uint32_t>(tableScores->columnCount()); i++)
     {
-        int total = mScore.GetTotalPoints(i);
+        int total = mScore.GetTotalPoints(Place(i));
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(total));
         tableScores->setItem(n - 1, i, newItem);
     }

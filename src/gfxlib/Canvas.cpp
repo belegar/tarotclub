@@ -77,7 +77,7 @@ void Canvas::MovePlayerBoxes()
 
     for (std::uint32_t i = 0U; i < Place::FIFTH; i++)
     {
-        mPlayerBox.value(i)->setPos(array[i]);
+        mPlayerBox.value(Place(i))->setPos(array[i]);
     }
 }
 
@@ -430,7 +430,7 @@ void Canvas::ShowTaker(Place taker, Place myPlace)
 Place Canvas::SwapPlace(Place my_place, Place absolute)
 {
     // FIXME: generalize this algorithm with the number of players from GameInfo
-    Place pl = (std::uint8_t)((absolute.Value() + 4 - my_place.Value()) % 4);
+    Place pl = Place((absolute.Value() + 4 - my_place.Value()) % 4);
 
     return pl;
 }
@@ -703,8 +703,8 @@ void Canvas::SetResult(const Points &points, const Tarot::Bid &bid)
     result_str += "</tr></table><hr />";
 
 
-    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetPoints(Team::DEFENSE, bid)) + QString(" ")  + tr("points") + "<br />";
-    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(points.GetPoints(Team::ATTACK, bid)) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetPoints(Team(Team::DEFENSE), bid)) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(points.GetPoints(Team(Team::ATTACK), bid)) + QString(" ")  + tr("points") + "<br />";
 
 
     result_str += "</body></html>";
