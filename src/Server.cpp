@@ -105,7 +105,6 @@ void Server::ServerTerminated(tcp::TcpServer::IEvent::CloseType type)
 /*****************************************************************************/
 void Server::Stop()
 {
-    CloseClients();
     // Properly stop the thread
     mTcpServer.Stop();
     mTcpServer.Join();
