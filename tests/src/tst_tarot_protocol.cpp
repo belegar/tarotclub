@@ -273,7 +273,7 @@ void TarotProtocol::TestBotsFullGame()
             for (std::uint32_t j = 0U; j < bots[i].reply.size(); j++)
             {
                 // No allowed broadcast for messages from clients
-                QCOMPARE(bots[i].reply[j].dest.size(), 1U);
+                QCOMPARE(bots[i].reply[j].dest.size(), 1UL);
                 QCOMPARE(lobby.Deliver(bots[i].uuid, bots[i].reply[j].dest[0], bots[i].reply[j].data.ToString(0U), lobby_data), true);
             }
         }
