@@ -67,13 +67,11 @@ void Session::ConnectToHost(const std::string &hostName, std::uint16_t port)
 /*****************************************************************************/
 void Session::Close()
 {
-    Disconnect();
-
     if (mInitialized)
     {
+        mInitialized = false;
         mQueue.Push(EXIT);
         mThread.join();
-        mInitialized = false;
     }
 }
 /*****************************************************************************/
@@ -95,10 +93,9 @@ void Session::Run()
             cmd = NO_CMD;
             if (mTcpClient.Connect(mHostName, mTcpPort) == true)
             {
-                bool connected = true;
                 Protocol proto;
 
-                while (connected)
+                while (mInitialized)
                 {
                     if (mTcpClient.DataWaiting(200U))
                     {
@@ -125,7 +122,7 @@ void Session::Run()
                     else
                     {
                         //std::cout << "client wait timeout or failure" << std::endl;
-                        connected = IsConnected(); // determine origine of failure
+                        mInitialized = IsConnected(); // determine origine of failure
                     }
                 }
                 mListener.Signal(net::IEvent::ErrDisconnectedFromServer);
@@ -139,6 +136,7 @@ void Session::Run()
         }
         else if (cmd == EXIT)
         {
+            std::cout << "Exit client thread" << std::endl;
             return;
         }
     }

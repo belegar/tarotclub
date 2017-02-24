@@ -27,6 +27,7 @@
 
 #include <string>
 #include "Deck.h"
+#include "JsonValue.h"
 
 /*****************************************************************************/
 class DealFile

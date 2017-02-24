@@ -97,6 +97,8 @@ void TarotWidget::slotCleanBeforeExit()
     // Raise a flag
     mShutdown = true;
 
+    mServer.Stop();
+
     // Close ourself
     mSession.Close();
     mBotManager.Close();
