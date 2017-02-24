@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
     std::uint32_t testFailures = 0;
 
     QCoreApplication app(argc, argv);
-    app.setAttribute(Qt::AA_Use96Dpi, true);
 
     Logger logger;
     Log::EnableLog(false);

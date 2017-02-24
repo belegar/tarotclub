@@ -1,7 +1,8 @@
 # TarotClub, the free French Tarot card game!
 
-[![Scan Status]("https://scan.coverity.com/projects/11767/badge.svg)](https://scan.coverity.com/projects/tarotclub-tarotclub)
 [![Build Status](https://travis-ci.org/tarotclub/tarotclub.svg?branch=master)](https://travis-ci.org/tarotclub/tarotclub)
+[![Scan Status](https://scan.coverity.com/projects/11767/badge.svg)](https://scan.coverity.com/projects/tarotclub-tarotclub)
+[![Coverage Status](https://coveralls.io/repos/github/tarotclub/tarotclub/badge.svg?branch=master)](https://coveralls.io/github/tarotclub/tarotclub?branch=master)
 
 ## Introduction
 
