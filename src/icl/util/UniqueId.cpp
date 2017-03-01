@@ -60,7 +60,7 @@ UniqueId::UniqueId(std::uint32_t min, std::uint32_t max)
 /*****************************************************************************/
 std::uint32_t UniqueId::TakeId()
 {
-    std::uint32_t id = 0U;
+    std::uint32_t id = cInvalidId;
 
     for (std::uint32_t i = mMin; i <= mMax; i++)
     {
@@ -91,6 +91,19 @@ bool UniqueId::ReleaseId(std::uint32_t id)
 bool UniqueId::IsTaken(std::uint32_t id)
 {
     return (std::find(mUsedIds.begin(), mUsedIds.end(), id) != mUsedIds.end());
+}
+/*****************************************************************************/
+bool UniqueId::AddId(uint32_t id)
+{
+    bool ret = false;
+
+    if (std::find(mUsedIds.begin(), mUsedIds.end(), id) == mUsedIds.end())
+    {
+        // Id not found
+        mUsedIds.push_back(id);
+        ret = true;
+    }
+    return ret;
 }
 
 //=============================================================================
