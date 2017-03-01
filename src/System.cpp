@@ -70,9 +70,9 @@ void System::Initialize(const std::string &homePath)
 #else
 
 #ifdef TAROT_DEBUG
-    mScriptPath = Util::ExecutablePath() + "/../../tarotclub/assets/ai/";
-    mDeckPath = Util::ExecutablePath() + "/../../tarotclub/assets/cards/default/";
-    mLocalePath = Util::ExecutablePath() + "/../../tarotclub/assets/ts/";
+    mScriptPath = Util::ExecutablePath() + "/../../../assets/ai/";
+    mDeckPath = Util::ExecutablePath() + "/../../../assets/cards/default/";
+    mLocalePath = Util::ExecutablePath() + "/../../../assets/ts/";
 #else
     mScriptPath = Util::ExecutablePath() + "/ai/";
     mDeckPath = Util::ExecutablePath() + "/default/";
