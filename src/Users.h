@@ -29,6 +29,7 @@
 #include "UniqueId.h"
 #include "Identity.h"
 #include "Common.h"
+#include "Protocol.h"
 #include <vector>
 #include <map>
 
@@ -38,6 +39,14 @@ class Users
 public:
     struct Entry
     {
+        Entry()
+            : uuid(Protocol::INVALID_UID)
+            , tableId(Protocol::INVALID_UID)
+            , connected(false)
+        {
+
+        }
+
         std::uint32_t uuid;
         std::uint32_t tableId;  // zero if not playing
         bool connected;         // true if the user is connected (not in login process)
@@ -58,16 +67,16 @@ public:
     std::vector<Entry> GetLobbyUsers();
 
     // Mutators
-    // Alter the lobby users list, thus the serveur must generate a notification to users
+    // Alter the lobby users list
     bool ChangeNickName(std::uint32_t uuid, const std::string &nickname);
-    std::uint32_t AddUser();
-    bool AccessGranted(std::uint32_t uuid, const std::string &nickname);
-    void RemoveUser(std::uint32_t uuid);
+    std::uint32_t CreateEntry(uint32_t uuid);
+    bool Update(std::uint32_t uuid, const Identity &ident);
+    void Remove(std::uint32_t uuid);
     void SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId, Place place);
 
 private:
     UniqueId mIdManager;
-    std::vector<Entry> mUsers;  // connected players on the server. key = UUID
+    std::vector<Entry> mUsers;  // connected players
 };
 
 #endif // USERS_H

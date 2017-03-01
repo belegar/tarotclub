@@ -188,8 +188,8 @@ void TarotWidget::customEvent(QEvent *e)
         }
         case BasicClient::JOIN_TABLE:
         {
-            emit sigTableJoinEvent(mClient.mTableId);
-            AddBots();
+            emit sigTableJoinEvent(mClient.mMyself.tableId);
+            AddBots(); // if needed
             break;
         }
         case BasicClient::NEW_DEAL:
@@ -204,7 +204,7 @@ void TarotWidget::customEvent(QEvent *e)
         }
         case BasicClient::REQ_BID:
         {
-            mCanvas->ShowSelection(mClient.mCurrentPlayer, mClient.mPlace);
+            mCanvas->ShowSelection(mClient.mCurrentPlayer, mClient.mMyself.place);
             if (mClient.IsMyTurn())
             {
                 if (mAutoPlay)
@@ -228,7 +228,7 @@ void TarotWidget::customEvent(QEvent *e)
 
             mSequence = IDLE;
             mCanvas->SetFilter(Canvas::BLOCK_ALL);
-            mCanvas->ShowTaker(mClient.mBid.taker, mClient.mPlace);
+            mCanvas->ShowTaker(mClient.mBid.taker, mClient.mMyself.place);
             break;
         }
         case BasicClient::SHOW_HANDLE:
@@ -263,13 +263,13 @@ void TarotWidget::customEvent(QEvent *e)
             Card card = mClient.mCurrentTrick.Last();
             emit sigShowCard(mClient.mCurrentPlayer, card.ToString());
 
-            mCanvas->DrawCard(card, mClient.mCurrentPlayer, mClient.mPlace);
+            mCanvas->DrawCard(card, mClient.mCurrentPlayer, mClient.mMyself.place);
             mClient.mCurrentTrick.Append(card);
             break;
         }
         case BasicClient::PLAY_CARD:
         {
-            mCanvas->ShowSelection(mClient.mCurrentPlayer, mClient.mPlace);
+            mCanvas->ShowSelection(mClient.mCurrentPlayer, mClient.mMyself.place);
             if (mClient.IsMyTurn())
             {
                 if (mAutoPlay)
@@ -367,7 +367,7 @@ void TarotWidget::customEvent(QEvent *e)
             break;
 
         case BasicClient::SHOW_BID:
-            mCanvas->ShowBid(mClient.mCurrentPlayer, mClient.mBid.contract, mClient.mPlace);
+            mCanvas->ShowBid(mClient.mCurrentPlayer, mClient.mBid.contract, mClient.mMyself.place);
             break;
 
         case BasicClient::SHOW_DOG:
@@ -927,9 +927,9 @@ bool TarotWidget::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::stri
     bool ret = true;
     (void) out;
 
-    if (mClient.mUuid != Protocol::INVALID_UID)
+    if (mClient.mMyself.uuid != Protocol::INVALID_UID)
     {
-        if (dest_uuid != mClient.mUuid)
+        if (dest_uuid != mClient.mMyself.uuid)
         {
             ret = false;
         }
@@ -960,7 +960,7 @@ void TarotWidget::RemoveUser(uint32_t, std::vector<Reply> &)
 /*****************************************************************************/
 uint32_t TarotWidget::GetUuid()
 {
-    return mClient.mUuid;
+    return mClient.mMyself.uuid;
 }
 
 //=============================================================================

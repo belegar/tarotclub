@@ -71,7 +71,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::REQ_BID:
     {
         // Only reply a bid if it is our place to anwser
-        if (mClient.mBid.taker == mClient.mPlace)
+        if (mClient.mBid.taker == mClient.mMyself.place)
         {
             RequestBid(out);
         }
@@ -106,7 +106,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::PLAY_CARD:
     {
         // Only reply a bid if it is our place to anwser
-        if (mClient.mCurrentPlayer == mClient.mPlace)
+        if (mClient.IsMyTurn())
         {
             PlayCard(out);
         }
@@ -339,7 +339,7 @@ void Bot::NewGame()
     if (InitializeScriptContext() == true)
     {
         JSEngine::StringList args;
-        args.push_back(mClient.mPlace.ToString());
+        args.push_back(mClient.mMyself.place.ToString());
         Tarot::Game game = mClient.mGame;
         std::string modeString;
         if (game.mode == Tarot::Game::cQuickDeal)
@@ -381,7 +381,7 @@ void Bot::PlayCard(std::vector<Reply> &out)
         if (!mClient.IsValid(c))
         {
             std::stringstream message;
-            message << mClient.mPlace.ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.mDeck.ToString();
+            message << mClient.mMyself.place.ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.mDeck.ToString();
             TLogError(message.str());
             // The show must go on, play a random card
             c = mClient.Play();
@@ -395,7 +395,7 @@ void Bot::PlayCard(std::vector<Reply> &out)
     else
     {
         std::stringstream message;
-        message << mClient.mPlace.ToString() << " played an unknown card: " << ret.GetString()
+        message << mClient.mMyself.place.ToString() << " played an unknown card: " << ret.GetString()
                 << " Client deck is: " << mClient.mDeck.ToString();
 
         // The show must go on, play a random card
@@ -436,7 +436,7 @@ void Bot::SetTimeBeforeSend(std::uint16_t t)
 /*****************************************************************************/
 void Bot::ChangeNickname(const std::string &nickname, std::vector<Reply> &out)
 {
-    mClient.mNickName = nickname;
+    mClient.mMyself.identity.nickname = nickname;
     mClient.BuildChangeNickname(out);
 }
 /*****************************************************************************/
@@ -445,10 +445,9 @@ void Bot::SetAiScript(const std::string &path)
     mScriptPath = path;
 }
 /*****************************************************************************/
-void Bot::SetUser(const std::string &nickname, const std::string &username)
+void Bot::SetIdentity(const Identity &identity)
 {
-    mClient.mUserName = username;
-    mClient.mNickName = nickname;
+    mClient.mMyself.identity = identity;
 }
 /*****************************************************************************/
 bool Bot::InitializeScriptContext()

@@ -125,9 +125,11 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
         }
         else if (cmd == "ReplyLogin")
         {
-            std::string nickname = json.FindValue("nickname").GetString();
+            Identity identity;
 
-            if (mUsers.AccessGranted(src_uuid, nickname))
+            FromJson(identity, json.GetObj());
+
+            if (mUsers.Update(src_uuid, identity))
             {
                 // Create a list of tables available on the server
                 JsonObject reply;
@@ -255,7 +257,7 @@ std::uint32_t Lobby::GetNumberOfPlayers()
 /*****************************************************************************/
 uint32_t Lobby::AddUser(std::vector<Reply> &out)
 {
-    std::uint32_t uuid = mUsers.AddUser();
+    std::uint32_t uuid = mUsers.CreateEntry(Protocol::INVALID_UID);
 
     JsonObject json;
     json.AddValue("cmd", "RequestLogin");
@@ -275,7 +277,7 @@ void Lobby::RemoveUser(uint32_t uuid, std::vector<Reply> &out)
         RemovePlayerFromTable(uuid, tableId, out);
     }
     // Remove the player from the lobby list
-    mUsers.RemoveUser(uuid);
+    mUsers.Remove(uuid);
 }
 /*****************************************************************************/
 void Lobby::RemoveAllUsers()

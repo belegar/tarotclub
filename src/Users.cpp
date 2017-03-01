@@ -25,9 +25,6 @@
 
 #include <sstream>
 #include "Users.h"
-#include "Log.h"
-#include "Protocol.h"
-#include "TcpSocket.h"
 
 /*****************************************************************************/
 Users::Users()
@@ -183,31 +180,53 @@ bool Users::ChangeNickName(uint32_t uuid, const std::string &nickname)
  *
  * @return
  */
-std::uint32_t Users::AddUser()
+std::uint32_t Users::CreateEntry(std::uint32_t uuid)
 {
-    std::uint32_t uuid = mIdManager.TakeId();
+    bool valid = false;
 
-    Entry entry;
-    entry.tableId = Protocol::LOBBY_UID; // Player logs on the lobby at connection
-    entry.connected = false;
-    entry.uuid = uuid;
-    mUsers.push_back(entry);
+    if (uuid == Protocol::INVALID_UID)
+    {
+        // ID not specified, generate an ID
+        uuid = mIdManager.TakeId();
+        if (uuid != UniqueId::cInvalidId)
+        {
+            valid = true;
+        }
+    }
+    else
+    {
+        // ID specified, use this one
+        valid = mIdManager.AddId(uuid);
+    }
+
+    if (valid)
+    {
+        Entry entry;
+        entry.tableId = Protocol::LOBBY_UID;
+        entry.connected = false;
+        entry.uuid = uuid;
+        mUsers.push_back(entry);
+    }
+    else
+    {
+        uuid = Protocol::INVALID_UID;
+    }
 
     return uuid;
 }
 /*****************************************************************************/
-bool Users::AccessGranted(std::uint32_t uuid, const std::string &nickname)
+bool Users::Update(std::uint32_t uuid, const Identity &ident)
 {
     bool ret = false;
 
-    if (!CheckNickName(uuid, nickname))
+    if (!CheckNickName(uuid, ident.nickname))
     {
         for (std::uint32_t i = 0U; i < mUsers.size(); i++)
         {
             if (mUsers[i].uuid == uuid)
             {
                 mUsers[i].connected = true;
-                mUsers[i].identity.nickname = nickname;
+                mUsers[i].identity = ident;
                 ret = true;
                 break;
             }
@@ -216,13 +235,13 @@ bool Users::AccessGranted(std::uint32_t uuid, const std::string &nickname)
     else
     {
         // Remove the user from the temporary list
-        RemoveUser(uuid);
+        Remove(uuid);
     }
 
     return ret;
 }
 /*****************************************************************************/
-void Users::RemoveUser(std::uint32_t uuid)
+void Users::Remove(std::uint32_t uuid)
 {
     for (std::uint32_t i = 0U; i < mUsers.size(); i++)
     {

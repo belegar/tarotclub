@@ -49,22 +49,18 @@ public:
     std::string     nickname;
     std::string     avatar;     ///< Path to the avatar image (local or network path)
     std::uint8_t    gender;
-    std::string     username;   ///< Empty username means no account
 
     Identity()
         : nickname("John Doe")
-        , avatar("")
         , gender(cGenderInvalid)
-        , username("")
     {
 
     }
 
-    Identity(const std::string &n, const std::string &a, std::uint8_t g, const std::string &u)
+    Identity(const std::string &n, const std::string &a, std::uint8_t g)
         : nickname(n)
         , avatar(a)
         , gender(g)
-        , username(u)
     {
 
     }

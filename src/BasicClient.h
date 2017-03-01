@@ -47,7 +47,7 @@ public:
     Card Play();
     bool IsValid(const Card &c);
     Deck AutoDiscard();
-    bool IsMyTurn() { return mCurrentPlayer == mPlace; }
+    bool IsMyTurn() { return mCurrentPlayer == mMyself.place; }
 
     // Network serializers
     void BuildNewGame(std::vector<Reply> &out);
@@ -71,13 +71,11 @@ public:
     Player mDeck; ///< player own deck
     Place mCurrentPlayer;
     std::uint8_t mNbPlayers;
-    std::uint32_t mTableId;
-    std::string mNickName;
-    std::string mUserName;
-    Place mPlace;           ///< Assigned Place
-    std::uint32_t mUuid;    ///< Assigned UUID
+    Users::Entry mMyself;
 
     Event Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, IContext &ctx, std::vector<Reply> &out);
+private:
+    void GetPlayerStatus(Users::Entry &member, JsonObject &player);
 };
 
 #endif // BASICCLIENT_H

@@ -11,20 +11,18 @@
 /*****************************************************************************/
 BasicClient::BasicClient()
     : mNbPlayers(0U)
-    , mTableId(Protocol::INVALID_UID)
-    , mUuid(Protocol::INVALID_UID)
 {
 
 }
 /*****************************************************************************/
 void BasicClient::Start()
 {
-    mUuid = Protocol::INVALID_UID;
+    mMyself.uuid = Protocol::INVALID_UID;
 }
 /*****************************************************************************/
 void BasicClient::Stop()
 {
-    mUuid = Protocol::INVALID_UID;
+    mMyself.uuid = Protocol::INVALID_UID;
 }
 /*****************************************************************************/
 bool BasicClient::TestDiscard(const Deck &discard)
@@ -144,7 +142,7 @@ void BasicClient::BuildBid(Contract c, bool slam, std::vector<Reply> &out)
     obj.AddValue("contract", c.ToString());
     obj.AddValue("slam", slam);
 
-    out.push_back(Reply(mTableId, obj));
+    out.push_back(Reply(mMyself.tableId, obj));
 }
 /*****************************************************************************/
 void BasicClient::BuildHandle(const Deck &handle, std::vector<Reply> &out)
@@ -154,7 +152,7 @@ void BasicClient::BuildHandle(const Deck &handle, std::vector<Reply> &out)
     obj.AddValue("cmd", "Handle");
     obj.AddValue("handle", handle.ToString());
 
-    out.push_back(Reply(mTableId, obj));
+    out.push_back(Reply(mMyself.tableId, obj));
 }
 /*****************************************************************************/
 void BasicClient::BuildDiscard(const Deck &discard, std::vector<Reply> &out)
@@ -164,7 +162,7 @@ void BasicClient::BuildDiscard(const Deck &discard, std::vector<Reply> &out)
     obj.AddValue("cmd", "Discard");
     obj.AddValue("discard", discard.ToString());
 
-    out.push_back(Reply(mTableId, obj));
+    out.push_back(Reply(mMyself.tableId, obj));
 }
 /*****************************************************************************/
 void BasicClient::BuildSendCard(Card c, std::vector<Reply> &out)
@@ -174,7 +172,7 @@ void BasicClient::BuildSendCard(Card c, std::vector<Reply> &out)
     obj.AddValue("cmd", "Card");
     obj.AddValue("card", c.ToString());
 
-    out.push_back(Reply(mTableId, obj));
+    out.push_back(Reply(mMyself.tableId, obj));
 }
 /*****************************************************************************/
 void BasicClient::BuildQuitTable(std::uint32_t tableId, std::vector<Reply> &out)
@@ -184,7 +182,7 @@ void BasicClient::BuildQuitTable(std::uint32_t tableId, std::vector<Reply> &out)
     obj.AddValue("cmd", "RequestQuitTable");
     obj.AddValue("table_id", tableId);
 
-    out.push_back(Reply(mTableId, obj));
+    out.push_back(Reply(mMyself.tableId, obj));
 }
 /*****************************************************************************/
 void BasicClient::BuildChangeNickname(std::vector<Reply> &out)
@@ -192,7 +190,7 @@ void BasicClient::BuildChangeNickname(std::vector<Reply> &out)
     JsonObject obj;
 
     obj.AddValue("cmd", "RequestChangeNickname");
-    obj.AddValue("nickname", mNickName);
+    obj.AddValue("nickname", mMyself.identity.nickname);
 
     out.push_back(Reply(Protocol::LOBBY_UID, obj));
 }
@@ -225,7 +223,16 @@ void BasicClient::Sync(const std::string &step, std::vector<Reply> &out)
 
     TLogNetwork("Client send ack for step: " + step);
 
-    out.push_back(Reply(mTableId, obj));
+    out.push_back(Reply(mMyself.tableId, obj));
+}
+/*****************************************************************************/
+void BasicClient::GetPlayerStatus(Users::Entry &member, JsonObject &player)
+{
+    FromJson(member.identity, player);
+
+    member.uuid = static_cast<std::uint32_t>(player.GetValue("uuid").GetInteger());
+    member.tableId = static_cast<std::uint32_t>(player.GetValue("table").GetInteger());
+    member.place = Place(player.GetValue("place").GetString());
 }
 /*****************************************************************************/
 BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, IContext &ctx, std::vector<Reply> &out)
@@ -238,7 +245,7 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
 
     if (!reader.ParseString(json, arg))
     {
-        TLogNetwork("Not a JSON data");
+        TLogError("Not a JSON data" + arg);
         return JSON_ERROR;
     }
 
@@ -248,12 +255,12 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
     {
         ctx.Initialize();
 
-        mUuid = static_cast<std::uint32_t>(json.FindValue("uuid").GetInteger());
+        mMyself.uuid = static_cast<std::uint32_t>(json.FindValue("uuid").GetInteger());
 
         JsonObject obj;
 
         obj.AddValue("cmd", "ReplyLogin");
-        obj.AddValue("nickname", mNickName);
+        ToJson(mMyself.identity, obj);
 
         out.push_back(Reply(Protocol::LOBBY_UID, obj));
 
@@ -288,30 +295,33 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
     {
         JsonArray players = json.FindValue("players").GetArray();
 
+        ctx.ClearMembers();
         for (std::uint32_t i = 0U; i < players.Size(); i++)
         {
-            IContext::Member member;
+            Users::Entry member;
             JsonObject player = players.GetEntry(i).GetObj();
 
-            std::uint32_t uuid = static_cast<std::uint32_t>(player.GetValue("uuid").GetInteger());
-            member.table = static_cast<std::uint32_t>(player.GetValue("table").GetInteger());
-            member.nickname = player.GetValue("nickname").GetString();
-            std::string event = player.GetValue("event").GetString();
-            ctx.UpdateMember(uuid, member, event);
+            GetPlayerStatus(member, player);
+            ctx.UpdateMember(member, "New");
         }
 
         event = PLAYER_LIST;
     }
     else if (cmd == "Event")
     {
+        Users::Entry member;
+        std::string ev_type = json.FindValue("type").GetString();
+        JsonObject player = json.FindValue("player").GetObj();
 
+        GetPlayerStatus(member, player);
+        ctx.UpdateMember(member, ev_type);
 
         event = PLAYER_EVENT;
     }
     else if (cmd == "ReplyJoinTable")
     {
-        mPlace = Place(json.FindValue("place").GetString());
-        mTableId = static_cast<std::uint32_t>(json.FindValue("table_id").GetInteger());
+        mMyself.place = Place(json.FindValue("place").GetString());
+        mMyself.tableId = static_cast<std::uint32_t>(json.FindValue("table_id").GetInteger());
         mNbPlayers = static_cast<std::uint32_t>(json.FindValue("size").GetInteger());
 
         event = JOIN_TABLE;

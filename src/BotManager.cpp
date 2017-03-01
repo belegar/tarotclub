@@ -71,7 +71,7 @@ uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &ident, st
     NetBot *netBot = new NetBot();
 
     // Initialize the bot
-    netBot->mBot.SetUser(ident.nickname, "");
+    netBot->mBot.SetIdentity(ident);
     netBot->mBot.SetTimeBeforeSend(delay);
     netBot->mBot.SetTableToJoin(tableToJoin);
     netBot->mBot.SetAiScript(scriptFile);

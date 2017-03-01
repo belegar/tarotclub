@@ -9,6 +9,8 @@
 #include "ThreadQueue.h"
 #include "TcpClient.h"
 #include "Identity.h"
+#include "Protocol.h"
+#include "Users.h"
 
 struct Reply
 {
@@ -52,7 +54,7 @@ inline bool FromJson(Identity &ident, JsonObject &obj)
     bool ret = true;
 
     ident.nickname = obj.GetValue("nickname").GetString();
-    ident.avatar = obj.GetValue("avatar").GetInteger();
+    ident.avatar = obj.GetValue("avatar").GetString();
     ident.GenderFromString(obj.GetValue("gender").GetString());
 
     return ret;
@@ -72,76 +74,91 @@ class IContext
 public:
     struct Message
     {
+        Message()
+            : src(Protocol::INVALID_UID)
+            , dst(Protocol::INVALID_UID)
+        {
+
+        }
+
         std::uint32_t src;
         std::uint32_t dst;
         std::string msg;
     };
 
-    struct Member
+    struct Event
     {
-        std::string nickname;
-        std::uint32_t table;
-        Place place;
+        Event ()
+            : uuid(Protocol::INVALID_UID)
+        {
+
+        }
+
+        Event(const std::string &t, std::uint32_t u)
+            : type(t)
+            , uuid(u)
+        {
+
+        }
+
+        std::string type;
+        std::uint32_t uuid;
     };
 
     virtual void Initialize() = 0;
     virtual void AddTable(const std::string &name, std::uint32_t uuid) = 0;
     virtual void AddMessage(const Message &msg) = 0;
-    virtual void UpdateMember(std::uint32_t uuid, const Member &member, const std::string &event) = 0;
+    virtual void ClearMembers() = 0;
+    virtual void UpdateMember(Users::Entry &member, const std::string &event) = 0;
+    virtual Event LastEvent() = 0;
     virtual void SetResult(const JsonObject &result) = 0;
 };
 
+/**
+ * @brief The EmptyContext class
+ *
+ * Mainly used by bot implementation that do not need any lobby/users information
+ */
 class EmptyContext : public IContext
 {
 public:
     virtual void Initialize() { }
     virtual void AddTable(const std::string &name, std::uint32_t uuid) { (void) name; (void) uuid; }
     virtual void AddMessage(const Message &msg) { (void) msg;}
-    virtual void UpdateMember(std::uint32_t uuid, const Member &member, const std::string &event) { (void) uuid; (void) member; (void) event; }
+    virtual void ClearMembers() {}
+    virtual void UpdateMember(Users::Entry &member, const std::string &event) { (void) member; (void) event; }
+    virtual Event LastEvent() { return Event(); }
     virtual void SetResult(const JsonObject &result) { (void) result; }
 };
 
-
+/**
+ * @brief The Context class
+ *
+ * Real implementation that can be used by human clients (console, desktop ...)
+ */
 class Context : public IContext
 {
 public:
-    virtual void Initialize()
-    {
-        mTables.clear();
-        mMessages.clear();
-    }
 
-    virtual void AddTable(const std::string &name, std::uint32_t uuid)
-    {
-        mTables[uuid] = name;
-    }
+    Context();
 
-    virtual void AddMessage(const Message &msg)
-    {
-        mMessages.push_back(msg);
-    }
+    // From IContext
+    virtual void Initialize();
+    virtual void AddTable(const std::string &name, std::uint32_t uuid);
+    virtual void AddMessage(const Message &msg);
+    virtual void ClearMembers();
+    virtual void UpdateMember(Users::Entry &member, const std::string &event);
+    virtual Event LastEvent();
+    virtual void SetResult(const JsonObject &result);
 
-    virtual void UpdateMember(std::uint32_t uuid, const Member &member, const std::string &event)
-    {
-        if (event == "Update")
-        {
-            mMembers[uuid] = member;
-        }
-        else
-        {
-            mMembers.erase(uuid);
-        }
-    }
-
-    virtual void SetResult(const JsonObject &result)
-    {
-        (void) result;
-    }
+    // From Context
+    bool GetMember(uint32_t uuid, Users::Entry &entry);
 
 private:
     std::map<std::uint32_t, std::string> mTables;
     std::vector<IContext::Message> mMessages;
-    std::map<std::uint32_t, IContext::Member> mMembers;
+    Users mUsers;
+    IContext::Event mLastEvent;
 };
 
 namespace net
