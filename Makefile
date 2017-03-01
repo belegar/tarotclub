@@ -20,9 +20,9 @@ clean:
 .PHONY: before
 before:
 	mkdir -p build/tests; \
-	mkdir -p build/desktop; \
-	mkdir -p build/tcds; \
+	mkdir -p build/tarotclub-gui; \
+	mkdir -p build/tarotclub-srv; \
 	mkdir -p build/botclient; \
-	mkdir -p build/console;
+	mkdir -p build/tarotclub-cli;
 	
 # End of Makefile
