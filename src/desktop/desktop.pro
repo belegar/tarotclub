@@ -24,11 +24,11 @@
 BASE_DIR = $${PWD}/../..
 
 CONFIG(debug, debug|release) {
-debug:      DESTDIR = $$BASE_DIR/../build-tarotclub/debug
+debug:      DESTDIR = $$BASE_DIR/build/tarotclub-gui/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$OUTPUT_DIR/../build-tarotclub/release
+release:    DESTDIR = $$OUTPUT_DIR/build/tarotclub-gui/release
 }
 
 UI_DIR          = $$DESTDIR/ui
@@ -81,15 +81,15 @@ QMAKE_CFLAGS_RELEASE    += -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame
 # ------------------------------------------------------------------------------
 # Target definitions
 # ------------------------------------------------------------------------------
-TARGET = TarotClub # name of the output executable
+TARGET = tarotclub-gui # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = assets/windows/icon.rc
+    RC_FILE = icon.rc
     LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
 
-    # Let's make everything's static so that we don't need any DLL
+    # Let's make everything's static so that we need less DLL
     QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static -lpthread
 }
 
