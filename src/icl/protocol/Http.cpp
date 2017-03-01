@@ -39,7 +39,10 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
-
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 //---------------------------------------------------------------------
 //
@@ -160,9 +163,9 @@ void Connection::putrequest( const char* method, const char* url )
 
 	m_State = REQ_STARTED;
 
-	char req[ 512 ];
-	std::sprintf( req, "%s %s HTTP/1.1", method, url );
-	m_Buffer.push_back( req );
+	std::stringstream ss;
+	ss << method << " " << url << " HTTP/1.1";
+	m_Buffer.push_back( ss.str() );
 
     putheader( "Host", mHost.c_str() );	// required for HTTP1.1
 
@@ -187,9 +190,9 @@ void Connection::putheader( const char* header, const char* value )
 
 void Connection::putheader( const char* header, int numericvalue )
 {
-	char buf[32];
-	sprintf( buf, "%d", numericvalue );
-	putheader( header, buf );
+	std::stringstream ss;
+	ss << numericvalue;
+	putheader( header, ss.str().c_str() );
 }
 
 void Connection::endheaders()

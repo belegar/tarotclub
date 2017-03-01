@@ -167,7 +167,7 @@ bool TcpSocket::IsConnected()
     return connected;
 }
 /*****************************************************************************/
-int TcpSocket::AnalyzeSocketError(const char* context)
+bool TcpSocket::AnalyzeSocketError(const char* context)
 {
     return AnalyzeSocketError(mPeer, context);
 }
@@ -284,7 +284,7 @@ bool TcpSocket::Recv(std::string &output, Peer &peer)
     char buff[MAXRECV];
     size_t len = sizeof(buff);
     char *p = buff;
-    ssize_t n;
+    int n;
     bool ret = false;
 
     do
@@ -404,7 +404,7 @@ bool TcpSocket::Bind(std::uint16_t port, bool localHostOnly)
         mAddr.sin_family      = AF_INET;
         if (localHostOnly)
         {
-            mAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+			mAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
         }
         else
         {
@@ -699,6 +699,58 @@ std::string TcpSocket::WsOpcodeToString(std::uint8_t opcode)
     }
     return ocString;
 }
+
+#ifdef __MINGW32__
+// MinGW does not have inet_ntop() defined, emulate it
+const char* inet_ntop(int af, const void* src, char* dst, int cnt){
+
+    struct sockaddr_in srcaddr;
+
+    memset(&srcaddr, 0, sizeof(struct sockaddr_in));
+    memcpy(&(srcaddr.sin_addr), src, sizeof(srcaddr.sin_addr));
+
+    srcaddr.sin_family = af;
+    if (WSAAddressToStringA((struct sockaddr*) &srcaddr, sizeof(struct sockaddr_in), 0, dst, (LPDWORD) &cnt) != 0) {
+        DWORD rv = WSAGetLastError();
+        std::stringstream ss;
+        ss << "WSAAddressToString(): " << rv;
+        TLogError(ss.str());
+        return NULL;
+    }
+    return dst;
+}
+#endif // __MINGW32__
+
+std::string TcpSocket::ToString(const struct sockaddr *sa)
+{
+	static const std::uint32_t cMaxSize = 45U; // enough for IPv6
+	char str[cMaxSize];
+	bool ok = true;
+
+	switch (sa->sa_family) {
+	case AF_INET:
+		inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr), str, cMaxSize);
+		break;
+
+	case AF_INET6:
+		inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr), str, cMaxSize);
+		break;
+
+	default:
+		ok = false;
+		break;
+	}
+
+	std::string ip(str);
+	if (!ok)
+	{
+		ip = "Unknown AF";
+	}
+	ip.resize(cMaxSize);
+
+	return ip;
+}
+
 
 } // namespace tcp
 
