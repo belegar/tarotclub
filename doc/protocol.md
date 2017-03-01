@@ -69,7 +69,10 @@ Client receive a request for user login with several parameters. uuid: assigned 
 
 {
 	"cmd": "ReplyLogin",
-	"nickname": "Belegar"
+	// Player identity
+	"nickname": "Belegar",
+	"avatar": "http://wwww.fdshjkfjds.com/moi.jpg", 
+	"gender": "Male"
 }
 
 4. Client reseive the list of available tables
@@ -121,6 +124,7 @@ Server (lobby) --> Client
 
 Event types are:
 
+  * New: new player in the lobby
   * Nick: Change of the nickname
   * Avatar: Change the avatar
   * Gender: change of the gender
