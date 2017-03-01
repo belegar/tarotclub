@@ -228,7 +228,7 @@ void TarotProtocol::TestBotsFullGame()
     for (int i = 0; i < 4; i++)
     {
         bots[i].uuid = lobby.AddUser(lobby_data);
-        bots[i].bot.SetUser(names[i], "");
+        bots[i].bot.SetIdentity(names[i], "");
         bots[i].bot.SetAiScript(Util::ExecutablePath() + "/../../../bin/aicontest/ai.zip");
         bots[i].bot.SetTableToJoin(tableId);
     }
