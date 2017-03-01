@@ -30,7 +30,7 @@ private:
     bool Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
     std::uint32_t AddUser(std::vector<Reply> &/*out*/);
     void RemoveUser(std::uint32_t /* uuid */, std::vector<Reply> &/*out*/);
-    std::uint32_t GetUuid() { return mClient.mUuid; }
+    std::uint32_t GetUuid() { return mClient.mMyself.uuid; }
 
     Session mSession;
     BasicClient mClient;

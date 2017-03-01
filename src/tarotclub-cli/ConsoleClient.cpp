@@ -20,7 +20,7 @@ ConsoleClient::ConsoleClient()
     , mCanPlay(false)
     , mArrowPosition(0U)
 {
-    mClient.mNickName = "Humain";
+    mClient.mMyself.identity.nickname = "Humain";
 
     mConsole.SetCursor(false);
 
@@ -186,9 +186,9 @@ void ConsoleClient::Start(std::uint16_t tcp_port)
     mSession.Initialize();
     mSession.ConnectToHost(localIp, tcp_port);
     static const Identity ident[3] = {
-        Identity("Bender", "", Identity::cGenderRobot, ""),
-        Identity("T800", "", Identity::cGenderRobot, ""),
-        Identity("C3PO", "", Identity::cGenderRobot, "")
+        Identity("Bender", "", Identity::cGenderRobot),
+        Identity("T800", "", Identity::cGenderRobot),
+        Identity("C3PO", "", Identity::cGenderRobot)
     };
 
     ArrayPtr<const std::uint8_t> array = gen::GetFile();
@@ -313,15 +313,15 @@ void ConsoleClient::DisplayUserInfos(const std::wstring &txt)
 
 void ConsoleClient::DisplayText(const std::wstring &txt, Place p)
 {
-    if (p == Place::SOUTH)
+    if (p == Place(Place::SOUTH))
     {
         mConsole.GotoXY(14, 11);
     }
-    else if (p == Place::EAST)
+    else if (p == Place(Place::EAST))
     {
         mConsole.GotoXY(22, 9);
     }
-    else if (p == Place::WEST)
+    else if (p == Place(Place::WEST))
     {
         mConsole.GotoXY(4, 9);
     }
@@ -417,9 +417,9 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
 {
     bool ret = true;
 
-    if (mClient.mUuid != Protocol::INVALID_UID)
+    if (mClient.mMyself.uuid != Protocol::INVALID_UID)
     {
-        if (dest_uuid != mClient.mUuid)
+        if (dest_uuid != mClient.mMyself.uuid)
         {
             ret = false;
         }
@@ -442,7 +442,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         case BasicClient::JOIN_TABLE:
         {
             std::wstringstream ss;
-            ss << L"Entered table in position: " << Util::ToWString(mClient.mPlace.ToString());
+            ss << L"Entered table in position: " << Util::ToWString(mClient.mMyself.place.ToString());
             AppendToLog(ss.str());
             break;
         }
@@ -456,7 +456,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         case BasicClient::REQ_BID:
         {
             // Only reply a bid if it is our place to anwser
-            if (mClient.mBid.taker == mClient.mPlace)
+            if (mClient.mBid.taker == mClient.mMyself.place)
             {
                 mClient.BuildBid(Contract("Pass"), false, out);
             }

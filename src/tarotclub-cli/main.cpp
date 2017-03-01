@@ -60,6 +60,36 @@ BOOL ControlHandler (DWORD dwControlEvent)
       return FALSE;
   }
 }
+
+#include <crtdbg.h>  // For _CrtSetReportMode
+
+extern "C" void myInvalidParameterHandler(const wchar_t* expression,
+   const wchar_t* function,
+   const wchar_t* file,
+   unsigned int line,
+   uintptr_t /* pReserved */)
+{
+   wprintf(L"Invalid parameter detected in function %s."
+            L" File: %s Line: %d\n", function, file, line);
+   wprintf(L"Expression: %s\n", expression);
+   abort();
+}
+
+#endif
+/*****************************************************************************/
+#ifdef TAROT_DEBUG
+/**
+ * The following code overwrite the library function "abort" and voluntary
+ * generates an exception. In that case, it could be possible to backtrace
+ * where the initial exception occured. Add __cdecl under windows before the
+ * function name.
+ */
+extern "C" void abort (void)
+{
+    volatile int a = 0;
+    a = 1/a;
+    for(;;);
+}
 #endif
 
 /*****************************************************************************/
@@ -93,6 +123,14 @@ int main(int /*argc*/, char ** /*argv[]*/)
     // Set the control handler so the app will be notified upon any special
     //   termination event.
     SetConsoleCtrlHandler ((PHANDLER_ROUTINE) ControlHandler, TRUE);
+
+    (void) _set_invalid_parameter_handler(myInvalidParameterHandler);
+
+#ifdef _MSC_VER
+    // Disable the message box for assertions.
+    _CrtSetReportMode(_CRT_ASSERT, 0);
+#endif
+
 #endif
 
     client.Run(options.game_tcp_port);

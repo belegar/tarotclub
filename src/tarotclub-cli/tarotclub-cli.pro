@@ -24,11 +24,11 @@
 BASE_DIR = $${PWD}/../..
 
 CONFIG(debug, debug|release) {
-debug:      DESTDIR = $$BASE_DIR/build/console/debug
+debug:      DESTDIR = $$BASE_DIR/build/tarotclub-cli/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$BASE_DIR/build/console/release
+release:    DESTDIR = $$BASE_DIR/build/tarotclub-cli/release
 }
 
 UI_DIR          = $$DESTDIR/ui
@@ -70,7 +70,7 @@ TARGET = tarotclub-cli # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = $$BASE_DIR/src/console/icon.rc
+    RC_FILE = icon.rc
     LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
     # Let's make everything's static so that we don't need any DLL
