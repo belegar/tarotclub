@@ -73,6 +73,7 @@ keywords:
   * Log raw bad packets with IPs
   * Create an Observer status to only be a spectator for a current game
   * Add a timer when playing online
+  * JSON compressed format (without blank lines and indentation)
 
 # ---------------------------------------------- TAROT GAME FEATURES --------------------------------------------------
 
