@@ -1,6 +1,7 @@
 !.gitignore
 *.o
-build
+build/*
+build_msvc/*
 *.gcov
 *~
 *.user
@@ -11,3 +12,5 @@ www/node_modules
 www/logs/app.log
 *.ipch
 *.sdf
+*.obj
+*.pdb
