@@ -491,9 +491,9 @@ typedef int mz_bool;
 
 //enum
 //{
-const mz_uint32  MZ_ZIP_MAX_IO_BUF_SIZE = 64*1024;
-const mz_uint32  MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE = 260;
-const mz_uint32  MZ_ZIP_MAX_ARCHIVE_FILE_COMMENT_SIZE = 256;
+#define  MZ_ZIP_MAX_IO_BUF_SIZE					(64*1024)
+#define  MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE		(260)
+#define  MZ_ZIP_MAX_ARCHIVE_FILE_COMMENT_SIZE	(256)
 //};
 
 typedef struct
@@ -838,8 +838,8 @@ typedef mz_bool (*tdefl_put_buf_func_ptr)(const void* pBuf, int len, void *pUser
 // tdefl_compress_mem_to_output() compresses a block to an output stream. The above helpers use this function internally.
 mz_bool tdefl_compress_mem_to_output(const void *pBuf, size_t buf_len, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags);
 
-const mz_uint32 TDEFL_LZ_DICT_SIZE = 32768;
-const mz_uint32 TDEFL_MAX_MATCH_LEN = 258;
+#define TDEFL_LZ_DICT_SIZE  (32768)
+#define TDEFL_MAX_MATCH_LEN	(258)
 
 enum { TDEFL_MAX_HUFF_TABLES = 3, TDEFL_MAX_HUFF_SYMBOLS_0 = 288, TDEFL_MAX_HUFF_SYMBOLS_1 = 32, TDEFL_MAX_HUFF_SYMBOLS_2 = 19, TDEFL_LZ_DICT_SIZE_MASK = TDEFL_LZ_DICT_SIZE - 1, TDEFL_MIN_MATCH_LEN = 3 };
 
@@ -869,6 +869,8 @@ typedef enum
   TDEFL_FINISH = 4
 } tdefl_flush;
 
+#define TDEFL_COMP_DICT_SIZE (TDEFL_LZ_DICT_SIZE + TDEFL_MAX_MATCH_LEN - 1)
+
 // tdefl's compression state structure.
 typedef struct
 {
@@ -887,7 +889,7 @@ typedef struct
   tdefl_flush m_flush;
   const mz_uint8 *m_pSrc;
   size_t m_src_buf_left, m_out_buf_ofs;
-  mz_uint8 m_dict[TDEFL_LZ_DICT_SIZE + TDEFL_MAX_MATCH_LEN - 1];
+  mz_uint8 m_dict[TDEFL_COMP_DICT_SIZE];
   mz_uint16 m_huff_count[TDEFL_MAX_HUFF_TABLES][TDEFL_MAX_HUFF_SYMBOLS];
   mz_uint16 m_huff_codes[TDEFL_MAX_HUFF_TABLES][TDEFL_MAX_HUFF_SYMBOLS];
   mz_uint8 m_huff_code_sizes[TDEFL_MAX_HUFF_TABLES][TDEFL_MAX_HUFF_SYMBOLS];
@@ -2586,7 +2588,7 @@ static mz_bool tdefl_compress_normal(tdefl_compressor *d)
       }
     }
     else if (!cur_match_dist)
-      tdefl_record_literal(d, d->m_dict[MZ_MIN(cur_pos, sizeof(d->m_dict) - 1)]);
+      tdefl_record_literal(d, d->m_dict[MZ_MIN(cur_pos, TDEFL_COMP_DICT_SIZE - 1)]);
     else if ((d->m_greedy_parsing) || (d->m_flags & TDEFL_RLE_MATCHES) || (cur_match_len >= 128))
     {
       tdefl_record_match(d, cur_match_len, cur_match_dist);
@@ -2594,7 +2596,7 @@ static mz_bool tdefl_compress_normal(tdefl_compressor *d)
     }
     else
     {
-      d->m_saved_lit = d->m_dict[MZ_MIN(cur_pos, sizeof(d->m_dict) - 1)]; d->m_saved_match_dist = cur_match_dist; d->m_saved_match_len = cur_match_len;
+      d->m_saved_lit = d->m_dict[MZ_MIN(cur_pos, TDEFL_COMP_DICT_SIZE - 1)]; d->m_saved_match_dist = cur_match_dist; d->m_saved_match_len = cur_match_len;
     }
     // Move the lookahead forward by len_to_move bytes.
     d->m_lookahead_pos += len_to_move;
