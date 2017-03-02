@@ -177,7 +177,7 @@ std::wstring ConsoleClient::ToString(const Card &c)
 
 void ConsoleClient::Update(const std::string &info)
 {
-    std::cout << info << std::endl;
+//    std::cout << info << std::endl;
 }
 
 void ConsoleClient::Start(std::uint16_t tcp_port)
@@ -293,7 +293,7 @@ void ConsoleClient::ClearBoard()
 {
     for (std::uint32_t i = 0U; i < 4; i++)
     {
-        DisplayText(L"   ", Place(i));
+        DisplayText(L"    ", Place(i));
     }
 }
 
@@ -444,6 +444,8 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             std::wstringstream ss;
             ss << L"Entered table in position: " << Util::ToWString(mClient.mMyself.place.ToString());
             AppendToLog(ss.str());
+
+            mClient.Sync(Engine::WAIT_FOR_PLAYERS, out);
             break;
         }
         case BasicClient::NEW_DEAL:
@@ -451,6 +453,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             TLogInfo("Received cards: " + mClient.mDeck.ToString());
             DisplayDeck();
             std::this_thread::sleep_for(std::chrono::seconds(1));
+            mClient.Sync(Engine::WAIT_FOR_CARDS, out);
             break;
         }
         case BasicClient::REQ_BID:
@@ -462,30 +465,45 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             }
             break;
         }
+        case BasicClient::SHOW_BID:
+        {
+            DisplayText(Util::ToWString(mClient.mBid.contract.ToString()), mClient.mBid.taker);
+            mClient.Sync(Engine::WAIT_FOR_SHOW_BID, out);
+            break;
+        }
+
+        case BasicClient::SHOW_DOG:
+        {
+            mClient.Sync(Engine::WAIT_FOR_SHOW_DOG, out);
+            break;
+        }
         case BasicClient::START_DEAL:
         {
             std::wstringstream ss;
             ss << L"Start deal, taker is: " << Util::ToWString(mClient.mBid.taker.ToString());
             AppendToLog(ss.str());
+            mClient.Sync(Engine::WAIT_FOR_START_DEAL, out);
             break;
         }
         case BasicClient::SHOW_HANDLE:
         {
+            mClient.Sync(Engine::WAIT_FOR_SHOW_HANDLE, out);
             break;
         }
         case BasicClient::BUILD_DISCARD:
         {
-
+            // FIXME: to be implemented
             break;
         }
         case BasicClient::NEW_GAME:
         {
-
+            mClient.Sync(Engine::WAIT_FOR_READY, out);
             break;
         }
         case BasicClient::SHOW_CARD:
         {
             DisplayCard(mClient.mCurrentTrick.Last(), mClient.mCurrentPlayer);
+            mClient.Sync(Engine::WAIT_FOR_SHOW_CARD, out);
             break;
         }
         case BasicClient::PLAY_CARD:
@@ -512,7 +530,7 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             ClearBoard();
-            mClient.Sync("EndOfTrick", out);
+            mClient.Sync(Engine::WAIT_FOR_END_OF_TRICK, out);
             break;
         }
         case BasicClient::END_OF_GAME:
@@ -522,28 +540,27 @@ bool ConsoleClient::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::st
             AppendToLog(ss.str());
 
             ClearBoard();
-            mClient.Sync("Ready", out);
+            mClient.Sync(Engine::WAIT_FOR_READY, out);
             break;
         }
         case BasicClient::ALL_PASSED:
         {
             AppendToLog(L"All players have passed! New turn...");
             std::this_thread::sleep_for(std::chrono::seconds(1));
+            mClient.Sync(Engine::WAIT_FOR_ALL_PASSED, out);
             break;
         }
         case BasicClient::END_OF_DEAL:
-            mClient.Sync("EndOfDeal", out);
+        {
+            mClient.Sync(Engine::WAIT_FOR_END_OF_DEAL, out);
             break;
-
+        }
         case BasicClient::JSON_ERROR:
         case BasicClient::BAD_EVENT:
         case BasicClient::REQ_LOGIN:
         case BasicClient::MESSAGE:
         case BasicClient::PLAYER_LIST:
         case BasicClient::QUIT_TABLE:
-        case BasicClient::SHOW_BID:
-            // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
-        case BasicClient::SHOW_DOG:
         case BasicClient::SYNC:
         {
             // Nothing to do for that event

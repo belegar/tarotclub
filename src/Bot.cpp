@@ -66,6 +66,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
         JSEngine::StringList args;
         args.push_back(mClient.mDeck.ToString());
         mBotEngine.Call("ReceiveCards", args);
+        mClient.Sync(Engine::WAIT_FOR_CARDS, out);
         break;
     }
     case BasicClient::REQ_BID:
@@ -80,12 +81,13 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::START_DEAL:
     {
         StartDeal();
+        mClient.Sync(Engine::WAIT_FOR_START_DEAL, out);
         break;
     }
     case BasicClient::SHOW_HANDLE:
     {
         ShowHandle();
-        mClient.Sync("ShowHandle", out);
+        mClient.Sync(Engine::WAIT_FOR_SHOW_HANDLE, out);
         break;
     }
     case BasicClient::BUILD_DISCARD:
@@ -96,11 +98,13 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::NEW_GAME:
     {
         NewGame();
+        mClient.Sync(Engine::WAIT_FOR_READY, out);
         break;
     }
     case BasicClient::SHOW_CARD:
     {
         ShowCard();
+        mClient.Sync(Engine::WAIT_FOR_SHOW_CARD, out);
         break;
     }
     case BasicClient::PLAY_CARD:
@@ -119,31 +123,46 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     }
     case BasicClient::END_OF_TRICK:
     {
-        mClient.Sync("EndOfTrick", out);
+        mClient.Sync(Engine::WAIT_FOR_END_OF_TRICK, out);
         break;
     }
     case BasicClient::END_OF_GAME:
     {
-        mClient.Sync("Ready", out);
+        mClient.Sync(Engine::WAIT_FOR_READY, out);
         break;
     }
     case BasicClient::SHOW_DOG:
-        mClient.Sync("ShowDog", out);
+    {
+        mClient.Sync(Engine::WAIT_FOR_SHOW_DOG, out);
         break;
+    }
     case BasicClient::END_OF_DEAL:
-        mClient.Sync("EndOfDeal", out);
+    {
+        mClient.Sync(Engine::WAIT_FOR_END_OF_DEAL, out);
         break;
+    }
+    case BasicClient::JOIN_TABLE:
+    {
+        mClient.Sync(Engine::WAIT_FOR_PLAYERS, out);
+        break;
+    }
+    case BasicClient::SHOW_BID:
+    {
+        mClient.Sync(Engine::WAIT_FOR_SHOW_BID, out);
+        break;
+    }
+    case BasicClient::ALL_PASSED:
+    {
+        mClient.Sync(Engine::WAIT_FOR_ALL_PASSED, out);
+        break;
+    }
 
     case BasicClient::JSON_ERROR:
     case BasicClient::BAD_EVENT:
     case BasicClient::REQ_LOGIN:
     case BasicClient::MESSAGE:
     case BasicClient::PLAYER_LIST:
-    case BasicClient::JOIN_TABLE:
     case BasicClient::QUIT_TABLE:
-    case BasicClient::SHOW_BID:
-        // FIXME: send all the declared bids to the bot so he can use them (AI improvements)
-    case BasicClient::ALL_PASSED:
     case BasicClient::SYNC:
     {
         // Nothing to do for that event
