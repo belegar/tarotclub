@@ -164,7 +164,7 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                     SendPlayerList(src_uuid, out);
 
                     // Send the information for all other users
-                    SendPlayerEvent(src_uuid, "JoinPlayer", out);
+                    SendPlayerEvent(src_uuid, "New", out);
                 }
                 else
                 {
