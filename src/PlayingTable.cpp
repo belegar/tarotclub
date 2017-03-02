@@ -31,44 +31,6 @@
 #include "System.h"
 #include "Protocol.h"
 
-// Ask steps translation into integer
-struct Ack
-{
-    std::string step; // Textual value
-    Engine::Sequence sequence; // Engine sequence
-};
-
-static const Ack gAckList[] = {
-    {"AckJoinTable", Engine::WAIT_FOR_PLAYERS},
-    {"Ready", Engine::WAIT_FOR_READY },
-    {"NewDeal", Engine::WAIT_FOR_CARDS },
-    {"ShowBid", Engine::WAIT_FOR_SHOW_BID },
-    {"AllPassed", Engine::WAIT_FOR_ALL_PASSED },
-    {"ShowDog", Engine::WAIT_FOR_SHOW_DOG },
-    {"StartDeal", Engine::WAIT_FOR_START_DEAL },
-    {"ShowHandle", Engine::WAIT_FOR_SHOW_HANDLE },
-    {"Card", Engine::WAIT_FOR_SHOW_CARD },
-    {"EndOfTrick", Engine::WAIT_FOR_END_OF_TRICK },
-    {"EndOfDeal", Engine::WAIT_FOR_END_OF_DEAL }
-};
-
-static const std::uint32_t gAckListSize = sizeof(gAckList) / sizeof(gAckList[0]);
-
-Engine::Sequence FindSequence(const std::string &step)
-{
-    Engine::Sequence seq = Engine::BAD_STEP;
-    for (std::uint32_t i = 0U; i < gAckListSize; i++)
-    {
-        if (gAckList[i].step == step)
-        {
-            seq = gAckList[i].sequence;
-            break;
-        }
-    }
-    return seq;
-}
-
-
 /*****************************************************************************/
 PlayingTable::PlayingTable()
     : mFull(false)
@@ -287,7 +249,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
         if (GetPlayerPlace(src_uuid) != Place(Place::NOWHERE))
         {
             std::string step = json.FindValue("step").GetString();
-            Engine::Sequence seq = FindSequence(step);
+            Engine::Sequence seq = Ack::FromString(step);
 
             if (seq == Engine::BAD_STEP)
             {

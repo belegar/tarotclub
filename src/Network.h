@@ -11,6 +11,7 @@
 #include "Identity.h"
 #include "Protocol.h"
 #include "Users.h"
+#include "Engine.h"
 
 struct Reply
 {
@@ -30,6 +31,17 @@ struct Reply
 
     }
 };
+
+// Ask steps translation from/into integer
+struct Ack
+{
+    std::string step; // Textual value
+    Engine::Sequence sequence; // Engine sequence
+
+    static Engine::Sequence FromString(const std::string &step);
+    static std::string ToString(Engine::Sequence sequence);
+};
+
 
 inline bool FromJson(Tarot::Distribution &dist, const JsonObject &obj)
 {
