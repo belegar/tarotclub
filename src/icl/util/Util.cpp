@@ -52,6 +52,9 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdint>
+#include <cctype>
+#include <chrono>
+#include "date.h"
 #include "Util.h"
 
 /*****************************************************************************/
@@ -66,6 +69,7 @@
  */
 std::string Util::CurrentDateTime(const std::string &format)
 {
+	/*
     std::stringstream datetime;
 
     time_t rawtime;
@@ -78,15 +82,24 @@ std::string Util::CurrentDateTime(const std::string &format)
     strftime(buffer, sizeof(buffer), format.c_str(), timeinfo);
 
     datetime << buffer;
-    /*
-     * This code is the C++0x11 way of formating date, but GCC does not support it yet :(
+	*/
+   
+	/*
+     // This code is the C++0x11 way of formating date, but GCC does not support it yet :(
         std::stringstream datetime;
-        std::time_t t = std::time(nullptr);
-        std::tm tm = *std::localtime(&t);
+
+		auto time_point = std::chrono::system_clock::now();
+		std::time_t time = std::chrono::system_clock::to_time_t(time_point);
+		struct tm tm;
+		std::localtime_r(&time, &tm);
 
         datetime << std::put_time(&tm, format);
-    */
-    return datetime.str();
+   */
+
+	auto time_point = std::chrono::system_clock::now();
+	std::string s = date::format("%Y-%m-%d.%X", time_point);
+
+    return s;
 }
 /*****************************************************************************/
 std::string Util::ExecutablePath()
@@ -349,11 +362,12 @@ bool Util::Compare(std::string const& a, std::string const& b)
 /*****************************************************************************/
 std::wstring Util::ToWString(const std::string &str)
 {
-    const size_t len = str.size() + 1U;
-    wchar_t wstr[len];
+    size_t len = str.size() + 1U;
+	std::vector<wchar_t> wstr(len);
 
-    swprintf(wstr, len, L"%s", str.c_str());
-    return wstr;
+    swprintf(&wstr[0], len, L"%S", str.c_str());
+
+    return std::wstring(&wstr[0], len);
 }
 /*****************************************************************************/
 /**
