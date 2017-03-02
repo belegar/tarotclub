@@ -23,8 +23,8 @@
  *=============================================================================
  */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef ICL_UTIL_H
+#define ICL_UTIL_H
 
 #include <string>
 #include <vector>
@@ -64,7 +64,7 @@ public:
     static std::wstring ToWString(const std::string &str);
 };
 
-#endif // UTIL_H
+#endif // ICL_UTIL_H
 
 //=============================================================================
 // End of file Util.h
