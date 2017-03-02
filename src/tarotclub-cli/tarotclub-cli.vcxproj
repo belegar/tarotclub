@@ -1,97 +1,252 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C7A470D4-A384-4756-B796-052B07644458}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <RootNamespace>tarotclubcli</RootNamespace>
+    <ProjectGuid>{23A05636-E657-3BE7-A73A-278B0B8D7522}</ProjectGuid>
+    <RootNamespace>tarotclub-cli</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;" Label="Configuration">
+    <PlatformToolSet>v120</PlatformToolSet>
+    <OutputDirectory>..\..\build\tarotclub-cli\release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <IntermediateDirectory>..\..\build\tarotclub-cli\release\obj\</IntermediateDirectory>
+    <PrimaryOutput>tarotclub-cli</PrimaryOutput>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;" Label="Configuration">
+    <PlatformToolSet>v120</PlatformToolSet>
+    <OutputDirectory>..\..\build\tarotclub-cli\debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <IntermediateDirectory>..\..\build\tarotclub-cli\debug\obj\</IntermediateDirectory>
+    <PrimaryOutput>tarotclub-cli</PrimaryOutput>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+  <PropertyGroup>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">..\..\build\tarotclub-cli\release\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">..\..\build\tarotclub-cli\release\obj\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">tarotclub-cli</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">false</LinkIncremental>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">..\..\build\tarotclub-cli\debug\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">..\..\build\tarotclub-cli\debug\obj\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">tarotclub-cli</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">true</IgnoreImportLibrary>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <AdditionalIncludeDirectories>.;..\..\src;U:/tarotclub/src/tarotclub-cli/../../console;..\icl\network;..\icl\util;..\icl\zip;..\icl\security;..\icl\jsengine;..\icl\protocol;..\icl\json;..\icl\io;..\icl\db;C:\Qt\5.7\mingw53_32\include;C:\Qt\5.7\mingw53_32\include\QtGui;C:\Qt\5.7\mingw53_32\include\QtANGLE;C:\Qt\5.7\mingw53_32\include\QtCore;..\..\build\tarotclub-cli\release\moc;C:\Qt\5.7\mingw53_32\mkspecs\win32-msvc2013;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-std=c++11 -Zc:strictStrings -w34100 -w34189 -w44996 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>..\..\build\tarotclub-cli\release\obj\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>..\..\build\tarotclub-cli\release\obj\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;WIN32;USE_WINDOWS_OS;TAROT_DEBUG;DUK_OPT_DEBUG;QT_NO_DEBUG;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName></ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
+      <AdditionalDependencies>libws2_32;psapi.lib;C:\Qt\5.7\mingw53_32\lib\libQt5Gui.a;C:\Qt\5.7\mingw53_32\lib\libQt5Core.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Qt\5.7\mingw53_32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>-static-libgcc -static-libstdc++ -static -lpthread &quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot; %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\tarotclub-cli.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
     </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;WIN32;USE_WINDOWS_OS;TAROT_DEBUG;DUK_OPT_DEBUG;QT_NO_DEBUG;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..\..\src;U:/tarotclub/src/tarotclub-cli/../../console;..\icl\network;..\icl\util;..\icl\zip;..\icl\security;..\icl\jsengine;..\icl\protocol;..\icl\json;..\icl\io;..\icl\db;C:\Qt\5.7\mingw53_32\include;C:\Qt\5.7\mingw53_32\include\QtGui;C:\Qt\5.7\mingw53_32\include\QtANGLE;C:\Qt\5.7\mingw53_32\include\QtCore;..\..\build\tarotclub-cli\debug\moc;C:\Qt\5.7\mingw53_32\mkspecs\win32-msvc2013;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-std=c++11 -w34100 -w34189 -w44996 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>..\..\build\tarotclub-cli\debug\obj\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>..\..\build\tarotclub-cli\debug\obj\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;WIN32;USE_WINDOWS_OS;TAROT_DEBUG;DUK_OPT_DEBUG;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libws2_32;psapi.lib;C:\Qt\5.7\mingw53_32\lib\libQt5Guid.a;C:\Qt\5.7\mingw53_32\lib\libQt5Cored.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Qt\5.7\mingw53_32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>-static-libgcc -static-libstdc++ -static -lpthread &quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot; %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>$(OutDir)\tarotclub-cli.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;WIN32;USE_WINDOWS_OS;TAROT_DEBUG;DUK_OPT_DEBUG;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\icl\security\Base64.cpp" />
+    <ClCompile Include="..\BasicClient.cpp" />
+    <ClCompile Include="..\Bot.cpp" />
+    <ClCompile Include="..\BotManager.cpp" />
+    <ClCompile Include="..\icl\io\ByteArray.cpp" />
+    <ClCompile Include="..\icl\io\ByteStreamReader.cpp" />
+    <ClCompile Include="..\icl\io\ByteStreamWriter.cpp" />
+    <ClCompile Include="..\Card.cpp" />
+    <ClCompile Include="..\ClientConfig.cpp" />
+    <ClCompile Include="..\Common.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConsoleClient.cpp" />
+    <ClCompile Include="..\icl\db\CouchDb.cpp" />
+    <ClCompile Include="..\icl\db\DataBase.cpp" />
+    <ClCompile Include="..\Deal.cpp" />
+    <ClCompile Include="..\DealFile.cpp" />
+    <ClCompile Include="..\Deck.cpp" />
     <ClCompile Include="Embedded.cpp" />
+    <ClCompile Include="..\Engine.cpp" />
+    <ClCompile Include="..\icl\protocol\Http.cpp" />
+    <ClCompile Include="..\Identity.cpp" />
+    <ClCompile Include="..\icl\jsengine\JSEngine.cpp" />
+    <ClCompile Include="..\icl\json\JsonReader.cpp" />
+    <ClCompile Include="..\icl\json\JsonValue.cpp" />
+    <ClCompile Include="..\icl\json\JsonWriter.cpp" />
+    <ClCompile Include="..\Lobby.cpp" />
+    <ClCompile Include="..\icl\util\Log.cpp" />
+    <ClCompile Include="..\Network.cpp" />
+    <ClCompile Include="..\Player.cpp" />
+    <ClCompile Include="..\PlayingTable.cpp" />
+    <ClCompile Include="..\Protocol.cpp" />
+    <ClCompile Include="..\Score.cpp" />
+    <ClCompile Include="..\Server.cpp" />
+    <ClCompile Include="..\ServerConfig.cpp" />
+    <ClCompile Include="..\Session.cpp" />
+    <ClCompile Include="..\icl\security\Sha1.cpp" />
+    <ClCompile Include="..\System.cpp" />
+    <ClCompile Include="..\icl\network\TcpClient.cpp" />
+    <ClCompile Include="..\icl\network\TcpServer.cpp" />
+    <ClCompile Include="..\icl\network\TcpServerBase.cpp" />
+    <ClCompile Include="..\icl\network\TcpSocket.cpp" />
+    <ClCompile Include="..\TournamentConfig.cpp" />
+    <ClCompile Include="..\icl\util\UniqueId.cpp" />
+    <ClCompile Include="..\Users.cpp" />
+    <ClCompile Include="..\icl\util\Util.cpp" />
+    <ClCompile Include="..\icl\util\Value.cpp" />
+    <ClCompile Include="..\icl\network\WebSocket.cpp" />
+    <ClCompile Include="..\icl\zip\Zip.cpp" />
+    <ClCompile Include="..\icl\jsengine\duktape.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\icl\db\sqlite3.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\icl\security\Base64.h" />
+    <ClInclude Include="..\BasicClient.h" />
+    <ClInclude Include="..\Bot.h" />
+    <ClInclude Include="..\BotManager.h" />
+    <ClInclude Include="..\icl\io\ByteArray.h" />
+    <ClInclude Include="..\icl\io\ByteStreamReader.h" />
+    <ClInclude Include="..\icl\io\ByteStreamWriter.h" />
+    <ClInclude Include="..\Card.h" />
+    <ClInclude Include="..\ClientConfig.h" />
+    <ClInclude Include="..\Common.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="ConsoleClient.h" />
+    <ClInclude Include="..\icl\db\CouchDb.h" />
+    <ClInclude Include="..\icl\db\DataBase.h" />
+    <ClInclude Include="..\Deal.h" />
+    <ClInclude Include="..\DealFile.h" />
+    <ClInclude Include="..\Deck.h" />
     <ClInclude Include="Embedded.h" />
+    <ClInclude Include="..\Engine.h" />
+    <ClInclude Include="..\icl\util\GetOptions.h" />
+    <ClInclude Include="..\icl\protocol\Http.h" />
+    <ClInclude Include="..\icl\jsengine\IScriptEngine.h" />
+    <ClInclude Include="..\Identity.h" />
+    <ClInclude Include="..\icl\jsengine\JSEngine.h" />
+    <ClInclude Include="..\icl\json\JsonReader.h" />
+    <ClInclude Include="..\icl\json\JsonValue.h" />
+    <ClInclude Include="..\icl\json\JsonWriter.h" />
+    <ClInclude Include="..\Lobby.h" />
+    <ClInclude Include="..\icl\util\Log.h" />
+    <ClInclude Include="..\Network.h" />
+    <ClInclude Include="..\icl\util\Observer.h" />
+    <ClInclude Include="..\Player.h" />
+    <ClInclude Include="..\PlayingTable.h" />
+    <ClInclude Include="..\Protocol.h" />
+    <ClInclude Include="..\Score.h" />
+    <ClInclude Include="..\icl\util\Semaphore.h" />
+    <ClInclude Include="..\Server.h" />
+    <ClInclude Include="..\ServerConfig.h" />
+    <ClInclude Include="..\Session.h" />
+    <ClInclude Include="..\icl\security\Sha1.h" />
+    <ClInclude Include="..\System.h" />
+    <ClInclude Include="..\icl\network\TcpClient.h" />
+    <ClInclude Include="..\icl\network\TcpServer.h" />
+    <ClInclude Include="..\icl\network\TcpServerBase.h" />
+    <ClInclude Include="..\icl\network\TcpSocket.h" />
+    <ClInclude Include="..\icl\util\ThreadQueue.h" />
+    <ClInclude Include="..\TournamentConfig.h" />
+    <ClInclude Include="..\icl\util\UniqueId.h" />
+    <ClInclude Include="..\Users.h" />
+    <ClInclude Include="..\icl\util\Util.h" />
+    <ClInclude Include="..\icl\util\Value.h" />
+    <ClInclude Include="..\icl\network\WebSocket.h" />
+    <ClInclude Include="..\icl\zip\Zip.h" />
+    <ClInclude Include="..\icl\jsengine\duktape.h" />
+    <ClInclude Include="..\icl\network" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>
