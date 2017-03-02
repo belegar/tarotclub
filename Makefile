@@ -14,6 +14,11 @@ console:
 
 all: before tests console
 
+# Generate the MSVC project files from the qmake .pro files
+msvc_proj:
+	cd src/tarotclub-cli; \
+	qmake -spec win32-msvc2013 -tp vc
+
 clean:
 	rm -rf build
 
@@ -24,5 +29,5 @@ before:
 	mkdir -p build/tarotclub-srv; \
 	mkdir -p build/botclient; \
 	mkdir -p build/tarotclub-cli;
-	
+
 # End of Makefile
