@@ -538,7 +538,7 @@ void PlayingTable::EndOfDeal(std::vector<Reply> &out)
 void PlayingTable::NewGame(std::vector<Reply> &out)
 {
     JsonObject obj;
-    mScore.NewGame(mGame.deals.size());
+    mScore.NewGame(static_cast<std::uint8_t>(mGame.deals.size()));
     mEngine.NewGame();
     ResetAck();
 
@@ -554,7 +554,7 @@ void PlayingTable::NewDeal(std::vector<Reply> &out)
     if (mScore.GetCurrentCounter() >= mGame.deals.size())
     {
         // Consider a rollover, start a new game
-        mScore.NewGame(mGame.deals.size());
+        mScore.NewGame(static_cast<std::uint8_t>(mGame.deals.size()));
     }
 
     mEngine.NewDeal(mGame.deals[mScore.GetCurrentCounter()]);
