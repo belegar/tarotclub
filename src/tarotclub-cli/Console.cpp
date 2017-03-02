@@ -33,7 +33,7 @@ Console::Console()
 void Console::Write(const std::wstring &s)
 {
 #ifdef USE_WINDOWS_OS
-    WriteConsoleW(mHandle, s.c_str(), s.size(), NULL, NULL);
+    WriteConsoleW(mHandle, s.c_str(), static_cast<DWORD>(s.size()), NULL, NULL);
 #else
     // On linux, UTF8 is native, so std::cout terminal understand this encoding
     std::wstring_convert<std::codecvt_utf8<wchar_t>,wchar_t> convert; // converts between UTF-8 and UCS-4 (given sizeof(wchar_t)==4)
@@ -159,7 +159,7 @@ std::int32_t Console::WhereX()
 
 #ifdef USE_WINDOWS_OS
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    COORD  result;
+	COORD  result = { 0, 0 };
     if (!GetConsoleScreenBufferInfo(mHandle, &csbi))
     return -1;
     return result.X;
@@ -172,7 +172,7 @@ std::int32_t Console::WhereY()
 {
 #ifdef USE_WINDOWS_OS
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    COORD  result;
+    COORD  result = { 0, 0 };
     if (!GetConsoleScreenBufferInfo(mHandle, &csbi
          ))
     return -1;
