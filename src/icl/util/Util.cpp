@@ -54,8 +54,17 @@
 #include <cstdint>
 #include <cctype>
 #include <chrono>
+#include <locale>
+#include <codecvt>
 #include "date.h"
 #include "Util.h"
+
+// utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
+template <typename Facet>
+struct deletable_facet : Facet
+{
+    using Facet::Facet;
+};
 
 /*****************************************************************************/
 /**
@@ -69,35 +78,8 @@
  */
 std::string Util::CurrentDateTime(const std::string &format)
 {
-	/*
-    std::stringstream datetime;
-
-    time_t rawtime;
-    struct tm *timeinfo;
-    char buffer [80];
-
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-
-    strftime(buffer, sizeof(buffer), format.c_str(), timeinfo);
-
-    datetime << buffer;
-	*/
-   
-	/*
-     // This code is the C++0x11 way of formating date, but GCC does not support it yet :(
-        std::stringstream datetime;
-
-		auto time_point = std::chrono::system_clock::now();
-		std::time_t time = std::chrono::system_clock::to_time_t(time_point);
-		struct tm tm;
-		std::localtime_r(&time, &tm);
-
-        datetime << std::put_time(&tm, format);
-   */
-
 	auto time_point = std::chrono::system_clock::now();
-	std::string s = date::format("%Y-%m-%d.%X", time_point);
+    std::string s = date::format(format, time_point);
 
     return s;
 }
@@ -362,12 +344,9 @@ bool Util::Compare(std::string const& a, std::string const& b)
 /*****************************************************************************/
 std::wstring Util::ToWString(const std::string &str)
 {
-    size_t len = str.size() + 1U;
-	std::vector<wchar_t> wstr(len);
+    std::wstring_convert<deletable_facet<std::codecvt<wchar_t, char, std::mbstate_t>>> conv;
 
-    swprintf(&wstr[0], len, L"%S", str.c_str());
-
-    return std::wstring(&wstr[0], len);
+    return conv.from_bytes(str);
 }
 /*****************************************************************************/
 /**
