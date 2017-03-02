@@ -216,11 +216,13 @@ void TarotProtocol::TestBotsFullGame()
     };
 
     BotManager bots[4];
-    std::string names[4];
-    names[0] = "riri";
-    names[1] = "fifi";
-    names[2] = "loulou";
-    names[3] = "tata";
+    Identity names[4] =
+    {
+        {"riri", "", Identity::cGenderRobot},
+        {"fifi", "", Identity::cGenderRobot},
+        {"loulou", "", Identity::cGenderRobot},
+        {"toto", "", Identity::cGenderRobot}
+    };
 
     std::uint32_t tableId = Protocol::TABLES_UID;
 
@@ -228,7 +230,7 @@ void TarotProtocol::TestBotsFullGame()
     for (int i = 0; i < 4; i++)
     {
         bots[i].uuid = lobby.AddUser(lobby_data);
-        bots[i].bot.SetIdentity(names[i], "");
+        bots[i].bot.SetIdentity(names[i]);
         bots[i].bot.SetAiScript(Util::ExecutablePath() + "/../../../bin/aicontest/ai.zip");
         bots[i].bot.SetTableToJoin(tableId);
     }
@@ -273,7 +275,8 @@ void TarotProtocol::TestBotsFullGame()
             for (std::uint32_t j = 0U; j < bots[i].reply.size(); j++)
             {
                 // No allowed broadcast for messages from clients
-                QCOMPARE(bots[i].reply[j].dest.size(), 1UL);
+                std::uint32_t expected = 1UL;
+                QCOMPARE(bots[i].reply[j].dest.size(), expected);
                 QCOMPARE(lobby.Deliver(bots[i].uuid, bots[i].reply[j].dest[0], bots[i].reply[j].data.ToString(0U), lobby_data), true);
             }
         }
