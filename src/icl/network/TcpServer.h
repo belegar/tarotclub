@@ -113,7 +113,7 @@ private:
     TcpServerBase   mTcpServer;
     TcpServerBase   mWsServer;
     std::thread mThread;
-    int  mMaxSd;
+    SocketType  mMaxSd;
     fd_set mMasterSet;
     std::vector<Conn> mClients;
     std::mutex mMutex; // To protect mClients

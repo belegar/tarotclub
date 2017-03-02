@@ -404,14 +404,14 @@ std::uint8_t Deck::SetCards(const std::string &cards)
 {
     std::uint8_t count = 0U;
     std::size_t found = std::string::npos;
-    int pos = 0;
+	std::size_t pos = 0;
 
     // Clear this deck before setting new cards
     Clear();
 
     do
     {
-        int size;
+		std::size_t size;
         found = cards.find(';', pos);
         if (found != std::string::npos)
         {

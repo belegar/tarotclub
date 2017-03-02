@@ -167,7 +167,7 @@ public:
     // Raw deck management
     inline std::uint32_t Size() const
     {
-        return mDeck.size();
+        return static_cast<std::uint32_t>(mDeck.size());
     }
     inline void Clear()
     {

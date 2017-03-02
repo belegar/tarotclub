@@ -112,7 +112,7 @@ bool DealFile::CreateRandomDeal(std::uint8_t numberOfPlayers)
 Place DealFile::RandomPlace(std::uint8_t numberOfPlayers)
 {
     std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
-    std::default_random_engine generator(seed);
+    std::default_random_engine generator(static_cast<unsigned int>(seed));
     std::uniform_int_distribution<std::uint32_t> distribution(0, numberOfPlayers - 1U);
     return Place(static_cast<std::uint8_t>(distribution(generator)));
 }

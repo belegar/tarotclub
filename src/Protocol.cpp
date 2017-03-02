@@ -93,7 +93,7 @@ bool Protocol::ParseUint32(const char* data, std::uint32_t size, std::uint32_t &
     bool ret = false;
     char *ptr;
     value = std::strtoul(data, &ptr, 16);
-    std::uint32_t comp_size = ptr - data;
+    std::uint32_t comp_size = static_cast<std::uint32_t>(ptr - data);
     if (size == comp_size)
     {
         ret = true;

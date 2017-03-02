@@ -210,7 +210,7 @@ public:
     virtual ~TcpSocket();
 
     // Getters
-    int  GetSocket() const
+	SocketType  GetSocket() const
     {
         return mPeer.socket;
     }
