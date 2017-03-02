@@ -40,6 +40,8 @@
 Lobby::Lobby(bool adminMode)
     : mInitialized(false)
     , mTableIds(Protocol::TABLES_UID, Protocol::TABLES_UID + Protocol::MAXIMUM_TABLES)
+    , mUserIds(Protocol::USERS_UID, Protocol::MAXIMUM_USERS)
+    , mStagingIds(Protocol::USERS_UID, Protocol::MAXIMUM_USERS)
     , mAdminMode(adminMode)
     , mEvCounter(0U)
 {
@@ -125,39 +127,55 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
         }
         else if (cmd == "ReplyLogin")
         {
-            Identity identity;
+            Users::Entry entry;
 
-            FromJson(identity, json.GetObj());
+            FromJson(entry.identity, json.GetObj());
 
-            if (mUsers.Update(src_uuid, identity))
+            if (mStagingIds.IsTaken(src_uuid))
             {
-                // Create a list of tables available on the server
-                JsonObject reply;
-                JsonArray tables;
-
-                for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+                // Ok, move the user into the main list
+                // User belong to the lobby
+                entry.uuid = src_uuid;
+                entry.tableId = Protocol::LOBBY_UID;
+                if (mUsers.AddEntry(entry))
                 {
-                    JsonObject table;
-                    table.AddValue("name", (*iter)->GetName());
-                    table.AddValue("uuid", (*iter)->GetId());
-                    tables.AddValue(table);
+                    // Successfully added, remove it from the staging area
+                    mStagingIds.ReleaseId(src_uuid);
+
+                    // Create a list of tables available on the server
+                    JsonObject reply;
+                    JsonArray tables;
+
+                    for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+                    {
+                        JsonObject table;
+                        table.AddValue("name", (*iter)->GetName());
+                        table.AddValue("uuid", (*iter)->GetId());
+                        tables.AddValue(table);
+                    }
+
+                    reply.AddValue("cmd", "AccessGranted");
+                    reply.AddValue("tables", tables);
+
+                    // Send to the player the final step of the login process
+                    out.push_back(Reply(src_uuid, reply));
+
+                    // Send also the list of players
+                    SendPlayerList(src_uuid, out);
+
+                    // Send the information for all other users
+                    SendPlayerEvent(src_uuid, "JoinPlayer", out);
                 }
-
-                reply.AddValue("cmd", "AccessGranted");
-                reply.AddValue("tables", tables);
-
-                // Send to the player the final step of the login process
-                out.push_back(Reply(src_uuid, reply));
-
-                // Send also the list of players
-                SendPlayerList(src_uuid, out);
-
-                // Send the information for all other users
-                SendPlayerEvent(src_uuid, "JoinPlayer", out);
+                else
+                {
+                    // Add failed, probably because of the nickname
+                    // FIXME: manage the case: Lobby full
+                    Error(cErrorNickNameUsed, src_uuid, out);
+                }
             }
             else
             {
-                Error(cErrorNickNameUsed, src_uuid, out);
+                TLogNetwork("Unknown uuid");
             }
         }
         else if (cmd == "RequestJoinTable")
@@ -252,12 +270,13 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
 /*****************************************************************************/
 std::uint32_t Lobby::GetNumberOfPlayers()
 {
-    return mUsers.GetLobbyUsers().size();
+    return  static_cast<std::uint32_t>(mUsers.GetLobbyUsers().size());
 }
 /*****************************************************************************/
 uint32_t Lobby::AddUser(std::vector<Reply> &out)
 {
-    std::uint32_t uuid = mUsers.CreateEntry(Protocol::INVALID_UID);
+    std::uint32_t uuid = mUserIds.TakeId();
+    mStagingIds.AddId(uuid);
 
     JsonObject json;
     json.AddValue("cmd", "RequestLogin");
@@ -278,6 +297,9 @@ void Lobby::RemoveUser(uint32_t uuid, std::vector<Reply> &out)
     }
     // Remove the player from the lobby list
     mUsers.Remove(uuid);
+    // Free the ID
+    mUserIds.ReleaseId(uuid);
+    mStagingIds.ReleaseId(uuid);
 }
 /*****************************************************************************/
 void Lobby::RemoveAllUsers()

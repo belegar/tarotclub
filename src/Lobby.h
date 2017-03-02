@@ -70,6 +70,8 @@ private:
     bool mInitialized;
     std::vector<PlayingTable *> mTables;
     UniqueId    mTableIds;
+    UniqueId    mUserIds;
+    UniqueId    mStagingIds; // staging area where users are in the process to be connected
     Users       mUsers;
     std::string mName;
     bool mAdminMode;
