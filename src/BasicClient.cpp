@@ -214,15 +214,12 @@ void BasicClient::BuildNewGame(std::vector<Reply> &out)
     out.push_back(Reply(Protocol::LOBBY_UID, obj));
 }
 /*****************************************************************************/
-void BasicClient::Sync(const std::string &step, std::vector<Reply> &out)
+void BasicClient::Sync(Engine::Sequence sequence, std::vector<Reply> &out)
 {
     JsonObject obj;
 
     obj.AddValue("cmd", "Ack");
-    obj.AddValue("step", step);
-
-    TLogNetwork("Client send ack for step: " + step);
-
+    obj.AddValue("step", Ack::ToString(sequence));
     out.push_back(Reply(mMyself.tableId, obj));
 }
 /*****************************************************************************/
@@ -325,8 +322,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         mNbPlayers = static_cast<std::uint32_t>(json.FindValue("size").GetInteger());
 
         event = JOIN_TABLE;
-
-        Sync("AckJoinTable", out);
     }
     else if (cmd == "RequestQuitTable")
     {
@@ -335,22 +330,17 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
     else if (cmd == "NewGame")
     {
         mGame.Set(json.FindValue("mode").GetString());
-        Sync("Ready", out);
-
         event = NEW_GAME;
     }
     else if (cmd == "NewDeal")
     {
         mDeck.SetCards(json.FindValue("cards").GetString());
-        Sync("NewDeal", out);
-
         event = NEW_DEAL;
     }
     else if (cmd == "RequestBid")
     {
         mBid.taker = Place(json.FindValue("place").GetString());
         mBid.contract = Contract(json.FindValue("contract").GetString());
-
         event = REQ_BID;
     }
     else if (cmd == "ShowBid")
@@ -358,15 +348,10 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         mBid.taker = Place(json.FindValue("place").GetString());
         mBid.contract = Contract(json.FindValue("contract").GetString());
         mBid.slam = json.FindValue("slam").GetBool();
-
-        Sync(cmd, out);
-
         event = SHOW_BID;
     }
     else if (cmd == "AllPassed")
     {
-        Sync("AllPassed", out);
-
         event = ALL_PASSED;
     }
     else if (cmd == "ShowDog")
@@ -386,9 +371,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
 
         UpdateStatistics();
         mCurrentTrick.Clear();
-
-        Sync(cmd, out);
-
         event = START_DEAL;
     }
     else if (cmd == "AskForHandle")
@@ -414,10 +396,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         Card card = Card(json.FindValue("card").GetString());
 
         mCurrentTrick.Append(card);
-
-        // We have seen the card, let's inform the server about that
-        Sync("Card", out);
-
         event = SHOW_CARD;
     }
     else if (cmd == "PlayCard")

@@ -58,7 +58,7 @@ public:
     void BuildDiscard(const Deck &discard, std::vector<Reply> &out);
     void BuildSendCard(Card c, std::vector<Reply> &out);
     void BuildQuitTable(std::uint32_t tableId, std::vector<Reply> &out);
-    void Sync(const std::string &step, std::vector<Reply> &out);
+    void Sync(Engine::Sequence sequence, std::vector<Reply> &out);
 
     Deck::Statistics   mStats;   // statistics on player's cards
     Tarot::Game mGame;
