@@ -43,14 +43,24 @@ void Context::UpdateMember(Users::Entry &member, const std::string &event)
             if (event == "New")
             {
                 // Create user if not exists
-                member.uuid = mUsers.CreateEntry(Protocol::INVALID_UID);
+                if (!mUsers.AddEntry(member))
+                {
+                    TLogError("AddEntry should not fail, the list is managed by the server");
+                }
             }
             else
             {
                 TLogError("User uuid should be in the list");
             }
         }
-        mUsers.Update(member.uuid, member.identity);
+        else
+        {
+            if (event == "Nick")
+            {
+                mUsers.ChangeNickName(member.uuid, member.identity.nickname);
+            }
+            // FIXME: support the other events
+        }
     }
     mLastEvent = Event(event, member.uuid);
 }

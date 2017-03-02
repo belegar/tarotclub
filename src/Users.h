@@ -42,14 +42,12 @@ public:
         Entry()
             : uuid(Protocol::INVALID_UID)
             , tableId(Protocol::INVALID_UID)
-            , connected(false)
         {
 
         }
 
         std::uint32_t uuid;
         std::uint32_t tableId;  // zero if not playing
-        bool connected;         // true if the user is connected (not in login process)
         Place place;            // place around the table (if joined a table)
         Identity identity;
     };
@@ -67,15 +65,12 @@ public:
     std::vector<Entry> GetLobbyUsers();
 
     // Mutators
-    // Alter the lobby users list
     bool ChangeNickName(std::uint32_t uuid, const std::string &nickname);
-    std::uint32_t CreateEntry(uint32_t uuid);
-    bool Update(std::uint32_t uuid, const Identity &ident);
+    bool AddEntry(const Entry &entry);
     void Remove(std::uint32_t uuid);
     void SetPlayingTable(std::uint32_t uuid, std::uint32_t tableId, Place place);
 
 private:
-    UniqueId mIdManager;
     std::vector<Entry> mUsers;  // connected players
 };
 
