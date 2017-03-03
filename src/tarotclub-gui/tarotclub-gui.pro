@@ -42,10 +42,10 @@ MOC_DIR         = $$DESTDIR/moc
 # The search path to find supplied files
 # ------------------------------------------------------------------------------
 VPATH += $$BASE_DIR/src
-VPATH += $$BASE_DIR/src/desktop
-VPATH += $$BASE_DIR/src/desktop/windows
-VPATH += $$BASE_DIR/src/desktop/docks
-VPATH += $$BASE_DIR/src/desktop/forms
+VPATH += $$BASE_DIR/src/tarotclub-gui
+VPATH += $$BASE_DIR/src/tarotclub-gui/windows
+VPATH += $$BASE_DIR/src/tarotclub-gui/docks
+VPATH += $$BASE_DIR/src/tarotclub-gui/forms
 VPATH += $$BASE_DIR/src/gfxlib
 
 VPATH += $$BASE_DIR/assets/ai
@@ -60,10 +60,10 @@ include($$ICL_DIR/icl.pri)
 # Where to find header files
 # ------------------------------------------------------------------------------
 INCLUDEPATH += $$BASE_DIR/src
-INCLUDEPATH += $$BASE_DIR/src/desktop
-INCLUDEPATH += $$BASE_DIR/src/desktop/windows
-INCLUDEPATH += $$BASE_DIR/src/desktop/docks
-INCLUDEPATH += $$BASE_DIR/src/desktop/forms
+INCLUDEPATH += $$BASE_DIR/src/tarotclub-gui
+INCLUDEPATH += $$BASE_DIR/src/tarotclub-gui/windows
+INCLUDEPATH += $$BASE_DIR/src/tarotclub-gui/docks
+INCLUDEPATH += $$BASE_DIR/src/tarotclub-gui/forms
 INCLUDEPATH += $$BASE_DIR/src/gfxlib
 
 # ------------------------------------------------------------------------------
