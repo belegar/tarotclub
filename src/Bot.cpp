@@ -74,8 +74,24 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
         // Only reply a bid if it is our place to anwser
         if (mClient.mBid.taker == mClient.mMyself.place)
         {
+            TLogNetwork("Bot " + mClient.mMyself.place.ToString() + " is bidding");
             RequestBid(out);
         }
+        break;
+    }
+    case BasicClient::SHOW_BID:
+    {
+        mClient.Sync(Engine::WAIT_FOR_SHOW_BID, out);
+        break;
+    }
+    case BasicClient::BUILD_DISCARD:
+    {
+        BuildDiscard(out);
+        break;
+    }
+    case BasicClient::SHOW_DOG:
+    {
+        mClient.Sync(Engine::WAIT_FOR_SHOW_DOG, out);
         break;
     }
     case BasicClient::START_DEAL:
@@ -88,11 +104,6 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     {
         ShowHandle();
         mClient.Sync(Engine::WAIT_FOR_SHOW_HANDLE, out);
-        break;
-    }
-    case BasicClient::BUILD_DISCARD:
-    {
-        BuildDiscard(out);
         break;
     }
     case BasicClient::NEW_GAME:
@@ -131,11 +142,6 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
         mClient.Sync(Engine::WAIT_FOR_READY, out);
         break;
     }
-    case BasicClient::SHOW_DOG:
-    {
-        mClient.Sync(Engine::WAIT_FOR_SHOW_DOG, out);
-        break;
-    }
     case BasicClient::END_OF_DEAL:
     {
         mClient.Sync(Engine::WAIT_FOR_END_OF_DEAL, out);
@@ -144,11 +150,6 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::JOIN_TABLE:
     {
         mClient.Sync(Engine::WAIT_FOR_PLAYERS, out);
-        break;
-    }
-    case BasicClient::SHOW_BID:
-    {
-        mClient.Sync(Engine::WAIT_FOR_SHOW_BID, out);
         break;
     }
     case BasicClient::ALL_PASSED:
