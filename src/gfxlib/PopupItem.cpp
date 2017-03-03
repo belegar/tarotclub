@@ -55,6 +55,7 @@ void PopupItem::DrawItems(const QList<QGraphicsItem *> &items)
     {
         items.at(i)->setPos(cardPosX + i * STEP_X, cardPosY);
         items.at(i)->setZValue(4 + i);
+        items.at(i)->setRotation(0);
         items.at(i)->show();
     }
     update();
