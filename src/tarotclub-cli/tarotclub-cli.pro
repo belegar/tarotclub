@@ -96,7 +96,7 @@ include($$BASE_DIR/src/tarot_core.pri)
 # ------------------------------------------------------------------------------
 # Console files
 # ------------------------------------------------------------------------------
-SOURCES +=  main.cpp Console.cpp Embedded.cpp ConsoleClient.cpp
-HEADERS +=  Console.h Embedded.h ConsoleClient.h
+SOURCES +=  main.cpp Embedded.cpp ConsoleClient.cpp
+HEADERS +=  Embedded.h ConsoleClient.h
 
 # End of project file

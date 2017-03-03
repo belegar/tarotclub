@@ -8,12 +8,14 @@ HEADERS += $$ICL_DIR/util/Log.h \
     $$ICL_DIR/util/GetOptions.h \
     $$ICL_DIR/util/Value.h \
     $$ICL_DIR/util/UniqueId.h \
-    $$PWD/util/Semaphore.h
+    $$ICL_DIR/util/Semaphore.h \
+    $$ICL_DIR/util/Console.h
 
 SOURCES += $$ICL_DIR/util/Log.cpp \
     $$ICL_DIR/util/Util.cpp \
     $$ICL_DIR/util/Value.cpp \
-    $$ICL_DIR/util/UniqueId.cpp
+    $$ICL_DIR/util/UniqueId.cpp \
+    $$ICL_DIR/util/Console.cpp
 
 # ------------------------------------------------------------------------------
 # I/O files
