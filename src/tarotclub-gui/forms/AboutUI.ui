@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;The free Tarot card game!&lt;br/&gt;Website: &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;http://www.tarotclub.fr&lt;/a&gt;&lt;br/&gt;Development: &lt;a href=&quot;https://bitbucket/tarotclub&quot;&gt;https://bitbucket/tarotclub&lt;/a&gt;&lt;br/&gt;E-mail: support@tarotclub.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;The free Tarot card game!&lt;br/&gt;Website: &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;http://www.tarotclub.fr&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;Development: &lt;a href=&quot;https://github.com/tarotclub/tarotclub&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;https://github.com/tarotclub/tarotclub&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;Mail: &lt;a href=&quot; support@tarotclub.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;support@tarotclub.fr&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </item>
