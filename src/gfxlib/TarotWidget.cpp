@@ -190,23 +190,24 @@ void TarotWidget::customEvent(QEvent *e)
         {
             emit sigTableJoinEvent(mClient.mMyself.tableId);
             AddBots(); // if needed
+            mClient.Sync(Engine::WAIT_FOR_PLAYERS, out);
             break;
         }
         case BasicClient::NEW_DEAL:
         {
-
             mClient.UpdateStatistics();
             emit sigNewDeal();
             mCanvas->ResetCards();
             ShowSouthCards();
-
+            mClient.Sync(Engine::WAIT_FOR_CARDS, out);
             break;
         }
         case BasicClient::REQ_BID:
         {
-            mCanvas->ShowSelection(mClient.mCurrentPlayer, mClient.mMyself.place);
-            if (mClient.IsMyTurn())
+            mCanvas->ShowSelection(mClient.mBid.taker, mClient.mMyself.place);
+            if (mClient.mBid.taker == mClient.mMyself.place)
             {
+                TLogNetwork("My turn to bid");
                 if (mAutoPlay)
                 {
                     //mNet.SendPacket(Protocol::ClientBid(Contract::PASS, false, mClient.GetUuid(), mClient.mTableId));
@@ -219,6 +220,27 @@ void TarotWidget::customEvent(QEvent *e)
             }
             break;
         }
+        case BasicClient::SHOW_BID:
+        {
+            mCanvas->ShowBid(mClient.mBid.taker, mClient.mBid.contract, mClient.mMyself.place);
+            mClient.Sync(Engine::WAIT_FOR_SHOW_BID, out);
+            break;
+        }
+        case BasicClient::SHOW_DOG:
+        {
+            if (mAutoPlay)
+            {
+                mClient.Sync(Engine::WAIT_FOR_SHOW_DOG, out);
+            }
+            else
+            {
+                mSequence = SHOW_DOG;
+                mCanvas->DrawCardsInPopup(mClient.mDog);
+                mCanvas->SetFilter(Canvas::BOARD);
+            }
+            break;
+        }
+
         case BasicClient::START_DEAL:
         {
             mClient.UpdateStatistics();
@@ -229,6 +251,8 @@ void TarotWidget::customEvent(QEvent *e)
             mSequence = IDLE;
             mCanvas->SetFilter(Canvas::BLOCK_ALL);
             mCanvas->ShowTaker(mClient.mBid.taker, mClient.mMyself.place);
+
+            mClient.Sync(Engine::WAIT_FOR_START_DEAL, out);
             break;
         }
         case BasicClient::SHOW_HANDLE:
@@ -237,6 +261,7 @@ void TarotWidget::customEvent(QEvent *e)
             mCanvas->DrawCardsInPopup(mMyHandle);
             mSequence = SHOW_HANDLE;
             mCanvas->SetFilter(Canvas::BOARD);
+            mClient.Sync(Engine::WAIT_FOR_SHOW_HANDLE, out);
             break;
         }
         case BasicClient::BUILD_DISCARD:
@@ -256,6 +281,7 @@ void TarotWidget::customEvent(QEvent *e)
         case BasicClient::NEW_GAME:
         {
             emit sigNewGame();
+            mClient.Sync(Engine::WAIT_FOR_READY, out);
             break;
         }
         case BasicClient::SHOW_CARD:
@@ -265,6 +291,7 @@ void TarotWidget::customEvent(QEvent *e)
 
             mCanvas->DrawCard(card, mClient.mCurrentPlayer, mClient.mMyself.place);
             mClient.mCurrentTrick.Append(card);
+            mClient.Sync(Engine::WAIT_FOR_SHOW_CARD, out);
             break;
         }
         case BasicClient::PLAY_CARD:
@@ -307,6 +334,10 @@ void TarotWidget::customEvent(QEvent *e)
             {
                 QTimer::singleShot(mClientOptions.delayBeforeCleaning, this, SLOT(slotClickBoard()));
             }
+            else
+            {
+                mClient.Sync(Engine::WAIT_FOR_END_OF_TRICK, out);
+            }
 
             break;
         }
@@ -321,7 +352,7 @@ void TarotWidget::customEvent(QEvent *e)
             mCanvas->SetFilter(Canvas::MENU);
             mCanvas->DisplayMainMenu(true);
 
-            mClient.Sync("Ready", out);
+            mClient.Sync(Engine::WAIT_FOR_READY, out);
             break;
         }
         case BasicClient::ALL_PASSED:
@@ -336,6 +367,7 @@ void TarotWidget::customEvent(QEvent *e)
                                          trUtf8("All the players have passed.\n"
                                                 "New deal will start."));
             }
+            mClient.Sync(Engine::WAIT_FOR_ALL_PASSED, out);
             break;
         }
 
@@ -365,24 +397,6 @@ void TarotWidget::customEvent(QEvent *e)
             // Clean canvas
             InitScreen(true);
             break;
-
-        case BasicClient::SHOW_BID:
-            mCanvas->ShowBid(mClient.mCurrentPlayer, mClient.mBid.contract, mClient.mMyself.place);
-            break;
-
-        case BasicClient::SHOW_DOG:
-            if (mAutoPlay)
-            {
-                mClient.Sync("ShowDog", out);
-            }
-            else
-            {
-                mSequence = SHOW_DOG;
-                mCanvas->DrawCardsInPopup(mClient.mDog);
-                mCanvas->SetFilter(Canvas::BOARD);
-            }
-            break;
-
         case BasicClient::END_OF_DEAL:
         {
             mCanvas->InitBoard();
@@ -393,6 +407,7 @@ void TarotWidget::customEvent(QEvent *e)
             mCanvas->SetFilter(Canvas::BOARD);
 
             emit sigAddScore();
+            mClient.Sync(Engine::WAIT_FOR_END_OF_DEAL, out);
             break;
         }
 
@@ -689,7 +704,7 @@ void TarotWidget::slotClickBoard()
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-        mClient.Sync("ShowDog", out);
+        mClient.Sync(Engine::WAIT_FOR_SHOW_DOG, out);
     }
     else if (mSequence == SHOW_HANDLE)
     {
@@ -699,7 +714,7 @@ void TarotWidget::slotClickBoard()
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-        mClient.Sync("ShowHandle", out);
+        mClient.Sync(Engine::WAIT_FOR_SHOW_HANDLE, out);
     }
     else if (mSequence == SYNC_END_OF_TRICK)
     {
@@ -709,7 +724,7 @@ void TarotWidget::slotClickBoard()
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-        mClient.Sync("EndOfTrick", out);
+        mClient.Sync(Engine::WAIT_FOR_END_OF_TRICK, out);
     }
     else if (mSequence == SHOW_SCORE)
     {
@@ -718,7 +733,7 @@ void TarotWidget::slotClickBoard()
         mSequence = IDLE;
         mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-        mClient.Sync("EndOfDeal", out);
+        mClient.Sync(Engine::WAIT_FOR_END_OF_DEAL, out);
     }
 
     mSession.Send(out);
