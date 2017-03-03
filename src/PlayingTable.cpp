@@ -352,6 +352,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                 {
                     Contract cont = mEngine.SetBid((Contract)c, slam, p);
 
+                    TLogNetwork("Client bid received");
                     // Broadcast player's bid, and wait for all acknowlegements
                     JsonObject obj;
 
