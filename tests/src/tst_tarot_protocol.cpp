@@ -276,7 +276,8 @@ void TarotProtocol::TestBotsFullGame()
             {
                 // No allowed broadcast for messages from clients
                 std::uint32_t expected = 1UL;
-                QCOMPARE(bots[i].reply[j].dest.size(), expected);
+                std::uint32_t value = static_cast<std::uint32_t>(bots[i].reply[j].dest.size());
+                QCOMPARE(value, expected);
                 QCOMPARE(lobby.Deliver(bots[i].uuid, bots[i].reply[j].dest[0], bots[i].reply[j].data.ToString(0U), lobby_data), true);
             }
         }

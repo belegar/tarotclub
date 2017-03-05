@@ -41,16 +41,8 @@ MOC_DIR         = $$DESTDIR/moc
 # ------------------------------------------------------------------------------
 # Where to find header files
 # ------------------------------------------------------------------------------
-INCLUDEPATH += $$BASE_DIR/src
-INCLUDEPATH += $$BASE_DIR/src/library
-INCLUDEPATH += $$BASE_DIR/src/jsengine
-INCLUDEPATH += $$BASE_DIR/src/json
-INCLUDEPATH += $$BASE_DIR/src/network
-INCLUDEPATH += $$BASE_DIR/src/zip
-INCLUDEPATH += $$BASE_DIR/src/lobby
-INCLUDEPATH += $$BASE_DIR/src/config
-
-INCLUDEPATH += $$BASE_DIR/tcds
+INCLUDEPATH += $$BASE_DIR/src/tarotclub-srv
+VPATH += $$BASE_DIR/src/tarotclub-srv
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -102,13 +94,9 @@ include($$BASE_DIR/src/tarot_core.pri)
 # ------------------------------------------------------------------------------
 # Server files
 # ------------------------------------------------------------------------------
-SOURCES +=  main.cpp \
-            Http.cpp \
-            CouchDb.cpp \
-            Console.cpp \
-            Server.cpp
+SOURCES +=  main.cpp Http.cpp Terminal.cpp Services.cpp
 
-HEADERS += Version.h
+HEADERS += Version.h Terminal.h Services.h
 
 
 # End of project file
