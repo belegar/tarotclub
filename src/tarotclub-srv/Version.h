@@ -28,7 +28,7 @@
 
 #include <string>
 
-static const std::string TCDS_VERSION  = "1.2.0";
+static const std::string TCDS_VERSION  = "2.0.0";
 
 
 #endif // VERSION_H
