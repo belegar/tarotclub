@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - Console.h
+ * TarotClub - Terminal.h
  *=============================================================================
- * TCP/IP console to manage the server using command line interface
+ * TCP/IP console terminal to manage the server using command line interface
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -23,17 +23,17 @@
  *=============================================================================
  */
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#ifndef TERMINAL_H
+#define TERMINAL_H
 
 #include "TcpServer.h"
 #include "Lobby.h"
 
-class Console : public TcpServer::IEvent
+class Terminal : public tcp::TcpServer::IEvent
 {
 public:
-    Console();
-    ~Console();
+    Terminal();
+    ~Terminal();
 
     void Manage(Lobby &i_lobby, std::uint16_t port);
 
@@ -41,27 +41,21 @@ private:
     static const std::uint8_t cPeerData     = 0U;
     static const std::uint8_t cExitCommand  = 1U;
 
-    struct Packet
-    {
-        std::uint8_t type;
-        ByteArray data;
-    };
-
-    TcpServer   mTcpServer;
-    Peer     mPeer; // Only one client allowed
+    tcp::TcpServer   mTcpServer;
+    tcp::Peer     mPeer; // Only one client allowed
     bool    mExit;
-    ThreadQueue<Packet> mQueue;
+  //  ThreadQueue<Packet> mQueue;
 
     // From TcpServer interface
-    virtual void NewConnection(const Peer &peer);
-    virtual void ReadData(const Peer &peer, const ByteArray &data);
-    virtual void ClientClosed(const Peer &peer);
-    virtual void ServerTerminated(CloseType type);
+    void NewConnection(const tcp::Conn &conn);
+    void ReadData(const tcp::Conn &conn);
+    void ClientClosed(const tcp::Conn &conn);
+    void ServerTerminated(tcp::TcpServer::IEvent::CloseType type);
 
 };
 
-#endif // CONSOLE_H
+#endif // TERMINAL_H
 
 //=============================================================================
-// End of file Console.h
+// End of file Terminal.h
 //=============================================================================

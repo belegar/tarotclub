@@ -23,15 +23,12 @@
  *=============================================================================
  */
 
-#include "Lobby.h"
-#include "LobbyServer.h"
-#include "TournamentConfig.h"
-#include "System.h"
+#include "EventLoop.h"
 #include "GetOptions.h"
-#include "Console.h"
-#include "Server.h"
-#include "Version.h"
+#include "System.h"
 #include "Log.h"
+#include "Version.h"
+#include "SrvStats.h"
 
 /*****************************************************************************/
 class Logger : public Observer<std::string>
@@ -48,7 +45,6 @@ public:
         std::cout << info << std::endl;
     }
 };
-
 /*****************************************************************************/
 /**
  * @brief Entry point of the dedicated game server
@@ -86,21 +82,13 @@ int main(int argc, char *argv[])
     Log::SetLogPath(System::LogPath());
     Log::RegisterListener(logger);
 
-    ServerConfig conf;
-    TournamentConfig tournament;
+    EventLoop loop;
 
-    conf.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
-    tournament.Load(System::HomePath() + TournamentConfig::DEFAULT_FILE_NAME);
+    SrvStats stats;
+    stats.Initialize(loop);
 
-    ServerOptions options = conf.GetOptions();
-    std::cout << "Starting lobby on TCP port: " << options.game_tcp_port << std::endl;
+    loop.Run();
 
-    Protocol::GetInstance().Initialize();
-
-    Server server;
-    server.Start(options, tournament.GetOptions()); // Blocking call. On exit, quit the executable
-
-    Protocol::GetInstance().Stop();
     return 0;
 }
 

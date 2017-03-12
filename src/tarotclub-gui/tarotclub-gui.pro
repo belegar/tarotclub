@@ -41,7 +41,7 @@ MOC_DIR         = $$DESTDIR/moc
 # ------------------------------------------------------------------------------
 # The search path to find supplied files
 # ------------------------------------------------------------------------------
-VPATH += $$BASE_DIR/src
+
 VPATH += $$BASE_DIR/src/tarotclub-gui
 VPATH += $$BASE_DIR/src/tarotclub-gui/windows
 VPATH += $$BASE_DIR/src/tarotclub-gui/docks
@@ -59,7 +59,6 @@ include($$ICL_DIR/icl.pri)
 # ------------------------------------------------------------------------------
 # Where to find header files
 # ------------------------------------------------------------------------------
-INCLUDEPATH += $$BASE_DIR/src
 INCLUDEPATH += $$BASE_DIR/src/tarotclub-gui
 INCLUDEPATH += $$BASE_DIR/src/tarotclub-gui/windows
 INCLUDEPATH += $$BASE_DIR/src/tarotclub-gui/docks
@@ -147,6 +146,8 @@ TRANSLATIONS = $$BASE_DIR/prj/desktop/tarotclub_fr.ts
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
+INCLUDEPATH += $$BASE_DIR/src
+VPATH += $$BASE_DIR/src
 include($$BASE_DIR/src/tarot_core.pri)
 
 # ------------------------------------------------------------------------------

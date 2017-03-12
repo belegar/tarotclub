@@ -61,7 +61,7 @@ TARGET = tcds # name of the output executable
 
 # Specific OS stuff
 win32 {
-    RC_FILE = $$BASE_DIR/tcds/icon.rc
+    RC_FILE = icon.rc
     LIBS +=  libws2_32 -lpsapi
     DEFINES += USE_WINDOWS_OS
     # Let's make everything's static so that we don't need any DLL
@@ -89,14 +89,16 @@ include($$ICL_DIR/icl.pri)
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
+INCLUDEPATH += $$BASE_DIR/src
+VPATH += $$BASE_DIR/src
 include($$BASE_DIR/src/tarot_core.pri)
 
 # ------------------------------------------------------------------------------
 # Server files
 # ------------------------------------------------------------------------------
-SOURCES +=  main.cpp Http.cpp Terminal.cpp Services.cpp
+SOURCES +=  main.cpp Terminal.cpp SrvStats.cpp EventLoop.cpp
 
-HEADERS += Version.h Terminal.h Services.h
+HEADERS += Version.h Terminal.h SrvStats.h EventLoop.h IEventLoop.h
 
 
 # End of project file

@@ -23,33 +23,38 @@
  *=============================================================================
  */
 
-#include "Console.h"
+#include <sstream>
+#include "Terminal.h"
 #include "Util.h"
 #include "JsonValue.h"
 #include "Version.h"
+#include "Server.h"
+#include "IScriptEngine.h"
 
 /*****************************************************************************/
-Console::Console()
+Terminal::Terminal()
     : mTcpServer(*this)
     , mExit(false)
 {
 
 }
 /*****************************************************************************/
-Console::~Console()
+Terminal::~Terminal()
 {
 
 }
 /*****************************************************************************/
-void Console::Manage(Lobby &i_lobby, std::uint16_t port)
+void Terminal::Manage(Lobby &i_lobby, std::uint16_t port)
 {
-    Packet packet;
+    std::stringstream ss;
 
-    std::cout << "Starting management console on TCP port: " << port << std::endl;
-    mTcpServer.Start(1U, true, port);
+    ss << "Starting management console on TCP port: " << port;
+    TLogInfo(ss.str());
+    mTcpServer.Start(10U, true, port);
 
     while (!mExit)
     {
+        /*
         mQueue.WaitAndPop(packet);
 
         if (packet.type == cPeerData)
@@ -82,20 +87,23 @@ void Console::Manage(Lobby &i_lobby, std::uint16_t port)
             sock.Send("Exiting server ...\n");
             mExit = true;
         }
+        */
     }
 
     // Close properly, wait for the thread to stop
     mTcpServer.Stop();
 }
 /*****************************************************************************/
-void Console::NewConnection(const Peer &peer)
+void Terminal::NewConnection(const tcp::Conn &conn)
 {
     // Save socket
-    mPeer = peer;
+    mPeer = conn.peer;
 }
 /*****************************************************************************/
-void Console::ReadData(const Peer &peer, const ByteArray &data)
+void Terminal::ReadData(const tcp::Conn &conn)
 {
+    (void) conn;
+    /*
     if (mPeer == peer)
     {
         Packet packet;
@@ -103,21 +111,22 @@ void Console::ReadData(const Peer &peer, const ByteArray &data)
         packet.data = data;
         mQueue.Push(packet);
     }
+    */
 }
 /*****************************************************************************/
-void Console::ClientClosed(const Peer &peer)
+void Terminal::ClientClosed(const tcp::Conn &conn)
 {
-    (void) peer;
-    mPeer.socket = -1;
+    (void) conn;
+  //  mPeer.socket = -1;
 }
 /*****************************************************************************/
-void Console::ServerTerminated(TcpServer::IEvent::CloseType type)
+void Terminal::ServerTerminated(tcp::TcpServer::IEvent::CloseType type)
 {
     (void) type;
-    mPeer.socket = -1;
+  //  mPeer.socket = -1;
 }
 
 //=============================================================================
-// End of file Console.cpp
+// End of file Terminal.cpp
 //=============================================================================
 
