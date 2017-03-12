@@ -1,109 +1,102 @@
 # ------------------------------------------------------------------------------
 # Util files
 # ------------------------------------------------------------------------------
-HEADERS += $$ICL_DIR/util/Log.h \
-    $$ICL_DIR/util/Observer.h \
-    $$ICL_DIR/util/Util.h \
-    $$ICL_DIR/util/ThreadQueue.h \
-    $$ICL_DIR/util/GetOptions.h \
-    $$ICL_DIR/util/Value.h \
-    $$ICL_DIR/util/UniqueId.h \
-    $$ICL_DIR/util/Semaphore.h \
-    $$ICL_DIR/util/Console.h
+HEADERS += Log.h \
+    Observer.h \
+    Util.h \
+    ThreadQueue.h \
+    GetOptions.h \
+    Value.h \
+    UniqueId.h \
+    Semaphore.h \
+    Console.h
 
-SOURCES += $$ICL_DIR/util/Log.cpp \
-    $$ICL_DIR/util/Util.cpp \
-    $$ICL_DIR/util/Value.cpp \
-    $$ICL_DIR/util/UniqueId.cpp \
-    $$ICL_DIR/util/Console.cpp
+SOURCES += Log.cpp \
+    Util.cpp \
+    Value.cpp \
+    UniqueId.cpp \
+    Console.cpp
 
 # ------------------------------------------------------------------------------
 # I/O files
 # ------------------------------------------------------------------------------
-HEADERS += $$ICL_DIR/io/ByteStreamReader.h \
-    $$ICL_DIR/io/ByteStreamWriter.h \
-    $$ICL_DIR/io/ByteArray.h
+HEADERS += ByteStreamReader.h \
+    ByteStreamWriter.h \
+    ByteArray.h
 
-SOURCES += $$ICL_DIR/io/ByteArray.cpp \
-    $$ICL_DIR/io/ByteStreamReader.cpp \
-    $$ICL_DIR/io/ByteStreamWriter.cpp
+SOURCES += ByteArray.cpp \
+    ByteStreamReader.cpp \
+    ByteStreamWriter.cpp
 
 # ------------------------------------------------------------------------------
 # Network files
 # ------------------------------------------------------------------------------
-HEADERS += $$ICL_DIR/network/TcpSocket.h \
-    $$ICL_DIR/network/TcpServer.h \
-    $$ICL_DIR/network/ TcpClient.h \
-    $$ICL_DIR/network/WebSocket.h \
-    $$ICL_DIR/network/TcpServerBase.h
+HEADERS += TcpSocket.h \
+    TcpServer.h \
+    TcpClient.h \
+    WebSocket.h \
+    TcpServerBase.h
 
-SOURCES += $$ICL_DIR/network/TcpSocket.cpp \
-    $$ICL_DIR/network/TcpServer.cpp \
-    $$ICL_DIR/network/TcpClient.cpp \
-    $$ICL_DIR/network/WebSocket.cpp \
-    $$ICL_DIR/network/TcpServerBase.cpp
+SOURCES += TcpSocket.cpp \
+    TcpServer.cpp \
+    TcpClient.cpp \
+    WebSocket.cpp \
+    TcpServerBase.cpp
 
 # ------------------------------------------------------------------------------
 # Protocol files
 # ------------------------------------------------------------------------------
+HEADERS += Http.h
 
-HEADERS += $$ICL_DIR/protocol/Http.h
-
-SOURCES += $$ICL_DIR/protocol/Http.cpp
+SOURCES += Http.cpp
 
 # ------------------------------------------------------------------------------
 # Database files
 # ------------------------------------------------------------------------------
+HEADERS += CouchDb.h \
+            DataBase.h
 
-HEADERS += $$ICL_DIR/db/CouchDb.h \
-            $$ICL_DIR/db/DataBase.h
-
-SOURCES += $$ICL_DIR/db/CouchDb.cpp \
-            $$ICL_DIR/db/DataBase.cpp \
-            $$ICL_DIR/db/sqlite3.c
-
+SOURCES += CouchDb.cpp \
+            DataBase.cpp \
+            sqlite3.c
 
 # ------------------------------------------------------------------------------
 # Security files
 # ------------------------------------------------------------------------------
+HEADERS += Base64.h \
+    Sha1.h
 
-HEADERS += $$ICL_DIR/security/Base64.h \
-    $$ICL_DIR/security/Sha1.h
-
-SOURCES += $$ICL_DIR/security/Base64.cpp \
-    $$ICL_DIR/security/Sha1.cpp
-
+SOURCES += Base64.cpp \
+    Sha1.cpp
 
 # ------------------------------------------------------------------------------
 # ZIP files
 # ------------------------------------------------------------------------------
+HEADERS += Zip.h
 
-HEADERS += $$ICL_DIR/zip/Zip.h
-
-SOURCES += $$ICL_DIR/zip/Zip.cpp
+SOURCES += Zip.cpp
 
 # ------------------------------------------------------------------------------
 # JSON files
 # ------------------------------------------------------------------------------
-HEADERS += $$ICL_DIR/json/JsonWriter.h \
-    $$ICL_DIR/json/JsonReader.h \
-    $$ICL_DIR/json/JsonValue.h
+HEADERS += JsonWriter.h \
+   JsonReader.h \
+   JsonValue.h
 
-SOURCES += $$ICL_DIR/json/JsonWriter.cpp \
-    $$ICL_DIR/json/JsonReader.cpp \
-    $$ICL_DIR/json/JsonValue.cpp
+SOURCES += JsonWriter.cpp \
+    JsonReader.cpp \
+    JsonValue.cpp
 
 
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
 # ------------------------------------------------------------------------------
+HEADERS += duktape.h \
+    JSEngine.h \
+    IScriptEngine.h
 
-HEADERS += $$ICL_DIR/jsengine/duktape.h \
-    $$ICL_DIR/jsengine/JSEngine.h \
-    $$ICL_DIR/jsengine/IScriptEngine.h
-
-SOURCES += $$ICL_DIR/jsengine/duktape.c \
-    $$ICL_DIR/jsengine/JSEngine.cpp
+SOURCES += duktape.c \
+    JSEngine.cpp
 
 VPATH += $$ICL_DIR/network
 VPATH += $$ICL_DIR/util
