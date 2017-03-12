@@ -14,7 +14,8 @@
 #endif
 
 
-Console::Console()
+Console::Console(bool native)
+    : mUseNativeKbEvents(native)
 {
 #ifdef USE_WINDOWS_OS
     mHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -65,63 +66,51 @@ Console::KeyEvent Console::ReadKeyboard()
 {
     Console::KeyEvent event = KeyEvent::KB_NONE;
 
+    if (mUseNativeKbEvents)
+    {
 #ifdef USE_WINDOWS_OS
-
-    HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
-    DWORD NumInputs = 0;
-    DWORD InputsRead = 0;
-    INPUT_RECORD irInput;
-
-    GetNumberOfConsoleInputEvents(hInput, &NumInputs);
-
-    ReadConsoleInput(hInput, &irInput, 1, &InputsRead);
-
-    if (irInput.Event.KeyEvent.bKeyDown)
-    {
-        switch(irInput.Event.KeyEvent.wVirtualKeyCode)
-        {
-        case VK_LEFT:
-                event = KeyEvent::KB_LEFT;
-            break;
-
-        case VK_RIGHT:
-                event = KeyEvent::KB_RIGHT;
-            break;
-
-        case VK_SPACE:
-                event = KeyEvent::KB_SPACE;
-            break;
-        case 'C':
-                event = KB_C;
-            break;
-        case 'Q':
-                event = KB_Q;
-            break;
-        default:
-            break;
-        }
-
-        // FlushConsoleInputBuffer(hInput); // in case of problems of multiple events, enable this...
-    }
-
-    return event;
-
+        event = ReadWin32ConsoleEvents();
 #else
-    int ch = getchar() & 0xFF;
-
-    if (ch == 27)
+#error "Implement OS native console events"
+#endif
+    }
+    else
     {
-        ch = getchar() & 0xFF;
-        if (ch == '[')
+        int ch = getchar() & 0xFF;
+
+        if (ch == 27)
         {
             ch = getchar() & 0xFF;
-            if (ch == 'D')
+            if (ch == '[')
             {
-                event = KeyEvent::KB_LEFT;
+                ch = getchar() & 0xFF;
+                if (ch == 'D')
+                {
+                    event = KeyEvent::KB_LEFT;
+                }
+                else if (ch == 'C')
+                {
+                    event = KeyEvent::KB_RIGHT;
+                }
+                else
+                {
+                    event = KeyEvent::KB_NONE;
+                }
             }
-            else if (ch == 'C')
+        }
+        else
+        {
+            if (ch == 'c')
             {
-                event = KeyEvent::KB_RIGHT;
+                event = KeyEvent::KB_C;
+            }
+            else if (ch == 'q')
+            {
+                event = KeyEvent::KB_Q;
+            }
+            else if (ch == ' ')
+            {
+                event = KeyEvent::KB_SPACE;
             }
             else
             {
@@ -129,27 +118,6 @@ Console::KeyEvent Console::ReadKeyboard()
             }
         }
     }
-    else
-    {
-        if (ch == 'c')
-        {
-            event = KeyEvent::KB_C;
-        }
-        else if (ch == 'q')
-        {
-            event = KeyEvent::KB_Q;
-        }
-        else if (ch == ' ')
-        {
-            event = KeyEvent::KB_SPACE;
-        }
-        else
-        {
-            event = KeyEvent::KB_NONE;
-        }
-    }
-
-#endif
 
     return event;
 }
@@ -250,3 +218,49 @@ void Console::GotoXY(std::int32_t x, std::int32_t y)
     printf("%c[%d;%df",0x1B, y+1, x);
 #endif
 }
+
+#ifdef USE_WINDOWS_OS
+Console::KeyEvent Console::ReadWin32ConsoleEvents()
+{
+    Console::KeyEvent event = KeyEvent::KB_NONE;
+    HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD NumInputs = 0;
+    DWORD InputsRead = 0;
+    INPUT_RECORD irInput;
+
+    GetNumberOfConsoleInputEvents(hInput, &NumInputs);
+
+    ReadConsoleInput(hInput, &irInput, 1, &InputsRead);
+
+    if (irInput.Event.KeyEvent.bKeyDown)
+    {
+        switch(irInput.Event.KeyEvent.wVirtualKeyCode)
+        {
+        case VK_LEFT:
+                event = KeyEvent::KB_LEFT;
+            break;
+
+        case VK_RIGHT:
+                event = KeyEvent::KB_RIGHT;
+            break;
+
+        case VK_SPACE:
+                event = KeyEvent::KB_SPACE;
+            break;
+        case 'C':
+                event = KB_C;
+            break;
+        case 'Q':
+                event = KB_Q;
+            break;
+        default:
+            break;
+        }
+
+        // FlushConsoleInputBuffer(hInput); // in case of problems of multiple events, enable this...
+    }
+
+    return event;
+}
+#endif // USE_WINDOWS_OS
+

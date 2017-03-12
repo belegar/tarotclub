@@ -29,7 +29,7 @@ public:
         KB_Q
     };
 
-    Console();
+    Console(bool native);
     std::int32_t WhereX();
     std::int32_t WhereY();
     void Cls();
@@ -42,11 +42,12 @@ private:
 
 #ifdef USE_WINDOWS_OS
     HANDLE mHandle;
+    Console::KeyEvent ReadWin32ConsoleEvents();
 #endif
-
+    // set it dynamically to detect native window keyboard events or from a compatible terminal
+    // using escape sequences
+    bool mUseNativeKbEvents;
     int fd;
-
-
 };
 
 #endif // CONSOLE_H
