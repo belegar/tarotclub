@@ -34,13 +34,24 @@
 class IScriptEngine
 {
 public:
+    class IPrinter
+    {
+    public:
+        ~IPrinter() {}
+
+        virtual void Print(const std::string &msg) = 0;
+    };
+
     typedef std::vector<std::string> StringList;
 
-    virtual void Initialize() = 0;
+    virtual ~IScriptEngine() { /* Nothing to do */ }
 
+    virtual void Initialize() = 0;
+    virtual void RegisterPrinter(IScriptEngine::IPrinter *printer) = 0;
     virtual bool EvaluateFile(const std::string &fileName) = 0;
-    virtual bool EvaluateString(const std::string &contents) = 0;
+    virtual bool EvaluateString(const std::string &contents, std::string &output) = 0;
     virtual Value Call(const std::string &function, const StringList &args) = 0;
+    virtual void Close() = 0;
 };
 
 #endif // I_SCRIPT_ENGINE_H

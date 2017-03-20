@@ -31,6 +31,7 @@
 #include "DataBase.h"
 #include "JsonValue.h"
 #include "IEventLoop.h"
+#include "IScriptEngine.h"
 
 /*****************************************************************************/
 class SrvStats
@@ -54,7 +55,7 @@ public:
         std::uint32_t total;
     };
 
-    SrvStats();
+    SrvStats(IScriptEngine &jsEngine);
 
     void Initialize(IEventLoop &ev);
     void FireTimer(IEventLoop::Event event);
@@ -84,6 +85,7 @@ public:
 */
 
 private:
+    IScriptEngine &mScriptEngine;
 
     /*
     Lobby mLobby;

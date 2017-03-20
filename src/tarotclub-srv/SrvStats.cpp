@@ -50,7 +50,8 @@ static const std::string cOpponents[3U] = {
 #endif
 
 /*****************************************************************************/
-SrvStats::SrvStats()
+SrvStats::SrvStats(IScriptEngine &jsEngine)
+    : mScriptEngine(jsEngine)
 {
 
 }
@@ -62,9 +63,17 @@ void SrvStats::Initialize(IEventLoop &ev)
 /*****************************************************************************/
 void SrvStats::FireTimer(IEventLoop::Event event)
 {
+    if (event == IEventLoop::EvTimer)
+    {
 #ifdef TAROT_DEBUG
-std::cout << "Top event" << std::endl;
+        std::cout << "Top event" << std::endl;
 #endif
+
+        time_t rawtime;
+
+        time(&rawtime);
+        StoreStats(rawtime);
+    }
 }
 
 
@@ -448,6 +457,7 @@ void SrvStats::StoreStats(time_t currTime)
     // Store statistics
     if (mDb.Open(System::HomePath() + cDbFileName))
     {
+        mDb.Query("CREATE TABLE IF NOT EXISTS stats(date_time INTEGER, min INTEGER, max INTEGER, current INTEGER, total INTEGER, mem_current INTEGER, mem_max INTEGER)");
         std::stringstream query;
         query << "INSERT INTO stats VALUES("
               << currTime << ","

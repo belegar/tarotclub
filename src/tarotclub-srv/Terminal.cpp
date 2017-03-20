@@ -29,14 +29,19 @@
 #include "JsonValue.h"
 #include "Version.h"
 #include "Server.h"
-#include "IScriptEngine.h"
+#include "Observer.h"
+
+static const std::string cConsoleString = "tcds> ";
+
 
 /*****************************************************************************/
-Terminal::Terminal()
-    : mTcpServer(*this)
+Terminal::Terminal(IScriptEngine &jsEngine, std::uint16_t port)
+    : mScriptEngine(jsEngine)
+    , mTcpServer(*this)
+    , mPort(port)
     , mExit(false)
 {
-
+    jsEngine.RegisterPrinter(this);
 }
 /*****************************************************************************/
 Terminal::~Terminal()
@@ -44,14 +49,28 @@ Terminal::~Terminal()
 
 }
 /*****************************************************************************/
-void Terminal::Manage(Lobby &i_lobby, std::uint16_t port)
+void Terminal::Print(const std::string &msg)
 {
+    if (mPeer.IsValid())
+    {
+        msg += std::string('\r\n');
+        tcp::TcpSocket::SendToSocket(msg, mPeer);
+    }
+}
+/*****************************************************************************/
+void Terminal::Initialize(IEventLoop &ev)
+{
+    (void) ev;
     std::stringstream ss;
 
-    ss << "Starting management console on TCP port: " << port;
-    TLogInfo(ss.str());
-    mTcpServer.Start(10U, true, port);
-
+    ss << "Starting management console on TCP port: " << mPort;
+    TLogServer(ss.str());
+    mTcpServer.Start(10U, true, mPort);
+}
+#if 0
+/*****************************************************************************/
+void Terminal::Manage(Lobby &i_lobby, std::uint16_t port)
+{
     while (!mExit)
     {
         /*
@@ -93,37 +112,36 @@ void Terminal::Manage(Lobby &i_lobby, std::uint16_t port)
     // Close properly, wait for the thread to stop
     mTcpServer.Stop();
 }
+#endif
 /*****************************************************************************/
 void Terminal::NewConnection(const tcp::Conn &conn)
 {
-    // Save socket
     mPeer = conn.peer;
+    tcp::TcpSocket::SendToSocket(cConsoleString, mPeer);
 }
 /*****************************************************************************/
 void Terminal::ReadData(const tcp::Conn &conn)
 {
     (void) conn;
-    /*
-    if (mPeer == peer)
-    {
-        Packet packet;
-        packet.type = cPeerData;
-        packet.data = data;
-        mQueue.Push(packet);
-    }
-    */
+
+    std::string output;
+    (void) mScriptEngine.EvaluateString(conn.payload, output);
+    std::stringstream ss;
+    ss << output << std::endl << cConsoleString;
+
+    tcp::TcpSocket::SendToSocket(ss.str(), mPeer);
 }
 /*****************************************************************************/
 void Terminal::ClientClosed(const tcp::Conn &conn)
 {
     (void) conn;
-  //  mPeer.socket = -1;
+    mPeer.socket = -1;
 }
 /*****************************************************************************/
 void Terminal::ServerTerminated(tcp::TcpServer::IEvent::CloseType type)
 {
     (void) type;
-  //  mPeer.socket = -1;
+    mPeer.socket = -1;
 }
 
 //=============================================================================

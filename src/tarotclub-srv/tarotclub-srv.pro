@@ -75,7 +75,7 @@ unix {
 
 debug {
     DEFINES += TAROT_DEBUG
-    DEFINES += DUK_OPT_DEBUG
+ #   DEFINES += DUK_OPT_DEBUG
    #  DEFINES += DUK_OPT_DDPRINT
 }
 
@@ -98,7 +98,7 @@ include($$BASE_DIR/src/tarot_core.pri)
 # ------------------------------------------------------------------------------
 SOURCES +=  main.cpp Terminal.cpp SrvStats.cpp EventLoop.cpp
 
-HEADERS += Version.h Terminal.h SrvStats.h EventLoop.h IEventLoop.h
+HEADERS += Version.h Terminal.h SrvStats.h EventLoop.h IEventLoop.h IService.h
 
 
 # End of project file

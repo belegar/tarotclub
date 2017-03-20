@@ -542,9 +542,10 @@ bool Bot::InitializeScriptContext()
                         std::string script;
                         if (zip.GetFile(iter->GetString(), script))
                         {
-                            if (!mBotEngine.EvaluateString(script))
+                            std::string output;
+                            if (!mBotEngine.EvaluateString(script, output))
                             {
-                                TLogError("Script error: could not parse ZIP filename: " + iter->GetString());
+                                TLogError("Script error: " + output);
                                 retCode = false;
                             }
                         }

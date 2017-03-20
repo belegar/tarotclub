@@ -29,6 +29,8 @@
 #include "Log.h"
 #include "Version.h"
 #include "SrvStats.h"
+#include "JSEngine.h"
+#include "Terminal.h"
 
 /*****************************************************************************/
 class Logger : public Observer<std::string>
@@ -83,9 +85,16 @@ int main(int argc, char *argv[])
     Log::RegisterListener(logger);
 
     EventLoop loop;
+    JSEngine js;
 
-    SrvStats stats;
+    js.Initialize();
+
+    // Server services
+    SrvStats stats(js);
     stats.Initialize(loop);
+
+    Terminal term(js, ServerConfig::DEFAULT_CONSOLE_TCP_PORT);
+    term.Initialize(loop);
 
     loop.Run();
 

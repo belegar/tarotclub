@@ -29,6 +29,9 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <type_traits>
+
+#include "Observer.h"
 #include "duktape.h"
 #include "IScriptEngine.h"
 
@@ -36,22 +39,27 @@
 class JSEngine : public IScriptEngine
 {
 public:
+    typedef duk_context JSContext;
+    typedef duk_ret_t JSRetCode;
+    using FunctionPtr = std::add_pointer<JSRetCode(JSContext)>::type;
+
     JSEngine();
     ~JSEngine();
 
+    // From IScriptEngine
     void Initialize();
+    void RegisterPrinter(IScriptEngine::IPrinter *printer);
     bool EvaluateFile(const std::string &fileName);
-    bool EvaluateString(const std::string &contents);
+    bool EvaluateString(const std::string &contents, std::string &output);
     Value Call(const std::string &function, const IScriptEngine::StringList &args);
     void Close();
-
 private:
     duk_context *mCtx;
     bool mValidContext;
+    std::uint32_t mId; // Id of the current script context
 
-    static int WrappedScriptEvalFile(duk_context *ctx);
-    static int WrappedScriptEvalString(duk_context *ctx);
-    static int WrappedScriptCall(duk_context *ctx);
+    static int WrappedScriptEvalFile(duk_context *ctx, void *udata);
+    static int WrappedScriptCall(duk_context *ctx, void *udata);
 
     void PrintError() const;
     void PrintTop() const;

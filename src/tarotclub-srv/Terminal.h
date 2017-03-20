@@ -28,20 +28,30 @@
 
 #include "TcpServer.h"
 #include "Lobby.h"
+#include "IService.h"
+#include "IScriptEngine.h"
+#include "IEventLoop.h"
 
-class Terminal : public tcp::TcpServer::IEvent
+class Terminal : public tcp::TcpServer::IEvent, public IScriptEngine::IPrinter
 {
 public:
-    Terminal();
+    Terminal(IScriptEngine &jsEngine, uint16_t port);
     ~Terminal();
 
-    void Manage(Lobby &i_lobby, std::uint16_t port);
+    // From IScriptEngine::IPrinter
+    void Print(const std::string &msg);
+
+//    void Manage(Lobby &i_lobby, std::uint16_t port);
+
+    void Initialize(IEventLoop &ev);
 
 private:
     static const std::uint8_t cPeerData     = 0U;
     static const std::uint8_t cExitCommand  = 1U;
 
+    IScriptEngine &mScriptEngine;
     tcp::TcpServer   mTcpServer;
+    std::uint16_t mPort;
     tcp::Peer     mPeer; // Only one client allowed
     bool    mExit;
   //  ThreadQueue<Packet> mQueue;
