@@ -1,5 +1,5 @@
-#ifndef ISERVICE_H
-#define ISERVICE_H
+#ifndef I_SERVICE_H
+#define I_SERVICE_H
 
 #include <string>
 
@@ -7,8 +7,12 @@ class IService
 {
 
 public:
-    virtual std::string Name() = 0;
-    virtual std::string Print() = 0;
+    ~IService() { /* Nothing to do */ }
+
+    virtual std::string GetName() = 0;
+    virtual void Initialize() = 0;
+    virtual void Stop() = 0;
+
 };
 
-#endif // ISERVICE_H
+#endif // I_SERVICE_H

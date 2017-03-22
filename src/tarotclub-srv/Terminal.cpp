@@ -35,13 +35,13 @@ static const std::string cConsoleString = "tcds> ";
 
 
 /*****************************************************************************/
-Terminal::Terminal(IScriptEngine &jsEngine, std::uint16_t port)
+Terminal::Terminal(IScriptEngine &jsEngine, IEventLoop &ev)
     : mScriptEngine(jsEngine)
+    , mEventLoop(ev)
     , mTcpServer(*this)
-    , mPort(port)
     , mExit(false)
 {
-    jsEngine.RegisterPrinter(this);
+
 }
 /*****************************************************************************/
 Terminal::~Terminal()
@@ -53,66 +53,35 @@ void Terminal::Print(const std::string &msg)
 {
     if (mPeer.IsValid())
     {
-        msg += std::string('\r\n');
         tcp::TcpSocket::SendToSocket(msg, mPeer);
     }
 }
 /*****************************************************************************/
-void Terminal::Initialize(IEventLoop &ev)
+std::string Terminal::GetName()
 {
-    (void) ev;
+    return "Terminal";
+}
+/*****************************************************************************/
+void Terminal::Initialize()
+{
     std::stringstream ss;
+
+    mScriptEngine.RegisterPrinter(this);
 
     ss << "Starting management console on TCP port: " << mPort;
     TLogServer(ss.str());
     mTcpServer.Start(10U, true, mPort);
 }
-#if 0
 /*****************************************************************************/
-void Terminal::Manage(Lobby &i_lobby, std::uint16_t port)
+void Terminal::Stop()
 {
-    while (!mExit)
-    {
-        /*
-        mQueue.WaitAndPop(packet);
 
-        if (packet.type == cPeerData)
-        {
-            // Decode command
-            std::int32_t pos = packet.data.FindFirstOf('\n');
-            if (pos >= 0)
-            {
-                // Remove trailing '\n'
-                packet.data.Alloc(pos);
-                if (packet.data == "exit")
-                {
-                    mExit = true;
-                }
-                else if (packet.data == "status")
-                {
-                    TcpSocket sock(mPeer);
-                    JsonObject status;
-                    status.AddValue("status", true);
-                    status.AddValue("name", i_lobby.GetName());
-                    status.AddValue("version", TCDS_VERSION);
-                    status.AddValue("players", (std::int32_t)i_lobby.GetNumberOfPlayers());
-                    sock.Send(status.ToString(0U));
-                }
-            }
-        }
-        else if (packet.type == cExitCommand)
-        {
-            TcpSocket sock(mPeer);
-            sock.Send("Exiting server ...\n");
-            mExit = true;
-        }
-        */
-    }
-
-    // Close properly, wait for the thread to stop
-    mTcpServer.Stop();
 }
-#endif
+/*****************************************************************************/
+void Terminal::SetPort(uint16_t port)
+{
+    mPort = port;
+}
 /*****************************************************************************/
 void Terminal::NewConnection(const tcp::Conn &conn)
 {

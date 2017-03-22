@@ -31,6 +31,8 @@
 #include "SrvStats.h"
 #include "JSEngine.h"
 #include "Terminal.h"
+#include "IService.h"
+#include "Server.h"
 
 /*****************************************************************************/
 class Logger : public Observer<std::string>
@@ -84,19 +86,56 @@ int main(int argc, char *argv[])
     Log::SetLogPath(System::LogPath());
     Log::RegisterListener(logger);
 
+    // Load options
+    ServerConfig srvConfig;
+    TournamentConfig trnConfig;
+
+    srvConfig.Load(System::HomePath() + ServerConfig::DEFAULT_SERVER_CONFIG_FILE);
+    trnConfig.Load(System::HomePath() + TournamentConfig::DEFAULT_FILE_NAME);
+
+    // Init lobby
+    Lobby lobby;
+    Server server(lobby);
+
     EventLoop loop;
     JSEngine js;
 
+    // Instanciate all your services here
+    SrvStats stats(js, loop, lobby);
+    Terminal term(js, loop);
+
+    IService *cServices[] = {
+        &stats,
+        &term
+    };
+
+    // Initialize everything
+    lobby.Initialize("TarotServer", srvConfig.GetOptions().tables);
+    server.Start(srvConfig.GetOptions());
     js.Initialize();
 
-    // Server services
-    SrvStats stats(js);
-    stats.Initialize(loop);
+    // FIXME: services should be aware of command line configuration, think about a
+    // solution (standardized structure like ServerOptions)
+    term.SetPort(ServerConfig::DEFAULT_CONSOLE_TCP_PORT);
 
-    Terminal term(js, ServerConfig::DEFAULT_CONSOLE_TCP_PORT);
-    term.Initialize(loop);
+    // Initialize services
+    for (auto *srv : cServices)
+    {
+        std::cout << "Loading service: " << srv->GetName() << std::endl;
+        srv->Initialize();
+    }
 
     loop.Run();
+
+    // Stop services
+    for (auto *srv : cServices)
+    {
+        std::cout << "Stopping service: " << srv->GetName() << std::endl;
+        srv->Stop();
+    }
+
+    loop.Stop();
+    server.Stop();
 
     return 0;
 }

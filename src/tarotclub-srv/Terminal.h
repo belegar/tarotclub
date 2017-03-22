@@ -32,29 +32,34 @@
 #include "IScriptEngine.h"
 #include "IEventLoop.h"
 
-class Terminal : public tcp::TcpServer::IEvent, public IScriptEngine::IPrinter
+class Terminal : public tcp::TcpServer::IEvent, public IScriptEngine::IPrinter, public IService
 {
 public:
-    Terminal(IScriptEngine &jsEngine, uint16_t port);
+    Terminal(IScriptEngine &jsEngine, IEventLoop &ev);
     ~Terminal();
 
     // From IScriptEngine::IPrinter
     void Print(const std::string &msg);
 
-//    void Manage(Lobby &i_lobby, std::uint16_t port);
+    // From IService
+    virtual std::string GetName();
+    virtual void Initialize();
+    virtual void Stop();
 
-    void Initialize(IEventLoop &ev);
+    // From Terminal
+    void SetPort(uint16_t port);
 
 private:
     static const std::uint8_t cPeerData     = 0U;
     static const std::uint8_t cExitCommand  = 1U;
 
     IScriptEngine &mScriptEngine;
+    IEventLoop &mEventLoop;
+
     tcp::TcpServer   mTcpServer;
     std::uint16_t mPort;
     tcp::Peer     mPeer; // Only one client allowed
     bool    mExit;
-  //  ThreadQueue<Packet> mQueue;
 
     // From TcpServer interface
     void NewConnection(const tcp::Conn &conn);

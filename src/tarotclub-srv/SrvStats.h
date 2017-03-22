@@ -32,9 +32,11 @@
 #include "JsonValue.h"
 #include "IEventLoop.h"
 #include "IScriptEngine.h"
+#include "IService.h"
+#include "Lobby.h"
 
 /*****************************************************************************/
-class SrvStats
+class SrvStats : public IService
 {
 public:
     struct Stats
@@ -55,74 +57,27 @@ public:
         std::uint32_t total;
     };
 
-    SrvStats(IScriptEngine &jsEngine);
+    SrvStats(IScriptEngine &jsEngine, IEventLoop &ev, Lobby &lobby);
 
-    void Initialize(IEventLoop &ev);
+    // From IService
+    virtual std::string GetName();
+    virtual void Initialize();
+    virtual void Stop();
+
+    // From SrvStats
     void FireTimer(IEventLoop::Event event);
-
-    /*
-    struct BotMatch
-    {
-        std::uint32_t tableId;
-        Identity identity;
-        std::chrono::high_resolution_clock::time_point startTime;
-        JsonArray deals;
-        Score score;
-        std::vector<std::uint32_t> botIds;
-        bool finished;
-    };
-
-
-
-    void Start(const ServerOptions &options, const TournamentOptions &tournamentOpt);
-    void Stop() { mStopRequested = true; mThread.join(); }
-
-    // From Lobby::Event
-    virtual void Update(const LobbyServer::Event &event);
-
-    // From Protocol::IWorkItem
-    virtual bool DoAction(std::uint8_t cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const ByteArray &data);
-*/
 
 private:
     IScriptEngine &mScriptEngine;
+    IEventLoop &mEventLoop;
+    Lobby &mLobby;
 
-    /*
-    Lobby mLobby;
-    LobbyServer mLobbyServer;
-    Console mConsole;
-    BotManager mBotManager;
-    */
     DataBase mDb;
-
-    /*
-    std::thread mThread;
-    bool mInitialized;
-    bool mStopRequested;
-    std::uint16_t mGamePort;
-
-    // AI Contest variables
-    std::vector<BotMatch> mPendingAi; // Pending matches
-    std::mutex mAiMutex;
-    std::vector<Tarot::Distribution> mAiContest;
-*/
-    // Server statistics
     Stats mStats;
 
     void IncPlayer();
     void DecPlayer();
     void StoreStats(time_t currTime);
-
-    /*
-    // Thread
-    static void EntryPoint(void *pthis);
-    void Run();
-
-    void CheckNewAIBots();
-    bool IsPending(const std::string &username);
-    bool StoreBotScore(const BotMatch &match, const std::string &docId);
-    void CheckFinishedGames();
-    */
 };
 
 
