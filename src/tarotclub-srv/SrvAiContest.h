@@ -1,6 +1,10 @@
 #ifndef SRVAICONTEST_H
 #define SRVAICONTEST_H
 
+#include "IService.h"
+#include "BotManager.h"
+#include "IScriptEngine.h"
+#include "Lobby.h"
 
 class SrvAiContest
 {

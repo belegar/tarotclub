@@ -50,6 +50,24 @@ SrvStats::SrvStats(IScriptEngine &jsEngine, IEventLoop &ev, Lobby &lobby)
 
 }
 /*****************************************************************************/
+void SrvStats::Update(const JsonValue &info)
+{
+    std::string cmd = info.FindValue("cmd").GetString();
+
+    if (cmd == "Event")
+    {
+        std::string type = info.FindValue("type").GetString();
+        if (type == "New")
+        {
+            IncPlayer();
+        }
+        else if (type == "Quit")
+        {
+            DecPlayer();
+        }
+    }
+}
+/*****************************************************************************/
 std::string SrvStats::GetName()
 {
     return "Server statistics";
@@ -81,9 +99,15 @@ void SrvStats::FireTimer(IEventLoop::Event event)
         std::stringstream ss;
 
         ss << "var Server = {"
-           << "name: \"" << mLobby.GetName() << "\", "
-           << "version: \"" << TCDS_VERSION << "\", "
-           << "players: " << (std::int32_t)mLobby.GetNumberOfPlayers()
+           << "name: \"" << mLobby.GetName() << "\""
+           << ", version: \"" << TCDS_VERSION << "\""
+           << ", players: " << (std::int32_t)mLobby.GetNumberOfPlayers()
+           << ", min: " << (std::int32_t)mStats.min
+           << ", max: " << (std::int32_t)mStats.max
+           << ", total: " << (std::int32_t)mStats.total
+           << ", current_mem: " << (std::int32_t) Util::GetCurrentMemoryUsage()
+           << ", max_mem: " << (std::int32_t)Util::GetMaximumMemoryUsage()
+
            << "};";
 
         std::string output;

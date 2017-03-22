@@ -73,6 +73,11 @@ void Lobby::Initialize(const std::string &name, const std::vector<std::string> &
     }
 }
 /*****************************************************************************/
+void Lobby::RegisterListener(Observer<JsonValue> &obs)
+{
+    mSubject.Attach(obs);
+}
+/*****************************************************************************/
 void Lobby::Signal(uint32_t sig)
 {
     (void) sig;
@@ -89,6 +94,9 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
         TLogNetwork("Not a JSON data");
         return false;
     }
+
+    // Warn every observer of that event
+    mSubject.Notify(json);
 
     std::string cmd = json.FindValue("cmd").GetString();
 
@@ -265,6 +273,12 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
         TLogNetwork(ss.str());
     }
 
+    // Also send every output packet to listeners
+    for (auto &reply : out)
+    {
+        mSubject.Notify(reply.data);
+    }
+
     return ret;
 }
 /*****************************************************************************/
@@ -295,6 +309,9 @@ void Lobby::RemoveUser(uint32_t uuid, std::vector<Reply> &out)
         // First, remove the player from the table
         RemovePlayerFromTable(uuid, tableId, out);
     }
+    // Generate qui event
+    SendPlayerEvent(uuid, "Quit", out);
+
     // Remove the player from the lobby list
     mUsers.Remove(uuid);
     // Free the ID

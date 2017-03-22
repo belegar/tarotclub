@@ -49,6 +49,7 @@ public:
 
     void Initialize(const std::string &name, const std::vector<std::string> &tables);
     std::string GetName() { return mName; }
+    void RegisterListener(Observer<JsonValue> &obs);
 
     // From IEvent
     void Signal(std::uint32_t sig);
@@ -76,6 +77,7 @@ private:
     std::string mName;
     bool mAdminMode;
     std::uint32_t mEvCounter;
+    Subject<JsonValue> mSubject;
 
     std::string GetTableName(const std::uint32_t tableId);
     void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<Reply> &out);

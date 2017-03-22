@@ -39,7 +39,7 @@ RCC_DIR         = $$DESTDIR/rcc
 MOC_DIR         = $$DESTDIR/moc
 
 # ------------------------------------------------------------------------------
-# Where to find header files
+# Where to find files
 # ------------------------------------------------------------------------------
 INCLUDEPATH += $$BASE_DIR/src/tarotclub-srv
 VPATH += $$BASE_DIR/src/tarotclub-srv

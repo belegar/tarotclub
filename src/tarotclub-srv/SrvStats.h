@@ -36,7 +36,7 @@
 #include "Lobby.h"
 
 /*****************************************************************************/
-class SrvStats : public IService
+class SrvStats : public Observer<JsonValue>, public IService
 {
 public:
     struct Stats
@@ -58,6 +58,9 @@ public:
     };
 
     SrvStats(IScriptEngine &jsEngine, IEventLoop &ev, Lobby &lobby);
+
+    // From Observer<JsonValue>
+    void Update(const JsonValue &info);
 
     // From IService
     virtual std::string GetName();
