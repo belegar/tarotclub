@@ -78,6 +78,11 @@ bool ServerConfig::Load(const std::string &fileName)
                     mOptions.game_tcp_port = unsignedVal;
                 }
 
+                if (json.GetValue("websocket_tcp_port", unsignedVal))
+                {
+                    mOptions.websocket_tcp_port = unsignedVal;
+                }
+
                 if (json.GetValue("console_tcp_port", unsignedVal))
                 {
                     mOptions.console_tcp_port = unsignedVal;
@@ -145,6 +150,7 @@ bool ServerConfig::Save(const std::string &fileName)
 
     json.AddValue("version", SERVER_CONFIG_VERSION);
     json.AddValue("game_tcp_port", mOptions.game_tcp_port);
+    json.AddValue("websocket_tcp_port", mOptions.websocket_tcp_port);
     json.AddValue("console_tcp_port", mOptions.console_tcp_port);
     json.AddValue("lobby_max_conn", mOptions.lobby_max_conn);
     json.AddValue("local_host_only", mOptions.localHostOnly);
@@ -171,6 +177,7 @@ ServerOptions ServerConfig::GetDefault()
 
     opt.game_tcp_port       = DEFAULT_GAME_TCP_PORT;
     opt.console_tcp_port    = DEFAULT_CONSOLE_TCP_PORT;
+    opt.websocket_tcp_port  = DEFAULT_WEBSOCKET_TCP_PORT;
     opt.lobby_max_conn      = DEFAULT_LOBBY_MAX_CONN;
     opt.localHostOnly       = false;
     opt.name                = DEFAULT_SERVER_NAME;
