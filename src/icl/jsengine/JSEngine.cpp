@@ -61,6 +61,8 @@ static duk_ret_t SystemPrint(duk_context *ctx)
         msg = std::string(duk_require_string(ctx, -1));
     }
 
+    msg += "\r\n";
+
     // Get the instance id if that context
     duk_bool_t ok = duk_get_global_string(ctx, gIdName);
     if (ok != 0U)
