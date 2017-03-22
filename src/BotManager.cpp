@@ -65,7 +65,7 @@ bool BotManager::JoinTable(uint32_t botId, uint32_t tableId)
  * @param delay
  * @return bot ID
  */
-uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile)
+std::uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile)
 {
     // Place is free (not found), we dynamically add our bot here
     NetBot *netBot = new NetBot();

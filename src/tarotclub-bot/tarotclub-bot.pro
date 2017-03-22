@@ -21,15 +21,14 @@
 # ------------------------------------------------------------------------------
 # Directories for generated files and base directory
 # ------------------------------------------------------------------------------
-BASE_DIR = $${PWD}/../
-TAROTCLUB_DIR = $${PWD}/../
+BASE_DIR = $${PWD}/../..
 
 CONFIG(debug, debug|release) {
-debug:      DESTDIR = $$BASE_DIR/build-botclient/debug
+debug:      DESTDIR = $$BASE_DIR/build/tarotclub-bot/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$BASE_DIR/build-botclient/release
+release:    DESTDIR = $$BASE_DIR/build/tarotclub-bot/release
 }
 
 UI_DIR          = $$DESTDIR/ui
@@ -40,31 +39,10 @@ RCC_DIR         = $$DESTDIR/rcc
 MOC_DIR         = $$DESTDIR/moc
 
 # ------------------------------------------------------------------------------
-# The search path to find supplied files
+# Where to find files
 # ------------------------------------------------------------------------------
-VPATH += $$TAROTCLUB_DIR/src
-VPATH += $$TAROTCLUB_DIR/src/library
-VPATH += $$TAROTCLUB_DIR/src/botclient
-VPATH += $$TAROTCLUB_DIR/src/jsengine
-VPATH += $$TAROTCLUB_DIR/src/json
-VPATH += $$TAROTCLUB_DIR/lib
-VPATH += $$TAROTCLUB_DIR/ai
-VPATH += $$TAROTCLUB_DIR/ai/tarotlib
-VPATH += $$TAROTCLUB_DIR/src/network
-VPATH += $$TAROTCLUB_DIR/src/zip
-VPATH += $$TAROTCLUB_DIR/src/config
-
-# ------------------------------------------------------------------------------
-# Where to find header files
-# ------------------------------------------------------------------------------
-INCLUDEPATH += $$TAROTCLUB_DIR/src
-INCLUDEPATH += $$TAROTCLUB_DIR/src/library
-INCLUDEPATH += $$TAROTCLUB_DIR/src/botclient
-INCLUDEPATH += $$TAROTCLUB_DIR/src/jsengine
-INCLUDEPATH += $$TAROTCLUB_DIR/src/json
-INCLUDEPATH += $$TAROTCLUB_DIR/src/network
-INCLUDEPATH += $$TAROTCLUB_DIR/src/zip
-INCLUDEPATH += $$TAROTCLUB_DIR/src/config
+INCLUDEPATH += $$BASE_DIR/src/tarotclub-bot
+VPATH += $$BASE_DIR/src/tarotclub-bot
 
 # ------------------------------------------------------------------------------
 # Compiler definitions
@@ -79,7 +57,7 @@ QMAKE_CFLAGS_RELEASE    += -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame
 # ------------------------------------------------------------------------------
 # Targer definitions
 # ------------------------------------------------------------------------------
-TARGET = botclient # name of the output executable
+TARGET = tarotclub-bot # name of the output executable
 
 # Specific OS stuff
 win32 {
@@ -92,86 +70,21 @@ win32 {
 unix {
     DEFINES += USE_UNIX_OS
 }
+# ------------------------------------------------------------------------------
+# ICL files
+# ------------------------------------------------------------------------------
+ICL_DIR = $$BASE_DIR/src/icl
+include($$ICL_DIR/icl.pri)
 
 # ------------------------------------------------------------------------------
-# Library files
-# ------------------------------------------------------------------------------
-HEADERS += Log.h \
-    Observer.h \
-    Util.h \
-    ThreadQueue.h \
-    ByteStreamReader.h \
-    ByteStreamWriter.h \
-    ByteArray.h \
-    TcpSocket.h \
-    TcpClient.h \
-    UniqueId.h \
-    Value.h \
-    GetOptions.h \
-    Zip.h
-
-SOURCES += Log.cpp \
-    Util.cpp \
-    ByteArray.cpp \
-    ByteStreamReader.cpp \
-    ByteStreamWriter.cpp \
-    TcpSocket.cpp \
-    TcpClient.cpp \
-    UniqueId.cpp \
-    Value.cpp \
-    Zip.cpp
-
-# ------------------------------------------------------------------------------
-# JSEngine and JSON files
-# ------------------------------------------------------------------------------
-
-HEADERS += duktape.h \
-    JsonWriter.h \
-    JsonReader.h \
-    JSEngine.h \
-    IScriptEngine.h \
-    JsonValue.h
-
-SOURCES += duktape.c \
-    JsonWriter.cpp \
-    JsonReader.cpp \
-    JSEngine.cpp \
-    JsonValue.cpp
-
-# -------------------------------------------------------------
 # TarotClub core files
-# -------------------------------------------------------------
-HEADERS += ClientConfig.h \
-    ServerConfig.h \
-    Deck.h \
-    Card.h \
-    Player.h \
-    Client.h \
-    Bot.h \
-    Common.h \
-    Deal.h \
-    Identity.h \
-    Score.h \
-    Protocol.h \
-    NetClient.h \
-    System.h
-
-SOURCES += ClientConfig.cpp \
-    ServerConfig.cpp \
-    Deck.cpp \
-    Card.cpp \
-    Player.cpp \
-    Client.cpp \
-    Bot.cpp \
-    Common.cpp \
-    Deal.cpp \
-    Protocol.cpp \
-    Score.cpp \
-    NetClient.cpp \
-    System.cpp
+# ------------------------------------------------------------------------------
+INCLUDEPATH += $$BASE_DIR/src
+VPATH += $$BASE_DIR/src
+include($$BASE_DIR/src/tarot_core.pri)
 
 # -------------------------------------------------------------
-# Server files
+# Bot client files
 # -------------------------------------------------------------
 SOURCES += main.cpp
 
