@@ -16,6 +16,10 @@ var usersDb         = require('../lib/database'); // Database wrapper
 var validateEmail   = require('../public/js/tarotclub'); // Shared functions between the front-end and the back-end
 var emailServer     = require('../lib/email'); // send emails
 
+
+// ============================================================================
+// ROUTE ACTIONS (GET/POST)
+// ============================================================================
 var router  = express.Router();
 
 /**

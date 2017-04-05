@@ -13,6 +13,10 @@ var fs              = require("fs");
 var isLoggedIn      = require('../lib/isloggedin'); // Test if we are logged before loading a page
 var couchDb         = require('../lib/database'); // Database wrapper
 
+// ============================================================================
+// ROUTE ACTIONS (GET/POST)
+// ============================================================================
+
 var router  = express.Router();
 
 // Ranking pages (absolute path is /ranking)
