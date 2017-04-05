@@ -85,7 +85,7 @@ bool TcpClient::Connect(const std::string &host, const int port)
         else if (retcode < 0)
         {
             /* This is what we expect for non-blocking connect. */
-            if (AnalyzeSocketError(mPeer, "connect()"))
+            if (TcpSocket::AnalyzeSocketError("connect()"))
             {
                 fd_set wrfds;
                 struct timeval tout;
@@ -105,6 +105,11 @@ bool TcpClient::Connect(const std::string &host, const int port)
                 {
                     ret = IsConnected();
                 }
+            }
+            else
+            {
+                // error, close the socket
+                Close();
             }
         }
     }
@@ -127,6 +132,11 @@ bool TcpClient::DataWaiting(std::uint32_t timeout)
     if (r < 0)
     {
         ok = AnalyzeSocketError("select()");
+
+        if (!ok)
+        {
+            Close();
+        }
     }
     else
     {

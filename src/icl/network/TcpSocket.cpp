@@ -107,7 +107,7 @@ const char* GetWinsockErrorString( int err )
  * @param context
  * @return true if not an error (retry later), false if it is a real error
  */
-bool TcpSocket::AnalyzeSocketError(Peer &peer, const char* context)
+bool TcpSocket::AnalyzeSocketError(const char* context)
 {
     bool ok = false;
     int e;
@@ -138,7 +138,6 @@ bool TcpSocket::AnalyzeSocketError(Peer &peer, const char* context)
     {
         std::stringstream ss;
         ss << "Socket error (" << e << ") in " << context << ": " << msg;
-        Close(peer);
         TLogNetwork(ss.str());
     }
 
@@ -165,11 +164,6 @@ bool TcpSocket::IsConnected()
     }
 
     return connected;
-}
-/*****************************************************************************/
-bool TcpSocket::AnalyzeSocketError(const char* context)
-{
-    return AnalyzeSocketError(mPeer, context);
 }
 /*****************************************************************************/
 bool TcpSocket::Send(const std::string &input, Peer &peer)
@@ -220,7 +214,7 @@ std::string TcpSocket::BuildWsFrame(std::uint8_t opcode, const std::string &data
     return writer.str() + data;
 }
 /*****************************************************************************/
-bool TcpSocket::SendToSocket(const std::string &input, Peer &peer)
+bool TcpSocket::SendToSocket(const std::string &input, const Peer &peer)
 {
     bool ret = true;
     size_t size = input.size();
@@ -231,7 +225,7 @@ bool TcpSocket::SendToSocket(const std::string &input, Peer &peer)
         int n = ::send(peer.socket, buf, size, 0);
         if (n < 0)
         {
-            ret = TcpSocket::AnalyzeSocketError(peer, "send()");
+            ret = TcpSocket::AnalyzeSocketError("send()");
             break;
         }
         else
@@ -275,7 +269,7 @@ bool TcpSocket::Recv(std::string &output)
  * @brief TcpSocket::Recv
  * @return > 0 if data has been read
  */
-bool TcpSocket::Recv(std::string &output, Peer &peer)
+bool TcpSocket::Recv(std::string &output, const Peer &peer)
 {
     // Most likely, we will read a packet, or if the message
     // is very short, we will receive the entire message in
@@ -294,7 +288,7 @@ bool TcpSocket::Recv(std::string &output, Peer &peer)
         if (n < 0)
         {
             // Other value than positive means end of recv, determine the reason
-            ret = TcpSocket::AnalyzeSocketError(peer, "recv()");
+            ret = TcpSocket::AnalyzeSocketError("recv()");
         }
         else if (n == 0)
         {

@@ -237,8 +237,6 @@ public:
     void Close();
     bool Listen(std::int32_t maxConnections) const;
     bool HostNameToIpAddress(const std::string &address, sockaddr_in &ipv4);
-    // return true if socket has data waiting to be read
-    bool AnalyzeSocketError(const char* context);
     int Accept() const;
     bool Recv();
     bool Recv(std::string &output);
@@ -250,13 +248,13 @@ public:
 
     // Static
     static bool Initialize();
-    static bool AnalyzeSocketError(Peer &peer, const char* context);
+    // return true if socket has data waiting to be read
+    static bool AnalyzeSocketError(const char* context);
     static bool Send(const std::string &input, Peer &peer);
     static void Close(Peer &peer);
     static std::string BuildWsFrame(std::uint8_t opcode, const std::string &data);
-    static bool Recv(std::string &output, Peer &peer);
-    static bool SendToSocket(const std::string &input, Peer &peer);
-
+    static bool Recv(std::string &output, const Peer &peer);
+    static bool SendToSocket(const std::string &input, const Peer &peer);
 
     //Convert a struct sockaddr address to a string, IPv4 and IPv6
 	static std::string ToString(const struct sockaddr *sa);
