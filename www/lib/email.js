@@ -2,9 +2,28 @@
 // Functions to easily send email messages through a SMTP server
 
 var email         = require("emailjs");
+var log4js        = require('log4js');  // improved logger system
+var fs            = require("fs");
+
+// ============================================================================
+// LOADING OUR OWN MODULES
+// ============================================================================
+
+var mailPassword = "bad!";
+var logger = log4js.getLogger();
+
+var env = process.env.NODE_ENV || 'dev';
+
+var mailServerPassword = "badpassword";
+
+if (env == 'production')
+{
+  mailServerPassword = fs.readFileSync('/opt/mailpassword.txt', 'utf8');
+}
+
 var server        = email.server.connect({
    user:    "website@tarotclub.fr", 
-   password:"7qCagyMi1epmcRrrBatA", 
+   password: mailServerPassword,
    host:    "mail.gandi.net", 
    ssl:     true
 });
