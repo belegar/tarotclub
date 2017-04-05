@@ -5,20 +5,19 @@
 // ============================================================================
 var express       = require('express');
 var https         = require('https');
-var http	  = require('http');
+var http	      = require('http');
 var nano          = require('nano')('http://localhost:5984');
 var hbs           = require('hbs');
 var bodyParser    = require("body-parser"); // for reading POSTed form data into `req.body`
 var cookieParser  = require("cookie-parser"); // the session can be saved in a cookie, so we use this to parse it
 var session       = require("cookie-session");
-var log4js        = require('log4js');
+var log4js        = require('log4js');  // improved logger system
 var csrf          = require('csurf'); // CSRF protection
-var uuid          = require('node-uuid');
-var multer        = require('multer');
-var net           = require("net");
-var async         = require('async');
+var uuid          = require('uuid');
+var multer        = require('multer');  // upload files utility
 var fs            = require('fs');
 var os            = require('os');
+var helmet        = require('helmet');  // protect from well-known web vulnerabilities by setting HTTP headers appropriately
 
 // ============================================================================
 // GLOBAL VARIABLES
@@ -62,12 +61,28 @@ app.use(cookieParser());
 
 app.set('trust proxy', 1) // trust first proxy
 
+
+var expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+var key1 = uuid();
+var key2 = uuid();
+
+console.log('Using session keys: ', key1, ' and ', key2);
+
 app.use(session({
-  keys: ['2C3ZY1zM00V2HNrU39G2un76WC6h09IL', '7Q4R898Cy6msb4Ih694Xh9i1x6Ym25Z5']
-}))
+    name: 'session', // use a generic name
+    keys: [ key1, key2 ],
+
+    cookie: {
+        secure: true,   // Ensures the browser only sends the cookie over HTTPS.
+        httpOnly: true, // Ensures the cookie is sent only over HTTP(S), not client JavaScript, helping to protect against cross-site scripting attacks.
+        domain: 'tarotclub.fr', //  indicates the domain of the cookie
+        expires: expiryDate
+    }
+}));
 
 app.use(csrf());
-
+app.use(helmet());
 
 // ============================================================================
 // LOADING OUR OWN MODULES
@@ -152,6 +167,7 @@ hbs.registerHelper('incr', function(value) {
 // ============================================================================
 // ROUTES, ORDER OF DECLARATION IS IMPORTANT
 // ============================================================================
+var doc_home        = require('./routes/home'); // Routes for the home page
 var doc_routes      = require('./routes/doc'); // Routes for the documentation
 var user_routes     = require('./routes/user'); // Routes for the user pages
 var ranking_routes  = require('./routes/ranking'); // Routes for the ranking pages
@@ -167,29 +183,13 @@ app.use(function(req, res, next) {
     next();
 });
 
-// This global variable is refreshed periodically by a background timer
-var ServerInfos = [];
-
-// index page 
-app.get('/', function(req, res) {
-
-    var data;
-
-    if (ServerInfos.length > 0) {
-      data = { section: "index", servers: ServerInfos }; 
-    } else {
-      data = { section: "index" };
-    }
-
-    res.render('pages/index', data);
-});
-
 // screenshots page 
 app.get('/screenshots', function(req, res) {
     res.render('pages/screenshots', { section: "screenshots" });
 });
 
 // Specific routes for these URLs, go to dedicated javascript file to learn more...
+app.use('/', doc_home);
 app.use('/doc', doc_routes);
 app.use('/user', user_routes);
 app.use('/ranking', ranking_routes);
@@ -204,55 +204,6 @@ app.use(function(req, res, next) {
     res.render('404', { url: req.url });
 });
 
-
-function ReadServerStatus(port, cb)
-{
-    var socket = new net.Socket();
-    socket.setEncoding('utf8');
-
-    socket.on("data", function(data) {
-        //console.log("data received:", data);
-        // Reply content is a JSON string, parse it
-        var jsonObj = JSON.parse(data);
-        cb(null, jsonObj);
-        socket.end();
-    });
-
-    socket.on("error", function() {
-        socket.end();
-        cb(null, null);
-    });
-
-    socket.connect(port, function(){
-      socket.write("status\n");
-    });
-};
-
-/**
- * @brief Checks TCDS servers presence and status
- */
-function CheckServers()
-{  
-    async.series(
-        [
-            function(cb) {
-                ReadServerStatus(8090, cb);
-            },
-            function(cb) {
-                ReadServerStatus(8091, cb);
-            }
-        ], function(err, results) {
-            if (!err) {
-                // results contains an array of JSON results
-                ServerInfos = results;
-            }
-        }
-    );
-
-}
-
-// Check every minute the presence of the servers
-setInterval(CheckServers, 60000);
 
 // ============================================================================
 // START THE SERVER AND THE DATABASE !
