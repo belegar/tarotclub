@@ -29,77 +29,27 @@
 
             <h1>Dernières nouvelles</h1>
 
-			<article>
-                <h2>Version 2.6.2 disponible</h2> 
-                <div class="row">
-                    <div class="col-sm-12 col-md-12">
-                      <!--  <span class="glyphicon glyphicon-pencil"></span> <a href="singlepost.html#comments">20 Comments</a> -->
-                        &nbsp;&nbsp;<span class="glyphicon glyphicon-time"></span> Vendredi 12 juin 2015                          
-                    </div>
-                  </div>
 
-                  <hr>
-
-                  <p>La version 2.6.2 est disponible en téléchargement (sauf pour Arch Linux, il faudra attendre). Vous pourrez ainsi
-				  accéder enfin aux serveurs de jeu!</p>
-                  <hr>
-            </article>
-			
-            <article>
-                <h2>Lancement du concours d'IA</h2> 
-                <div class="row">
-                    <div class="col-sm-12 col-md-12">
-                      <!--  <span class="glyphicon glyphicon-pencil"></span> <a href="singlepost.html#comments">20 Comments</a> -->
-                        &nbsp;&nbsp;<span class="glyphicon glyphicon-time"></span> Lundi 25 mai 2015                          
-                    </div>
-                  </div>
-
-                  <hr>
-
-                  <p>Le concours d'IA est ouvert. Un article approfondi verra le jour pour expliquer la procédure, mais les aventuriers peuvent déjà ajouter des bots via leur compte utilisateur.</p>
-                  <p>Une nouvelle entrée au menu voit le jour : la page des classements. Pour le moment, elle affiche uniquement les résultats du concours d'IA. Cette page est réservée aux joueurs enregistrés.</p>
-                  <hr>
-            </article>
+            {{#if news}}
+                {{#each news}}
 
             <article>
-                <h2>Ouverture des comptes utilisateurs</h2> 
+                <h2>{{title}}</h2> 
                 <div class="row">
                     <div class="col-sm-12 col-md-12">
-                      <!--  <span class="glyphicon glyphicon-pencil"></span> <a href="singlepost.html#comments">20 Comments</a> -->
-                        &nbsp;&nbsp;<span class="glyphicon glyphicon-time"></span> Dimanche 12 avril 2015                          
+                        <span class="glyphicon glyphicon-time"></span> {{date}}                         
                     </div>
                   </div>
 
-                  <hr>
-
-                  <p>Il vous est maintenant possible de vous créer un compte utilisateur. Pour le moment, cela ne vous offre pas grand chose mais 
-                    dans peu de temps vous pourrez participer à un concours d'IA de bots. Le site étant passé en dynamique, n'hésitez pas à me remonter 
-                    tous les bugs que vous pourriez découvrir.</p>
-                  <hr>
+                  <hr>{{{text}}}<hr> <!-- triple-stash will avoid handlebars to escape HTML tags, text is displayed raw  -->
             </article>
 
-            <article>
-             <!--   <h2><a href="singlepost.html">Aries Sun Sign March 21 - April 19</a></h2> -->
 
-                <h2>Nouveau site Web</h2> 
-                <div class="row">
-            <!--        <div class="col-sm-6 col-md-6">
-                        <span class="glyphicon glyphicon-folder-open"></span> &nbsp;<a href="#">Signs</a>
-                        &nbsp;&nbsp;<span class="glyphicon glyphicon-bookmark"></span> <a href="#">Aries</a>, <a href="#">Fire</a>, <a href="#">Mars</a>
-                    </div> -->
-                    <div class="col-sm-12 col-md-12">
-                      <!--  <span class="glyphicon glyphicon-pencil"></span> <a href="singlepost.html#comments">20 Comments</a> -->
-                        &nbsp;&nbsp;<span class="glyphicon glyphicon-time"></span> Samedi 31 janvier 2015                          
-                    </div>
-                  </div>
-
-                  <hr>
-
-                  <p>Bonjour à tous, le nouveau site Internet de TarotClub est en ligne. J'ai de nombreuses idées d'intercations avec le serveur de jeu en 
-                    réseau et j'espère pouvoir proposer bientôt des comptes utilisateurs. Celui-ci vous permettra d'enregistrer toutes les parties effectuées 
-                    sur un serveur spécial "compétition" et discuter avec les autres membres du site. Bref, j'ai encore du travail ...</p>
-                  <hr>
-            </article>
+                {{/each}}
+                
+            {{else}}
+                <p>No news, good news.</p> 
+            {{/if}}
                 
             <ul class="pager">
                 <li class="previous"><a href="#">&larr; Précédent</a></li>
@@ -147,13 +97,11 @@
 				<ul class="list-group">
 				
                 {{#if servers}}
-                    {{#servers}}
-                        {{#if name}}
-    				        <li class="list-group-item">Serveur "{{name}}" ({{version}}): 
-                                <p>Nombre de joueurs: {{players}}</p>
-                            </li>
-                        {{/if}}
-                    {{/servers}}
+                    {{#each servers}}
+						<li class="list-group-item">Serveur "{{name}}" ({{version}}): 
+							<p>Nombre de joueurs: {{this.players}}</p>
+						</li>
+                    {{/each}}
                     
                 {{else}}
                     <li class="list-group-item">Aucun serveur en ligne :(</li> 
