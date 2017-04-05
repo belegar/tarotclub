@@ -58,7 +58,6 @@ private:
 
     tcp::TcpServer   mTcpServer;
     std::uint16_t mPort;
-    tcp::Peer     mPeer; // Only one client allowed
     bool    mExit;
 
     // From TcpServer interface

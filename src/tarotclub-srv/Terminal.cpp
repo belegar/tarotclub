@@ -31,9 +31,6 @@
 #include "Server.h"
 #include "Observer.h"
 
-static const std::string cConsoleString = "tcds> ";
-
-
 /*****************************************************************************/
 Terminal::Terminal(IScriptEngine &jsEngine, IEventLoop &ev)
     : mScriptEngine(jsEngine)
@@ -51,10 +48,16 @@ Terminal::~Terminal()
 /*****************************************************************************/
 void Terminal::Print(const std::string &msg)
 {
+    (void) msg;
+    // FIXME: find a solution to redirect the printer to the console client,
+    // ideally _NOT_ to the NodeJS server that is also periodically uses this terminal
+
+    /*
     if (mPeer.IsValid())
     {
         tcp::TcpSocket::SendToSocket(msg, mPeer);
     }
+    */
 }
 /*****************************************************************************/
 std::string Terminal::GetName()
@@ -85,35 +88,29 @@ void Terminal::SetPort(uint16_t port)
 /*****************************************************************************/
 void Terminal::NewConnection(const tcp::Conn &conn)
 {
-    mPeer = conn.peer;
-    tcp::TcpSocket::SendToSocket(cConsoleString, mPeer);
+    // nothing to do
 }
 /*****************************************************************************/
 void Terminal::ReadData(const tcp::Conn &conn)
 {
-    (void) conn;
-
     std::string output;
     (void) mScriptEngine.EvaluateString(conn.payload, output);
     std::stringstream ss;
-    ss << output << std::endl << cConsoleString;
+    ss << output << std::flush;
 
-    tcp::TcpSocket::SendToSocket(ss.str(), mPeer);
+    tcp::TcpSocket::SendToSocket(ss.str(), conn.peer);
 }
 /*****************************************************************************/
 void Terminal::ClientClosed(const tcp::Conn &conn)
 {
     (void) conn;
-    mPeer.socket = -1;
 }
 /*****************************************************************************/
 void Terminal::ServerTerminated(tcp::TcpServer::IEvent::CloseType type)
 {
     (void) type;
-    mPeer.socket = -1;
 }
 
 //=============================================================================
 // End of file Terminal.cpp
 //=============================================================================
-
