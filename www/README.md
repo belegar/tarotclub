@@ -76,6 +76,10 @@ Copy past the following additionnal intermediate certificates at the send of you
 
 https://www.gandi.net/static/CAs/GandiStandardSSLCA2.pem
 
+## Mail password configuration
+
+Create a text file containg the mail server password: /opt/mailpassword.txt
+
 
 ## Configure IRC bots
 
