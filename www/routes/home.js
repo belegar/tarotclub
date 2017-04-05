@@ -201,7 +201,6 @@ function ReadServerStatus(port)
 
     socket.on("data", function(data) {
 
-    data = data.replace("tcds> ", "");
         // Replace every esccape character
         data = data.replace(/\\n/g, "\\n")
                   .replace(/\\'/g, "\\'")
@@ -212,20 +211,17 @@ function ReadServerStatus(port)
                   .replace(/\\b/g, "\\b")
                   .replace(/\\f/g, "\\f");
 
-        if (data.length > 2)
-        {
-            data = data.replace("tcds> ", ""); // Remove the prompt if the string contains it
-            // There is some data, parse it
-            // Use a try/catch to avoid crashing NodeJS in case of error
-            try {
-                var jsonObj = JSON.parse(data);
-            } catch (e) {
-                return console.error(e);
-            }
-            //console.log(jsonObj);
-            ServerInfos[port] = jsonObj;
-            socket.end();
+        // There is some data, parse it
+        // Use a try/catch to avoid crashing NodeJS in case of error
+        try {
+            var jsonObj = JSON.parse(data);
+        } catch (e) {
+            return console.error(e);
         }
+        //console.log(jsonObj);
+        ServerInfos[port] = jsonObj;
+        socket.end();
+
     });
 
     socket.on("error", function() {
