@@ -91,12 +91,13 @@ SOURCES += JsonWriter.cpp \
 # ------------------------------------------------------------------------------
 # JSEngine and JSON files
 # ------------------------------------------------------------------------------
-HEADERS += duktape.h \
+HEADERS += duktape.h duk_config.h \
     JSEngine.h \
     IScriptEngine.h
 
 SOURCES += duktape.c \
-    JSEngine.cpp
+    JSEngine.cpp \
+    duk_trans_socket_windows.c
 
 VPATH += $$ICL_DIR/network
 VPATH += $$ICL_DIR/util
