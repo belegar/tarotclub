@@ -556,11 +556,11 @@ bool Bot::InitializeScriptContext()
                     }
                     else
                     {
-                        std::string fileName = mScriptPath + Util::DIR_SEPARATOR + iter->GetString();
+                        std::string fileName = mScriptPath + iter->GetString();
 
         #ifdef USE_WINDOWS_OS
                         // Correct the path if needed
-                        Util::ReplaceCharacter(fileName, "/", "\\");
+     //                   Util::ReplaceCharacter(fileName, "/", "\\");
         #endif
 
                         if (!mBotEngine.EvaluateFile(fileName))

@@ -99,7 +99,7 @@ unix {
 
 CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
-    DEFINES += DUK_OPT_DEBUG
+ #   DEFINES += DUK_OPT_DEBUG
 #    DEFINES += DUK_OPT_DPRINT
 #    DEFINES += DUK_OPT_DDPRINT
 
@@ -109,11 +109,6 @@ CONFIG(debug, debug|release) {
         QMAKE_LFLAGS    +=-fsanitize=address
     }
 }
-
-
-# Duktape defines
-DEFINES += DUK_OPT_NO_JX
-DEFINES += DUK_OPT_NO_JC
 
 # Common defines for all platforms
 DEFINES += DESKTOP_PROJECT

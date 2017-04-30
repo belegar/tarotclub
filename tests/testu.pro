@@ -70,7 +70,7 @@ RESOURCES = $$BASE_DIR/assets/testu.qrc
 QMAKE_CXXFLAGS += -std=c++11  -fprofile-arcs -ftest-coverage
 
 QMAKE_CFLAGS_DEBUG +=  -O0  -ggdb -pedantic -std=c99 -fstrict-aliasing
-DEFINES += DUK_OPT_SELF_TESTS
+
 DEFINES += UNIT_TEST
 
 # Specific OS stuff
@@ -105,7 +105,7 @@ unix {
 
 CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
-    DEFINES += DUK_OPT_DEBUG
+    DEFINES += DUK_USE_DEBUG
 }
 
 # ------------------------------------------------------------------------------

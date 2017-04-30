@@ -58,7 +58,6 @@ private:
     bool mValidContext;
     std::uint32_t mId; // Id of the current script context
 
-    static int WrappedScriptEvalFile(duk_context *ctx, void *udata);
     static int WrappedScriptCall(duk_context *ctx, void *udata);
 
     void PrintError() const;

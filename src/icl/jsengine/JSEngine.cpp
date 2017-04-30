@@ -164,34 +164,29 @@ void JSEngine::RegisterPrinter(IScriptEngine::IPrinter *printer)
 /*****************************************************************************/
 bool JSEngine::EvaluateFile(const std::string &fileName)
 {
-    if (!mValidContext)
+    bool ret = false;
+    if (mValidContext)
     {
-        return false;
+        // Test if the file exists, try to open it!
+        std::ifstream in;
+        in.open(fileName, std::ios_base::in | std::ios::binary);
+        if (in.is_open())
+        {
+            std::string contents;
+            std::string output;
+
+            // Read whole file and store it into memory
+            in.seekg(0, std::ios::end);
+            contents.resize(in.tellg());
+            in.seekg(0, std::ios::beg);
+            in.read(&contents[0], contents.size());
+            in.close();
+
+            ret = EvaluateString(contents, output);
+        }
     }
 
-    // Test if the file exists, try to open it!
-    std::ifstream is;
-    is.open(fileName, std::ios_base::in);
-    if (!is.is_open())
-    {
-        // file does not exists
-        return false;
-    }
-    is.close();
-
-    // Push argument into the stack: file name to evaluate
-    duk_push_lstring(mCtx, fileName.c_str(), fileName.size());
-
-    int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptEvalFile, NULL /*udata*/, 1 /*nargs*/, 0 /*nrets*/);
-    if (rc != DUK_EXEC_SUCCESS)
-    {
-        PrintError();
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return ret;
 }
 /*****************************************************************************/
 bool JSEngine::EvaluateString(const std::string &contents, std::string &output)
@@ -201,7 +196,7 @@ bool JSEngine::EvaluateString(const std::string &contents, std::string &output)
     {
         duk_push_string(mCtx, contents.c_str());
         int rc = duk_safe_call(mCtx, eval_string_raw, NULL /*udata*/, 1 /*nargs*/, 1 /*nrets*/);
-        (void) duk_safe_call(mCtx, tostring_raw, NULL, 1 /*nargs*/, 1 /*nrets*/);
+        (void) duk_safe_call(mCtx, tostring_raw /*udata*/, NULL, 1 /*nargs*/, 1 /*nrets*/);
         output = duk_get_string(mCtx, -1);
 
         if (rc == DUK_EXEC_SUCCESS)
@@ -295,19 +290,6 @@ void JSEngine::Close()
         mCtx = NULL;
     }
     mValidContext = false;
-}
-/*****************************************************************************/
-int JSEngine::WrappedScriptEvalFile(duk_context *ctx, void *udata)
-{
-    (void) udata;
-
-    // Filename is in the stack
-    duk_eval(ctx);
-
-    // The result of the evaluation is pushed on top of the value stack. Here we don't need th evaluation result, so we pop the value off the stack.
-    duk_pop(ctx);
-
-    return 0; // no return values
 }
 /*****************************************************************************/
 /**
