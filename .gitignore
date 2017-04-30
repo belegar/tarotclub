@@ -1,7 +1,6 @@
 !.gitignore
 *.o
-build/*
-build_msvc/*
+build*
 *.gcov
 *~
 *.user
