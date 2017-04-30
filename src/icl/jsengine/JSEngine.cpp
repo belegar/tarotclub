@@ -237,10 +237,10 @@ Value JSEngine::Call(const std::string &function, const IScriptEngine::StringLis
             duk_push_string(mCtx, args[i].c_str());
         }
 
-        int rc = duk_safe_call(mCtx, JSEngine::WrappedScriptCall, NULL /*udata*/, 1 /*nargs*/, 1 /*nrets*/);
+        int rc = duk_pcall(mCtx, args.size() /*nargs*/);
         if (rc != DUK_EXEC_SUCCESS)
         {
-            TLogError("JS engine script call failed.");
+            TLogError(std::string("JS engine script call failed for function: ") + function);
             PrintError();
         }
         else
@@ -290,29 +290,6 @@ void JSEngine::Close()
         mCtx = NULL;
     }
     mValidContext = false;
-}
-/*****************************************************************************/
-/**
- * @brief WrappedScriptCall
- *
- * context must be initialized:
- * [ global_object "function" arg1 ... argN ]
- *
- * @param ctx
- * @return
- */
-int JSEngine::WrappedScriptCall(duk_context *ctx, void *udata)
-{
-    (void) udata;
-    int args = duk_get_top(ctx) - 2; // number of args is the stack size minus contex and function
-
-    // Call the function
-    duk_call(ctx, args/*nargs*/);
-
-    // After the call, the stack is: [ global_object return value ]
-    // The return value is set to undefined type if the function called returns nothing
-
-    return 1; // number of return values
 }
 /*****************************************************************************/
 /**
