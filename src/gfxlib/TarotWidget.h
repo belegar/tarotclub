@@ -247,7 +247,7 @@ private slots:
     // Board events
     void slotAcceptHandle();
     void slotAcceptDiscard();
-    void slotSetBid(Contract cont);
+    void slotSetBid(const Contract cont);
     void slotClickCard(std::uint8_t value, std::uint8_t suit, bool selected);
     void slotClickBoard();
     void slotMoveCursor(std::uint8_t value, std::uint8_t suit);

@@ -210,7 +210,7 @@ void TarotWidget::customEvent(QEvent *e)
                 TLogNetwork("My turn to bid");
                 if (mAutoPlay)
                 {
-                    //mNet.SendPacket(Protocol::ClientBid(Contract::PASS, false, mClient.GetUuid(), mClient.mTableId));
+                    slotSetBid(Contract(Contract::PASS));
                 }
                 else
                 {
@@ -627,7 +627,7 @@ void TarotWidget::HideTrick()
     mClient.mCurrentTrick.Clear();
 }
 /*****************************************************************************/
-void TarotWidget::slotSetBid(Contract cont)
+void TarotWidget::slotSetBid(const Contract cont)
 {
     std::vector<Reply> out;
     mClient.BuildBid(cont, mCanvas->GetSlamOption(), out);
