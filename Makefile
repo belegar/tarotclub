@@ -12,7 +12,13 @@ tarotclub-cli:
 	qmake ../../src/tarotclub-cli/tarotclub-cli.pro; \
 	make
 
-all: before tests console
+.PHONY: tarotclub-srv
+tarotclub-srv:
+    cd build/tarotclub-srv; \
+    qmake ../../src/tarotclub-srv/tarotclub-srv.pro; \
+    make
+
+all: before tests console tarotclub-srv
 
 # Generate the MSVC project files from the qmake .pro files
 .PHONY: msvc_proj
