@@ -210,8 +210,20 @@ void BasicClient::BuildNewGame(std::vector<Reply> &out)
     JsonObject obj;
 
     obj.AddValue("cmd", "RequestNewGame");
-    // FIXME: add new game parameters
-    out.push_back(Reply(Protocol::LOBBY_UID, obj));
+    obj.AddValue("mode", mGame.Get());
+
+    JsonArray array;
+    for (auto &deal : mGame.deals)
+    {
+        JsonObject dealObj;
+
+        ToJson(deal, dealObj);
+        array.AddValue(dealObj);
+    }
+
+    obj.AddValue("deals", array);
+
+    out.push_back(Reply(mMyself.tableId, obj));
 }
 /*****************************************************************************/
 void BasicClient::Sync(Engine::Sequence sequence, std::vector<Reply> &out)
