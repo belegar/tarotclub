@@ -619,12 +619,12 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
 /*****************************************************************************/
 void TarotWidget::HideTrick()
 {
-    Deck trick = mClient.mCurrentTrick;
-
-    for (Deck::ConstIterator it = trick.Begin(); it != trick.End(); ++it)
+    for (auto &card : mClient.mCurrentTrick)
     {
-        mCanvas->HideCard(*it);
+        mCanvas->HideCard(card);
     }
+
+    mClient.mCurrentTrick.Clear();
 }
 /*****************************************************************************/
 void TarotWidget::slotSetBid(Contract cont)
@@ -641,7 +641,7 @@ void TarotWidget::slotAcceptDiscard()
     mCanvas->DisplayDiscardMenu(false);
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-    for (Deck::ConstIterator it = mDiscard.Begin(); it != mDiscard.End(); ++it)
+    for (Deck::ConstIterator it = mDiscard.begin(); it != mDiscard.end(); ++it)
     {
         mCanvas->HideCard(*it);
     }
