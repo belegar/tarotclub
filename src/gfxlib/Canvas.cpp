@@ -248,7 +248,7 @@ bool Canvas::Initialize()
     mMenuItem.Initialize();
     mCardsPics.clear();
 
-    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
+    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
     {
         image = path + (*it).ToString().c_str() + ".svg";
 
@@ -518,7 +518,7 @@ void Canvas::DrawSouthCards(const Deck &cards)
     }
 
     qreal z = 0.0;
-    for (Deck::ConstIterator it = cards.Begin(); it != cards.End(); ++it)
+    for (Deck::ConstIterator it = cards.begin(); it != cards.end(); ++it)
     {
         //        std::cout << name << ", ";
         GfxCard *cgfx = FindGfxCard(*it);
@@ -537,7 +537,7 @@ void Canvas::DrawCardsInPopup(const Deck &deck)
 {
     QList<QGraphicsItem *> items;
 
-    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
+    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
     {
         GfxCard *gfx = FindGfxCard(*it);
         if (gfx != NULL)

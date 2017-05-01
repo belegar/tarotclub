@@ -147,19 +147,19 @@ public:
     typedef std::list<Card>::const_iterator ConstIterator;
 
     // STL-compatible begin/end functions for iterating over the deck cards
-    inline Iterator Begin()
+    inline Iterator begin()
     {
         return mDeck.begin();
     }
-    inline ConstIterator Begin() const
+    inline ConstIterator begin() const
     {
         return mDeck.begin();
     }
-    inline Iterator End()
+    inline Iterator end()
     {
         return mDeck.end();
     }
-    inline ConstIterator End() const
+    inline ConstIterator end() const
     {
         return mDeck.end();
     }

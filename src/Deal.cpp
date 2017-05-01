@@ -197,7 +197,7 @@ Place Deal::GetOwner(Place firstPlayer,const Card &c, int turn)
     Place p = firstPlayer;
     std::uint8_t numberOfPlayers = mTricks[turn].Size();
 
-    for (Deck::Iterator it = mTricks[turn].Begin(); it != mTricks[turn].End(); ++it)
+    for (Deck::Iterator it = mTricks[turn].begin(); it != mTricks[turn].end(); ++it)
     {
         if ((*it) == c)
         {

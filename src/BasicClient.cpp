@@ -111,7 +111,7 @@ Card BasicClient::Play()
 {
     Card c;
 
-    for (Deck::ConstIterator it = mDeck.Begin(); it != mDeck.End(); ++it)
+    for (Deck::ConstIterator it = mDeck.begin(); it != mDeck.end(); ++it)
     {
         c = (*it);
         if (IsValid(c) == true)
@@ -407,8 +407,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
     else if (cmd == "EndOfTrick")
     {
         mCurrentPlayer = Place(json.FindValue("place").GetString());
-        mCurrentTrick.Clear();
-
         event = END_OF_TRICK;
     }
     else if (cmd == "EndOfDeal")

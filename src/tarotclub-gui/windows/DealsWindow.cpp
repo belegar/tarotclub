@@ -109,7 +109,7 @@ void DealsWindow::slotActivated(int index)
 void DealsWindow::DisplayDeck(const Deck &deck, qreal x, qreal y)
 {
     qreal z = 0;
-    for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
+    for (Deck::ConstIterator iter = deck.begin(); iter != deck.end(); ++iter)
     {
        std::string name = "c" + iter->ToString();
        for (int j = 0U; j < mCardsPics.size(); j++)
@@ -137,7 +137,7 @@ void DealsWindow::Initialize()
 
     qreal x = 0;
     qreal y = 115;
-    for (Deck::ConstIterator iter = deck.Begin(); iter != deck.End(); ++iter)
+    for (Deck::ConstIterator iter = deck.begin(); iter != deck.end(); ++iter)
     {
         QGraphicsSvgItem *item = new QGraphicsSvgItem();
         item->setElementId("c" + QString(iter->ToString().c_str()));

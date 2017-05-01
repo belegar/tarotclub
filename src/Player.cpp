@@ -40,7 +40,7 @@ Deck Player::AutoDiscard(const Deck &dog, std::uint8_t nbPlayers)
     Append(dog);
 
     // We're looking valid discard cards to put in the discard
-    for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
+    for (Deck::ConstIterator iter = begin(); iter != end(); ++iter)
     {
         Card c = (*iter);
         if ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() != 14U))
@@ -95,7 +95,7 @@ bool Player::CanPlayCard(const Card &card, Deck &trick)
     }
 
     // We retreive the requested suit by looking at the first card played
-    Card c = *(trick.Begin());
+    Card c = *(trick.begin());
 
     if (c.IsFool())
     {
@@ -106,12 +106,12 @@ bool Player::CanPlayCard(const Card &card, Deck &trick)
             return true;
         }
         // The requested suit is the second card
-        c = *(++trick.Begin());
+        c = *(++trick.begin());
     }
     suit = c.GetSuit();
 
     // Some indications about previous played cards
-    for (Deck::ConstIterator it = trick.Begin(); it != trick.End(); ++it)
+    for (Deck::ConstIterator it = trick.begin(); it != trick.end(); ++it)
     {
         c = *(it);
         if (c.GetSuit() == Card::TRUMPS)
@@ -125,7 +125,7 @@ bool Player::CanPlayCard(const Card &card, Deck &trick)
     }
 
     // Some indications on the player cards in hand
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
         c = *(it);
         if (c.GetSuit() == Card::TRUMPS)
@@ -263,7 +263,7 @@ bool Player::TestHandle(const Deck &handle)
     }
 
     // Test if the player has all the cards of the declared handle
-    for (Deck::ConstIterator it = handle.Begin(); it != handle.End(); ++it)
+    for (Deck::ConstIterator it = handle.begin(); it != handle.end(); ++it)
     {
         Card c = (*it);
         if (!HasCard(c))
@@ -288,7 +288,7 @@ bool Player::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numb
 
     if (discard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
     {
-        for (Deck::ConstIterator i = discard.Begin(); i != discard.End(); ++i)
+        for (Deck::ConstIterator i = discard.begin(); i != discard.end(); ++i)
         {
             Card c = (*i);
 
@@ -325,7 +325,7 @@ bool Player::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numb
 void Player::RemoveDuplicates(const Deck &cards)
 {
     // remove cards in the player's deck that are similar to the discard
-    for (Deck::ConstIterator it = cards.Begin(); it != cards.End(); ++it)
+    for (Deck::ConstIterator it = cards.begin(); it != cards.end(); ++it)
     {
         Card c = (*it);
         if (HasCard(c))

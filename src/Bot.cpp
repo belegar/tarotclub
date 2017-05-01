@@ -134,6 +134,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     }
     case BasicClient::END_OF_TRICK:
     {
+        mClient.mCurrentTrick.Clear();
         mClient.Sync(Engine::WAIT_FOR_END_OF_TRICK, out);
         break;
     }

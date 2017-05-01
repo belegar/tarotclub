@@ -75,7 +75,7 @@ std::uint32_t Deck::RemoveDuplicates(const Deck &deck)
 {
     std::uint32_t cardsRemoved = 0U;
 
-    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
+    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
     {
         if (HasCard((*it)))
         {
@@ -88,7 +88,7 @@ std::uint32_t Deck::RemoveDuplicates(const Deck &deck)
 /*****************************************************************************/
 void Deck::Append(const Deck &deck)
 {
-    for (Deck::ConstIterator i = deck.Begin(); i != deck.End(); ++i)
+    for (Deck::ConstIterator i = deck.begin(); i != deck.end(); ++i)
     {
         Append((*i));
     }
@@ -136,7 +136,7 @@ Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t size)
     // Calculate the last position
     std::uint32_t to_pos = from_pos + size;
 
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator i = begin(); i != end(); ++i)
     {
         if ((counter >= from_pos) &&
                 (counter < to_pos))
@@ -153,7 +153,7 @@ Card Deck::At(uint32_t pos)
     Card c;
     std::uint32_t counter = 0U;
 
-    for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
+    for (Deck::ConstIterator iter = begin(); iter != end(); ++iter)
     {
         if (pos == counter)
         {
@@ -174,9 +174,9 @@ std::uint32_t Deck::Remove(const Card &card)
 {
     std::uint32_t counter = 0U;
 
-    Deck::Iterator it = Begin();
+    Deck::Iterator it = begin();
 
-    while (it != End())
+    while (it != end())
     {
         Card c = *(it);
         if (c == card)
@@ -205,7 +205,7 @@ std::uint32_t Deck::Count(const Card &c) const
 {
     std::uint32_t counter = 0U;
 
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
         if (c == (*it))
         {
@@ -219,9 +219,9 @@ std::string Deck::ToString() const
 {
     std::string list;
 
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
-        if (it != Begin())
+        if (it != begin())
         {
             list += ";";
         }
@@ -237,7 +237,7 @@ void Deck::Shuffle(int seed)
     // Since the STL random does not work on lists, we have to copy the data
     // into a vector, shuffle the vector, and copy it back into a list.
     std::vector<Card> myVector(Size());
-    std::copy(Begin(), End(), myVector.begin());
+    std::copy(begin(), end(), myVector.begin());
 
     // Actually shuffle the cards
     std::shuffle(myVector.begin(), myVector.end(), generator);
@@ -249,7 +249,7 @@ void Deck::Shuffle(int seed)
 Card Deck::GetCard(const std::string &i_name)
 {
     Card card;
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator i = begin(); i != end(); ++i)
     {
         if ((*i).ToString() == i_name)
         {
@@ -262,7 +262,7 @@ Card Deck::GetCard(const std::string &i_name)
 bool Deck::HasCard(const Card &c) const
 {
     bool ret = false;
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
         if (*it == c)
         {
@@ -275,7 +275,7 @@ bool Deck::HasCard(const Card &c) const
 bool Deck::HasOneOfTrump() const
 {
     bool ret = false;
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
         if (((*it).GetSuit() == Card::TRUMPS) &&
                 ((*it).GetValue() == 1U))
@@ -303,7 +303,7 @@ bool Deck::HasOnlyOneOfTrump() const
 bool Deck::HasFool() const
 {
     bool ret = false;
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
         if (((*it).GetSuit() == Card::TRUMPS) &&
                 ((*it).GetValue() == 0U))
@@ -328,7 +328,7 @@ Card Deck::HighestTrump() const
     Card c;
     std::uint32_t value = 0U;
 
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
         if (((*it).GetSuit() == Card::TRUMPS) &&
                 ((*it).GetValue() > value))
@@ -354,7 +354,7 @@ Card Deck::HighestSuit() const
     std::uint8_t suit; // leading suit
     bool hasLead = false;
 
-    for (Deck::ConstIterator it = Begin(); it != End(); ++it)
+    for (Deck::ConstIterator it = begin(); it != end(); ++it)
     {
         if (((*it).GetSuit() != Card::TRUMPS) &&
                 ((*it).GetValue() > value))
@@ -482,7 +482,7 @@ void Deck::AnalyzeTrumps(Statistics &stats) const
     stats.nbCards = Size();
 
     // looking for trumps
-    for (Deck::ConstIterator i = Begin(); i != End(); ++i)
+    for (Deck::ConstIterator i = begin(); i != end(); ++i)
     {
         c = (*i);
         if (c.GetSuit() == Card::TRUMPS)
@@ -527,7 +527,7 @@ void Deck::AnalyzeSuits(Statistics &stats)
         std::uint8_t count = 0U; // Generic purpose counter
         distr.fill(false);
 
-        for (Deck::ConstIterator iter = Begin(); iter != End(); ++iter)
+        for (Deck::ConstIterator iter = begin(); iter != end(); ++iter)
         {
             c = (*iter);
             if (c.GetSuit() == suit)

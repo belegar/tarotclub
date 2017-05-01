@@ -27,7 +27,7 @@ void TarotBase::TestCardClass()
     myDeck.CreateTarotDeck();
 
     std::cout << "Card names: \n";
-    for (Deck::Iterator it = myDeck.Begin(); it != myDeck.End(); ++it)
+    for (Deck::Iterator it = myDeck.begin(); it != myDeck.end(); ++it)
     {
         Card c = (*it);
 

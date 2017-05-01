@@ -66,7 +66,7 @@ void EditorWindow::Initialize()
 
     Deck deck;
     deck.CreateTarotDeck();
-    for (Deck::ConstIterator it = deck.Begin(); it != deck.End(); ++it)
+    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
     {
         ui.mainCardList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
@@ -210,27 +210,27 @@ void EditorWindow::slotOpenDeal()
 void EditorWindow::RefreshUi(const DealFile &editor)
 {
     // Dog
-    for (Deck::ConstIterator it = editor.GetDogDeck().Begin(); it != editor.GetDogDeck().End(); ++it)
+    for (Deck::ConstIterator it = editor.GetDogDeck().begin(); it != editor.GetDogDeck().end(); ++it)
     {
         ui.mainCardList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // East
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::EAST)).Begin(); it != editor.GetPlayerDeck(Place(Place::EAST)).End(); ++it)
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::EAST)).begin(); it != editor.GetPlayerDeck(Place(Place::EAST)).end(); ++it)
     {
         ui.eastList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // West
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::WEST)).Begin(); it != editor.GetPlayerDeck(Place(Place::WEST)).End(); ++it)
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::WEST)).begin(); it != editor.GetPlayerDeck(Place(Place::WEST)).end(); ++it)
     {
         ui.westList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // South
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::SOUTH)).Begin(); it != editor.GetPlayerDeck(Place(Place::SOUTH)).End(); ++it)
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::SOUTH)).begin(); it != editor.GetPlayerDeck(Place(Place::SOUTH)).end(); ++it)
     {
         ui.southList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
     // North
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::NORTH)).Begin(); it != editor.GetPlayerDeck(Place(Place::NORTH)).End(); ++it)
+    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::NORTH)).begin(); it != editor.GetPlayerDeck(Place(Place::NORTH)).end(); ++it)
     {
         ui.northList->addItem(new QListWidgetItem((*it).ToString().data()));
     }
