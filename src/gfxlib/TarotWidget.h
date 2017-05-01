@@ -120,23 +120,24 @@ public:
     QMap<Place, Identity> GetTablePlayersList()
     {
         QMap<Place, Identity> opponents;
+        std::vector<Users::Entry> allPlayers = mCtx.GetUsers(Protocol::TABLES_UID);
 
-        // FIXME
-        /*
-
-        for (QMap<Place, std::uint32_t>::iterator iter = mTablePlayers.begin();
-             iter != mTablePlayers.end();
-             ++iter)
+        for (auto &entry : allPlayers)
         {
-            opponents[iter.key()] = mLobbyUsers[iter.value()];
+            opponents[entry.place] = entry.identity;
         }
-        */
         return opponents;
     }
 
     QMap<std::uint32_t, Identity> GetLobbyPlayersList()
     {
         QMap<std::uint32_t, Identity> ident;
+        std::vector<Users::Entry> allPlayers = mCtx.GetUsers(Protocol::LOBBY_UID);
+
+        for (auto &entry : allPlayers)
+        {
+            ident[entry.uuid] = entry.identity;
+        }
         return ident;
     }
 

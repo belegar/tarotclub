@@ -105,7 +105,11 @@ void Context::UpdateMember(Users::Entry &member, const std::string &event)
             {
                 mUsers.ChangeNickName(member.uuid, member.identity.nickname);
             }
-            // FIXME: support the other events
+            else if ((event == "Join") ||
+                     (event == "Leave"))
+            {
+                mUsers.UpdateLocation(member.uuid, member.tableId, member.place);
+            }
         }
     }
     mLastEvent = Event(event, member.uuid);

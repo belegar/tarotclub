@@ -59,10 +59,12 @@ public:
     std::uint32_t GetPlayerTable(std::uint32_t uuid);
     bool GetEntry(std::uint32_t uuid, Entry &entry);
     void Clear();
-    bool CheckNickName(uint32_t uuid, const std::string &nickname);
+    bool CheckNickName(std::uint32_t uuid, const std::string &nickname);
+    bool UpdateLocation(uint32_t uuid, std::uint32_t tableId, Place p);
     std::vector<uint32_t> GetTablePlayers(std::uint32_t tableId);
-    std::vector<uint32_t> GetAllExcept(std::uint32_t uuid);
-    std::vector<Entry> GetLobbyUsers();
+    std::vector<uint32_t> GetAll();
+    std::vector<Entry> Get(uint32_t filterId);
+    std::uint32_t Size();
 
     // Mutators
     bool ChangeNickName(std::uint32_t uuid, const std::string &nickname);

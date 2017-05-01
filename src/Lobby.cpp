@@ -284,7 +284,7 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
 /*****************************************************************************/
 std::uint32_t Lobby::GetNumberOfPlayers()
 {
-    return  static_cast<std::uint32_t>(mUsers.GetLobbyUsers().size());
+    return mUsers.Size();
 }
 /*****************************************************************************/
 uint32_t Lobby::AddUser(std::vector<Reply> &out)
@@ -448,7 +448,7 @@ JsonObject Lobby::PlayerStatus(std::uint32_t uuid)
 /*****************************************************************************/
 void Lobby::SendPlayerList(std::uint32_t uuid, std::vector<Reply> &out)
 {
-    std::vector<Users::Entry> users = mUsers.GetLobbyUsers();
+    std::vector<Users::Entry> users = mUsers.Get(Protocol::LOBBY_UID);
     JsonObject obj;
     JsonArray array;
 
@@ -482,7 +482,7 @@ void Lobby::SendPlayerEvent(std::uint32_t uuid, const std::string &event, std::v
         obj.AddValue("counter", mEvCounter);
         obj.AddValue("player", PlayerStatus(uuid));
 
-        out.push_back(Reply(mUsers.GetAllExcept(uuid), obj));
+        out.push_back(Reply(mUsers.GetAll(), obj));
     }
     else
     {

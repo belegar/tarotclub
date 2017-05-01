@@ -100,22 +100,33 @@ std::vector<std::uint32_t> Users::GetTablePlayers(std::uint32_t tableId)
     return theList;
 }
 /*****************************************************************************/
-std::vector<uint32_t> Users::GetAllExcept(uint32_t uuid)
+std::vector<uint32_t> Users::GetAll()
 {
     std::vector<std::uint32_t> theList;
     for (std::uint32_t i = 0; i < mUsers.size(); i++)
     {
-        if (mUsers[i].uuid != uuid)
+        theList.push_back(mUsers[i].uuid);
+    }
+    return theList;
+}
+/*****************************************************************************/
+std::vector<Users::Entry> Users::Get(std::uint32_t filterId)
+{
+    std::vector<Entry> theList;
+    for (std::uint32_t i = 0; i < mUsers.size(); i++)
+    {
+        if ((mUsers[i].tableId == filterId) ||
+            (filterId == Protocol::LOBBY_UID))
         {
-            theList.push_back(mUsers[i].uuid);
+            theList.push_back(mUsers[i]);
         }
     }
     return theList;
 }
 /*****************************************************************************/
-std::vector<Users::Entry> Users::GetLobbyUsers()
+uint32_t Users::Size()
 {
-    return mUsers;
+    return static_cast<std::uint32_t>(mUsers.size());
 }
 /*****************************************************************************/
 bool Users::IsHere(std::uint32_t uuid)
@@ -149,6 +160,22 @@ bool Users::CheckNickName(std::uint32_t uuid, const std::string &nickname)
     }
 
     return already_used;
+}
+/*****************************************************************************/
+bool Users::UpdateLocation(std::uint32_t uuid, uint32_t tableId, Place p)
+{
+    bool ret = false;
+    for (std::uint32_t i = 0U; i < mUsers.size(); i++)
+    {
+        if (mUsers[i].uuid == uuid)
+        {
+             mUsers[i].tableId = tableId;
+             mUsers[i].place = p;
+             ret = true;
+             break;
+        }
+    }
+    return ret;
 }
 /*****************************************************************************/
 bool Users::ChangeNickName(uint32_t uuid, const std::string &nickname)

@@ -387,10 +387,13 @@ void TarotWidget::customEvent(QEvent *e)
 
             break;
         }
+
+        // FIXME: optimize using player event
+        case BasicClient::PLAYER_EVENT:
         case BasicClient::PLAYER_LIST:
             emit sigLobbyPlayersList();
             emit sigTablePlayersList();
-           // mCanvas->SetPlayerIdentity(GetTablePlayersList(), mClient.mPlace);
+            mCanvas->SetPlayerIdentity(GetTablePlayersList(), mClient.mMyself.place);
             break;
 
         case BasicClient::QUIT_TABLE:
@@ -503,7 +506,6 @@ void TarotWidget::LaunchLocalGame(bool autoPlay)
     else
     {
         InitScreen();
-
         std::vector<Reply> out;
         mClient.BuildNewGame(out);
         mSession.Send(out);
@@ -570,9 +572,9 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
     // Save option structures locally
     mClientOptions = i_clientOpt;
     mServerOptions = i_servOpt;
+    mClient.mMyself.identity = i_clientOpt.identity;
     mTournamentOptions = i_tournamentOpt;
 
-    // Launch local server if needed
     // Ensure that we only have one table (embedded lobby, not the dedicated one!)
     if (mServerOptions.tables.size() != 1)
     {
@@ -580,41 +582,16 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
         mServerOptions.tables.push_back("Default");
     }
 
-    mLobby.DeleteTables();
-    mLobby.Initialize("Local", mServerOptions.tables);
-
-    // Initialize all the objects with the user preferences
-    if (mSession.IsConnected())
-    {
-        // Send the new client identity to the identity server
-        // FIXME
-      //  mNet.SendPacket(Protocol::ClientChangeIdentity(mClient.GetUuid(), mClientOptions.identity));
-    }
-
     mCanvas->ShowAvatars(mClientOptions.showAvatars);
     mCanvas->SetBackground(mClientOptions.backgroundColor);
 
+    // Local connection: we destroy everything and restart all stuff
     if (mConnectionType != REMOTE)
     {
-        mServer.Start(mServerOptions); // Blocking call. On exit, quit the executable
-
-
-        /* FIXME !!!!!!!!
-        // Update bot identities if required
-        for (std::map<std::uint32_t, Identity>::iterator iter = mBotIds.begin(); iter != mBotIds.end(); ++iter)
-        {
-            for (std::map<Place, BotConf>::iterator iter2 = mClientOptions.bots.begin();
-                 iter2 != mClientOptions.bots.end(); ++iter2)
-            {
-                if (iter->second.username == iter2->second.identity.nickname)
-                {
-                    mBotManager.ChangeBotIdentity(iter->first, iter2->second.identity);
-                }
-            }
-        }
-        */
+        mLobby.DeleteTables();
+        mLobby.Initialize("Local", mServerOptions.tables);
+        mServer.Start(mServerOptions);
     }
-
 }
 /*****************************************************************************/
 void TarotWidget::HideTrick()

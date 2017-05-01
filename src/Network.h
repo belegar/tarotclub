@@ -165,6 +165,7 @@ public:
 
     // From Context
     bool GetMember(uint32_t uuid, Users::Entry &entry);
+    std::vector<Users::Entry> GetUsers(std::uint32_t tableId) { return mUsers.Get(tableId); }
 
 private:
     std::map<std::uint32_t, std::string> mTables;
