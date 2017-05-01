@@ -14,9 +14,9 @@ tarotclub-cli:
 
 .PHONY: tarotclub-srv
 tarotclub-srv:
-    cd build/tarotclub-srv; \
-    qmake ../../src/tarotclub-srv/tarotclub-srv.pro; \
-    make
+	cd build/tarotclub-srv; \
+	qmake ../../src/tarotclub-srv/tarotclub-srv.pro; \
+	make
 
 all: before tests console tarotclub-srv
 

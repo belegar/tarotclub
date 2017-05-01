@@ -23,6 +23,7 @@ script:
   - source /opt/qt57/bin/qt57-env.sh
   - make before
   - make tests
+  - make tarotclub-srv
 
 # Later: run unit tests  
 #  - ./build/tests/release/unit_tests
