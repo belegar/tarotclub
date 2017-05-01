@@ -71,7 +71,6 @@ Console::KeyEvent Console::ReadKeyboard()
 #ifdef USE_WINDOWS_OS
         event = ReadWin32ConsoleEvents();
 #else
-#error "Implement OS native console events"
 #endif
     }
     else
