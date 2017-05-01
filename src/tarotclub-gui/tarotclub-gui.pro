@@ -28,7 +28,7 @@ debug:      DESTDIR = $$BASE_DIR/build/tarotclub-gui/debug
 }
 
 CONFIG(release, debug|release) {
-release:    DESTDIR = $$OUTPUT_DIR/build/tarotclub-gui/release
+release:    DESTDIR = $$BASE_DIR/build/tarotclub-gui/release
 }
 
 UI_DIR          = $$DESTDIR/ui
@@ -136,7 +136,7 @@ OTHER_FILES += noob.js \
 # ------------------------------------------------------------------------------
 # Translation files
 # ------------------------------------------------------------------------------
-TRANSLATIONS = $$BASE_DIR/prj/desktop/tarotclub_fr.ts
+TRANSLATIONS = $$BASE_DIR/assets/ts/tarotclub_fr.ts
 
 # ------------------------------------------------------------------------------
 # TarotClub core files

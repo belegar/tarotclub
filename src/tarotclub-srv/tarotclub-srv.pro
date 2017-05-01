@@ -57,7 +57,7 @@ QMAKE_CFLAGS_RELEASE    += -Os -pedantic -std=c99 -fstrict-aliasing -fomit-frame
 # ------------------------------------------------------------------------------
 # Targer definitions
 # ------------------------------------------------------------------------------
-TARGET = tcds # name of the output executable
+TARGET = tarotclub-srv # name of the output executable
 
 # Specific OS stuff
 win32 {

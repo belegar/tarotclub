@@ -17,6 +17,7 @@ std::wstring gBlank;
 ConsoleClient::ConsoleClient()
     : Observer(Log::Error)
     , mSession(*this)
+    , mConsole(false)
     , mCanPlay(false)
     , mArrowPosition(0U)
 {
@@ -282,7 +283,7 @@ void ConsoleClient::DisplayDeck()
     mClient.mDeck.Sort("THSDC");
     mConsole.GotoXY(2, 16);
     mConsole.Write(L"                                                                        ");
-    for (Deck::ConstIterator it = mClient.mDeck.Begin(); it != mClient.mDeck.End(); ++it, offset++)
+    for (Deck::ConstIterator it = mClient.mDeck.begin(); it != mClient.mDeck.end(); ++it, offset++)
     {
         mConsole.GotoXY(2 + (4*offset), 16);
         mConsole.Write(ToString(*it));

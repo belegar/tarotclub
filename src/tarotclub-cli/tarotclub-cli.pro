@@ -82,9 +82,8 @@ unix {
     LIBS += -ldl
 }
 
-debug {
+CONFIG(debug, debug|release) {
     DEFINES += TAROT_DEBUG
-    DEFINES += DUK_OPT_DEBUG
    #  DEFINES += DUK_OPT_DDPRINT
 }
 

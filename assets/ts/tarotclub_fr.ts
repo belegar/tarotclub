@@ -4,17 +4,21 @@
 <context>
     <name>AboutUI</name>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="20"/>
+        <location filename="../../src/tarotclub-gui/forms/AboutUI.ui" line="20"/>
         <source>About...</source>
         <translation>À propos...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="26"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;The free Tarot card game!&lt;br/&gt;Website: &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;http://www.tarotclub.fr&lt;/a&gt;&lt;br/&gt;Development: &lt;a href=&quot;https://bitbucket/tarotclub&quot;&gt;https://bitbucket/tarotclub&lt;/a&gt;&lt;br/&gt;E-mail: support@tarotclub.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;Le jeu de Tarot libre !&lt;br/&gt;Web : &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;http://www.tarotclub.fr&lt;/a&gt;&lt;br/&gt;Développement : &lt;a href=&quot;https://bitbucket/tarotclub&quot;&gt;https://bitbucket/tarotclub&lt;/a&gt;&lt;br/&gt;E-mail: support@tarotclub.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;Le jeu de Tarot libre !&lt;br/&gt;Web : &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;http://www.tarotclub.fr&lt;/a&gt;&lt;br/&gt;Développement : &lt;a href=&quot;https://bitbucket/tarotclub&quot;&gt;https://bitbucket/tarotclub&lt;/a&gt;&lt;br/&gt;E-mail: support@tarotclub.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="48"/>
+        <location filename="../../src/tarotclub-gui/forms/AboutUI.ui" line="26"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TarotClub&lt;/span&gt;&lt;br/&gt;The free Tarot card game!&lt;br/&gt;Website: &lt;a href=&quot;http://www.tarotclub.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;http://www.tarotclub.fr&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;Development: &lt;a href=&quot;https://github.com/tarotclub/tarotclub&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;https://github.com/tarotclub/tarotclub&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;Mail: &lt;a href=&quot; support@tarotclub.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;support@tarotclub.fr&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../src/tarotclub-gui/forms/AboutUI.ui" line="48"/>
         <source>TarotClub ( http://www.tarotclub.fr ) - The free Tarot card game!
 
 Copyright (C) 2003-2999 - Anthony Rabine
@@ -49,17 +53,17 @@ Vous devriez avoir reçu une copie de la GNU General Public License avec ce
 programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="72"/>
+        <location filename="../../src/tarotclub-gui/forms/AboutUI.ui" line="72"/>
         <source>TarotClub 0.0.0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="95"/>
+        <location filename="../../src/tarotclub-gui/forms/AboutUI.ui" line="95"/>
         <source>&amp;Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AboutUI.ui" line="98"/>
+        <location filename="../../src/tarotclub-gui/forms/AboutUI.ui" line="98"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
@@ -67,17 +71,17 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>Avatars</name>
     <message>
-        <location filename="../../src/desktop/forms/AvatarsUI.ui" line="17"/>
+        <location filename="../../src/tarotclub-gui/forms/AvatarsUI.ui" line="17"/>
         <source>Avatars</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AvatarsUI.ui" line="64"/>
+        <location filename="../../src/tarotclub-gui/forms/AvatarsUI.ui" line="64"/>
         <source>&amp;OK</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/AvatarsUI.ui" line="71"/>
+        <location filename="../../src/tarotclub-gui/forms/AvatarsUI.ui" line="71"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Annuler</translation>
     </message>
@@ -180,12 +184,12 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
         <translation type="vanished">Discussion</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/ChatDock.cpp" line="38"/>
+        <location filename="../../src/tarotclub-gui/docks/ChatDock.cpp" line="38"/>
         <source>Private chat</source>
         <translation>Discussion privée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/ChatDock.cpp" line="40"/>
+        <location filename="../../src/tarotclub-gui/docks/ChatDock.cpp" line="40"/>
         <source>Use this chat when you have joined a table to discuss with the other players.</source>
         <translation>Utilisez ce canal de discussion pour discuter avec les autres joueurs de votre table.</translation>
     </message>
@@ -193,62 +197,62 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>DealEditorUI</name>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="14"/>
         <source>Deal editor</source>
         <translation>Éditeur de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="20"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="20"/>
         <source>Assign the card to each player. Remaining cards on the left side are the dog deck. Double-click on a card to move it back to the left column.</source>
         <translation>Choisissez les cartes pour chaque joueur. Les cartes restantes dans la colonne de gauche constituent le chien. Double-cliquez sur la carte d&apos;un joueur pour la remettre dans la colonne de gauche.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="39"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="39"/>
         <source>First player:</source>
         <translation>Premier joueur : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="71"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="71"/>
         <source>South</source>
         <translation>Sud</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="82"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="82"/>
         <source>West</source>
         <translation>Ouest</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="107"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="107"/>
         <source>North</source>
         <translation>Nord</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="118"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="118"/>
         <source>East</source>
         <translation>Est</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="165"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="165"/>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="172"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="172"/>
         <source>Random</source>
         <translation>Mélanger</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="179"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="179"/>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="186"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="186"/>
         <source>Save</source>
         <translation>Sauver</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/DealEditorUI.ui" line="193"/>
+        <location filename="../../src/tarotclub-gui/forms/DealEditorUI.ui" line="193"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
@@ -256,22 +260,22 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>DealsWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="37"/>
+        <location filename="../../src/tarotclub-gui/windows/DealsWindow.cpp" line="37"/>
         <source>&amp;Close</source>
         <translation>&amp;Fermer</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="43"/>
+        <location filename="../../src/tarotclub-gui/windows/DealsWindow.cpp" line="43"/>
         <source>Choose a previously played deal to display.</source>
         <translation>Choisissez une partie terminée pour voir la donne.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="95"/>
+        <location filename="../../src/tarotclub-gui/windows/DealsWindow.cpp" line="105"/>
         <source>Loading error</source>
         <translation>Erreur de chargement</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/DealsWindow.cpp" line="95"/>
+        <location filename="../../src/tarotclub-gui/windows/DealsWindow.cpp" line="105"/>
         <source>Cannot load the file: </source>
         <translation>Impossible de charger le fichier :</translation>
     </message>
@@ -279,42 +283,42 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>DebugDock</name>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="40"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="40"/>
         <source>Debug output window</source>
         <translation>Fenêtre de sortie de déboggage</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="44"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="44"/>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="45"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="45"/>
         <source>Save</source>
         <translation>Sauver</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="87"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="87"/>
         <source>Save Log Output</source>
         <translation>Sauver les messages de sortie</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="88"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="88"/>
         <source>%1/logfile.txt</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="89"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="89"/>
         <source>Text Files (*.txt);;All Files (*)</source>
         <translation>Fichiers textes (*.txt);; Tous les fichiers (*)</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="102"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="102"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/DebugDock.cpp" line="103"/>
+        <location filename="../../src/tarotclub-gui/docks/DebugDock.cpp" line="103"/>
         <source>&lt;nobr&gt;File &apos;%1&apos;&lt;br/&gt;cannot be opened for writing.&lt;br/&gt;&lt;br/&gt;The log output could &lt;b&gt;not&lt;/b&gt; be saved!&lt;/nobr&gt;</source>
         <translation></translation>
     </message>
@@ -322,28 +326,28 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>EditorWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/EditorWindow.cpp" line="190"/>
+        <location filename="../../src/tarotclub-gui/windows/EditorWindow.cpp" line="190"/>
         <source>Open a deal file</source>
         <translation>Ouvrir un fichier de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/EditorWindow.cpp" line="206"/>
+        <location filename="../../src/tarotclub-gui/windows/EditorWindow.cpp" line="206"/>
         <source>Loading error</source>
         <translation>Erreur de chargement</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/EditorWindow.cpp" line="206"/>
+        <location filename="../../src/tarotclub-gui/windows/EditorWindow.cpp" line="206"/>
         <source>Cannot read the input deal file!</source>
         <translation>Impossible de lire le fichier !</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/EditorWindow.cpp" line="244"/>
+        <location filename="../../src/tarotclub-gui/windows/EditorWindow.cpp" line="244"/>
         <source>Save deal</source>
         <translation>Sauvegarder la donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/EditorWindow.cpp" line="192"/>
-        <location filename="../../src/desktop/windows/EditorWindow.cpp" line="246"/>
+        <location filename="../../src/tarotclub-gui/windows/EditorWindow.cpp" line="192"/>
+        <location filename="../../src/tarotclub-gui/windows/EditorWindow.cpp" line="246"/>
         <source>JSON (*json)</source>
         <translation></translation>
     </message>
@@ -351,24 +355,24 @@ programme ; si ce n’est pas le cas, consultez : &lt;http://www.gnu.org/license
 <context>
     <name>ImportAvatarWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/ImportAvatarWindow.cpp" line="65"/>
-        <location filename="../../src/desktop/windows/ImportAvatarWindow.cpp" line="73"/>
-        <location filename="../../src/desktop/windows/ImportAvatarWindow.cpp" line="81"/>
+        <location filename="../../src/tarotclub-gui/windows/ImportAvatarWindow.cpp" line="65"/>
+        <location filename="../../src/tarotclub-gui/windows/ImportAvatarWindow.cpp" line="73"/>
+        <location filename="../../src/tarotclub-gui/windows/ImportAvatarWindow.cpp" line="81"/>
         <source>TarotClub</source>
         <translation>TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ImportAvatarWindow.cpp" line="66"/>
+        <location filename="../../src/tarotclub-gui/windows/ImportAvatarWindow.cpp" line="66"/>
         <source>Import success.</source>
         <translation>Importation réussie.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ImportAvatarWindow.cpp" line="74"/>
+        <location filename="../../src/tarotclub-gui/windows/ImportAvatarWindow.cpp" line="74"/>
         <source>Saving to local directory failed.</source>
         <translation>La sauvegarde dans le répertoire local a échoué.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ImportAvatarWindow.cpp" line="82"/>
+        <location filename="../../src/tarotclub-gui/windows/ImportAvatarWindow.cpp" line="82"/>
         <source>The avatar cannot be fetched from
 the specified url or path.</source>
         <translation>L&apos;avatar n&apos;a pas pu être récupéré de l&apos;emplacement spécifié.</translation>
@@ -377,102 +381,102 @@ the specified url or path.</source>
 <context>
     <name>InfosDock</name>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="38"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="38"/>
         <source>Informations</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="130"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="132"/>
         <source>Trumps: </source>
         <translation>Atouts :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="131"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="133"/>
         <source>Major trumps: </source>
         <translation>Atouts majeurs :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="133"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="135"/>
         <source>Oudlers: </source>
         <translation>Bouts : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="134"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="136"/>
         <source>Fool: </source>
         <translation>Excuse :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="135"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="137"/>
         <source>21 of trump: </source>
         <translation>Atout 21 :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="136"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="138"/>
         <source>1 of trump: </source>
         <translation>Petit :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="138"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="140"/>
         <source>Long suits: </source>
         <translation>Longues :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="139"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="141"/>
         <source>Weddings: </source>
         <translation>Mariages :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="140"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="142"/>
         <source>Sequences: </source>
         <translation>Sequences :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="141"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="143"/>
         <source>Singletons: </source>
         <translation>Singletons :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="143"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="145"/>
         <source>Clubs: </source>
         <translation>Trèfles :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="144"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="146"/>
         <source>Diamonds: </source>
         <translation>Carreaux : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="145"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="147"/>
         <source>Spades: </source>
         <translation>Piques : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="146"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="148"/>
         <source>Hearts: </source>
         <translation>Coeurs :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="148"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="150"/>
         <source>Kings: </source>
         <translation>Rois : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="149"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="151"/>
         <source>Voids: </source>
         <translation>Coupes : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="150"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="152"/>
         <source>Queens: </source>
         <translation>Dames : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="151"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="153"/>
         <source>Knights: </source>
         <translation>Cavaliers : </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/InfosDock.cpp" line="152"/>
+        <location filename="../../src/tarotclub-gui/docks/InfosDock.cpp" line="154"/>
         <source>Jacks: </source>
         <translation>Valets : </translation>
     </message>
@@ -484,12 +488,12 @@ the specified url or path.</source>
         <translation type="vanished">Salon de jeu en ligne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="35"/>
+        <location filename="../../src/tarotclub-gui/docks/LobbyDock.cpp" line="35"/>
         <source>Online game lobby</source>
         <translation>Salon de jeu en réseau</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="51"/>
+        <location filename="../../src/tarotclub-gui/docks/LobbyDock.cpp" line="51"/>
         <source>Connecting ...</source>
         <translation>Connexion ...</translation>
     </message>
@@ -498,7 +502,7 @@ the specified url or path.</source>
         <translation type="vanished">Serveur invalide</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="92"/>
+        <location filename="../../src/tarotclub-gui/docks/LobbyDock.cpp" line="92"/>
         <source>Connected.</source>
         <translation>Connecté.</translation>
     </message>
@@ -515,7 +519,7 @@ the specified url or path.</source>
         <translation type="vanished">Serveur indisponible :(</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/docks/LobbyDock.cpp" line="203"/>
+        <location filename="../../src/tarotclub-gui/docks/LobbyDock.cpp" line="203"/>
         <source>Not connected.</source>
         <translation>Non connecté.</translation>
     </message>
@@ -543,27 +547,27 @@ the specified url or path.</source>
         <translation type="vanished">Connexion</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="38"/>
+        <location filename="../../src/tarotclub-gui/forms/LobbyUI.ui" line="38"/>
         <source>Connect to the server</source>
         <translation>Se connecter au serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="76"/>
+        <location filename="../../src/tarotclub-gui/forms/LobbyUI.ui" line="76"/>
         <source>Disconnect from the server</source>
         <translation>Se déconnecter du serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="114"/>
+        <location filename="../../src/tarotclub-gui/forms/LobbyUI.ui" line="114"/>
         <source>Join the selected  table</source>
         <translation>Joindre la table sélectionnée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="152"/>
+        <location filename="../../src/tarotclub-gui/forms/LobbyUI.ui" line="152"/>
         <source>Quit table</source>
         <translation>Quitter la table</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/LobbyUI.ui" line="202"/>
+        <location filename="../../src/tarotclub-gui/forms/LobbyUI.ui" line="202"/>
         <source>TextLabel</source>
         <translation></translation>
     </message>
@@ -646,102 +650,132 @@ the specified url or path.</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="376"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="392"/>
         <source>&amp;New quick game</source>
         <translation>&amp;Nouvelle partie rapide</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="377"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="393"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="378"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="394"/>
         <source>Start a one player game against computer</source>
         <translation>Démarrer une partie solitaire contre des adversaires gérés par l&apos;ordinateur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="380"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="396"/>
         <source>New &amp;tournament</source>
         <translation>Nouveau &amp;Tournoi</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="381"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="397"/>
         <source>Ctrl+T</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="382"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="398"/>
         <source>Play five deals against the computer</source>
         <translation>Jouez cinq parties successives contre l&apos;ordinateur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="384"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="400"/>
         <source>New nu&amp;mbered deal</source>
         <translation>Nouvelle partie nu&amp;mérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="385"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="401"/>
         <source>Ctrl+M</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="386"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="402"/>
         <source>Deal cards with a predefined deal number</source>
         <translation>Les cartes sont distribuées selon une donne numérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="388"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="404"/>
         <source>New manua&amp;l deal</source>
         <translation>Nouvelle partie mane&amp;lle</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="389"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="405"/>
         <source>Ctrl+L</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="390"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="406"/>
         <source>Deal cards with a deal created with the editor</source>
         <translation>Les cartes sont distribuées à partir d&apos;un fichier de donne prédéfinie</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="439"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="413"/>
+        <source>Create a network game serve&amp;r</source>
+        <translation>Créer un serveu&amp;r de jeu (hôte)</translation>
+    </message>
+    <message>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="414"/>
+        <source>Ctrl+R</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="415"/>
+        <source>Create a network game and invite friends to join the game</source>
+        <translation>Créez un serveur de jeu puis invitez vos amis à rejoindre</translation>
+    </message>
+    <message>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="417"/>
+        <source>&amp;Quick join a network game</source>
+        <translation>Joindre un serveur de jeu</translation>
+    </message>
+    <message>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="418"/>
+        <source>Ctrl+U</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="419"/>
+        <source>Join a game server created using TarotClub</source>
+        <translation>Join un serveur de jeu créé avec l&apos;application TarotClub</translation>
+    </message>
+    <message>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="452"/>
         <source>Windows</source>
         <translation>Fenêtres</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="456"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="469"/>
         <source>Score calculator</source>
         <translation>Calculatrice de score</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="457"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="470"/>
         <source>Ctrl+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="458"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="471"/>
         <source>Tool to easily calculate a score of a deal</source>
         <translation>Outil permettant de calculer le score d&apos;une donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="461"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="474"/>
         <source>TarotStudio</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="468"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="481"/>
         <source>New auto&amp; play</source>
         <translation>Nouvelle donne automatique</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="469"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="482"/>
         <source>Ctrl+Y</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="470"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="483"/>
         <source>Auto play, to train your AI script!</source>
         <translation>Partie automarique, pratique pour essayer vos scripts IA !</translation>
     </message>
@@ -774,37 +808,37 @@ the specified url or path.</source>
         <translation type="vanished">Erreur inconnue</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="393"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="409"/>
         <source>&amp;Play online</source>
         <translation>&amp;Jouer en ligne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="394"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="410"/>
         <source>Ctrl+P</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="395"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="411"/>
         <source>Join a TarotClub game server</source>
         <translation>Joindre un serveur de jeu TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="406"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="421"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="407"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="422"/>
         <source>Ctrl+Q</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="408"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="423"/>
         <source>Quit the game</source>
         <translation>Quitter le jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="412"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="427"/>
         <source>Game</source>
         <translation>Jeu</translation>
     </message>
@@ -813,47 +847,47 @@ the specified url or path.</source>
         <translation type="vanished">Jeu en réseau</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="431"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="444"/>
         <source>&amp;Options</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="432"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="445"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="433"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="446"/>
         <source>Game options</source>
         <translation>Options du jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="451"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="464"/>
         <source>Deal e&amp;ditor</source>
         <translation>&amp;Editeur de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="452"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="465"/>
         <source>Ctrl+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="453"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="466"/>
         <source>Create a pre-defined deal by choosing the cards of each player</source>
         <translation>Créez une donne prédéfinie en choisissant les cartes de chaque joueur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="435"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="448"/>
         <source>&amp;Deals viewer</source>
         <translation>&amp;Visualiseur de donnes</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="436"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="449"/>
         <source>Ctrl+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="437"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="450"/>
         <source>Display previously played deals</source>
         <translation>Affiche les donnes jouées précédemment</translation>
     </message>
@@ -866,37 +900,37 @@ the specified url or path.</source>
         <translation type="vanished">Déboggage</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="477"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="490"/>
         <source>&amp;About...</source>
         <translation>&amp;À propos ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="478"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="491"/>
         <source>Ctrl+A</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="479"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="492"/>
         <source>About TarotClub</source>
         <translation>À propos de TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="482"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="495"/>
         <source>&amp;Help and manual</source>
         <translation>Ai&amp;de et manuel </translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="483"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="496"/>
         <source>Ctrl+H</source>
         <translation>Ctrl+H</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="484"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="497"/>
         <source>Show game help and Tarot rules</source>
         <translation>Montre l&apos;aide du jeu et la règle du jeu de Tarot</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/MainWindow.cpp" line="488"/>
+        <location filename="../../src/tarotclub-gui/MainWindow.cpp" line="501"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
@@ -904,22 +938,22 @@ the specified url or path.</source>
 <context>
     <name>NewTurnWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/NewTurnWindow.cpp" line="97"/>
+        <location filename="../../src/tarotclub-gui/windows/NewTurnWindow.cpp" line="97"/>
         <source>TarotClub</source>
         <translation>TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/NewTurnWindow.cpp" line="98"/>
+        <location filename="../../src/tarotclub-gui/windows/NewTurnWindow.cpp" line="98"/>
         <source>Please select a file for the custom deal</source>
         <translation>Sélectionner un ficher de donne manuelle</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/NewTurnWindow.cpp" line="109"/>
+        <location filename="../../src/tarotclub-gui/windows/NewTurnWindow.cpp" line="109"/>
         <source>Choose a deal file</source>
         <translation>Choisissez un fichier de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/NewTurnWindow.cpp" line="110"/>
+        <location filename="../../src/tarotclub-gui/windows/NewTurnWindow.cpp" line="110"/>
         <source>Deal file (*.json)</source>
         <translation>Fichier de donne (*.json)</translation>
     </message>
@@ -927,12 +961,12 @@ the specified url or path.</source>
 <context>
     <name>NumberedDeal</name>
     <message>
-        <location filename="../../src/desktop/forms/NumberedDealUI.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/NumberedDealUI.ui" line="14"/>
         <source>Choose a numbered deal</source>
         <translation>Choisissez une donne numérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NumberedDealUI.ui" line="20"/>
+        <location filename="../../src/tarotclub-gui/forms/NumberedDealUI.ui" line="20"/>
         <source>Enter the numbered deal:</source>
         <translation>Entrez le numéro de la donne:</translation>
     </message>
@@ -940,13 +974,13 @@ the specified url or path.</source>
 <context>
     <name>OptionsUI</name>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="23"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="23"/>
         <source>Options</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="89"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="95"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="89"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="95"/>
         <source>Identity</source>
         <translation>Identité</translation>
     </message>
@@ -955,74 +989,74 @@ the specified url or path.</source>
         <translation type="vanished">Avatar</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="232"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="232"/>
         <source>Local avatar image</source>
         <translation>Fichier avatar local</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="251"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="251"/>
         <source>Import...</source>
         <translation>Importer ...</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="262"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="262"/>
         <source>Pre-defined avatar</source>
         <translation>Avatar prédéfini</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="168"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="168"/>
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="196"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="631"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="196"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="631"/>
         <source>Male</source>
         <translation>Masculin</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="203"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="624"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="203"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="624"/>
         <source>Female</source>
         <translation>Féminin</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="571"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="571"/>
         <source>Bots list</source>
         <translation>Liste des bots</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="583"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="583"/>
         <source>Bot identity</source>
         <translation>Identité du bot</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="593"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="593"/>
         <source>Name: </source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="711"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="711"/>
         <source>Script:</source>
         <translation>Script :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="824"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="824"/>
         <source>Tournament</source>
         <translation>Tournoi simple</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="846"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="846"/>
         <source>Nouvelle ligne</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="876"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="876"/>
         <source>Add turn</source>
         <translation>Ajouter un tour</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="883"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="883"/>
         <source>Remove turn</source>
         <translation>Supprimer un tour</translation>
     </message>
@@ -1031,22 +1065,22 @@ the specified url or path.</source>
         <translation type="vanished">Niveau :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="738"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="738"/>
         <source>Network</source>
         <translation>Réseau</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="753"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="753"/>
         <source>Server list</source>
         <translation>Liste des serveurs</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="783"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="783"/>
         <source>Add server</source>
         <translation>Ajouter un serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="793"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="793"/>
         <source>Remove server</source>
         <translation>Supprimer un serveur</translation>
     </message>
@@ -1059,12 +1093,12 @@ the specified url or path.</source>
         <translation type="vanished">Citation:</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="319"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="319"/>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="325"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="325"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
@@ -1073,84 +1107,84 @@ the specified url or path.</source>
         <translation type="vanished">Nombre de tours du tournoi</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="421"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="421"/>
         <source>Show avatars on the board</source>
         <translation>Montrer les avatars sur le tapis</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="339"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="339"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="372"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="372"/>
         <source>Français</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="377"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="377"/>
         <source>English</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="389"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="389"/>
         <source>Background color</source>
         <translation>Couleur du tapis</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="464"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="464"/>
         <source>Delay between two players</source>
         <translation>Délai entre deux joueurs</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="453"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="487"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="453"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="487"/>
         <source>0.0 seconds</source>
         <translation>0.0 secondes</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="502"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="502"/>
         <source>Activate automatic trick flushing</source>
         <translation>Activer le ramassage des cartes automatique</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="430"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="430"/>
         <source>Delay before trick flush:</source>
         <translation>Délai avant le ramassage:</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="190"/>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="618"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="190"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="618"/>
         <source>Gender</source>
         <translation>Sexe</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="511"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="511"/>
         <source>Cards order in hand (drag and drop to change position):</source>
         <translation>Ordre des cartes en main (glisser-déposer les icônes pour changer de position)</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="553"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="553"/>
         <source>Opponents</source>
         <translation>Adversaires</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="34"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="34"/>
         <source>Default</source>
         <translation>Défaut</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="57"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="57"/>
         <source>&amp;Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="60"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="60"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/OptionsUI.ui" line="73"/>
+        <location filename="../../src/tarotclub-gui/forms/OptionsUI.ui" line="73"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
@@ -1162,74 +1196,74 @@ the specified url or path.</source>
         <translation type="vanished">Débutant</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="272"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="273"/>
         <source>Turn</source>
         <translation>Tour</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="273"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="274"/>
         <source>Deal type</source>
         <translation>Type de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="274"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="275"/>
         <source>Deal number</source>
         <translation>Numéro de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="275"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="276"/>
         <source>Deal file</source>
         <translation>Fichier de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="278"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="279"/>
         <source>Random deal</source>
         <translation>Donne au hasard</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="278"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="279"/>
         <source>Numbered deal</source>
         <translation>Donne numérotée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="278"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="279"/>
         <source>Custom deal</source>
         <translation>Donne manuelle</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="468"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="479"/>
         <source>Information</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="469"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="480"/>
         <source>You must restart TarotClub to enable the new language.</source>
         <translation>Vous devez redémarrer TarotClub pour prendre en compte le changement.</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="491"/>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="657"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="502"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="668"/>
         <source>TarotClub</source>
         <translation>TarotClub</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="492"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="503"/>
         <source>Please define at least one tournament turn</source>
         <translation>Il faut définir au moins un tour de tournoi</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="529"/>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="534"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="540"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="545"/>
         <source>%1 seconds</source>
         <translation>%1 secondes</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="643"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="654"/>
         <source>Choose a script directory</source>
         <translation>Choisir un répertoire de script</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/OptionsWindow.cpp" line="658"/>
+        <location filename="../../src/tarotclub-gui/windows/OptionsWindow.cpp" line="669"/>
         <source>No file or directory.</source>
         <translation>Aucun fichier ou répertoire</translation>
     </message>
@@ -1318,37 +1352,37 @@ the specified url or path.</source>
 <context>
     <name>ScoreCalculatorWindow</name>
     <message>
-        <location filename="../../src/desktop/windows/ScoreCalculatorWindow.cpp" line="15"/>
+        <location filename="../../src/tarotclub-gui/windows/ScoreCalculatorWindow.cpp" line="15"/>
         <source>No handle</source>
         <translation>Aucune poignée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ScoreCalculatorWindow.cpp" line="15"/>
+        <location filename="../../src/tarotclub-gui/windows/ScoreCalculatorWindow.cpp" line="15"/>
         <source>Simple</source>
         <translation>Simple</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ScoreCalculatorWindow.cpp" line="15"/>
+        <location filename="../../src/tarotclub-gui/windows/ScoreCalculatorWindow.cpp" line="15"/>
         <source>Double</source>
         <translation>Double</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ScoreCalculatorWindow.cpp" line="15"/>
+        <location filename="../../src/tarotclub-gui/windows/ScoreCalculatorWindow.cpp" line="15"/>
         <source>Triple</source>
         <translation>Triple</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ScoreCalculatorWindow.cpp" line="16"/>
+        <location filename="../../src/tarotclub-gui/windows/ScoreCalculatorWindow.cpp" line="16"/>
         <source>No bonus</source>
         <translation>Aucun bonus</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ScoreCalculatorWindow.cpp" line="16"/>
+        <location filename="../../src/tarotclub-gui/windows/ScoreCalculatorWindow.cpp" line="16"/>
         <source>Attack</source>
         <translation>Attaque</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/windows/ScoreCalculatorWindow.cpp" line="16"/>
+        <location filename="../../src/tarotclub-gui/windows/ScoreCalculatorWindow.cpp" line="16"/>
         <source>Defense</source>
         <translation>Défense</translation>
     </message>
@@ -1356,7 +1390,7 @@ the specified url or path.</source>
 <context>
     <name>ScoresDock</name>
     <message>
-        <location filename="../../src/desktop/docks/ScoresDock.cpp" line="31"/>
+        <location filename="../../src/tarotclub-gui/docks/ScoresDock.cpp" line="31"/>
         <source>Scores</source>
         <translation></translation>
     </message>
@@ -1364,69 +1398,62 @@ the specified url or path.</source>
 <context>
     <name>TarotWidget</name>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="345"/>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="702"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="366"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="644"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="703"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="645"/>
         <source>Your handle is not valid.
 Showing the fool means that you have no any more trumps in your deck.</source>
         <translation>Votre poignée n&apos;est pas valide. Montrer l&apos;excuse signifie que vous n&apos;avez plus d&apos;atouts en main.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="346"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="367"/>
         <source>All the players have passed.
 New deal will start.</source>
         <translation>Tous les joueurs ont passé. Une nouvelle donne va démarrer.</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="230"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="441"/>
         <source>Kicked from lobby</source>
         <translation>Vous avez été éjecté du hall</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="922"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="876"/>
         <source>Handle</source>
         <translation>Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="923"/>
+        <location filename="../../src/gfxlib/TarotWidget.cpp" line="877"/>
         <source>You have a handle.
 Do you want to declare it?</source>
         <translation>Vous possédez une poignée. Souhaitez-vous la déclarer ?</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="951"/>
         <source>Cannot connect to server</source>
-        <translation>Impossible de se connecter au serveur</translation>
+        <translation type="vanished">Impossible de se connecter au serveur</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="955"/>
         <source>Disconnected from server</source>
-        <translation>Déconnecté du serveur</translation>
+        <translation type="vanished">Déconnecté du serveur</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="959"/>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="988"/>
         <source>Unknown error</source>
-        <translation>Erreur inconnue</translation>
+        <translation type="vanished">Erreur inconnue</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="979"/>
         <source>Lobby access refused</source>
-        <translation>Accès au hall refusé</translation>
+        <translation type="vanished">Accès au hall refusé</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="982"/>
         <source>Table access refused</source>
-        <translation>Accès à la table de jeu refusé</translation>
+        <translation type="vanished">Accès à la table de jeu refusé</translation>
     </message>
     <message>
-        <location filename="../../src/gfxlib/TarotWidget.cpp" line="985"/>
         <source>Table is full, cannot join the game</source>
-        <translation>La table de jeu est complète, impossible de la rejoindre</translation>
+        <translation type="vanished">La table de jeu est complète, impossible de la rejoindre</translation>
     </message>
 </context>
 <context>
@@ -1455,22 +1482,22 @@ Do you want to declare it?</source>
 <context>
     <name>importAvatarUI</name>
     <message>
-        <location filename="../../src/desktop/forms/ImportAvatar.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/ImportAvatar.ui" line="14"/>
         <source>Import an avatar</source>
         <translation>Importer un avatar</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ImportAvatar.ui" line="20"/>
+        <location filename="../../src/tarotclub-gui/forms/ImportAvatar.ui" line="20"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicate either a file path or an Internet address (ie, Gravatar) where your avatar is located. You can import it to your TarotClub home directory to keep it offline.&lt;/p&gt;&lt;p&gt;Examples:&lt;br/&gt;file:///home/images/myself.png&lt;br/&gt;http://www.gravatar.com/avatar/8989078678563445&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indiquez un chemin de fichier ou une adresse Internet (exemple: une URL Gravatar) où votre avatar est situé. Vous pouvez l&apos;importer vers le répertoire local de TarotClub pour le garder à disposition.&lt;/p&gt;&lt;p&gt;Exemples:&lt;br/&gt;file:///home/images/mon-avatar.png&lt;br/&gt;http://www.gravatar.com/avatar/8989078678563445&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ImportAvatar.ui" line="89"/>
+        <location filename="../../src/tarotclub-gui/forms/ImportAvatar.ui" line="89"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ImportAvatar.ui" line="96"/>
+        <location filename="../../src/tarotclub-gui/forms/ImportAvatar.ui" line="96"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
@@ -1478,52 +1505,52 @@ Do you want to declare it?</source>
 <context>
     <name>infosDock</name>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="14"/>
         <source>Informations</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="21"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="21"/>
         <source>Current deal</source>
         <translation>Donne en cours</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="29"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="29"/>
         <source>Deal number:</source>
         <translation>Donne numéro :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="47"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="47"/>
         <source>Taker:</source>
         <translation>Preneur :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="65"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="65"/>
         <source>Contract: </source>
         <translation>Contrat :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="88"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="88"/>
         <source>Your deck statistics</source>
         <translation>Statistiques sur votre main</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="127"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="127"/>
         <source>South</source>
         <translation>Sud</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="132"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="132"/>
         <source>East</source>
         <translation>Est</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="137"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="137"/>
         <source>North</source>
         <translation>Nord</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/InfosDockUI.ui" line="142"/>
+        <location filename="../../src/tarotclub-gui/forms/InfosDockUI.ui" line="142"/>
         <source>West</source>
         <translation>Ouest</translation>
     </message>
@@ -1531,27 +1558,27 @@ Do you want to declare it?</source>
 <context>
     <name>newServerUI</name>
     <message>
-        <location filename="../../src/desktop/forms/NewServerUI.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/NewServerUI.ui" line="14"/>
         <source>Add a new server to the list</source>
         <translation>Ajouter un nouveau serveur à la liste</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewServerUI.ui" line="20"/>
+        <location filename="../../src/tarotclub-gui/forms/NewServerUI.ui" line="20"/>
         <source>New server parameters</source>
         <translation>Paramètres du nouveau serveur</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewServerUI.ui" line="28"/>
+        <location filename="../../src/tarotclub-gui/forms/NewServerUI.ui" line="28"/>
         <source>Address:</source>
         <translation>Adresse :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewServerUI.ui" line="35"/>
+        <location filename="../../src/tarotclub-gui/forms/NewServerUI.ui" line="35"/>
         <source>tarot.myserver.com</source>
         <translation>mon.serveur.com</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewServerUI.ui" line="46"/>
+        <location filename="../../src/tarotclub-gui/forms/NewServerUI.ui" line="46"/>
         <source>TCP Game Port:</source>
         <translation>Port TCP du jeu :</translation>
     </message>
@@ -1563,27 +1590,27 @@ Do you want to declare it?</source>
 <context>
     <name>newTurnUI</name>
     <message>
-        <location filename="../../src/desktop/forms/NewTurnUI.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/NewTurnUI.ui" line="14"/>
         <source>New tournament turn</source>
         <translation>Nouveau tour de tournoi</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewTurnUI.ui" line="20"/>
+        <location filename="../../src/tarotclub-gui/forms/NewTurnUI.ui" line="20"/>
         <source>Turn parameters</source>
         <translation>Paramètres du tour</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewTurnUI.ui" line="28"/>
+        <location filename="../../src/tarotclub-gui/forms/NewTurnUI.ui" line="28"/>
         <source>Deal type</source>
         <translation>Type de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewTurnUI.ui" line="55"/>
+        <location filename="../../src/tarotclub-gui/forms/NewTurnUI.ui" line="55"/>
         <source>Deal number</source>
         <translation>Numéro de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/NewTurnUI.ui" line="92"/>
+        <location filename="../../src/tarotclub-gui/forms/NewTurnUI.ui" line="92"/>
         <source>Deal file</source>
         <translation>Fichier de donne</translation>
     </message>
@@ -1591,22 +1618,22 @@ Do you want to declare it?</source>
 <context>
     <name>quickJoin</name>
     <message>
-        <location filename="../../src/desktop/forms/QuickJoin.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/QuickJoin.ui" line="14"/>
         <source>Quick join a single server</source>
         <translation>Rejoindre un serveur de jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/QuickJoin.ui" line="22"/>
+        <location filename="../../src/tarotclub-gui/forms/QuickJoin.ui" line="22"/>
         <source>IP Address: </source>
         <translation>Adresse IP :</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/QuickJoin.ui" line="32"/>
+        <location filename="../../src/tarotclub-gui/forms/QuickJoin.ui" line="32"/>
         <source>127.0.0.1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/QuickJoin.ui" line="46"/>
+        <location filename="../../src/tarotclub-gui/forms/QuickJoin.ui" line="46"/>
         <source>TCP Port: </source>
         <translation>Port TCP :</translation>
     </message>
@@ -1614,88 +1641,88 @@ Do you want to declare it?</source>
 <context>
     <name>scoreCalculatorWindow</name>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="14"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="14"/>
         <source>Deal calculator</source>
         <translation>Calculatrice de donne</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="22"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="22"/>
         <source>Game parameters</source>
         <translation>Paramètres du jeu</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="30"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="30"/>
         <source>Contract</source>
         <translation>Contrat</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="42"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="42"/>
         <source>Slam announced</source>
         <translation>Chelem annoncé</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="51"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="51"/>
         <source>Points earned</source>
         <translation>Points gagnés</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="69"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="69"/>
         <source>Number of oudlers</source>
         <translation>Nombre de bouts</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="101"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="101"/>
         <source>Bonuses</source>
         <translation>Bonus</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="109"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="109"/>
         <source>Handle type</source>
         <translation>Poignée</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="121"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="121"/>
         <source>Slam realized</source>
         <translation>Chelem réalisé</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="130"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="130"/>
         <source>One of trump at last trick</source>
         <translation>Petit au bout</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="160"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="160"/>
         <source>Result</source>
         <translation>Résultat</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="170"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="170"/>
         <source>Formula</source>
         <translation>Formule</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="177"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="177"/>
         <source>25 + </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="188"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="188"/>
         <source>Points for the attack</source>
         <translation>Points de l&apos;attaque</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="195"/>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="213"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="195"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="213"/>
         <source>0</source>
         <translation>Points de la défense</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="206"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="206"/>
         <source>Points for the defense</source>
         <translation>Points de la défense</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/forms/ScoreCalculatorUI.ui" line="255"/>
+        <location filename="../../src/tarotclub-gui/forms/ScoreCalculatorUI.ui" line="255"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
