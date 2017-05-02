@@ -221,15 +221,15 @@ usersDb.Create(function(createStatus) {
 			    console.log('Server started on port ' + serverPort);	
                         } else {
 
-			// Redirect from http port 80 to https
+			// Redirect from http port 8080 to https
 			var http = require('http');
 			http.createServer(function (req, res) {
 				res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
 				res.end();
-			}).listen(80);			   
+			}).listen(8080);			   
 
 
-                           https.createServer(options, app).listen(443);
+                           https.createServer(options, app).listen(8043);
                         }
                         
                     } else {

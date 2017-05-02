@@ -211,9 +211,16 @@ function AiContestViews()
 		async.series([
 			function(cb) {
 				couchDb.db.get("_design/users", function(err, body) {
-					//console.log(body);
+					
 					var str = UsersViews();
-					if (serialize(str.views) !== serialize(body.views)) {
+					var valid = false;
+					
+					if (body) {
+						if (serialize(str.views) === serialize(body.views)) {
+							valid = true;
+						}
+					}
+					if (!valid) {
 						console.log("Views not equal, update them");
 						body.views = str.views;
 						couchDb.db.insert( body, "_design/users", function (error, response) {
