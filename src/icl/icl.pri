@@ -9,13 +9,16 @@ HEADERS += Log.h \
     Value.h \
     UniqueId.h \
     Semaphore.h \
-    Console.h
+    Console.h \
+    IEventLoop.h \
+    EventLoop.h
 
 SOURCES += Log.cpp \
     Util.cpp \
     Value.cpp \
     UniqueId.cpp \
-    Console.cpp
+    Console.cpp \
+    EventLoop.cpp
 
 # ------------------------------------------------------------------------------
 # I/O files

@@ -1,17 +1,20 @@
-# Installation
+# Debian server setup
 
-## Ubuntu 10.04 server setup
+## Users management
 
 ```
 adduser tarot
 adduser systemd-sysv
 ```
 
-## Install tools
+## Install packages
 
 ```
-apt-get install nodejs npm build-essential git iptables-persistent
+apt-get install build-essential git iptables-persistent qt5base qt5-qmake
 ```
+
+## Install CouchDb
+
 
 Compile and install CouchDb 1.6.1 from the sources.
 
@@ -24,6 +27,13 @@ make && make install
 Download Node.js and extract it in /opt directory as 'tarot' user.
 
 wget https://nodejs.org/dist/v4.6.0/node-v4.6.0-linux-x64.tar.xz
+
+## Install a recent version of GCC on old Debian server
+
+  * Add unstable source to APT : echo "deb http://ftp.fr.debian.org/debian unstable main contrib non-free" > /etc/apt/sources.list.d/unstable.list
+  * apt-get update
+  * apt-get install gcc-6 g++-6
+  
 
 # Web server deployement
 
@@ -60,8 +70,13 @@ Try killing the node process by its pid and see if it starts back up!
 
 In Debian / Ubuntu, iptables rule are applied directly — as soon as you run the following commands the port will be open:
 
+For HTTP:
 iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 iptables -A PREROUTING -t nat -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+For HTTPS:
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A PREROUTING -t nat -p tcp --dport 443 -j REDIRECT --to-port 8043
 
 To save the rules out to a config file later (you need the iptables-persistent package):
 

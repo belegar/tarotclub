@@ -114,11 +114,9 @@ include($$BASE_DIR/src/tarot_core.pri)
 # ------------------------------------------------------------------------------
 # Server files
 # ------------------------------------------------------------------------------
-SOURCES +=  main.cpp Terminal.cpp SrvStats.cpp EventLoop.cpp \
-    SrvAiContest.cpp
+SOURCES +=  main.cpp Terminal.cpp SrvStats.cpp SrvAiContest.cpp
 
-HEADERS += Version.h Terminal.h SrvStats.h EventLoop.h IEventLoop.h IService.h \
-    SrvAiContest.h
+HEADERS += Version.h Terminal.h SrvStats.h IService.h SrvAiContest.h
 
 
 # End of project file
