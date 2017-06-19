@@ -53,7 +53,7 @@ VPATH += $$BASE_DIR/assets/ai/tarotlib
 VPATH += $$BASE_DIR/assets/canvasjs
 
 
-ICL_DIR = $$BASE_DIR/src/icl
+ICL_DIR = $$BASE_DIR/lib/icl
 include($$ICL_DIR/icl.pri)
 
 # ------------------------------------------------------------------------------
