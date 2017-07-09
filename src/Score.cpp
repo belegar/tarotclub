@@ -23,6 +23,7 @@
  *=============================================================================
  */
 
+#include <cstdlib>
 #include "Score.h"
 #include "Common.h"
 
@@ -162,7 +163,7 @@ std::int32_t Points::GetPoints(const Team team, const Tarot::Bid &bid) const
     std::int32_t littleEndianPoints = GetLittleEndianPoints();
 
     // Final scoring
-    std::int32_t score = (25 + abs(Difference()) + littleEndianPoints) * Tarot::GetMultiplier(bid.contract) + handlePoints + slamPoints;
+    std::int32_t score = (25 + std::abs(Difference()) + littleEndianPoints) * Tarot::GetMultiplier(bid.contract) + handlePoints + slamPoints;
     std::int32_t sign = 1;
     std::int32_t multiplier = 1;
 
