@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     }
     static {
         System.loadLibrary("tarotclub_server");
+        System.loadLibrary("icl");
     }
     public native  String stringFromJNI();
     public native void startTicks();
