@@ -20,7 +20,6 @@
 #include <android/log.h>
 #include <assert.h>
 
-
 // Android log function wrappers
 static const char* kTAG = "TarotClub";
 #define LOGI(...) \
@@ -130,7 +129,7 @@ void queryRuntimeInfo(JNIEnv *env, jobject instance) {
         return;
     }
     jlong result = (*env)->CallLongMethod(env, instance, memFunc);
-    LOGI("Runtime free memory size: %lld", result);
+    LOGI("Runtime free memory size: %lld", (long long)result);
     (void)result;  // silence the compiler warning
 }
 
@@ -301,3 +300,15 @@ Java_fr_tarotclub_TarotClub_MainActivity_StopTicks(JNIEnv *env, jobject instance
 
     pthread_mutex_destroy(&g_ctx.lock);
 }
+
+
+extern void StartFileServer();
+
+/*
+ * Interface to Java side to initialize TarotClub at startup
+ */
+JNIEXPORT void JNICALL
+Java_fr_tarotclub_TarotClub_MainActivity_initialize(JNIEnv *env, jobject instance) {
+    StartFileServer();
+}
+

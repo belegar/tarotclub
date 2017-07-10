@@ -23,7 +23,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 add_library(tarotclub_server SHARED
-            tarotclub_main.c)
+            tarotclub_main.c
+            filesystem.c
+            file_server.cpp)
 
 include_directories(${ICL_DIR_UTILS} ${ICL_DIR_NET} ${ICL_DIR_ZIP} ${ICL_DIR_SEC} ${ICL_DIR_JS} ${ICL_DIR_PROTO} ${ICL_DIR_JSON} ${ICL_DIR_IO} ${ICL_DIR_DB} ${TAROTCLUB_DIR})
 

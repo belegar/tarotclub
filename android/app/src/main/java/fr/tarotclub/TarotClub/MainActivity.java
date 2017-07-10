@@ -15,13 +15,47 @@
  */
 package fr.tarotclub.TarotClub;
 
-import android.support.annotation.Keep;
+//import android.support.annotation.Keep;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.TextView;
+//import android.widget.TextView;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    private WebView mWebView;
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        initialize();
+
+        mWebView = (WebView) findViewById(R.id.activity_main_webview);
+        mWebView.clearCache(true);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.loadUrl("http://127.0.0.1:8000");
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    public void onPause () {
+        super.onPause();
+    }
+
+    // A function calling from JNI to update current timer
+    private void updateTimer() {
+
+    }
+
+
+/*
     int hour = 0;
     int minute = 0;
     int second = 0;
@@ -31,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tickView = (TextView) findViewById(R.id.tickView);
+        initialize();
     }
     @Override
     public void onResume() {
@@ -46,9 +81,8 @@ public class MainActivity extends AppCompatActivity {
         StopTicks();
     }
 
-    /*
-     * A function calling from JNI to update current timer
-     */
+
+    // A function calling from JNI to update current timer
     @Keep
     private void updateTimer() {
         ++second;
@@ -70,11 +104,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    */
+
     static {
         System.loadLibrary("tarotclub_server");
         System.loadLibrary("icl");
     }
+
+
+
     public native  String stringFromJNI();
     public native void startTicks();
     public native void StopTicks();
+    public native void initialize();
 }

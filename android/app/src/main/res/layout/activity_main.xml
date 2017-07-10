@@ -2,12 +2,19 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_hello_jnicallback"
+    android:id="@+id/activity_tarotclub"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.hellojnicallback.MainActivity"
+    tools:context="fr.tarotclub.TarotClub.MainActivity"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="81dp">
+
+    <WebView
+        android:id="@+id/activity_main_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--
 
     <TextView
         android:layout_width="wrap_content"
@@ -16,11 +23,11 @@
         android:id="@+id/hellojniMsg"
         tools:layout_editor_absoluteX="129dp"
         tools:layout_editor_absoluteY="222dp"
-        app:layout_constraintLeft_toLeftOf="@+id/activity_hello_jnicallback"
+        app:layout_constraintLeft_toLeftOf="@+id/activity_tarotclub"
         tools:layout_constraintLeft_creator="0"
-        app:layout_constraintTop_toTopOf="@+id/activity_hello_jnicallback"
+        app:layout_constraintTop_toTopOf="@+id/activity_tarotclub"
         tools:layout_constraintTop_creator="0"
-        app:layout_constraintRight_toRightOf="@+id/activity_hello_jnicallback"
+        app:layout_constraintRight_toRightOf="@+id/activity_tarotclub"
         tools:layout_constraintRight_creator="0"
         tools:layout_constraintBottom_creator="0"
         app:layout_constraintHorizontal_bias="0.42"
@@ -34,14 +41,15 @@
         tools:layout_editor_absoluteY="222dp"
         android:id="@+id/tickView"
         android:textAppearance="@android:style/TextAppearance.Material.Large"
-        app:layout_constraintLeft_toLeftOf="@+id/activity_hello_jnicallback"
+        app:layout_constraintLeft_toLeftOf="@+id/activity_tarotclub"
         tools:layout_constraintLeft_creator="0"
-        app:layout_constraintTop_toTopOf="@+id/activity_hello_jnicallback"
+        app:layout_constraintTop_toTopOf="@+id/activity_tarotclub"
         tools:layout_constraintTop_creator="0"
-        app:layout_constraintRight_toRightOf="@+id/activity_hello_jnicallback"
+        app:layout_constraintRight_toRightOf="@+id/activity_tarotclub"
         tools:layout_constraintRight_creator="0"
-        app:layout_constraintBottom_toBottomOf="@+id/activity_hello_jnicallback"
+        app:layout_constraintBottom_toBottomOf="@+id/activity_tarotclub"
         tools:layout_constraintBottom_creator="0" />
 
+-->
 
 </android.support.constraint.ConstraintLayout>
