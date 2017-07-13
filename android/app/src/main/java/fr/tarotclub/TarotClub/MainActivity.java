@@ -19,8 +19,9 @@ package fr.tarotclub.TarotClub;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 //import android.widget.TextView;
-import android.webkit.WebSettings;
+
 import android.webkit.WebView;
+import android.webkit.WebChromeClient;
 import android.webkit.WebViewClient;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,25 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
         mWebView = (WebView) findViewById(R.id.activity_main_webview);
         mWebView.clearCache(true);
+        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.setWebViewClient(new WebViewClient());
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.loadUrl("http://127.0.0.1:8000");
     }
-    @Override
-    public void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
-    public void onPause () {
-        super.onPause();
-    }
-
-    // A function calling from JNI to update current timer
-    private void updateTimer() {
-
-    }
-
 
 /*
     int hour = 0;
