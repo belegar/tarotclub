@@ -4,10 +4,22 @@
 // ============================================================================
 // LOADING OFFICIAL NODE.JS MODULES
 // ============================================================================
-var nano		= require('nano')('http://localhost:5984');
+var fs          = require("fs");
+
+var env = process.env.NODE_ENV || 'dev';
+
+var couchDbPassword = "badpassword";
+
+if (env == 'production')
+{
+	couchDbPassword = fs.readFileSync('/opt/couchdbpassword.txt', 'utf8');
+}
+
+var nano		= require('nano')('http://admin:' + couchDbPassword +'@localhost:5984');
 var bcrypt 		= require('bcryptjs');
 var async 		= require('async');
 var serialize 	= require('serialize-javascript');
+
 
 // ============================================================================
 // DEFINITIONS
