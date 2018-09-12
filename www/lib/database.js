@@ -14,8 +14,14 @@ if (env == 'production')
 {
 	couchDbPassword = fs.readFileSync('/opt/couchdbpassword.txt', 'utf8');
 }
+else
+{
+	console.log("Warning: not in production");
+}
 
-var nano		= require('nano')('http://admin:' + couchDbPassword +'@localhost:5984');
+var dbConnection = 'http://admin:' + couchDbPassword.replace(/\r|\n/g, '') +'@localhost:5984';
+
+var nano		= require('nano')(dbConnection);
 var bcrypt 		= require('bcryptjs');
 var async 		= require('async');
 var serialize 	= require('serialize-javascript');
@@ -111,7 +117,7 @@ function AiContestViews()
 		nano.db.list(function(err, body) {
 
 			if (err) {
-				console.log("Cannot list databases!");
+				console.log("Cannot list databases: " + err + dbConnection );
 				callback(false);
 			} else {
 				var exists = false;
@@ -234,8 +240,7 @@ function AiContestViews()
 					}
 					if (!valid) {
 						console.log("Views not equal, update them");
-						body.views = str.views;
-						couchDb.db.insert( body, "_design/users", function (error, response) {
+						couchDb.db.insert( str.views, "_design/users", function (error, response) {
 							cb();
 						});
 					} else {
@@ -246,10 +251,17 @@ function AiContestViews()
 				couchDb.ai.get("_design/scores", function(err, body) {
 					//console.log(body);
 					var str = AiContestViews();
-					if (serialize(str.views) !== serialize(body.views)) {
+					var valid = false;
+					if (body) {
+
+						if (serialize(str.views) !== serialize(body.views)) {
+							valid = true;
+						}
+					}
+
+					if (!valid)  {
 						console.log("Views not equal, update them");
-						body.views = str.views;
-						couchDb.ai.insert( body, "_design/scores", function (error, response) {
+						couchDb.ai.insert( str.views, "_design/scores", function (error, response) {
 							cb();
 						});
 					} else {

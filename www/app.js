@@ -22,7 +22,7 @@ var helmet        = require('helmet');  // protect from well-known web vulnerabi
 // ============================================================================
 // GLOBAL VARIABLES
 // ============================================================================
-var isWin = (os.platform() === 'win32');
+var isWin = true; // (os.platform() === 'win32');  // Force not using SSL (nginx use it)
 
 // ============================================================================
 // HTTPS SSL CERTIFICATES
