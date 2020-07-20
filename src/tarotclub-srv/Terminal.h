@@ -30,12 +30,11 @@
 #include "Lobby.h"
 #include "IService.h"
 #include "IScriptEngine.h"
-#include "IEventLoop.h"
 
 class Terminal : public tcp::TcpServer::IEvent, public IScriptEngine::IPrinter, public IService
 {
 public:
-    Terminal(IScriptEngine &jsEngine, IEventLoop &ev);
+    Terminal(IScriptEngine &jsEngine);
     ~Terminal();
 
     // From IScriptEngine::IPrinter
@@ -54,7 +53,6 @@ private:
     static const std::uint8_t cExitCommand  = 1U;
 
     IScriptEngine &mScriptEngine;
-    IEventLoop &mEventLoop;
 
     tcp::TcpServer   mTcpServer;
     std::uint16_t mPort;

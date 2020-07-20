@@ -42,9 +42,8 @@ static const std::string cDbFileName = "tcds.sqlite";
 #endif
 
 /*****************************************************************************/
-SrvStats::SrvStats(IScriptEngine &jsEngine, IEventLoop &ev, Lobby &lobby)
+SrvStats::SrvStats(IScriptEngine &jsEngine, Lobby &lobby)
     : mScriptEngine(jsEngine)
-    , mEventLoop(ev)
     , mLobby(lobby)
 {
 
@@ -75,7 +74,7 @@ std::string SrvStats::GetName()
 /*****************************************************************************/
 void SrvStats::Initialize()
 {
-    mEventLoop.AddTimer(cRefreshPeriodInSeconds, std::bind(&SrvStats::FireTimer, this, std::placeholders::_1));
+
 }
 /*****************************************************************************/
 void SrvStats::Stop()
@@ -83,36 +82,34 @@ void SrvStats::Stop()
     // Nothing to do for now FIXME: remove the timer from the event loop?
 }
 /*****************************************************************************/
-void SrvStats::FireTimer(IEventLoop::Event event)
+void SrvStats::FireTimer()
 {
-    if (event == IEventLoop::EvTimer)
-    {
+
 #ifdef TAROT_DEBUG
-        std::cout << "Top event" << std::endl;
+    std::cout << "Top event" << std::endl;
 #endif
 
-        time_t rawtime;
+    time_t rawtime;
 
-        time(&rawtime);
-        StoreStats(rawtime);
+    time(&rawtime);
+    StoreStats(rawtime);
 
-        std::stringstream ss;
+    std::stringstream ss;
 
-        ss << "var Server = {"
-           << "name: \"" << mLobby.GetName() << "\""
-           << ", version: \"" << TCDS_VERSION << "\""
-           << ", players: " << (std::int32_t)mLobby.GetNumberOfPlayers()
-           << ", min: " << (std::int32_t)mStats.min
-           << ", max: " << (std::int32_t)mStats.max
-           << ", total: " << (std::int32_t)mStats.total
-           << ", current_mem: " << (std::int32_t) Util::GetCurrentMemoryUsage()
-           << ", max_mem: " << (std::int32_t)Util::GetMaximumMemoryUsage()
+    ss << "var Server = {"
+       << "name: \"" << mLobby.GetName() << "\""
+       << ", version: \"" << TCDS_VERSION << "\""
+       << ", players: " << (std::int32_t)mLobby.GetNumberOfPlayers()
+       << ", min: " << (std::int32_t)mStats.min
+       << ", max: " << (std::int32_t)mStats.max
+       << ", total: " << (std::int32_t)mStats.total
+       << ", current_mem: " << (std::int32_t) Util::GetCurrentMemoryUsage()
+       << ", max_mem: " << (std::int32_t)Util::GetMaximumMemoryUsage()
 
-           << "};";
+       << "};";
 
-        std::string output;
-        mScriptEngine.EvaluateString(ss.str(), output);
-    }
+    std::string output;
+    mScriptEngine.EvaluateString(ss.str(), output);
 }
 /*****************************************************************************/
 void SrvStats::IncPlayer()
@@ -142,7 +139,8 @@ void SrvStats::StoreStats(time_t currTime)
     // Store statistics
     if (mDb.Open(System::HomePath() + cDbFileName))
     {
-        mDb.Query("CREATE TABLE IF NOT EXISTS stats(date_time INTEGER, min INTEGER, max INTEGER, current INTEGER, total INTEGER, mem_current INTEGER, mem_max INTEGER)");
+        std::vector<std::vector<Value> > results;
+        mDb.Query("CREATE TABLE IF NOT EXISTS stats(date_time INTEGER, min INTEGER, max INTEGER, current INTEGER, total INTEGER, mem_current INTEGER, mem_max INTEGER)", results);
         std::stringstream query;
         query << "INSERT INTO stats VALUES("
               << currTime << ","
@@ -156,7 +154,7 @@ void SrvStats::StoreStats(time_t currTime)
 
         TLogServer("Storing stats: " + query.str());
 
-        mDb.Query(query.str());
+        mDb.Query(query.str(), results);
         mDb.Close();
     }
     mStats.total = 0U;

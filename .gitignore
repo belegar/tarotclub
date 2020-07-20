@@ -13,3 +13,5 @@ www/logs/app.log
 *.sdf
 *.obj
 *.pdb
+
+src/tarotclub-srv/tarotclub-srv.pro.user.4.8-pre1

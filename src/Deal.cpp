@@ -470,7 +470,7 @@ bool Deal::DecodeJsonDeal(const JsonValue &json)
                 std::uint8_t trickCounter = 1U;
                 mDiscard.CreateTarotDeck();
 
-                for (JsonArray::Iterator iter = tricks.GetArray().Begin(); iter != tricks.GetArray().End(); ++iter)
+                for (JsonArray::iterator iter = tricks.GetArray().begin(); iter != tricks.GetArray().end(); ++iter)
                 {
                     Deck trick(iter->GetString());
 

@@ -193,7 +193,7 @@ bool ClientConfig::Load(const std::string &fileName)
 
                 JsonValue servers = json.FindValue("servers");
                 mOptions.serverList.clear();
-                for (JsonArray::Iterator iter = servers.GetArray().Begin(); iter != servers.GetArray().End(); ++iter)
+                for (JsonArray::iterator iter = servers.GetArray().begin(); iter != servers.GetArray().end(); ++iter)
                 {
                     if (iter->IsObject())
                     {

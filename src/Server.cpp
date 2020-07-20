@@ -31,6 +31,9 @@
 #include "Server.h"
 #include "System.h"
 
+tcp::TcpServer::IEvent::~IEvent(){
+
+}
 
 /*****************************************************************************/
 Server::Server(net::IEvent &listener)

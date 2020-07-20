@@ -106,7 +106,7 @@ bool ServerConfig::Load(const std::string &fileName)
                 mOptions.tables.clear();
                 JsonValue tables = json.FindValue("tables");
 
-                for (JsonArray::Iterator iter = tables.GetArray().Begin(); iter != tables.GetArray().End(); ++iter)
+                for (JsonArray::iterator iter = tables.GetArray().begin(); iter != tables.GetArray().end(); ++iter)
                 {
                     if (iter->IsString())
                     {

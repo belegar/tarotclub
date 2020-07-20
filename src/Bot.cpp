@@ -534,7 +534,7 @@ bool Bot::InitializeScriptContext()
             mBotEngine.Initialize();
 
             // Load all Javascript files
-            for (JsonArray::Iterator iter = files.GetArray().Begin(); iter != files.GetArray().End(); ++iter)
+            for (JsonArray::iterator iter = files.GetArray().begin(); iter != files.GetArray().end(); ++iter)
             {
                 if (iter->IsValid() && (iter->IsString()))
                 {

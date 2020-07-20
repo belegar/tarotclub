@@ -73,7 +73,7 @@ bool TournamentConfig::Load(const std::string &fileName)
                 JsonValue tournament = json.FindValue("tournament");
                 if (tournament.GetArray().Size() > 0U)
                 {
-                    for (JsonArray::Iterator iter = tournament.GetArray().Begin(); iter != tournament.GetArray().End(); ++iter)
+                    for (JsonArray::iterator iter = tournament.GetArray().begin(); iter != tournament.GetArray().end(); ++iter)
                     {
                         if (iter->IsObject())
                         {

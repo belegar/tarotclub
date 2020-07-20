@@ -34,8 +34,14 @@
 #include "IService.h"
 #include "Server.h"
 
+#include <execinfo.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+
 /*****************************************************************************/
-class Logger : public Observer<std::string>
+class Logger : public Observer<Log::Infos>
 {
 public:
     Logger()
@@ -44,11 +50,24 @@ public:
 
     }
 
-    void Update(const std::string &info)
+    void Update(const Log::Infos &info)
     {
-        std::cout << info << std::endl;
+        std::cout << info.message << std::endl;
     }
 };
+/*****************************************************************************/
+void handler(int sig) {
+  void *array[10];
+  size_t size;
+
+  // get void*'s for all entries on the stack
+  size = backtrace(array, 10);
+
+  // print out all the frames to stderr
+  fprintf(stderr, "Error: signal %d:\n", sig);
+  backtrace_symbols_fd(array, size, STDERR_FILENO);
+  exit(1);
+}
 /*****************************************************************************/
 /**
  * @brief Entry point of the dedicated game server
@@ -56,6 +75,9 @@ public:
 int main(int argc, char *argv[])
 {
     CommandLine cmd(argc, argv);
+
+    signal(SIGSEGV, handler);   // install our handler
+    signal(SIGPIPE, SIG_IGN); // ignore sigpipe for this process
 
     std::cout << "TarotClub dedicated server " << TCDS_VERSION << std::endl;
 
@@ -101,13 +123,13 @@ int main(int argc, char *argv[])
     JSEngine js;
 
     // Instanciate all your services here
-    SrvStats stats(js, loop, lobby);
-    Terminal term(js, loop);
+//    SrvStats stats(js, loop, lobby);
+//    Terminal term(js, loop);
 
-    IService *cServices[] = {
-        &stats,
-        &term
-    };
+//    IService *cServices[] = {
+//        &stats,
+//        &term
+//    };
 
     // Initialize everything
     lobby.Initialize("TarotServer", srvConfig.GetOptions().tables);
@@ -116,25 +138,25 @@ int main(int argc, char *argv[])
 
     // FIXME: services should be aware of command line configuration, think about a
     // solution (standardized structure like ServerOptions)
-    term.SetPort(ServerConfig::DEFAULT_CONSOLE_TCP_PORT);
+//    term.SetPort(ServerConfig::DEFAULT_CONSOLE_TCP_PORT);
 
     // Initialize services
-    for (auto *srv : cServices)
-    {
-        std::cout << "Loading service: " << srv->GetName() << std::endl;
-        srv->Initialize();
-    }
+//    for (auto *srv : cServices)
+//    {
+//        std::cout << "Loading service: " << srv->GetName() << std::endl;
+//        srv->Initialize();
+//    }
 
-    loop.Run();
+    loop.Loop();
 
-    // Stop services
-    for (auto *srv : cServices)
-    {
-        std::cout << "Stopping service: " << srv->GetName() << std::endl;
-        srv->Stop();
-    }
+//    // Stop services
+//    for (auto *srv : cServices)
+//    {
+//        std::cout << "Stopping service: " << srv->GetName() << std::endl;
+//        srv->Stop();
+//    }
 
-    loop.Stop();
+//    loop.Stop();
     server.Stop();
 
     return 0;

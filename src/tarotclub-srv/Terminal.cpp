@@ -32,9 +32,8 @@
 #include "Observer.h"
 
 /*****************************************************************************/
-Terminal::Terminal(IScriptEngine &jsEngine, IEventLoop &ev)
+Terminal::Terminal(IScriptEngine &jsEngine)
     : mScriptEngine(jsEngine)
-    , mEventLoop(ev)
     , mTcpServer(*this)
     , mExit(false)
 {

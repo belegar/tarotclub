@@ -47,7 +47,7 @@ VPATH += $$BASE_DIR/src/tarotclub-srv
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-CONFIG += console warn_on
+CONFIG += console warn_on icl_zip icl_database
 QMAKE_CXXFLAGS += -std=c++11
 
 # Mainly for Duktape, the only source code in C
@@ -71,24 +71,6 @@ win32 {
 unix {
     DEFINES += USE_UNIX_OS
     LIBS += -ldl
-
-    GCC_VERSION = $$system("g++-6 -dumpversion")
-    contains(GCC_VERSION, 6.[0-9].[0-9]) {
-        message( "g++ version 6.x found" )
-        QMAKE_CC = gcc-6
-        QMAKE_CXX = g++-6
-        QMAKE_LINK = g++-6
-    } else {
-        GCC_VERSION = $$system("g++-5 -dumpversion")
-        contains(GCC_VERSION, 5.[0-9].[0-9]) {
-            message( "g++ version 5.x found" )
-            QMAKE_CC = gcc-5
-            QMAKE_CXX = g++-5
-            QMAKE_LINK = g++-5
-        } else {
-            message( Unknown GCC configuration $$GCC_VERSION )
-        }
-    }
 }
 
 debug {

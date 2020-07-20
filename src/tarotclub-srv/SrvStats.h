@@ -30,7 +30,6 @@
 #include "Value.h"
 #include "DataBase.h"
 #include "JsonValue.h"
-#include "IEventLoop.h"
 #include "IScriptEngine.h"
 #include "IService.h"
 #include "Lobby.h"
@@ -57,7 +56,7 @@ public:
         std::uint32_t total;
     };
 
-    SrvStats(IScriptEngine &jsEngine, IEventLoop &ev, Lobby &lobby);
+    SrvStats(IScriptEngine &jsEngine, Lobby &lobby);
 
     // From Observer<JsonValue>
     void Update(const JsonValue &info);
@@ -68,11 +67,10 @@ public:
     virtual void Stop();
 
     // From SrvStats
-    void FireTimer(IEventLoop::Event event);
+    void FireTimer();
 
 private:
     IScriptEngine &mScriptEngine;
-    IEventLoop &mEventLoop;
     Lobby &mLobby;
 
     DataBase mDb;
