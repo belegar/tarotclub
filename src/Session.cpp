@@ -20,7 +20,7 @@ void Session::Send(const std::vector<Reply> &out)
         // To all indicated peers
         for (std::uint32_t j = 0U; j < out[i].dest.size(); j++)
         {
-            SendToHost(Protocol::Build(mListener.GetUuid(), out[i].dest[j], out[i].data.ToString(0U)));
+            SendToHost(Protocol::Build(mListener.GetUuid(), out[i].dest[j], out[i].data.ToString()));
         }
     }
 }

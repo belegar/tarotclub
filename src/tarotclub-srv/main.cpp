@@ -45,7 +45,7 @@ class Logger : public Observer<Log::Infos>
 {
 public:
     Logger()
-        : Observer(Log::Error | Log::Server)
+        : Observer()
     {
 
     }
@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
     }
     else
     {
-        homePath = System::HomePath();
         System::Initialize(); // default home path
+        homePath = System::HomePath();
     }
     std::cout << "Using home path: " << homePath << std::endl;
 
