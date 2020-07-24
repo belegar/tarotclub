@@ -81,26 +81,6 @@ win32 {
 unix {
     DEFINES += USE_UNIX_OS
     LIBS += -ldl -lgcov
-    
-    GCC_VERSION = $$system("g++-6 -dumpversion")
-    contains(GCC_VERSION, 6.[0-9].[0-9]) {
-        message( "g++ version 6.x found" )
-        QMAKE_CC = gcc-6
-        QMAKE_CXX = g++-6
-        QMAKE_LINK = g++-6
-    } else {
-        GCC_VERSION = $$system("g++-5 -dumpversion")
-        contains(GCC_VERSION, 5.[0-9].[0-9]) {
-            message( "g++ version 5.x found" )
-            QMAKE_CC = gcc-5
-            QMAKE_CXX = g++-5
-            QMAKE_LINK = g++-5
-        } else {
-            message( Unknown GCC configuration $$GCC_VERSION )
-        }
-    }
-    
-    
 }
 
 CONFIG(debug, debug|release) {
@@ -112,6 +92,13 @@ CONFIG(debug, debug|release) {
 # TarotClub core files
 # ------------------------------------------------------------------------------
 include($$BASE_DIR/src/tarot_core.pri)
+
+# ------------------------------------------------------------------------------
+# ICL files
+# ------------------------------------------------------------------------------
+CONFIG += icl_zip icl_database
+ICL_DIR = $$BASE_DIR/lib/icl
+include($$ICL_DIR/icl.pri)
 
 # ------------------------------------------------------------------------------
 # Unit test files

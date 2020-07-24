@@ -12,18 +12,18 @@
 #include "Log.h"
 
 /*****************************************************************************/
-class Logger : public Observer<std::string>
+class Logger : public Observer<Log::Infos>
 {
 public:
     Logger()
-        : Observer(Log::Error)
+        : Observer()
     {
+
     }
 
-    void Update(const std::string &info)
+    void Update(const Log::Infos &info)
     {
-        // In case of error, generate an error
-        QFAIL(info.c_str());;
+         QFAIL(info.message.c_str());
     }
 };
 /*****************************************************************************/
