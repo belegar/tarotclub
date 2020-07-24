@@ -1,6 +1,6 @@
 language: cpp
 sudo: required
-dist: trusty
+dist: bionic
 compiler: gcc
 
 addons:
@@ -8,19 +8,15 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - g++-6
+    - g++
 
 before_install:
-  - sudo add-apt-repository --yes ppa:beineri/opt-qt571-trusty
-  - sudo apt-get update -qq
   - pip install --user cpp-coveralls
   
 install:
-  - sudo apt-get install qt57base qt57tools
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
+  - sudo apt-get install qt5-default qt5-qmake
   
 script:
-  - source /opt/qt57/bin/qt57-env.sh
   - make before
   - make tests
   - make tarotclub-srv
