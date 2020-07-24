@@ -39,15 +39,9 @@ RCC_DIR         = $$DESTDIR/rcc
 MOC_DIR         = $$DESTDIR/moc
 
 # ------------------------------------------------------------------------------
-# Where to find files
-# ------------------------------------------------------------------------------
-INCLUDEPATH += $$BASE_DIR/src/tarotclub-srv
-VPATH += $$BASE_DIR/src/tarotclub-srv
-
-# ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-CONFIG += console warn_on icl_zip icl_database
+CONFIG += console warn_on
 QMAKE_CXXFLAGS += -std=c++11
 
 # Mainly for Duktape, the only source code in C
@@ -89,6 +83,7 @@ include($$ICL_DIR/icl.pri)
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
+CONFIG += icl_zip icl_database icl_http
 INCLUDEPATH += $$BASE_DIR/src
 VPATH += $$BASE_DIR/src
 include($$BASE_DIR/src/tarot_core.pri)
@@ -96,9 +91,107 @@ include($$BASE_DIR/src/tarot_core.pri)
 # ------------------------------------------------------------------------------
 # Server files
 # ------------------------------------------------------------------------------
-SOURCES +=  main.cpp Terminal.cpp SrvStats.cpp SrvAiContest.cpp
+INCLUDEPATH += $$BASE_DIR/src/tarotclub-srv
+VPATH += $$BASE_DIR/src/tarotclub-srv
 
-HEADERS += Version.h Terminal.h SrvStats.h IService.h SrvAiContest.h
+SOURCES +=  main.cpp Terminal.cpp tls_client.cpp \
+    ServiceAiContest.cpp \
+    ServiceStats.cpp \
+    ServiceWebsiteConnection.cpp
 
+HEADERS += Version.h Terminal.h IService.h tls_client.h \
+    ServiceAiContest.h \
+    ServiceStats.h \
+    ServiceWebsiteConnection.h
+
+# ------------------------------------------------------------------------------
+# mBed TLS
+# ------------------------------------------------------------------------------
+VPATH += $$BASE_DIR/lib/mbedtls/include $$BASE_DIR/lib/mbedtls/library
+INCLUDEPATH += $$BASE_DIR/lib/mbedtls/include
+
+#DEFINES += -DMBEDTLS_CONFIG_FILE='<foo.h>'"
+
+HEADERS +=  mbedtls/aes.h
+
+SOURCES +=  aes.c \
+aesni.c \
+arc4.c \
+aria.c \
+asn1parse.c \
+asn1write.c \
+base64.c \
+bignum.c \
+blowfish.c \
+camellia.c \
+ccm.c \
+certs.c \
+chacha20.c \
+chachapoly.c \
+cipher.c \
+cipher_wrap.c \
+cmac.c \
+ctr_drbg.c \
+debug.c \
+des.c \
+dhm.c \
+ecdh.c \
+ecdsa.c \
+ecjpake.c \
+ecp.c \
+ecp_curves.c \
+entropy.c \
+entropy_poll.c \
+error.c \
+gcm.c \
+havege.c \
+hkdf.c \
+hmac_drbg.c \
+md2.c \
+md4.c \
+md5.c \
+md.c \
+md_wrap.c \
+memory_buffer_alloc.c \
+net_sockets.c \
+nist_kw.c \
+oid.c \
+padlock.c \
+pem.c \
+pk.c \
+pkcs11.c \
+pkcs12.c \
+pkcs5.c \
+pkparse.c \
+pk_wrap.c \
+pkwrite.c \
+platform.c \
+platform_util.c \
+poly1305.c \
+ripemd160.c \
+rsa.c \
+rsa_internal.c \
+sha1.c \
+sha256.c \
+sha512.c \
+ssl_cache.c \
+ssl_ciphersuites.c \
+ssl_cli.c \
+ssl_cookie.c \
+ssl_srv.c \
+ssl_ticket.c \
+ssl_tls.c \
+threading.c \
+timing.c \
+version.c \
+version_features.c \
+x509.c \
+x509_create.c \
+x509_crl.c \
+x509_crt.c \
+x509_csr.c \
+x509write_crt.c \
+x509write_csr.c \
+xtea.c \
 
 # End of project file

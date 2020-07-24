@@ -28,7 +28,7 @@
 #include "System.h"
 #include "Log.h"
 #include "Version.h"
-#include "SrvStats.h"
+#include "ServiceStats.h"
 #include "JSEngine.h"
 #include "Terminal.h"
 #include "IService.h"
@@ -38,7 +38,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
-
 
 /*****************************************************************************/
 class Logger : public Observer<Log::Infos>
@@ -88,6 +87,7 @@ int main(int argc, char *argv[])
         std::cout << "Options are:" << std::endl;
         std::cout << "\t" << "-h" << "\tPrints this help" << std::endl;
         std::cout << "\t" << "-w" << "\tSpecifies a workspace path where generated/configuration files are located" << std::endl;
+        std::cout << "\t" << "-t" << "\tSpecifies a token for Web server registering" << std::endl;
         return 0;
     }
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     JSEngine js;
 
     // Instanciate all your services here
-//    SrvStats stats(js, loop, lobby);
+    ServiceStats stats(js, loop, lobby);
 //    Terminal term(js, loop);
 
 //    IService *cServices[] = {
@@ -147,6 +147,7 @@ int main(int argc, char *argv[])
 //        srv->Initialize();
 //    }
 
+    static std::thread webServerRegister(WebServerRegisterThread);
     loop.Loop();
 
 //    // Stop services
@@ -158,6 +159,7 @@ int main(int argc, char *argv[])
 
 //    loop.Stop();
     server.Stop();
+    webServerRegister.join();
 
     return 0;
 }
