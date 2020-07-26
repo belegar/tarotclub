@@ -43,22 +43,48 @@ bool Dump(const std::vector<Reply> &reply)
 
 
 // Basic packet with no data
-static const std::string test1 = "4F:8B5C:00AC:0000:QUIT:";
+static const std::string test1 = "4F:8B5C:00AC:0000:0001:";
 
-void TarotProtocol::TestPacketCodec()
+void TarotProtocol::TestEmptyPacket()
 {
     Protocol proto;
     std::string output;
+    Protocol::Header h;
 
     proto.Add(test1);
 
-    QCOMPARE(proto.Parse(output), true);
+    QCOMPARE(proto.Parse(output, h), true);
     QCOMPARE(output, std::string());
-    QCOMPARE(proto.GetOption(), (std::uint32_t)0x4F);
-    QCOMPARE(proto.GetDestUuid(), (std::uint32_t)0x00AC);
-    QCOMPARE(proto.GetSourceUuid(), (std::uint32_t)0x8B5C);
-    QCOMPARE(proto.GetType(), std::string("QUIT"));
-    QCOMPARE(proto.GetSize(), (std::uint32_t)0U);
+    QCOMPARE(h.option, (std::uint32_t)0x4F);
+    QCOMPARE(h.dst_uid, (std::uint32_t)0x00AC);
+    QCOMPARE(h.src_uid, (std::uint32_t)0x8B5C);
+    QCOMPARE(h.payload_size, (std::uint32_t)0U);
+}
+
+static const std::string testData1 = "{ coucou: 2 }";
+static const std::string testKey = "ABCDEFGHIJKLMNOP";
+static const uint32_t testDestUuid = 34;
+static const uint32_t testSourceUuid = 1807;
+
+void TarotProtocol::TestCiphering()
+{
+    Protocol protoSnd;
+    Protocol protoRcv;
+    std::string output;
+    Protocol::Header h;
+
+    protoSnd.SetSecurty(testKey);
+    protoRcv.SetSecurty(testKey);
+
+    std::string sendString = protoSnd.Build(testSourceUuid, testDestUuid, testData1);
+    protoRcv.Add(sendString);
+
+    QCOMPARE(protoRcv.Parse(output, h), true);
+    QCOMPARE(output, testData1);
+    QCOMPARE(h.option, (std::uint32_t)0);
+    QCOMPARE(h.dst_uid, testDestUuid);
+    QCOMPARE(h.src_uid, testSourceUuid);
+    QCOMPARE(h.payload_size, testData1.size());
 }
 
 // Test data streaming with fragmented packets, last packet is not complete
@@ -77,6 +103,10 @@ class ProtoServer : public tcp::TcpServer::IEvent
 
 public:
 
+    ProtoServer() {
+        mProto.SetSecurty("1234567890123456");
+    }
+
     virtual void NewConnection(const tcp::Conn &conn)
     {
         (void) conn;
@@ -85,10 +115,10 @@ public:
     virtual void ReadData(const tcp::Conn &conn)
     {
         std::string data;
-
+        Protocol::Header h;
         mProto.Add(conn.payload);
 
-        while (mProto.Parse(data))
+        while (mProto.Parse(data, h))
         {
         //    std::cout << "Found one packet with data: " << data << std::endl;
             nb_packets++;

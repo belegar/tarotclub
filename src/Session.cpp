@@ -3,10 +3,11 @@
 #include "Protocol.h"
 
 /*****************************************************************************/
-void Session::Initialize()
+void Session::Initialize(const std::string &key)
 {
     if (!mInitialized)
     {
+        mProto.SetSecurty(key);
         mThread = std::thread(Session::EntryPoint, this);
         mInitialized = true;
     }
@@ -20,7 +21,7 @@ void Session::Send(const std::vector<Reply> &out)
         // To all indicated peers
         for (std::uint32_t j = 0U; j < out[i].dest.size(); j++)
         {
-            SendToHost(Protocol::Build(mListener.GetUuid(), out[i].dest[j], out[i].data.ToString()));
+            SendToHost(mProto.Build(mListener.GetUuid(), out[i].dest[j], out[i].data.ToString()));
         }
     }
 }
@@ -93,24 +94,22 @@ void Session::Run()
             cmd = NO_CMD;
             if (mTcpClient.Connect(mHostName, mTcpPort) == true)
             {
-                Protocol proto;
-
                 while (mInitialized)
                 {
                     if (mTcpClient.DataWaiting(200U))
                     {
+                        mProto.Clear();
                         std::string payload;
                         if (mTcpClient.Recv(payload))
                         {
-                            proto.Add(payload);
+                            mProto.Add(payload);
                             std::string data;
-                            while (proto.Parse(data))
+                            Protocol::Header h;
+                            while (mProto.Parse(data, h))
                             {
                             //    TLogNetwork("Found one packet with data: " + data);
                                 std::vector<Reply> out;
-                                std::uint32_t client_uuid = proto.GetDestUuid();
-
-                                bool ret = mListener.Deliver(proto.GetSourceUuid(), client_uuid, data, out);
+                                bool ret = mListener.Deliver(h.src_uid, h.dst_uid, data, out);
                                 // Send synchronous data to the server
                                 if (ret)
                                 {

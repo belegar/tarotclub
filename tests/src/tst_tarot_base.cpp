@@ -70,7 +70,7 @@ void TarotBase::TestDeckClass()
 
     myDeck.Shuffle(1); // Use always the same seed so that the result is always the same
 
-    std::string expected_string = "05-H;07-D;14-H;04-T;12-S;14-T;12-T;06-H;06-D;00-T;14-D;14-S;12-C;08-C;13-D;13-C;09-S;10-S;11-T;03-S;17-T;03-D;09-C;11-H;10-D;11-C;08-D;05-S;16-T;04-C;06-C;06-T;01-H;10-T;07-H;20-T;15-T;08-S;04-D;10-C;19-T;11-S;01-C;07-C;01-S;11-D;06-S;03-H;04-H;02-S;12-H;12-D;02-T;09-D;03-T;07-S;05-T;02-H;05-D;09-H;05-C;08-H;02-C;03-C;14-C;09-T;13-T;01-D;18-T;07-T;04-S;02-D;01-T;21-T;13-S;13-H;10-H;08-T";
+    std::string expected_string = "07-D;07-T;11-D;10-T;11-C;06-D;05-S;10-D;07-H;08-D;01-H;09-H;11-T;17-T;09-D;06-H;03-D;08-T;04-S;11-S;12-H;15-T;03-T;14-T;21-T;11-H;09-C;13-S;08-H;01-C;02-D;06-S;05-T;01-S;13-H;13-C;02-S;10-S;02-H;14-S;05-H;02-T;09-S;05-C;14-H;10-C;16-T;12-C;06-T;04-C;12-T;02-C;14-D;04-H;14-C;19-T;18-T;07-C;01-T;05-D;06-C;10-H;12-S;01-D;13-D;07-S;09-T;03-S;03-C;04-T;00-T;08-S;03-H;04-D;08-C;13-T;20-T;12-D";
     std::cout << "Deck shuffled: \n";
     std::string actual_string =  myDeck.ToString();
     std::cout << actual_string << std::endl;

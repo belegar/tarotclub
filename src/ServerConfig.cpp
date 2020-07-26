@@ -30,9 +30,9 @@
 #include "Log.h"
 #include "System.h"
 
-static const std::string SERVER_CONFIG_VERSION  = "7"; // increase the version to force any incompatible update in the file structure
+static const std::string SERVER_CONFIG_VERSION  = "8"; // increase the version to force any incompatible update in the file structure
 const std::string ServerConfig::DEFAULT_SERVER_CONFIG_FILE  = "tcds.json";
-const std::string ServerConfig::DEFAULT_SERVER_NAME = "desktop";
+const std::string ServerConfig::DEFAULT_SERVER_NAME = "server1";
 
 /*****************************************************************************/
 ServerConfig::ServerConfig()
@@ -63,10 +63,10 @@ bool ServerConfig::Load(const std::string &fileName)
     bool ret = JsonReader::ParseFile(json, fileName);
     if (ret)
     {
-        std::string value;
-        if (json.GetValue("version", value))
+        std::string stringVal;
+        if (json.GetValue("version", stringVal))
         {
-            if (value == SERVER_CONFIG_VERSION)
+            if (stringVal == SERVER_CONFIG_VERSION)
             {
                 // The general strategy is to be tolerant on the values.
                 // If they are not in the acceptable range, we set the default value
@@ -98,9 +98,14 @@ bool ServerConfig::Load(const std::string &fileName)
                     mOptions.localHostOnly = boolVal;
                 }
 
-                if (json.GetValue("name", value))
+                if (json.GetValue("name", stringVal))
                 {
-                    mOptions.name = value;
+                    mOptions.name = stringVal;
+                }
+
+                if (json.GetValue("token", stringVal))
+                {
+                    mOptions.token = stringVal;
                 }
 
                 mOptions.tables.clear();
@@ -155,6 +160,7 @@ bool ServerConfig::Save(const std::string &fileName)
     json.AddValue("lobby_max_conn", mOptions.lobby_max_conn);
     json.AddValue("local_host_only", mOptions.localHostOnly);
     json.AddValue("name", mOptions.name);
+    json.AddValue("token", mOptions.token);
 
     JsonArray tables;
     for (std::vector<std::string>::iterator iter =  mOptions.tables.begin(); iter !=  mOptions.tables.end(); ++iter)
@@ -182,6 +188,7 @@ ServerOptions ServerConfig::GetDefault()
     opt.localHostOnly       = false;
     opt.name                = DEFAULT_SERVER_NAME;
     opt.tables.push_back("Table 1"); // default table name (one table minimum)
+    opt.token               = Util::GenerateRandomString(20);
 
     return opt;
 }

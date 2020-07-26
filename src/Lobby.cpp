@@ -133,6 +133,11 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                 out.push_back(Reply(target, json.GetObj()));
             }
         }
+        else if (cmd == "SetUserJWT")
+        {
+            // each player must be validated using a user token id, basically a JWT format
+
+        }
         else if (cmd == "ReplyLogin")
         {
             Users::Entry entry;
@@ -285,6 +290,11 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
 std::uint32_t Lobby::GetNumberOfPlayers()
 {
     return mUsers.Size();
+}
+/*****************************************************************************/
+uint32_t Lobby::GetNumberOfTables()
+{
+    return mTables.size();
 }
 /*****************************************************************************/
 uint32_t Lobby::AddUser(std::vector<Reply> &out)

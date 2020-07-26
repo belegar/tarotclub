@@ -47,30 +47,48 @@ public:
 
     // Protocol constants
     static const std::uint32_t cHeaderSize;
+    static const std::uint32_t cTagSize;
+    static const std::uint32_t cIVSize;
+
+    struct Header {
+
+        std::uint32_t option;
+        std::uint32_t src_uid;
+        std::uint32_t dst_uid;
+        std::uint32_t payload_size;
+        std::uint32_t frame_counter;
+
+        Header() {
+            option = 0;
+            src_uid = 0;
+            dst_uid = 0;
+            payload_size = 0;
+            frame_counter = 0;
+        }
+    };
 
     Protocol();
     ~Protocol();
 
-    std::uint32_t GetSourceUuid();
-    std::uint32_t GetDestUuid();
-    std::uint32_t GetOption() { return mOption; }
-    std::string GetType();
-    std::uint32_t GetSize() { return mSize; }
-
+    void Clear() { mPacket.clear(); }
     void Add(const std::string &packet) { mPacket += packet; }
-    bool Parse(std::string &payload);
-    static std::string Build(std::uint32_t src, std::uint32_t dst, const std::string &arg);
+    bool Parse(std::string &payload, Header &h);
+    std::string Build(std::uint32_t src, std::uint32_t dst, const std::string &arg);
 
-private:    
-    std::uint32_t mSrcUuid;
-    std::uint32_t mDstUuid;
-    std::uint32_t mOption;
-    std::uint32_t mSize;
+    // Session Encryption Key
+    // Session Signature Key
+    void SetSecurty(const std::string &usk);
+
+private:
     std::string mPacket;
-    std::string mType;
+    std::string mUSK;
+    uint32_t mTxFrameCounter = 0;
+    uint32_t mRxFrameCounter = 0;
 
     bool ParseUint32(const char *data, uint32_t size, std::uint32_t &value);
-    bool Extract(const std::string &header);
+    bool Extract(const std::string &headerString, Header &h);
+    void Encrypt(const std::string &header, const std::string &payload, const std::string &iv, std::string &output);
+    bool Decrypt(const std::string &header, uint8_t *ciphered, uint32_t size, std::string &output);
 };
 
 #endif // PROTOCOL_H

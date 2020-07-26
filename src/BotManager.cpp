@@ -77,7 +77,7 @@ std::uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &iden
     netBot->mBot.SetAiScript(scriptFile);
 
     // Initialize the session
-    netBot->mSession.Initialize();
+    netBot->mSession.Initialize("aPdSgVkYp3s6v9y$"); // FIXME: need a proper key
 
     mMutex.lock();
     // Add it to the list (save the pointer to the allocated object)

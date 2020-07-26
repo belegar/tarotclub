@@ -60,6 +60,7 @@ public:
 
     // Users management
     std::uint32_t GetNumberOfPlayers();
+    std::uint32_t GetNumberOfTables();
     void RemoveAllUsers();
 
     // Tables management
@@ -78,6 +79,9 @@ private:
     bool mAdminMode;
     std::uint32_t mEvCounter;
     Subject<JsonValue> mSubject;
+
+    // SessionID , IP address
+    std::map<std::string, std::string> mSessionIds;
 
     std::string GetTableName(const std::uint32_t tableId);
     void RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std::vector<Reply> &out);

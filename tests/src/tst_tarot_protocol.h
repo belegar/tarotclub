@@ -16,7 +16,8 @@ public:
 
 
 private Q_SLOTS:
-    void TestPacketCodec();
+    void TestEmptyPacket();
+    void TestCiphering();
     void TestPacketStream();
     void TestPlayerJoinQuitAndPlayerList();
     void TestBotsFullGame();

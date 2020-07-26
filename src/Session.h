@@ -21,7 +21,7 @@ public:
 
     }
 
-    void Initialize();
+    void Initialize(const std::string &key);
     void Send(const std::vector<Reply> &out);
     bool IsConnected();
     void Disconnect();
@@ -39,6 +39,7 @@ private:
     bool        mInitialized;
     std::string mHostName;
     std::uint16_t mTcpPort;
+    Protocol mProto;
 
     static void EntryPoint(void *pthis);
     void SendToHost(const std::string &data);

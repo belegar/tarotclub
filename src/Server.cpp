@@ -79,13 +79,13 @@ void Server::ReadData(const tcp::Conn &conn)
     {
         Protocol &proto = mPeers[uuid].proto;
         proto.Add(conn.payload);
-
-        while (proto.Parse(data))
+        Protocol::Header h;
+        while (proto.Parse(data, h))
         {
             std::vector<Reply> out;
 
             //std::cout << "Found one packet with data: " << data << std::endl;
-            mListener.Deliver(proto.GetSourceUuid(), proto.GetDestUuid(), data, out);
+            mListener.Deliver(h.src_uid, h.dst_uid, data, out);
             Send(out);
         }
     }
@@ -123,7 +123,14 @@ void Server::Send(const std::vector<Reply> &out)
         for (std::uint32_t j = 0U; j < out[i].dest.size(); j++)
         {
             std::uint32_t uuid = out[i].dest[j];
-            tcp::TcpSocket::Send(Protocol::Build(Protocol::LOBBY_UID, uuid, data), mPeers[uuid].peer);
+            if (mPeers.count(uuid) > 0)
+            {
+                tcp::TcpSocket::Send(mPeers[uuid].proto.Build(Protocol::LOBBY_UID, uuid, data), mPeers[uuid].peer);
+            }
+            else
+            {
+                TLogError("[Server] Cannot find peer");
+            }
         }
     }
 }
@@ -148,7 +155,6 @@ std::uint32_t Server::GetUuid(const tcp::Peer &peer)
     }
     return uuid;
 }
-
 
 
 //=============================================================================

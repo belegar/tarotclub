@@ -42,14 +42,14 @@ static const std::string cDbFileName = "tcds.sqlite";
 #endif
 
 /*****************************************************************************/
-SrvStats::SrvStats(IScriptEngine &jsEngine, Lobby &lobby)
+ServiceStats::ServiceStats(IScriptEngine &jsEngine, Lobby &lobby)
     : mScriptEngine(jsEngine)
     , mLobby(lobby)
 {
 
 }
 /*****************************************************************************/
-void SrvStats::Update(const JsonValue &info)
+void ServiceStats::Update(const JsonValue &info)
 {
     std::string cmd = info.FindValue("cmd").GetString();
 
@@ -67,22 +67,22 @@ void SrvStats::Update(const JsonValue &info)
     }
 }
 /*****************************************************************************/
-std::string SrvStats::GetName()
+std::string ServiceStats::GetName()
 {
     return "Server statistics";
 }
 /*****************************************************************************/
-void SrvStats::Initialize()
+void ServiceStats::Initialize()
 {
 
 }
 /*****************************************************************************/
-void SrvStats::Stop()
+void ServiceStats::Stop()
 {
     // Nothing to do for now FIXME: remove the timer from the event loop?
 }
 /*****************************************************************************/
-void SrvStats::FireTimer()
+void ServiceStats::FireTimer()
 {
 
 #ifdef TAROT_DEBUG
@@ -112,7 +112,7 @@ void SrvStats::FireTimer()
     mScriptEngine.EvaluateString(ss.str(), output);
 }
 /*****************************************************************************/
-void SrvStats::IncPlayer()
+void ServiceStats::IncPlayer()
 {
     mStats.current++;
     mStats.total++;
@@ -122,7 +122,7 @@ void SrvStats::IncPlayer()
     }
 }
 /*****************************************************************************/
-void SrvStats::DecPlayer()
+void ServiceStats::DecPlayer()
 {
     if (mStats.current > 0U)
     {
@@ -134,7 +134,7 @@ void SrvStats::DecPlayer()
     }
 }
 /*****************************************************************************/
-void SrvStats::StoreStats(time_t currTime)
+void ServiceStats::StoreStats(time_t currTime)
 {
     // Store statistics
     if (mDb.Open(System::HomePath() + cDbFileName))

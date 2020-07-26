@@ -77,13 +77,13 @@ debug {
 # ------------------------------------------------------------------------------
 # ICL files
 # ------------------------------------------------------------------------------
+CONFIG += icl_zip icl_database icl_http
 ICL_DIR = $$BASE_DIR/lib/icl
 include($$ICL_DIR/icl.pri)
 
 # ------------------------------------------------------------------------------
 # TarotClub core files
 # ------------------------------------------------------------------------------
-CONFIG += icl_zip icl_database icl_http
 INCLUDEPATH += $$BASE_DIR/src
 VPATH += $$BASE_DIR/src
 include($$BASE_DIR/src/tarot_core.pri)

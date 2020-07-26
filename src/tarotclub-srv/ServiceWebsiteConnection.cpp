@@ -4,39 +4,62 @@
 #include "JsonReader.h"
 
 /*****************************************************************************/
-void ServiceWebsiteConnection::WebServerRegisterThread()
+std::string ServiceWebsiteConnection::UpdateRequest(JsonObject &serverObj)
 {
     JsonObject obj;
     HttpProtocol http;
     HttpRequest request;
-    JsonObject serverObj;
 
     obj.AddValue("token", mToken);
+    obj.AddValue("initial", mInitialRequest);
     obj.AddValue("server", serverObj);
 
     std::string body = obj.ToString(0);
-    std::string host = "tarotclub.fr";
 
     request.method = "POST";
     request.protocol = "HTTP/1.1";
     request.query = "/api/v1/machines/upstream/data";
     request.body = body;
-    request.headers["Host"] = "www." + host;
+    request.headers["Host"] = "www." + mHost;
     request.headers["Content-type"] = "application/json";
     request.headers["Content-length"] = std::to_string(body.size());
 
-    std::string request_string = http.GenerateRequest(request);
+    return http.GenerateRequest(request);
+}
+/*****************************************************************************/
+void ServiceWebsiteConnection::WebServerRegisterThread()
+{
 
+    mHost = "tarotclub.fr";
+    JsonObject serverObj;
+
+    serverObj.AddValue("nb_players", mLobby.GetNumberOfPlayers());
+    serverObj.AddValue("name", mLobby.GetName());
+    serverObj.AddValue("nb_tables", mLobby.GetNumberOfTables());
+    serverObj.AddValue("nb_players", mLobby.GetNumberOfPlayers());
+
+    /*
+    { text: 'Server name', value: 'name' },
+             { text: 'Number of players', value: 'nb_players' },
+             { text: 'Number of tables', value: 'nb_tables' },
+             { text: 'Region', value: 'region' },
+             { text: 'Server type', value: 'server_type' },
+             { text: 'Privacy', value: 'privacy' }
+           ],
+*/
+
+    std::string request_string = UpdateRequest(serverObj);
 //    std::cout << request_string << std::endl;
 
     while(!mQuitThread)
     {
         read_buff_t rb;
-        int exit_code = tls_client(reinterpret_cast<const uint8_t *>(request_string.c_str()), request_string.size(), host.c_str(), &rb);
+        int exit_code = tls_client(reinterpret_cast<const uint8_t *>(request_string.c_str()), request_string.size(), mHost.c_str(), &rb);
 
         if (rb.size > 0)
         {
             HttpReply reply;
+            HttpProtocol http;
             std::string raw_data(reinterpret_cast<char *>(rb.data), rb.size);
             if (http.ParseReplyHeader(raw_data, reply))
             {
@@ -47,7 +70,26 @@ void ServiceWebsiteConnection::WebServerRegisterThread()
                 {
                     if (json.IsObject())
                     {
-                        obj = json.GetObj();
+                        JsonObject replyObj = json.GetObj();
+
+                        // Analyse de la réponse
+                        if (mInitialRequest)
+                        {
+                            mInitialRequest = false;
+
+                            // SSK == Server Session Key
+                            if (replyObj.HasValue("ssk"))
+                            {
+
+                            }
+                        }
+
+                        // Update game information
+                        serverObj.ReplaceValue("nb_players", mLobby.GetNumberOfPlayers());
+                        serverObj.ReplaceValue("name", mLobby.GetName());
+                        serverObj.ReplaceValue("nb_tables", mLobby.GetNumberOfTables());
+                        serverObj.ReplaceValue("nb_players", mLobby.GetNumberOfPlayers());
+                        request_string = UpdateRequest(serverObj);
                     }
                 }
 
@@ -66,8 +108,9 @@ void ServiceWebsiteConnection::WebServerRegisterThread()
     }
 }
 
-ServiceWebsiteConnection::ServiceWebsiteConnection(Lobby &lobby, const std::string &token)
-    : mLobby(lobby)
+ServiceWebsiteConnection::ServiceWebsiteConnection(Server &server, Lobby &lobby, const std::string &token)
+    : mServer(server)
+    , mLobby(lobby)
     , mToken(token)
 {
 
@@ -75,12 +118,12 @@ ServiceWebsiteConnection::ServiceWebsiteConnection(Lobby &lobby, const std::stri
 
 std::string ServiceWebsiteConnection::GetName()
 {
-
+    return "ServiceWebsiteConnection";
 }
 
 void ServiceWebsiteConnection::Initialize()
 {
-
+    mWebThread = std::thread(&ServiceWebsiteConnection::mWebThread, this);
 }
 
 void ServiceWebsiteConnection::Stop()

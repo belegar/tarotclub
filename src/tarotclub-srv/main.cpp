@@ -29,6 +29,7 @@
 #include "Log.h"
 #include "Version.h"
 #include "ServiceStats.h"
+#include "ServiceWebsiteConnection.h"
 #include "JSEngine.h"
 #include "Terminal.h"
 #include "IService.h"
@@ -87,7 +88,6 @@ int main(int argc, char *argv[])
         std::cout << "Options are:" << std::endl;
         std::cout << "\t" << "-h" << "\tPrints this help" << std::endl;
         std::cout << "\t" << "-w" << "\tSpecifies a workspace path where generated/configuration files are located" << std::endl;
-        std::cout << "\t" << "-t" << "\tSpecifies a token for Web server registering" << std::endl;
         return 0;
     }
 
@@ -123,13 +123,13 @@ int main(int argc, char *argv[])
     JSEngine js;
 
     // Instanciate all your services here
-    ServiceStats stats(js, loop, lobby);
+    ServiceWebsiteConnection serviceWebsite(server, lobby, srvConfig.GetOptions().token);
+//    ServiceStats stats(js, loop, lobby);
 //    Terminal term(js, loop);
 
-//    IService *cServices[] = {
-//        &stats,
-//        &term
-//    };
+    IService *cServices[] = {
+        &serviceWebsite,
+    };
 
     // Initialize everything
     lobby.Initialize("TarotServer", srvConfig.GetOptions().tables);
@@ -141,25 +141,24 @@ int main(int argc, char *argv[])
 //    term.SetPort(ServerConfig::DEFAULT_CONSOLE_TCP_PORT);
 
     // Initialize services
-//    for (auto *srv : cServices)
-//    {
-//        std::cout << "Loading service: " << srv->GetName() << std::endl;
-//        srv->Initialize();
-//    }
+    for (auto *srv : cServices)
+    {
+        std::cout << "Loading service: " << srv->GetName() << std::endl;
+        srv->Initialize();
+    }
 
-    static std::thread webServerRegister(WebServerRegisterThread);
     loop.Loop();
 
-//    // Stop services
-//    for (auto *srv : cServices)
-//    {
-//        std::cout << "Stopping service: " << srv->GetName() << std::endl;
-//        srv->Stop();
-//    }
+    // Stop services
+    for (auto *srv : cServices)
+    {
+        std::cout << "Stopping service: " << srv->GetName() << std::endl;
+        srv->Stop();
+    }
 
 //    loop.Stop();
     server.Stop();
-    webServerRegister.join();
+
 
     return 0;
 }

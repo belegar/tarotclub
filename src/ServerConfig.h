@@ -37,6 +37,7 @@ struct ServerOptions
     std::int32_t lobby_max_conn;    // Max number of simultaneous connected clients
     bool localHostOnly; // if true, restrict to local host server
     std::string name;
+    std::string token;
     std::vector<std::string> tables; // table list names
 };
 
