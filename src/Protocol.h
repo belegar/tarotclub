@@ -33,14 +33,15 @@ class Protocol
 
 public:
     // Reserved UUIDs: [0..9]
-    static const std::uint32_t  INVALID_UID;
-    static const std::uint32_t  LOBBY_UID;      //!< The lobby itself
+    static const std::uint32_t INVALID_UID;
+    static const std::uint32_t LOBBY_UID;      //!< The lobby itself
+    static const std::uint32_t WEBSITE_UID;
 
-    static const std::uint32_t  USERS_UID;      //!< Start of users UUID
-    static const std::uint32_t  MAXIMUM_USERS;  //!< Maximum number of users
-    static const std::uint32_t  TABLES_UID;     //!< Start of tables UUID
-    static const std::uint32_t  MAXIMUM_TABLES; //!< Maximum number of tables
-    static const std::uint32_t  NO_TABLE;       //!< Identifier for "no table"
+    static const std::uint32_t USERS_UID;      //!< Start of users UUID
+    static const std::uint32_t MAXIMUM_USERS;  //!< Maximum number of users
+    static const std::uint32_t TABLES_UID;     //!< Start of tables UUID
+    static const std::uint32_t MAXIMUM_TABLES; //!< Maximum number of tables
+    static const std::uint32_t NO_TABLE;       //!< Identifier for "no table"
 
     // Packets types
     static const std::string cTypeData; ///< Means that there is a data argument

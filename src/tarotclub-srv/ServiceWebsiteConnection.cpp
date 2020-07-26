@@ -4,21 +4,21 @@
 #include "JsonReader.h"
 
 /*****************************************************************************/
-std::string ServiceWebsiteConnection::UpdateRequest(JsonObject &serverObj)
+std::string ServiceWebsiteConnection::UpdateRequest(const std::string &cmd, JsonObject &serverObj)
 {
     JsonObject obj;
     HttpProtocol http;
     HttpRequest request;
 
+    obj.AddValue("command", cmd);
     obj.AddValue("token", mToken);
-    obj.AddValue("initial", mInitialRequest);
     obj.AddValue("server", serverObj);
 
     std::string body = obj.ToString(0);
 
     request.method = "POST";
     request.protocol = "HTTP/1.1";
-    request.query = "/api/v1/machines/upstream/data";
+    request.query = "/api/v1/servers/register";
     request.body = body;
     request.headers["Host"] = "www." + mHost;
     request.headers["Content-type"] = "application/json";
@@ -27,10 +27,13 @@ std::string ServiceWebsiteConnection::UpdateRequest(JsonObject &serverObj)
     return http.GenerateRequest(request);
 }
 /*****************************************************************************/
-void ServiceWebsiteConnection::WebServerRegisterThread()
+void ServiceWebsiteConnection::WebThread()
 {
-
+#ifdef TAROT_DEBUG
+    mHost = "127.0.0.1";
+#else
     mHost = "tarotclub.fr";
+#endif
     JsonObject serverObj;
 
     serverObj.AddValue("nb_players", mLobby.GetNumberOfPlayers());
@@ -48,12 +51,13 @@ void ServiceWebsiteConnection::WebServerRegisterThread()
            ],
 */
 
-    std::string request_string = UpdateRequest(serverObj);
+    std::string request_string = UpdateRequest("register", serverObj);
 //    std::cout << request_string << std::endl;
 
     while(!mQuitThread)
     {
         read_buff_t rb;
+        TLogInfo("[WEBSITE] Sending registering request");
         int exit_code = tls_client(reinterpret_cast<const uint8_t *>(request_string.c_str()), request_string.size(), mHost.c_str(), &rb);
 
         if (rb.size > 0)
@@ -89,7 +93,7 @@ void ServiceWebsiteConnection::WebServerRegisterThread()
                         serverObj.ReplaceValue("name", mLobby.GetName());
                         serverObj.ReplaceValue("nb_tables", mLobby.GetNumberOfTables());
                         serverObj.ReplaceValue("nb_players", mLobby.GetNumberOfPlayers());
-                        request_string = UpdateRequest(serverObj);
+                        request_string = UpdateRequest(mInitialRequest ? "register" : "status", serverObj);
                     }
                 }
 
@@ -123,7 +127,7 @@ std::string ServiceWebsiteConnection::GetName()
 
 void ServiceWebsiteConnection::Initialize()
 {
-    mWebThread = std::thread(&ServiceWebsiteConnection::mWebThread, this);
+    mWebThread = std::thread(&ServiceWebsiteConnection::WebThread, this);
 }
 
 void ServiceWebsiteConnection::Stop()

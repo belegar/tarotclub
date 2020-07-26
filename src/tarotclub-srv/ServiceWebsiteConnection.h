@@ -29,8 +29,8 @@ private:
     std::thread mWebThread;
     std::string mHost;
 
-    void WebServerRegisterThread();
-    std::string UpdateRequest(JsonObject &serverObj);
+    void WebThread();
+    std::string UpdateRequest(const std::string &cmd, JsonObject &serverObj);
 };
 
 #endif // SERVICE_WEBSITE_CONNECTION_H

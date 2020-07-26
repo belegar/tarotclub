@@ -37,6 +37,7 @@
 // Specific static UUID
 const std::uint32_t Protocol::INVALID_UID       = 0U;
 const std::uint32_t Protocol::LOBBY_UID         = 1U;
+const std::uint32_t Protocol::WEBSITE_UID       = 2U;
 
 const std::uint32_t Protocol::USERS_UID         = 10U;
 const std::uint32_t Protocol::MAXIMUM_USERS     = 200U;
