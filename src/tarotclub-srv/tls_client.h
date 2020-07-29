@@ -37,6 +37,7 @@ public:
     void WaitData(read_buff_t *read_buf);   
     bool Read(read_buff_t *read_buf);
 
+    bool Write(const uint8_t *data, uint32_t size);
 private:
     mbedtls_net_context server_fd;
     mbedtls_entropy_context entropy;

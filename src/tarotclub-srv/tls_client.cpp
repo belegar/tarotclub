@@ -342,9 +342,21 @@ void SimpleTlsClient::WaitData(read_buff_t *read_buf)
 
 bool SimpleTlsClient::Request(const uint8_t *data, uint32_t size, read_buff_t *read_buf)
 {
+    bool success = false;
+
+    if (Write(data, size))
+    {
+        //    TLogError( " %d bytes written.", len);
+        WaitData(read_buf);
+        success = true;
+    }
+    return success;
+}
+
+bool SimpleTlsClient::Write(const uint8_t *data, uint32_t size)
+{
     int ret = 1;
     bool success = true;
-    read_buf->size = -1;
 
     /*
      * 3. Write the request
@@ -358,13 +370,6 @@ bool SimpleTlsClient::Request(const uint8_t *data, uint32_t size, read_buff_t *r
             TLogError( " failed\n  ! mbedtls_ssl_write returned " + std::to_string(ret) );
             success = false;
         }
-    }
-
-    if (success)
-    {
-        //    TLogError( " %d bytes written.", len);
-        WaitData(read_buf);
-
     }
     return success;
 }
