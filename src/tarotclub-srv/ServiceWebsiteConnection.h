@@ -27,10 +27,12 @@ private:
     bool mInitialRequest = true;
     std::string mToken;
     std::thread mWebThread;
+    std::thread mSSEThread;
     std::string mHost;
 
     void WebThread();
     std::string UpdateRequest(const std::string &cmd, JsonObject &serverObj);
+    void ServerSendEventThread();
 };
 
 #endif // SERVICE_WEBSITE_CONNECTION_H

@@ -39,21 +39,6 @@
 #define MBEDTLS_EXIT_FAILURE    EXIT_FAILURE
 #endif /* MBEDTLS_PLATFORM_C */
 
-#if !defined(MBEDTLS_BIGNUM_C) || !defined(MBEDTLS_ENTROPY_C) ||  \
-    !defined(MBEDTLS_SSL_TLS_C) || !defined(MBEDTLS_SSL_CLI_C) || \
-    !defined(MBEDTLS_NET_C) || !defined(MBEDTLS_RSA_C) ||         \
-    !defined(MBEDTLS_CERTS_C) || !defined(MBEDTLS_PEM_PARSE_C) || \
-    !defined(MBEDTLS_CTR_DRBG_C) || !defined(MBEDTLS_X509_CRT_PARSE_C)
-int main( void )
-{
-    TLogError("MBEDTLS_BIGNUM_C and/or MBEDTLS_ENTROPY_C and/or "
-           "MBEDTLS_SSL_TLS_C and/or MBEDTLS_SSL_CLI_C and/or "
-           "MBEDTLS_NET_C and/or MBEDTLS_RSA_C and/or "
-           "MBEDTLS_CTR_DRBG_C and/or MBEDTLS_X509_CRT_PARSE_C "
-           "not defined.\n");
-    return( 0 );
-}
-#else
 
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/debug.h"
@@ -112,28 +97,22 @@ static int delayed_recv( void *ctx, unsigned char *buf, size_t len )
     return( ret );
 }
 
-typedef struct
-{
-    mbedtls_ssl_context *ssl;
-    mbedtls_net_context *net;
-} io_ctx_t;
+//static int delayed_send( void *ctx, const unsigned char *buf, size_t len )
+//{
+//    static int first_try = 1;
+//    int ret;
 
-static int delayed_send( void *ctx, const unsigned char *buf, size_t len )
-{
-    static int first_try = 1;
-    int ret;
+//    if( first_try )
+//    {
+//        first_try = 0;
+//        return( MBEDTLS_ERR_SSL_WANT_WRITE );
+//    }
 
-    if( first_try )
-    {
-        first_try = 0;
-        return( MBEDTLS_ERR_SSL_WANT_WRITE );
-    }
-
-    ret = mbedtls_net_send( ctx, buf, len );
-    if( ret != MBEDTLS_ERR_SSL_WANT_WRITE )
-        first_try = 1; /* Next call will be a new operation */
-    return( ret );
-}
+//    ret = mbedtls_net_send( ctx, buf, len );
+//    if( ret != MBEDTLS_ERR_SSL_WANT_WRITE )
+//        first_try = 1; /* Next call will be a new operation */
+//    return( ret );
+//}
 
 static int recv_cb( void *ctx, unsigned char *buf, size_t len )
 {
@@ -169,27 +148,19 @@ static int send_cb( void *ctx, unsigned char const *buf, size_t len )
 {
     io_ctx_t *io_ctx = (io_ctx_t*) ctx;
 
-    return( delayed_send( io_ctx->net, buf, len ) );
+    //return( delayed_send( io_ctx->net, buf, len ) );
 
     return( mbedtls_net_send( io_ctx->net, buf, len ) );
 }
 
 
-int tls_client(const uint8_t *data, uint32_t size, const char *server_name, read_buff_t *read_buf)
+bool SimpleTlsClient::Connect(const char *server_name)
 {
-    int ret = 1, len;
+    int ret = 1;
     int exit_code = MBEDTLS_EXIT_FAILURE;
-    mbedtls_net_context server_fd;
+
     uint32_t flags;
-
-    read_buf->size = -1;
     const char *pers = "ssl_client1";
-
-    mbedtls_entropy_context entropy;
-    mbedtls_ctr_drbg_context ctr_drbg;
-    mbedtls_ssl_context ssl;
-    mbedtls_ssl_config conf;
-    mbedtls_x509_crt cacert;
 
 #if defined(MBEDTLS_DEBUG_C)
     mbedtls_debug_set_threshold( DEBUG_LEVEL );
@@ -269,8 +240,6 @@ int tls_client(const uint8_t *data, uint32_t size, const char *server_name, read
         goto exit;
     }
 
-    io_ctx_t io_ctx;
-
 //    mbedtls_ssl_set_bio( &ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL );
 
     io_ctx.ssl = &ssl;
@@ -291,7 +260,6 @@ int tls_client(const uint8_t *data, uint32_t size, const char *server_name, read
         }
     }
 
-
     /*
      * 5. Verify the server certificate
      */
@@ -308,28 +276,33 @@ int tls_client(const uint8_t *data, uint32_t size, const char *server_name, read
 //        TLogError( "%s\n", vrfy_buf );
     }
 
-    /*
-     * 3. Write the request
-     */
-//    TLogError( "  > Write to server:" );
+  //  printf("%s", read_buf->data);
 
-    while( ( ret = mbedtls_ssl_write( &ssl, data, size ) ) <= 0 )
+  //  mbedtls_ssl_close_notify( &ssl );
+
+    exit_code = MBEDTLS_EXIT_SUCCESS;
+
+exit:
+#ifdef MBEDTLS_ERROR_C
+    if( exit_code != MBEDTLS_EXIT_SUCCESS )
     {
-        if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
-        {
-            TLogError( " failed\n  ! mbedtls_ssl_write returned " + std::to_string(ret) );
-            goto exit;
-        }
+        char error_buf[100];
+        mbedtls_strerror( ret, error_buf, 100 );
+        TLogError("Last error was: "  + std::to_string(ret) + " - " + std::string(error_buf) );
+        Close();
     }
+#endif
 
-    len = ret;
-//    TLogError( " %d bytes written.", len);
+    return (exit_code == MBEDTLS_EXIT_SUCCESS);
+}
+
+void SimpleTlsClient::WaitData(read_buff_t *read_buf)
+{
+    int ret = 1, len;
 
     /*
      * 7. Read the HTTP response
      */
-//    TLogError("  < Read from server:" );
-
     read_buf->size = 0;
     len = sizeof( read_buf->data ) - 1;
     memset( read_buf->data, 0, sizeof( read_buf->data ) );
@@ -365,35 +338,43 @@ int tls_client(const uint8_t *data, uint32_t size, const char *server_name, read
         }
     }
     while( 1 );
+}
 
-  //  printf("%s", read_buf->data);
+bool SimpleTlsClient::Request(const uint8_t *data, uint32_t size, read_buff_t *read_buf)
+{
+    int ret = 1;
+    bool success = true;
+    read_buf->size = -1;
 
-    mbedtls_ssl_close_notify( &ssl );
+    /*
+     * 3. Write the request
+     */
+//    TLogError( "  > Write to server:" );
 
-    exit_code = MBEDTLS_EXIT_SUCCESS;
-
-exit:
-
-#ifdef MBEDTLS_ERROR_C
-    if( exit_code != MBEDTLS_EXIT_SUCCESS )
+    while( ( ret = mbedtls_ssl_write( &ssl, data, size ) ) <= 0 )
     {
-        char error_buf[100];
-        mbedtls_strerror( ret, error_buf, 100 );
-        TLogError("Last error was: "  + std::to_string(ret) + " - " + std::string(error_buf) );
+        if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
+        {
+            TLogError( " failed\n  ! mbedtls_ssl_write returned " + std::to_string(ret) );
+            success = false;
+        }
     }
-#endif
 
+    if (success)
+    {
+        //    TLogError( " %d bytes written.", len);
+        WaitData(read_buf);
+
+    }
+    return success;
+}
+
+void SimpleTlsClient::Close()
+{
     mbedtls_net_free( &server_fd );
-
     mbedtls_x509_crt_free( &cacert );
     mbedtls_ssl_free( &ssl );
     mbedtls_ssl_config_free( &conf );
     mbedtls_ctr_drbg_free( &ctr_drbg );
     mbedtls_entropy_free( &entropy );
-
-    return( exit_code );
 }
-#endif /* MBEDTLS_BIGNUM_C && MBEDTLS_ENTROPY_C && MBEDTLS_SSL_TLS_C &&
-          MBEDTLS_SSL_CLI_C && MBEDTLS_NET_C && MBEDTLS_RSA_C &&
-          MBEDTLS_CERTS_C && MBEDTLS_PEM_PARSE_C && MBEDTLS_CTR_DRBG_C &&
-          MBEDTLS_X509_CRT_PARSE_C */

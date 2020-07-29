@@ -55,6 +55,7 @@ public:
     void Stop();
     void Send(const std::vector<Reply> &out);
     bool IsStarted() { return mTcpServer.IsStarted(); }
+    void SetSSK(const std::string &ssk);
 
 private:
     // From TcpServer interface
@@ -62,7 +63,6 @@ private:
     virtual void ReadData(const tcp::Conn &conn);
     virtual void ClientClosed(const tcp::Conn &conn);
     virtual void ServerTerminated(tcp::TcpServer::IEvent::CloseType type);
-
 
     struct GameSession {
         Protocol proto;
@@ -72,6 +72,7 @@ private:
     net::IEvent &mListener;
     tcp::TcpServer       mTcpServer;
     std::map<std::uint32_t, GameSession> mPeers; // uuid <--> GameSession
+    std::map<std::uint32_t, std::string> mTokens; // allowed peers on this server
 
     void CloseClients();
     std::uint32_t GetUuid(const tcp::Peer &peer);
