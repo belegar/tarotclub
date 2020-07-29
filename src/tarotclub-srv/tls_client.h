@@ -34,7 +34,8 @@ public:
     bool Connect(const char *server_name);
     bool Request(const uint8_t *data, uint32_t size, read_buff_t *read_buf);
     void Close();
-    void WaitData(read_buff_t *read_buf);
+    void WaitData(read_buff_t *read_buf);   
+    bool Read(read_buff_t *read_buf);
 
 private:
     mbedtls_net_context server_fd;

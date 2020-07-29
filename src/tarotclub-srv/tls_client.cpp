@@ -378,3 +378,30 @@ void SimpleTlsClient::Close()
     mbedtls_ctr_drbg_free( &ctr_drbg );
     mbedtls_entropy_free( &entropy );
 }
+
+bool SimpleTlsClient::Read(read_buff_t *read_buf)
+{
+    int ret = 1, len;
+    bool disconnected = false;
+
+    /*
+     * 7. Read the HTTP response
+     */
+    read_buf->size = 0;
+    len = sizeof( read_buf->data ) - 1;
+    memset( read_buf->data, 0, sizeof( read_buf->data ) );
+
+    ret = mbedtls_ssl_read( &ssl, &read_buf->data[read_buf->size], len );
+
+    if (ret > 0)
+    {
+        len -= ret;
+        read_buf->size += ret;
+    }
+
+    if( ret == 0 )
+    {
+        disconnected = true;
+    }
+    return disconnected;
+}

@@ -176,13 +176,19 @@ void ServiceWebsiteConnection::ServerSendEventThread()
         {
             read_buff_t rb;
             TLogInfo("[WEBSITE] Wait for data");
-            tls.WaitData(&rb);
-            if (rb.size > 0)
+            if (tls.Read(&rb))
             {
-                HttpReply reply;
-                HttpProtocol http;
+                if (rb.size > 0)
+                {
+                    HttpReply reply;
+                    HttpProtocol http;
 
-                TLogInfo("[WEBSITE] Received SSE");
+                    TLogInfo("[WEBSITE] Received SSE");
+                }
+            }
+            else
+            {
+                connected = false;
             }
         }
     }
