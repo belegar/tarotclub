@@ -14,7 +14,7 @@
 class ServiceWebsiteConnection : public IService
 {
 public:
-    ServiceWebsiteConnection(Server &server, Lobby &lobby, const std::string &token);
+    ServiceWebsiteConnection(Server &server, Lobby &lobby, const ServerOptions &opt);
 
     // From IService
     virtual std::string GetName();
@@ -34,11 +34,11 @@ private:
     Lobby &mLobby;
     bool mQuitThread = false;
     bool mRegistered = false;
-    std::string mToken;
     std::string mSSK;
     std::thread mWebThread;
     std::thread mSSEThread;
     std::string mHost;
+    ServerOptions mOptions;
 
     ThreadQueue<SSEItem> mSSEQueue;
 

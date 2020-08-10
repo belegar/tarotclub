@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     JSEngine js;
 
     // Instanciate all your services here
-    ServiceWebsiteConnection serviceWebsite(server, lobby, srvConfig.GetOptions().token);
+    ServiceWebsiteConnection serviceWebsite(server, lobby, srvConfig.GetOptions());
 //    ServiceStats stats(js, loop, lobby);
 //    Terminal term(js, loop);
 

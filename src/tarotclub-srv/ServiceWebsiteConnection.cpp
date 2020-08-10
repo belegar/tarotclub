@@ -14,7 +14,7 @@ std::string ServiceWebsiteConnection::UpdateRequest(JsonObject &serverObj)
     HttpRequest request;
 
     obj.AddValue("server", serverObj);
-    obj.AddValue("token", mToken);
+    obj.AddValue("token", mOptions.token);
 
     std::string body = obj.ToString(0);
 
@@ -28,7 +28,7 @@ std::string ServiceWebsiteConnection::UpdateRequest(JsonObject &serverObj)
     }
     else
     {
-        obj.AddValue("token", mToken);
+        obj.AddValue("token", mOptions.token);
         request.query = "/api/v1/server/register";
     }
 
@@ -48,6 +48,8 @@ void ServiceWebsiteConnection::WebThread()
     serverObj.AddValue("name", mLobby.GetName());
     serverObj.AddValue("nb_tables", mLobby.GetNumberOfTables());
     serverObj.AddValue("nb_players", mLobby.GetNumberOfPlayers());
+    serverObj.AddValue("tcp_port", mOptions.game_tcp_port);
+    serverObj.AddValue("ws_port", mOptions.websocket_tcp_port);
 
     /*
     { text: 'Server name', value: 'name' },
@@ -153,10 +155,10 @@ void ServiceWebsiteConnection::WebThread()
     } // while()
 }
 
-ServiceWebsiteConnection::ServiceWebsiteConnection(Server &server, Lobby &lobby, const std::string &token)
+ServiceWebsiteConnection::ServiceWebsiteConnection(Server &server, Lobby &lobby, const ServerOptions &opt)
     : mServer(server)
     , mLobby(lobby)
-    , mToken(token)
+    , mOptions(opt)
 {
 
 }
