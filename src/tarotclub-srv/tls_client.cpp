@@ -387,7 +387,7 @@ void SimpleTlsClient::Close()
 bool SimpleTlsClient::Read(read_buff_t *read_buf)
 {
     int ret = 1, len;
-    bool disconnected = false;
+    bool stillOnline = true;
 
     /*
      * 7. Read the HTTP response
@@ -406,7 +406,7 @@ bool SimpleTlsClient::Read(read_buff_t *read_buf)
 
     if( ret == 0 )
     {
-        disconnected = true;
+        stillOnline = false;
     }
-    return disconnected;
+    return stillOnline;
 }

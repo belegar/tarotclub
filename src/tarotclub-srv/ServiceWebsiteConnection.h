@@ -9,6 +9,7 @@
 #include "IService.h"
 #include "Lobby.h"
 #include "Server.h"
+#include "ThreadQueue.h"
 
 class ServiceWebsiteConnection : public IService
 {
@@ -21,18 +22,29 @@ public:
     virtual void Stop();
 
 private:
+    static const std::uint32_t cSSEStart;
+    static const std::uint32_t cSSEStop;
+
+    typedef struct {
+        uint32_t event;
+        std::string arg;
+    } SSEItem;
+
     Server &mServer;
     Lobby &mLobby;
     bool mQuitThread = false;
-    bool mInitialRequest = true;
+    bool mRegistered = false;
     std::string mToken;
+    std::string mSSK;
     std::thread mWebThread;
     std::thread mSSEThread;
     std::string mHost;
 
+    ThreadQueue<SSEItem> mSSEQueue;
+
     void WebThread();
-    std::string UpdateRequest(const std::string &cmd, JsonObject &serverObj);
-    void ServerSendEventThread();
+    std::string UpdateRequest(JsonObject &serverObj);
+    void ServerSentEventsThread();
 };
 
 #endif // SERVICE_WEBSITE_CONNECTION_H

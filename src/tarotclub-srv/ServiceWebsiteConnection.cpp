@@ -3,22 +3,35 @@
 #include "HttpProtocol.h"
 #include "JsonReader.h"
 
+const std::uint32_t ServiceWebsiteConnection::cSSEStart = 0x1234;
+const std::uint32_t ServiceWebsiteConnection::cSSEStop = 0x4567;
+
 /*****************************************************************************/
-std::string ServiceWebsiteConnection::UpdateRequest(const std::string &cmd, JsonObject &serverObj)
+std::string ServiceWebsiteConnection::UpdateRequest(JsonObject &serverObj)
 {
     JsonObject obj;
     HttpProtocol http;
     HttpRequest request;
 
-    obj.AddValue("command", cmd);
-    obj.AddValue("token", mToken);
     obj.AddValue("server", serverObj);
+    obj.AddValue("token", mToken);
 
     std::string body = obj.ToString(0);
 
     request.method = "POST";
     request.protocol = "HTTP/1.1";
-    request.query = "/api/v1/server/register";
+
+    if (mRegistered)
+    {
+        request.headers["Authorization"] = "Bearer " + mSSK;
+        request.query = "/api/v1/server/status";
+    }
+    else
+    {
+        obj.AddValue("token", mToken);
+        request.query = "/api/v1/server/register";
+    }
+
     request.body = body;
     request.headers["Host"] = "www." + mHost;
     request.headers["Content-type"] = "application/json";
@@ -46,7 +59,7 @@ void ServiceWebsiteConnection::WebThread()
            ],
 */
 
-    std::string request_string = UpdateRequest("register", serverObj);
+    std::string request_string = UpdateRequest(serverObj);
 //    std::cout << request_string << std::endl;
 
     SimpleTlsClient tls;
@@ -62,13 +75,13 @@ void ServiceWebsiteConnection::WebThread()
             }
             else
             {
-                TLogError("[CLOUD] Cannot join server");
+                TLogError("[REGISTER] Cannot join server");
             }
         }
         else
         {
             read_buff_t rb;
-            TLogInfo("[WEBSITE] Sending registering request");
+            TLogInfo("[REGISTER] Sending register or status request");
             bool req_success = tls.Request(reinterpret_cast<const uint8_t *>(request_string.c_str()), request_string.size(), &rb);
             if (req_success && (rb.size > 0))
             {
@@ -87,14 +100,28 @@ void ServiceWebsiteConnection::WebThread()
                             JsonObject replyObj = json.GetObj();
 
                             // Analyse de la réponse
-                            if (mInitialRequest)
+                            if (!mRegistered)
                             {
-                                mInitialRequest = false;
-
-                                // SSK == Server Session Key
-                                if (replyObj.HasValue("ssk"))
+                                if (replyObj.HasValue("success") && replyObj.HasValue("data:ssk"))
                                 {
-                                  //  mServer.
+                                    // SSK == Server Session Key
+                                    // basically, the SSK is a JWT format
+                                    if (replyObj.GetValue("success").GetBool())
+                                    {
+                                        SSEItem item;
+                                        item.event = cSSEStart;
+                                        mSSK = replyObj.GetValue("data:ssk").GetString();
+                                        mSSEQueue.Push(item);
+                                        mRegistered = true;
+                                    }
+                                    else
+                                    {
+                                        TLogError("[REGISTER] Registering rejected");
+                                    }
+                                }
+                                else
+                                {
+                                    TLogError("[REGISTER] Invalid reply, missing status");
                                 }
                             }
 
@@ -103,15 +130,15 @@ void ServiceWebsiteConnection::WebThread()
                             serverObj.ReplaceValue("name", mLobby.GetName());
                             serverObj.ReplaceValue("nb_tables", mLobby.GetNumberOfTables());
                             serverObj.ReplaceValue("nb_players", mLobby.GetNumberOfPlayers());
-                            request_string = UpdateRequest(mInitialRequest ? "register" : "status", serverObj);
+                            request_string = UpdateRequest(serverObj);
                         }
                     }
 
-                    TLogInfo("[CLOUD] Got reply: " + reply.body);
+                    TLogInfo("[REGISTER] Got reply: " + reply.body);
                 }
                 else
                 {
-                    TLogError("[CLOUD] Invalid reply");
+                    TLogError("[REGISTER] Invalid reply");
                 }
             }
             else
@@ -141,10 +168,11 @@ std::string ServiceWebsiteConnection::GetName()
 
 // Le protocole Server Send Event est lien permanent unidirectionnel du serveur vers le client
 // Les données transférées sont de l'UTF8 uniquement, nickel pour du JSON
-void ServiceWebsiteConnection::ServerSendEventThread()
+void ServiceWebsiteConnection::ServerSentEventsThread()
 {
     SimpleTlsClient tls;
     bool connected = false;
+    bool started = false;
 
     HttpProtocol http;
     HttpRequest request;
@@ -155,39 +183,60 @@ void ServiceWebsiteConnection::ServerSendEventThread()
     request.headers["Host"] = "www." + mHost;
     request.headers["Accept"] = "text/event-stream";
 
-    std::string sseInitialReq = http.GenerateRequest(request);
-
     while(!mQuitThread)
     {
-        if (!connected)
+        SSEItem item;
+        if (mSSEQueue.TryPop(item))
         {
-            if (tls.Connect(mHost.c_str()))
+            if (item.event == cSSEStart)
             {
-                tls.Write(reinterpret_cast<const uint8_t *>(sseInitialReq.c_str()), sseInitialReq.size());
-                connected = true;
+                // arg is the token
+                request.headers["Authorization"] = "Bearer " + mSSK;
+                started = true;
+                connected = false;
             }
             else
             {
-                TLogError("[CLOUD] Cannot join server");
+                started = false;
+                connected = false;
+                tls.Close();
             }
         }
-        else
-        {
-            read_buff_t rb;
-            TLogInfo("[WEBSITE] Wait for data");
-            if (!tls.Read(&rb))
-            {
-                if (rb.size > 0)
-                {
-                    HttpReply reply;
-                    HttpProtocol http;
 
-                    TLogInfo("[WEBSITE] Received SSE");
+        if (started)
+        {
+            if (!connected)
+            {
+                if (tls.Connect(mHost.c_str()))
+                {
+                    std::string sseInitialReq = http.GenerateRequest(request);
+                    tls.Write(reinterpret_cast<const uint8_t *>(sseInitialReq.c_str()), sseInitialReq.size());
+                    connected = true;
+                    TLogInfo("[SSE] Thread started");
+                }
+                else
+                {
+                    TLogError("[SSE] Cannot join server");
                 }
             }
             else
             {
-                connected = false;
+                read_buff_t rb;
+                TLogInfo("[SSE] Wait for data");
+                if (tls.Read(&rb))
+                {
+                    if (rb.size > 0)
+                    {
+                        HttpReply reply;
+                        HttpProtocol http;
+
+                        TLogInfo("[SSE] Received data");
+                    }
+                }
+                else
+                {
+                    connected = false;
+                }
             }
         }
     }
@@ -201,8 +250,8 @@ void ServiceWebsiteConnection::Initialize()
     mHost = "tarotclub.fr";
 #endif
 
- //   mWebThread = std::thread(&ServiceWebsiteConnection::WebThread, this);
-    mSSEThread = std::thread(&ServiceWebsiteConnection::ServerSendEventThread, this);
+    mWebThread = std::thread(&ServiceWebsiteConnection::WebThread, this);
+    mSSEThread = std::thread(&ServiceWebsiteConnection::ServerSentEventsThread, this);
 }
 
 void ServiceWebsiteConnection::Stop()
