@@ -163,8 +163,7 @@ void ServiceWebsiteConnection::ServerSendEventThread()
         {
             if (tls.Connect(mHost.c_str()))
             {
-                read_buff_t rb;
-                tls.Request(reinterpret_cast<const uint8_t *>(sseInitialReq.c_str()), sseInitialReq.size(), &rb);
+                tls.Write(reinterpret_cast<const uint8_t *>(sseInitialReq.c_str()), sseInitialReq.size());
                 connected = true;
             }
             else
@@ -176,7 +175,7 @@ void ServiceWebsiteConnection::ServerSendEventThread()
         {
             read_buff_t rb;
             TLogInfo("[WEBSITE] Wait for data");
-            if (tls.Read(&rb))
+            if (!tls.Read(&rb))
             {
                 if (rb.size > 0)
                 {
