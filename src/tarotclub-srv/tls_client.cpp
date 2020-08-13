@@ -49,6 +49,7 @@
 #include "mbedtls/certs.h"
 
 #include <string.h>
+#include <string>
 
 #include "tls_client.h"
 #include "Log.h"
@@ -73,84 +74,63 @@ static void my_debug( void *ctx, int level,
    // TLogError("%s:%04d: %s", file, line, str);
 }
 
-
-
-/*
- * Test recv/send functions that make sure each try returns
- * WANT_READ/WANT_WRITE at least once before sucesseding
- */
-
-static int delayed_recv( void *ctx, unsigned char *buf, size_t len )
-{
-    static int first_try = 1;
-    int ret;
-
-    if( first_try )
-    {
-        first_try = 0;
-        return( MBEDTLS_ERR_SSL_WANT_READ );
-    }
-
-    ret = mbedtls_net_recv( ctx, buf, len );
-    if( ret != MBEDTLS_ERR_SSL_WANT_READ )
-        first_try = 1; /* Next call will be a new operation */
-    return( ret );
-}
-
-//static int delayed_send( void *ctx, const unsigned char *buf, size_t len )
-//{
-//    static int first_try = 1;
-//    int ret;
-
-//    if( first_try )
-//    {
-//        first_try = 0;
-//        return( MBEDTLS_ERR_SSL_WANT_WRITE );
-//    }
-
-//    ret = mbedtls_net_send( ctx, buf, len );
-//    if( ret != MBEDTLS_ERR_SSL_WANT_WRITE )
-//        first_try = 1; /* Next call will be a new operation */
-//    return( ret );
-//}
-
-static int recv_cb( void *ctx, unsigned char *buf, size_t len )
-{
-    io_ctx_t *io_ctx = (io_ctx_t*) ctx;
-    size_t recv_len;
-    int ret;
-
-    ret = delayed_recv( io_ctx->net, buf, len );
-
-    if( ret < 0 )
-        return( ret );
-    recv_len = (size_t) ret;
-
-    return( (int) recv_len );
-}
-
 static int recv_timeout_cb( void *ctx, unsigned char *buf, size_t len,
                             uint32_t timeout )
 {
     io_ctx_t *io_ctx = (io_ctx_t*) ctx;
-    int ret;
-    size_t recv_len;
+//    int ret;
+//    size_t recv_len;
 
-    ret = mbedtls_net_recv_timeout( io_ctx->net, buf, len, timeout );
-    if( ret < 0 )
-        return( ret );
-    recv_len = (size_t) ret;
+//    ret = mbedtls_net_recv_timeout( io_ctx->net, buf, len, timeout );
 
-    return( (int) recv_len );
+
+//    if( ret < 0 )
+//        return( ret );
+//    recv_len = (size_t) ret;
+
+//    return( (int) recv_len );
+
+    std::string output;
+
+    if (io_ctx->client.RecvWithTimeout(output, len, timeout))
+    {
+        if (output.size() > 0)
+        {
+            memcpy(buf, output.data(), output.size());
+            return output.size();
+        }
+        else
+        {
+            return MBEDTLS_ERR_SSL_WANT_READ;
+        }
+    }
+    else
+    {
+        return(MBEDTLS_ERR_SSL_TIMEOUT);
+    }
+//    else
+//    {
+//        return(MBEDTLS_ERR_SSL_TIMEOUT);
+//    }
+
 }
 
 static int send_cb( void *ctx, unsigned char const *buf, size_t len )
 {
     io_ctx_t *io_ctx = (io_ctx_t*) ctx;
 
-    //return( delayed_send( io_ctx->net, buf, len ) );
+//    return( mbedtls_net_send( io_ctx->net, buf, len ) );
 
-    return( mbedtls_net_send( io_ctx->net, buf, len ) );
+    bool ret = io_ctx->client.Send(std::string(reinterpret_cast<const char *>(buf), len));
+
+    if (ret)
+    {
+        return len;
+    }
+    else
+    {
+        return MBEDTLS_ERR_SSL_WANT_WRITE;
+    }
 }
 
 
@@ -169,7 +149,10 @@ bool SimpleTlsClient::Connect(const char *server_name)
     /*
      * 0. Initialize the RNG and the session data
      */
-    mbedtls_net_init( &server_fd );
+//    mbedtls_net_init( &server_fd );
+
+    io_ctx.client.Initialize(0);
+
     mbedtls_ssl_init( &ssl );
     mbedtls_ssl_config_init( &conf );
     mbedtls_x509_crt_init( &cacert );
@@ -201,12 +184,14 @@ bool SimpleTlsClient::Connect(const char *server_name)
 //    TLogError( "  . Connecting to tcp/%s/%s...", server_name, SERVER_PORT );
 
 
-    if( ( ret = mbedtls_net_connect( &server_fd, server_name,
-                                         SERVER_PORT, MBEDTLS_NET_PROTO_TCP ) ) != 0 )
-    {
-        TLogError( " failed\n  ! mbedtls_net_connect returned " + std::to_string(ret) );
-        goto exit;
-    }
+//    if( ( ret = mbedtls_net_connect( &server_fd, server_name,
+//                                         SERVER_PORT, MBEDTLS_NET_PROTO_TCP ) ) != 0 )
+//    {
+//        TLogError( " failed\n  ! mbedtls_net_connect returned " + std::to_string(ret) );
+//        goto exit;
+//    }
+
+    io_ctx.client.Connect(server_name, 443);
 
     /*
      * 2. Setup stuff
@@ -243,8 +228,8 @@ bool SimpleTlsClient::Connect(const char *server_name)
 //    mbedtls_ssl_set_bio( &ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL );
 
     io_ctx.ssl = &ssl;
-    io_ctx.net = &server_fd;
-    mbedtls_ssl_set_bio( &ssl, &io_ctx, send_cb, recv_cb, recv_timeout_cb);
+//    io_ctx.net = &server_fd;
+    mbedtls_ssl_set_bio( &ssl, &io_ctx, send_cb, NULL, recv_timeout_cb);
     mbedtls_ssl_conf_read_timeout(&conf, 5000);
 
     /*
@@ -376,7 +361,7 @@ bool SimpleTlsClient::Write(const uint8_t *data, uint32_t size)
 
 void SimpleTlsClient::Close()
 {
-    mbedtls_net_free( &server_fd );
+//    mbedtls_net_free( &server_fd );
     mbedtls_x509_crt_free( &cacert );
     mbedtls_ssl_free( &ssl );
     mbedtls_ssl_config_free( &conf );
