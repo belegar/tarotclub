@@ -55,12 +55,6 @@ void Session::Disconnect()
 void Session::ConnectToHost(const std::string &hostName, std::uint16_t port)
 {
     Disconnect();
-    if (!mTcpClient.IsValid())
-    {
-        // Create a socket before connection
-        mTcpClient.Initialize();
-    }
-
     mHostName = hostName;
     mTcpPort = port;
     mQueue.Push(START);
@@ -92,29 +86,29 @@ void Session::Run()
         if (cmd == START)
         {
             cmd = NO_CMD;
+            // Create a socket before connection
+            mTcpClient.Initialize();
+
             if (mTcpClient.Connect(mHostName, mTcpPort) == true)
             {
                 while (mInitialized)
                 {
-                    if (mTcpClient.DataWaiting(200U))
+                    mProto.Clear();
+                    std::string payload;
+                    if (mTcpClient.RecvWithTimeout(payload, 2048, 100U))
                     {
-                        mProto.Clear();
-                        std::string payload;
-                        if (mTcpClient.Recv(payload))
+                        mProto.Add(payload);
+                        std::string data;
+                        Protocol::Header h;
+                        while (mProto.Parse(data, h))
                         {
-                            mProto.Add(payload);
-                            std::string data;
-                            Protocol::Header h;
-                            while (mProto.Parse(data, h))
+                        //    TLogNetwork("Found one packet with data: " + data);
+                            std::vector<Reply> out;
+                            bool ret = mListener.Deliver(h.src_uid, h.dst_uid, data, out);
+                            // Send synchronous data to the server
+                            if (ret)
                             {
-                            //    TLogNetwork("Found one packet with data: " + data);
-                                std::vector<Reply> out;
-                                bool ret = mListener.Deliver(h.src_uid, h.dst_uid, data, out);
-                                // Send synchronous data to the server
-                                if (ret)
-                                {
-                                    Send(out);
-                                }
+                                Send(out);
                             }
                         }
                     }

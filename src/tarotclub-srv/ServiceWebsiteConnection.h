@@ -40,6 +40,7 @@ private:
     std::string mHost;
     ServerOptions mOptions;
 
+
     ThreadQueue<SSEItem> mSSEQueue;
 
     void WebThread();

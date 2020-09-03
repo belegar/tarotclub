@@ -151,6 +151,7 @@ bool SimpleTlsClient::Connect(const char *server_name)
      */
 //    mbedtls_net_init( &server_fd );
 
+    io_ctx.client.SetWebSocket(true);
     io_ctx.client.Initialize(0);
 
     mbedtls_ssl_init( &ssl );
@@ -191,6 +192,7 @@ bool SimpleTlsClient::Connect(const char *server_name)
 //        goto exit;
 //    }
 
+    io_ctx.client.SetWebSocketUri("/servers");
     io_ctx.client.Connect(server_name, 443);
 
     /*
@@ -356,6 +358,21 @@ bool SimpleTlsClient::Write(const uint8_t *data, uint32_t size)
             success = false;
         }
     }
+    return success;
+}
+
+bool SimpleTlsClient::WebSocketHandshake(const std::string &path, read_buff_t *read_buf)
+{
+    std::string req = io_ctx.client.BuildWebSocketHandshake(path);
+    bool success = Request(reinterpret_cast<const uint8_t *>(req.data()), req.size(), read_buf);
+//    std::cout << "-----------------------------" << std::endl;
+//    std::cout << wreq << std::endl;
+//    std::cout << "-----------------------------" << std::endl;
+    if (success)
+    {
+        io_ctx.client.SetWebSocket(true);
+    }
+
     return success;
 }
 

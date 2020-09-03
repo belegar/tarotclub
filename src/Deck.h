@@ -140,6 +140,10 @@ public:
     };
 
     Deck();
+    Deck(const Deck &d)
+    {
+        *this = d;
+    }
     explicit Deck(const std::string &cards);
 
     // STL-compatible iterator types

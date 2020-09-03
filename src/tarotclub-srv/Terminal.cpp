@@ -87,6 +87,7 @@ void Terminal::SetPort(uint16_t port)
 /*****************************************************************************/
 void Terminal::NewConnection(const tcp::Conn &conn)
 {
+    (void) conn;
     // nothing to do
 }
 /*****************************************************************************/
@@ -97,7 +98,7 @@ void Terminal::ReadData(const tcp::Conn &conn)
     std::stringstream ss;
     ss << output << std::flush;
 
-    tcp::TcpSocket::SendToSocket(ss.str(), conn.peer);
+    tcp::TcpSocket::Send(ss.str(), conn.peer);
 }
 /*****************************************************************************/
 void Terminal::ClientClosed(const tcp::Conn &conn)

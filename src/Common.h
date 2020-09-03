@@ -42,6 +42,10 @@ public:
     static const std::uint8_t NO_TEAM;
 
     Team() : mTeam(NO_TEAM) {  }
+    Team(const Team &t)
+    {
+        *this = t;
+    }
     explicit Team(const std::uint8_t team) : mTeam(team) {  }
 
     std::uint8_t Value() { return mTeam; }
@@ -96,6 +100,11 @@ public:
 
     // Constructors
     Place();
+    Place(const Place &p)
+       : mPlace(p.Value())
+    {
+
+    }
     explicit Place(std::uint32_t p);
     explicit Place(std::uint8_t p);
     explicit Place(std::string p);
@@ -103,7 +112,7 @@ public:
 
     // Helpers
     std::string ToString() const;
-    std::uint8_t Value();
+    std::uint8_t Value() const;
 
     /**
      * @brief Next
@@ -202,12 +211,17 @@ public:
 
     // Constructors
     Contract();
+    Contract(const Contract &c)
+       : mContract(c.Value())
+    {
+
+    }
     explicit Contract(std::uint8_t c);
     explicit Contract(std::uint32_t c);
     explicit Contract(std::string c);
 
     std::string ToString() const;
-    std::uint8_t Value();
+    std::uint8_t Value() const;
 
     Contract &operator = (Contract const &rhs)
     {

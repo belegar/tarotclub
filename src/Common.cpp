@@ -103,7 +103,7 @@ std::string Place::ToString() const
     return mStrings[mPlace];
 }
 /*****************************************************************************/
-std::uint8_t Place::Value()
+std::uint8_t Place::Value() const
 {
     return mPlace;
 }
@@ -181,7 +181,7 @@ std::string Contract::ToString() const
     return mStrings[mContract];
 }
 /*****************************************************************************/
-std::uint8_t Contract::Value()
+std::uint8_t Contract::Value() const
 {
     return mContract;
 }

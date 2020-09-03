@@ -1,5 +1,5 @@
-#ifndef TLS_CLIENT
-#define TLS_CLIENT
+#ifndef TLS_CLIENT_OLD
+#define TLS_CLIENT_OLD
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -24,6 +24,7 @@ typedef struct
     mbedtls_ssl_context *ssl;
     mbedtls_net_context *net;
     tcp::TcpClient client;
+
 } io_ctx_t;
 
 class SimpleTlsClient
@@ -35,7 +36,7 @@ public:
     void WaitData(read_buff_t *read_buf);   
     bool Read(read_buff_t *read_buf);
     bool Write(const uint8_t *data, uint32_t size);
-
+    bool WebSocketHandshake(const std::string &path, read_buff_t *read_buf);
 private:
     mbedtls_net_context server_fd;
     mbedtls_entropy_context entropy;
@@ -46,4 +47,4 @@ private:
     io_ctx_t io_ctx;
 };
 
-#endif // TLS_CLIENT
+#endif // TLS_CLIENT_OLD

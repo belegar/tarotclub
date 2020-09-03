@@ -56,6 +56,10 @@ public:
 
     // Constructors/destructor
     Card();
+    Card(const Card &c)
+    {
+        *this = c;
+    }
     explicit Card(std::uint8_t value, std::uint8_t suit);
     explicit Card(const std::string &name);
     explicit Card(const char *name);
