@@ -14,41 +14,9 @@ ServiceWebsiteConnection::ServiceWebsiteConnection(Server &server, Lobby &lobby,
 
 }
 /*****************************************************************************/
-std::string ServiceWebsiteConnection::UpdateRequest(JsonObject &serverObj)
+std::string ServiceWebsiteConnection::UpdateServerStatus()
 {
     JsonObject obj;
-    HttpProtocol http;
-    HttpRequest request;
-
-    obj.AddValue("server", serverObj);
-    obj.AddValue("token", mOptions.token);
-
-    std::string body = obj.ToString(0);
-
-    request.method = "POST";
-    request.protocol = "HTTP/1.1";
-
-    if (mRegistered)
-    {
-        request.headers["Authorization"] = "Bearer " + mSSK;
-        request.query = "/api/v1/server/status";
-    }
-    else
-    {
-        obj.AddValue("token", mOptions.token);
-        request.query = "/api/v1/server/register";
-    }
-
-    request.body = body;
-    request.headers["Host"] = "www." + mHost;
-    request.headers["Content-type"] = "application/json";
-    request.headers["Content-length"] = std::to_string(body.size());
-
-    return http.GenerateRequest(request);
-}
-/*****************************************************************************/
-void ServiceWebsiteConnection::WebThread()
-{
     JsonObject serverObj;
 
     serverObj.AddValue("nb_players", mLobby.GetNumberOfPlayers());
@@ -58,19 +26,24 @@ void ServiceWebsiteConnection::WebThread()
     serverObj.AddValue("tcp_port", mOptions.game_tcp_port);
     serverObj.AddValue("ws_port", mOptions.websocket_tcp_port);
 
-    /*
-    { text: 'Server name', value: 'name' },
-             { text: 'Number of players', value: 'nb_players' },
-             { text: 'Number of tables', value: 'nb_tables' },
-             { text: 'Region', value: 'region' },
-             { text: 'Server type', value: 'server_type' },
-             { text: 'Privacy', value: 'privacy' }
-           ],
-*/
+    obj.AddValue("server", serverObj);
+    obj.AddValue("token", mOptions.token);
 
-    std::string request_string = UpdateRequest(serverObj);
-//    std::cout << request_string << std::endl;
+    if (mRegistered)
+    {
+        obj.AddValue("auth", mSSK);
+        obj.AddValue("command", "server_status");
+    }
+    else
+    {
+        obj.AddValue("command", "server_register");
+    }
 
+    return obj.ToString(0);
+}
+/*****************************************************************************/
+void ServiceWebsiteConnection::WebThread()
+{
     tcp::TcpClient client;
     bool connected = false;
 
@@ -94,69 +67,52 @@ void ServiceWebsiteConnection::WebThread()
         }
         else
         {
+            std::string request_string = UpdateServerStatus();
             TLogInfo("[REGISTER] Sending register or status request");
             bool req_success = client.Send(request_string);
 
             if (req_success)
             {
-                HttpReply reply;
-                HttpProtocol http;
-
-                std::string raw_data;
-                if (client.RecvWithTimeout(raw_data, 2048, 500))
+                std::string reply;
+                if (client.RecvWithTimeout(reply, 2048, 500))
                 {
-                    if (http.ParseReplyHeader(raw_data, reply))
+                    JsonReader reader;
+                    JsonValue json;
+
+                    if (reader.ParseString(json, reply))
                     {
-                        JsonReader reader;
-                        JsonValue json;
-
-                        if (reader.ParseString(json, reply.body))
+                        if (json.IsObject())
                         {
-                            if (json.IsObject())
-                            {
-                                JsonObject replyObj = json.GetObj();
+                            JsonObject replyObj = json.GetObj();
 
-                                // Analyse de la réponse
-                                if (!mRegistered)
+                            // Analyse de la réponse
+                            if (!mRegistered)
+                            {
+                                if (replyObj.HasValue("success") && replyObj.HasValue("data:ssk"))
                                 {
-                                    if (replyObj.HasValue("success") && replyObj.HasValue("data:ssk"))
+                                    // SSK == Server Session Key
+                                    // basically, the SSK is a JWT format
+                                    if (replyObj.GetValue("success").GetBool())
                                     {
-                                        // SSK == Server Session Key
-                                        // basically, the SSK is a JWT format
-                                        if (replyObj.GetValue("success").GetBool())
-                                        {
-                                            SSEItem item;
-                                            item.event = cSSEStart;
-                                            mSSK = replyObj.GetValue("data:ssk").GetString();
-                                            mSSEQueue.Push(item);
-                                            mRegistered = true;
-                                        }
-                                        else
-                                        {
-                                            TLogError("[REGISTER] Registering rejected");
-                                        }
+                                        SSEItem item;
+                                        item.event = cSSEStart;
+                                        mSSK = replyObj.GetValue("data:ssk").GetString();
+                                        mSSEQueue.Push(item);
+                                        mRegistered = true;
                                     }
                                     else
                                     {
-                                        TLogError("[REGISTER] Invalid reply, missing status");
+                                        TLogError("[REGISTER] Registering rejected");
                                     }
                                 }
-
-                                // Update game information
-                                serverObj.ReplaceValue("nb_players", mLobby.GetNumberOfPlayers());
-                                serverObj.ReplaceValue("name", mLobby.GetName());
-                                serverObj.ReplaceValue("nb_tables", mLobby.GetNumberOfTables());
-                                serverObj.ReplaceValue("nb_players", mLobby.GetNumberOfPlayers());
-                                request_string = UpdateRequest(serverObj);
+                                else
+                                {
+                                    TLogError("[REGISTER] Invalid reply, missing status");
+                                }
                             }
                         }
+                    }
 
-                        TLogInfo("[REGISTER] Got reply: " + reply.body);
-                    }
-                    else
-                    {
-                        TLogError("[REGISTER] Invalid reply");
-                    }
                 }
                 else
                 {

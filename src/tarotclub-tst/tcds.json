@@ -1,0 +1,13 @@
+{
+    "console_tcp_port":8090,
+    "game_tcp_port":4269,
+    "lobby_max_conn":250,
+    "local_host_only":false,
+    "name":"server1",
+    "tables":[
+        "Table 1"
+        ],
+    "token":"hZf1YelaV=&!2O7+HJ0Q",
+    "version":"8",
+    "websocket_tcp_port":4270
+    }

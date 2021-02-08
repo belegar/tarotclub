@@ -44,7 +44,7 @@ private:
     ThreadQueue<SSEItem> mSSEQueue;
 
     void WebThread();
-    std::string UpdateRequest(JsonObject &serverObj);
+    std::string UpdateServerStatus();
     void ServerSentEventsThread();
 };
 
