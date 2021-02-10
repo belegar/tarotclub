@@ -36,7 +36,6 @@
 /*****************************************************************************/
 Bot::Bot()
     : mTimeBeforeSend(0U)
-    , mTableToJoin(0U)
 {
 
 }
@@ -51,14 +50,14 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     bool ret = true;
 
     // Generic client decoder, fill the context and the client structure
-    BasicClient::Event event = mClient.Decode(src_uuid, dest_uuid, arg, mCtx, out);
+    BasicClient::Event event = mClient.Decode(src_uuid, dest_uuid, arg, mClient.mCtx, out);
 
     switch (event)
     {
     case BasicClient::ACCESS_GRANTED:
     {
         // As soon as we have entered into the lobby, join the assigned table
-        mClient.BuildJoinTable(mTableToJoin, out);
+        mClient.BuildJoinTable(mClient.mTableToJoin, out);
         break;
     }
     case BasicClient::NEW_DEAL:
@@ -120,7 +119,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     }
     case BasicClient::PLAY_CARD:
     {
-        // Only reply a bid if it is our place to anwser
+        // Only reply a bid if it is our place to answer
         if (mClient.IsMyTurn())
         {
             PlayCard(out);
@@ -405,7 +404,7 @@ void Bot::PlayCard(std::vector<Reply> &out)
             message << mClient.mMyself.place.ToString() << " played a non-valid card: " << ret.GetString() << "Deck is: " << mClient.mDeck.ToString();
             TLogError(message.str());
             // The show must go on, play a random card
-            c = mClient.Play();
+            c = mClient.ChooseRandomCard();
 
             if (!c.IsValid())
             {
@@ -420,7 +419,7 @@ void Bot::PlayCard(std::vector<Reply> &out)
                 << " Client deck is: " << mClient.mDeck.ToString();
 
         // The show must go on, play a random card
-        c = mClient.Play();
+        c = mClient.ChooseRandomCard();
 
         if (c.IsValid())
         {

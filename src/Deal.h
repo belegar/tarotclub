@@ -35,7 +35,6 @@
 #include "Deck.h"
 #include "Common.h"
 #include "Score.h"
-#include "Player.h"
 #include "Identity.h"
 #include "ServerConfig.h"
 #include "JsonValue.h"
@@ -70,7 +69,7 @@ public:
     Place SetTrick(const Deck &trick, std::uint8_t trickCounter);
 
 private:
-    Place GetOwner(Place firstPlayer, const Card &c, int turn);
+    Place GetOwner(Place firstPlayer, const Card &card, int turn);
 
     Deck mDiscard;
     Deck mDog;

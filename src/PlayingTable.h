@@ -41,7 +41,7 @@ public:
     virtual ~PlayingTable () { /* nothing to do */ }
 
     void Initialize();
-    void ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out);
+    bool ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out);
 
     std::string GetName() { return mName; }
     void SetName(const std::string &name) { mName = name; }

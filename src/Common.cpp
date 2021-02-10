@@ -233,26 +233,68 @@ bool Tarot::IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlaye
     }
 }
 /*****************************************************************************/
-int Tarot::GetHandlePoints(Tarot::Handle handle)
+int Tarot::GetHandlePoints(uint32_t nbPlayers, Tarot::Handle handle)
 {
-    int points;
+    int points = 0;
 
-    if (handle == Tarot::SIMPLE_HANDLE)
+    if (nbPlayers == 4)
     {
-        points = 20;
+        if (handle == Tarot::SIMPLE_HANDLE)
+        {
+            points = 20;
+        }
+        else if (handle == Tarot::DOUBLE_HANDLE)
+        {
+            points = 30;
+        }
+        else  if (handle == Tarot::TRIPLE_HANDLE)
+        {
+            points = 40;
+        }
+        else
+        {
+            points = 0;
+        }
     }
-    else if (handle == Tarot::DOUBLE_HANDLE)
+    else if (nbPlayers == 3)
     {
-        points = 30;
+        if (handle == Tarot::SIMPLE_HANDLE)
+        {
+            points = 13;
+        }
+        else if (handle == Tarot::DOUBLE_HANDLE)
+        {
+            points = 15;
+        }
+        else  if (handle == Tarot::TRIPLE_HANDLE)
+        {
+            points = 18;
+        }
+        else
+        {
+            points = 0;
+        }
     }
-    else  if (handle == Tarot::TRIPLE_HANDLE)
+    else if (nbPlayers == 5)
     {
-        points = 40;
+        if (handle == Tarot::SIMPLE_HANDLE)
+        {
+            points = 8;
+        }
+        else if (handle == Tarot::DOUBLE_HANDLE)
+        {
+            points = 10;
+        }
+        else  if (handle == Tarot::TRIPLE_HANDLE)
+        {
+            points = 13;
+        }
+        else
+        {
+            points = 0;
+        }
     }
-    else
-    {
-        points = 0;
-    }
+
     return points;
 }
 /*****************************************************************************/

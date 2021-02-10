@@ -1,6 +1,7 @@
 #ifndef BOTMANAGER_H
 #define BOTMANAGER_H
 
+#include <memory>
 #include "Session.h"
 #include "Bot.h"
 #include "UniqueId.h"
@@ -32,6 +33,10 @@ private:
 
         }
 
+        ~NetBot() {
+            mSession.Close();
+        }
+
         virtual void Signal(std::uint32_t sig) { (void) sig; }
         virtual bool Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
         {
@@ -44,7 +49,7 @@ private:
 
 
     // Bots management
-    std::map<std::uint32_t, NetBot *> mBots;
+    std::map<std::uint32_t, std::unique_ptr<NetBot>> mBots;
     std::mutex mMutex;
     UniqueId mBotsIds; ///< Internal management of bots only, not related to uuid used by the protocol
 };

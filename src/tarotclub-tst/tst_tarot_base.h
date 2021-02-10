@@ -5,7 +5,6 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <cstdint>
-#include "Player.h"
 
 /**
  * @brief The TarotBase class

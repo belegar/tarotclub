@@ -10,7 +10,6 @@
 #include "Deck.h"
 #include "ServerConfig.h"
 #include "ClientConfig.h"
-#include "Player.h"
 #include "System.h"
 #include "UniqueId.h"
 #include "Protocol.h"
@@ -27,10 +26,8 @@ void TarotBase::TestCardClass()
     myDeck.CreateTarotDeck();
 
     std::cout << "Card names: \n";
-    for (Deck::Iterator it = myDeck.begin(); it != myDeck.end(); ++it)
+    for (const auto &c : myDeck)
     {
-        Card c = (*it);
-
         std::cout << c.ToString() << " ";
         if (c.GetValue() == 14U && c.GetSuit() != Card::TRUMPS)
         {

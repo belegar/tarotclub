@@ -147,29 +147,20 @@ public:
     explicit Deck(const std::string &cards);
 
     // STL-compatible iterator types
-    typedef std::list<Card>::iterator Iterator;
-    typedef std::list<Card>::const_iterator ConstIterator;
+    using const_iterator = std::vector<Card>::const_iterator;
 
     // STL-compatible begin/end functions for iterating over the deck cards
-    inline Iterator begin()
+    inline const_iterator begin() const
     {
         return mDeck.begin();
     }
-    inline ConstIterator begin() const
-    {
-        return mDeck.begin();
-    }
-    inline Iterator end()
-    {
-        return mDeck.end();
-    }
-    inline ConstIterator end() const
+    inline const_iterator end() const
     {
         return mDeck.end();
     }
 
     // Raw deck management
-    inline std::uint32_t Size() const
+    std::uint32_t Size() const
     {
         return static_cast<std::uint32_t>(mDeck.size());
     }
@@ -186,8 +177,8 @@ public:
     Deck Mid(std::uint32_t from_pos, std::uint32_t size);
     Card At(std::uint32_t pos);
     std::uint32_t Remove(const Card &card);
-    std::uint32_t Count(const Card &c) const;
-    bool HasCard(const Card &c) const;
+    std::uint32_t Count(const Card &card) const;
+    bool HasCard(const Card &card) const;
 
     // Helpers
     void AnalyzeTrumps(Statistics &stats) const;
@@ -201,6 +192,10 @@ public:
     Card HighestSuit() const;
     void CreateTarotDeck();
     std::uint32_t RemoveDuplicates(const Deck &deck);
+    bool CanPlayCard(const Card &card, Deck &trick);
+    bool TestHandle(const Deck &handle);
+    bool TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numberOfPlayers);
+    Deck AutoDiscard(const Deck &dog, std::uint8_t nbPlayers);
 
     // Getters
     Card GetCard(const std::string &i_name);
@@ -244,7 +239,28 @@ private:
      * information, tricks won for example
      */
     Team mOwner;
-    std::list<Card> mDeck; //!< Container to store the cards
+    std::vector<Card> mDeck; //!< Container to store the cards
+
+    // player's cards in hand
+    struct Stats
+    {
+        bool hasSuit;           // true if the player has the requested color
+        bool hasTrump;          // true if the player has some trumps
+        int  highestTrumpValue; // value of the maximum trump in hand
+        bool previousTrump;     // true if there is previous trump played
+        int  maxPreviousTrump;  // maximum value of the previous trump played
+
+        Stats()
+        {
+            hasSuit = false;
+            hasTrump = false;
+            highestTrumpValue = 0;
+            previousTrump = false;
+            maxPreviousTrump = 0;
+        }
+    };
+
+    bool TestPlayTrump(const Card &card, const Stats &stats);
 };
 
 #endif // DECK_H

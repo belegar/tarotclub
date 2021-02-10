@@ -9,7 +9,6 @@
 #include "Card.h"
 #include "Deck.h"
 #include "ServerConfig.h"
-#include "Player.h"
 #include "Deal.h"
 
 TarotRules::TarotRules()
@@ -18,6 +17,7 @@ TarotRules::TarotRules()
 
 void TarotRules::TestCard(const std::string &card, bool expected)
 {
+    std::cout << "TEST: " << card << std::endl;
     bool actual = player.CanPlayCard(Card(card), currentTrick);
     QCOMPARE(actual, expected);
 }
@@ -303,8 +303,8 @@ void TarotRules::TestScoreCalculation()
     // 81 points realized by the attack
 
     // FIXME : deal to be generated
-/*
-    actual_bool = deal.LoadGameDealLog(Util::GetCurrentDirectory() + "/../../../tests/played_deals/slam_not_announed_by_defense.json");
+
+    actual_bool = deal.LoadGameDealLog(Util::GetCurrentDirectory() + "/played_deals/slam_not_announed_by_defense.json");
     QCOMPARE(actual_bool, true);
 
     // Launch score calculation
@@ -312,11 +312,11 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::DEFENSE);
-    QCOMPARE(points.GetPoints(Team::ATTACK, deal.GetBid()), -686 * 3);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), -686 * 3);
     QCOMPARE(points.oudlers, 0);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, true);
     QCOMPARE(points.GetLittleEndianPoints(), 0); // won by the attack last trick
-*/
+
 }
 

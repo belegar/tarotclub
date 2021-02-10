@@ -7,7 +7,7 @@
 #include "tst_tarot_base.h"
 #include "tst_tarot_rules.h"
 #include "tst_tarot_protocol.h"
-
+#include "tst_tarot_3_and_5_players.h"
 
 #include "Log.h"
 
@@ -23,7 +23,11 @@ public:
 
     void Update(const Log::Infos &info)
     {
-         QFAIL(info.message.c_str());
+        std::cout << info.ToString() << std::endl;
+        if (info.event == Log::Error)
+        {
+            QFAIL(info.message.c_str());
+        }
     }
 };
 /*****************************************************************************/
@@ -57,6 +61,16 @@ int main(int argc, char *argv[])
     {
         testFailures++;
     }
+
+    Tarot3And5Players tst_3_and_5_players;
+    if (QTest::qExec(&tst_3_and_5_players, argc, argv) == 0)
+    {
+        testSuccesses++;
+    }
+    else
+    {
+        testFailures++;
+    }
 /*
     TarotProtocol tst_protocol;
     if (QTest::qExec(&tst_protocol, argc, argv) == 0)
@@ -68,12 +82,10 @@ int main(int argc, char *argv[])
         testFailures++;
     }
 */
-
     std::cout << std::endl << "=============================================";
     std::cout << std::endl << "Success : " << testSuccesses;
     std::cout << std::endl << "Failures: " << testFailures;
     std::cout << std::endl << "=============================================" << std::endl;
-
 
     return 0;
 }

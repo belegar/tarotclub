@@ -65,6 +65,17 @@ public:
 
     }
 
+    Identity(Identity const&) = default;
+    ~Identity() = default;
+
+    Identity& operator=(Identity other)
+    {
+        nickname = other.nickname;
+        avatar = other.nickname;
+        gender = other.gender;
+        return *this;
+    }
+
     std::string GenderToString()
     {
         std::string txt = cStrInvalid;

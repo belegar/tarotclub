@@ -5,7 +5,8 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <cstdint>
-#include "Player.h"
+
+#include "Deck.h"
 
 class TarotRules : public QObject
 {
@@ -20,7 +21,7 @@ private Q_SLOTS:
     void TestAutoDiscard();
 
 private:
-    Player player;
+    Deck player;
     Deck currentTrick;
 
     void TestCard(const std::string &card, bool expected);

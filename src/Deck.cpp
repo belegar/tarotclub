@@ -75,11 +75,11 @@ std::uint32_t Deck::RemoveDuplicates(const Deck &deck)
 {
     std::uint32_t cardsRemoved = 0U;
 
-    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
+    for (const auto &c : deck)
     {
-        if (HasCard((*it)))
+        if (HasCard(c))
         {
-            Remove((*it));
+            Remove(c);
             cardsRemoved++;
         }
     }
@@ -88,9 +88,9 @@ std::uint32_t Deck::RemoveDuplicates(const Deck &deck)
 /*****************************************************************************/
 void Deck::Append(const Deck &deck)
 {
-    for (Deck::ConstIterator i = deck.begin(); i != deck.end(); ++i)
+    for (const auto &c : deck)
     {
-        Append((*i));
+        Append(c);
     }
 }
 /*****************************************************************************/
@@ -136,12 +136,12 @@ Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t size)
     // Calculate the last position
     std::uint32_t to_pos = from_pos + size;
 
-    for (Deck::ConstIterator i = begin(); i != end(); ++i)
+    for (const auto &c : mDeck)
     {
         if ((counter >= from_pos) &&
                 (counter < to_pos))
         {
-            deck.Append((*i));
+            deck.Append(c);
         }
         counter++;
     }
@@ -150,19 +150,19 @@ Deck Deck::Mid(std::uint32_t from_pos, std::uint32_t size)
 /*****************************************************************************/
 Card Deck::At(uint32_t pos)
 {
-    Card c;
+    Card card;
     std::uint32_t counter = 0U;
 
-    for (Deck::ConstIterator iter = begin(); iter != end(); ++iter)
+    for (const auto &c : mDeck)
     {
         if (pos == counter)
         {
-            c = (*iter);
+            card = c;
             break;
         }
         counter++;
     }
-    return c;
+    return card;
 }
 /*****************************************************************************/
 /**
@@ -172,24 +172,9 @@ Card Deck::At(uint32_t pos)
  */
 std::uint32_t Deck::Remove(const Card &card)
 {
-    std::uint32_t counter = 0U;
+    std::uint32_t counter = Count(card);
 
-    Deck::Iterator it = begin();
-
-    while (it != end())
-    {
-        Card c = *(it);
-        if (c == card)
-        {
-            counter++;
-            it = mDeck.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
+    mDeck.erase(std::remove(mDeck.begin(), mDeck.end(), card), mDeck.end());
     return counter;
 }
 /*****************************************************************************/
@@ -201,13 +186,13 @@ std::uint32_t Deck::Remove(const Card &card)
  * @param c
  * @return
  */
-std::uint32_t Deck::Count(const Card &c) const
+std::uint32_t Deck::Count(const Card &card) const
 {
     std::uint32_t counter = 0U;
 
-    for (Deck::ConstIterator it = begin(); it != end(); ++it)
+    for (const auto &c : mDeck)
     {
-        if (c == (*it))
+        if (c == card)
         {
             counter++;
         }
@@ -218,14 +203,19 @@ std::uint32_t Deck::Count(const Card &c) const
 std::string Deck::ToString() const
 {
     std::string list;
+    bool first = true;
 
-    for (Deck::ConstIterator it = begin(); it != end(); ++it)
+    for (const auto &c : mDeck)
     {
-        if (it != begin())
+        if (first)
+        {
+            first = false;
+        }
+        else
         {
             list += ";";
         }
-        list += (*it).ToString();
+        list += c.ToString();
     }
     return list;
 }
@@ -249,22 +239,22 @@ void Deck::Shuffle(int seed)
 Card Deck::GetCard(const std::string &i_name)
 {
     Card card;
-    for (Deck::ConstIterator i = begin(); i != end(); ++i)
+    for (const auto &c : mDeck)
     {
-        if ((*i).ToString() == i_name)
+        if (c.ToString() == i_name)
         {
-            card = (*i);
+            card = c;
         }
     }
     return card;
 }
 /*****************************************************************************/
-bool Deck::HasCard(const Card &c) const
+bool Deck::HasCard(const Card &card) const
 {
     bool ret = false;
-    for (Deck::ConstIterator it = begin(); it != end(); ++it)
+    for (const auto &c : mDeck)
     {
-        if (*it == c)
+        if (card == c)
         {
             ret = true;
         }
@@ -275,10 +265,10 @@ bool Deck::HasCard(const Card &c) const
 bool Deck::HasOneOfTrump() const
 {
     bool ret = false;
-    for (Deck::ConstIterator it = begin(); it != end(); ++it)
+    for (const auto &c : mDeck)
     {
-        if (((*it).GetSuit() == Card::TRUMPS) &&
-                ((*it).GetValue() == 1U))
+        if ((c.GetSuit() == Card::TRUMPS) &&
+            (c.GetValue() == 1U))
         {
             ret = true;
             break;
@@ -303,10 +293,10 @@ bool Deck::HasOnlyOneOfTrump() const
 bool Deck::HasFool() const
 {
     bool ret = false;
-    for (Deck::ConstIterator it = begin(); it != end(); ++it)
+    for (const auto &c : mDeck)
     {
-        if (((*it).GetSuit() == Card::TRUMPS) &&
-                ((*it).GetValue() == 0U))
+        if ((c.GetSuit() == Card::TRUMPS) &&
+            (c.GetValue() == 0U))
         {
             ret = true;
             break;
@@ -325,19 +315,19 @@ bool Deck::HasFool() const
  */
 Card Deck::HighestTrump() const
 {
-    Card c;
+    Card card;
     std::uint32_t value = 0U;
 
-    for (Deck::ConstIterator it = begin(); it != end(); ++it)
+    for (const auto &c : mDeck)
     {
-        if (((*it).GetSuit() == Card::TRUMPS) &&
-                ((*it).GetValue() > value))
+        if ((c.GetSuit() == Card::TRUMPS) &&
+            (c.GetValue() > value))
         {
-            value = (*it).GetValue();
-            c = (*it);
+            value = c.GetValue();
+            card = c;
         }
     }
-    return c;
+    return card;
 }
 /*****************************************************************************/
 /**
@@ -349,31 +339,316 @@ Card Deck::HighestTrump() const
  */
 Card Deck::HighestSuit() const
 {
-    Card c;
+    Card card;
     std::uint32_t value = 0U;
     std::uint8_t suit; // leading suit
     bool hasLead = false;
 
-    for (Deck::ConstIterator it = begin(); it != end(); ++it)
+    for (const auto &c : mDeck)
     {
-        if (((*it).GetSuit() != Card::TRUMPS) &&
-                ((*it).GetValue() > value))
+        if ((c.GetSuit() != Card::TRUMPS) &&
+            (c.GetValue() > value))
         {
             if (!hasLead)
             {
                 hasLead = true;
-                suit = (*it).GetSuit();
-                value = (*it).GetValue();
-                c = (*it);
+                suit = c.GetSuit();
+                value = c.GetValue();
+                card = c;
             }
-            else if ((*it).GetSuit() == suit)
+            else if (c.GetSuit() == suit)
             {
-                value = (*it).GetValue();
-                c = (*it);
+                value = c.GetValue();
+                card = c;
             }
         }
     }
-    return c;
+    return card;
+}
+/*****************************************************************************/
+Deck Deck::AutoDiscard(const Deck &dog, std::uint8_t nbPlayers)
+{
+    Deck discard;
+
+    // We add all the dog cards to the player's deck
+    Append(dog);
+
+    // We're looking valid discard cards to put in the discard
+    for (const auto &c : mDeck)
+    {
+        if ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() != 14U))
+        {
+            discard.Append(c);
+
+            if (discard.Size() == Tarot::NumberOfDogCards(nbPlayers))
+            {
+                // enough cards!
+                break;
+            }
+        }
+    }
+
+    return discard;
+}
+/*****************************************************************************/
+/**
+ * @brief Player::canPlayCard
+ *
+ * Test if the card cVerif can be played depending of the already played cards
+ * and the cards in the player's hand.
+ *
+ * @param mainDeck
+ * @param cVerif
+ * @param gameCounter
+ * @param nbPlayers
+ * @return true if the card can be played
+ */
+bool Deck::CanPlayCard(const Card &card, Deck &trick)
+{
+    std::uint8_t   suit; // required suit
+    bool ret = false;
+    Stats stats;
+
+    // Check if the player has the card in hand
+    if (!HasCard(card))
+    {
+        return false;
+    }
+
+    // The player is the first of the trick, he can play any card
+    if (trick.Size() == 0)
+    {
+        return true;
+    }
+
+    // Simple use case, the excuse can always be played
+    if (card.IsFool())
+    {
+        return true;
+    }
+
+    // We retreive the requested suit by looking at the first card played
+    Card c = trick.At(0);
+
+    if (c.IsFool())
+    {
+        // The first card is a Excuse...
+        if (trick.Size() == 1)
+        {
+            // ...the player can play everything he wants
+            return true;
+        }
+        // If we are here, it means than we have two or more cards in the trick
+        // The requested suit is the second card
+        c = trick.At(1);
+    }
+    suit = c.GetSuit();
+
+    // Some indications about previous played cards
+    for (const auto &c : trick)
+    {
+        if (c.GetSuit() == Card::TRUMPS)
+        {
+            stats.previousTrump = true;
+            if (c.GetValue() > stats.maxPreviousTrump)
+            {
+                stats.maxPreviousTrump = c.GetValue();
+            }
+        }
+    }
+
+    // Some indications on the player cards in hand
+    for (const auto &c : mDeck)
+    {
+        if (c.GetSuit() == Card::TRUMPS)
+        {
+            stats.hasTrump = true;
+            if (c.GetValue() > stats.highestTrumpValue)
+            {
+                stats.highestTrumpValue = c.GetValue();
+            }
+        }
+        else
+        {
+            if (c.GetSuit() == suit)
+            {
+                stats.hasSuit = true;
+            }
+        }
+    }
+
+    // Card type requested is a trump
+    if (suit == Card::TRUMPS)
+    {
+        ret = TestPlayTrump(card, stats);
+    }
+    // Card type requested is a standard card
+    else
+    {
+        // The card is the required suit
+        if (card.GetSuit() == suit)
+        {
+            ret = true;
+        }
+        else if (stats.hasSuit == true)
+        {
+            // not the required card, but he has the suit in hands
+            // he must play the required suit
+            ret = false;
+        }
+        else
+        {
+            // We are here if the player has not the requested suit
+            ret = TestPlayTrump(card, stats);
+        }
+    }
+    return ret;
+}
+/*****************************************************************************/
+/**
+ * @brief Player::TestPlayTrump
+ *
+ * This method test if the player can play a trump
+ *
+ * @param cVerif
+ * @param hasTrump
+ * @param maxPreviousTrump
+ * @return
+ */
+bool Deck::TestPlayTrump(const Card &card, const Stats &stats)
+{
+    bool ret = false;
+
+    // He must play a trump if he has some, higher than the highest previous played trump,
+    // or any other cards in other case
+    if (card.GetSuit() == Card::TRUMPS)
+    {
+        // He may have to play a higher trump
+        if (stats.previousTrump == true)
+        {
+            if (card.GetValue() > stats.maxPreviousTrump)
+            {
+                // higher card, ok!
+                ret = true;
+            }
+            else
+            {
+                // does he have a higher trump in hands?
+                if (stats.highestTrumpValue > stats.maxPreviousTrump)
+                {
+                    ret = false; // yes, he must play it
+                }
+                else
+                {
+                    ret = true;
+                }
+            }
+        }
+        else
+        {
+            // No any previous trump played, so he can play any value
+            ret = true;
+        }
+    }
+    else
+    {
+        // Does he have a trump?
+        if (stats.hasTrump == true)
+        {
+            // If he has only one trump and this trump is the fool, then he can play any card
+            if (stats.highestTrumpValue == 0)
+            {
+                ret = true;
+            }
+            else
+            {
+                ret = false; // he must play a trump
+            }
+        }
+        else
+        {
+            ret = true; // he can play any card
+        }
+    }
+
+    return ret;
+}
+/*****************************************************************************/
+bool Deck::TestHandle(const Deck &handle)
+{
+    bool ret = true;
+    Deck::Statistics stats;
+
+    // Check if the handle size is correct
+    if (Tarot::GetHandleType(handle.Size()) == Tarot::NO_HANDLE)
+    {
+        ret = false;
+    }
+
+    // Test if the handle contains only trumps
+    stats.Reset();
+    handle.AnalyzeTrumps(stats);
+
+    if (handle.Size() != stats.trumps)
+    {
+        ret = false;
+    }
+
+    // Test if the player has all the cards of the declared handle
+    for (const auto &c : handle)
+    {
+        if (!HasCard(c))
+        {
+            ret = false;
+        }
+    }
+
+    // If the fool is shown, then it indicates that there is no more any trumps in the player's hand
+    stats.Reset();
+    AnalyzeTrumps(stats);
+    if ((handle.HasFool() == true) && (stats.trumps > handle.Size()))
+    {
+        ret = false;
+    }
+    return ret;
+}
+/*****************************************************************************/
+bool Deck::TestDiscard(const Deck &discard, const Deck &dog, std::uint8_t numberOfPlayers)
+{
+    bool valid = true;
+
+    if (discard.Size() == Tarot::NumberOfDogCards(numberOfPlayers))
+    {
+        for (const auto &c : discard)
+        {
+            // Look if the card belongs to the dog or the player's deck
+            if (HasCard(c) || dog.HasCard(c))
+            {
+                // Look the card value against the Tarot rules
+                if ((c.GetSuit() == Card::TRUMPS) ||
+                   ((c.GetSuit() != Card::TRUMPS) && (c.GetValue() == 14U)))
+                {
+                    valid = false;
+                }
+
+                // Look if this card is unique
+                if (discard.Count(c) != 1U)
+                {
+                    valid = false;
+                }
+            }
+            else
+            {
+                valid = false;
+            }
+        }
+    }
+    else
+    {
+        valid = false;
+    }
+
+    return valid;
 }
 /*****************************************************************************/
 /**
@@ -391,7 +666,7 @@ void Deck::Sort(const std::string &order)
     if (Size() != 0)
     {
         Sorter sorter(order);
-        mDeck.sort(sorter);
+        std::sort(mDeck.begin(), mDeck.end(), sorter);
     }
 }
 /*****************************************************************************/
@@ -477,14 +752,11 @@ void Deck::Statistics::Reset()
 void Deck::AnalyzeTrumps(Statistics &stats) const
 {
     int val;
-    Card c;
-
     stats.nbCards = Size();
 
     // looking for trumps
-    for (Deck::ConstIterator i = begin(); i != end(); ++i)
+    for (const auto &c : mDeck)
     {
-        c = (*i);
         if (c.GetSuit() == Card::TRUMPS)
         {
             stats.trumps++;
@@ -515,7 +787,6 @@ void Deck::AnalyzeTrumps(Statistics &stats) const
 /*****************************************************************************/
 void Deck::AnalyzeSuits(Statistics &stats)
 {
-    Card c;
     std::uint8_t k;
 
     // true if the card is available in the deck
@@ -527,9 +798,8 @@ void Deck::AnalyzeSuits(Statistics &stats)
         std::uint8_t count = 0U; // Generic purpose counter
         distr.fill(false);
 
-        for (Deck::ConstIterator iter = begin(); iter != end(); ++iter)
+        for (const auto &c : mDeck)
         {
-            c = (*iter);
             if (c.GetSuit() == suit)
             {
                 count++;

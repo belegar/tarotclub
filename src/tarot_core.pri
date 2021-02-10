@@ -8,7 +8,6 @@ HEADERS += ServerConfig.h \
     DealFile.h \
     Deck.h \
     Card.h \
-    Player.h \
     Bot.h \
     Common.h \
     Engine.h \
@@ -32,7 +31,6 @@ SOURCES += ServerConfig.cpp \
     DealFile.cpp \
     Deck.cpp \
     Card.cpp \
-    Player.cpp \
     Bot.cpp \
     Common.cpp \
     Engine.cpp \

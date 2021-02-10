@@ -33,7 +33,8 @@
 
 /*****************************************************************************/
 BasicClient::BasicClient()
-    : mNbPlayers(0U)
+    : mNbPlayers(4U)
+    , mTableToJoin(0U)
 {
 
 }
@@ -130,19 +131,19 @@ void BasicClient::UpdateStatistics()
     mDeck.AnalyzeSuits(mStats);
 }
 /*****************************************************************************/
-Card BasicClient::Play()
+Card BasicClient::ChooseRandomCard()
 {
-    Card c;
+    Card card;
 
-    for (Deck::ConstIterator it = mDeck.begin(); it != mDeck.end(); ++it)
+    for (const auto &c : mDeck)
     {
-        c = (*it);
         if (IsValid(c) == true)
         {
+            card = c;
             break;
         }
     }
-    return c;
+    return card;
 }
 /*****************************************************************************/
 bool BasicClient::IsValid(const Card &c)
@@ -265,6 +266,149 @@ void BasicClient::GetPlayerStatus(Users::Entry &member, JsonObject &player)
     member.uuid = static_cast<std::uint32_t>(player.GetValue("uuid").GetInteger());
     member.tableId = static_cast<std::uint32_t>(player.GetValue("table").GetInteger());
     member.place = Place(player.GetValue("place").GetString());
+}
+/*****************************************************************************/
+bool BasicClient::PlayRandom(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out)
+{
+    bool ret = true;
+
+    // Generic client decoder, fill the context and the client structure
+    BasicClient::Event event = Decode(src_uuid, dest_uuid, arg, mCtx, out);
+
+    switch (event)
+    {
+    case BasicClient::ACCESS_GRANTED:
+    {
+        // As soon as we have entered into the lobby, join the assigned table
+        BuildJoinTable(mTableToJoin, out);
+        break;
+    }
+    case BasicClient::NEW_DEAL:
+    {
+        Sync(Engine::WAIT_FOR_CARDS, out);
+        break;
+    }
+    case BasicClient::REQ_BID:
+    {
+        // Only reply a bid if it is our place to anwser
+        if (mBid.taker == mMyself.place)
+        {
+            TLogNetwork("Bot " + mMyself.place.ToString() + " is bidding");
+            Contract highestBid = mBid.contract;
+            Contract botContract = CalculateBid(); // propose our algorithm if the user's one failed
+
+            // only bid over previous one is allowed
+            if (botContract <= highestBid)
+            {
+                botContract = Contract::PASS;
+            }
+
+            BuildBid(botContract, false, out);
+        }
+        break;
+    }
+    case BasicClient::SHOW_BID:
+    {
+        Sync(Engine::WAIT_FOR_SHOW_BID, out);
+        break;
+    }
+    case BasicClient::BUILD_DISCARD:
+    {
+        Deck discard = AutoDiscard(); // build a random valid deck
+        BuildDiscard(discard, out);
+        break;
+    }
+    case BasicClient::SHOW_DOG:
+    {
+        Sync(Engine::WAIT_FOR_SHOW_DOG, out);
+        break;
+    }
+    case BasicClient::START_DEAL:
+    {
+        Sync(Engine::WAIT_FOR_START_DEAL, out);
+        break;
+    }
+    case BasicClient::SHOW_HANDLE:
+    {
+        Sync(Engine::WAIT_FOR_SHOW_HANDLE, out);
+        break;
+    }
+    case BasicClient::NEW_GAME:
+    {
+        Sync(Engine::WAIT_FOR_READY, out);
+        break;
+    }
+    case BasicClient::SHOW_CARD:
+    {
+        Sync(Engine::WAIT_FOR_SHOW_CARD, out);
+        break;
+    }
+    case BasicClient::PLAY_CARD:
+    {
+        // Only reply a bid if it is our place to answer
+        if (IsMyTurn())
+        {
+            Card c = ChooseRandomCard();
+            mDeck.Remove(c);
+            if (!c.IsValid())
+            {
+                TLogError("Invalid card!");
+            }
+            BuildSendCard(c, out);
+        }
+        break;
+    }
+    case BasicClient::ASK_FOR_HANDLE:
+    {
+        Deck handle;
+        BuildHandle(handle, out);
+        break;
+    }
+    case BasicClient::END_OF_TRICK:
+    {
+        mCurrentTrick.Clear();
+        Sync(Engine::WAIT_FOR_END_OF_TRICK, out);
+        break;
+    }
+    case BasicClient::END_OF_GAME:
+    {
+        Sync(Engine::WAIT_FOR_READY, out);
+        break;
+    }
+    case BasicClient::END_OF_DEAL:
+    {
+        Sync(Engine::WAIT_FOR_END_OF_DEAL, out);
+        break;
+    }
+    case BasicClient::JOIN_TABLE:
+    {
+        Sync(Engine::WAIT_FOR_PLAYERS, out);
+        break;
+    }
+    case BasicClient::ALL_PASSED:
+    {
+        Sync(Engine::WAIT_FOR_ALL_PASSED, out);
+        break;
+    }
+
+    case BasicClient::JSON_ERROR:
+    case BasicClient::BAD_EVENT:
+    case BasicClient::REQ_LOGIN:
+    case BasicClient::MESSAGE:
+    case BasicClient::PLAYER_LIST:
+    case BasicClient::QUIT_TABLE:
+    case BasicClient::SYNC:
+    {
+        // Nothing to do for that event
+        break;
+    }
+
+    default:
+        ret = false;
+        break;
+    }
+
+    return ret;
 }
 /*****************************************************************************/
 BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, IContext &ctx, std::vector<Reply> &out)
@@ -436,7 +580,6 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
     else if (cmd == "PlayCard")
     {
         mCurrentPlayer = Place(json.FindValue("place").GetString());
-
         event = PLAY_CARD;
     }
     else if (cmd == "EndOfTrick")

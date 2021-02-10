@@ -98,8 +98,6 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
     // Warn every observer of that event
     mSubject.Notify(json);
 
-    std::string cmd = json.FindValue("cmd").GetString();
-
     // Filter using the destination uuid (table or lobby?)
     if (mTableIds.IsTaken(dest_uuid))
     {
@@ -112,7 +110,7 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
             {
                 if ((*iter)->GetId() == tableId)
                 {
-                    (*iter)->ExecuteRequest(cmd, src_uuid, dest_uuid, json, out);
+                    (*iter)->ExecuteRequest(src_uuid, dest_uuid, json, out);
                 }
             }
         }
@@ -124,6 +122,8 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
     }
     else if (dest_uuid == Protocol::LOBBY_UID)
     {
+        std::string cmd = json.FindValue("cmd").GetString();
+
         if (cmd == "ChatMessage")
         {
             // cmd, source, target elements

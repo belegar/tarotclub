@@ -227,7 +227,7 @@ void TarotProtocol::TestPlayerJoinQuitAndPlayerList()
     Dump(reply);
     reply.clear();
 }
-
+/*
 void TarotProtocol::TestBotsFullGame()
 {
     std::vector<std::string> tables;
@@ -317,3 +317,4 @@ void TarotProtocol::TestBotsFullGame()
         }
     }
 }
+*/

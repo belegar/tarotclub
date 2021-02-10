@@ -192,14 +192,14 @@ Place Deal::SetTrick(const Deck &trick, std::uint8_t trickCounter)
     return winner;
 }
 /*****************************************************************************/
-Place Deal::GetOwner(Place firstPlayer,const Card &c, int turn)
+Place Deal::GetOwner(Place firstPlayer,const Card &card, int turn)
 {
     Place p = firstPlayer;
     std::uint8_t numberOfPlayers = mTricks[turn].Size();
 
-    for (Deck::Iterator it = mTricks[turn].begin(); it != mTricks[turn].end(); ++it)
+    for (const auto &c : mTricks[turn])
     {
-        if ((*it) == c)
+        if (card == c)
         {
             break;
         }
@@ -312,8 +312,8 @@ void Deal::AnalyzeGame(Points &points, std::uint8_t numberOfPlayers)
 
     // 6. Handle bonus: Ces primes gardent la même valeur quel que soit le contrat.
     // La prime est acquise au camp vainqueur de la donne.
-    points.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mAttackHandle.Size()));
-    points.handlePoints += Tarot::GetHandlePoints(Tarot::GetHandleType(mDefenseHandle.Size()));
+    points.handlePoints += Tarot::GetHandlePoints(numberOfPlayers, Tarot::GetHandleType(mAttackHandle.Size()));
+    points.handlePoints += Tarot::GetHandlePoints(numberOfPlayers, Tarot::GetHandleType(mDefenseHandle.Size()));
 }
 /*****************************************************************************/
 /**

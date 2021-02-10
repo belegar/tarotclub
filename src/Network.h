@@ -134,13 +134,13 @@ public:
 class EmptyContext : public IContext
 {
 public:
-    virtual void Initialize() { }
-    virtual void AddTable(const std::string &name, std::uint32_t uuid) { (void) name; (void) uuid; }
-    virtual void AddMessage(const Message &msg) { (void) msg;}
-    virtual void ClearMembers() {}
-    virtual void UpdateMember(Users::Entry &member, const std::string &event) { (void) member; (void) event; }
-    virtual Event LastEvent() { return Event(); }
-    virtual void SetResult(const JsonObject &result) { (void) result; }
+    void Initialize() { }
+    void AddTable(const std::string &name, std::uint32_t uuid) { (void) name; (void) uuid; }
+    void AddMessage(const Message &msg) { (void) msg;}
+    void ClearMembers() {}
+    void UpdateMember(Users::Entry &member, const std::string &event) { (void) member; (void) event; }
+    Event LastEvent() { return Event(); }
+    void SetResult(const JsonObject &result) { (void) result; }
 };
 
 /**

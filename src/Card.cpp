@@ -140,7 +140,7 @@ std::uint8_t Card::GetSuit() const
     return mSuit;
 }
 /*****************************************************************************/
-float Card::GetPoints()
+float Card::GetPoints() const
 {
     float points = 0.5F;
 

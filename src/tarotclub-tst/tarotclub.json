@@ -23,7 +23,7 @@
     "delay_before_cleaning":1500,
     "delay_between_players":500,
     "identity":{
-        "avatar":":/avatars/A02.png",
+        "avatar":"Fry",
         "gender":"male",
         "name":"Fry"
         },

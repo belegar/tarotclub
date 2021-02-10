@@ -27,9 +27,20 @@
 #define BASICCLIENT_H
 
 #include "Network.h"
-#include "Player.h"
 #include "Score.h"
 
+/**
+ * @brief The BasicClient struct
+ *
+ * Cette classe a une double utilité :
+ *   - Boîte à outils : elle fournit un encodage/décodage des trames
+ *   - Elle fournit une implémentation basique d'un client qui jouerait au hasard
+ *
+ * Cette classe est donc utile pour toute implémentation d'un client (bot, humain ...)
+ * mais aussi pour générer des parties sans posséder une IA particulièrement avancée
+ *  ==> pratique pour les tests !!
+ *
+ */
 struct BasicClient
 {
 public:
@@ -69,7 +80,7 @@ public:
     bool TestDiscard(const Deck &discard);
     Contract CalculateBid();
     void UpdateStatistics();
-    Card Play();
+    Card ChooseRandomCard();
     bool IsValid(const Card &c);
     Deck AutoDiscard();
     bool IsMyTurn() { return mCurrentPlayer == mMyself.place; }
@@ -93,12 +104,15 @@ public:
     Deck mCurrentTrick;
     Deck mDog;
     Deck mHandle;
-    Player mDeck; ///< player own deck
+    Deck mDeck;
     Place mCurrentPlayer;
     std::uint8_t mNbPlayers;
     Users::Entry mMyself;
+    EmptyContext mCtx;
+    std::uint32_t mTableToJoin;
 
     Event Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, IContext &ctx, std::vector<Reply> &out);
+    bool PlayRandom(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
 private:
     void GetPlayerStatus(Users::Entry &member, JsonObject &player);
 };

@@ -5,7 +5,6 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <cstdint>
-#include "Player.h"
 
 class TarotProtocol : public QObject
 {
@@ -20,7 +19,7 @@ private Q_SLOTS:
     void TestCiphering();
     void TestPacketStream();
     void TestPlayerJoinQuitAndPlayerList();
-    void TestBotsFullGame();
+   // void TestBotsFullGame();
 
 private:
 

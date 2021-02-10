@@ -40,7 +40,7 @@ class Bot
 
 public:
     Bot();
-    virtual ~Bot();
+    ~Bot();
 
     bool Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, std::vector<Reply> &out);
 
@@ -52,16 +52,14 @@ public:
     void SetTimeBeforeSend(std::uint16_t t);
     void ChangeNickname(const std::string &nickname, std::vector<Reply> &out);
     void SetAiScript(const std::string &path);
-    void SetTableToJoin(std::uint32_t table) { mTableToJoin = table; }
+    void SetTableToJoin(std::uint32_t table) { mClient.mTableToJoin = table; }
     void SetUuid(std::uint32_t uuid) { mClient.mMyself.uuid = uuid; }
     void SetIdentity(const Identity &identity);
 
 private:
     BasicClient mClient;
-    EmptyContext mCtx;  ///< The bot does not need some network informations
     std::uint16_t  mTimeBeforeSend;
     JSEngine mBotEngine;
-    std::uint32_t mTableToJoin;
     std::string mScriptPath;
 
     bool InitializeScriptContext();

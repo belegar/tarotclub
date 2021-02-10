@@ -77,7 +77,7 @@ public:
 
     // Getters
     std::uint8_t    GetSuit() const;
-    float           GetPoints();
+    float           GetPoints() const;
     std::uint8_t    GetValue() const;
     std::string     ToString() const;
 

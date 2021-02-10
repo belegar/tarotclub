@@ -101,11 +101,13 @@ include($$ICL_DIR/icl.pri)
 # ------------------------------------------------------------------------------
 HEADERS +=  tst_tarot_base.h \
             tst_tarot_rules.h \
-            tst_tarot_protocol.h
+            tst_tarot_protocol.h \
+            tst_tarot_3_and_5_players.h
 
 SOURCES +=  main.cpp \
             tst_tarot_base.cpp \
             tst_tarot_rules.cpp \
-            tst_tarot_protocol.cpp
+            tst_tarot_protocol.cpp \
+            tst_tarot_3_and_5_players.cpp
 
 # End of project file

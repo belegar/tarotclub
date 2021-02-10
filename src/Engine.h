@@ -28,7 +28,6 @@
 #include "Card.h"
 #include "Deck.h"
 #include "Deal.h"
-#include "Player.h"
 #include "Common.h"
 #include "ServerConfig.h"
 #include "Observer.h"
@@ -118,7 +117,7 @@ public:
     Contract SetBid(Contract c, bool slam, Place p);
 
 private:
-    Player  mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
+    Deck    mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
     Deck    currentTrick;   // store the current trick cards played
     Deal    mDeal;
     Points  mCurrentPoints;

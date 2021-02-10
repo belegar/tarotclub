@@ -476,7 +476,7 @@ public:
     static std::uint8_t NumberOfDogCards(std::uint8_t numberOfPlayers);
     static std::uint8_t NumberOfCardsInHand(std::uint8_t numberOfPlayers);
     static bool IsDealFinished(std::uint8_t trickCounter, std::uint8_t numberOfPlayers);
-    static int GetHandlePoints(Tarot::Handle handle);
+    static int GetHandlePoints(uint32_t nbPlayers, Handle handle);
     static Tarot::Handle GetHandleType(std::uint32_t size);
     static std::int32_t PointsToDo(std::uint8_t numberOfOudlers);
     static std::uint32_t GetMultiplier(Contract c);

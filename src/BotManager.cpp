@@ -14,24 +14,21 @@ BotManager::~BotManager()
 /*****************************************************************************/
 void BotManager::Close()
 {
-    mMutex.lock();
+    const std::lock_guard<std::mutex> lock(mMutex);
     // Close local bots
-    for (std::map<std::uint32_t, NetBot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    for (auto &b : mBots)
     {
-        iter->second->mSession.Close();
+        b.second->mSession.Close();
     }
-    mMutex.unlock();
 }
 /*****************************************************************************/
 void BotManager::KillBots()
 {
-    // Kill bots
-    mMutex.lock();
-    for (std::map<std::uint32_t, NetBot *>::iterator iter = mBots.begin(); iter != mBots.end(); ++iter)
+    const std::lock_guard<std::mutex> lock(mMutex);
+    for (auto &b : mBots)
     {
-        delete (iter->second);
+        b.second.reset();
     }
-    mMutex.unlock();
 }
 /*****************************************************************************/
 bool BotManager::JoinTable(uint32_t botId, uint32_t tableId)
@@ -67,42 +64,38 @@ bool BotManager::JoinTable(uint32_t botId, uint32_t tableId)
  */
 std::uint32_t BotManager::AddBot(std::uint32_t tableToJoin, const Identity &ident, std::uint16_t delay, const std::string &scriptFile)
 {
-    // Place is free (not found), we dynamically add our bot here
-    NetBot *netBot = new NetBot();
+    const std::lock_guard<std::mutex> lock(mMutex);
 
-    // Initialize the bot
-    netBot->mBot.SetIdentity(ident);
-    netBot->mBot.SetTimeBeforeSend(delay);
-    netBot->mBot.SetTableToJoin(tableToJoin);
-    netBot->mBot.SetAiScript(scriptFile);
-
-    // Initialize the session
-    netBot->mSession.Initialize("aPdSgVkYp3s6v9y$"); // FIXME: need a proper key
-
-    mMutex.lock();
-    // Add it to the list (save the pointer to the allocated object)
     std::uint32_t botid = mBotsIds.TakeId();
     if (mBots.count(botid) > 0)
     {
         TLogError("Internal problem, bot id exists");
     }
-    mBots[botid] = netBot;
-    mMutex.unlock();
+    mBots[botid] = std::make_unique<NetBot>();
 
+    // Initialize the bot
+    mBots[botid]->mBot.SetIdentity(ident);
+    mBots[botid]->mBot.SetTimeBeforeSend(delay);
+    mBots[botid]->mBot.SetTableToJoin(tableToJoin);
+    mBots[botid]->mBot.SetAiScript(scriptFile);
+
+    // Initialize the session
+    mBots[botid]->mSession.Initialize("aPdSgVkYp3s6v9y$"); // FIXME: need a proper key
     return botid;
 }
 /*****************************************************************************/
 bool BotManager::ConnectBot(std::uint32_t botId, const std::string &ip, uint16_t port)
 {
     bool ret = false;
-    mMutex.lock();
+    const std::lock_guard<std::mutex> lock(mMutex);
+
     // Connect the bot to the server
     if (mBots.count(botId) > 0)
     {
         mBots[botId]->mSession.ConnectToHost(ip, port);
         ret = true;
     }
-    mMutex.unlock();
+
     return ret;
 }
 /*****************************************************************************/
@@ -117,7 +110,7 @@ bool BotManager::ConnectBot(std::uint32_t botId, const std::string &ip, uint16_t
  */
 bool BotManager::RemoveBot(std::uint32_t botid)
 {
-    mMutex.lock();
+    const std::lock_guard<std::mutex> lock(mMutex);
     bool ret = false;
 
     if (mBots.count(botid) > 0U)
@@ -125,14 +118,13 @@ bool BotManager::RemoveBot(std::uint32_t botid)
         // Gracefully close the bot from the server
         mBots[botid]->mSession.Close();
         // delete the object
-        delete (mBots[botid]);
+        mBots[botid].reset();
         // Remove it from the list
         mBots.erase(botid);
         ret = true;
     }
-
     mBotsIds.ReleaseId(botid);
-    mMutex.unlock();
+
     return ret;
 }
 /*****************************************************************************/

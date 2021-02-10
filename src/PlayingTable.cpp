@@ -235,9 +235,12 @@ bool PlayingTable::RemovePlayer(std::uint32_t kicked_player)
     return removeAllPlayers;
 }
 /*****************************************************************************/
-void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out)
+bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out)
 {
     (void) dest_uuid;
+    bool isEndOfDeal = false;
+
+    std::string cmd = json.FindValue("cmd").GetString();
 
     if (cmd == "Error")
     {
@@ -306,6 +309,7 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
                     case Engine::WAIT_FOR_END_OF_DEAL:
                     {
                         EndOfDeal(out);
+                        isEndOfDeal = true;
                         break;
                     }
                     default:
@@ -475,6 +479,8 @@ void PlayingTable::ExecuteRequest(const std::string &cmd, std::uint32_t src_uuid
     {
         TLogError("Unknown packet received");
     }
+
+    return isEndOfDeal;
 }
 /*****************************************************************************/
 void PlayingTable::EndOfDeal(std::vector<Reply> &out)
