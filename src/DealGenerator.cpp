@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - DealFile.cpp
  *=============================================================================
- * Manage saving and loading XML files of custom deals
+ * Create, load and save specific or random deals
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -27,26 +27,26 @@
 #include <sstream>
 #include "JsonReader.h"
 #include "JsonWriter.h"
-#include "DealFile.h"
+#include "DealGenerator.h"
 #include "Common.h"
 #include "Log.h"
 
 static const std::string DEAL_FILE_VERSION  = "3";
 
 /*****************************************************************************/
-DealFile::DealFile()
+DealGenerator::DealGenerator()
     : mNbPlayers(4U)
     , mSeed(0U)
 {
 
 }
 /*****************************************************************************/
-void DealFile::SetFirstPlayer(Place p)
+void DealGenerator::SetFirstPlayer(Place p)
 {
     mFirstPlayer = p;
 }
 /*****************************************************************************/
-bool DealFile::IsValid(std::uint8_t numberOfPlayers)
+bool DealGenerator::IsValid(std::uint8_t numberOfPlayers)
 {
     bool valid = true;
     std::uint8_t cardsInHand = Tarot::NumberOfCardsInHand(numberOfPlayers);
@@ -67,7 +67,7 @@ bool DealFile::IsValid(std::uint8_t numberOfPlayers)
     return valid;
 }
 /*****************************************************************************/
-bool DealFile::CreateRandomDeal(std::uint8_t numberOfPlayers, std::uint32_t seed)
+bool DealGenerator::CreateRandomDeal(std::uint8_t numberOfPlayers, std::uint32_t seed)
 {
     mNbPlayers = numberOfPlayers;
     mSeed = seed;
@@ -103,13 +103,13 @@ bool DealFile::CreateRandomDeal(std::uint8_t numberOfPlayers, std::uint32_t seed
     return valid;
 }
 /*****************************************************************************/
-bool DealFile::CreateRandomDeal(std::uint8_t numberOfPlayers)
+bool DealGenerator::CreateRandomDeal(std::uint8_t numberOfPlayers)
 {
     std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
     return CreateRandomDeal(numberOfPlayers, static_cast<std::uint32_t>(seed));
 }
 /*****************************************************************************/
-Place DealFile::RandomPlace(std::uint8_t numberOfPlayers)
+Place DealGenerator::RandomPlace(std::uint8_t numberOfPlayers)
 {
     std::chrono::system_clock::rep seed = std::chrono::system_clock::now().time_since_epoch().count(); // rep is long long
     std::default_random_engine generator(static_cast<unsigned int>(seed));
@@ -117,27 +117,27 @@ Place DealFile::RandomPlace(std::uint8_t numberOfPlayers)
     return Place(static_cast<std::uint8_t>(distribution(generator)));
 }
 /*****************************************************************************/
-const Deck &DealFile::GetDogDeck() const
+const Deck &DealGenerator::GetDogDeck() const
 {
     return mDogDeck;
 }
 /*****************************************************************************/
-void DealFile::SetDogDeck(const Deck &deck)
+void DealGenerator::SetDogDeck(const Deck &deck)
 {
     mDogDeck = deck;
 }
 /*****************************************************************************/
-const Deck &DealFile::GetPlayerDeck(Place p) const
+const Deck &DealGenerator::GetPlayerDeck(Place p) const
 {
     return mPlayers[p.Value()];
 }
 /*****************************************************************************/
-void DealFile::SetPlayerDeck(Place p, const Deck &deck)
+void DealGenerator::SetPlayerDeck(Place p, const Deck &deck)
 {
     mPlayers[p.Value()] = deck;
 }
 /*****************************************************************************/
-bool DealFile::LoadFile(const std::string &fileName)
+bool DealGenerator::LoadFile(const std::string &fileName)
 {
     JsonValue json;
 
@@ -154,57 +154,55 @@ bool DealFile::LoadFile(const std::string &fileName)
                 if (json.GetValue("Dog", stringval))
                 {
                     (void) mDogDeck.SetCards(stringval);
-                }
-                else
-                {
-                    TLogError("Cannot get dog deck");
-                    ret = false;
-                }
-
-                if (json.GetValue("FirstPlayer", stringval))
-                {
-                    mFirstPlayer = Place(stringval);
-                    if (mFirstPlayer != Place(Place::NOWHERE))
+                    if (json.GetValue("FirstPlayer", stringval))
                     {
-                        ret = true;
-                    }
-                    else
-                    {
-                        ret = false;
-                    }
-                }
-                else
-                {
-                    TLogError("Cannot get first player");
-                    ret = false;
-                }
-
-                mNbPlayers = 0U;
-                for (std::uint32_t i = 0U; i < 5U; i++)
-                {
-                    if (ret)
-                    {
-                        Place player(i);
-                        if (json.GetValue(player.ToString(), stringval))
+                        mFirstPlayer = Place(stringval);
+                        if (mFirstPlayer != Place(Place::NOWHERE))
                         {
-                            (void) mPlayers[i].SetCards(stringval);
-                            if (stringval.size() > 0)
-                            {
-                                mNbPlayers++;
-                            }
+                            ret = true;
                         }
                         else
                         {
-                            TLogError("Cannot get dog deck");
                             ret = false;
                         }
                     }
                     else
                     {
-                        TLogError("Cannot parse deck string");
+                        TLogError("Cannot get first player");
                         ret = false;
-                        break;
                     }
+
+                    mNbPlayers = 0U;
+                    for (std::uint32_t i = 0U; i < 5U; i++)
+                    {
+                        if (ret)
+                        {
+                            Place player(i);
+                            if (json.GetValue(player.ToString(), stringval))
+                            {
+                                (void) mPlayers[i].SetCards(stringval);
+                                if (stringval.size() > 0)
+                                {
+                                    mNbPlayers++;
+                                }
+                            }
+                            else
+                            {
+                                TLogError("Cannot get dog deck");
+                                ret = false;
+                            }
+                        }
+                        else
+                        {
+                            TLogError("Cannot parse deck string");
+                            ret = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    TLogError("Cannot get dog deck");
                 }
             }
             else
@@ -223,7 +221,7 @@ bool DealFile::LoadFile(const std::string &fileName)
     return ret;
 }
 /*****************************************************************************/
-void DealFile::SaveFile(const std::string &fileName)
+void DealGenerator::SaveFile(const std::string &fileName)
 {
     JsonObject json;
     Build(json);
@@ -234,7 +232,7 @@ void DealFile::SaveFile(const std::string &fileName)
     }
 }
 /*****************************************************************************/
-std::string DealFile::ToString()
+std::string DealGenerator::ToString()
 {
     JsonObject json;
     Build(json);
@@ -242,7 +240,7 @@ std::string DealFile::ToString()
     return json.ToString(0);
 }
 /*****************************************************************************/
-void DealFile::Build(JsonObject &obj)
+void DealGenerator::Build(JsonObject &obj)
 {
     obj.AddValue("version", DEAL_FILE_VERSION);
     obj.AddValue("FirstPlayer", mFirstPlayer.ToString());
@@ -254,7 +252,7 @@ void DealFile::Build(JsonObject &obj)
     }
 }
 /*****************************************************************************/
-void DealFile::Clear()
+void DealGenerator::Clear()
 {
     for (std::uint32_t i = 0; i < 5; i++)
     {

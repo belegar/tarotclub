@@ -9,8 +9,7 @@
 #include "Card.h"
 #include "Deck.h"
 #include "ServerConfig.h"
-#include "Deal.h"
-#include "DealFile.h"
+#include "DealGenerator.h"
 #include "Lobby.h"
 #include "BasicClient.h"
 
@@ -21,7 +20,7 @@ Tarot3And5Players::Tarot3And5Players()
 // Test du nombre de cartes par joueur et dans le chien selon le nombre de joueurs
 void TestDeal(std::uint32_t nbPlayers)
 {
-    DealFile editor;
+    DealGenerator editor;
 
     bool valid = editor.CreateRandomDeal(nbPlayers);
     QCOMPARE(valid, true);
@@ -156,7 +155,7 @@ void Tarot3And5Players::TestFullGame(uint32_t nbPlayers)
     {
         Score::Entry entry = history[0];
 
-        if (Deal::HasDecimal(entry.points.cardsPointsAttack))
+        if (Engine::HasDecimal(entry.points.cardsPointsAttack))
         {
             std::cout << "DECIMAL POINTS" << std::endl;
         }

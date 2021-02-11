@@ -1,7 +1,7 @@
 /*=============================================================================
- * TarotClub - DealFile.h
+ * TarotClub - DealGenerator.h
  *=============================================================================
- * Manage saving and loading XML files of custom deals
+ * Create, load and save specific or random deals
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -22,18 +22,26 @@
  *
  *=============================================================================
  */
-#ifndef DEAL_FILE_H
-#define DEAL_FILE_H
+#ifndef DEAL_GENERATOR_H
+#define DEAL_GENERATOR_H
 
 #include <string>
 #include "Deck.h"
 #include "JsonValue.h"
 
 /*****************************************************************************/
-class DealFile
+/**
+ * @brief The DealFile class
+ *
+ * Cette classe utilitaire permet de créer des donnes:
+ *  - Soit à partir d'un fichier d'entrée au format JSON
+ *  - Soit au hasard
+ *
+ */
+class DealGenerator
 {
 public:
-    DealFile();
+    DealGenerator();
 
     bool LoadFile(const std::string &fileName);
     void SaveFile(const std::string &fileName);
@@ -67,8 +75,8 @@ private:
     std::uint32_t mSeed;
 };
 
-#endif // DEAL_FILE_H
+#endif // DEAL_GENERATOR_H
 
 //=============================================================================
-// End of file DealFile.h
+// End of file DealGenerator.h
 //=============================================================================

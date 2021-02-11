@@ -5,13 +5,12 @@
 HEADERS += ServerConfig.h \
     ClientConfig.h \
     TournamentConfig.h \
-    DealFile.h \
+    DealGenerator.h \
     Deck.h \
     Card.h \
     Bot.h \
     Common.h \
     Engine.h \
-    Deal.h \
     Identity.h \
     Score.h \
     Protocol.h \
@@ -28,13 +27,12 @@ HEADERS += ServerConfig.h \
 SOURCES += ServerConfig.cpp \
     ClientConfig.cpp \
     TournamentConfig.cpp \
-    DealFile.cpp \
+    DealGenerator.cpp \
     Deck.cpp \
     Card.cpp \
     Bot.cpp \
     Common.cpp \
     Engine.cpp \
-    Deal.cpp \
     Protocol.cpp \
     PlayingTable.cpp \
     Score.cpp \

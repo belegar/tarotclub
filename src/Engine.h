@@ -27,10 +27,11 @@
 
 #include "Card.h"
 #include "Deck.h"
-#include "Deal.h"
 #include "Common.h"
 #include "ServerConfig.h"
 #include "Observer.h"
+#include "JsonValue.h"
+#include "Score.h"
 
 /*****************************************************************************/
 /**
@@ -97,15 +98,6 @@ public:
     {
         return mNbPlayers;
     }
-    Tarot::Bid      GetBid()
-    {
-        return mBid;
-    }
-
-    Deck GetDog()
-    {
-        return mDeal.GetDog();
-    }
 
     bool IsLastTrick()
     {
@@ -118,11 +110,30 @@ public:
     bool SetCard(const Card &c, Place p);
     Contract SetBid(Contract c, bool slam, Place p);
     bool SetKingCalled(const Card &c);
+    void SetHandle(const Deck &handle, Team team);
+    Place SetTrick(const Deck &trick, std::uint8_t trickCounter);
+
+    // Helpers
+    void NewDeal();
+    void AnalyzeGame(Points &points, std::uint8_t numberOfPlayers);
+    void GenerateEndDealLog(std::uint8_t numberOfPlayers, JsonObject &json);
+    bool LoadGameDealLog(const std::string &fileName);
+    bool LoadGameDeal(const std::string &buffer);
+    bool DecodeJsonDeal(const JsonValue &json);
+
+    // Getters
+    Deck GetTrick(std::uint8_t turn, std::uint8_t numberOfPlayers);
+    Place GetWinner(std::uint8_t turn, std::uint8_t numberOfPlayers);
+    std::map<int, Place> GetPodium();
+    Deck GetDog();
+    Deck GetDiscard();
+    Tarot::Bid GetBid() { return mBid; }
+
+    static bool HasDecimal(float f);
 
 private:
     Deck    mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
     Deck    currentTrick;   // store the current trick cards played
-    Deal    mDeal;
     Points  mCurrentPoints;
 
     // Game state variables
@@ -136,8 +147,22 @@ private:
     unsigned        mSeed;
     bool            mHandleAsked[5U];
 
+    // Gestion de la donne en cours
+    Deck mDiscard;
+    Deck mDog;
+    Deck mAttackHandle;
+    Deck mDefenseHandle;
+    Deck mTricks[24];    // 24 tricks max with 3 players
+    Place mWinner[24];
+    Place mPreviousWinner;
+    Place mFirstPlayer;
+    int mTricksWon;
+    Deck::Statistics statsAttack;
+
     void CreateDeal(Tarot::Distribution &shuffle);
     bool IsEndOfTrick();
+    Place GetOwner(Place firstPlayer, const Card &card, int turn);
+
 };
 
 #endif // TAROT_ENGINE_H

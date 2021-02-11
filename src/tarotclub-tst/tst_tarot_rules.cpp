@@ -9,7 +9,7 @@
 #include "Card.h"
 #include "Deck.h"
 #include "ServerConfig.h"
-#include "Deal.h"
+#include "Engine.h"
 
 TarotRules::TarotRules()
 {
@@ -142,7 +142,7 @@ void TarotRules::TestCanPlayCard()
 
 void TarotRules::TestScoreCalculation()
 {
-    Deal deal;
+    Engine deal;
     Points points;
 
     // --------------------------------------------------------------------
