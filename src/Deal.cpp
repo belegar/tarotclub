@@ -39,6 +39,11 @@ Deal::Deal()
     NewDeal();
 }
 /*****************************************************************************/
+bool Deal::HasDecimal(float f)
+{
+    return (f - static_cast<int>(f) != 0);
+}
+/*****************************************************************************/
 void Deal::NewDeal()
 {
     mDiscard.Clear();
@@ -306,6 +311,25 @@ void Deal::AnalyzeGame(Points &points, std::uint8_t numberOfPlayers)
 
     // 4. The number of oudler(s) decides the points to do
     points.oudlers = statsAttack.oudlers;
+
+    // 4.1 On sauvegarde les points bruts de l'attaque avant ajustements
+    // Peut éventuellement servir pour analyser le jeu (ou le montrer)
+    points.cardsPointsAttack = statsAttack.points;
+
+    // 4.2 : à 3 ou 5 joueurs, le demi-point va au gagnant
+    if (HasDecimal(statsAttack.points))
+    {
+        if (statsAttack.points >= Tarot::PointsToDo(points.oudlers))
+        {
+            // le demi-point lui-revient
+            statsAttack.points += 0.5;
+        }
+        else
+        {
+            // il perd le demi-point
+            statsAttack.points -= 0.5;
+        }
+    }
 
     // 5. We save the points done by the attacker
     points.pointsAttack = static_cast<int>(statsAttack.points); // voluntary ignore digits after the coma

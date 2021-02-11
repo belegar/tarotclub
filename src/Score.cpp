@@ -207,6 +207,7 @@ void Score::NewGame(std::uint8_t numberOfTurns)
     }
     mNumberOfTurns = numberOfTurns;
     dealCounter = 0U;
+    mHistory.clear();
 }
 /*****************************************************************************/
 void Score::NewDeal()
@@ -225,6 +226,12 @@ void Score::NewDeal()
  */
 bool Score::AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t numberOfPlayers)
 {
+    Score::Entry entry;
+    entry.bid = bid;
+    entry.points = points;
+    entry.nbPlayers = numberOfPlayers;
+    mHistory.push_back(entry);
+
     for (std::uint32_t i = 0U; i < numberOfPlayers; i++)
     {
         if (Place(i) == bid.taker)

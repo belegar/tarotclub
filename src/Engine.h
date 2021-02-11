@@ -53,6 +53,8 @@ public:
         WAIT_FOR_BID,
         WAIT_FOR_SHOW_BID,
         WAIT_FOR_ALL_PASSED,
+        WAIT_FOR_KING_CALL, // étape spécifique pour le jeu à 5 joueurs
+        WAIT_FOR_SHOW_KING_CALL, // étape spécifique pour le jeu à 5 joueurs
         WAIT_FOR_SHOW_DOG,
         WAIT_FOR_DISCARD,
         WAIT_FOR_START_DEAL,
@@ -115,6 +117,7 @@ public:
     bool SetHandle(const Deck &handle, Place p);
     bool SetCard(const Card &c, Place p);
     Contract SetBid(Contract c, bool slam, Place p);
+    bool SetKingCalled(const Card &c);
 
 private:
     Deck    mPlayers[5];     // [3..5] deck of players with their UUID, index = Place

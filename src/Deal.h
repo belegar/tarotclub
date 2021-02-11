@@ -68,6 +68,7 @@ public:
     void SetDog(const Deck &dog);
     Place SetTrick(const Deck &trick, std::uint8_t trickCounter);
 
+    static bool HasDecimal(float f);
 private:
     Place GetOwner(Place firstPlayer, const Card &card, int turn);
 

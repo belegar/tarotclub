@@ -529,6 +529,10 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
         mBid.slam = json.FindValue("slam").GetBool();
         event = SHOW_BID;
     }
+    else if (cmd == "RequestKingCall")
+    {
+
+    }
     else if (cmd == "AllPassed")
     {
         event = ALL_PASSED;

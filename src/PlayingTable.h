@@ -54,6 +54,7 @@ public:
     void SetAdminMode(bool enable); // Automatic or table managed by the admin
     Place AddPlayer(std::uint32_t uuid, std::uint8_t &nbPlayers);
     bool RemovePlayer(std::uint32_t kicked_player);
+    Score GetScore() { return mScore; }
 
 private:
     struct Challenger
@@ -108,6 +109,7 @@ private:
     bool AckFromAllPlayers();
     std::uint32_t GetPlayerUuid(Place p);
     void SendToAllPlayers(std::vector<Reply> &out, JsonObject &obj);
+    void ShowKingCalled(const Card &c, std::vector<Reply> &out);
 };
 
 #endif // PLAYING_TABLE_H

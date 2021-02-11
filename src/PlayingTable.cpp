@@ -235,6 +235,19 @@ bool PlayingTable::RemovePlayer(std::uint32_t kicked_player)
     return removeAllPlayers;
 }
 /*****************************************************************************/
+/**
+ * @brief PlayingTable::ExecuteRequest
+ *
+ * Exécute les trames envoyées par les joueurs
+ * Typiquement les commandes envoyées à la table mais également les
+ * trames de synchronisation des différentes étapes
+ *
+ * @param src_uuid
+ * @param dest_uuid
+ * @param json
+ * @param out
+ * @return
+ */
 bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out)
 {
     (void) dest_uuid;
@@ -284,6 +297,7 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
                     }
                     case Engine::WAIT_FOR_CARDS:
                     case Engine::WAIT_FOR_SHOW_BID:
+                    case Engine::WAIT_FOR_SHOW_KING_CALL:
                     {
                         BidSequence(out);
                         break;
@@ -404,6 +418,28 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
             }
         }
     }
+    else if (cmd == "KingCall")
+    {
+        Card c(json.FindValue("card").GetString());
+
+        // Check sequence
+        if (mEngine.GetSequence() == Engine::WAIT_FOR_KING_CALL)
+        {
+            // Check if right player
+            if (mEngine.GetBid().taker == GetPlayerPlace(src_uuid))
+            {
+                if (mEngine.SetKingCalled(c))
+                {
+                    // Then start the deal
+                    ShowKingCalled(c, out);
+                }
+                else
+                {
+                    TLogError("Not a valid king called: " + c.ToString());
+                }
+            }
+        }
+    }
     else if (cmd == "Handle")
     {
         Deck handle(json.FindValue("handle").GetString());
@@ -514,6 +550,17 @@ void PlayingTable::NewGame(std::vector<Reply> &out)
     // Inform players about the game type
     obj.AddValue("cmd", "NewGame");
     obj.AddValue("mode", mGame.Get());
+
+    SendToAllPlayers(out, obj);
+}
+/*****************************************************************************/
+void PlayingTable::ShowKingCalled(const Card &c, std::vector<Reply> &out)
+{
+    JsonObject obj;
+    ResetAck();
+
+    obj.AddValue("cmd", "ShowKingCalled");
+    obj.AddValue("card", c.ToString());
 
     SendToAllPlayers(out, obj);
 }

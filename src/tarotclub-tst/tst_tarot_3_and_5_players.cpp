@@ -18,6 +18,7 @@ Tarot3And5Players::Tarot3And5Players()
 {
 }
 
+// Test du nombre de cartes par joueur et dans le chien selon le nombre de joueurs
 void TestDeal(std::uint32_t nbPlayers)
 {
     DealFile editor;
@@ -136,22 +137,52 @@ void Tarot3And5Players::TestFullGame(uint32_t nbPlayers)
     while (!EndOfGame);
 
     std::cout << "========> End of deal!! <========" << std::endl;
+
+    // On teste les points
+    Score score = table.GetScore();
+
+    for (uint32_t i = 0; i < nbPlayers; i++)
+    {
+        Place p(i);
+
+        std::cout << "Points for: " << p.ToString() << ": " << score.GetTotalPoints(p) << std::endl;
+    }
+
+    std::vector<Score::Entry> history = score.GetHistory();
+
+    QCOMPARE(history.size(), 1);
+
+    if (history.size() == 1)
+    {
+        Score::Entry entry = history[0];
+
+        if (Deal::HasDecimal(entry.points.cardsPointsAttack))
+        {
+            std::cout << "DECIMAL POINTS" << std::endl;
+        }
+    }
+
 }
 
-
+// Test du nombre de cartes par joueur et dans le chien selon le nombre de joueurs
 void Tarot3And5Players::TestDeal3Players()
 {
     TestDeal(3);
 }
 
+// Test du nombre de cartes par joueur et dans le chien selon le nombre de joueurs
 void Tarot3And5Players::TestDeal5Players()
 {
     TestDeal(5);
 }
 
+// Ici on fait tourner une partie complète
 void Tarot3And5Players::TestFullGame3Players()
 {
-    TestFullGame(3);
+    for (int i = 0; i < 10; i++)
+    {
+        TestFullGame(3);
+    }
 }
 
 

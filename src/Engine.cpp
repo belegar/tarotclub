@@ -244,6 +244,14 @@ Contract Engine::SetBid(Contract c, bool slam, Place p)
     return c;
 }
 /*****************************************************************************/
+bool Engine::SetKingCalled(const Card &c)
+{
+    bool success = false;
+
+
+    return success;
+}
+/*****************************************************************************/
 void Engine::Stop()
 {
     mSequence = STOPPED;
@@ -339,13 +347,27 @@ void Engine::BidSequence()
                     mDeal.SetDiscard(mDeal.GetDog(), Team(Team::DEFENSE));
                 }
 
-                // We do not display the dog and start the deal immediatly
-                mSequence = WAIT_FOR_START_DEAL;
+                if (mNbPlayers == 5)
+                {
+                    mSequence = WAIT_FOR_KING_CALL;
+                }
+                else
+                {
+                    // We do not display the dog and start the deal immediatly
+                    mSequence = WAIT_FOR_START_DEAL;
+                }
             }
             else
             {
-                // Show the dog to all the players
-                mSequence = WAIT_FOR_SHOW_DOG;
+                if (mNbPlayers == 5)
+                {
+                    mSequence = WAIT_FOR_KING_CALL;
+                }
+                else
+                {
+                    // Show the dog to all the players
+                    mSequence = WAIT_FOR_SHOW_DOG;
+                }
             }
         }
     }

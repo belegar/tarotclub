@@ -34,6 +34,7 @@
 struct Points
 {
     std::int32_t pointsAttack;   // Points of cards won by the attack
+    float cardsPointsAttack; // points des cartes avant ajustements (pour 3 et 5 joueurs)
     std::int32_t oudlers;
     std::int32_t handlePoints;
     bool slamDone;
@@ -51,6 +52,13 @@ struct Points
 class Score
 {
 public:
+    struct Entry
+    {
+        Points points;
+        Tarot::Bid bid;
+        uint8_t nbPlayers;
+    };
+
     Score();
 
     void NewGame(std::uint8_t numberOfTurns);
@@ -64,11 +72,15 @@ public:
     std::map<int, Place> GetPodium();
     Place GetWinner();
 
+    std::vector<Score::Entry> GetHistory() { return mHistory; }
+
 private:
     // scores of previous deals
     std::uint32_t dealCounter;
     int scores[TournamentConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
     std::uint8_t mNumberOfTurns;
+
+    std::vector<Score::Entry> mHistory;
 };
 
 #endif // SCORE_H

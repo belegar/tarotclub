@@ -8,6 +8,7 @@ static const Ack gAckList[] = {
     {"NewDeal", Engine::WAIT_FOR_CARDS },
     {"ShowBid", Engine::WAIT_FOR_SHOW_BID },
     {"AllPassed", Engine::WAIT_FOR_ALL_PASSED },
+    {"ShowKingCall", Engine::WAIT_FOR_SHOW_KING_CALL },
     {"ShowDog", Engine::WAIT_FOR_SHOW_DOG },
     {"StartDeal", Engine::WAIT_FOR_START_DEAL },
     {"ShowHandle", Engine::WAIT_FOR_SHOW_HANDLE },
@@ -45,9 +46,6 @@ std::string Ack::ToString(Engine::Sequence sequence)
     }
     return step;
 }
-
-
-
 
 Context::Context()
 {
