@@ -66,9 +66,9 @@ void EditorWindow::Initialize()
 
     Deck deck;
     deck.CreateTarotDeck();
-    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
+    for (const auto &c : deck)
     {
-        ui.mainCardList->addItem(new QListWidgetItem((*it).ToString().data()));
+        ui.mainCardList->addItem(new QListWidgetItem(c.ToString().data()));
     }
 }
 /*****************************************************************************/
@@ -85,9 +85,9 @@ void EditorWindow::slotRandomDeal()
 {
     Clear();
 
-    DealFile editor;
+    DealGenerator editor;
     editor.CreateRandomDeal(4U);
-    editor.SetFirstPlayer(DealFile::RandomPlace(4U));
+    editor.SetFirstPlayer(DealGenerator::RandomPlace(4U));
     RefreshUi(editor);
 }
 /*****************************************************************************/
@@ -195,7 +195,7 @@ void EditorWindow::slotOpenDeal()
         return;
     }
 
-    DealFile editor;
+    DealGenerator editor;
     if (editor.LoadFile(fileName.toStdString()))
     {
         Clear();
@@ -207,32 +207,32 @@ void EditorWindow::slotOpenDeal()
     }
 }
 /*****************************************************************************/
-void EditorWindow::RefreshUi(const DealFile &editor)
+void EditorWindow::RefreshUi(const DealGenerator &editor)
 {
     // Dog
-    for (Deck::ConstIterator it = editor.GetDogDeck().begin(); it != editor.GetDogDeck().end(); ++it)
+    for (const auto &c : editor.GetDogDeck())
     {
-        ui.mainCardList->addItem(new QListWidgetItem((*it).ToString().data()));
+        ui.mainCardList->addItem(new QListWidgetItem(c.ToString().data()));
     }
     // East
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::EAST)).begin(); it != editor.GetPlayerDeck(Place(Place::EAST)).end(); ++it)
+    for (const auto &c : editor.GetPlayerDeck(Place(Place::EAST)))
     {
-        ui.eastList->addItem(new QListWidgetItem((*it).ToString().data()));
+        ui.eastList->addItem(new QListWidgetItem(c.ToString().data()));
     }
     // West
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::WEST)).begin(); it != editor.GetPlayerDeck(Place(Place::WEST)).end(); ++it)
+    for (const auto &c : editor.GetPlayerDeck(Place(Place::WEST)))
     {
-        ui.westList->addItem(new QListWidgetItem((*it).ToString().data()));
+        ui.westList->addItem(new QListWidgetItem(c.ToString().data()));
     }
     // South
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::SOUTH)).begin(); it != editor.GetPlayerDeck(Place(Place::SOUTH)).end(); ++it)
+    for (const auto &c : editor.GetPlayerDeck(Place(Place::SOUTH)))
     {
-        ui.southList->addItem(new QListWidgetItem((*it).ToString().data()));
+        ui.southList->addItem(new QListWidgetItem(c.ToString().data()));
     }
     // North
-    for (Deck::ConstIterator it = editor.GetPlayerDeck(Place(Place::NORTH)).begin(); it != editor.GetPlayerDeck(Place(Place::NORTH)).end(); ++it)
+    for (const auto &c : editor.GetPlayerDeck(Place(Place::NORTH)))
     {
-        ui.northList->addItem(new QListWidgetItem((*it).ToString().data()));
+        ui.northList->addItem(new QListWidgetItem(c.ToString().data()));
     }
 
     ui.firstPlayerCombo->setCurrentIndex(editor.GetFirstPlayer().Value());
@@ -249,7 +249,7 @@ void EditorWindow::slotSaveDeal()
         return;
     }
 
-    DealFile editor;
+    DealGenerator editor;
     Deck deck;
 
     // Dog

@@ -35,7 +35,7 @@
 
 /*****************************************************************************/
 ChatDock::ChatDock(QWidget *parent)
-    : QDockWidget(trUtf8("Private chat"), parent)
+    : QDockWidget(tr("Private chat"), parent)
 {
     QLabel *label = new QLabel(tr("Use this chat when you have joined a table to discuss with the other players."));
     chatWindow = new QTextBrowser();

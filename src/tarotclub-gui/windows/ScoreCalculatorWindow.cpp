@@ -38,7 +38,7 @@ void ScoreCalculatorWindow::Update()
     mBid.slam = ui.cbxSlam->isChecked();
 
     // Bonuses
-    mPoints.handlePoints = Tarot::GetHandlePoints(ui.cmbHandleType->currentIndex());
+    mPoints.handlePoints = Tarot::GetHandlePoints(4U, ui.cmbHandleType->currentIndex());
     mPoints.slamDone = ui.cbxSlameDone->isChecked();
     if (ui.cmbLittleEndian->currentIndex() == 0)
     {
@@ -61,8 +61,8 @@ void ScoreCalculatorWindow::Update()
     QString formula = QString("(25 + %1 + %2) * %3 + %4 + %5")
             .arg(abs(mPoints.Difference())).arg(mPoints.GetLittleEndianPoints()).arg(Tarot::GetMultiplier(mBid.contract)).arg(mPoints.handlePoints).arg(mPoints.GetSlamPoints(mBid));
     ui.lblFormula->setText(formula);
-    ui.lblPointsAttack->setText(QString().setNum(mPoints.GetPoints(Team(Team::ATTACK), mBid)));
-    ui.lblPointsDefense->setText(QString().setNum(mPoints.GetPoints(Team(Team::DEFENSE), mBid)));
+    ui.lblPointsAttack->setText(QString().setNum(mPoints.GetPoints(Team(Team::ATTACK), mBid, 4U)));
+    ui.lblPointsDefense->setText(QString().setNum(mPoints.GetPoints(Team(Team::DEFENSE), mBid, 4U)));
 }
 /*****************************************************************************/
 void ScoreCalculatorWindow::slotActivated(int index)

@@ -38,7 +38,7 @@
 #include "Log.h"
 
 /*****************************************************************************/
-class DebugDock : public QDockWidget, public Observer<std::string>
+class DebugDock : public QDockWidget, public Observer<Log::Infos>
 {
     Q_OBJECT
 
@@ -50,9 +50,9 @@ private:
 public:
     DebugDock(QWidget *parent);
 
-    void Update(const std::string &info)
+    void Update(const Log::Infos &info)
     {
-        emit sigMessage(QString(info.data()));
+        emit sigMessage(QString(info.message.data()));
     }   
 
 protected:

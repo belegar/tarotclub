@@ -29,6 +29,7 @@
 // Includes Qt
 #include <QDialog>
 #include <QFrame>
+#include <QButtonGroup>
 
 // Includes locales
 #include <ui_OptionsUI.h>

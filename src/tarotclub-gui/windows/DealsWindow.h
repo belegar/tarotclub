@@ -33,8 +33,7 @@
 #include <QGraphicsView>
 #include <QtSvg>
 
-#include "Deal.h"
-
+#include "Engine.h"
 
 /*****************************************************************************/
 class DealsWindow : public QDialog
@@ -61,7 +60,7 @@ private:
     QGraphicsSimpleTextItem *mText;
     QVector<QGraphicsSvgItem *> mCardsPics;
 
-    Deal mDeal;
+    Engine mDeal;
     QFileInfoList mList;
 
     void DisplayDeck(const Deck &deck, qreal x, qreal y);

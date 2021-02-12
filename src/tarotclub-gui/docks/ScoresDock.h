@@ -26,7 +26,6 @@
 #include <QDockWidget>
 #include <QTableWidget>
 #include "Common.h"
-#include "Deal.h"
 #include "Identity.h"
 #include "Score.h"
 

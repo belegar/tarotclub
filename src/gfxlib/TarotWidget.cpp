@@ -82,7 +82,7 @@ TarotWidget::~TarotWidget()
  */
 void TarotWidget::Initialize()
 {
-    mSession.Initialize();
+    mSession.Initialize("ABCDEF"); // FIXME: manage keys
     mCanvas->Initialize();
     mSequence = IDLE;
     mCanvas->SetFilter(Canvas::MENU);
@@ -304,7 +304,7 @@ void TarotWidget::customEvent(QEvent *e)
                     mSequence = IDLE;
                     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-                    Card c = mClient.Play();
+                    Card c = mClient.ChooseRandomCard();
                     mClient.mDeck.Remove(c);
                     mClient.BuildSendCard(c, out);
                     ShowSouthCards();
@@ -345,8 +345,8 @@ void TarotWidget::customEvent(QEvent *e)
         {
             // FIXME: deserialize the winner of the game
             /*
-            QMessageBox::information(this, trUtf8("Game result"),
-                                     trUtf8("The winner is ") + QString(winner.ToString().c_str()),
+            QMessageBox::information(this, tr("Game result"),
+                                     tr("The winner is ") + QString(winner.ToString().c_str()),
                                      QMessageBox::Ok);
             */
             mCanvas->SetFilter(Canvas::MENU);
@@ -363,8 +363,8 @@ void TarotWidget::customEvent(QEvent *e)
 
             if (!mAutoPlay)
             {
-                QMessageBox::information(this, trUtf8("Information"),
-                                         trUtf8("All the players have passed.\n"
+                QMessageBox::information(this, tr("Information"),
+                                         tr("All the players have passed.\n"
                                                 "New deal will start."));
             }
             mClient.Sync(Engine::WAIT_FOR_ALL_PASSED, out);
@@ -618,9 +618,9 @@ void TarotWidget::slotAcceptDiscard()
     mCanvas->DisplayDiscardMenu(false);
     mCanvas->SetFilter(Canvas::BLOCK_ALL);
 
-    for (Deck::ConstIterator it = mDiscard.begin(); it != mDiscard.end(); ++it)
+    for (const auto &c : mDiscard)
     {
-        mCanvas->HideCard(*it);
+        mCanvas->HideCard(c);
     }
 
     TLogInfo("Hide discard: " + mDiscard.ToString());
@@ -641,8 +641,8 @@ void TarotWidget::slotAcceptHandle()
 {
     if (mClient.mDeck.TestHandle(mMyHandle) == false)
     {
-        QMessageBox::information(this, trUtf8("Information"),
-                                 trUtf8("Your handle is not valid.\n"
+        QMessageBox::information(this, tr("Information"),
+                                 tr("Your handle is not valid.\n"
                                         "Showing the fool means that you have no any more trumps in your deck."));
         return;
     }
@@ -873,8 +873,8 @@ void TarotWidget::AskForHandle()
     // If a handle exists in the player's deck, we propose to declare it
     if (mClient.mStats.trumps >= 10)
     {
-        int ret = QMessageBox::question(this, trUtf8("Handle"),
-                                        trUtf8("You have a handle.\n"
+        int ret = QMessageBox::question(this, tr("Handle"),
+                                        tr("You have a handle.\n"
                                                "Do you want to declare it?"),
                                         QMessageBox::Yes | QMessageBox::No);
         if (ret == QMessageBox::Yes)

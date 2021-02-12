@@ -53,6 +53,7 @@ VPATH += $$BASE_DIR/assets/ai/tarotlib
 VPATH += $$BASE_DIR/assets/canvasjs
 
 
+CONFIG += icl_zip icl_http
 ICL_DIR = $$BASE_DIR/lib/icl
 include($$ICL_DIR/icl.pri)
 
@@ -71,7 +72,7 @@ INCLUDEPATH += $$BASE_DIR/src/gfxlib
 QT += svg network qml
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++17
 
 # Mainly for Duktape, the only source code in C
 QMAKE_CFLAGS_DEBUG      += -O0 -pedantic -std=c99 -fstrict-aliasing -ggdb

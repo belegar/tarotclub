@@ -248,15 +248,15 @@ bool Canvas::Initialize()
     mMenuItem.Initialize();
     mCardsPics.clear();
 
-    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
+    for (const auto &c : deck)
     {
-        image = path + (*it).ToString().c_str() + ".svg";
+        image = path + c.ToString().c_str() + ".svg";
 
         // Test if file exists
         QFile fileTest(image);
         if (fileTest.exists())
         {
-            GfxCard *item = new GfxCard(image, this, *it);
+            GfxCard *item = new GfxCard(image, this, c);
             item->hide();
             mCardsPics.append(item);
             mScene.addItem(item);
@@ -475,7 +475,7 @@ void Canvas::DrawCard(const Card &c, Place p, Place myPlace)
         gfx->setPos(coordCards[rel.Value()]);
         gfx->setZValue(mDisplayCard);
         gfx->show();
-        gfx->setRotation((qrand() % 30) - 15);
+        gfx->setRotation((QRandomGenerator::global()->generate() % 30) - 15);
 
         // FIXME: does not work for 3 or 5 players
         if (mDisplayCard >= 4.0)
@@ -515,10 +515,10 @@ void Canvas::DrawSouthCards(const Deck &cards)
     }
 
     qreal z = 0.0;
-    for (Deck::ConstIterator it = cards.begin(); it != cards.end(); ++it)
+    for (const auto &c : cards)
     {
         //        std::cout << name << ", ";
-        GfxCard *cgfx = FindGfxCard(*it);
+        GfxCard *cgfx = FindGfxCard(c);
         if (cgfx != NULL)
         {
             cgfx->setPos(x, y);
@@ -534,9 +534,9 @@ void Canvas::DrawCardsInPopup(const Deck &deck)
 {
     QList<QGraphicsItem *> items;
 
-    for (Deck::ConstIterator it = deck.begin(); it != deck.end(); ++it)
+    for (const auto &c : deck)
     {
-        GfxCard *gfx = FindGfxCard(*it);
+        GfxCard *gfx = FindGfxCard(c);
         if (gfx != NULL)
         {
             items.append(gfx);
@@ -700,8 +700,8 @@ void Canvas::SetResult(const Points &points, const Tarot::Bid &bid)
     result_str += "</tr></table><hr />";
 
 
-    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetPoints(Team(Team::DEFENSE), bid)) + QString(" ")  + tr("points") + "<br />";
-    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(points.GetPoints(Team(Team::ATTACK), bid)) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total defense") + QString("&nbsp;&nbsp;&nbsp;") + QString().setNum(points.GetPoints(Team(Team::DEFENSE), bid, 4U)) + QString(" ")  + tr("points") + "<br />";
+    result_str += tr("Total attack") + QString("&nbsp;&nbsp;&nbsp;")  + QString().setNum(points.GetPoints(Team(Team::ATTACK), bid, 4U)) + QString(" ")  + tr("points") + "<br />";
 
 
     result_str += "</body></html>";

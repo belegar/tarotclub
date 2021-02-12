@@ -48,7 +48,7 @@ LobbyDock::LobbyDock(QWidget *parent = 0)
 /*****************************************************************************/
 void LobbyDock::slotConnect()
 {
-    ui.infoLabel->setText(trUtf8("Connecting ..."));
+    ui.infoLabel->setText(tr("Connecting ..."));
     std::uint32_t item = ui.serverList->currentIndex();
     if (item < mServerList.size())
     {
@@ -89,7 +89,7 @@ void LobbyDock::SetPlayersNames(const QMap<std::uint32_t, Identity> &players)
 {
     if (mConnected)
     {
-        ui.infoLabel->setText(trUtf8("Connected."));
+        ui.infoLabel->setText(tr("Connected."));
         ui.playerList->clear();
         mPlayerList = players;
         for (QMap<std::uint32_t, Identity>::const_iterator iter = mPlayerList.begin(); iter != mPlayerList.end(); ++iter)
@@ -200,7 +200,7 @@ void LobbyDock::Initialize()
     ui.quitButton->setEnabled(false);
     ui.connectButton->setEnabled(true);
     ui.disconnectButton->setEnabled(false);
-    ui.infoLabel->setText(trUtf8("Not connected."));
+    ui.infoLabel->setText(tr("Not connected."));
     mTableList.clear();
     mPlayerList.clear();
     ui.tableList->clear();

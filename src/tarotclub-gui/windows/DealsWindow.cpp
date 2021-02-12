@@ -109,9 +109,9 @@ void DealsWindow::slotActivated(int index)
 void DealsWindow::DisplayDeck(const Deck &deck, qreal x, qreal y)
 {
     qreal z = 0;
-    for (Deck::ConstIterator iter = deck.begin(); iter != deck.end(); ++iter)
+    for (const auto &c : deck)
     {
-       std::string name = "c" + iter->ToString();
+       std::string name = "c" + c.ToString();
        for (int j = 0U; j < mCardsPics.size(); j++)
        {
            QGraphicsSvgItem *item = mCardsPics[j];
@@ -137,10 +137,10 @@ void DealsWindow::Initialize()
 
     qreal x = 0;
     qreal y = 115;
-    for (Deck::ConstIterator iter = deck.begin(); iter != deck.end(); ++iter)
+    for (const auto &c : deck)
     {
         QGraphicsSvgItem *item = new QGraphicsSvgItem();
-        item->setElementId("c" + QString(iter->ToString().c_str()));
+        item->setElementId("c" + QString(c.ToString().c_str()));
         item->setSharedRenderer(&mDeck);
         item->setPos(x, y);
         item->show();
@@ -149,12 +149,12 @@ void DealsWindow::Initialize()
         mScene.addItem(item);
 
         qreal limit = 14;
-        if (iter->GetSuit() == Card::TRUMPS)
+        if (c.GetSuit() == Card::TRUMPS)
         {
             limit = 13;
         }
 
-        if (iter->GetValue() == limit)
+        if (c.GetValue() == limit)
         {
             x = 0;
             y += 115;

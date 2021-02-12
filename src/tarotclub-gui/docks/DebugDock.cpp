@@ -37,12 +37,12 @@
 
 /*****************************************************************************/
 DebugDock::DebugDock(QWidget *parent)
-    : QDockWidget(trUtf8("Debug output window"), parent)
+    : QDockWidget(tr("Debug output window"), parent)
 {
     logWindow = new QPlainTextEdit();
     logWindow->setReadOnly(true);
-    clearButton = new QPushButton(trUtf8("Clear"));
-    saveButton = new QPushButton(trUtf8("Save"));
+    clearButton = new QPushButton(tr("Clear"));
+    saveButton = new QPushButton(tr("Save"));
 
     QHBoxLayout *lay1 = new QHBoxLayout();
     lay1->addStretch();

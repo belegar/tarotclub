@@ -69,7 +69,7 @@ protected:
         painter->setBrush(mGradient);
         if (mRound)
         {
-            painter->drawRoundRect(rect(), (int)(15 * rect().height() / rect().width()), 15);
+            painter->drawRoundedRect(rect(), (int)(15 * rect().height() / rect().width()), 15, Qt::RelativeSize);
         }
         else
         {

@@ -29,7 +29,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include "Common.h"
-#include "DealFile.h"
+#include "DealGenerator.h"
 #include "Card.h"
 #include <ui_DealEditorUI.h>
 
@@ -70,7 +70,7 @@ private:
     Ui::DealEditorUI ui;
 
     void Clear();
-    void RefreshUi(const DealFile &editor);
+    void RefreshUi(const DealGenerator &editor);
 };
 
 #endif // EDITORWINDOW_H
