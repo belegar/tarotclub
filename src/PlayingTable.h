@@ -100,7 +100,7 @@ private:
     void NewGame(std::vector<Reply> &out);
     void NewDeal(std::vector<Reply> &out);
     void StartDeal(std::vector<Reply> &out);
-    void BidSequence(std::vector<Reply> &out);
+    void SendNextBidSequence(std::vector<Reply> &out);
     void GameSequence(std::vector<Reply> &out);
     void EndOfDeal(std::vector<Reply> &out);
     bool Sync(Engine::Sequence sequence, std::uint32_t uuid);
@@ -109,7 +109,7 @@ private:
     bool AckFromAllPlayers();
     std::uint32_t GetPlayerUuid(Place p);
     void SendToAllPlayers(std::vector<Reply> &out, JsonObject &obj);
-    void ShowKingCalled(const Card &c, std::vector<Reply> &out);
+    void ShowKingCall(const Card &c, std::vector<Reply> &out);
 };
 
 #endif // PLAYING_TABLE_H

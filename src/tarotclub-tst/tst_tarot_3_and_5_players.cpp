@@ -17,6 +17,8 @@ Tarot3And5Players::Tarot3And5Players()
 {
 }
 
+
+
 // Test du nombre de cartes par joueur et dans le chien selon le nombre de joueurs
 void TestDeal(std::uint32_t nbPlayers)
 {
@@ -97,7 +99,7 @@ void Tarot3And5Players::TestFullGame(uint32_t nbPlayers)
             bots[i].reply.clear();
 
     //        std::cout << "------------------------------------" << std::endl;
-            std::cout << "Bot " << bots[i].bot.mMyself.place.ToString() << " cards: " << bots[i].bot.mDeck.ToString() << std::endl;
+//            std::cout << "Bot " << bots[i].bot.mMyself.place.ToString() << " cards: " << bots[i].bot.mDeck.ToString() << std::endl;
 
             // Send data to that bot if any
             for (std::uint32_t j = 0U; j < exch_data.size(); j++)
@@ -139,17 +141,23 @@ void Tarot3And5Players::TestFullGame(uint32_t nbPlayers)
 
     // On teste les points
     Score score = table.GetScore();
+    int32_t total = 0;
 
     for (uint32_t i = 0; i < nbPlayers; i++)
     {
         Place p(i);
+        int32_t pPoints = score.GetTotalPoints(p);
+        total += pPoints;
 
-        std::cout << "Points for: " << p.ToString() << ": " << score.GetTotalPoints(p) << std::endl;
+        std::cout << "Points for: " << p.ToString() << ": " << pPoints << std::endl;
     }
+
+    // La somme de tous les joueurs doit toujours être nulle
+    QCOMPARE(total, 0);
 
     std::vector<Score::Entry> history = score.GetHistory();
 
-    QCOMPARE(history.size(), 1);
+    QCOMPARE(history.size(), 1U);
 
     if (history.size() == 1)
     {
@@ -178,9 +186,17 @@ void Tarot3And5Players::TestDeal5Players()
 // Ici on fait tourner une partie complète
 void Tarot3And5Players::TestFullGame3Players()
 {
+//    for (int i = 0; i < 10; i++)
+//    {
+//        TestFullGame(3);
+//    }
+}
+
+void Tarot3And5Players::TestFullGame5Players()
+{
     for (int i = 0; i < 10; i++)
     {
-        TestFullGame(3);
+        TestFullGame(5);
     }
 }
 

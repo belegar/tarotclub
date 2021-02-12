@@ -157,7 +157,7 @@ std::int32_t Points::GetLittleEndianPoints() const
  * ch = the slam bonus (200 or 400)
  *
  */
-std::int32_t Points::GetPoints(const Team team, const Tarot::Bid &bid) const
+std::int32_t Points::GetPoints(const Team team, const Tarot::Bid &bid, uint8_t nbPlayers) const
 {
     std::int32_t slamPoints = GetSlamPoints(bid);
     std::int32_t littleEndianPoints = GetLittleEndianPoints();
@@ -173,7 +173,11 @@ std::int32_t Points::GetPoints(const Team team, const Tarot::Bid &bid) const
         {
             sign = -1;
         }
-        multiplier = 3;
+        multiplier = (nbPlayers - 1);
+        if (bid.HasPartner())
+        {
+            multiplier--;
+        }
     }
     else
     {
@@ -232,15 +236,50 @@ bool Score::AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t 
     entry.nbPlayers = numberOfPlayers;
     mHistory.push_back(entry);
 
+    std::int32_t attackPoints = points.GetPoints(Team(Team::ATTACK), bid, numberOfPlayers);
+    std::int32_t defensePoints = points.GetPoints(Team(Team::DEFENSE), bid, numberOfPlayers);
+
+    std::int32_t takerPoints = attackPoints;
+    std::int32_t parterPoints = 0;
+
+    // Si en 5 joueurs le preneur a appeté un partenaire
+    // alors la répartition est de 2/3 pour le preneur et 1/3 pour le partenaire en attaque
+    if ((numberOfPlayers == 5) && bid.HasPartner())
+    {
+        float deuxTiers = static_cast<float>(attackPoints);
+        deuxTiers = deuxTiers * 2 / 3;
+        deuxTiers += 0.4; // arrondi sup
+        takerPoints = static_cast<int32_t>(deuxTiers);
+        parterPoints = attackPoints - takerPoints;
+    }
+
     for (std::uint32_t i = 0U; i < numberOfPlayers; i++)
     {
-        if (Place(i) == bid.taker)
+        if (numberOfPlayers == 5)
         {
-            scores[dealCounter][i] = points.GetPoints(Team(Team::ATTACK), bid);
+            if (Place(i) == bid.taker)
+            {
+                scores[dealCounter][i] = takerPoints;
+            }
+            else if ((Place(i) == bid.partner) && bid.HasPartner())
+            {
+                scores[dealCounter][i] = parterPoints;
+            }
+            else
+            {
+                scores[dealCounter][i] = defensePoints;
+            }
         }
         else
         {
-            scores[dealCounter][i] = points.GetPoints(Team(Team::DEFENSE), bid);
+            if (Place(i) == bid.taker)
+            {
+                scores[dealCounter][i] = takerPoints;
+            }
+            else
+            {
+                scores[dealCounter][i] = defensePoints;
+            }
         }
     }
     dealCounter++;
@@ -251,9 +290,9 @@ bool Score::AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t 
     return false;
 }
 /*****************************************************************************/
-int Score::GetTotalPoints(Place p) const
+int32_t Score::GetTotalPoints(Place p) const
 {
-    int total;
+    int32_t total;
 
     total = 0;
     for (std::uint32_t i = 0U; i < dealCounter; i++)

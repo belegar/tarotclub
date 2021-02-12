@@ -18,9 +18,12 @@ private Q_SLOTS:
     void TestDeal3Players();
     void TestDeal5Players();
     void TestFullGame3Players();
+    void TestFullGame5Players();
 
 private:
     void TestFullGame(uint32_t nbPlayers);
+
+
 };
 
 #endif // TST_TAROT_3_5_PLAYERS_H

@@ -34,6 +34,12 @@ const std::uint8_t Card::DIAMONDS  = 2U;
 const std::uint8_t Card::CLUBS     = 3U;
 const std::uint8_t Card::TRUMPS    = 4U;
 const std::uint8_t INVALID         = 0xFFU;
+
+const std::uint8_t Card::KING   = 14U;
+const std::uint8_t Card::QUEEN  = 13U;
+const std::uint8_t Card::KNIGHT = 12U;
+const std::uint8_t Card::JACK   = 11U;
+
 static const std::string suits = "SHDCT";
 
 /*****************************************************************************/

@@ -136,7 +136,7 @@ Place Place::Previous(std::uint8_t numberOfPlayers)
     return Place(place);
 }
 /*****************************************************************************/
-bool Place::IsValid()
+bool Place::IsValid() const
 {
     return (mPlace < NOWHERE);
 }

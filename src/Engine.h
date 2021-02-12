@@ -77,6 +77,7 @@ public:
     void NewGame();
     Tarot::Distribution NewDeal(const Tarot::Distribution &shuffle);
     Place StartDeal();
+    void SetAfterBidSequence();
     void EndOfDeal(JsonObject &json);
     void BidSequence();
     void DiscardSequence();
@@ -131,6 +132,7 @@ public:
 
     static bool HasDecimal(float f);
 
+
 private:
     Deck    mPlayers[5];     // [3..5] deck of players with their UUID, index = Place
     Deck    currentTrick;   // store the current trick cards played
@@ -156,6 +158,7 @@ private:
     Place mWinner[24];
     Place mPreviousWinner;
     Place mFirstPlayer;
+    Card mKingCalled;
     int mTricksWon;
     Deck::Statistics statsAttack;
 

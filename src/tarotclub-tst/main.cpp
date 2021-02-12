@@ -23,9 +23,9 @@ public:
 
     void Update(const Log::Infos &info)
     {
-        std::cout << info.ToString() << std::endl;
         if (info.event == Log::Error)
         {
+            std::cout << info.ToString() << std::endl;
             QFAIL(info.message.c_str());
         }
     }
@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
     {
         testFailures++;
     }
-*/
+    */
+
     std::cout << std::endl << "=============================================";
     std::cout << std::endl << "Success : " << testSuccesses;
     std::cout << std::endl << "Failures: " << testFailures;

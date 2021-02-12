@@ -71,7 +71,7 @@ bool Bot::Decode(uint32_t src_uuid, uint32_t dest_uuid, const std::string &arg, 
     case BasicClient::REQ_BID:
     {
         // Only reply a bid if it is our place to anwser
-        if (mClient.mBid.taker == mClient.mMyself.place)
+        if (mClient.mCurrentBid.taker == mClient.mMyself.place)
         {
             TLogNetwork("Bot " + mClient.mMyself.place.ToString() + " is bidding");
             RequestBid(out);

@@ -46,7 +46,7 @@ struct Points
     std::int32_t Difference() const;
     std::int32_t GetSlamPoints(const Tarot::Bid &bid) const;
     std::int32_t GetLittleEndianPoints() const;
-    std::int32_t GetPoints(const Team team, const Tarot::Bid &bid) const;
+    std::int32_t GetPoints(const Team team, const Tarot::Bid &bid, uint8_t nbPlayers) const;
 };
 /*****************************************************************************/
 class Score
@@ -68,7 +68,7 @@ public:
     std::uint8_t GetCurrentCounter() { return dealCounter; }
 
     bool AddPoints(const Points &points, const Tarot::Bid &bid, std::uint8_t numberOfPlayers);
-    int GetTotalPoints(Place p) const;
+    int32_t GetTotalPoints(Place p) const;
     std::map<int, Place> GetPodium();
     Place GetWinner();
 
@@ -77,7 +77,7 @@ public:
 private:
     // scores of previous deals
     std::uint32_t dealCounter;
-    int scores[TournamentConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
+    int32_t scores[TournamentConfig::MAX_NUMBER_OF_TURNS][5];   // score of each turn players, 5 players max
     std::uint8_t mNumberOfTurns;
 
     std::vector<Score::Entry> mHistory;

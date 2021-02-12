@@ -59,6 +59,8 @@ public:
         NEW_GAME,
         NEW_DEAL,
         REQ_BID,
+        REQ_CALL_KING,
+        REQ_SHOW_CALLED_KING,
         SHOW_BID,
         ALL_PASSED,
         SHOW_DOG,
@@ -99,6 +101,7 @@ public:
     Deck::Statistics   mStats;   // statistics on player's cards
     Tarot::Game mGame;
     Tarot::Bid  mBid;
+    Tarot::Bid  mCurrentBid;
     Tarot::Distribution mShuffle;
     Points mPoints;
     Deck mCurrentTrick;

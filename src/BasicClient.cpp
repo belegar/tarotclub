@@ -291,10 +291,10 @@ bool BasicClient::PlayRandom(uint32_t src_uuid, uint32_t dest_uuid, const std::s
     case BasicClient::REQ_BID:
     {
         // Only reply a bid if it is our place to anwser
-        if (mBid.taker == mMyself.place)
+        if (mCurrentBid.taker == mMyself.place)
         {
             TLogNetwork("Bot " + mMyself.place.ToString() + " is bidding");
-            Contract highestBid = mBid.contract;
+            Contract highestBid = mCurrentBid.contract;
             Contract botContract = CalculateBid(); // propose our algorithm if the user's one failed
 
             // only bid over previous one is allowed
@@ -305,6 +305,24 @@ bool BasicClient::PlayRandom(uint32_t src_uuid, uint32_t dest_uuid, const std::s
 
             BuildBid(botContract, false, out);
         }
+        break;
+    }
+    case BasicClient::REQ_CALL_KING:
+    {
+        if (mBid.taker == mMyself.place)
+        {
+            JsonObject obj;
+
+            obj.AddValue("cmd", "ReplyKingCall");
+            obj.AddValue("card", "14-C"); // dans cette version on choisit toujours la même carte, le roi de coeur
+
+            out.push_back(Reply(mMyself.tableId, obj));
+        }
+        break;
+    }
+    case BasicClient::REQ_SHOW_CALLED_KING:
+    {
+        Sync(Engine::WAIT_FOR_SHOW_KING_CALL, out);
         break;
     }
     case BasicClient::SHOW_BID:
@@ -518,20 +536,29 @@ BasicClient::Event BasicClient::Decode(uint32_t src_uuid, uint32_t dest_uuid, co
     }
     else if (cmd == "RequestBid")
     {
-        mBid.taker = Place(json.FindValue("place").GetString());
-        mBid.contract = Contract(json.FindValue("contract").GetString());
+        mCurrentBid.taker = Place(json.FindValue("place").GetString());
+        mCurrentBid.contract = Contract(json.FindValue("contract").GetString());
         event = REQ_BID;
     }
     else if (cmd == "ShowBid")
     {
-        mBid.taker = Place(json.FindValue("place").GetString());
-        mBid.contract = Contract(json.FindValue("contract").GetString());
-        mBid.slam = json.FindValue("slam").GetBool();
+        mCurrentBid.taker = Place(json.FindValue("place").GetString());
+        mCurrentBid.contract = Contract(json.FindValue("contract").GetString());
+        mCurrentBid.slam = json.FindValue("slam").GetBool();
+
+        mBid.taker = Place(json.FindValue("taker_place").GetString());
+        mBid.contract = Contract(json.FindValue("taker_contract").GetString());
+        mBid.slam = json.FindValue("taker_slam").GetBool();
+
         event = SHOW_BID;
     }
     else if (cmd == "RequestKingCall")
     {
-
+        event = REQ_CALL_KING;
+    }
+    else if (cmd == "ShowKingCall")
+    {
+        event = REQ_SHOW_CALLED_KING;
     }
     else if (cmd == "AllPassed")
     {

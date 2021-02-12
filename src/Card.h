@@ -54,6 +54,11 @@ public:
     static const std::uint8_t CLUBS;
     static const std::uint8_t TRUMPS;
 
+    static const std::uint8_t KING;
+    static const std::uint8_t QUEEN;
+    static const std::uint8_t KNIGHT;
+    static const std::uint8_t JACK;
+
     // Constructors/destructor
     Card();
     Card(const Card &c)

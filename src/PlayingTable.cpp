@@ -297,9 +297,16 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
                     }
                     case Engine::WAIT_FOR_CARDS:
                     case Engine::WAIT_FOR_SHOW_BID:
+                    {
+                        // Launch/continue the bid sequence
+                        mEngine.BidSequence();
+                        SendNextBidSequence(out);
+                        break;
+                    }
                     case Engine::WAIT_FOR_SHOW_KING_CALL:
                     {
-                        BidSequence(out);
+                        mEngine.SetAfterBidSequence();
+                        SendNextBidSequence(out);
                         break;
                     }
                     case Engine::WAIT_FOR_SHOW_DOG:
@@ -370,14 +377,22 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
                 {
                     Contract cont = mEngine.SetBid((Contract)c, slam, p);
 
+                    Tarot::Bid takerBid = mEngine.GetBid();
+
                     TLogNetwork("Client bid received");
                     // Broadcast player's bid, and wait for all acknowlegements
                     JsonObject obj;
 
+                    // On envoie l'information de qui vient juste d'enchérir
                     obj.AddValue("cmd", "ShowBid");
                     obj.AddValue("place", p.ToString());
                     obj.AddValue("contract", cont.ToString());
                     obj.AddValue("slam", slam);
+
+                    // En même temps on envoie les informations du preneur (celui qui a la plus haute enchère)
+                    obj.AddValue("taker_place", takerBid.taker.ToString());
+                    obj.AddValue("taker_contract", takerBid.contract.ToString());
+                    obj.AddValue("taker_slam", takerBid.slam);
 
                     SendToAllPlayers(out, obj);
                 }
@@ -418,7 +433,7 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
             }
         }
     }
-    else if (cmd == "KingCall")
+    else if (cmd == "ReplyKingCall")
     {
         Card c(json.FindValue("card").GetString());
 
@@ -431,12 +446,16 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
                 if (mEngine.SetKingCalled(c))
                 {
                     // Then start the deal
-                    ShowKingCalled(c, out);
+                    ShowKingCall(c, out);
                 }
                 else
                 {
                     TLogError("Not a valid king called: " + c.ToString());
                 }
+            }
+            else
+            {
+                TLogError("King called step: not the taker");
             }
         }
     }
@@ -554,12 +573,12 @@ void PlayingTable::NewGame(std::vector<Reply> &out)
     SendToAllPlayers(out, obj);
 }
 /*****************************************************************************/
-void PlayingTable::ShowKingCalled(const Card &c, std::vector<Reply> &out)
+void PlayingTable::ShowKingCall(const Card &c, std::vector<Reply> &out)
 {
     JsonObject obj;
     ResetAck();
 
-    obj.AddValue("cmd", "ShowKingCalled");
+    obj.AddValue("cmd", "ShowKingCall");
     obj.AddValue("card", c.ToString());
 
     SendToAllPlayers(out, obj);
@@ -605,11 +624,8 @@ void PlayingTable::StartDeal(std::vector<Reply> &out)
     SendToAllPlayers(out, obj);
 }
 /*****************************************************************************/
-void PlayingTable::BidSequence(std::vector<Reply> &out)
+void PlayingTable::SendNextBidSequence(std::vector<Reply> &out)
 {
-    // Launch/continue the bid sequence
-    mEngine.BidSequence();
-
     Engine::Sequence seq = mEngine.GetSequence();
     switch (seq)
     {
@@ -620,6 +636,15 @@ void PlayingTable::BidSequence(std::vector<Reply> &out)
         obj.AddValue("cmd", "RequestBid");
         obj.AddValue("place", mEngine.GetCurrentPlayer().ToString());
         obj.AddValue("contract", mEngine.GetBid().contract.ToString());
+        SendToAllPlayers(out, obj);
+        break;
+    }
+
+    case Engine::WAIT_FOR_KING_CALL:
+    {
+        JsonObject obj;
+
+        obj.AddValue("cmd", "RequestKingCall");
         SendToAllPlayers(out, obj);
         break;
     }

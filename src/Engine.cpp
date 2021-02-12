@@ -252,6 +252,87 @@ bool Engine::SetKingCalled(const Card &c)
 {
     bool success = false;
 
+    // On l'appelle King mais en fait le preneur peut appeler une dame (ou cavalier, etc) s'il
+    // possède 4 rois ou 4 dames. On va vérifier cela.
+    // On analyse toujours le jeu de l'attaquant avant de continuer
+    mPlayers[mBid.taker.Value()].AnalyzeSuits(statsAttack);
+
+    bool cardIsValid = true;
+    if (c.GetValue() != Card::KING)
+    {
+        if (statsAttack.kings == 4)
+        {
+            if (c.GetValue() != Card::QUEEN)
+            {
+                if (statsAttack.queens == 4)
+                {
+                    if (c.GetValue() != Card::KNIGHT)
+                    {
+                        if (statsAttack.knights == 4)
+                        {
+                            if (c.GetValue() != Card::JACK)
+                            {
+                                if (statsAttack.jacks == 4)
+                                {
+                                    cardIsValid = true;
+                                }
+                                else
+                                {
+                                    cardIsValid = false; // nah, il n'a pas 4 valets
+                                }
+                            }
+                        }
+                        else
+                        {
+                            cardIsValid = false; // nah, il n'a pas 4 cavaliers
+                        }
+                    }
+                }
+                else
+                {
+                    cardIsValid = false; // nah, il n'a pas 4 dames
+                }
+            }
+        }
+        else
+        {
+            cardIsValid = false; // nah, il n'a pas 4 rois
+        }
+    }
+
+
+    if (cardIsValid)
+    {
+        // Appel au roi dans le chien ou dans le deck du preneur ?
+        if (mDog.HasCard(c) || mPlayers[mBid.taker.Value()].HasCard(c))
+        {
+            // Il est tout seul car il a appelé une carte à lui ou au chien
+            mBid.partner = mBid.taker;
+            success = true;
+        }
+        else
+        {
+            // On recherche son partenaire
+            Place partner = mBid.taker.Next(5);
+            for (uint32_t i = 0; i < 4; i++)
+            {
+                if (mPlayers[partner.Value()].HasCard(c))
+                {
+                    mBid.partner = partner;
+                    success = true;
+                    break;
+                }
+                partner = partner.Next(5);
+            }
+        }
+
+        mKingCalled = c; // sauvegarde du roi appelé
+    }
+
+    if (success)
+    {
+        mSequence = Engine::WAIT_FOR_SHOW_KING_CALL;
+    }
 
     return success;
 }
@@ -321,6 +402,33 @@ void Engine::EndOfDeal(JsonObject &json)
     mSequence = WAIT_FOR_END_OF_DEAL;
 }
 /*****************************************************************************/
+void Engine::SetAfterBidSequence()
+{
+    if ((mBid.contract == Contract::GUARD_WITHOUT) || (mBid.contract == Contract::GUARD_AGAINST))
+    {
+        // No discard is made, set the owner of the dog
+        if (mBid.contract != Contract(Contract::GUARD_AGAINST))
+        {
+            mDiscard = mDog;
+            mDiscard.SetOwner(Team(Team::ATTACK));
+        }
+        else
+        {
+            // Guard _against_, the dog belongs to the defense
+            mDiscard = mDog;
+            mDiscard.SetOwner(Team(Team::DEFENSE));
+        }
+
+         // We do not display the dog and start the deal immediatly
+         mSequence = WAIT_FOR_START_DEAL;
+    }
+    else
+    {
+        // Show the dog to all the players
+        mSequence = WAIT_FOR_SHOW_DOG;
+    }
+}
+/*****************************************************************************/
 
 /**
  * @brief Engine::BidSequence
@@ -336,45 +444,17 @@ void Engine::BidSequence()
             // All the players have passed, deal again new cards
             mSequence = WAIT_FOR_ALL_PASSED;
         }
+        // On a terminé les enchères, on bascule sur le choix du roi
+        // dans le cas du jeu à 5 joueurs
+        else if ((mNbPlayers == 5) && (mSequence == WAIT_FOR_SHOW_BID))
+        {
+            mBid.partner = mBid.taker; // par défaut, le partenaire est le preneur (cas à 5 joueurs que l'on tente
+            // de généraliser pour tous les autres modes de jeu
+            mSequence = WAIT_FOR_KING_CALL;
+        }
         else
         {
-            if ((mBid.contract == Contract::GUARD_WITHOUT) || (mBid.contract == Contract::GUARD_AGAINST))
-            {
-                // No discard is made, set the owner of the dog
-                if (mBid.contract != Contract(Contract::GUARD_AGAINST))
-                {
-                    mDiscard = mDog;
-                    mDiscard.SetOwner(Team(Team::ATTACK));
-                }
-                else
-                {
-                    // Guard _against_, the dog belongs to the defense
-                    mDiscard = mDog;
-                    mDiscard.SetOwner(Team(Team::DEFENSE));
-                }
-
-                if (mNbPlayers == 5)
-                {
-                    mSequence = WAIT_FOR_KING_CALL;
-                }
-                else
-                {
-                    // We do not display the dog and start the deal immediatly
-                    mSequence = WAIT_FOR_START_DEAL;
-                }
-            }
-            else
-            {
-                if (mNbPlayers == 5)
-                {
-                    mSequence = WAIT_FOR_KING_CALL;
-                }
-                else
-                {
-                    // Show the dog to all the players
-                    mSequence = WAIT_FOR_SHOW_DOG;
-                }
-            }
+            SetAfterBidSequence();
         }
     }
     else
@@ -571,7 +651,7 @@ Place Engine::SetTrick(const Deck &trick, std::uint8_t trickCounter)
                 else
                 {
                     Place foolPlace = GetOwner(firstPlayer, cFool, turn);
-                    Team winnerTeam = (winner == mBid.taker) ? Team(Team::ATTACK) : Team(Team::DEFENSE);
+                    Team winnerTeam = ((winner == mBid.taker) || (winner == mBid.partner)) ? Team(Team::ATTACK) : Team(Team::DEFENSE);
                     Team foolTeam = (foolPlace == mBid.taker) ? Team(Team::ATTACK) : Team(Team::DEFENSE);
 
                     if (Tarot::IsDealFinished(trickCounter, numberOfPlayers))
@@ -605,7 +685,7 @@ Place Engine::SetTrick(const Deck &trick, std::uint8_t trickCounter)
             }
         }
 
-        if (winner == mBid.taker)
+        if ((winner == mBid.taker) || (winner == mBid.partner))
         {
             mTricks[turn].SetOwner(Team(Team::ATTACK));
             mTricks[turn].AnalyzeTrumps(statsAttack);
@@ -933,7 +1013,8 @@ bool Engine::DecodeJsonDeal(const JsonValue &json)
                     {
                         Place winner = SetTrick(trick, trickCounter);
 #ifdef UNIT_TEST
-                        std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.ToString() << ", Winner: " << winner.ToString() << std::endl;
+                        (void) winner;
+            //            std::cout << "Trick: " << (int)trickCounter << ", Cards: " << trick.ToString() << ", Winner: " << winner.ToString() << std::endl;
 #else
                         (void) winner;
 #endif

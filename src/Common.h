@@ -124,7 +124,7 @@ public:
      */
     Place Next(std::uint8_t numberOfPlayers);
     Place Previous(std::uint8_t numberOfPlayers);
-    bool IsValid();
+    bool IsValid() const;
 
     Place &operator = (Place const &rhs)
     {
@@ -311,6 +311,7 @@ public:
     struct Bid
     {
         Place       taker;     // who has annouced the contract
+        Place       partner;   // partner in 5 players games
         Contract    contract;  // contract announced
         bool        slam;      // true if the taker has announced a slam (chelem)
 
@@ -321,6 +322,7 @@ public:
 
         Bid(const Bid &other)
             : taker(other.taker)
+            , partner(other.partner)
             , contract(other.contract)
             , slam(other.slam)
         {
@@ -334,6 +336,7 @@ public:
                 this->contract = other.contract;
                 this->taker = other.taker;
                 this->slam = other.slam;
+                this->partner = other.partner;
             }
             // by convention, always return *this
             return *this;
@@ -344,6 +347,17 @@ public:
             contract = Contract::PASS;
             slam = false;
             taker = Place::NOWHERE;
+            partner = Place::NOWHERE;
+        }
+
+        bool HasPartner() const
+        {
+            bool hasPartner = false;
+            if (taker.IsValid() && partner.IsValid() && (partner != taker))
+            {
+                hasPartner = true;
+            }
+            return hasPartner;
         }
     };
 

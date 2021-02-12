@@ -156,7 +156,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::DEFENSE);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), -102); // -34 multiple 3 players
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), -102); // -34 multiple 3 players
     QCOMPARE(points.oudlers, 1);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, false);
@@ -190,7 +190,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::ATTACK);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), 54 * 3);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), 54 * 3);
     QCOMPARE(points.oudlers, 2);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, false);
@@ -207,7 +207,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::DEFENSE);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), -58 * 3);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), -58 * 3);
     QCOMPARE(points.oudlers, 1);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, false);
@@ -225,7 +225,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::DEFENSE);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), -58 * 3);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), -58 * 3);
     QCOMPARE(points.oudlers, 1);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, false);
@@ -242,7 +242,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::ATTACK);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), 216);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), 216);
     QCOMPARE(points.oudlers, 3);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, false);
@@ -272,7 +272,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::ATTACK);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), 2886);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), 2886);
     QCOMPARE(points.oudlers, 3);
     QCOMPARE(points.handlePoints, 40);
     QCOMPARE(points.slamDone, true);
@@ -291,7 +291,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::ATTACK);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), 360);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), 360);
     QCOMPARE(points.oudlers, 3);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, false);
@@ -312,7 +312,7 @@ void TarotRules::TestScoreCalculation()
     deal.AnalyzeGame(points, 4U);
 
     QCOMPARE(points.Winner().Value(), Team::DEFENSE);
-    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid()), -686 * 3);
+    QCOMPARE(points.GetPoints(Team(Team::ATTACK), deal.GetBid(), 4U), -686 * 3);
     QCOMPARE(points.oudlers, 0);
     QCOMPARE(points.handlePoints, 0);
     QCOMPARE(points.slamDone, true);
