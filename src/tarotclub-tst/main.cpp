@@ -25,8 +25,11 @@ public:
     {
         if (info.event == Log::Error)
         {
-            std::cout << info.ToString() << std::endl;
             QFAIL(info.message.c_str());
+        }
+        else if (info.event == Log::Network)
+        {
+             std::cout << info.ToString() << std::endl;
         }
     }
 };

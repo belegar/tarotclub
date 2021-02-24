@@ -273,12 +273,12 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
             }
             else
             {
-                TLogNetwork("Received sync() for step: " + step);
+              //  TLogNetwork("Received sync() for step: " + step);
 
                 // Returns true if all the players have send their sync signal
                 if (Sync(seq, src_uuid))
                 {
-                    TLogNetwork("All players have sync() for step: " + step);
+              //      TLogNetwork("All players have sync() for step: " + step);
                     switch (seq) {
                     case Engine::WAIT_FOR_PLAYERS:
                     {
@@ -379,7 +379,7 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
 
                     Tarot::Bid takerBid = mEngine.GetBid();
 
-                    TLogNetwork("Client bid received");
+//                    TLogNetwork("Client bid received");
                     // Broadcast player's bid, and wait for all acknowlegements
                     JsonObject obj;
 

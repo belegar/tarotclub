@@ -110,7 +110,8 @@ void Tarot3And5Players::TestFullGame(uint32_t nbPlayers)
                         (exch_data[j].dest[k] == Protocol::LOBBY_UID) ||
                         (exch_data[j].dest[k] == tableId))
                     {
-                        bots[i].bot.PlayRandom(Protocol::LOBBY_UID, exch_data[j].dest[k], exch_data[j].data.ToString(0U), bots[i].reply);
+                        TLogNetwork(exch_data[j].data.ToString());
+                        bots[i].bot.PlayRandom(Protocol::LOBBY_UID, exch_data[j].dest[k], exch_data[j].data.ToString(), bots[i].reply);
                     }
                 }
             }
@@ -131,6 +132,7 @@ void Tarot3And5Players::TestFullGame(uint32_t nbPlayers)
                 std::uint32_t value = static_cast<std::uint32_t>(bots[i].reply[j].dest.size());
                 QCOMPARE(value, expected);
 
+                TLogNetwork(bots[i].reply[j].data.ToString());
                 EndOfGame = table.ExecuteRequest(bots[i].uuid, bots[i].reply[j].dest[0], bots[i].reply[j].data, exch_data);
             }
         }
