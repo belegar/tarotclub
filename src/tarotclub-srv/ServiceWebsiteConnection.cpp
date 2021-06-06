@@ -1,10 +1,6 @@
 #include "ServiceWebsiteConnection.h"
-#include "tls_client.h"
 #include "HttpProtocol.h"
 #include "JsonReader.h"
-
-const std::uint32_t ServiceWebsiteConnection::cSSEStart = 0x1234;
-const std::uint32_t ServiceWebsiteConnection::cSSEStop = 0x4567;
 
 ServiceWebsiteConnection::ServiceWebsiteConnection(Server &server, Lobby &lobby, const ServerOptions &opt)
     : mServer(server)
@@ -28,16 +24,7 @@ std::string ServiceWebsiteConnection::UpdateServerStatus()
 
     obj.AddValue("server", serverObj);
     obj.AddValue("token", mOptions.token);
-
-    if (mRegistered)
-    {
-        obj.AddValue("auth", mSSK);
-        obj.AddValue("command", "server_status");
-    }
-    else
-    {
-        obj.AddValue("command", "server_register");
-    }
+    obj.AddValue("auth", mSSK);
 
     return obj.ToString(0);
 }
@@ -49,13 +36,14 @@ void ServiceWebsiteConnection::WebThread()
 
     client.Initialize();
     client.SetSecured(true);
-    client.SetWebSocket(true);
-    client.SetWebSocketUri("/servers");
+    client.SetWebSocket(false);
+   // client.SetWebSocketUri("/servers");
 
     while(!mQuitThread)
     {
         if (!connected)
         {
+            client.Initialize();
             if (client.Connect(mHost, 443))
             {
                 connected = true;
@@ -67,52 +55,72 @@ void ServiceWebsiteConnection::WebThread()
         }
         else
         {
-            std::string request_string = UpdateServerStatus();
             TLogInfo("[REGISTER] Sending register or status request");
-            bool req_success = client.Send(request_string);
+
+            HttpRequest request;
+
+            request.body = UpdateServerStatus();
+            request.method = "POST";
+            std::string path = mRegistered ? "status" : "register";
+            request.query = "/api/v1/servers/" + path;
+            request.protocol = "HTTP/1.1";
+            request.headers["Host"] = "www." + mHost;
+            request.headers["Content-type"] = "application/json";
+            request.headers["Content-length"] = std::to_string(request.body.size());
+            request.headers["Authorization"] = "Bearer " + mSSK;
+
+            bool req_success = client.Send(HttpProtocol::GenerateRequest(request));
 
             if (req_success)
             {
-                std::string reply;
-                if (client.RecvWithTimeout(reply, 2048, 500))
+                std::string response;
+                if (client.RecvWithTimeout(response, 2048, 500))
                 {
-                    JsonReader reader;
-                    JsonValue json;
-
-                    if (reader.ParseString(json, reply))
+                    HttpReply reply;
+                    if (HttpProtocol::ParseReplyHeader(response, reply))
                     {
-                        if (json.IsObject())
-                        {
-                            JsonObject replyObj = json.GetObj();
+                        JsonReader reader;
+                        JsonValue json;
 
-                            // Analyse de la réponse
-                            if (!mRegistered)
+                        if (reader.ParseString(json, reply.body))
+                        {
+                            if (json.IsObject())
                             {
-                                if (replyObj.HasValue("success") && replyObj.HasValue("data:ssk"))
+                                JsonObject replyObj = json.GetObj();
+
+                                // Analyse de la réponse
+                                if (!mRegistered)
                                 {
-                                    // SSK == Server Session Key
-                                    // basically, the SSK is a JWT format
-                                    if (replyObj.GetValue("success").GetBool())
+                                    if (replyObj.HasValue("success") && replyObj.HasValue("data:ssk"))
                                     {
-                                        SSEItem item;
-                                        item.event = cSSEStart;
-                                        mSSK = replyObj.GetValue("data:ssk").GetString();
-                                        mSSEQueue.Push(item);
-                                        mRegistered = true;
+                                        // SSK == Server Session Key
+                                        // basically, the SSK is a JWT format
+                                        if (replyObj.GetValue("success").GetBool())
+                                        {
+                                            mSSK = replyObj.GetValue("data:ssk").GetString();
+                                            mRegistered = true;
+                                        }
+                                        else
+                                        {
+                                            TLogError("[REGISTER] Registering rejected");
+                                        }
                                     }
                                     else
                                     {
-                                        TLogError("[REGISTER] Registering rejected");
+                                        TLogError("[REGISTER] Invalid reply. Error: " + replyObj.GetValue("message").GetString());
                                     }
-                                }
-                                else
-                                {
-                                    TLogError("[REGISTER] Invalid reply, missing status");
                                 }
                             }
                         }
+                        else
+                        {
+                            TLogError("[REGISTER] Reply body is not JSON: " + reply.body);
+                        }
                     }
-
+                    else
+                    {
+                        TLogError("[REGISTER] Reply is not HTTP");
+                    }
                 }
                 else
                 {
@@ -136,81 +144,6 @@ std::string ServiceWebsiteConnection::GetName()
     return "ServiceWebsiteConnection";
 }
 
-// Le protocole Server Send Event est lien permanent unidirectionnel du serveur vers le client
-// Les données transférées sont de l'UTF8 uniquement, nickel pour du JSON
-void ServiceWebsiteConnection::ServerSentEventsThread()
-{
-    SimpleTlsClient tls;
-    bool connected = false;
-    bool started = false;
-
-    HttpProtocol http;
-    HttpRequest request;
-
-    request.method = "GET";
-    request.protocol = "HTTP/1.1";
-    request.query = "/api/v1/server/events";
-    request.headers["Host"] = "www." + mHost;
-    request.headers["Accept"] = "text/event-stream";
-
-    while(!mQuitThread)
-    {
-        SSEItem item;
-        if (mSSEQueue.TryPop(item))
-        {
-            if (item.event == cSSEStart)
-            {
-                // arg is the token
-                request.headers["Authorization"] = "Bearer " + mSSK;
-                started = true;
-                connected = false;
-            }
-            else
-            {
-                started = false;
-                connected = false;
-                tls.Close();
-            }
-        }
-
-        if (started)
-        {
-            if (!connected)
-            {
-                if (tls.Connect(mHost.c_str()))
-                {
-                    std::string sseInitialReq = http.GenerateRequest(request);
-                    tls.Write(reinterpret_cast<const uint8_t *>(sseInitialReq.c_str()), sseInitialReq.size());
-                    connected = true;
-                    TLogInfo("[SSE] Thread started");
-                }
-                else
-                {
-                    TLogError("[SSE] Cannot join server");
-                }
-            }
-            else
-            {
-                read_buff_t rb;
-                TLogInfo("[SSE] Wait for data");
-                if (tls.Read(&rb))
-                {
-                    if (rb.size > 0)
-                    {
-                        HttpReply reply;
-                        HttpProtocol http;
-
-                        TLogInfo("[SSE] Received data");
-                    }
-                }
-                else
-                {
-                    connected = false;
-                }
-            }
-        }
-    }
-}
 
 void ServiceWebsiteConnection::Initialize()
 {
@@ -219,17 +152,7 @@ void ServiceWebsiteConnection::Initialize()
 #else
     mHost = "tarotclub.fr";
 #endif
-
-
-//    c.Initialize();
-//    c.SetWebSocketUri("/clients");
-//    c.Connect("127.0.0.1", 6000);
-
-//    c.Send("coucou");
-
-
     mWebThread = std::thread(&ServiceWebsiteConnection::WebThread, this);
-//    mSSEThread = std::thread(&ServiceWebsiteConnection::ServerSentEventsThread, this);
 }
 
 void ServiceWebsiteConnection::Stop()

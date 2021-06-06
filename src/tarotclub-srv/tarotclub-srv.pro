@@ -63,7 +63,7 @@ win32 {
 }
 
 unix {
-    DEFINES += USE_UNIX_OS
+    DEFINES += USE_LINUX_OS
     LIBS += -ldl
 }
 
@@ -94,12 +94,12 @@ include($$BASE_DIR/src/tarot_core.pri)
 INCLUDEPATH += $$BASE_DIR/src/tarotclub-srv
 VPATH += $$BASE_DIR/src/tarotclub-srv
 
-SOURCES +=  main.cpp Terminal.cpp tls_client.cpp \
+SOURCES +=  main.cpp Terminal.cpp \
     ServiceAiContest.cpp \
     ServiceStats.cpp \
     ServiceWebsiteConnection.cpp
 
-HEADERS += Version.h Terminal.h IService.h tls_client.h \
+HEADERS += Version.h Terminal.h IService.h \
     ServiceAiContest.h \
     ServiceStats.h \
     ServiceWebsiteConnection.h
