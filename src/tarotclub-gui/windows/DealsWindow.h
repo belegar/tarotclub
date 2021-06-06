@@ -31,8 +31,9 @@
 #include <QComboBox>
 #include <QLayout>
 #include <QGraphicsView>
-#include <QtSvg>
-
+#include <QGraphicsSvgItem>
+#include <QSvgRenderer>
+#include <QFileInfoList>
 #include "Engine.h"
 
 /*****************************************************************************/

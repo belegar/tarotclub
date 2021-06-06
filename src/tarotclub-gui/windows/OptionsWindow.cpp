@@ -214,7 +214,7 @@ void DragWidget::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    QPixmap pixmap = child->pixmap()->scaled(40, 40);
+    QPixmap pixmap = child->pixmap().scaled(40, 40);
 
     // Look for the selected suit
     int selected = DetectLabel(child->pos().x());

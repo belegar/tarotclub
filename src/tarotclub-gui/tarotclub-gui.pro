@@ -69,7 +69,7 @@ INCLUDEPATH += $$BASE_DIR/src/gfxlib
 # ------------------------------------------------------------------------------
 # Compiler definitions
 # ------------------------------------------------------------------------------
-QT += svg network qml
+QT += svg network qml svgwidgets
 RESOURCES = $$BASE_DIR/assets/desktop.qrc
 CONFIG += qt warn_on
 QMAKE_CXXFLAGS += -std=c++17
@@ -94,7 +94,7 @@ win32 {
 }
 
 unix {
-    DEFINES += USE_UNIX_OS
+    DEFINES += USE_LINUX_OS
     LIBS += -ldl
 }
 

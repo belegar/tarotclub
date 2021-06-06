@@ -34,7 +34,7 @@
 // Qt includes
 #include <QApplication>
 #include <QSplashScreen>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QtGlobal>
 #include <QTranslator>
 

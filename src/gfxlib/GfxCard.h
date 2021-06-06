@@ -26,7 +26,8 @@
 #ifndef GFXCARD_H
 #define GFXCARD_H
 
-#include <QtSvg>
+#include <QGraphicsSvgItem>
+#include <QGraphicsDropShadowEffect>
 #include "Card.h"
 #include "CustomTypes.h"
 #include "ICardEvent.h"

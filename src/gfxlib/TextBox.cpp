@@ -45,7 +45,7 @@ void TextBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setPen(pen());
     painter->setBrush(brush());
-    painter->drawRoundRect(rect(), (int)(15 * rect().height()
+    painter->drawRoundedRect(rect(), (int)(15 * rect().height()
                                          / rect().width()), 15);
 
     // Text inside the box

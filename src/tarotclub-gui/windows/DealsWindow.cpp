@@ -24,6 +24,8 @@
  */
 
 #include <QMessageBox>
+#include <QLabel>
+#include <QtCore>
 #include "DealsWindow.h"
 #include "Deck.h"
 #include "System.h"

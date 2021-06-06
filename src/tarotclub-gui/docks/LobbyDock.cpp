@@ -31,7 +31,7 @@
 #include "Lobby.h"
 
 /*****************************************************************************/
-LobbyDock::LobbyDock(QWidget *parent = 0)
+LobbyDock::LobbyDock(QWidget *parent)
     : QDockWidget(tr("Online game lobby"), parent)
     , mConnected(false)
 {
