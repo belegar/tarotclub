@@ -1,5 +1,5 @@
 #ifndef TST_TAROT_PROTOCOL_H
-#define TST_TAROT_RULES_H
+#define TST_TAROT_PROTOCOL_H
 
 #include <QString>
 #include <QtTest>
@@ -25,4 +25,4 @@ private:
 
 };
 
-#endif // TST_TAROT_RULES_H
+#endif // TST_TAROT_PROTOCOL_H

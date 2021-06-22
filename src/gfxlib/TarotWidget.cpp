@@ -82,7 +82,7 @@ TarotWidget::~TarotWidget()
  */
 void TarotWidget::Initialize()
 {
-    mSession.Initialize("ABCDEF"); // FIXME: manage keys
+    mSession.Initialize("aPdSgVkYp3s6v9y"); // FIXME: manage keys
     mCanvas->Initialize();
     mSequence = IDLE;
     mCanvas->SetFilter(Canvas::MENU);
@@ -500,6 +500,7 @@ void TarotWidget::LaunchLocalGame(bool autoPlay)
     {
         InitScreen(true);
         mConnectionType = LOCAL;
+        CreateLocalServer();
         // Connect us to the server
         mSession.ConnectToHost("127.0.0.1", ServerConfig::DEFAULT_GAME_TCP_PORT);
     }
@@ -588,10 +589,16 @@ void TarotWidget::ApplyOptions(const ClientOptions &i_clientOpt, const ServerOpt
     // Local connection: we destroy everything and restart all stuff
     if (mConnectionType != REMOTE)
     {
-        mLobby.DeleteTables();
-        mLobby.Initialize("Local", mServerOptions.tables);
-        mServer.Start(mServerOptions);
+        CreateLocalServer();
     }
+}
+/*****************************************************************************/
+void TarotWidget::CreateLocalServer()
+{
+    mServer.Stop();
+    mLobby.DeleteTables();
+    mLobby.Initialize("Local", mServerOptions.tables);
+    mServer.Start(mServerOptions);
 }
 /*****************************************************************************/
 void TarotWidget::HideTrick()

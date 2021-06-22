@@ -6,8 +6,6 @@
 
 #include "JsonValue.h"
 #include "Common.h"
-#include "ThreadQueue.h"
-#include "TcpClient.h"
 #include "Identity.h"
 #include "Protocol.h"
 #include "Users.h"

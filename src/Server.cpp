@@ -54,11 +54,12 @@ void Server::Start(const ServerOptions &opt)
 /*****************************************************************************/
 void Server::NewConnection(const tcp::Conn &conn)
 {
-    GameSession session;
+    PeerSession session;
     std::vector<Reply> out;
 
     std::uint32_t uuid = mListener.AddUser(out);
     session.peer = conn.peer;
+    session.proto.SetSecurty("aPdSgVkYp3s6v9y"); // FIXME generate per-user key
     mPeers[uuid] = session;
 
     Send(out);
@@ -137,7 +138,7 @@ void Server::Send(const std::vector<Reply> &out)
 /*****************************************************************************/
 void Server::CloseClients()
 {
-    for (std::map<std::uint32_t, GameSession>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
+    for (std::map<std::uint32_t, PeerSession>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
     {
         tcp::TcpSocket::Close(iter->second.peer);
     }
@@ -146,7 +147,7 @@ void Server::CloseClients()
 std::uint32_t Server::GetUuid(const tcp::Peer &peer)
 {
     std::uint32_t uuid = Protocol::INVALID_UID;
-    for (std::map<std::uint32_t, GameSession>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
+    for (std::map<std::uint32_t, PeerSession>::iterator iter = mPeers.begin(); iter != mPeers.end(); ++iter)
     {
         if (iter->second.peer == peer)
         {

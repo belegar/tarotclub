@@ -244,6 +244,7 @@ private:
 
     void customEvent(QEvent *e);
 
+    void CreateLocalServer();
 private slots:
     // Board events
     void slotAcceptHandle();

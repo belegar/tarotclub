@@ -102,7 +102,7 @@ void Session::Run()
                         Protocol::Header h;
                         while (mProto.Parse(data, h))
                         {
-                        //    TLogNetwork("Found one packet with data: " + data);
+                            TLogNetwork("Found one packet with data: " + data);
                             std::vector<Reply> out;
                             bool ret = mListener.Deliver(h.src_uid, h.dst_uid, data, out);
                             // Send synchronous data to the server

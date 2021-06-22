@@ -159,11 +159,11 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                     JsonObject reply;
                     JsonArray tables;
 
-                    for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+                    for (const auto & t : mTables)
                     {
                         JsonObject table;
-                        table.AddValue("name", (*iter)->GetName());
-                        table.AddValue("uuid", (*iter)->GetId());
+                        table.AddValue("name", t.GetName());
+                        table.AddValue("uuid", t.GetId());
                         tables.AddValue(table);
                     }
 
@@ -344,14 +344,14 @@ std::uint32_t Lobby::CreateTable(const std::string &tableName, const Tarot::Game
         ss << "Creating table \"" << tableName << "\": id=" << id << std::endl;
         TLogInfo(ss.str());
 
-        PlayingTable *table = new PlayingTable();
+        auto table = std::make_unique<PlayingTable>();
         table->SetId(id);
         table->SetName(tableName);
         table->SetAdminMode(mAdminMode);
         table->SetupGame(game);
         table->Initialize();
         table->CreateTable(4U);
-        mTables.push_back(table);
+        mTables.push_back(std::move(table));
     }
     else
     {
@@ -363,11 +363,10 @@ std::uint32_t Lobby::CreateTable(const std::string &tableName, const Tarot::Game
 bool Lobby::DestroyTable(std::uint32_t id)
 {
     bool ret = false;
-    for (std::vector<PlayingTable *>::iterator it = mTables.begin(); it != mTables.end(); ++it)
+    for (auto & t : mTables)
     {
-        if ((*it)->GetId() == id)
+        if (t->GetId() == id)
         {
-            delete *it; // Delete the PlayingTable object in heap
             mTables.erase(it);
             ret = true;
             break;

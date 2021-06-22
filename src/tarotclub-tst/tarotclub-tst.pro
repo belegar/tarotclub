@@ -72,7 +72,7 @@ win32 {
     DEFINES += USE_WINDOWS_OS
 }
 unix {
-    DEFINES += USE_UNIX_OS
+    DEFINES += USE_LINUX_OS
     LIBS += -ldl -lgcov
 }
 

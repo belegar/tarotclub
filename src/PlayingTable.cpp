@@ -538,6 +538,11 @@ bool PlayingTable::ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uui
     return isEndOfDeal;
 }
 /*****************************************************************************/
+std::string PlayingTable::GetName()
+{
+    return mName;
+}
+/*****************************************************************************/
 void PlayingTable::EndOfDeal(std::vector<Reply> &out)
 {
     bool continueGame = mScore.AddPoints(mEngine.GetCurrentGamePoints(), mEngine.GetBid(), mEngine.GetNbPlayers());

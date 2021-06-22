@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <button onclick="pressBtn()">Click me!</button>
+    <p>Open the console to see the result!</p>
+  </body>
+  
+  
+<script src="build/index.js"></script>
+<script>
+var js_wrapped_fib = Module.cwrap("fib", "number", ["number"]);
+
+function pressBtn(){
+    console.log("The result of fib(5) is:", js_wrapped_fib(5));
+}
+</script>
+
+</html>
+
+
+

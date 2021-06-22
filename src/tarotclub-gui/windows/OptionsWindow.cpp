@@ -157,7 +157,7 @@ void DragWidget::dropEvent(QDropEvent *event)
     if (event->mimeData()->hasFormat("application/x-dnditemdata"))
     {
         // Look for the selected suit
-        int destination = DetectLabel(event->pos().x());
+        int destination = DetectLabel(event->position().toPoint().x());
         if ((destination >= 0) && (destination < 5))
         {
             QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
@@ -343,7 +343,7 @@ OptionsWindow::OptionsWindow(QWidget *parent)
     // Enable/disable the custom avatar URL
     mRadioGroup.addButton(ui.radioLocal, cLocalRadioButtonId);
     mRadioGroup.addButton(ui.radioPredefined, cPredefinedRadioButtonId);
-    connect (&mRadioGroup, SIGNAL(buttonToggled(int,bool)), this, SLOT(slotButtonToggled(int,bool)));
+    connect (&mRadioGroup, &QButtonGroup::idToggled, this, &OptionsWindow::slotButtonToggled);
 
     // Server tab
     connect(ui.addServerButton, &QPushButton::clicked, this, &OptionsWindow::slotAddServer);

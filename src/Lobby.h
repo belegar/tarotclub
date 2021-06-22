@@ -70,7 +70,7 @@ public:
 
 private:
     bool mInitialized;
-    std::vector<PlayingTable *> mTables;
+    std::vector<std::unique_ptr<PlayingTable>> mTables;
     UniqueId    mTableIds;
     UniqueId    mUserIds;
     UniqueId    mStagingIds; // staging area where users are in the process to be connected

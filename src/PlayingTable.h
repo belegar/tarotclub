@@ -43,7 +43,7 @@ public:
     void Initialize();
     bool ExecuteRequest(std::uint32_t src_uuid, std::uint32_t dest_uuid, const JsonValue &json, std::vector<Reply> &out);
 
-    std::string GetName() { return mName; }
+    std::string GetName();
     void SetName(const std::string &name) { mName = name; }
 
     std::uint32_t GetId() { return mId; }
