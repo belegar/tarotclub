@@ -26,6 +26,9 @@
 #ifndef LOBBY_H
 #define LOBBY_H
 
+#include <memory>
+#include <vector>
+
 // Tarot files
 #include "Protocol.h"
 #include "PlayingTable.h"

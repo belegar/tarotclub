@@ -55,11 +55,7 @@ Lobby::~Lobby()
 /*****************************************************************************/
 void Lobby::DeleteTables()
 {
-    // Delete tables
-    for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
-    {
-        delete (*iter);
-    }
+    mTables.clear();
 }
 /*****************************************************************************/
 void Lobby::Initialize(const std::string &name, const std::vector<std::string> &tables)
@@ -106,11 +102,11 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
         if (tableId == dest_uuid)
         {
             // forward it to the suitable table PlayingTable
-            for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+            for (auto &t : mTables)
             {
-                if ((*iter)->GetId() == tableId)
+                if (t->GetId() == tableId)
                 {
-                    (*iter)->ExecuteRequest(src_uuid, dest_uuid, json, out);
+                    t->ExecuteRequest(src_uuid, dest_uuid, json, out);
                 }
             }
         }
@@ -162,8 +158,8 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                     for (const auto & t : mTables)
                     {
                         JsonObject table;
-                        table.AddValue("name", t.GetName());
-                        table.AddValue("uuid", t.GetId());
+                        table.AddValue("name", t->GetName());
+                        table.AddValue("uuid", t->GetId());
                         tables.AddValue(table);
                     }
 
@@ -203,12 +199,12 @@ bool Lobby::Deliver(uint32_t src_uuid, uint32_t dest_uuid, const std::string &ar
                 bool foundTable = false;
 
                 // Forward it to the table PlayingTable
-                for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+                for (auto &t : mTables)
                 {
-                    if ((*iter)->GetId() == tableId)
+                    if (t->GetId() == tableId)
                     {
                         foundTable = true;
-                        assignedPlace = (*iter)->AddPlayer(src_uuid, nbPlayers);
+                        assignedPlace = t->AddPlayer(src_uuid, nbPlayers);
                         break;
                     }
                 }
@@ -363,15 +359,15 @@ std::uint32_t Lobby::CreateTable(const std::string &tableName, const Tarot::Game
 bool Lobby::DestroyTable(std::uint32_t id)
 {
     bool ret = false;
-    for (auto & t : mTables)
+
+    auto it = find_if(mTables.begin(), mTables.end(), [&](std::unique_ptr<PlayingTable>& t){ return t->GetId() == id; });
+
+    if (it != mTables.end())
     {
-        if (t->GetId() == id)
-        {
-            mTables.erase(it);
-            ret = true;
-            break;
-        }
+        ret = true;
+        mTables.erase(it);
     }
+
     mTableIds.ReleaseId(id);
     return ret;
 }
@@ -397,12 +393,12 @@ void Lobby::RemovePlayerFromTable(std::uint32_t uuid, std::uint32_t tableId, std
     bool removeAllPlayers = false;
 
     // Forward it to the table PlayingTable
-    for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    for (auto &t : mTables)
     {
-        if ((*iter)->GetId() == tableId)
+        if (t->GetId() == tableId)
         {
             // Remove the player from the table, if we are in game, then all are removed
-            removeAllPlayers = (*iter)->RemovePlayer(uuid);
+            removeAllPlayers = t->RemovePlayer(uuid);
         }
     }
 
@@ -504,11 +500,11 @@ std::string Lobby::GetTableName(const std::uint32_t tableId)
     std::string name = "error_table_not_found";
 
     // Forward it to the table PlayingTable
-    for (std::vector<PlayingTable *>::iterator iter = mTables.begin(); iter != mTables.end(); ++iter)
+    for (const auto &t : mTables)
     {
-        if ((*iter)->GetId() == tableId)
+        if (t->GetId() == tableId)
         {
-            name = (*iter)->GetName();
+            name = t->GetName();
         }
     }
 

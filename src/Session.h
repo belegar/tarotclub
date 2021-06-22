@@ -2,6 +2,8 @@
 #define SESSION_H
 
 #include "Network.h"
+#include "ThreadQueue.h"
+#include "TcpClient.h"
 
 class Session
 {
