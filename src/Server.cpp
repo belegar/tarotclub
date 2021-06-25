@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Server.cpp
  *=============================================================================
- * Server, game modes, database and statistics management
+ * Management of raw network protocol
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -30,6 +30,7 @@
 #include "Util.h"
 #include "Server.h"
 #include "System.h"
+#include "Base64Util.h"
 
 tcp::TcpServer::IEvent::~IEvent(){
 
@@ -37,7 +38,7 @@ tcp::TcpServer::IEvent::~IEvent(){
 
 /*****************************************************************************/
 Server::Server(net::IEvent &listener)
-    : mListener(listener)
+    : mNetListener(listener)
     , mTcpServer(*this)
 {
 
@@ -57,11 +58,9 @@ void Server::NewConnection(const tcp::Conn &conn)
     PeerSession session;
     std::vector<Reply> out;
 
-    std::uint32_t uuid = mListener.AddUser(out);
+    std::uint32_t uuid = mNetListener.AddUser(out);
     session.peer = conn.peer;
-    session.proto.SetSecurty("aPdSgVkYp3s6v9y"); // FIXME generate per-user key
     mPeers[uuid] = session;
-
     Send(out);
 }
 /*****************************************************************************/
@@ -74,20 +73,73 @@ void Server::NewConnection(const tcp::Conn &conn)
 void Server::ReadData(const tcp::Conn &conn)
 {
     std::string data;
+
     std::uint32_t uuid = GetUuid(conn.peer);
 
-    if (uuid != Protocol::INVALID_UID)
+    if (uuid > Protocol::INVALID_UID)
     {
         Protocol &proto = mPeers[uuid].proto;
-        proto.Add(conn.payload);
-        Protocol::Header h;
-        while (proto.Parse(data, h))
-        {
-            std::vector<Reply> out;
 
-            //std::cout << "Found one packet with data: " << data << std::endl;
-            mListener.Deliver(h.src_uid, h.dst_uid, data, out);
-            Send(out);
+        if (mPeers[uuid].isPending)
+        {
+            TLogNetwork("Pending peer");
+
+            proto.Add(conn.payload);
+            Protocol::Header h;
+            if (proto.Parse(data, h))
+            {
+                // La donnée transférée est la suivante
+                // identifiant web : "passPhrase" chiffré avec la clé partagée
+                // le tout en ascii, hex pour la partie chiffrée
+                std::vector<std::string> sep = Util::Split(data, ":");
+                if (sep.size() == 2)
+                {
+                    std::scoped_lock<std::mutex> lock(mMutex);
+                    int64_t id = Util::FromString<int64_t>(sep[0]);
+                    // on recherche l'ID dans la liste des clients
+                    if (mAllowedClients.count(id) > 0)
+                    {
+                        // On déchiffre la deuxième partie du payload avec la clé GEK
+                        mPeers[uuid].proto.SetSecurty(mAllowedClients[id].gek);
+                        std::string passPhrase = sep[1]; // ici elle est encore cryptée
+                        mPeers[uuid].proto.DecryptPayload(passPhrase, mAllowedClients[id].passPhrase.size());
+
+                        if (passPhrase == mAllowedClients[id].passPhrase)
+                        {
+                            mPeers[uuid].isPending = false;
+                        }
+                        else
+                        {
+                            TLogNetwork("[SERVER] Bad pass phrase, expected: " + mAllowedClients[id].passPhrase + " decoded: " + passPhrase);
+                        }
+                    }
+                    else
+                    {
+                        TLogNetwork("[SERVER] Unknown client");
+                    }
+                }
+                else
+                {
+                    TLogNetwork("[SERVER] Bad frame size");
+                }
+            }
+            else
+            {
+                TLogNetwork("[SERVER] Parse failure");
+            }
+        }
+        else
+        {
+            proto.Add(conn.payload);
+            Protocol::Header h;
+            while (proto.Parse(data, h))
+            {
+                std::vector<Reply> out;
+
+                //std::cout << "Found one packet with data: " << data << std::endl;
+                mNetListener.Deliver(h.src_uid, h.dst_uid, data, out);
+                Send(out);
+            }
         }
     }
 }
@@ -97,7 +149,7 @@ void Server::ClientClosed(const tcp::Conn &conn)
     std::vector<Reply> out;
     std::uint32_t uuid = GetUuid(conn.peer);
 
-    mListener.RemoveUser(uuid, out);
+    mNetListener.RemoveUser(uuid, out);
     Send(out);
 }
 /*****************************************************************************/
@@ -134,6 +186,16 @@ void Server::Send(const std::vector<Reply> &out)
             }
         }
     }
+}
+/*****************************************************************************/
+void Server::AddClient(int64_t id, const std::string &gek, const std::string &passPhrase)
+{
+    std::scoped_lock<std::mutex> lock(mMutex);
+    Security sec;
+    sec.id = id;
+    sec.gek = gek;
+    sec.passPhrase = passPhrase;
+    mAllowedClients[id] = sec;
 }
 /*****************************************************************************/
 void Server::CloseClients()

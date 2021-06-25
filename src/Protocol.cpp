@@ -37,7 +37,6 @@
 // Specific static UUID
 const std::uint32_t Protocol::INVALID_UID       = 0U;
 const std::uint32_t Protocol::LOBBY_UID         = 1U;
-const std::uint32_t Protocol::WEBSITE_UID       = 2U;
 
 const std::uint32_t Protocol::USERS_UID         = 10U;
 const std::uint32_t Protocol::MAXIMUM_USERS     = 200U;
@@ -48,6 +47,10 @@ const std::uint32_t Protocol::MAXIMUM_TABLES    = 50U;
 const std::uint32_t Protocol::cHeaderSize       = 23U;
 const std::uint32_t Protocol::cTagSize          = 16U;
 const std::uint32_t Protocol::cIVSize           = 12U;
+
+
+const std::uint16_t Protocol::cOptionClearData      = 0U;
+const std::uint16_t Protocol::cOptionCypheredData   = 1U;
 
 /**
  * \page protocol Protocol format
@@ -109,7 +112,7 @@ void Protocol::Encrypt(const std::string &header, const std::string &payload, co
 
     mbedtls_gcm_context ctx;
     mbedtls_gcm_init (&ctx);
-    mbedtls_gcm_setkey (&ctx, MBEDTLS_CIPHER_ID_AES, reinterpret_cast<const unsigned char *>(mUSK.data()), 128);
+    mbedtls_gcm_setkey (&ctx, MBEDTLS_CIPHER_ID_AES, reinterpret_cast<const unsigned char *>(mKey.data()), 128);
     mbedtls_gcm_starts (&ctx, MBEDTLS_GCM_ENCRYPT,
                         reinterpret_cast<const unsigned char *>(iv.data()), 12,
                         reinterpret_cast<const unsigned char *>(header.data()), header.size());
@@ -136,7 +139,7 @@ void Protocol::Encrypt(const std::string &header, const std::string &payload, co
 
 }
 /*****************************************************************************/
-bool Protocol::Decrypt(const std::string &header, uint8_t *ciphered, uint32_t size, std::string &output)
+bool Protocol::Decrypt(const std::string &header, uint8_t *ciphered, uint32_t size, std::string &output) const
 {
     uint8_t tag_computed[cTagSize];
     uint8_t tag[cTagSize];
@@ -152,7 +155,7 @@ bool Protocol::Decrypt(const std::string &header, uint8_t *ciphered, uint32_t si
 
     mbedtls_gcm_context ctx;
     mbedtls_gcm_init (&ctx);
-    mbedtls_gcm_setkey (&ctx, MBEDTLS_CIPHER_ID_AES, reinterpret_cast<const unsigned char *>(mUSK.data()), 128);
+    mbedtls_gcm_setkey (&ctx, MBEDTLS_CIPHER_ID_AES, reinterpret_cast<const unsigned char *>(mKey.data()), 128);
 /*
     int ret = mbedtls_gcm_auth_decrypt(&ctx, plainTextSize,
                                        iv, cIVSize,
@@ -187,7 +190,7 @@ bool Protocol::Decrypt(const std::string &header, uint8_t *ciphered, uint32_t si
 std::string Protocol::Build(std::uint32_t src, std::uint32_t dst, const std::string &arg)
 {
     std::stringstream stream;
-    static const std::uint32_t option = 0U;
+    static const std::uint16_t option = 0U;
 
     stream << std::setfill ('0') << std::setw(2) << std::hex << option;
     stream << ":" << std::setfill ('0') << std::setw(4) << std::hex << src;
@@ -205,14 +208,14 @@ std::string Protocol::Build(std::uint32_t src, std::uint32_t dst, const std::str
     return stream.str();
 }
 /*****************************************************************************/
-void Protocol::SetSecurty(const std::string &usk)
+void Protocol::SetSecurty(const std::string &key)
 {
-    mUSK = usk;
+    mKey = key;
     mRxFrameCounter = 0;
     mTxFrameCounter = 0;
 }
 /*****************************************************************************/
-bool Protocol::ParseUint32(const char* data, std::uint32_t size, std::uint32_t &value)
+bool Protocol::ParseUint32(const char* data, std::uint32_t size, std::uint32_t &value) const
 {
     bool ret = false;
     char *ptr;
@@ -225,6 +228,43 @@ bool Protocol::ParseUint32(const char* data, std::uint32_t size, std::uint32_t &
     return ret;
 }
 /*****************************************************************************/
+bool Protocol::ParseUint16(const char* data, std::uint32_t size, std::uint16_t &value) const
+{
+    bool ret = false;
+    char *ptr;
+    value = std::strtoul(data, &ptr, 16);
+    std::uint32_t comp_size = static_cast<std::uint16_t>(ptr - data);
+    if (size == comp_size)
+    {
+        ret = true;
+    }
+    return ret;
+}
+/*****************************************************************************/
+// Format d'entrée : IV + cyphered data + Tag
+// L'ensemble est transmis en ascii hex
+// Format de sortie : clear data
+bool Protocol::DecryptPayload(std::string &data, uint32_t payloadSize) const
+{
+    uint32_t hexPayloadSize = (cIVSize + payloadSize + cTagSize) * 2;
+    std::uint32_t computedSize = cHeaderSize + hexPayloadSize;
+
+    bool valid = false;
+    if (data.size() >= computedSize)
+    {
+        std::string header = mPacket.substr(0, cHeaderSize);
+        std::string hexString = data.substr(cHeaderSize, hexPayloadSize);
+        uint32_t cipheredPayloadSize = hexPayloadSize / 2;
+        uint8_t ciphered[cipheredPayloadSize];
+
+        // Transformation en ascii > décimal
+        Util::HexStringToUint8(hexString, ciphered);
+        valid = Decrypt(header, ciphered, cipheredPayloadSize, data);
+        data.erase(0, computedSize);
+    }
+    return valid;
+}
+/*****************************************************************************/
 bool Protocol::Parse(std::string &payload, Header &h)
 {
     bool valid = false;
@@ -235,22 +275,23 @@ bool Protocol::Parse(std::string &payload, Header &h)
         {
             if (h.payload_size > 0)
             {
-                // Compute if we have a full payload
-                uint32_t hexPayloadSize = (cIVSize + h.payload_size + cTagSize) * 2;
-                std::uint32_t computedSize = cHeaderSize + hexPayloadSize;
-                if (mPacket.size() >= computedSize)
+                if (h.option == Protocol::cOptionCypheredData)
                 {
-                    std::string header = mPacket.substr(0, cHeaderSize);
-                    std::string hexString = mPacket.substr(cHeaderSize, hexPayloadSize);
-                    uint32_t cipheredPayloadSize = hexPayloadSize / 2;
-                    uint8_t ciphered[cipheredPayloadSize];
-                    Util::HexStringToUint8(hexString, ciphered);
-                    valid = Decrypt(header, ciphered, cipheredPayloadSize, payload);
-                    mPacket.erase(0, computedSize);
+                    // Compute if we have a full payload
+                    valid = DecryptPayload(mPacket, h.payload_size);
                 }
                 else
                 {
-                    TLogNetwork("Proto: partial packet received, waiting for full one");
+                    std::uint32_t computedSize = cHeaderSize +  h.payload_size;
+                    if (mPacket.size() >= computedSize)
+                    {
+                        payload = mPacket.substr(cHeaderSize, h.payload_size);
+                        mPacket.erase(0, computedSize);
+                    }
+                    else
+                    {
+                        TLogNetwork("Proto: partial packet received, waiting for full one");
+                    }
                 }
             }
             else
@@ -269,7 +310,7 @@ bool Protocol::Parse(std::string &payload, Header &h)
     return valid;
 }
 /*****************************************************************************/
-bool Protocol::Extract(const std::string &headerString, Header &h)
+bool Protocol::Extract(const std::string &headerString, Header &h) const
 {
     bool ret = false;
 
@@ -285,7 +326,7 @@ bool Protocol::Extract(const std::string &headerString, Header &h)
             std::uint32_t size = end-start;
             if ((cpt == 0U) && (size == 2U))
             {
-                ret = ParseUint32(&headerString[start], size, h.option);
+                ret = ParseUint16(&headerString[start], size, h.option);
             }
             else if ((cpt == 1U) && (size == 4U))
             {

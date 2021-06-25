@@ -26,13 +26,15 @@ private:
     Lobby &mLobby;
     bool mQuitThread = false;
     bool mRegistered = false;
-    std::string mSSK;
+
     std::thread mWebThread;
     std::string mHost;
     ServerOptions mOptions;
 
     void WebThread();
     std::string UpdateServerStatus();
+
+    void HandleCommand(const std::string &cmd, const JsonObject &json);
 };
 
 #endif // SERVICE_WEBSITE_CONNECTION_H

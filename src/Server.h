@@ -1,7 +1,7 @@
 /*=============================================================================
  * TarotClub - Server.h
  *=============================================================================
- * Server, game modes, database and statistics management
+ * Management of raw network protocol
  *=============================================================================
  * TarotClub ( http://www.tarotclub.fr ) - This file is part of TarotClub
  * Copyright (C) 2003-2999 - Anthony Rabine
@@ -43,7 +43,9 @@
  * @brief The Tarot TCP/IP Server class
  *
  * This server does not know nothing about the tarot, it is only the network part.
- * The TCP/IP server class has a thread, so we execute everything on that context.
+ * The TCP/IP server class is a thread, so we execute everything on that context.
+ *
+ * Beware to protect any shared data with external access.
  *
  */
 class Server : private tcp::TcpServer::IEvent
@@ -55,9 +57,11 @@ public:
     void Stop();
     void Send(const std::vector<Reply> &out);
     bool IsStarted() { return mTcpServer.IsStarted(); }
+    void AddClient(int64_t id, const std::string &gek, const std::string &passPhrase);
 
 private:
     // From TcpServer interface
+    // ALl these callbacks are executed within the same thread
     virtual void NewConnection(const tcp::Conn &conn);
     virtual void ReadData(const tcp::Conn &conn);
     virtual void ClientClosed(const tcp::Conn &conn);
@@ -66,15 +70,29 @@ private:
     struct PeerSession {
         Protocol proto;
         tcp::Peer peer;
+        bool isPending;
+        PeerSession()
+            : isPending(true)
+        {
+
+        }
     };
 
-    net::IEvent &mListener;
+    struct Security {
+        int64_t id;
+        std::string gek;
+        std::string passPhrase;
+    };
+
+    net::IEvent &mNetListener;
     tcp::TcpServer       mTcpServer;
+    std::mutex  mMutex;
     std::map<std::uint32_t, PeerSession> mPeers; // uuid <--> GameSession
-    std::map<std::uint32_t, std::string> mTokens; // allowed peers on this server
+    std::map<std::int64_t, Security> mAllowedClients; // allowed peers on this server, key=playerId, value: GEK
 
     void CloseClients();
     std::uint32_t GetUuid(const tcp::Peer &peer);
+    bool IsPending(const tcp::Peer &peer);
 };
 
 

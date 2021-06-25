@@ -35,7 +35,6 @@ public:
     // Reserved UUIDs: [0..9]
     static const std::uint32_t INVALID_UID;
     static const std::uint32_t LOBBY_UID;      //!< The lobby itself
-    static const std::uint32_t WEBSITE_UID;
 
     static const std::uint32_t USERS_UID;      //!< Start of users UUID
     static const std::uint32_t MAXIMUM_USERS;  //!< Maximum number of users
@@ -51,9 +50,13 @@ public:
     static const std::uint32_t cTagSize;
     static const std::uint32_t cIVSize;
 
+    // Options field
+    static const std::uint16_t cOptionClearData;
+    static const std::uint16_t cOptionCypheredData;
+
     struct Header {
 
-        std::uint32_t option;
+        std::uint16_t option;
         std::uint32_t src_uid;
         std::uint32_t dst_uid;
         std::uint32_t payload_size;
@@ -75,21 +78,20 @@ public:
     void Add(const std::string &packet) { mPacket += packet; }
     bool Parse(std::string &payload, Header &h);
     std::string Build(std::uint32_t src, std::uint32_t dst, const std::string &arg);
-
-    // Session Encryption Key
-    // Session Signature Key
-    void SetSecurty(const std::string &usk);
+    bool DecryptPayload(std::string &frame, uint32_t payloadSize) const;
+    void SetSecurty(const std::string &key);
 
 private:
     std::string mPacket;
-    std::string mUSK;
+    std::string mKey;
     uint32_t mTxFrameCounter = 0;
     uint32_t mRxFrameCounter = 0;
 
-    bool ParseUint32(const char *data, uint32_t size, std::uint32_t &value);
-    bool Extract(const std::string &headerString, Header &h);
+    bool ParseUint32(const char *data, uint32_t size, std::uint32_t &value) const;
+    bool Extract(const std::string &headerString, Header &h) const;
     void Encrypt(const std::string &header, const std::string &payload, const std::string &iv, std::string &output);
-    bool Decrypt(const std::string &header, uint8_t *ciphered, uint32_t size, std::string &output);
+    bool Decrypt(const std::string &header, uint8_t *ciphered, uint32_t size, std::string &output) const;
+    bool ParseUint16(const char *data, std::uint32_t size, uint16_t &value) const;
 };
 
 #endif // PROTOCOL_H
